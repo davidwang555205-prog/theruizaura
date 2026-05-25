@@ -1,4 +1,5 @@
 import type {
+  ActionSafetyLevel,
   AgeRange,
   AtmosphereParams,
   OutfitRecommendation,
@@ -20,6 +21,7 @@ import {
   FOOT_SHOE_FIT_CONTROL,
   FULL_BODY_MIRROR_SELFIE_CONTROL,
   FULL_SHOE_VISIBILITY_MIRROR_SELFIE,
+  HIGH_RISK_ON_FOOT_POSE_PROTECTION,
   HOTEL_BACKGROUND_ORDER_CONTROL,
   HOTEL_LIGHTING_REFINEMENT_CONTROL,
   HOTEL_MIRROR_SELFIE_ANTI_CHEAPNESS_CONTROL,
@@ -28,10 +30,12 @@ import {
   HUMAN_PROPORTION_CONTROL,
   MATURE_CUSTOMER_LIFESTYLE_CONTROL,
   MIRROR_COMPOSITION_AND_PROPORTION_CONTROL,
+  MIRROR_SHOE_PRESERVATION_CONTROL,
   MIRROR_SELFIE_BASE_CONTROL,
   MIRROR_SELFIE_EXPRESSION_DE_EMPHASIS,
   MULTI_IMAGE_CONSISTENCY_CONTROL,
   NEGATIVE_CONTROL,
+  NO_SNEAKER_RECONSTRUCTION_CONTROL,
   NON_PRODUCT_ATMOSPHERE_CONTROL,
   ON_FOOT_PROPORTION_CONTROL,
   OUTFIT_AND_SHOE_MIRROR_EMPHASIS,
@@ -42,13 +46,20 @@ import {
   SEATED_MIRROR_SELFIE_CONTROL,
   SHOE_EMPHASIS_SEATED_MIRROR_SELFIE,
   SHOE_READABILITY_THREE_QUARTER_MIRROR_SELFIE,
+  SHOE_SAFE_CAMERA_ANGLE_CONTROL,
   SHOELACE_ANTI_CLIPPING_CONTROL,
+  SNEAKER_SHAPE_LOCK_PRIORITY,
+  SNEAKER_STRUCTURAL_CHECKLIST,
   THREE_QUARTER_MIRROR_PROPORTION_CONTROL,
   THREE_QUARTER_MIRROR_SELFIE_CONTROL,
+  TROUSER_HEM_AND_SHOE_COLLAR_SEPARATION_CONTROL,
   UNIFIED_CONTROL_PROMPT
 } from "../data/promptBlocks";
 import {
   ACTION_OPTIONS,
+  ACTION_REPLACEMENT_SUGGESTIONS,
+  ACTION_SAFETY_LEVEL_LABELS,
+  ACTION_SAFETY_LEVELS,
   AUTO_ACTION_BY_SCENE,
   BASIC_SCENE_BLOCKS,
   DEFAULT_THREE_SCENES,
@@ -83,7 +94,14 @@ const wornActionKeywords = [
   "下车动作",
   "推门出门",
   "拿包准备出门",
+  "从后座拿包",
+  "打开行李箱",
+  "站在电梯口等待",
+  "轻微转身",
   "牵小朋友手",
+  "站立",
+  "静态站立",
+  "玄关站立准备出门",
   MIRROR_SELFIE_ACTIONS.full,
   MIRROR_SELFIE_ACTIONS.threeQuarter,
   MIRROR_SELFIE_ACTIONS.seated
@@ -147,14 +165,34 @@ function resolveSelectedScenes(params: ProductParams) {
   return [params.scenes[0] || "01"];
 }
 
+function getActionSafetyLevel(action: string): ActionSafetyLevel {
+  return ACTION_SAFETY_LEVELS[action] ?? "B";
+}
+
+function isHighRiskAction(action: string) {
+  return getActionSafetyLevel(action) === "C";
+}
+
+function prioritizeSafeAutoActions(actions: string[]) {
+  const fallback = actions.length ? actions : ["慢走一步"];
+  const safeActions = fallback.filter((action) => getActionSafetyLevel(action) === "A");
+  if (safeActions.length) return safeActions;
+
+  const cautiousActions = fallback.filter((action) => getActionSafetyLevel(action) === "B");
+  if (cautiousActions.length) return cautiousActions;
+
+  return fallback;
+}
+
 function resolveActionsForScene(sceneId: string, selectedAction: string) {
   if (selectedAction !== "自动匹配") return [selectedAction];
 
-  return (
+  const actions =
     MATURE_AUTO_ACTION_BY_SCENE[sceneId] ??
     AUTO_ACTION_BY_SCENE[sceneId] ??
-    ["慢走一步"]
-  );
+    ["慢走一步"];
+
+  return prioritizeSafeAutoActions(actions);
 }
 
 function isKnownManualAction(action: string) {
@@ -267,6 +305,64 @@ function getHotelMirrorSelfieContent() {
   ]);
 }
 
+function formatSafetyLevelLine(action: string) {
+  const level = getActionSafetyLevel(action);
+  return `- ${action}: ${ACTION_SAFETY_LEVEL_LABELS[level]}`;
+}
+
+function formatSneakerSafetyModule(
+  params: ProductParams,
+  scenes: SceneBlock[],
+  actionLines: string[]
+) {
+  const sceneActionSummary = scenes
+    .map((scene, index) => {
+      const actions = resolveActionsForScene(scene.id, params.action);
+      const prefix =
+        params.generationMode === "three"
+          ? `Image ${index + 1} - ${scene.shortLabel}`
+          : scene.shortLabel;
+      return `${prefix}:\n${actions.map(formatSafetyLevelLine).join("\n")}`;
+    })
+    .join("\n\n");
+  const uniqueActions = Array.from(new Set(actionLines));
+  const highRiskActions = uniqueActions.filter(isHighRiskAction);
+  const replacementSuggestions = highRiskActions
+    .map((action) => ACTION_REPLACEMENT_SUGGESTIONS[action] && `- ${action} -> 建议替代：${ACTION_REPLACEMENT_SUGGESTIONS[action]}`)
+    .filter(Boolean)
+    .join("\n");
+  const autoMatchNote =
+    params.action === "自动匹配"
+      ? "Automatic action safety rule: 自动匹配已优先筛选 A级安全动作；如果当前场景没有 A级动作，才使用 B级谨慎动作，默认避开 C级高风险动作。"
+      : undefined;
+  const highRiskProtection = highRiskActions.length
+    ? compactJoin([
+        `高风险动作修复提示:
+该动作容易导致鞋子穿模或鞋型变形，建议改用安全动作。
+
+Triggered high-risk actions:
+${highRiskActions.map((action) => `- ${action}`).join("\n")}`,
+        HIGH_RISK_ON_FOOT_POSE_PROTECTION,
+        replacementSuggestions ? `建议替代动作:
+${replacementSuggestions}` : undefined
+      ])
+    : `高风险动作修复提示:
+当前动作未触发 C级高风险动作。继续保持稳定站姿、慢动作、清晰鞋口和真实鞋底接触。`;
+
+  return compactJoin([
+    SNEAKER_SHAPE_LOCK_PRIORITY,
+    NO_SNEAKER_RECONSTRUCTION_CONTROL,
+    `当前动作安全等级:
+${sceneActionSummary}`,
+    autoMatchNote,
+    highRiskProtection,
+    TROUSER_HEM_AND_SHOE_COLLAR_SEPARATION_CONTROL,
+    SHOE_SAFE_CAMERA_ANGLE_CONTROL,
+    uniqueActions.some(isMirrorSelfieAction) ? MIRROR_SHOE_PRESERVATION_CONTROL : undefined,
+    SNEAKER_STRUCTURAL_CHECKLIST
+  ]);
+}
+
 function formatOutfit(outfit: OutfitRecommendation, sceneLabels: string[]) {
   return compactJoin(
     [
@@ -370,8 +466,13 @@ export function generateProductPrompt(params: ProductParams): PromptOutput {
   const sceneLabels = scenes.map((scene) => scene.shortLabel);
   const actionModule = formatActionModule(params, scenes);
   const actionLines = scenes.flatMap((scene) => resolveActionsForScene(scene.id, params.action));
+  const hasCautiousOrHighRiskAction = actionLines.some(
+    (action) => getActionSafetyLevel(action) !== "A"
+  );
+  const hasHighRiskAction = actionLines.some(isHighRiskAction);
   const hasModel = shouldUseModelControls(params, sceneIds);
-  const needsFootFit = shouldUseFootFitControl(sceneIds, actionLines);
+  const needsFootFit =
+    shouldUseFootFitControl(sceneIds, actionLines) || hasCautiousOrHighRiskAction || hasHighRiskAction;
   const needsShoelaces = shouldUseShoelaceControl(actionLines);
   const mirrorSelfieSystem = getMirrorSelfieSystemContent(
     params.action,
@@ -411,6 +512,10 @@ Create one complete single-image prompt. Do not force multi-image consistency. U
     { title: "总控提示词", content: compactJoin([BRAND_RULE, UNIFIED_CONTROL_PROMPT, generationModeControl]) },
     { title: "客户感受核心", content: CUSTOMER_FEELING_CORE },
     { title: "产品真实性控制", content: PRODUCT_ACCURACY_CONTROL },
+    {
+      title: "鞋型锁定与上脚安全 / Sneaker Shape Lock + Safe On-foot Pose",
+      content: formatSneakerSafetyModule(params, scenes, actionLines)
+    },
     ...(params.generationMode === "three"
       ? [{ title: "多图一致性控制", content: MULTI_IMAGE_CONSISTENCY_CONTROL }]
       : []),

@@ -14,6 +14,8 @@ export type LogoOption = "small" | "none";
 
 export type PeopleOption = "model" | "shoe-only" | "auto";
 
+export type ActionSafetyLevel = "A" | "B" | "C";
+
 export type ProductParams = {
   shoe: string;
   customShoe: string;

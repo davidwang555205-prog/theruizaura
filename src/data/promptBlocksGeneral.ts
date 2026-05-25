@@ -69,6 +69,8 @@ Avoid stiff seated pose, exaggerated long legs in seated selfie, oversized feet,
 
 Avoid cheap hotel selfie feeling, bathroom-counter clutter, toilet-side mirror selfie, harsh vanity light, strong yellow hotel light, messy luggage explosion, tourist hotel photo mood, influencer hotel check-in energy, vacation-girl selfie styling, flashy hotel branding, loud carpet or marble patterns, minibar clutter, towel clutter, luxury bragging mood, and any hotel mirror selfie that feels noisy, cheap, messy, or visually low-end.
 
+Avoid sneaker reconstruction, redesigned sneaker, altered toe shape, altered outsole thickness, changed side panel proportion, collapsed toe box, melted upper, warped outsole, compressed heel counter, changed tongue shape, incorrect lace route, pants fused into shoe collar, trousers entering shoe opening, foot breaking through upper, shoe reshaped by foot, shoe stretched by pose, sneaker simplified into generic shoe, mirror-distorted sneaker, blurred sneaker structure, missing sneaker parts, mismatched left and right shoes, unstable shoe-ground contact, and any deformation of the uploaded reference sneaker.
+
 For non-product atmosphere images, avoid generic Pinterest moodboard feeling, influencer aesthetic clichés, over-decorated interiors, loud trendy props, fake luxury staging, chaotic family clutter, empty cold minimalism, social-media brunch styling, tourism imagery, status-display luxury, and any visual language that feels disconnected from a refined 30-55 year old urban woman's real daily life.
 
 The shoe must remain the main subject in product scenes, but it should feel naturally integrated into the woman's daily life.

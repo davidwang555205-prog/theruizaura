@@ -12,6 +12,8 @@ import type {
 import TemplateLibrary from "./components/TemplateLibrary";
 import {
   ACTION_OPTIONS,
+  ACTION_REPLACEMENT_SUGGESTIONS,
+  ACTION_SAFETY_LEVELS,
   BASIC_SCENE_BLOCKS,
   QUICK_THREE_SCENE_SETS
 } from "./data/sceneBlocks";
@@ -196,6 +198,8 @@ function App() {
   const allProductScenes = [...BASIC_SCENE_BLOCKS, ...MATURE_SCENE_BLOCKS];
   const brandAtmosphereScenes = ATMOSPHERE_SCENES.filter((scene) => scene.category === "brand");
   const customerAtmosphereScenes = ATMOSPHERE_SCENES.filter((scene) => scene.category === "customer");
+  const selectedActionSafetyLevel = ACTION_SAFETY_LEVELS[productParams.action];
+  const selectedActionReplacement = ACTION_REPLACEMENT_SUGGESTIONS[productParams.action];
 
   const selectTab = (tab: AppTab) => {
     setActiveTab(tab);
@@ -303,6 +307,9 @@ function App() {
             </p>
             <p>
               全身对镜自拍更适合完整展示 OOTD；3/4 身对镜自拍更适合自然社交媒体穿搭记录；坐姿对镜自拍更适合生活化上脚细节和酒店/居家穿搭记录。
+            </p>
+            <p>
+              系统已加入鞋型锁定与上脚安全分级。自动匹配动作时会优先选择更不容易导致鞋子穿模和鞋型变形的安全动作。复杂动作如系鞋带、半穿鞋、蹲下、交叉腿等会被标记为高风险动作。
             </p>
           </div>
         </div>
@@ -559,6 +566,14 @@ function App() {
                 <option key={option}>{option}</option>
               ))}
             </select>
+            {selectedActionSafetyLevel === "C" && (
+              <div className="rounded-2xl border border-aura-clay/40 bg-aura-sand/45 p-3 text-sm leading-6 text-aura-charcoal">
+                <p>该动作容易导致鞋子穿模或鞋型变形，建议改用安全动作。</p>
+                {selectedActionReplacement && (
+                  <p className="mt-1 text-aura-muted">建议替代：{selectedActionReplacement}</p>
+                )}
+              </div>
+            )}
           </Field>
           <Field label="是否需要 Logo">
             <select
