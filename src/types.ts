@@ -16,6 +16,13 @@ export type PeopleOption = "model" | "shoe-only" | "auto";
 
 export type ActionSafetyLevel = "A" | "B" | "C";
 
+export type PromptDetailLevel = "compact" | "standard" | "full";
+
+export type PromptStats = {
+  charCount: number;
+  wordCount: number;
+};
+
 export type ProductParams = {
   shoe: string;
   customShoe: string;
@@ -31,6 +38,7 @@ export type ProductParams = {
   action: string;
   logo: LogoOption;
   people: PeopleOption;
+  promptDetailLevel: PromptDetailLevel;
 };
 
 export type AtmosphereParams = {
@@ -39,6 +47,7 @@ export type AtmosphereParams = {
   shoeAllowance: string;
   peopleAllowance: string;
   extraDescription: string;
+  promptDetailLevel: PromptDetailLevel;
 };
 
 export type PromptSection = {
@@ -49,7 +58,14 @@ export type PromptSection = {
 export type PromptOutput = {
   sections: PromptSection[];
   finalPrompt: string;
+  currentPrompt: string;
+  compactPrompt: string;
+  standardPrompt: string;
+  fullDebugPrompt: string;
   allModules: string;
+  currentDetailLevel: PromptDetailLevel;
+  stats: Record<PromptDetailLevel, PromptStats>;
+  triggeredModules: string[];
 };
 
 export type SceneBlock = {
@@ -59,6 +75,7 @@ export type SceneBlock = {
   englishLabel: string;
   category: "basic" | "mature";
   prompt: string;
+  compactPrompt?: string;
 };
 
 export type AtmosphereScene = {
@@ -66,6 +83,7 @@ export type AtmosphereScene = {
   label: string;
   category: "brand" | "customer";
   prompt: string;
+  compactPrompt?: string;
   customerExpectation?: string;
 };
 

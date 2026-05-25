@@ -5,6 +5,7 @@ import type {
   AtmosphereParams,
   BuilderMode,
   ProductParams,
+  PromptDetailLevel,
   PromptOutput,
   Season,
   TemplateItem
@@ -79,6 +80,30 @@ const peopleAllowanceOptions = [
   "可出现人物但不能成为主角"
 ];
 
+const promptDetailOptions: Array<{ value: PromptDetailLevel; label: string; description: string }> = [
+  {
+    value: "compact",
+    label: "精简版 Compact",
+    description: "推荐真实生图，短而集中。"
+  },
+  {
+    value: "standard",
+    label: "标准版 Standard",
+    description: "适合重要产品图，保留必要修复。"
+  },
+  {
+    value: "full",
+    label: "完整调试版 Full Debug",
+    description: "用于排查鞋型、穿模和镜拍问题。"
+  }
+];
+
+const promptDetailLabels: Record<PromptDetailLevel, string> = {
+  compact: "Compact / 精简版",
+  standard: "Standard / 标准版",
+  full: "Full Debug / 完整调试版"
+};
+
 const initialProductParams: ProductParams = {
   shoe: "Cloud Dancer 云舞者",
   customShoe: "",
@@ -93,7 +118,8 @@ const initialProductParams: ProductParams = {
   scenes: ["01"],
   action: "自动匹配",
   logo: "small",
-  people: "model"
+  people: "model",
+  promptDetailLevel: "compact"
 };
 
 const initialAtmosphereParams: AtmosphereParams = {
@@ -101,7 +127,8 @@ const initialAtmosphereParams: AtmosphereParams = {
   usage: "品牌氛围",
   shoeAllowance: "不出现鞋子",
   peopleAllowance: "不出现人物",
-  extraDescription: ""
+  extraDescription: "",
+  promptDetailLevel: "compact"
 };
 
 const inputClass =
@@ -127,16 +154,17 @@ function Field({
 function OutputPanel({
   title,
   output,
-  onCopyFinal,
-  onCopyAll,
+  onCopyText,
   copyStatus
 }: {
   title: string;
   output: PromptOutput;
-  onCopyFinal: () => void;
-  onCopyAll: () => void;
+  onCopyText: (text: string, message: string) => void;
   copyStatus: string;
 }) {
+  const currentStats = output.stats[output.currentDetailLevel];
+  const compactTooLong = output.stats.compact.wordCount > 2000;
+
   return (
     <aside className="rounded-[28px] bg-aura-porcelain/95 p-5 shadow-aura ring-1 ring-aura-beige/70 lg:sticky lg:top-6 lg:max-h-[calc(100vh-3rem)]">
       <div className="flex flex-col gap-3 border-b border-aura-beige/70 pb-5 sm:flex-row sm:items-center sm:justify-between">
@@ -147,14 +175,35 @@ function OutputPanel({
         <div className="flex flex-wrap gap-2">
           <button
             type="button"
-            onClick={onCopyFinal}
+            onClick={() => onCopyText(output.currentPrompt, "已复制当前版本提示词。")}
             className="rounded-2xl bg-aura-charcoal px-4 py-2 text-sm font-medium text-aura-porcelain hover:bg-aura-muted"
           >
-            一键复制最终提示词
+            一键复制当前版本
           </button>
           <button
             type="button"
-            onClick={onCopyAll}
+            onClick={() => onCopyText(output.compactPrompt, "已复制 Compact 精简提示词。")}
+            className="rounded-2xl bg-aura-sage px-4 py-2 text-sm font-medium text-white hover:bg-aura-clay"
+          >
+            复制 Compact
+          </button>
+          <button
+            type="button"
+            onClick={() => onCopyText(output.standardPrompt, "已复制 Standard 标准提示词。")}
+            className="rounded-2xl bg-aura-beige px-4 py-2 text-sm font-medium text-aura-charcoal hover:bg-aura-sand"
+          >
+            复制 Standard
+          </button>
+          <button
+            type="button"
+            onClick={() => onCopyText(output.fullDebugPrompt, "已复制 Full Debug 完整调试提示词。")}
+            className="rounded-2xl bg-aura-cream px-4 py-2 text-sm font-medium text-aura-charcoal ring-1 ring-aura-beige hover:bg-aura-sand"
+          >
+            复制 Full Debug
+          </button>
+          <button
+            type="button"
+            onClick={() => onCopyText(output.allModules, "已复制全部模块。")}
             className="rounded-2xl bg-aura-beige px-4 py-2 text-sm font-medium text-aura-charcoal hover:bg-aura-sand"
           >
             复制全部模块
@@ -163,6 +212,33 @@ function OutputPanel({
       </div>
 
       {copyStatus && <p className="mt-3 text-sm text-aura-muted">{copyStatus}</p>}
+      <div className="mt-4 grid gap-3 rounded-[20px] border border-aura-beige/70 bg-white/65 p-4 text-sm text-aura-muted">
+        <div className="grid gap-2 sm:grid-cols-3">
+          <div>
+            <span className="block text-xs text-aura-muted">当前详细程度</span>
+            <strong className="mt-1 block text-aura-charcoal">
+              {promptDetailLabels[output.currentDetailLevel]}
+            </strong>
+          </div>
+          <div>
+            <span className="block text-xs text-aura-muted">字符数</span>
+            <strong className="mt-1 block text-aura-charcoal">{currentStats.charCount}</strong>
+          </div>
+          <div>
+            <span className="block text-xs text-aura-muted">英文词数</span>
+            <strong className="mt-1 block text-aura-charcoal">{currentStats.wordCount}</strong>
+          </div>
+        </div>
+        <div>
+          <span className="block text-xs text-aura-muted">当前触发模块</span>
+          <p className="mt-1 leading-6">{output.triggeredModules.join(" / ")}</p>
+        </div>
+        {compactTooLong && (
+          <p className="rounded-2xl bg-aura-sand/50 px-3 py-2 text-aura-charcoal">
+            当前提示词偏长，建议减少高风险动作或切换到单图模式。
+          </p>
+        )}
+      </div>
 
       <div className="aura-scrollbar mt-5 space-y-4 overflow-y-auto pr-1 lg:max-h-[calc(100vh-13rem)]">
         {output.sections.map((section) => (
@@ -244,7 +320,8 @@ function App() {
       setProductParams((prev) => ({
         ...prev,
         ...template.productParams,
-        scenes: template.productParams?.scenes ?? prev.scenes
+        scenes: template.productParams?.scenes ?? prev.scenes,
+        promptDetailLevel: template.productParams?.promptDetailLevel ?? "compact"
       }));
       setActiveTab("product");
       setCurrentBuilderMode("product");
@@ -253,7 +330,8 @@ function App() {
     if (template.category === "atmosphere" && template.atmosphereParams) {
       setAtmosphereParams((prev) => ({
         ...prev,
-        ...template.atmosphereParams
+        ...template.atmosphereParams,
+        promptDetailLevel: template.atmosphereParams?.promptDetailLevel ?? "compact"
       }));
       setActiveTab("atmosphere");
       setCurrentBuilderMode("atmosphere");
@@ -445,6 +523,33 @@ function App() {
             </select>
           </Field>
         </div>
+
+        <Field label="提示词详细程度 / Prompt Detail Level">
+          <div className="grid gap-2 rounded-2xl bg-aura-cream p-1 md:grid-cols-3">
+            {promptDetailOptions.map((option) => (
+              <button
+                type="button"
+                key={option.value}
+                onClick={() =>
+                  setProductParams((prev) => ({
+                    ...prev,
+                    promptDetailLevel: option.value
+                  }))
+                }
+                className={`rounded-xl px-3 py-2 text-left text-sm ${
+                  productParams.promptDetailLevel === option.value
+                    ? "bg-white text-aura-charcoal shadow-sm"
+                    : "text-aura-muted"
+                }`}
+              >
+                <span className="block font-medium">{option.label}</span>
+                <span className="mt-1 block text-xs leading-5 opacity-75">
+                  {option.description}
+                </span>
+              </button>
+            ))}
+          </div>
+        </Field>
 
         <div className="grid gap-4 md:grid-cols-2">
           <Field label="穿搭方案模式">
@@ -639,6 +744,33 @@ function App() {
       </div>
 
       <div className="mt-5 space-y-5">
+        <Field label="提示词详细程度 / Prompt Detail Level">
+          <div className="grid gap-2 rounded-2xl bg-aura-cream p-1 md:grid-cols-3">
+            {promptDetailOptions.map((option) => (
+              <button
+                type="button"
+                key={option.value}
+                onClick={() =>
+                  setAtmosphereParams((prev) => ({
+                    ...prev,
+                    promptDetailLevel: option.value
+                  }))
+                }
+                className={`rounded-xl px-3 py-2 text-left text-sm ${
+                  atmosphereParams.promptDetailLevel === option.value
+                    ? "bg-white text-aura-charcoal shadow-sm"
+                    : "text-aura-muted"
+                }`}
+              >
+                <span className="block font-medium">{option.label}</span>
+                <span className="mt-1 block text-xs leading-5 opacity-75">
+                  {option.description}
+                </span>
+              </button>
+            ))}
+          </div>
+        </Field>
+
         <Field label="配图类型">
           <select
             value={atmosphereParams.imageType}
@@ -764,18 +896,14 @@ function App() {
                 title="产品图 / 模特图提示词"
                 output={productOutput}
                 copyStatus={copyStatus}
-                onCopyFinal={() => copyText(productOutput.finalPrompt, "已复制最终提示词。")}
-                onCopyAll={() => copyText(productOutput.allModules, "已复制全部模块。")}
+                onCopyText={copyText}
               />
             ) : (
               <OutputPanel
                 title="非产品氛围提示词"
                 output={atmosphereOutput}
                 copyStatus={copyStatus}
-                onCopyFinal={() =>
-                  copyText(atmosphereOutput.finalPrompt, "已复制最终提示词。")
-                }
-                onCopyAll={() => copyText(atmosphereOutput.allModules, "已复制全部模块。")}
+                onCopyText={copyText}
               />
             )}
           </div>

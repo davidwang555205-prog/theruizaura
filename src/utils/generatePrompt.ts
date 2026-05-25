@@ -4,6 +4,7 @@ import type {
   AtmosphereParams,
   OutfitRecommendation,
   ProductParams,
+  PromptDetailLevel,
   PromptOutput,
   PromptSection,
   SceneBlock
@@ -11,51 +12,75 @@ import type {
 import {
   AGE_BODY_SUPPLEMENTS,
   AGE_PROMPTS,
+  ATMOSPHERE_BRAND_COMPACT,
+  ATMOSPHERE_NEGATIVE_COMPACT,
   ATMOSPHERE_NEGATIVE_CONTROL,
   BODY_PROPORTION_CONTROL,
+  BRAND_COMPACT,
   BRAND_RULE,
+  CAMERA_COMPACT,
   CAMERA_CONTROL,
+  CORE_NEGATIVE_COMPACT,
+  CUSTOMER_FEELING_COMPACT,
   CUSTOMER_FEELING_CORE,
   FACIAL_EXPRESSION_CONTROL,
   FACE_HIDDEN_MIRROR_SELFIE_CONTROL,
+  FOOT_SHOE_FIT_COMPACT,
   FOOT_SHOE_FIT_CONTROL,
   FULL_BODY_MIRROR_SELFIE_CONTROL,
   FULL_SHOE_VISIBILITY_MIRROR_SELFIE,
+  HIGH_RISK_ON_FOOT_COMPACT,
   HIGH_RISK_ON_FOOT_POSE_PROTECTION,
   HOTEL_BACKGROUND_ORDER_CONTROL,
   HOTEL_LIGHTING_REFINEMENT_CONTROL,
+  HOTEL_MIRROR_COMPACT,
   HOTEL_MIRROR_SELFIE_ANTI_CHEAPNESS_CONTROL,
   HOTEL_MIRROR_SELFIE_MOOD_CONTROL,
   HOTEL_SPACE_SELECTION_CONTROL,
+  HUMAN_PROPORTION_COMPACT,
   HUMAN_PROPORTION_CONTROL,
+  LIFELIKE_EXPRESSION_COMPACT,
+  MATURE_CUSTOMER_COMPACT,
   MATURE_CUSTOMER_LIFESTYLE_CONTROL,
   MIRROR_COMPOSITION_AND_PROPORTION_CONTROL,
-  MIRROR_SHOE_PRESERVATION_CONTROL,
+  MIRROR_EXPRESSION_DE_EMPHASIS_COMPACT,
   MIRROR_SELFIE_BASE_CONTROL,
+  MIRROR_SELFIE_COMPACT,
   MIRROR_SELFIE_EXPRESSION_DE_EMPHASIS,
+  MIRROR_SHOE_PRESERVATION_CONTROL,
+  MODEL_BODY_COMPACT,
+  MULTI_IMAGE_CONSISTENCY_COMPACT,
   MULTI_IMAGE_CONSISTENCY_CONTROL,
   NEGATIVE_CONTROL,
   NO_SNEAKER_RECONSTRUCTION_CONTROL,
   NON_PRODUCT_ATMOSPHERE_CONTROL,
+  ON_FOOT_PROPORTION_COMPACT,
   ON_FOOT_PROPORTION_CONTROL,
   OUTFIT_AND_SHOE_MIRROR_EMPHASIS,
   PHONE_HAND_REALISM_CONTROL,
+  PRODUCT_ACCURACY_COMPACT,
   PRODUCT_ACCURACY_CONTROL,
   SEATED_BODY_PROPORTION_CONTROL,
+  SEATED_MIRROR_COMPACT,
   SEATED_MIRROR_COMPOSITION_CONTROL,
   SEATED_MIRROR_SELFIE_CONTROL,
   SHOE_EMPHASIS_SEATED_MIRROR_SELFIE,
   SHOE_READABILITY_THREE_QUARTER_MIRROR_SELFIE,
   SHOE_SAFE_CAMERA_ANGLE_CONTROL,
   SHOELACE_ANTI_CLIPPING_CONTROL,
+  SHOELACE_COMPACT,
+  SNEAKER_SHAPE_LOCK_COMPACT,
   SNEAKER_SHAPE_LOCK_PRIORITY,
   SNEAKER_STRUCTURAL_CHECKLIST,
+  THREE_QUARTER_MIRROR_COMPACT,
   THREE_QUARTER_MIRROR_PROPORTION_CONTROL,
   THREE_QUARTER_MIRROR_SELFIE_CONTROL,
   TROUSER_HEM_AND_SHOE_COLLAR_SEPARATION_CONTROL,
+  TROUSER_SHOE_SEPARATION_COMPACT,
   UNIFIED_CONTROL_PROMPT
 } from "../data/promptBlocks";
 import {
+  ACTION_COMPACT_PROMPTS,
   ACTION_OPTIONS,
   ACTION_REPLACEMENT_SUGGESTIONS,
   ACTION_SAFETY_LEVEL_LABELS,
@@ -81,6 +106,7 @@ import {
   getSingleImageOutfit,
   getUnifiedOutfitForThreeImageSet
 } from "../data/outfitMatrix";
+import { dedupePromptLines, getPromptStats } from "./promptOptimizer";
 
 export const ALL_SCENE_BLOCKS = [...BASIC_SCENE_BLOCKS, ...MATURE_SCENE_BLOCKS];
 
@@ -111,16 +137,20 @@ const shoelaceActionKeywords = [
   "系鞋带",
   "半穿鞋",
   "坐在床边穿鞋",
-  "坐在沙发边",
   "touching laces",
   "tying shoelaces",
-  "adjusting shoelaces"
+  "adjusting shoelaces",
+  "laces"
 ];
 
 const matureAgeRanges: AgeRange[] = ["30-45", "40-55"];
 
 function compactJoin(parts: Array<string | undefined | false>, separator = "\n\n") {
   return parts.filter(Boolean).join(separator);
+}
+
+function getDetailLevel(level?: PromptDetailLevel) {
+  return level ?? "compact";
 }
 
 function findScene(sceneId: string): SceneBlock {
@@ -212,6 +242,12 @@ function hasMatureTrigger(params: ProductParams, sceneIds: string[]) {
   );
 }
 
+function isMirrorSelfieAction(action: string) {
+  return Object.values(MIRROR_SELFIE_ACTIONS).some((mirrorAction) =>
+    action.includes(mirrorAction)
+  );
+}
+
 function shouldUseFootFitControl(sceneIds: string[], actionLines: string[]) {
   const sceneTriggers = ["01", "04", "06", "08", "12", "15", "16"];
   const actionText = actionLines.join(" ");
@@ -224,16 +260,7 @@ function shouldUseFootFitControl(sceneIds: string[], actionLines: string[]) {
 
 function shouldUseShoelaceControl(actionLines: string[]) {
   const actionText = actionLines.join(" ");
-  return (
-    shoelaceActionKeywords.some((keyword) => actionText.includes(keyword)) ||
-    isMirrorSelfieAction(actionText)
-  );
-}
-
-function isMirrorSelfieAction(action: string) {
-  return Object.values(MIRROR_SELFIE_ACTIONS).some((mirrorAction) =>
-    action.includes(mirrorAction)
-  );
+  return shoelaceActionKeywords.some((keyword) => actionText.includes(keyword));
 }
 
 function shouldUseHotelMirrorControls(sceneIds: string[], actionLines: string[]) {
@@ -293,6 +320,24 @@ If using a full-body mirror selfie action, that image must show complete shoes. 
   }
 
   return compactJoin(shared);
+}
+
+function getMirrorSelfieCompact(action: string, isThreeImageMode: boolean) {
+  if (!isMirrorSelfieAction(action)) return undefined;
+
+  const modeSpecific =
+    action === MIRROR_SELFIE_ACTIONS.threeQuarter
+      ? THREE_QUARTER_MIRROR_COMPACT
+      : action === MIRROR_SELFIE_ACTIONS.seated
+        ? SEATED_MIRROR_COMPACT
+        : undefined;
+
+  return compactJoin([
+    MIRROR_SELFIE_COMPACT,
+    modeSpecific,
+    "Mirror shoe preservation compact: mirror reflection must not elongate, narrow, blur, crop, or simplify the sneaker outline.",
+    isThreeImageMode ? MULTI_IMAGE_CONSISTENCY_COMPACT : undefined
+  ]);
 }
 
 function getHotelMirrorSelfieContent() {
@@ -391,6 +436,14 @@ ${outfit.unifiedNote}`
   );
 }
 
+function formatOutfitCompact(outfit: OutfitRecommendation, sceneLabels: string[]) {
+  return `Seasonal outfit compact:
+Season: ${SEASON_LABELS[outfit.season]}. Scenes: ${sceneLabels.join(" / ")}. Shoe: ${outfit.shoe}. Material: ${outfit.material}.
+Outfit: ${outfit.tops}; ${outfit.bottoms}; ${outfit.outerwear}; ${outfit.bag}; ${outfit.accessories}.
+Fabrics and colors: ${outfit.fabrics}. ${outfit.colorPalette}.
+Styling summary: ${outfit.stylingSummary}${outfit.unifiedNote ? `\nUnified 3-image outfit: ${outfit.unifiedNote}` : ""}`;
+}
+
 function formatSceneModule(scenes: SceneBlock[], params: ProductParams, shoe: string, material: string) {
   const logoText =
     params.logo === "small"
@@ -423,6 +476,32 @@ ${scene.prompt}`;
   return compactJoin([sharedProductText, ...sceneLines]);
 }
 
+function formatSceneCompact(scenes: SceneBlock[], params: ProductParams, shoe: string, material: string) {
+  const logoText =
+    params.logo === "small"
+      ? `Logo: if used, keep "THERUIZ AURA" small and discreet in blank space.`
+      : "Logo: do not add any logo.";
+  const peopleText =
+    params.people === "shoe-only"
+      ? "People: no full model; focus on shoes and environment."
+      : params.people === "model"
+        ? "People: include a refined Asian or part-Asian woman as the natural wearer."
+        : "People: judge naturally by scene; keep any person understated and refined.";
+  const sceneLines = scenes.map((scene, index) => {
+    const prefix =
+      params.generationMode === "three"
+        ? `Image ${index + 1} / 3 - ${scene.shortLabel}:`
+        : `${scene.shortLabel}:`;
+    return `${prefix} ${scene.compactPrompt ?? scene.prompt}`;
+  });
+
+  return compactJoin([
+    `Product and scene facts compact:
+Shoe: ${shoe}. Material: ${material}. Color: ${params.colorDescription || "match the uploaded reference exactly"}. ${logoText} ${peopleText}`,
+    ...sceneLines
+  ]);
+}
+
 function formatActionModule(params: ProductParams, scenes: SceneBlock[]) {
   const blocks = scenes.map((scene, index) => {
     const actions = resolveActionsForScene(scene.id, params.action);
@@ -448,33 +527,170 @@ function formatActionModule(params: ProductParams, scenes: SceneBlock[]) {
 ${blocks.join("\n")}`;
 }
 
-function assembleOutput(sections: PromptSection[]): PromptOutput {
-  const allModules = sections
+function formatActionCompact(params: ProductParams, scenes: SceneBlock[]) {
+  const blocks = scenes.map((scene, index) => {
+    const actions = resolveActionsForScene(scene.id, params.action);
+    const prefix =
+      params.generationMode === "three"
+        ? `Image ${index + 1} action for ${scene.shortLabel}`
+        : `Action for ${scene.shortLabel}`;
+    const actionText = actions
+      .map((action) => {
+        const english = MIRROR_SELFIE_ACTION_ENGLISH[action]
+          ? ` / ${MIRROR_SELFIE_ACTION_ENGLISH[action]}`
+          : "";
+        const compact = ACTION_COMPACT_PROMPTS[action] ?? "Keep the action calm, believable, and aligned with THERUIZ AURA's quiet daily rhythm.";
+        return `${action}${english}: ${compact}`;
+      })
+      .join("\n");
+
+    return `${prefix}:\n${actionText}`;
+  });
+
+  return `Action compact:
+${blocks.join("\n")}`;
+}
+
+function getReplacementSuggestions(actions: string[]) {
+  return actions
+    .map((action) => ACTION_REPLACEMENT_SUGGESTIONS[action] && `- ${action} -> 建议替代：${ACTION_REPLACEMENT_SUGGESTIONS[action]}`)
+    .filter(Boolean)
+    .join("\n");
+}
+
+function formatHighRiskCompact(actions: string[]) {
+  if (!actions.length) return undefined;
+  const replacements = getReplacementSuggestions(actions);
+
+  return compactJoin([
+    HIGH_RISK_ON_FOOT_COMPACT,
+    replacements
+      ? `Suggested safer action:
+${replacements}`
+      : undefined
+  ]);
+}
+
+function buildTriggeredModules({
+  params,
+  hasModel,
+  needsFootFit,
+  needsShoelaces,
+  mirrorSelfieSystem,
+  needsHotelMirrorControls,
+  matureTriggered,
+  highRiskActions
+}: {
+  params: ProductParams;
+  hasModel: boolean;
+  needsFootFit: boolean;
+  needsShoelaces: boolean;
+  mirrorSelfieSystem?: string;
+  needsHotelMirrorControls: boolean;
+  matureTriggered: boolean;
+  highRiskActions: string[];
+}) {
+  const modules = [
+    "品牌总控",
+    "客户感受核心",
+    "产品真实性",
+    "鞋型锁定与上脚安全",
+    "季节穿搭方案",
+    "场景模块",
+    "动作模块",
+    "核心负面词"
+  ];
+
+  if (params.generationMode === "three") modules.push("多图一致性");
+  if (hasModel) modules.push("年龄段提示词", "模特身材比例", "人物比例");
+  if (hasModel && !mirrorSelfieSystem) modules.push("人物表情活人感");
+  if (hasModel && mirrorSelfieSystem) modules.push("镜拍脸部弱化");
+  if (needsFootFit) modules.push("上脚比例", "上脚穿模修复", "裤脚与鞋口关系");
+  if (needsShoelaces) modules.push("鞋带穿模修复");
+  if (mirrorSelfieSystem) modules.push("对镜自拍系统");
+  if (needsHotelMirrorControls) modules.push("酒店镜拍去廉价感");
+  if (matureTriggered) modules.push("成熟客户生活方式控制");
+  if (highRiskActions.length) modules.push("高风险上脚动作修复", "建议替代动作");
+
+  return modules;
+}
+
+function buildPromptOutput(
+  sections: PromptSection[],
+  variants: {
+    compactPrompt: string;
+    standardPrompt: string;
+    fullDebugPrompt: string;
+  },
+  currentDetailLevel: PromptDetailLevel,
+  triggeredModules: string[]
+): PromptOutput {
+  const optimizedVariants = {
+    compactPrompt: dedupePromptLines(variants.compactPrompt),
+    standardPrompt: dedupePromptLines(variants.standardPrompt),
+    fullDebugPrompt: dedupePromptLines(variants.fullDebugPrompt)
+  };
+  const currentPrompt =
+    currentDetailLevel === "full"
+      ? optimizedVariants.fullDebugPrompt
+      : currentDetailLevel === "standard"
+        ? optimizedVariants.standardPrompt
+        : optimizedVariants.compactPrompt;
+  const sectionsWithFinal = [
+    ...sections,
+    {
+      title: "最终完整提示词",
+      content: currentPrompt
+    }
+  ];
+  const allModules = sectionsWithFinal
     .map((section) => `## ${section.title}\n${section.content}`)
     .join("\n\n");
-  const finalPrompt =
-    sections.find((section) => section.title === "最终完整提示词")?.content ??
-    sections.map((section) => section.content).join("\n\n");
-  return { sections, finalPrompt, allModules };
+
+  return {
+    sections: sectionsWithFinal,
+    finalPrompt: currentPrompt,
+    currentPrompt,
+    allModules,
+    currentDetailLevel,
+    triggeredModules,
+    compactPrompt: optimizedVariants.compactPrompt,
+    standardPrompt: optimizedVariants.standardPrompt,
+    fullDebugPrompt: optimizedVariants.fullDebugPrompt,
+    stats: {
+      compact: getPromptStats(optimizedVariants.compactPrompt),
+      standard: getPromptStats(optimizedVariants.standardPrompt),
+      full: getPromptStats(optimizedVariants.fullDebugPrompt)
+    }
+  };
 }
 
 export function generateProductPrompt(params: ProductParams): PromptOutput {
+  const currentDetailLevel = getDetailLevel(params.promptDetailLevel);
   const shoe = resolveShoe(params);
   const material = resolveMaterial(params);
   const sceneIds = resolveSelectedScenes(params);
   const scenes = sceneIds.map(findScene);
   const sceneLabels = scenes.map((scene) => scene.shortLabel);
   const actionModule = formatActionModule(params, scenes);
+  const actionCompact = formatActionCompact(params, scenes);
   const actionLines = scenes.flatMap((scene) => resolveActionsForScene(scene.id, params.action));
+  const uniqueActions = Array.from(new Set(actionLines));
+  const highRiskActions = uniqueActions.filter(isHighRiskAction);
   const hasCautiousOrHighRiskAction = actionLines.some(
     (action) => getActionSafetyLevel(action) !== "A"
   );
-  const hasHighRiskAction = actionLines.some(isHighRiskAction);
   const hasModel = shouldUseModelControls(params, sceneIds);
   const needsFootFit =
-    shouldUseFootFitControl(sceneIds, actionLines) || hasCautiousOrHighRiskAction || hasHighRiskAction;
+    shouldUseFootFitControl(sceneIds, actionLines) ||
+    hasCautiousOrHighRiskAction ||
+    highRiskActions.length > 0;
   const needsShoelaces = shouldUseShoelaceControl(actionLines);
   const mirrorSelfieSystem = getMirrorSelfieSystemContent(
+    params.action,
+    params.generationMode === "three"
+  );
+  const mirrorSelfieCompact = getMirrorSelfieCompact(
     params.action,
     params.generationMode === "three"
   );
@@ -507,8 +723,12 @@ Create one coherent 3-image visual set. Multi-image consistency is mandatory and
 Create one complete single-image prompt. Do not force multi-image consistency. Use only one selected scene.`;
 
   const modelBody = compactJoin([BODY_PROPORTION_CONTROL, AGE_BODY_SUPPLEMENTS[params.ageRange]]);
+  const outfitFull = formatOutfit(outfit, sceneLabels);
+  const outfitCompact = formatOutfitCompact(outfit, sceneLabels);
+  const sceneFull = formatSceneModule(scenes, params, shoe, material);
+  const sceneCompact = formatSceneCompact(scenes, params, shoe, material);
 
-  const sections: PromptSection[] = [
+  const fullSections: PromptSection[] = [
     { title: "总控提示词", content: compactJoin([BRAND_RULE, UNIFIED_CONTROL_PROMPT, generationModeControl]) },
     { title: "客户感受核心", content: CUSTOMER_FEELING_CORE },
     { title: "产品真实性控制", content: PRODUCT_ACCURACY_CONTROL },
@@ -549,25 +769,103 @@ Create one complete single-image prompt. Do not force multi-image consistency. U
           }
         ]
       : []),
-    { title: "季节穿搭方案", content: formatOutfit(outfit, sceneLabels) },
+    { title: "季节穿搭方案", content: outfitFull },
     ...(matureTriggered
       ? [{ title: "成熟客户生活方式控制", content: MATURE_CUSTOMER_LIFESTYLE_CONTROL }]
       : []),
-    { title: "场景模块", content: formatSceneModule(scenes, params, shoe, material) },
+    { title: "场景模块", content: sceneFull },
     { title: "动作模块", content: actionModule },
     { title: "统一限制词", content: NEGATIVE_CONTROL }
   ];
 
-  return assembleOutput([
-    ...sections,
-    {
-      title: "最终完整提示词",
-      content: sections.map((section) => section.content).join("\n\n")
-    }
+  const compactPrompt = compactJoin([
+    BRAND_COMPACT,
+    CUSTOMER_FEELING_COMPACT,
+    PRODUCT_ACCURACY_COMPACT,
+    SNEAKER_SHAPE_LOCK_COMPACT,
+    params.generationMode === "three" ? MULTI_IMAGE_CONSISTENCY_COMPACT : undefined,
+    hasModel ? AGE_PROMPTS[params.ageRange] : undefined,
+    hasModel ? MODEL_BODY_COMPACT : undefined,
+    hasModel ? HUMAN_PROPORTION_COMPACT : undefined,
+    hasModel && mirrorSelfieSystem ? MIRROR_EXPRESSION_DE_EMPHASIS_COMPACT : undefined,
+    hasModel && !mirrorSelfieSystem ? LIFELIKE_EXPRESSION_COMPACT : undefined,
+    outfitCompact,
+    sceneCompact,
+    actionCompact,
+    needsFootFit ? ON_FOOT_PROPORTION_COMPACT : undefined,
+    needsFootFit ? FOOT_SHOE_FIT_COMPACT : undefined,
+    needsFootFit ? TROUSER_SHOE_SEPARATION_COMPACT : undefined,
+    needsShoelaces ? SHOELACE_COMPACT : undefined,
+    mirrorSelfieCompact,
+    needsHotelMirrorControls ? HOTEL_MIRROR_COMPACT : undefined,
+    highRiskActions.length ? formatHighRiskCompact(highRiskActions) : undefined,
+    matureTriggered ? MATURE_CUSTOMER_COMPACT : undefined,
+    !mirrorSelfieSystem ? CAMERA_COMPACT : undefined,
+    CORE_NEGATIVE_COMPACT
   ]);
+
+  const selectedDetailedNegatives = compactJoin([
+    CORE_NEGATIVE_COMPACT,
+    needsShoelaces
+      ? "Avoid broken laces, duplicated lace strands, fingers fused with laces, and incorrect eyelet routes."
+      : undefined,
+    mirrorSelfieSystem
+      ? "Avoid mirror distortion, stretched mirror legs, phone blocking outfit or shoes, cropped-out shoes, and influencer mirror selfie posing."
+      : undefined,
+    needsHotelMirrorControls
+      ? "Avoid cheap hotel selfie feeling, bathroom clutter, harsh yellow light, tourist luggage mess, and loud hotel decor."
+      : undefined
+  ]);
+
+  const standardPrompt = compactJoin([
+    BRAND_RULE,
+    CUSTOMER_FEELING_CORE,
+    PRODUCT_ACCURACY_CONTROL,
+    compactJoin([SNEAKER_SHAPE_LOCK_PRIORITY, TROUSER_HEM_AND_SHOE_COLLAR_SEPARATION_CONTROL, SHOE_SAFE_CAMERA_ANGLE_CONTROL]),
+    params.generationMode === "three" ? MULTI_IMAGE_CONSISTENCY_CONTROL : undefined,
+    hasModel ? AGE_PROMPTS[params.ageRange] : undefined,
+    hasModel ? compactJoin([MODEL_BODY_COMPACT, HUMAN_PROPORTION_COMPACT]) : undefined,
+    hasModel && mirrorSelfieSystem ? MIRROR_EXPRESSION_DE_EMPHASIS_COMPACT : undefined,
+    hasModel && !mirrorSelfieSystem ? LIFELIKE_EXPRESSION_COMPACT : undefined,
+    outfitFull,
+    sceneCompact,
+    actionCompact,
+    needsFootFit ? compactJoin([ON_FOOT_PROPORTION_COMPACT, FOOT_SHOE_FIT_COMPACT]) : undefined,
+    needsShoelaces ? SHOELACE_COMPACT : undefined,
+    mirrorSelfieCompact,
+    needsHotelMirrorControls ? HOTEL_MIRROR_COMPACT : undefined,
+    highRiskActions.length ? compactJoin([HIGH_RISK_ON_FOOT_POSE_PROTECTION, getReplacementSuggestions(highRiskActions)]) : undefined,
+    matureTriggered ? MATURE_CUSTOMER_COMPACT : undefined,
+    CAMERA_COMPACT,
+    selectedDetailedNegatives
+  ]);
+
+  const fullDebugPrompt = fullSections.map((section) => section.content).join("\n\n");
+  const triggeredModules = buildTriggeredModules({
+    params,
+    hasModel,
+    needsFootFit,
+    needsShoelaces,
+    mirrorSelfieSystem,
+    needsHotelMirrorControls,
+    matureTriggered,
+    highRiskActions
+  });
+
+  return buildPromptOutput(
+    fullSections,
+    {
+      compactPrompt,
+      standardPrompt,
+      fullDebugPrompt
+    },
+    currentDetailLevel,
+    triggeredModules
+  );
 }
 
 export function generateAtmospherePrompt(params: AtmosphereParams): PromptOutput {
+  const currentDetailLevel = getDetailLevel(params.promptDetailLevel);
   const scene =
     ATMOSPHERE_SCENES.find((item) => item.label === params.imageType) ?? ATMOSPHERE_SCENES[0];
   const expectation =
@@ -580,8 +878,10 @@ export function generateAtmospherePrompt(params: AtmosphereParams): PromptOutput
 - 补充描述: ${params.extraDescription || "No extra description."}
 
 Keep the image useful for the selected content purpose while staying quiet, warm, refined, and believable.`;
+  const usageCompact = `Usage compact:
+Purpose: ${params.usage}. Shoe allowance: ${params.shoeAllowance}. People allowance: ${params.peopleAllowance}. Extra note: ${params.extraDescription || "No extra description."}`;
 
-  const sections: PromptSection[] = [
+  const fullSections: PromptSection[] = [
     { title: "非产品氛围配图总控提示词", content: NON_PRODUCT_ATMOSPHERE_CONTROL },
     { title: "客户氛围预期", content: expectation },
     { title: "具体配图类型模块", content: scene.prompt },
@@ -589,11 +889,30 @@ Keep the image useful for the selected content purpose while staying quiet, warm
     { title: "限制词", content: ATMOSPHERE_NEGATIVE_CONTROL }
   ];
 
-  return assembleOutput([
-    ...sections,
-    {
-      title: "最终完整提示词",
-      content: sections.map((section) => section.content).join("\n\n")
-    }
+  const compactPrompt = compactJoin([
+    ATMOSPHERE_BRAND_COMPACT,
+    `Customer lifestyle expectation: ${expectation}`,
+    scene.compactPrompt ?? scene.prompt,
+    usageCompact,
+    ATMOSPHERE_NEGATIVE_COMPACT
   ]);
+  const standardPrompt = compactJoin([
+    NON_PRODUCT_ATMOSPHERE_CONTROL,
+    `Customer lifestyle expectation: ${expectation}`,
+    scene.compactPrompt ?? scene.prompt,
+    usage,
+    ATMOSPHERE_NEGATIVE_COMPACT
+  ]);
+  const fullDebugPrompt = fullSections.map((section) => section.content).join("\n\n");
+
+  return buildPromptOutput(
+    fullSections,
+    {
+      compactPrompt,
+      standardPrompt,
+      fullDebugPrompt
+    },
+    currentDetailLevel,
+    ["非产品氛围总控", "客户氛围预期", "具体配图类型", "用途说明", "非产品限制词"]
+  );
 }
