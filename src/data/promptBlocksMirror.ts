@@ -99,7 +99,7 @@ The outfit and the shoes must remain the visual priority.`;
 export const FULL_BODY_MIRROR_SELFIE_CONTROL = `Full-body mirror selfie with full shoe visibility control:
 Create a refined full-body mirror selfie outfit image in THERUIZ AURA's "Quiet Warm Luxury" style.
 
-The mirror should must show the full outfit from upper body to feet, with both sneakers clearly and completely visible.
+The mirror selfie must show the full outfit from upper body to feet, with both sneakers clearly and completely visible.
 
 The composition must include:
 - full outfit silhouette
