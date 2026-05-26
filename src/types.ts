@@ -133,3 +133,53 @@ export type FailureDiagnosisItem = {
   modulesToAdd: string[];
   modulesToReduce: string[];
 };
+
+export type TeamImageType =
+  | "产品上脚图"
+  | "对镜穿搭图"
+  | "生活场景图"
+  | "非产品氛围图"
+  | "拍摄花絮 / 材质图";
+
+export type TeamShoe =
+  | "Cloud Dancer 云舞者"
+  | "Sand Dollar 沙钱白"
+  | "Cappuccino 卡布奇诺"
+  | "Silver Romance 银色浪漫"
+  | "Aire 微风"
+  | "Delphinium Blue 飞燕草蓝"
+  | "Lemon 柠檬"
+  | "Maple Grove 枫林"
+  | "Oreo 奥利奥"
+  | "Panda 熊猫"
+  | "自定义";
+
+export type TeamSeason = "春" | "夏" | "秋" | "冬";
+
+export type TeamScenePreference =
+  | "自动匹配"
+  | "通勤上班"
+  | "周末城市散步"
+  | "精品超市 / 日常采购"
+  | "旅行酒店"
+  | "居家衣帽间"
+  | "玄关出门"
+  | "窗边阅读"
+  | "材质工作台"
+  | "拍摄花絮"
+  | "周末轻采购";
+
+export type TeamPromptParams = {
+  imageType: TeamImageType;
+  shoe: TeamShoe;
+  customShoe: string;
+  season: TeamSeason;
+  scenePreference: TeamScenePreference;
+  extraRequirement: string;
+};
+
+export type TeamPromptOutput = {
+  prompt: string;
+  hasShoe: boolean;
+  sceneText: string;
+};

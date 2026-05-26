@@ -90,3 +90,36 @@ export function getPromptStats(text: string) {
     wordCount: englishWordMatches?.length ?? 0
   };
 }
+
+export function cleanFinalPrompt(text: string) {
+  const marker = "Additional user requirement:";
+  const markerIndex = text.lastIndexOf(marker);
+  const userRequirement =
+    markerIndex >= 0 ? text.slice(markerIndex).trim().replace(/\s+$/, "") : "";
+  const body = markerIndex >= 0 ? text.slice(0, markerIndex) : text;
+
+  const cleanedBody = body
+    .split(/\n+/)
+    .map((line) => line.trim())
+    .filter(Boolean)
+    .filter((line) => !/^#{1,6}\s/.test(line))
+    .filter(
+      (line) =>
+        !/^(Prompt Output|Final Prompt|Compact Prompt|Standard Prompt|Full Debug|Module|Section|最终完整提示词|提示词输出|调试|模块)[:：]?$/i.test(
+          line
+        )
+    )
+    .map((line) =>
+      line
+        .replace(/^\d+[.)、]\s*/, "")
+        .replace(/^[-*]\s+/, "")
+        .replace(/\s+/g, " ")
+        .trim()
+    )
+    .join(" ")
+    .replace(/\s+/g, " ")
+    .replace(/\s+([,.!?;:])/g, "$1")
+    .trim();
+
+  return [cleanedBody, userRequirement].filter(Boolean).join(" ").trim();
+}
