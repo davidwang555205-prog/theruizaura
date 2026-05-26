@@ -37,10 +37,23 @@ http://localhost:5173
 本工具支持三种提示词详细程度：
 
 - Compact：推荐真实生图使用，短而集中
-- Standard：适合重要产品图
+- Standard：适合重点产品图
 - Full Debug：适合排查鞋型、穿模、镜拍、人物比例等问题
 
 默认使用 Compact，避免提示词过长导致生图模型抓不到重点。
+
+## 生成结果验收
+
+本工具支持：
+
+- Visual Output Scorecard：对生成结果做标准化评分
+- Failure Diagnosis：生成失败后快速判断原因并给出下一次修正建议
+
+推荐流程：
+
+1. 先用 Compact 生成
+2. 如果出问题，切换 Standard
+3. 如果仍有结构问题，切换 Full Debug 排查
 
 ## 注意
 

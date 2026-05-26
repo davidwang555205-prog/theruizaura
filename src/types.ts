@@ -121,3 +121,15 @@ export type TemplateItem = {
   isCustom?: boolean;
   createdAt?: string;
 };
+
+export type FailureDiagnosisItem = {
+  id: string;
+  label: string;
+  cause: string;
+  direction: string;
+  recommendedActions: string[];
+  recommendedScenes: string[];
+  recommendedDetailLevel: PromptDetailLevel;
+  modulesToAdd: string[];
+  modulesToReduce: string[];
+};

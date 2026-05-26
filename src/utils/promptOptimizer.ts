@@ -16,6 +16,32 @@ function splitSentenceLikeText(text: string) {
   return parts.length > 1 ? parts : [text.trim()];
 }
 
+function dedupeNegativePhraseLine(line: string) {
+  if (!/^avoid\s/i.test(line)) return line;
+
+  const phrases = line
+    .replace(/^avoid\s+/i, "")
+    .replace(/\.$/, "")
+    .split(/,\s*|\s+and\s+/)
+    .map((phrase) => phrase.trim())
+    .filter(Boolean);
+
+  if (phrases.length < 2) return line;
+
+  const seen = new Set<string>();
+  const kept = phrases.filter((phrase) => {
+    const key = normalizeLine(phrase)
+      .replace(/\b(the|a|an|any)\b/g, "")
+      .replace(/\s+/g, " ")
+      .trim();
+    if (!key || seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+
+  return `Avoid ${kept.join(", ")}.`;
+}
+
 export function dedupePromptLines(text: string) {
   const seen = new Set<string>();
   const output: string[] = [];
@@ -33,10 +59,11 @@ export function dedupePromptLines(text: string) {
       return;
     }
 
+    const normalizedNegativeLine = dedupeNegativePhraseLine(trimmed);
     const chunks =
-      trimmed.length > 220 && !trimmed.startsWith("-")
-        ? splitSentenceLikeText(trimmed)
-        : [trimmed];
+      normalizedNegativeLine.length > 220 && !normalizedNegativeLine.startsWith("-")
+        ? splitSentenceLikeText(normalizedNegativeLine)
+        : [normalizedNegativeLine];
 
     const keptChunks = chunks.filter((chunk) => {
       const key = normalizeLine(chunk);

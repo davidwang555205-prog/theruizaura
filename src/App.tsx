@@ -10,7 +10,9 @@ import type {
   Season,
   TemplateItem
 } from "./types";
+import FailureDiagnosis from "./components/FailureDiagnosis";
 import TemplateLibrary from "./components/TemplateLibrary";
+import VisualScorecard from "./components/VisualScorecard";
 import {
   ACTION_OPTIONS,
   ACTION_REPLACEMENT_SUGGESTIONS,
@@ -166,10 +168,10 @@ function OutputPanel({
   const compactTooLong = output.stats.compact.wordCount > 2000;
 
   return (
-    <aside className="rounded-[28px] bg-aura-porcelain/95 p-5 shadow-aura ring-1 ring-aura-beige/70 lg:sticky lg:top-6 lg:max-h-[calc(100vh-3rem)]">
+    <aside className="rounded-[28px] bg-aura-porcelain/95 p-5 shadow-aura ring-1 ring-aura-beige/70 lg:sticky lg:top-6 lg:max-h-[calc(100vh-3rem)] lg:overflow-hidden">
       <div className="flex flex-col gap-3 border-b border-aura-beige/70 pb-5 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <p className="text-sm text-aura-muted">输出提示词区</p>
+          <p className="text-sm text-aura-muted">右侧输出区</p>
           <h2 className="mt-1 text-2xl font-semibold text-aura-charcoal">{title}</h2>
         </div>
         <div className="flex flex-wrap gap-2">
@@ -212,46 +214,63 @@ function OutputPanel({
       </div>
 
       {copyStatus && <p className="mt-3 text-sm text-aura-muted">{copyStatus}</p>}
-      <div className="mt-4 grid gap-3 rounded-[20px] border border-aura-beige/70 bg-white/65 p-4 text-sm text-aura-muted">
-        <div className="grid gap-2 sm:grid-cols-3">
-          <div>
-            <span className="block text-xs text-aura-muted">当前详细程度</span>
-            <strong className="mt-1 block text-aura-charcoal">
-              {promptDetailLabels[output.currentDetailLevel]}
-            </strong>
-          </div>
-          <div>
-            <span className="block text-xs text-aura-muted">字符数</span>
-            <strong className="mt-1 block text-aura-charcoal">{currentStats.charCount}</strong>
-          </div>
-          <div>
-            <span className="block text-xs text-aura-muted">英文词数</span>
-            <strong className="mt-1 block text-aura-charcoal">{currentStats.wordCount}</strong>
-          </div>
-        </div>
-        <div>
-          <span className="block text-xs text-aura-muted">当前触发模块</span>
-          <p className="mt-1 leading-6">{output.triggeredModules.join(" / ")}</p>
-        </div>
-        {compactTooLong && (
-          <p className="rounded-2xl bg-aura-sand/50 px-3 py-2 text-aura-charcoal">
-            当前提示词偏长，建议减少高风险动作或切换到单图模式。
-          </p>
-        )}
-      </div>
 
-      <div className="aura-scrollbar mt-5 space-y-4 overflow-y-auto pr-1 lg:max-h-[calc(100vh-13rem)]">
-        {output.sections.map((section) => (
-          <section
-            key={section.title}
-            className="rounded-[20px] border border-aura-beige/70 bg-white/70 p-4"
-          >
-            <h3 className="text-sm font-semibold text-aura-charcoal">{section.title}</h3>
-            <pre className="mt-3 whitespace-pre-wrap break-words text-sm leading-6 text-aura-muted">
-              {section.content}
-            </pre>
-          </section>
-        ))}
+      <div className="aura-scrollbar mt-5 space-y-5 overflow-y-auto pr-1 lg:max-h-[calc(100vh-13rem)]">
+        <section className="rounded-[24px] border border-aura-beige/70 bg-white/70 p-4">
+          <div className="border-b border-aura-beige/70 pb-4">
+            <p className="text-sm text-aura-muted">Prompt Output</p>
+            <h3 className="mt-1 text-lg font-semibold text-aura-charcoal">提示词输出</h3>
+          </div>
+
+          <div className="mt-4 grid gap-3 rounded-[20px] border border-aura-beige/70 bg-white/65 p-4 text-sm text-aura-muted">
+            <div className="grid gap-2 sm:grid-cols-3">
+              <div>
+                <span className="block text-xs text-aura-muted">当前详细程度</span>
+                <strong className="mt-1 block text-aura-charcoal">
+                  {promptDetailLabels[output.currentDetailLevel]}
+                </strong>
+              </div>
+              <div>
+                <span className="block text-xs text-aura-muted">当前提示词字符数</span>
+                <strong className="mt-1 block text-aura-charcoal">
+                  {currentStats.charCount}
+                </strong>
+              </div>
+              <div>
+                <span className="block text-xs text-aura-muted">当前提示词词数</span>
+                <strong className="mt-1 block text-aura-charcoal">
+                  {currentStats.wordCount}
+                </strong>
+              </div>
+            </div>
+            <div>
+              <span className="block text-xs text-aura-muted">当前触发模块</span>
+              <p className="mt-1 leading-6">{output.triggeredModules.join(" / ")}</p>
+            </div>
+            {compactTooLong && (
+              <p className="rounded-2xl bg-aura-sand/50 px-3 py-2 text-aura-charcoal">
+                当前提示词偏长，建议减少高风险动作或切换到单图模式。
+              </p>
+            )}
+          </div>
+
+          <div className="mt-4 space-y-4">
+            {output.sections.map((section) => (
+              <section
+                key={section.title}
+                className="rounded-[20px] border border-aura-beige/70 bg-white/70 p-4"
+              >
+                <h4 className="text-sm font-semibold text-aura-charcoal">{section.title}</h4>
+                <pre className="mt-3 whitespace-pre-wrap break-words text-sm leading-6 text-aura-muted">
+                  {section.content}
+                </pre>
+              </section>
+            ))}
+          </div>
+        </section>
+
+        <VisualScorecard />
+        <FailureDiagnosis onCopyText={onCopyText} />
       </div>
     </aside>
   );
