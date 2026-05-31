@@ -6,7 +6,8 @@ import type {
   TeamSeason,
   TeamShoe
 } from "../types";
-import { getTeamCompactOutfitLine } from "../data/seasonalOutfits";
+import { chooseOutfitLine } from "../data/seasonalOutfits";
+import { chooseLuxuryAccessoryLine, luxuryAccessoryNegative } from "../data/luxuryAccessories";
 import {
   getStillLifeProductProfile,
   getStillLifeStylePrompt,
@@ -322,13 +323,22 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
 
   const extraRequirement = params.extraRequirement.trim();
   const seasonText = shouldUsePeopleStyling(params.imageType)
-    ? getTeamCompactOutfitLine({
+    ? chooseOutfitLine({
         season: params.season,
         shoe: params.shoe,
         imageType: params.imageType,
-        scenePreference: resolvedScene
+        scenePreference: resolvedScene,
+        userExtraRequirement: extraRequirement
       })
     : TEAM_ATMOSPHERE_SEASON[params.season];
+  const accessoryLine = chooseLuxuryAccessoryLine({
+    imageType: params.imageType,
+    shoe: params.shoe,
+    season: params.season,
+    scenePreference: resolvedScene,
+    selectedOutfitLine: seasonText,
+    userExtraRequirement: extraRequirement
+  });
   const shoeStyle = getTeamShoeStyle(params, hasShoe);
   const enhancedLifelike = getTeamEnhancedLifelike(params.imageType);
   const creatorStyling = getTeamCreatorStyling(params.imageType);
@@ -343,7 +353,8 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
       hasShoe && params.imageType !== "非产品氛围图"
         ? TEAM_PRODUCT_NEGATIVE
         : TEAM_ATMOSPHERE_NEGATIVE,
-      creatorStyling ? TEAM_CREATOR_NEGATIVE : ""
+      creatorStyling ? TEAM_CREATOR_NEGATIVE : "",
+      accessoryLine ? luxuryAccessoryNegative : ""
     ],
     "\n\n"
   );
@@ -356,6 +367,7 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
       enhancedLifelike,
       shoeStyle,
       seasonText,
+      accessoryLine,
       creatorStyling,
       sceneText,
       productProtection,
