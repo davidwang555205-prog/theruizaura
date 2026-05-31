@@ -7,6 +7,14 @@ import type {
   TeamShoe
 } from "../types";
 import { getTeamCompactOutfitLine } from "../data/seasonalOutfits";
+import {
+  getStillLifeProductProfile,
+  getStillLifeStylePrompt,
+  meshStillLifeNegative,
+  metallicStillLifeNegative,
+  productStillLifeBaseCompact,
+  productStillLifeNegative
+} from "../data/stillLifeRules";
 import { cleanFinalPrompt, dedupePromptLines } from "./promptOptimizer";
 
 function compactJoin(parts: Array<string | undefined | false>, separator = "\n\n") {
@@ -47,7 +55,8 @@ const TEAM_IMAGE_TYPE_TEMPLATES: Record<TeamImageType, string> = {
   非产品氛围图:
     "Generate a non-product atmospheric image for THERUIZ AURA. The product does not need to be the main subject. Use scenes such as entryway departure, window-side reading, hotel arrival, flowers and bakery return, refined worktable, or weekend errands. The image should express quiet order, warm restraint, daily elegance, calm negative space, and refined lifestyle atmosphere.",
   "拍摄花絮 / 材质图":
-    "Generate a refined behind-the-scenes or material storytelling image for THERUIZ AURA. Show leather swatches, suede samples, shoelaces, color cards, care brush, product notes, shooting table, or hands arranging materials. The mood should feel real, tactile, quiet, and premium. Avoid factory feeling, messy clutter, cheap studio look, or technical catalog style."
+    "Generate a refined behind-the-scenes or material storytelling image for THERUIZ AURA. Show leather swatches, suede samples, shoelaces, color cards, care brush, product notes, shooting table, or hands arranging materials. The mood should feel real, tactile, quiet, and premium. Avoid factory feeling, messy clutter, cheap studio look, or technical catalog style.",
+  产品静物图: productStillLifeBaseCompact
 };
 
 const TEAM_CREATOR_STYLING: Record<
@@ -167,7 +176,8 @@ function resolveTeamHasShoe(params: TeamPromptParams) {
   if (
     params.imageType === "产品上脚图" ||
     params.imageType === "对镜穿搭图" ||
-    params.imageType === "生活场景图"
+    params.imageType === "生活场景图" ||
+    params.imageType === "产品静物图"
   ) {
     return true;
   }
@@ -179,6 +189,7 @@ function getTeamAutoScene(imageType: TeamImageType): Exclude<TeamScenePreference
   if (imageType === "产品上脚图") return "通勤上班";
   if (imageType === "对镜穿搭图") return "居家衣帽间";
   if (imageType === "生活场景图") return "精品超市 / 日常采购";
+  if (imageType === "产品静物图") return "材质工作台";
   if (imageType === "非产品氛围图") return "玄关出门";
   return "材质工作台";
 }
@@ -191,6 +202,12 @@ function resolveTeamScenePreference(params: TeamPromptParams) {
 
 function getTeamSceneText(params: TeamPromptParams) {
   const scene = resolveTeamScenePreference(params);
+
+  if (params.imageType === "产品静物图") {
+    return params.scenePreference === "自动匹配"
+      ? ""
+      : "Use the selected scene only as subtle background mood inspiration: a product still life inspired by the selected lifestyle scene, without people, keeping the sneaker as the main subject.";
+  }
 
   if (params.imageType === "产品上脚图" && scene === "窗边阅读") {
     return "Use a window-side lifestyle on-foot scene with soft natural light and a calm interior mood. Keep the sneakers clear, complete, and structurally accurate.";
@@ -227,6 +244,41 @@ function shouldUsePeopleStyling(imageType: TeamImageType) {
   return imageType === "产品上脚图" || imageType === "对镜穿搭图" || imageType === "生活场景图";
 }
 
+function getProductStillLifePrompt(params: TeamPromptParams) {
+  const profile = getStillLifeProductProfile(params.shoe, params.customShoe, params.extraRequirement);
+  const stylePrompt = getStillLifeStylePrompt(params.stillLifeStyle, profile);
+  const shoeStyle = getTeamShoeStyle(params, true);
+  const sceneText = getTeamSceneText(params);
+  const extraRequirement = params.extraRequirement.trim();
+  const specialtyNegative = compactJoin(
+    [
+      productStillLifeNegative,
+      profile === "metallicSilver" ? metallicStillLifeNegative : "",
+      profile === "breathableMesh" ? meshStillLifeNegative : "",
+      TEAM_PRODUCT_NEGATIVE
+    ],
+    "\n\n"
+  );
+
+  const body = dedupePromptLines(
+    [
+      TEAM_BRAND_CORE,
+      productStillLifeBaseCompact,
+      stylePrompt,
+      sceneText,
+      shoeStyle,
+      TEAM_PRODUCT_PROTECTION,
+      specialtyNegative
+    ]
+      .filter(Boolean)
+      .join("\n\n")
+  );
+
+  return cleanFinalPrompt(
+    extraRequirement ? `${body}\n\nAdditional user requirement: ${extraRequirement}` : body
+  );
+}
+
 function getTeamEnhancedLifelike(imageType: TeamImageType) {
   if (!shouldUsePeopleStyling(imageType)) return "";
 
@@ -259,6 +311,15 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
   const hasShoe = resolveTeamHasShoe(params);
   const resolvedScene = resolveTeamScenePreference(params);
   const sceneText = getTeamSceneText(params);
+
+  if (params.imageType === "产品静物图") {
+    return {
+      prompt: getProductStillLifePrompt(params),
+      hasShoe,
+      sceneText
+    };
+  }
+
   const extraRequirement = params.extraRequirement.trim();
   const seasonText = shouldUsePeopleStyling(params.imageType)
     ? getTeamCompactOutfitLine({

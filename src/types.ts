@@ -139,7 +139,8 @@ export type TeamImageType =
   | "对镜穿搭图"
   | "生活场景图"
   | "非产品氛围图"
-  | "拍摄花絮 / 材质图";
+  | "拍摄花絮 / 材质图"
+  | "产品静物图";
 
 export type TeamShoe =
   | "Cloud Dancer 云舞者"
@@ -155,6 +156,8 @@ export type TeamShoe =
   | "自定义";
 
 export type TeamSeason = "春" | "夏" | "秋" | "冬";
+
+export type TeamStillLifeStyle = "与主视觉统一" | "自动按产品判断";
 
 export type TeamScenePreference =
   | "自动匹配"
@@ -175,6 +178,7 @@ export type TeamPromptParams = {
   customShoe: string;
   season: TeamSeason;
   scenePreference: TeamScenePreference;
+  stillLifeStyle: TeamStillLifeStyle;
   extraRequirement: string;
 };
 
