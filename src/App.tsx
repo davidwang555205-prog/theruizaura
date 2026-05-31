@@ -4,7 +4,8 @@ import type {
   TeamPromptParams,
   TeamScenePreference,
   TeamSeason,
-  TeamShoe
+  TeamShoe,
+  TeamStillLifeStyle
 } from "./types";
 import { generateTeamPrompt } from "./utils/generatePrompt";
 
@@ -13,7 +14,8 @@ const imageTypeOptions: TeamImageType[] = [
   "对镜穿搭图",
   "生活场景图",
   "非产品氛围图",
-  "拍摄花絮 / 材质图"
+  "拍摄花絮 / 材质图",
+  "产品静物图"
 ];
 
 const shoeOptions: TeamShoe[] = [
@@ -46,12 +48,15 @@ const sceneOptions: TeamScenePreference[] = [
   "周末轻采购"
 ];
 
+const stillLifeStyleOptions: TeamStillLifeStyle[] = ["与主视觉统一", "自动按产品判断"];
+
 const initialParams: TeamPromptParams = {
   imageType: "产品上脚图",
   shoe: "Cloud Dancer 云舞者",
   customShoe: "",
   season: "春",
   scenePreference: "自动匹配",
+  stillLifeStyle: "与主视觉统一",
   extraRequirement: ""
 };
 
@@ -198,6 +203,27 @@ function App() {
                 </select>
               </label>
 
+              {params.imageType === "产品静物图" && (
+                <label className="block space-y-2">
+                  <span className="text-sm font-medium text-aura-charcoal">静物图风格</span>
+                  <select
+                    className={inputClass}
+                    value={params.stillLifeStyle}
+                    onChange={(event) =>
+                      setParams((current) =>
+                        updateField(current, "stillLifeStyle", event.target.value as TeamStillLifeStyle)
+                      )
+                    }
+                  >
+                    {stillLifeStyleOptions.map((option) => (
+                      <option key={option} value={option}>
+                        {option}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              )}
+
               <label className="block space-y-2">
                 <span className="text-sm font-medium text-aura-charcoal">补充要求</span>
                 <textarea
@@ -245,7 +271,7 @@ function App() {
             {copyStatus && <p className="mt-3 text-sm text-aura-muted">{copyStatus}</p>}
 
             <p className="mt-5 rounded-[18px] bg-aura-cream px-4 py-3 text-sm leading-6 text-aura-muted ring-1 ring-aura-beige/70">
-              生成产品上脚图、对镜穿搭图、生活场景图时，请务必上传对应鞋款参考图，否则 AI 容易改变鞋型与颜色。
+              生成产品上脚图、对镜穿搭图、生活场景图、产品静物图时，请务必上传对应鞋款参考图，否则 AI 容易改变鞋型与颜色。
             </p>
           </aside>
         </section>
