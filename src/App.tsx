@@ -87,12 +87,12 @@ function App() {
     <main className="min-h-screen bg-aura-cream px-5 py-8 text-aura-charcoal sm:px-8 lg:px-10">
       <div className="mx-auto flex max-w-6xl flex-col gap-8">
         <header className="max-w-3xl space-y-3">
-          <p className="text-xs uppercase tracking-[0.28em] text-aura-muted">Team final v4.2.2</p>
+          <p className="text-xs uppercase tracking-[0.28em] text-aura-muted">Team final v4.3</p>
           <h1 className="text-3xl font-semibold tracking-tight text-aura-charcoal sm:text-4xl">
             THERUIZ AURA Prompt Builder
           </h1>
           <p className="text-base leading-7 text-aura-muted">
-            团队日常使用的极简 Compact 英文提示词工具。选择图片类型、鞋款、季节和场景偏好后，即可复制到生图工具。
+            团队日常使用的极简 Compact 英文提示词工具。后台自动匹配季节穿搭、轻博主参考感和自然活人感。
           </p>
         </header>
 
