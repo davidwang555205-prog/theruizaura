@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import type {
   TeamImageType,
   TeamPromptParams,
@@ -76,10 +76,8 @@ function App() {
   const [generatedPrompt, setGeneratedPrompt] = useState(() => generateTeamPrompt(initialParams).prompt);
   const [copyStatus, setCopyStatus] = useState("");
 
-  const previewOutput = useMemo(() => generateTeamPrompt(params), [params]);
-
   const handleGenerate = () => {
-    setGeneratedPrompt(previewOutput.prompt);
+    setGeneratedPrompt(generateTeamPrompt(params).prompt);
     setCopyStatus("");
   };
 
