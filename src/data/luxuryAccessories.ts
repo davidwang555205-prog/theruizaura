@@ -1,4 +1,5 @@
 import type { TeamImageType, TeamScenePreference, TeamSeason, TeamShoe } from "../types";
+import type { SceneLocationType, TimeOfDay } from "./timeOfDay";
 
 type AccessoryId =
   | "hermesBag"
@@ -20,6 +21,8 @@ type LuxuryAccessoryInput = {
   scenePreference: TeamScenePreference;
   selectedOutfitLine: string;
   userExtraRequirement?: string;
+  sceneLocationType: SceneLocationType;
+  selectedTimeOfDay: TimeOfDay;
 };
 
 export const luxuryAccessoryBoundaryCompact =
@@ -98,6 +101,8 @@ const EYEWEAR_IDS: AccessoryId[] = [
   "minimalOpticalGlasses"
 ];
 
+const SUNGLASSES_IDS: AccessoryId[] = ["celineSunglasses", "chanelSunglasses", "gentleMonsterSunglasses"];
+
 const SCENE_ACCESSORIES: Partial<Record<TeamScenePreference | "对镜穿搭", AccessoryId[]>> = {
   通勤上班: ["hermesBag", "celineBag", "theRowBag", "minimalOpticalGlasses"],
   "精品超市 / 日常采购": ["goyardBag", "hermesBag", "theRowBag"],
@@ -128,6 +133,7 @@ const NO_BAG_KEYWORDS = ["不要包", "no bag"];
 const NO_EYEWEAR_KEYWORDS = ["不要眼镜", "不要墨镜", "no sunglasses", "no eyewear", "no glasses"];
 const NO_LUXURY_BAG_KEYWORDS = ["不要奢侈品包", "不要品牌包", "no luxury bag"];
 const SUNGLASSES_KEYWORDS = ["加墨镜", "add sunglasses", "sunglasses", "墨镜"];
+const NO_SUNGLASSES_KEYWORDS = ["不加墨镜", "不要墨镜", "no sunglasses"];
 const OPTICAL_KEYWORDS = ["加光学眼镜", "add optical glasses", "optical glasses", "光学眼镜"];
 const TOTE_KEYWORDS = ["加托特包", "add tote bag", "simple tote", "tote bag", "托特包"];
 
@@ -153,6 +159,10 @@ function scoreAccessory(id: AccessoryId, input: LuxuryAccessoryInput) {
   if (sceneCandidates.includes(id)) score += 4;
   if (shoeCandidates.includes(id)) score += 3;
   if (input.season === "夏" && EYEWEAR_IDS.includes(id)) score += 1;
+  if (input.selectedTimeOfDay === "evening" && BAG_IDS.includes(id)) score += 1;
+  if (input.sceneLocationType === "indoor" && id === "minimalOpticalGlasses") score += 1;
+  if (input.sceneLocationType !== "outdoor" && SUNGLASSES_IDS.includes(id)) score -= 8;
+  if (input.selectedTimeOfDay === "evening" && SUNGLASSES_IDS.includes(id)) score -= 6;
   if (outfit.includes("tote") && (id === "theRowBag" || id === "goyardBag" || id === "hermesBag")) score += 1;
   if (outfit.includes("brown") && (id === "hermesBag" || id === "lvBag" || id === "theRowBag")) score += 1;
   if (outfit.includes("grey") && (id === "celineBag" || id === "chanelBag")) score += 1;
@@ -166,6 +176,7 @@ export function chooseLuxuryAccessoryLine(input: LuxuryAccessoryInput) {
   const text = (input.userExtraRequirement ?? "").toLowerCase();
   const noBag = textIncludesAny(text, NO_BAG_KEYWORDS);
   const noEyewear = textIncludesAny(text, NO_EYEWEAR_KEYWORDS);
+  const noSunglasses = textIncludesAny(text, NO_SUNGLASSES_KEYWORDS);
   const noLuxuryBag = textIncludesAny(text, NO_LUXURY_BAG_KEYWORDS);
   const wantsSunglasses = textIncludesAny(text, SUNGLASSES_KEYWORDS);
   const wantsOptical = textIncludesAny(text, OPTICAL_KEYWORDS);
@@ -176,7 +187,10 @@ export function chooseLuxuryAccessoryLine(input: LuxuryAccessoryInput) {
   if (wantsOptical && !noEyewear) {
     return `${ACCESSORY_LINES.minimalOpticalGlasses} ${luxuryAccessoryBoundaryCompact}`;
   }
-  if (wantsSunglasses && !noEyewear) {
+  if (wantsSunglasses && !noEyewear && !noSunglasses) {
+    if (input.sceneLocationType !== "outdoor") {
+      return `Use minimal optical glasses instead of sunglasses to keep the indoor scene believable. ${luxuryAccessoryBoundaryCompact}`;
+    }
     const sunglasses = input.shoe === "Silver Romance 银色浪漫" ? "gentleMonsterSunglasses" : "celineSunglasses";
     return `${ACCESSORY_LINES[sunglasses]} ${luxuryAccessoryBoundaryCompact}`;
   }
@@ -185,6 +199,15 @@ export function chooseLuxuryAccessoryLine(input: LuxuryAccessoryInput) {
   let candidates = getSceneAccessoryCandidates(input.imageType, input.scenePreference);
   if (noBag) candidates = candidates.filter((id) => !BAG_IDS.includes(id));
   if (noEyewear) candidates = candidates.filter((id) => !EYEWEAR_IDS.includes(id));
+  if (noSunglasses || input.sceneLocationType === "indoor") {
+    candidates = candidates.filter((id) => !SUNGLASSES_IDS.includes(id));
+  }
+  if (input.sceneLocationType === "semiIndoor") {
+    candidates = candidates.filter((id) => !SUNGLASSES_IDS.includes(id));
+  }
+  if (input.selectedTimeOfDay === "evening" && !wantsSunglasses) {
+    candidates = candidates.filter((id) => !SUNGLASSES_IDS.includes(id));
+  }
 
   if (!candidates.length) return "";
 
@@ -192,6 +215,10 @@ export function chooseLuxuryAccessoryLine(input: LuxuryAccessoryInput) {
   const bestScore = Math.max(...scored.map((item) => item.score));
   const best = scored.filter((item) => item.score === bestScore).map((item) => item.id);
   const selectedId = best[Math.floor(Math.random() * best.length)];
+
+  if (SUNGLASSES_IDS.includes(selectedId) && input.sceneLocationType === "indoor") {
+    return `${ACCESSORY_LINES.minimalOpticalGlasses} ${luxuryAccessoryBoundaryCompact}`;
+  }
 
   return `${ACCESSORY_LINES[selectedId]} ${luxuryAccessoryBoundaryCompact}`;
 }
