@@ -91,6 +91,26 @@ export function getPromptStats(text: string) {
   };
 }
 
+function removeRepeatedLightPhrases(text: string) {
+  const phrases = ["soft daylight", "warm light", "natural light", "gentle shadows", "calm mood"];
+  let output = text;
+
+  phrases.forEach((phrase) => {
+    let seen = false;
+    const pattern = new RegExp(`\\b${phrase.replace(/\s+/g, "\\s+")}\\b`, "gi");
+    output = output.replace(pattern, (match) => {
+      if (!seen) {
+        seen = true;
+        return match;
+      }
+
+      return "";
+    });
+  });
+
+  return output.replace(/\s+,/g, ",").replace(/\s{2,}/g, " ").trim();
+}
+
 export function cleanFinalPrompt(text: string) {
   const marker = "Additional user requirement:";
   const markerIndex = text.lastIndexOf(marker);
@@ -98,7 +118,7 @@ export function cleanFinalPrompt(text: string) {
     markerIndex >= 0 ? text.slice(markerIndex).trim().replace(/\s+$/, "") : "";
   const body = markerIndex >= 0 ? text.slice(0, markerIndex) : text;
 
-  const cleanedBody = body
+  const cleanedBody = removeRepeatedLightPhrases(body
     .split(/\n+/)
     .map((line) => line.trim())
     .filter(Boolean)
@@ -119,7 +139,7 @@ export function cleanFinalPrompt(text: string) {
     .join(" ")
     .replace(/\s+/g, " ")
     .replace(/\s+([,.!?;:])/g, "$1")
-    .trim();
+    .trim());
 
   return [cleanedBody, userRequirement].filter(Boolean).join(" ").trim();
 }

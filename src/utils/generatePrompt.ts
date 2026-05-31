@@ -9,6 +9,13 @@ import type {
 import { chooseOutfitLine } from "../data/seasonalOutfits";
 import { chooseLuxuryAccessoryLine, luxuryAccessoryNegative } from "../data/luxuryAccessories";
 import {
+  chooseSceneLocationType,
+  chooseTimeOfDay,
+  eveningLightNegative,
+  getTimeOfDayLine,
+  indoorEyewearNegative
+} from "../data/timeOfDay";
+import {
   getStillLifeProductProfile,
   getStillLifeStylePrompt,
   meshStillLifeNegative,
@@ -251,12 +258,20 @@ function getProductStillLifePrompt(params: TeamPromptParams) {
   const shoeStyle = getTeamShoeStyle(params, true);
   const sceneText = getTeamSceneText(params);
   const extraRequirement = params.extraRequirement.trim();
+  const selectedTimeOfDay = chooseTimeOfDay({
+    imageType: params.imageType,
+    scenePreference: resolveTeamScenePreference(params),
+    shoe: params.shoe,
+    userExtraRequirement: extraRequirement
+  });
+  const timeOfDayLine = getTimeOfDayLine(params.imageType, selectedTimeOfDay);
   const specialtyNegative = compactJoin(
     [
       productStillLifeNegative,
       profile === "metallicSilver" ? metallicStillLifeNegative : "",
       profile === "breathableMesh" ? meshStillLifeNegative : "",
-      TEAM_PRODUCT_NEGATIVE
+      TEAM_PRODUCT_NEGATIVE,
+      selectedTimeOfDay === "evening" ? eveningLightNegative : ""
     ],
     "\n\n"
   );
@@ -265,6 +280,7 @@ function getProductStillLifePrompt(params: TeamPromptParams) {
     [
       TEAM_BRAND_CORE,
       productStillLifeBaseCompact,
+      timeOfDayLine,
       stylePrompt,
       sceneText,
       shoeStyle,
@@ -312,6 +328,18 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
   const hasShoe = resolveTeamHasShoe(params);
   const resolvedScene = resolveTeamScenePreference(params);
   const sceneText = getTeamSceneText(params);
+  const extraRequirement = params.extraRequirement.trim();
+  const selectedTimeOfDay = chooseTimeOfDay({
+    imageType: params.imageType,
+    scenePreference: resolvedScene,
+    shoe: params.shoe,
+    userExtraRequirement: extraRequirement
+  });
+  const sceneLocationType = chooseSceneLocationType({
+    imageType: params.imageType,
+    scenePreference: resolvedScene
+  });
+  const timeOfDayLine = getTimeOfDayLine(params.imageType, selectedTimeOfDay);
 
   if (params.imageType === "产品静物图") {
     return {
@@ -321,7 +349,6 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
     };
   }
 
-  const extraRequirement = params.extraRequirement.trim();
   const seasonText = shouldUsePeopleStyling(params.imageType)
     ? chooseOutfitLine({
         season: params.season,
@@ -337,7 +364,9 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
     season: params.season,
     scenePreference: resolvedScene,
     selectedOutfitLine: seasonText,
-    userExtraRequirement: extraRequirement
+    userExtraRequirement: extraRequirement,
+    sceneLocationType,
+    selectedTimeOfDay
   });
   const shoeStyle = getTeamShoeStyle(params, hasShoe);
   const enhancedLifelike = getTeamEnhancedLifelike(params.imageType);
@@ -354,7 +383,9 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
         ? TEAM_PRODUCT_NEGATIVE
         : TEAM_ATMOSPHERE_NEGATIVE,
       creatorStyling ? TEAM_CREATOR_NEGATIVE : "",
-      accessoryLine ? luxuryAccessoryNegative : ""
+      accessoryLine ? luxuryAccessoryNegative : "",
+      sceneLocationType === "indoor" ? indoorEyewearNegative : "",
+      selectedTimeOfDay === "evening" ? eveningLightNegative : ""
     ],
     "\n\n"
   );
@@ -364,6 +395,7 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
       TEAM_BRAND_CORE,
       shouldUsePeopleStyling(params.imageType) ? TEAM_CUSTOMER_FEELING : "",
       TEAM_IMAGE_TYPE_TEMPLATES[params.imageType],
+      timeOfDayLine,
       enhancedLifelike,
       shoeStyle,
       seasonText,
