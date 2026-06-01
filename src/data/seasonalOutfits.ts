@@ -71,7 +71,11 @@ export const seasonalOutfitGroups: Record<TeamSeason, SeasonalOutfitGroup> = {
       "off-white ribbed knit top",
       "light blue shirt",
       "cream polo knit",
-      "soft linen-blend shirt"
+      "soft linen-blend shirt",
+      "charcoal fine-knit cardigan",
+      "navy light knit top",
+      "black camisole",
+      "grey-blue shirt"
     ],
     bottoms: [
       "light blue straight-leg denim",
@@ -83,7 +87,8 @@ export const seasonalOutfitGroups: Record<TeamSeason, SeasonalOutfitGroup> = {
       "soft grey tailored pants",
       "light denim ankle-length jeans",
       "linen-blend trousers",
-      "relaxed chino pants"
+      "relaxed chino pants",
+      "dark indigo straight denim"
     ],
     outerwear: [
       "light beige trench coat",
@@ -93,7 +98,8 @@ export const seasonalOutfitGroups: Record<TeamSeason, SeasonalOutfitGroup> = {
       "soft grey blazer",
       "ivory short jacket",
       "beige shirt jacket",
-      "light wool-blend blazer"
+      "light wool-blend blazer",
+      "soft olive shirt jacket"
     ],
     dressesSkirts: [
       "cream midi skirt",
@@ -129,10 +135,15 @@ export const seasonalOutfitGroups: Record<TeamSeason, SeasonalOutfitGroup> = {
       "pale khaki",
       "soft grey",
       "light denim blue",
-      "light taupe"
+      "light taupe",
+      "navy",
+      "charcoal",
+      "soft olive",
+      "muted brown",
+      "dark indigo"
     ],
     forbidden:
-      "Avoid girlish sweetness, floral overload, bright colors, heavy streetwear, sporty hoodie sets, exaggerated Korean influencer styling, overly romantic styling.",
+      "Use airy and clean spring styling, but allow realistic contrast through navy, charcoal, black accents, dark denim, soft olive, muted brown, and taupe. Avoid floral overload, bright candy colors, sweet-girl styling, sporty hoodie sets, and overly perfect beige AI outfits.",
     compactOutfitLines: [
       "Style her in a white cotton shirt, light blue straight-leg denim, a soft beige trench coat, and a cream tote for clean spring ease.",
       "Use cream lightweight knitwear, pale khaki tapered trousers, and a light taupe handbag for a gentle polished spring look.",
@@ -140,10 +151,12 @@ export const seasonalOutfitGroups: Record<TeamSeason, SeasonalOutfitGroup> = {
       "Style her with a light blue shirt, ivory cropped trousers, a pale grey fine-knit cardigan, and a natural canvas tote.",
       "Use an off-white ribbed knit top, oatmeal wide-leg trousers, a cream cropped jacket, and a small warm beige crossbody bag.",
       "Pair a soft beige blouse with light denim ankle-length jeans, a beige shirt jacket, and a pale grey shoulder bag.",
-      "Use a cream polo knit, soft grey tailored pants, a light wool-blend blazer, and a slim leather belt for a quiet commute-ready outfit.",
-      "Style her in a soft linen-blend shirt, relaxed chino pants, a pale khaki lightweight coat, and understated sunglasses.",
-      "Pair a cream midi skirt with an oatmeal lightweight knit top, simple watch, and light taupe handbag for refined spring softness.",
-      "Use a white shirt, beige tapered trousers, an ivory short jacket, and a cream tote for a clean daily city outfit."
+      "Use a charcoal fine-knit cardigan over a white tee, light blue straight denim, and a taupe shoulder bag for a more realistic spring city look.",
+      "Style her in a navy light knit top, cream trousers, a beige trench coat, and a soft brown leather tote for clean contrast without heaviness.",
+      "Pair a black camisole under an oversized white shirt with pale denim and a restrained black shoulder bag for a mature relaxed weekend outfit.",
+      "Use a soft olive shirt jacket, ivory tee, warm beige trousers, and a canvas tote for a grounded spring daily look.",
+      "Style her in a grey-blue shirt, dark indigo straight denim, and a cream tote for a real city-walk outfit that still feels clean.",
+      "Pair a cream midi skirt with an oatmeal knit top, a muted brown belt, and a taupe handbag for refined spring softness with real-life contrast."
     ]
   },
   夏: {
@@ -158,7 +171,12 @@ export const seasonalOutfitGroups: Record<TeamSeason, SeasonalOutfitGroup> = {
       "pale blue cotton shirt",
       "cream fine-rib tank under a shirt",
       "linen-blend blouse",
-      "light grey short-sleeve knit"
+      "light grey short-sleeve knit",
+      "black fitted tank top",
+      "dark coffee-brown sleeveless top",
+      "navy sleeveless knit top",
+      "charcoal ribbed tank",
+      "olive linen shirt"
     ],
     bottoms: [
       "cream linen trousers",
@@ -170,7 +188,9 @@ export const seasonalOutfitGroups: Record<TeamSeason, SeasonalOutfitGroup> = {
       "white cropped trousers",
       "oatmeal relaxed pants",
       "linen-blend ankle trousers",
-      "airy cotton pants"
+      "airy cotton pants",
+      "white straight midi skirt",
+      "beige Bermuda shorts"
     ],
     outerwear: [
       "lightweight linen overshirt",
@@ -214,10 +234,16 @@ export const seasonalOutfitGroups: Record<TeamSeason, SeasonalOutfitGroup> = {
       "light denim blue",
       "soft stone",
       "oatmeal",
-      "light tan"
+      "light tan",
+      "black",
+      "dark coffee",
+      "navy",
+      "charcoal",
+      "olive",
+      "soft grey"
     ],
     forbidden:
-      "Avoid sporty tank styling, gym look, vacation-girl styling, beach mood, overexposed skin, loud resort prints, high-saturation color, girlish shorts styling.",
+      "Use breathable summer styling, but allow black, dark coffee, navy, charcoal, olive, soft grey, and light denim as realistic wardrobe anchors. Avoid beach vacation styling, gym-only look, overexposed skin, high-saturation colors, sweet girlish shorts, and AI-clean all-white outfits with no life.",
     compactOutfitLines: [
       "Style her in a white short-sleeve shirt, cream linen trousers, and a light neutral tote for breathable summer ease.",
       "Use a cream linen shirt, pale denim, and understated gold accessories for clean summer daily sophistication.",
@@ -225,10 +251,12 @@ export const seasonalOutfitGroups: Record<TeamSeason, SeasonalOutfitGroup> = {
       "Style her with an off-white boxy shirt, oatmeal relaxed pants, and a restrained woven bag for quiet summer practicality.",
       "Use a pale blue cotton shirt, white cropped trousers, and a pale grey mini tote for a fresh low-saturation summer look.",
       "Pair a cream fine-rib tank under a lightweight linen overshirt with ivory straight-leg pants and a light tan handbag.",
-      "Use a linen-blend blouse, pale khaki lightweight pants, simple watch, and small gold earrings for refined daily movement.",
-      "Style her in a light grey short-sleeve knit, cream linen midi skirt, and soft beige shoulder bag for soft summer femininity.",
-      "Pair an off-white shirt dress with understated sunglasses and a cream canvas tote for clean weekend ease.",
-      "Use an oatmeal lightweight knit tee, airy cotton pants, and an ivory leather tote for breathable city-walk styling."
+      "Style her in a black fitted tank top, white straight midi skirt, and a small black shoulder bag for a mature summer contrast look.",
+      "Use a dark coffee-brown sleeveless top, cream wide-leg trousers, and a taupe tote for quiet warm summer depth.",
+      "Pair a navy sleeveless knit top with light denim jeans and a cream canvas tote for a realistic city summer outfit.",
+      "Style her in a soft grey short-sleeve knit, beige Bermuda shorts, and a restrained leather tote for an easy refined summer day.",
+      "Use a white oversized shirt over a charcoal ribbed tank, linen trousers, and a black flat shoulder bag for a believable urban summer look.",
+      "Pair an olive linen shirt with ivory pants and a natural canvas tote for a grounded, non-template summer outfit."
     ]
   },
   秋: {
@@ -243,7 +271,11 @@ export const seasonalOutfitGroups: Record<TeamSeason, SeasonalOutfitGroup> = {
       "light brown cardigan",
       "camel knit polo",
       "off-white cotton shirt",
-      "taupe knit pullover"
+      "taupe knit pullover",
+      "charcoal wool-blend sweater",
+      "navy fine-knit top",
+      "chocolate brown knit cardigan",
+      "black fine-knit top"
     ],
     bottoms: [
       "dark blue straight-leg denim",
@@ -255,7 +287,9 @@ export const seasonalOutfitGroups: Record<TeamSeason, SeasonalOutfitGroup> = {
       "cream autumn trousers",
       "taupe cropped trousers",
       "washed denim jeans",
-      "beige corduroy trousers"
+      "beige corduroy trousers",
+      "dark denim",
+      "warm beige straight skirt"
     ],
     outerwear: [
       "beige trench coat",
@@ -265,7 +299,10 @@ export const seasonalOutfitGroups: Record<TeamSeason, SeasonalOutfitGroup> = {
       "warm grey coat",
       "cream cardigan jacket",
       "light suede jacket",
-      "taupe shirt jacket"
+      "taupe shirt jacket",
+      "muted olive jacket",
+      "grey coat",
+      "muted camel coat"
     ],
     dressesSkirts: [
       "oatmeal knit skirt",
@@ -302,10 +339,17 @@ export const seasonalOutfitGroups: Record<TeamSeason, SeasonalOutfitGroup> = {
       "taupe",
       "stone grey",
       "cream white",
-      "muted denim blue"
+      "muted denim blue",
+      "charcoal",
+      "navy",
+      "dark denim",
+      "chocolate brown",
+      "olive",
+      "black accent",
+      "grey"
     ],
     forbidden:
-      "Avoid heavy old-fashioned styling, masculine brown outfit, dramatic retro costume, overly dark autumn colors, strong British academia, heavy boots feeling.",
+      "Use warm tactile autumn styling, but allow charcoal, navy, dark denim, chocolate brown, olive, black accents, grey coats, and deeper brown bags. Avoid muddy brown overload, old-fashioned mature styling, heavy academia, masculine darkness, and all-oatmeal AI template outfits.",
     compactOutfitLines: [
       "Style her in oatmeal knitwear, dark straight-leg denim, and a warm brown tote for soft autumn daily elegance.",
       "Use a cream shirt layered under cappuccino knitwear with warm beige trousers for a calm tactile autumn look.",
@@ -313,10 +357,12 @@ export const seasonalOutfitGroups: Record<TeamSeason, SeasonalOutfitGroup> = {
       "Style her in a warm ivory turtleneck, stone grey straight pants, a soft brown blazer, and a taupe crossbody bag.",
       "Use a light brown cardigan, cream autumn trousers, and a muted brown structured bag for gentle daily warmth.",
       "Pair a camel knit polo with washed denim jeans, a taupe shirt jacket, and brown sunglasses for a relaxed city outfit.",
-      "Use an off-white cotton shirt, beige corduroy trousers, a cream cardigan jacket, and a warm brown tote for tactile softness.",
-      "Style her in a taupe knit pullover, oatmeal wide-leg pants, and a cappuccino leather handbag for quiet autumn depth.",
-      "Pair a warm beige straight skirt with a cream knit top, low-saturation silk scarf, and muted brown bag.",
-      "Use a beige long-sleeve blouse, soft brown relaxed trousers, a light suede jacket, and simple watch for refined autumn ease."
+      "Style her in a charcoal wool-blend sweater, cream trousers, and a warm brown tote for a grounded autumn contrast look.",
+      "Use a navy fine-knit top, beige wide-leg trousers, and a camel short coat for mature city softness.",
+      "Pair a chocolate brown knit cardigan with dark denim, a cream tee, and a no-logo leather shoulder bag for realistic autumn daily wear.",
+      "Style her in a muted olive jacket, white shirt, taupe trousers, and a soft brown bag for a less predictable autumn look.",
+      "Use a black fine-knit top, warm beige straight skirt, and a muted camel coat for refined feminine autumn contrast.",
+      "Pair a grey coat with winter-white trousers, an oatmeal sweater, and a dark brown structured bag for a composed late-autumn outfit."
     ]
   },
   冬: {
@@ -331,7 +377,10 @@ export const seasonalOutfitGroups: Record<TeamSeason, SeasonalOutfitGroup> = {
       "winter white shirt under knitwear",
       "taupe ribbed knit",
       "muted brown cardigan",
-      "cream high-neck knit"
+      "cream high-neck knit",
+      "black turtleneck",
+      "navy wool sweater",
+      "muted chocolate knit"
     ],
     bottoms: [
       "warm grey wool trousers",
@@ -343,7 +392,8 @@ export const seasonalOutfitGroups: Record<TeamSeason, SeasonalOutfitGroup> = {
       "soft taupe pants",
       "cream winter trousers",
       "charcoal-soft grey trousers",
-      "cappuccino straight pants"
+      "cappuccino straight pants",
+      "black straight trousers"
     ],
     outerwear: [
       "cream wool coat",
@@ -353,7 +403,10 @@ export const seasonalOutfitGroups: Record<TeamSeason, SeasonalOutfitGroup> = {
       "muted brown coat",
       "taupe structured coat",
       "minimalist down jacket in cream or warm grey",
-      "soft camel coat"
+      "soft camel coat",
+      "charcoal coat",
+      "soft olive padded jacket",
+      "grey-beige coat"
     ],
     dressesSkirts: [
       "warm knit dress",
@@ -390,10 +443,15 @@ export const seasonalOutfitGroups: Record<TeamSeason, SeasonalOutfitGroup> = {
       "cappuccino",
       "muted brown",
       "soft camel",
-      "charcoal grey"
+      "charcoal grey",
+      "black",
+      "navy",
+      "dark denim",
+      "chocolate brown",
+      "olive"
     ],
     forbidden:
-      "Avoid bulky winter styling, black-heavy outfit, harsh cold minimalism, sporty down-jacket look, loud scarf or hat colors, and old-fashioned mature styling.",
+      "Use warm composed winter styling, but allow black, navy, charcoal, dark denim, chocolate brown, olive, grey coats, and deeper bags as controlled anchors. Avoid bulky styling, all-black heaviness, harsh cold minimalism, sporty down-jacket look, loud scarves, old-fashioned mature styling, and sterile AI winter outfits.",
     compactOutfitLines: [
       "Style her in a warm ivory turtleneck, wool trousers, and a cream coat for clean winter sophistication.",
       "Use oatmeal knitwear, dark structured denim, and a muted brown bag for composed daily winter warmth.",
@@ -401,10 +459,12 @@ export const seasonalOutfitGroups: Record<TeamSeason, SeasonalOutfitGroup> = {
       "Style her in a cappuccino cashmere-blend sweater, soft taupe pants, a soft camel coat, and a warm brown leather tote.",
       "Use a cream high-neck knit, charcoal-soft grey trousers, and a grey-beige shoulder bag for clean winter balance.",
       "Pair a winter white shirt under oatmeal wool sweater with beige wool-blend trousers and a taupe structured coat.",
-      "Use a muted brown cardigan, cream winter trousers, simple gloves, and a cream winter tote for soft seasonal warmth.",
-      "Style her in a taupe ribbed knit, dark blue structured denim, a beige short wool jacket, and a muted brown handbag.",
-      "Pair a soft grey knitwear top with oatmeal wide-leg pants, a low-saturation wool scarf, and a warm grey coat.",
-      "Use a beige wool-blend top, cappuccino straight pants, a minimalist cream down jacket, and a soft camel bag for restrained cozy styling."
+      "Style her in a black turtleneck, warm grey wool trousers, a cream long coat, and a structured black shoulder bag for sharp winter contrast.",
+      "Use a navy wool sweater, winter-white straight pants, and a camel coat for a mature cold-weather outfit.",
+      "Pair a charcoal coat with oatmeal wide-leg trousers, a cream knit, and a dark brown tote for realistic winter depth.",
+      "Style her in a muted chocolate knit, dark denim, and a warm beige short wool jacket for a grounded everyday winter look.",
+      "Use a soft olive padded jacket, cream knitwear, taupe trousers, and a no-logo tote for a clean practical winter day.",
+      "Pair a grey-beige coat with black straight trousers, an ivory scarf, and a taupe leather bag for a composed city winter outfit."
     ]
   }
 };
@@ -427,96 +487,94 @@ const OUTFIT_LETTER_INDEX: Record<string, number> = {
   G: 6,
   H: 7,
   I: 8,
-  J: 9
+  J: 9,
+  K: 10,
+  L: 11
 };
 
 const CLOTHING_REQUIREMENT_KEYWORDS = [
-  "白衬衫",
+  "不要自动搭配",
+  "不用自动搭配",
+  "不要加穿搭",
+  "no auto outfit",
+  "do not add outfit",
+  "skip outfit styling",
+  "no outfit styling"
+];
+
+const DARK_ANCHOR_REQUIREMENT_KEYWORDS = [
+  "不要全浅色",
+  "不要太米白",
+  "深色裤子",
+  "黑色背心",
+  "深蓝牛仔",
+  "深色牛仔",
   "牛仔裤",
-  "裙子",
-  "半裙",
-  "连衣裙",
-  "大衣",
-  "针织",
-  "西裤",
-  "衬衫",
-  "风衣",
-  "短袖",
-  "亚麻",
-  "阔腿裤",
-  "直筒裤",
-  "托特包",
-  "white shirt",
-  "denim",
-  "jeans",
-  "skirt",
-  "dress",
-  "coat",
-  "knitwear",
-  "trousers",
-  "shirt",
-  "trench coat",
-  "short-sleeve shirt",
-  "linen",
-  "wide-leg pants",
-  "straight-leg pants",
-  "tote bag"
+  "黑色小包",
+  "dark denim",
+  "black tank",
+  "navy knit",
+  "charcoal trousers",
+  "charcoal",
+  "black bag",
+  "dark jeans",
+  "olive jacket"
 ];
 
 const SCENE_OUTFIT_LETTERS: Partial<Record<TeamScenePreference | "对镜穿搭", Record<TeamSeason, string[]>>> = {
   通勤上班: {
-    春: ["A", "G", "J"],
-    夏: ["A", "C", "G"],
-    秋: ["B", "C", "D"],
-    冬: ["A", "C", "E"]
+    春: ["A", "G", "H", "J"],
+    夏: ["A", "C", "I", "K"],
+    秋: ["B", "C", "D", "H", "K"],
+    冬: ["A", "C", "E", "G", "L"]
   },
   周末城市散步: {
-    春: ["D", "E", "H"],
-    夏: ["B", "D", "J"],
-    秋: ["A", "F", "H"],
-    冬: ["B", "D", "H"]
+    春: ["D", "E", "I", "K"],
+    夏: ["B", "D", "I", "L"],
+    秋: ["A", "F", "I", "J"],
+    冬: ["B", "D", "H", "J"]
   },
   "精品超市 / 日常采购": {
-    春: ["A", "B", "H"],
-    夏: ["A", "D", "J"],
-    秋: ["A", "E", "J"],
-    冬: ["B", "G", "J"]
+    春: ["A", "B", "I", "J"],
+    夏: ["A", "D", "H", "J"],
+    秋: ["A", "E", "I", "J"],
+    冬: ["B", "I", "J", "K"]
   },
   旅行酒店: {
-    春: ["B", "D", "J"],
-    夏: ["B", "F", "I"],
-    秋: ["C", "H", "J"],
-    冬: ["C", "E", "I"]
+    春: ["B", "D", "H", "L"],
+    夏: ["B", "F", "I", "K"],
+    秋: ["C", "H", "J", "L"],
+    冬: ["C", "E", "I", "L"]
   },
   居家衣帽间: {
-    春: ["B", "E", "I"],
-    夏: ["C", "F", "H"],
-    秋: ["B", "D", "I"],
-    冬: ["A", "D", "E"]
+    春: ["B", "E", "I", "L"],
+    夏: ["C", "F", "G", "K"],
+    秋: ["B", "D", "I", "K"],
+    冬: ["A", "D", "G", "E"]
   },
   对镜穿搭: {
-    春: ["B", "E", "I"],
-    夏: ["C", "F", "H"],
-    秋: ["B", "D", "I"],
-    冬: ["A", "D", "E"]
+    春: ["B", "E", "I", "L"],
+    夏: ["C", "F", "G", "K"],
+    秋: ["B", "D", "I", "K"],
+    冬: ["A", "D", "G", "L"]
   },
   周末轻采购: {
-    春: ["A", "B", "H"],
-    夏: ["A", "D", "J"],
-    秋: ["A", "E", "J"],
-    冬: ["B", "G", "J"]
+    春: ["A", "B", "I", "J"],
+    夏: ["A", "D", "H", "J"],
+    秋: ["A", "E", "I", "J"],
+    冬: ["B", "I", "J", "K"]
   },
   窗边阅读: {
-    春: ["G", "I", "J"],
+    春: ["G", "I", "L"],
     夏: ["E", "G", "H"],
-    秋: ["D", "H", "I"],
+    秋: ["D", "H", "I", "L"],
     冬: ["C", "E", "I"]
   },
   玄关出门: {
-    春: ["A", "G", "J"],
-    夏: ["A", "C", "G"],
-    秋: ["B", "C", "D"],
-    冬: ["A", "C", "E"]
+    春: ["A", "G", "H", "J"],
+    夏: ["A", "C", "I", "K"],
+    秋: ["B", "C", "D", "H"],
+    冬: ["A", "C", "E", "L"]
   }
 };
 
@@ -525,39 +583,72 @@ function hasExplicitClothingRequirement(extraRequirement = "") {
   return CLOTHING_REQUIREMENT_KEYWORDS.some((keyword) => text.includes(keyword.toLowerCase()));
 }
 
+function wantsDarkAnchor(extraRequirement = "") {
+  const text = extraRequirement.toLowerCase();
+  return DARK_ANCHOR_REQUIREMENT_KEYWORDS.some((keyword) => text.includes(keyword.toLowerCase()));
+}
+
 function getTeamShoePreferenceWords(shoe: TeamShoe, season: TeamSeason) {
   if (shoe === "Cloud Dancer 云舞者" || shoe === "Sand Dollar 沙钱白") {
-    return ["white", "cream", "beige", "trench", "coat", "light", "denim", "tote", "trousers"];
+    return [
+      "white",
+      "cream",
+      "beige",
+      "trench",
+      "coat",
+      "light",
+      "denim",
+      "dark",
+      "charcoal",
+      "navy",
+      "olive",
+      "black",
+      "tote",
+      "trousers"
+    ];
   }
 
   if (shoe === "Delphinium Blue 飞燕草蓝") {
     return season === "春" || season === "夏"
-      ? ["white", "pale", "denim", "oatmeal", "cream", "fresh", "airy"]
-      : ["cream", "light", "soft", "not heavy", "refined"];
+      ? ["white", "pale", "denim", "navy", "grey-blue", "charcoal", "oatmeal", "cream", "fresh", "airy"]
+      : ["cream", "light", "navy", "charcoal", "soft", "not heavy", "refined"];
   }
 
   if (shoe === "Silver Romance 银色浪漫") {
-    return ["grey", "cream", "white", "urban", "refined", "blazer", "understated"];
+    return ["grey", "black", "cream", "white", "navy", "denim", "urban", "refined", "blazer", "understated"];
   }
 
   if (shoe === "Aire 微风") {
-    return ["linen", "airy", "light", "breathable", "shirt", "tote", "fresh", "not sporty"];
+    return [
+      "linen",
+      "airy",
+      "light",
+      "breathable",
+      "coffee",
+      "black",
+      "navy",
+      "soft grey",
+      "shirt",
+      "tote",
+      "fresh",
+      "not sporty"
+    ];
   }
 
   if (shoe === "Cappuccino 卡布奇诺") {
-    return ["knit", "cappuccino", "oatmeal", "coffee", "brown", "warm", "tactile"];
+    return ["knit", "cappuccino", "oatmeal", "coffee", "brown", "charcoal", "dark denim", "navy", "warm", "grey", "tactile"];
   }
 
   if (shoe === "Lemon 柠檬") {
-    return ["cream", "white", "pale", "denim", "khaki", "fresh", "neutral"];
+    return ["cream", "white", "pale", "denim", "khaki", "black", "olive", "soft grey", "fresh", "neutral"];
   }
 
   if (shoe === "Maple Grove 枫林") {
-    return ["warm", "knit", "brown", "beige", "coffee", "autumn", "soft"];
+    return ["warm", "knit", "brown", "beige", "coffee", "autumn", "charcoal", "dark denim", "grey", "soft"];
   }
 
   if (shoe === "Oreo 奥利奥" || shoe === "Panda 熊猫") {
-    return ["black", "white", "grey", "beige", "clean", "restrained", "soft"];
+    return ["black", "white", "grey", "beige", "dark denim", "trench", "cream", "clean", "restrained", "soft"];
   }
 
   return ["clean", "low-saturation", "refined", "daily", "neutral"];
@@ -623,7 +714,12 @@ export function chooseOutfitLine(input: TeamOutfitSelectionInput) {
   const shoeWords = getTeamShoePreferenceWords(input.shoe, input.season);
   const sceneWords = getTeamScenePreferenceWords(input.imageType, input.scenePreference);
   const words = [...shoeWords, ...sceneWords].map((word) => word.toLowerCase());
-  const candidateIndexes = getSceneOutfitCandidateIndexes(input);
+  const baseCandidateIndexes = getSceneOutfitCandidateIndexes(input);
+  const darkAnchorIndexes = baseCandidateIndexes.filter((index) => index >= 6);
+  const candidateIndexes =
+    wantsDarkAnchor(input.userExtraRequirement) && darkAnchorIndexes.length
+      ? darkAnchorIndexes
+      : baseCandidateIndexes;
 
   let bestScore = -1;
   const scoredCandidates = candidateIndexes.map((index) => {
