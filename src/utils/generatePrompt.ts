@@ -9,6 +9,11 @@ import type {
 import { chooseOutfitLine } from "../data/seasonalOutfits";
 import { chooseLuxuryAccessoryLine, luxuryAccessoryNegative } from "../data/luxuryAccessories";
 import {
+  chooseOutfitStyleProfile,
+  chooseVersatilityLine,
+  outfitVersatilityNegative
+} from "../data/outfitStyleProfiles";
+import {
   chooseSceneLocationType,
   chooseTimeOfDay,
   eveningLightNegative,
@@ -368,6 +373,19 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
     sceneLocationType,
     selectedTimeOfDay
   });
+  const outfitStyleLine = chooseOutfitStyleProfile({
+    imageType: params.imageType,
+    shoe: params.shoe,
+    season: params.season,
+    scenePreference: resolvedScene,
+    selectedOutfitLine: seasonText,
+    userExtraRequirement: extraRequirement
+  });
+  const versatilityLine = chooseVersatilityLine({
+    imageType: params.imageType,
+    scenePreference: resolvedScene,
+    userExtraRequirement: extraRequirement
+  });
   const shoeStyle = getTeamShoeStyle(params, hasShoe);
   const enhancedLifelike = getTeamEnhancedLifelike(params.imageType);
   const creatorStyling = getTeamCreatorStyling(params.imageType);
@@ -384,6 +402,7 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
         : TEAM_ATMOSPHERE_NEGATIVE,
       creatorStyling ? TEAM_CREATOR_NEGATIVE : "",
       accessoryLine ? luxuryAccessoryNegative : "",
+      outfitStyleLine || versatilityLine ? outfitVersatilityNegative : "",
       sceneLocationType === "indoor" ? indoorEyewearNegative : "",
       selectedTimeOfDay === "evening" ? eveningLightNegative : ""
     ],
@@ -399,8 +418,10 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
       enhancedLifelike,
       shoeStyle,
       seasonText,
+      outfitStyleLine,
       accessoryLine,
       creatorStyling,
+      versatilityLine,
       sceneText,
       productProtection,
       negative
