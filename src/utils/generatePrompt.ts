@@ -10,7 +10,17 @@ import {
   activeLifestyleBoundaryCompact,
   activeLifestyleNegative,
   chooseActiveOutfitLine,
-  isActiveScene
+  chooseLightStrengthActionLine,
+  choosePremiumGymOutfitLine,
+  choosePremiumGymSceneLine,
+  choosePremiumGymSubScene,
+  darkActiveOutfitBalanceCompact,
+  isActiveScene,
+  lightStrengthActionCompact,
+  premiumGymActiveCompact,
+  premiumGymLightingCompact,
+  premiumGymNegative,
+  strengthTrainingBoundaryCompact
 } from "../data/activeLifestyleTemplates";
 import { getActivePromptTemplate } from "../data/activePromptTemplates";
 import {
@@ -380,6 +390,15 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
   });
   const timeOfDayLine = getTimeOfDayLine(params.imageType, selectedTimeOfDay);
   const activeScene = isActiveScene(resolvedScene);
+  const premiumGymScene = resolvedScene === "健身房内";
+  const premiumGymSubScene = premiumGymScene
+    ? choosePremiumGymSubScene({
+        scenePreference: resolvedScene,
+        season: params.season,
+        shoe: params.shoe,
+        userExtraRequirement: extraRequirement
+      })
+    : null;
   const activePromptTemplate = getActivePromptTemplate(params.imageType, resolvedScene);
   const peopleImage = shouldUseModelIdentity(params.imageType);
   const summerPeopleOutfit = peopleImage && params.season === "夏";
@@ -394,7 +413,17 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
   }
 
   const seasonText = shouldUsePeopleStyling(params.imageType)
-    ? summerPeopleOutfit
+    ? premiumGymScene
+      ? choosePremiumGymOutfitLine(
+          {
+            scenePreference: resolvedScene,
+            season: params.season,
+            shoe: params.shoe,
+            userExtraRequirement: extraRequirement
+          },
+          premiumGymSubScene ?? "premiumGym"
+        )
+      : summerPeopleOutfit
       ? chooseSummerOutfitByScene({
           season: params.season,
           shoe: params.shoe,
@@ -451,6 +480,9 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
     userExtraRequirement: extraRequirement
   });
   const shoeStyle = getTeamShoeStyle(params, hasShoe);
+  const selectedPremiumGymSceneLine = premiumGymScene ? choosePremiumGymSceneLine() : "";
+  const selectedLightStrengthActionLine =
+    premiumGymScene && premiumGymSubScene === "gymStrengthLight" ? chooseLightStrengthActionLine() : "";
   const modelConsistencyLine = peopleImage ? getModelConsistencyLine(imageCountIntent) : "";
   const asianAppearanceBoundaryLine = peopleImage ? getAsianAppearanceBoundaryLine() : "";
   const enhancedLifelike = getTeamEnhancedLifelike(params.imageType);
@@ -479,6 +511,7 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
       outfitStyleLine || versatilityLine ? outfitVersatilityNegative : "",
       seasonalLuxuryStyleLine ? seasonalLuxuryNegative : "",
       activeScene ? activeLifestyleNegative : "",
+      premiumGymScene ? premiumGymNegative : "",
       summerPeopleOutfit ? summerOutfitNegative : "",
       peopleImage ? outfitDiversityNegative : "",
       peopleImage ? peopleIdentityNegative : "",
@@ -496,6 +529,7 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
       activePromptTemplate || TEAM_IMAGE_TYPE_TEMPLATES[params.imageType],
       modelConsistencyLine,
       timeOfDayLine,
+      premiumGymScene ? premiumGymLightingCompact : "",
       enhancedLifelike,
       summerPeopleOutfit ? summerRealisticOutfitBoundaryCompact : "",
       peopleImage ? realLifeOutfitDiversityCompact : "",
@@ -506,14 +540,21 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
       peopleImage && activeScene ? activeModelConsistencyCompact : "",
       shoeStyle,
       seasonText,
+      premiumGymScene ? darkActiveOutfitBalanceCompact : "",
       realLifeDetailLine,
       outfitStyleLine,
       seasonalLuxuryStyleLine,
       accessoryLine,
+      selectedPremiumGymSceneLine,
       creatorStyling,
       creatorStyling ? creatorIdentityBoundaryCompact : "",
       seasonalLuxuryStyleLine ? luxuryIdentityBoundaryCompact : "",
       activeScene ? activeLifestyleBoundaryCompact : "",
+      premiumGymScene ? premiumGymActiveCompact : "",
+      premiumGymScene ? strengthTrainingBoundaryCompact : "",
+      premiumGymScene && selectedLightStrengthActionLine
+        ? `${lightStrengthActionCompact} ${selectedLightStrengthActionLine}`
+        : "",
       versatilityLine,
       sceneText,
       productProtection,

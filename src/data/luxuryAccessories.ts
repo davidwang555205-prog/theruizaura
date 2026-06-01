@@ -1,5 +1,9 @@
 import type { TeamImageType, TeamScenePreference, TeamSeason, TeamShoe } from "../types";
-import { activeLifestyleAccessoryLine, isActiveScene } from "./activeLifestyleTemplates";
+import {
+  activeLifestyleAccessoryLine,
+  isActiveScene,
+  premiumGymAccessoryLine
+} from "./activeLifestyleTemplates";
 import type { SceneLocationType, TimeOfDay } from "./timeOfDay";
 
 type AccessoryId =
@@ -187,7 +191,7 @@ export function chooseLuxuryAccessoryLine(input: LuxuryAccessoryInput) {
 
   if (isActiveScene(input.scenePreference)) {
     if (noBag) return "";
-    if (input.scenePreference === "健身房内") return activeLifestyleAccessoryLine;
+    if (input.scenePreference === "健身房内") return premiumGymAccessoryLine;
     if (wantsSunglasses && !noEyewear && !noSunglasses && input.selectedTimeOfDay !== "evening") {
       return `${ACCESSORY_LINES.celineSunglasses} ${luxuryAccessoryBoundaryCompact}`;
     }
