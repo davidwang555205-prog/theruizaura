@@ -13,7 +13,12 @@ import {
   isActiveScene
 } from "../data/activeLifestyleTemplates";
 import { getActivePromptTemplate } from "../data/activePromptTemplates";
-import { chooseOutfitLine } from "../data/seasonalOutfits";
+import {
+  chooseOutfitLine,
+  chooseSummerOutfitByScene,
+  summerOutfitNegative,
+  summerRealisticOutfitBoundaryCompact
+} from "../data/seasonalOutfits";
 import { chooseLuxuryAccessoryLine, luxuryAccessoryNegative } from "../data/luxuryAccessories";
 import {
   chooseOutfitStyleProfile,
@@ -377,6 +382,7 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
   const activeScene = isActiveScene(resolvedScene);
   const activePromptTemplate = getActivePromptTemplate(params.imageType, resolvedScene);
   const peopleImage = shouldUseModelIdentity(params.imageType);
+  const summerPeopleOutfit = peopleImage && params.season === "夏";
   const imageCountIntent = detectImageCountOrSeriesIntent(extraRequirement, params.imageType);
 
   if (params.imageType === "产品静物图") {
@@ -388,7 +394,15 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
   }
 
   const seasonText = shouldUsePeopleStyling(params.imageType)
-    ? activeScene
+    ? summerPeopleOutfit
+      ? chooseSummerOutfitByScene({
+          season: params.season,
+          shoe: params.shoe,
+          imageType: params.imageType,
+          scenePreference: resolvedScene,
+          userExtraRequirement: extraRequirement
+        })
+      : activeScene
       ? chooseActiveOutfitLine({
           scenePreference: resolvedScene,
           season: params.season,
@@ -465,6 +479,7 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
       outfitStyleLine || versatilityLine ? outfitVersatilityNegative : "",
       seasonalLuxuryStyleLine ? seasonalLuxuryNegative : "",
       activeScene ? activeLifestyleNegative : "",
+      summerPeopleOutfit ? summerOutfitNegative : "",
       peopleImage ? outfitDiversityNegative : "",
       peopleImage ? peopleIdentityNegative : "",
       peopleImage && imageCountIntent === "multiImageSet" ? multiImageIdentityNegative : "",
@@ -482,6 +497,7 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
       modelConsistencyLine,
       timeOfDayLine,
       enhancedLifelike,
+      summerPeopleOutfit ? summerRealisticOutfitBoundaryCompact : "",
       peopleImage ? realLifeOutfitDiversityCompact : "",
       peopleImage ? colorDiversityBoundaryCompact : "",
       peopleImage ? antiAIOutfitTextureCompact : "",
