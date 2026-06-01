@@ -320,7 +320,9 @@ const SCENE_PROFILE_PRIORITIES: Partial<Record<TeamScenePreference, OutfitStyleP
   窗边阅读: ["galleryIntellectual", "matureMinimal", "quietLuxuryCasual"],
   周末轻采购: ["premiumErrands", "modernMomDaily", "refinedWeekend"],
   材质工作台: ["galleryIntellectual", "matureMinimal"],
-  拍摄花絮: ["matureMinimal", "galleryIntellectual"]
+  拍摄花絮: ["matureMinimal", "galleryIntellectual"],
+  健身房内: ["relaxedUrban", "travelLight", "matureMinimal"],
+  去运动的路上: ["travelLight", "relaxedUrban", "premiumErrands"]
 };
 
 const SHOE_PROFILE_PRIORITIES: Record<TeamShoe, OutfitStyleProfileId[]> = {
@@ -370,7 +372,13 @@ const versatilityLines = {
   onePair:
     "The styling should show the product’s one-pair-many-scenes versatility: polished enough for daily life, relaxed enough for movement, and clean enough for refined dressing.",
   complete:
-    "The sneakers should not steal attention, but should make the outfit feel more complete, wearable, and quietly stylish."
+    "The sneakers should not steal attention, but should make the outfit feel more complete, wearable, and quietly stylish.",
+  activeMovement:
+    "The styling should show that the sneakers can move easily into light workout or gym-going moments while still looking clean and wearable in daily life.",
+  activeRoutine:
+    "The sneakers should feel suitable for movement-oriented routines, balancing comfort, light activity, and refined daily dressing.",
+  activeDaily:
+    "The look should show that the sneakers are versatile enough for errands, commuting, and light fitness moments without looking like a technical sports shoe."
 };
 
 function includesAny(text: string, keywords: string[]) {
@@ -479,6 +487,11 @@ export function chooseVersatilityLine(input: Pick<OutfitStyleSelectionInput, "im
   if (!shouldUseOutfitStyle(input.imageType)) return "";
 
   const text = (input.userExtraRequirement ?? "").toLowerCase();
+  if (input.scenePreference === "健身房内") return versatilityLines.activeRoutine;
+  if (input.scenePreference === "去运动的路上") {
+    return text.includes("commute") || text.includes("通勤") ? versatilityLines.activeDaily : versatilityLines.activeMovement;
+  }
+
   if (includesAny(text, ["百搭", "多场景", "versatile", "versatility", "one-pair-many-scenes"])) {
     return versatilityLines.onePair;
   }

@@ -6,6 +6,13 @@ import type {
   TeamSeason,
   TeamShoe
 } from "../types";
+import {
+  activeLifestyleBoundaryCompact,
+  activeLifestyleNegative,
+  chooseActiveOutfitLine,
+  isActiveScene
+} from "../data/activeLifestyleTemplates";
+import { getActivePromptTemplate } from "../data/activePromptTemplates";
 import { chooseOutfitLine } from "../data/seasonalOutfits";
 import { chooseLuxuryAccessoryLine, luxuryAccessoryNegative } from "../data/luxuryAccessories";
 import {
@@ -148,7 +155,11 @@ const TEAM_SCENE_TEXT: Record<Exclude<TeamScenePreference, "自动匹配">, stri
   拍摄花絮:
     "Use a quiet behind-the-scenes shooting moment with styling table, camera monitor, light stand edge, paper shot list, wardrobe pieces, or hands adjusting details.",
   周末轻采购:
-    "Use a refined weekend errands atmosphere with flowers, bakery paper bags, produce, coffee beans, tote bags, or a simple kitchen/table surface. The mood should feel like real life made beautiful through order, restraint, and good taste."
+    "Use a refined weekend errands atmosphere with flowers, bakery paper bags, produce, coffee beans, tote bags, or a simple kitchen/table surface. The mood should feel like real life made beautiful through order, restraint, and good taste.",
+  健身房内:
+    "Use a clean modern gym, movement studio, or calm stretching area with soft neutral light and minimal equipment. The scene should feel like light movement-oriented daily life, not professional training content.",
+  去运动的路上:
+    "Use a calm city-to-gym transition setting such as a gym entrance, clean sidewalk, parking-to-gym walkway, hotel gym route, or quiet urban movement path. The mood should feel polished, practical, and ready for light activity."
 };
 
 const TEAM_SHOE_KEYWORDS = [
@@ -346,6 +357,8 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
     scenePreference: resolvedScene
   });
   const timeOfDayLine = getTimeOfDayLine(params.imageType, selectedTimeOfDay);
+  const activeScene = isActiveScene(resolvedScene);
+  const activePromptTemplate = getActivePromptTemplate(params.imageType, resolvedScene);
 
   if (params.imageType === "产品静物图") {
     return {
@@ -356,13 +369,20 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
   }
 
   const seasonText = shouldUsePeopleStyling(params.imageType)
-    ? chooseOutfitLine({
-        season: params.season,
-        shoe: params.shoe,
-        imageType: params.imageType,
-        scenePreference: resolvedScene,
-        userExtraRequirement: extraRequirement
-      })
+    ? activeScene
+      ? chooseActiveOutfitLine({
+          scenePreference: resolvedScene,
+          season: params.season,
+          shoe: params.shoe,
+          userExtraRequirement: extraRequirement
+        })
+      : chooseOutfitLine({
+          season: params.season,
+          shoe: params.shoe,
+          imageType: params.imageType,
+          scenePreference: resolvedScene,
+          userExtraRequirement: extraRequirement
+        })
     : TEAM_ATMOSPHERE_SEASON[params.season];
   const accessoryLine = chooseLuxuryAccessoryLine({
     imageType: params.imageType,
@@ -415,6 +435,7 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
       accessoryLine ? luxuryAccessoryNegative : "",
       outfitStyleLine || versatilityLine ? outfitVersatilityNegative : "",
       seasonalLuxuryStyleLine ? seasonalLuxuryNegative : "",
+      activeScene ? activeLifestyleNegative : "",
       sceneLocationType === "indoor" ? indoorEyewearNegative : "",
       selectedTimeOfDay === "evening" ? eveningLightNegative : ""
     ],
@@ -425,7 +446,7 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
     [
       TEAM_BRAND_CORE,
       shouldUsePeopleStyling(params.imageType) ? TEAM_CUSTOMER_FEELING : "",
-      TEAM_IMAGE_TYPE_TEMPLATES[params.imageType],
+      activePromptTemplate || TEAM_IMAGE_TYPE_TEMPLATES[params.imageType],
       timeOfDayLine,
       enhancedLifelike,
       shoeStyle,
@@ -434,6 +455,7 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
       seasonalLuxuryStyleLine,
       accessoryLine,
       creatorStyling,
+      activeScene ? activeLifestyleBoundaryCompact : "",
       versatilityLine,
       sceneText,
       productProtection,

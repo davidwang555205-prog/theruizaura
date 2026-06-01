@@ -166,7 +166,8 @@ const SCENE_PRIORITIES: Partial<Record<TeamScenePreference | "对镜穿搭", Sea
   居家衣帽间: ["chanelRefinedFeminine", "celineCityMinimal", "theRowNoLogoRestraint"],
   窗边阅读: ["celineCityMinimal", "theRowNoLogoRestraint"],
   周末轻采购: ["loroPianaQuietCashmere", "theRowNoLogoRestraint", "chloeSoftEase"],
-  玄关出门: ["theRowNoLogoRestraint", "loroPianaQuietCashmere", "celineCityMinimal"]
+  玄关出门: ["theRowNoLogoRestraint", "loroPianaQuietCashmere", "celineCityMinimal"],
+  去运动的路上: ["theRowNoLogoRestraint", "celineCityMinimal"]
 };
 
 const SHOE_PRIORITIES: Record<TeamShoe, SeasonalLuxuryStyleId[]> = {
@@ -257,6 +258,7 @@ function hasSocialiteRejection(extraRequirement = "") {
 
 export function chooseSeasonalLuxuryStyle(input: SeasonalLuxuryStyleInput) {
   if (!shouldUseSeasonalLuxuryStyle(input.imageType)) return "";
+  if (input.scenePreference === "健身房内") return "";
 
   const userPreferredId = getUserPreferredProfile(input.userExtraRequirement);
   const candidates = seasonalLuxuryStyleProfiles.filter((profile) => {
