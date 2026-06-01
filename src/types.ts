@@ -170,7 +170,9 @@ export type TeamScenePreference =
   | "窗边阅读"
   | "材质工作台"
   | "拍摄花絮"
-  | "周末轻采购";
+  | "周末轻采购"
+  | "健身房内"
+  | "去运动的路上";
 
 export type TeamPromptParams = {
   imageType: TeamImageType;
