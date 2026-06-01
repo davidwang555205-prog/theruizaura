@@ -1,4 +1,5 @@
 import type { TeamImageType, TeamScenePreference, TeamSeason, TeamShoe } from "../types";
+import { activeLifestyleAccessoryLine, isActiveScene } from "./activeLifestyleTemplates";
 import type { SceneLocationType, TimeOfDay } from "./timeOfDay";
 
 type AccessoryId =
@@ -112,7 +113,9 @@ const SCENE_ACCESSORIES: Partial<Record<TeamScenePreference | "对镜穿搭", Ac
   周末城市散步: ["celineBag", "theRowBag", "chanelBag", "celineSunglasses"],
   周末轻采购: ["goyardBag", "theRowBag", "hermesBag"],
   玄关出门: ["theRowBag", "hermesBag", "celineBag"],
-  窗边阅读: ["celineBag", "theRowBag", "minimalOpticalGlasses"]
+  窗边阅读: ["celineBag", "theRowBag", "minimalOpticalGlasses"],
+  健身房内: ["simpleNoLogoBag", "theRowBag"],
+  去运动的路上: ["theRowBag", "goyardBag", "celineBag"]
 };
 
 const SHOE_ACCESSORIES: Record<TeamShoe, AccessoryId[]> = {
@@ -181,6 +184,15 @@ export function chooseLuxuryAccessoryLine(input: LuxuryAccessoryInput) {
   const wantsSunglasses = textIncludesAny(text, SUNGLASSES_KEYWORDS);
   const wantsOptical = textIncludesAny(text, OPTICAL_KEYWORDS);
   const wantsTote = textIncludesAny(text, TOTE_KEYWORDS);
+
+  if (isActiveScene(input.scenePreference)) {
+    if (noBag) return "";
+    if (input.scenePreference === "健身房内") return activeLifestyleAccessoryLine;
+    if (wantsSunglasses && !noEyewear && !noSunglasses && input.selectedTimeOfDay !== "evening") {
+      return `${ACCESSORY_LINES.celineSunglasses} ${luxuryAccessoryBoundaryCompact}`;
+    }
+    return activeLifestyleAccessoryLine;
+  }
 
   if (noBag && noEyewear) return "";
   if (noLuxuryBag && !noBag) return `${ACCESSORY_LINES.simpleNoLogoBag} ${luxuryAccessoryBoundaryCompact}`;
