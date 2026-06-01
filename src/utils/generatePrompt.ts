@@ -22,6 +22,22 @@ import {
 } from "../data/outfitStyleProfiles";
 import { chooseSeasonalLuxuryStyle, seasonalLuxuryNegative } from "../data/seasonalLuxuryStyles";
 import {
+  activeModelConsistencyCompact,
+  antiAIOutfitTextureCompact,
+  chooseRealLifeDetailLine,
+  colorDiversityBoundaryCompact,
+  creatorIdentityBoundaryCompact,
+  getAsianAppearanceBoundaryLine,
+  getModelConsistencyLine,
+  luxuryIdentityBoundaryCompact,
+  mirrorModelConsistencyCompact,
+  outfitDiversityNegative,
+  peopleIdentityNegative,
+  realLifeOutfitDiversityCompact,
+  shouldUseModelIdentity,
+  multiImageIdentityNegative
+} from "../data/modelIdentityProfiles";
+import {
   chooseSceneLocationType,
   chooseTimeOfDay,
   eveningLightNegative,
@@ -36,6 +52,7 @@ import {
   productStillLifeBaseCompact,
   productStillLifeNegative
 } from "../data/stillLifeRules";
+import { detectImageCountOrSeriesIntent } from "./detectImageCountOrSeriesIntent";
 import { cleanFinalPrompt, dedupePromptLines } from "./promptOptimizer";
 
 function compactJoin(parts: Array<string | undefined | false>, separator = "\n\n") {
@@ -64,7 +81,7 @@ const TEAM_CREATOR_NEGATIVE =
   "Avoid loud influencer styling, beauty blogger energy, exaggerated posing, internet-trendy outfit, over-styled accessories, sexy selfie mood, fake casualness, obvious content-creator performance, and any look that feels more like a social media persona than a real refined urban woman.";
 
 const TEAM_ENHANCED_LIFELIKE_BASE =
-  "The woman should feel like a real person in a quiet daily moment, not an AI mannequin, stiff model, or commercial stock figure, with subtle lifelike details such as a relaxed mouth, gentle gaze, natural shoulder tension, soft hand placement, slight weight shift, believable posture, and an in-between moment rather than a frozen pose.";
+  "Keep the woman lifelike through relaxed posture, soft gaze, subtle micro-expression, natural hand placement, realistic body proportions, and clothing that drapes like real daily wear rather than an AI-styled template.";
 
 const TEAM_IMAGE_TYPE_TEMPLATES: Record<TeamImageType, string> = {
   产品上脚图:
@@ -359,6 +376,8 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
   const timeOfDayLine = getTimeOfDayLine(params.imageType, selectedTimeOfDay);
   const activeScene = isActiveScene(resolvedScene);
   const activePromptTemplate = getActivePromptTemplate(params.imageType, resolvedScene);
+  const peopleImage = shouldUseModelIdentity(params.imageType);
+  const imageCountIntent = detectImageCountOrSeriesIntent(extraRequirement, params.imageType);
 
   if (params.imageType === "产品静物图") {
     return {
@@ -418,7 +437,17 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
     userExtraRequirement: extraRequirement
   });
   const shoeStyle = getTeamShoeStyle(params, hasShoe);
+  const modelConsistencyLine = peopleImage ? getModelConsistencyLine(imageCountIntent) : "";
+  const asianAppearanceBoundaryLine = peopleImage ? getAsianAppearanceBoundaryLine() : "";
   const enhancedLifelike = getTeamEnhancedLifelike(params.imageType);
+  const realLifeDetailLine = peopleImage
+    ? chooseRealLifeDetailLine({
+        imageType: params.imageType,
+        scenePreference: resolvedScene,
+        selectedOutfitLine: seasonText,
+        userExtraRequirement: extraRequirement
+      })
+    : "";
   const creatorStyling = getTeamCreatorStyling(params.imageType);
   const productProtection =
     hasShoe && params.imageType === "非产品氛围图"
@@ -436,6 +465,9 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
       outfitStyleLine || versatilityLine ? outfitVersatilityNegative : "",
       seasonalLuxuryStyleLine ? seasonalLuxuryNegative : "",
       activeScene ? activeLifestyleNegative : "",
+      peopleImage ? outfitDiversityNegative : "",
+      peopleImage ? peopleIdentityNegative : "",
+      peopleImage && imageCountIntent === "multiImageSet" ? multiImageIdentityNegative : "",
       sceneLocationType === "indoor" ? indoorEyewearNegative : "",
       selectedTimeOfDay === "evening" ? eveningLightNegative : ""
     ],
@@ -447,14 +479,24 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
       TEAM_BRAND_CORE,
       shouldUsePeopleStyling(params.imageType) ? TEAM_CUSTOMER_FEELING : "",
       activePromptTemplate || TEAM_IMAGE_TYPE_TEMPLATES[params.imageType],
+      modelConsistencyLine,
       timeOfDayLine,
       enhancedLifelike,
+      peopleImage ? realLifeOutfitDiversityCompact : "",
+      peopleImage ? colorDiversityBoundaryCompact : "",
+      peopleImage ? antiAIOutfitTextureCompact : "",
+      asianAppearanceBoundaryLine,
+      params.imageType === "对镜穿搭图" ? mirrorModelConsistencyCompact : "",
+      peopleImage && activeScene ? activeModelConsistencyCompact : "",
       shoeStyle,
       seasonText,
+      realLifeDetailLine,
       outfitStyleLine,
       seasonalLuxuryStyleLine,
       accessoryLine,
       creatorStyling,
+      creatorStyling ? creatorIdentityBoundaryCompact : "",
+      seasonalLuxuryStyleLine ? luxuryIdentityBoundaryCompact : "",
       activeScene ? activeLifestyleBoundaryCompact : "",
       versatilityLine,
       sceneText,
