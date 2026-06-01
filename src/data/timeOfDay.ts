@@ -20,7 +20,8 @@ const morningScenes: TeamScenePreference[] = [
   "玄关出门",
   "居家衣帽间",
   "窗边阅读",
-  "旅行酒店"
+  "旅行酒店",
+  "健身房内"
 ];
 
 const noonScenes: TeamScenePreference[] = [
@@ -36,10 +37,11 @@ const indoorScenes: TeamScenePreference[] = [
   "旅行酒店",
   "窗边阅读",
   "材质工作台",
-  "拍摄花絮"
+  "拍摄花絮",
+  "健身房内"
 ];
 
-const outdoorScenes: TeamScenePreference[] = ["通勤上班", "周末城市散步"];
+const outdoorScenes: TeamScenePreference[] = ["通勤上班", "周末城市散步", "去运动的路上"];
 
 const semiIndoorScenes: TeamScenePreference[] = ["精品超市 / 日常采购", "周末轻采购", "玄关出门"];
 
@@ -78,6 +80,8 @@ export function chooseTimeOfDay(input: TimeOfDayInput): TimeOfDay {
     return "morning";
   }
 
+  if (input.scenePreference === "健身房内") return input.imageType === "生活场景图" ? "noon" : "morning";
+  if (input.scenePreference === "去运动的路上") return input.imageType === "生活场景图" ? "evening" : "morning";
   if (input.imageType === "生活场景图" && input.scenePreference === "旅行酒店") return "morning";
   if (morningScenes.includes(input.scenePreference)) return "morning";
   if (noonScenes.includes(input.scenePreference)) return "noon";
