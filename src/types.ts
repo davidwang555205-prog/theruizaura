@@ -159,6 +159,14 @@ export type TeamSeason = "春" | "夏" | "秋" | "冬";
 
 export type TeamStillLifeStyle = "与主视觉统一" | "自动按产品判断";
 
+export type TeamGazeMode =
+  | "lookAtCamera"
+  | "softOffCamera"
+  | "downwardGaze"
+  | "taskFocusedGaze"
+  | "phoneHiddenFace"
+  | "noFaceNeeded";
+
 export type TeamScenePreference =
   | "自动匹配"
   | "通勤上班"
