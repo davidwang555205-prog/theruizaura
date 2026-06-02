@@ -68,7 +68,15 @@ import {
   productStillLifeNegative
 } from "../data/stillLifeRules";
 import { chooseGazeLine } from "../data/modelGaze";
+import {
+  activeBodyProportionNegative,
+  mirrorBodyProportionNegative,
+  peopleBodyProportionNegative
+} from "../data/bodyProportionProfiles";
+import { actionShoeSafetyCompact, multiImageActionVariationCompact } from "../data/actionPoseProfiles";
 import { detectImageCountOrSeriesIntent } from "./detectImageCountOrSeriesIntent";
+import { chooseActionLine } from "./chooseActionLine";
+import { chooseBodyProportionLines } from "./chooseBodyProportionLines";
 import { cleanFinalPrompt, dedupePromptLines } from "./promptOptimizer";
 
 function compactJoin(parts: Array<string | undefined | false>, separator = "\n\n") {
@@ -500,6 +508,30 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
     usesCreatorStyling: Boolean(creatorStyling),
     isMultiImageSet: imageCountIntent === "multiImageSet"
   });
+  const shouldUseActionPose = peopleImage || params.imageType === "拍摄花絮 / 材质图";
+  const selectedAction = shouldUseActionPose
+    ? chooseActionLine({
+        imageType: params.imageType,
+        scenePreference: resolvedScene,
+        selectedGazeMode: selectedGaze.mode,
+        selectedOutfitLine: seasonText,
+        timeOfDay: selectedTimeOfDay,
+        userExtraRequirement: extraRequirement
+      })
+    : null;
+  const bodyProportionLines = shouldUseActionPose
+    ? chooseBodyProportionLines({
+        imageType: params.imageType,
+        scenePreference: resolvedScene,
+        isMirror: params.imageType === "对镜穿搭图",
+        poseType: selectedAction?.poseType ?? "none",
+        hasShoe,
+        season: params.season,
+        selectedOutfitLine: seasonText,
+        userExtraRequirement: extraRequirement,
+        imageCountIntent
+      })
+    : [];
   const enhancedLifelike = getTeamEnhancedLifelike(params.imageType);
   const realLifeDetailLine = peopleImage
     ? chooseRealLifeDetailLine({
@@ -531,6 +563,10 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
       peopleImage ? peopleIdentityNegative : "",
       peopleImage && imageCountIntent === "multiImageSet" ? multiImageIdentityNegative : "",
       selectedGaze.negative,
+      peopleImage ? peopleBodyProportionNegative : "",
+      params.imageType === "对镜穿搭图" ? mirrorBodyProportionNegative : "",
+      activeScene ? activeBodyProportionNegative : "",
+      selectedAction?.negative,
       sceneLocationType === "indoor" ? indoorEyewearNegative : "",
       selectedTimeOfDay === "evening" ? eveningLightNegative : ""
     ],
@@ -544,6 +580,10 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
       activePromptTemplate || TEAM_IMAGE_TYPE_TEMPLATES[params.imageType],
       modelConsistencyLine,
       selectedGaze.line,
+      ...bodyProportionLines,
+      selectedAction?.supportLine,
+      selectedAction?.line,
+      selectedAction?.safetyLine,
       timeOfDayLine,
       premiumGymScene ? premiumGymLightingCompact : "",
       enhancedLifelike,
@@ -571,8 +611,10 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
       premiumGymScene && selectedLightStrengthActionLine
         ? `${lightStrengthActionCompact} ${selectedLightStrengthActionLine}`
         : "",
+      peopleImage && imageCountIntent === "multiImageSet" ? multiImageActionVariationCompact : "",
       versatilityLine,
       sceneText,
+      hasShoe && shouldUseActionPose ? actionShoeSafetyCompact : "",
       productProtection,
       negative
     ]
