@@ -67,6 +67,7 @@ import {
   productStillLifeBaseCompact,
   productStillLifeNegative
 } from "../data/stillLifeRules";
+import { chooseGazeLine } from "../data/modelGaze";
 import { detectImageCountOrSeriesIntent } from "./detectImageCountOrSeriesIntent";
 import { cleanFinalPrompt, dedupePromptLines } from "./promptOptimizer";
 
@@ -485,6 +486,20 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
     premiumGymScene && premiumGymSubScene === "gymStrengthLight" ? chooseLightStrengthActionLine() : "";
   const modelConsistencyLine = peopleImage ? getModelConsistencyLine(imageCountIntent) : "";
   const asianAppearanceBoundaryLine = peopleImage ? getAsianAppearanceBoundaryLine() : "";
+  const creatorStyling = getTeamCreatorStyling(params.imageType);
+  const selectedGaze = chooseGazeLine({
+    imageType: params.imageType,
+    scenePreference: resolvedScene,
+    isMirror: params.imageType === "对镜穿搭图",
+    isProductStillLife: false,
+    isBehindTheScenes:
+      params.imageType === "拍摄花絮 / 材质图" ||
+      resolvedScene === "拍摄花絮" ||
+      resolvedScene === "材质工作台",
+    userExtraRequirement: extraRequirement,
+    usesCreatorStyling: Boolean(creatorStyling),
+    isMultiImageSet: imageCountIntent === "multiImageSet"
+  });
   const enhancedLifelike = getTeamEnhancedLifelike(params.imageType);
   const realLifeDetailLine = peopleImage
     ? chooseRealLifeDetailLine({
@@ -494,7 +509,6 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
         userExtraRequirement: extraRequirement
       })
     : "";
-  const creatorStyling = getTeamCreatorStyling(params.imageType);
   const productProtection =
     hasShoe && params.imageType === "非产品氛围图"
       ? TEAM_NON_PRODUCT_SHOE_PROTECTION
@@ -516,6 +530,7 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
       peopleImage ? outfitDiversityNegative : "",
       peopleImage ? peopleIdentityNegative : "",
       peopleImage && imageCountIntent === "multiImageSet" ? multiImageIdentityNegative : "",
+      selectedGaze.negative,
       sceneLocationType === "indoor" ? indoorEyewearNegative : "",
       selectedTimeOfDay === "evening" ? eveningLightNegative : ""
     ],
@@ -528,6 +543,7 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
       shouldUsePeopleStyling(params.imageType) ? TEAM_CUSTOMER_FEELING : "",
       activePromptTemplate || TEAM_IMAGE_TYPE_TEMPLATES[params.imageType],
       modelConsistencyLine,
+      selectedGaze.line,
       timeOfDayLine,
       premiumGymScene ? premiumGymLightingCompact : "",
       enhancedLifelike,
