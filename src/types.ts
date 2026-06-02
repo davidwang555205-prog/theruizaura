@@ -167,6 +167,10 @@ export type TeamGazeMode =
   | "phoneHiddenFace"
   | "noFaceNeeded";
 
+export type TeamActionComplexityLevel = "safeSimple" | "moderateDaily" | "activeLight" | "noAction";
+
+export type TeamPoseType = "standing" | "walking" | "seated" | "mirror" | "active" | "handsOnly" | "none";
+
 export type TeamScenePreference =
   | "自动匹配"
   | "通勤上班"
