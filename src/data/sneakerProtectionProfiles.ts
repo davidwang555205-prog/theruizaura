@@ -52,8 +52,32 @@ export const shoeLegRelationshipCompact =
 export const subtleAtmosphereSneakerProtectionCompact =
   "If the sneaker appears as a subtle atmosphere detail, keep its recognizable THERUIZ AURA shape, color, texture, laces, and outsole profile clean, but keep it secondary to the lifestyle mood rather than turning the image into a direct product shot.";
 
+export const naturalTiedLacesCompact =
+  "When the sneaker is fully visible, the laces must look naturally tied in a clean everyday knot. Keep the bow centered or slightly natural, with balanced lace loops, loose but controlled lace ends, and believable lace tension. The laces should look worn and tied for real daily walking, not floating, tangled, melted, missing, or decorative.";
+
+export const pairedLacesConsistencyCompact =
+  "If both sneakers are visible, both shoes should have naturally tied laces with consistent lace thickness, knot style, loop size, and lace-end length. The two shoes do not need to be perfectly symmetrical, but they should feel like the same real pair being worn.";
+
+export const laceTongueKnotClarityCompact =
+  "Keep the lace knot, loops, lace ends, eyelets, and tongue clearly separated. The knot should sit naturally over the tongue area, without covering the entire tongue, melting into the upper, merging with socks or trousers, or becoming an unreadable white blob.";
+
+export const laceTensionRealismCompact =
+  "The laces should have natural everyday tension: secure enough to hold the shoe on the foot, but not overly tight, stiff, loose, undone, or hanging excessively. Avoid long loose strings, flying lace ends, messy tangles, or perfectly artificial ribbon-like bows.";
+
+export const stillLifeTiedLacesCompact =
+  "For product still life images, keep the laces neatly and naturally tied or arranged as they would be on a real sneaker. The knot, loops, eyelets, tongue, and lace ends must remain clean, readable, and proportional to the shoe. Avoid overly stylized ribbon bows, loose untied laces covering the product, or laces hidden under props.";
+
+export const onFootTiedLacesCompact =
+  "For on-foot images, the laces should be naturally tied as worn in daily life, with the knot sitting on the tongue, lace loops resting close to the upper, and lace ends falling naturally. Do not show untied laces, loose dragging laces, floating laces, or laces fused with the foot, sock, trouser hem, or floor.";
+
+export const shoelaceTyingActionCompact =
+  "If the model is tying shoelaces, show a clear in-progress tying action with hands separated from the lace loops, fingers anatomically correct, laces readable, and the shoe fully visible. Avoid fingers melting into laces, hands covering the shoe, tangled lace blobs, distorted ankles, or cropped footwear. The lace knot should still remain readable and natural, not hidden by the hands.";
+
 export const sneakerErrorNegativeCompact =
   "Avoid redesigned sneaker, running shoe, training shoe, chunky sneaker, platform sole, skate shoe, dad shoe, basketball shoe, tennis shoe, thick athletic outsole, inflated sole, wrong toe box, changed panel layout, missing laces, melted laces, collapsed tongue, hidden tongue, fused ankle, trouser hem merging into shoe, sock merging into collar, foot protruding through upper, floating shoe, cropped toe box, distorted heel, oversized shoe, tiny shoe, and unreadable footwear.";
 
 export const subtleSneakerErrorNegativeCompact =
   "Avoid redesigned sneaker, running shoe, chunky sneaker, platform sole, wrong toe box, changed panel layout, missing laces, melted laces, collapsed tongue, props merging into shoe, distorted heel, oversized shoe, tiny shoe, and unreadable footwear.";
+
+export const tiedLacesNegativeCompact =
+  "Avoid untied laces, missing laces, melted laces, tangled lace blobs, floating lace ends, dragging laces, oversized bow, ribbon-like bow, fake decorative laces, laces fused with tongue, laces fused with socks, laces fused with trousers, laces merging into fingers, unreadable lace knot, asymmetric broken laces, and one shoe tied while the other appears untied.";
