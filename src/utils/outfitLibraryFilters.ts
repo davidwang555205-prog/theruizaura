@@ -1,73 +1,58 @@
-import type { TeamImageType, TeamScenePreference } from "../types";
-import type { PerSceneOutfitSceneKey } from "../data/perSceneOutfitLibrary";
+import type { TeamImageType, TeamScenePreference, TeamSeason, TeamShoe } from "../types";
+import type { ImageType, OutfitEntry, PerSceneOutfitSceneKey, Season } from "../data/perSceneOutfitLibrary";
 
-const clothingKeywords = [
+const hardOutfitOverrideKeywords = [
   "不要自动搭配",
   "不用自动搭配",
   "不要加穿搭",
   "不要生成穿搭",
   "我指定穿搭",
-  "按我写的穿搭",
-  "衬衫",
-  "t恤",
-  "t-shirt",
-  "tee",
-  "背心",
-  "tank",
-  "针织",
-  "knit",
-  "毛衣",
-  "sweater",
-  "开衫",
-  "cardigan",
-  "外套",
-  "jacket",
-  "大衣",
-  "coat",
-  "风衣",
-  "trench",
-  "西装",
-  "blazer",
-  "裤",
-  "pants",
-  "trousers",
-  "牛仔",
-  "denim",
-  "jeans",
-  "短裤",
-  "shorts",
-  "裙",
-  "skirt",
-  "连衣裙",
-  "dress",
-  "包",
-  "bag",
-  "tote",
-  "shoulder bag",
-  "scarf",
-  "围巾"
+  "按我写的穿搭"
 ];
 
-const summerSpecificKeywords = [
-  "短裤",
-  "bermuda",
-  "shorts",
-  "裙",
-  "skirt",
+const positiveSummerSpecificKeywords = [
+  "想要裙子",
+  "需要裙子",
+  "穿裙子",
+  "半裙",
   "连衣裙",
+  "skirt",
   "dress",
-  "背心",
-  "tank",
-  "sleeveless",
-  "t恤",
-  "t-shirt",
-  "tee",
-  "polo",
-  "linen",
-  "亚麻",
-  "薄开衫",
-  "开衫外搭"
+  "想要短裤",
+  "需要短裤",
+  "穿短裤",
+  "bermuda shorts"
 ];
+
+const supportedSceneMap: Record<string, PerSceneOutfitSceneKey> = {
+  通勤上班: "commute",
+  咖啡店外: "cafeExterior",
+  咖啡店: "cafeExterior",
+  周末咖啡: "cafeExterior",
+  周末城市散步: "weekendCityWalk",
+  健身房内: "gymInterior"
+};
+
+const seasonMap: Record<TeamSeason, Season> = {
+  春: "spring",
+  夏: "summer",
+  秋: "autumn",
+  冬: "winter"
+};
+
+const shoeMap: Record<TeamShoe, string> = {
+  "Cloud Dancer 云舞者": "Cloud Dancer",
+  "Sand Dollar 沙钱白": "Sand Dollar",
+  "Cappuccino 卡布奇诺": "Cappuccino",
+  "Silver Romance 银色浪漫": "Silver Romance",
+  "Aire 微风": "Aire",
+  "Delphinium Blue 飞燕草蓝": "Delphinium Blue",
+  "Lemon 柠檬": "Lemon",
+  "Maple Grove 枫林": "Maple Grove",
+  "Oreo 奥利奥": "Oreo",
+  "Panda 熊猫": "Panda",
+  自定义: "ALL"
+};
 
 function normalizeText(value?: string) {
   return (value ?? "").toLowerCase().replace(/\s+/g, " ").trim();
@@ -78,67 +63,129 @@ function hasAnyKeyword(text: string | undefined, keywords: string[]) {
   return keywords.some((keyword) => normalized.includes(keyword.toLowerCase()));
 }
 
+function isNegatedOutfitRequest(text: string) {
+  return /不要|不想|避免|no |not |without/.test(text);
+}
+
 export function hasUserSpecifiedClothingRequirement(userExtraRequirement?: string) {
-  return hasAnyKeyword(userExtraRequirement, clothingKeywords);
+  return hasAnyKeyword(userExtraRequirement, hardOutfitOverrideKeywords);
 }
 
 export function hasSummerSpecificOutfitRequest(userExtraRequirement?: string) {
-  return hasAnyKeyword(userExtraRequirement, summerSpecificKeywords);
+  const text = normalizeText(userExtraRequirement);
+  if (!text || isNegatedOutfitRequest(text)) return false;
+  return positiveSummerSpecificKeywords.some((keyword) => text.includes(keyword.toLowerCase()));
 }
 
-function inferWeekendSubScene(extra: string): PerSceneOutfitSceneKey {
-  if (/咖啡|coffee|cafe|café/.test(extra)) return "cafeExterior";
-  if (/精品店|逛街|boutique|shopping|shop/.test(extra)) return "boutiqueStreet";
-  if (/花店|花束|flower|bouquet/.test(extra)) return "flowerShop";
-  if (/面包|甜品|bakery|dessert|bread/.test(extra)) return "bakeryDessert";
-  if (/书店|杂志|bookstore|book|magazine|reading/.test(extra)) return "bookstoreMagazine";
-  if (/画廊|展览|gallery|exhibition|museum/.test(extra)) return "galleryExhibition";
-  if (/朋友|小聚|午餐|social|friend|lunch/.test(extra)) return "lightSocial";
-  if (/街角|转角|corner/.test(extra)) return "cityCorner";
-  return "weekendCityWalk";
+export function normalizePerSceneSeason(season: TeamSeason | Season): Season {
+  return seasonMap[season as TeamSeason] ?? (season as Season);
 }
 
-function inferErrandSubScene(extra: string): PerSceneOutfitSceneKey {
-  if (/花店|花束|flower|bouquet/.test(extra)) return "flowerShop";
-  if (/面包|甜品|bakery|dessert|bread/.test(extra)) return "bakeryDessert";
-  if (/书店|杂志|bookstore|book|magazine|reading/.test(extra)) return "bookstoreMagazine";
-  return "premiumErrands";
+export function normalizePerSceneShoe(shoe: TeamShoe | string) {
+  return shoeMap[shoe as TeamShoe] ?? shoe;
+}
+
+export function normalizePerSceneImageType(imageType: TeamImageType | ImageType): ImageType | null {
+  if (imageType === "产品上脚图") return "onFoot";
+  if (imageType === "对镜穿搭图") return "mirror";
+  if (imageType === "生活场景图") return "lifestyle";
+  if (imageType === "onFoot" || imageType === "mirror" || imageType === "lifestyle") return imageType;
+  if (imageType === "gym" || imageType === "gymCommute") return imageType;
+  return null;
 }
 
 export function resolvePerSceneKey(input: {
-  scenePreference: TeamScenePreference;
-  imageType: TeamImageType;
+  scenePreference: TeamScenePreference | string;
+  imageType: TeamImageType | ImageType;
   userExtraRequirement?: string;
-}): PerSceneOutfitSceneKey {
+}): PerSceneOutfitSceneKey | null {
+  const scenePreference = String(input.scenePreference);
   const extra = normalizeText(input.userExtraRequirement);
 
-  if (input.scenePreference === "自动匹配") {
-    if (input.imageType === "产品上脚图") return extra ? inferWeekendSubScene(extra) : "commute";
-    if (input.imageType === "对镜穿搭图") return /hotel|酒店|旅行/.test(extra) ? "hotelTravel" : "mirrorCloset";
-    if (input.imageType === "生活场景图") return inferWeekendSubScene(extra);
-    return "cityCorner";
+  if (scenePreference === "自动匹配") {
+    if (input.imageType === "产品上脚图") return "commute";
+    if (input.imageType === "对镜穿搭图") return extra.includes("cafe") || extra.includes("咖啡") ? "cafeExterior" : null;
+    if (input.imageType === "生活场景图") {
+      if (/咖啡|coffee|cafe|café/.test(extra)) return "cafeExterior";
+      if (/健身|gym|active|training/.test(extra)) return "gymInterior";
+      return "weekendCityWalk";
+    }
+    if (input.imageType === "gym") return "gymInterior";
+    return null;
   }
 
-  if (input.scenePreference === "通勤上班") return "commute";
-  if (input.scenePreference === "周末城市散步") return inferWeekendSubScene(extra);
-  if (input.scenePreference === "精品超市 / 日常采购" || input.scenePreference === "周末轻采购") {
-    return inferErrandSubScene(extra);
-  }
-  if (input.scenePreference === "旅行酒店") return "hotelTravel";
-  if (input.scenePreference === "居家衣帽间") return "mirrorCloset";
-  if (input.scenePreference === "玄关出门") return "entrywayDeparture";
-  if (input.scenePreference === "窗边阅读") return "bookstoreMagazine";
-  if (input.scenePreference === "健身房内") return "gymInterior";
-  if (input.scenePreference === "去运动的路上") return "gymCommute";
-  if (input.scenePreference === "材质工作台") return input.imageType === "生活场景图" ? "cityCorner" : "bookstoreMagazine";
-  if (input.scenePreference === "拍摄花絮") return input.imageType === "对镜穿搭图" ? "mirrorCloset" : "cityCorner";
+  const directScene = supportedSceneMap[scenePreference];
+  if (directScene) return directScene;
 
-  return "cityCorner";
+  if (scenePreference === "周末轻采购" && /咖啡|coffee|cafe|café/.test(extra)) return "cafeExterior";
+  if (scenePreference === "周末城市散步" && /咖啡|coffee|cafe|café/.test(extra)) return "cafeExterior";
+
+  return null;
 }
 
-export function getImageTypeOutfitTags(imageType: TeamImageType) {
-  if (imageType === "对镜穿搭图") return ["mirror", "outfit relationship", "trouser-readability"];
-  if (imageType === "产品上脚图") return ["shoe-readable", "city walk", "daily walk"];
-  if (imageType === "生活场景图") return ["real life", "warm daily", "weekend", "commute"];
+export function getImageTypeOutfitTags(imageType: TeamImageType | ImageType) {
+  const normalized = normalizePerSceneImageType(imageType);
+  if (normalized === "mirror") return ["mirror", "outfit relationship", "trouser-readability"];
+  if (normalized === "onFoot") return ["shoe-readable", "city walk", "daily walk"];
+  if (normalized === "lifestyle") return ["real life", "warm daily", "weekend", "commute"];
+  if (normalized === "gym") return ["premium gym", "active", "movement"];
+  if (normalized === "gymCommute") return ["gym transition", "active", "daily movement"];
   return [];
+}
+
+function entryText(entry: OutfitEntry) {
+  return [
+    entry.compactLine,
+    entry.topCategory,
+    entry.bottomCategory,
+    entry.outerLayerCategory,
+    entry.bagCategory,
+    ...(entry.accessoryCategory ?? []),
+    ...entry.colorMood,
+    ...entry.styleTags
+  ]
+    .filter(Boolean)
+    .join(" ")
+    .toLowerCase();
+}
+
+export function isOutfitConflictingWithUserRequirement(entry: OutfitEntry, userExtraRequirement?: string) {
+  const userText = normalizeText(userExtraRequirement);
+  const text = entryText(entry);
+
+  if (/不要裙子|no skirt|no dress|不要半裙|不要连衣裙/.test(userText) && /skirt|dress|半裙|连衣裙/.test(text)) {
+    return true;
+  }
+
+  if (/不要短裤|no shorts/.test(userText) && /shorts|bermuda shorts|短裤/.test(text)) {
+    return true;
+  }
+
+  if (/不要背心|no tank|no sleeveless/.test(userText) && /tank|sleeveless|背心/.test(text)) {
+    return true;
+  }
+
+  return false;
+}
+
+export function scoreOutfitUserPreference(entry: OutfitEntry, userExtraRequirement?: string) {
+  const userText = normalizeText(userExtraRequirement);
+  const text = entryText(entry);
+  let score = 0;
+
+  if (/不要全浅色|not all beige|not all cream/.test(userText)) {
+    if (/black|charcoal|navy|dark denim|olive|dark coffee|black accent|deep charcoal/.test(entry.colorMood.join(" ").toLowerCase())) {
+      score += 35;
+    }
+  }
+
+  if (/牛仔|denim/.test(userText) && /denim|jeans/.test(text)) score += 22;
+  if (/t恤|t-shirt|tee/.test(userText) && /t-shirt|tee/.test(text)) score += 18;
+  if (!isNegatedOutfitRequest(userText) && /裙子|skirt|dress/.test(userText) && /skirt|dress/.test(text)) score += 22;
+  if (!isNegatedOutfitRequest(userText) && /短裤|shorts|bermuda/.test(userText) && /shorts|bermuda/.test(text)) score += 22;
+  if (/运动|gym|active|健身/.test(userText) && /active|gym|movement|training/.test(text)) score += 26;
+  if (/黑色背心|black tank/.test(userText) && /black fitted tank/.test(text)) score += 45;
+  if (/背心|tank|sleeveless/.test(userText) && /tank|sleeveless/.test(text)) score += 16;
+
+  return score;
 }
