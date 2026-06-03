@@ -462,52 +462,53 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
     };
   }
 
-  const perSceneOutfitLine =
-    shouldUsePeopleStyling(params.imageType) && !userSpecifiedClothing && !premiumGymScene && !activeScene && !summerSpecificOutfit
+  const perSceneOutfitSelection =
+    shouldUsePeopleStyling(params.imageType) && !userSpecifiedClothing
       ? choosePerSceneOutfitLine({
           scenePreference: resolvedScene,
           season: params.season,
           shoe: params.shoe,
-          imageType: params.imageType,
+          imageType: premiumGymScene ? "gym" : params.imageType,
           userExtraRequirement: extraRequirement
         })
       : null;
+  const selectedPerSceneOutfitLine = perSceneOutfitSelection?.selectedPerSceneOutfitLine ?? "";
   const seasonText = shouldUsePeopleStyling(params.imageType)
     ? userSpecifiedClothing
       ? ""
-      : premiumGymScene
-        ? choosePremiumGymOutfitLine(
-            {
-              scenePreference: resolvedScene,
-              season: params.season,
-              shoe: params.shoe,
-              userExtraRequirement: extraRequirement
-            },
-            premiumGymSubScene ?? "premiumGym"
-          )
-        : activeScene
-          ? chooseActiveOutfitLine({
-              scenePreference: resolvedScene,
-              season: params.season,
-              shoe: params.shoe,
-              userExtraRequirement: extraRequirement
-            })
-          : summerSpecificOutfit
-            ? chooseSummerOutfitByScene({
-                season: params.season,
-                shoe: params.shoe,
-                imageType: params.imageType,
-                scenePreference: resolvedScene,
-                userExtraRequirement: extraRequirement
-              })
-            : perSceneOutfitLine?.compactLine ??
-              chooseOutfitLine({
-                season: params.season,
-                shoe: params.shoe,
-                imageType: params.imageType,
-                scenePreference: resolvedScene,
-                userExtraRequirement: extraRequirement
-              })
+      : summerSpecificOutfit
+        ? chooseSummerOutfitByScene({
+            season: params.season,
+            shoe: params.shoe,
+            imageType: params.imageType,
+            scenePreference: resolvedScene,
+            userExtraRequirement: extraRequirement
+          })
+        : selectedPerSceneOutfitLine ||
+          (premiumGymScene
+            ? choosePremiumGymOutfitLine(
+                {
+                  scenePreference: resolvedScene,
+                  season: params.season,
+                  shoe: params.shoe,
+                  userExtraRequirement: extraRequirement
+                },
+                premiumGymSubScene ?? "premiumGym"
+              )
+            : activeScene
+              ? chooseActiveOutfitLine({
+                  scenePreference: resolvedScene,
+                  season: params.season,
+                  shoe: params.shoe,
+                  userExtraRequirement: extraRequirement
+                })
+              : chooseOutfitLine({
+                  season: params.season,
+                  shoe: params.shoe,
+                  imageType: params.imageType,
+                  scenePreference: resolvedScene,
+                  userExtraRequirement: extraRequirement
+                }))
     : TEAM_ATMOSPHERE_SEASON[params.season];
   const accessoryLine = chooseLuxuryAccessoryLine({
     imageType: params.imageType,
