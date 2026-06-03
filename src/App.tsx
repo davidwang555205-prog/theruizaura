@@ -4,8 +4,7 @@ import type {
   TeamPromptParams,
   TeamScenePreference,
   TeamSeason,
-  TeamShoe,
-  TeamStillLifeStyle
+  TeamShoe
 } from "./types";
 import { generateTeamPrompt } from "./utils/generatePrompt";
 
@@ -49,8 +48,6 @@ const sceneOptions: TeamScenePreference[] = [
   "健身房内",
   "去运动的路上"
 ];
-
-const stillLifeStyleOptions: TeamStillLifeStyle[] = ["与主视觉统一", "自动按产品判断"];
 
 const initialParams: TeamPromptParams = {
   imageType: "产品上脚图",
@@ -202,27 +199,6 @@ function App() {
                   ))}
                 </select>
               </label>
-
-              {params.imageType === "产品静物图" && (
-                <label className="block space-y-2">
-                  <span className="text-sm font-medium text-aura-charcoal">静物图风格</span>
-                  <select
-                    className={inputClass}
-                    value={params.stillLifeStyle}
-                    onChange={(event) =>
-                      setParams((current) =>
-                        updateField(current, "stillLifeStyle", event.target.value as TeamStillLifeStyle)
-                      )
-                    }
-                  >
-                    {stillLifeStyleOptions.map((option) => (
-                      <option key={option} value={option}>
-                        {option}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-              )}
 
               <label className="block space-y-2">
                 <span className="text-sm font-medium text-aura-charcoal">补充要求</span>
