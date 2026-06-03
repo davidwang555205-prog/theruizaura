@@ -1,5 +1,6 @@
 import { useState } from "react";
 import type {
+  TeamGarmentTypePreference,
   TeamImageType,
   TeamPromptParams,
   TeamScenePreference,
@@ -33,6 +34,15 @@ const shoeOptions: TeamShoe[] = [
 
 const seasonOptions: TeamSeason[] = ["春", "夏", "秋", "冬"];
 
+const garmentTypeOptions: TeamGarmentTypePreference[] = [
+  "自动匹配",
+  "裤装",
+  "裙装",
+  "短裤",
+  "连衣裙",
+  "轻运动"
+];
+
 const sceneOptions: TeamScenePreference[] = [
   "自动匹配",
   "通勤上班",
@@ -55,6 +65,7 @@ const initialParams: TeamPromptParams = {
   customShoe: "",
   season: "春",
   scenePreference: "自动匹配",
+  garmentTypePreference: "自动匹配",
   stillLifeStyle: "与主视觉统一",
   extraRequirement: ""
 };
@@ -89,12 +100,12 @@ function App() {
     <main className="min-h-screen bg-aura-cream px-5 py-8 text-aura-charcoal sm:px-8 lg:px-10">
       <div className="mx-auto flex max-w-6xl flex-col gap-8">
         <header className="max-w-3xl space-y-3">
-          <p className="text-xs uppercase tracking-[0.28em] text-aura-muted">Team final v4.3</p>
+          <p className="text-xs uppercase tracking-[0.28em] text-aura-muted">Standard accurate team mode</p>
           <h1 className="text-3xl font-semibold tracking-tight text-aura-charcoal sm:text-4xl">
             THERUIZ AURA Prompt Builder
           </h1>
           <p className="text-base leading-7 text-aura-muted">
-            团队日常使用的极简 Compact 英文提示词工具。后台自动匹配季节穿搭、轻博主参考感和自然活人感。
+            团队日常使用的极简 Standard 英文提示词工具。后台自动匹配真实城市街景、相机质感、穿搭轮换和鞋型保护。
           </p>
         </header>
 
@@ -201,6 +212,29 @@ function App() {
               </label>
 
               <label className="block space-y-2">
+                <span className="text-sm font-medium text-aura-charcoal">服装类型</span>
+                <select
+                  className={inputClass}
+                  value={params.garmentTypePreference}
+                  onChange={(event) =>
+                    setParams((current) =>
+                      updateField(
+                        current,
+                        "garmentTypePreference",
+                        event.target.value as TeamGarmentTypePreference
+                      )
+                    )
+                  }
+                >
+                  {garmentTypeOptions.map((option) => (
+                    <option key={option} value={option}>
+                      {option}
+                    </option>
+                  ))}
+                </select>
+              </label>
+
+              <label className="block space-y-2">
                 <span className="text-sm font-medium text-aura-charcoal">补充要求</span>
                 <textarea
                   className={`${inputClass} min-h-28`}
@@ -229,7 +263,7 @@ function App() {
             <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <div>
                 <h2 className="text-xl font-semibold text-aura-charcoal">最终英文提示词</h2>
-                <p className="mt-2 text-sm leading-6 text-aura-muted">Compact 版本，可直接复制使用。</p>
+                <p className="mt-2 text-sm leading-6 text-aura-muted">Standard 版本，可直接复制使用。</p>
               </div>
               <button
                 type="button"
