@@ -5,21 +5,29 @@ import {
   groundContactCompact,
   gymSneakerIdentityCompact,
   laceTongueClarityCompact,
+  laceTensionRealismCompact,
+  laceTongueKnotClarityCompact,
   mirrorSneakerAccuracyCompact,
   multiImageSneakerConsistencyCompact,
+  naturalTiedLacesCompact,
+  onFootTiedLacesCompact,
   outsoleThicknessLockCompact,
   panelStructureLockCompact,
+  pairedLacesConsistencyCompact,
   shoeLegRelationshipCompact,
+  shoelaceTyingActionCompact,
   skirtShortsShoeVisibilityCompact,
   sneakerClippingControlCompact,
   sneakerShapeLockCompact,
   sockShoeBoundaryCompact,
+  stillLifeTiedLacesCompact,
   stillLifeSneakerAccuracyCompact,
   subtleAtmosphereSneakerProtectionCompact,
   toeBoxShapeLockCompact,
   trouserHemSeparationCompact
 } from "../data/sneakerProtectionProfiles";
 import type { ImageCountIntent } from "./detectImageCountOrSeriesIntent";
+import { detectFullShoeVisibility } from "./detectFullShoeVisibility";
 
 export type SneakerProtectionInput = {
   imageType: TeamImageType;
@@ -66,6 +74,21 @@ const skirtShortsKeywords = [
 const sockKeywords = ["socks", "sock", "no-show socks", "low socks", "袜子", "短袜", "船袜"];
 
 const shoelaceKeywords = ["系鞋带", "tying shoelaces", "shoelace", "shoelaces", "鞋带"];
+
+const tiedLacesKeywords = [
+  "鞋带自然",
+  "鞋带打结",
+  "鞋带系好",
+  "不要鞋带乱飞",
+  "不要鞋带融化",
+  "tied laces",
+  "natural tied laces",
+  "laces tied naturally",
+  "no untied laces",
+  "no melted laces",
+  "鞋带要系好",
+  "natural laces"
+];
 
 const strongerProtectionKeywords = [
   "鞋子不要变形",
@@ -135,6 +158,7 @@ export function chooseSneakerProtectionLines(input: SneakerProtectionInput) {
   const lowerBodyProtection = chooseLowerBodyProtection(combinedText);
   const wantsStrongerProtection = includesAny(combinedText, strongerProtectionKeywords);
   const mentionsShoelace = includesAny(combinedText, shoelaceKeywords);
+  const tiedLacesRequested = includesAny(combinedText, tiedLacesKeywords);
 
   if (input.imageType === "非产品氛围图") {
     addUnique(lines, subtleAtmosphereSneakerProtectionCompact);
@@ -199,6 +223,30 @@ export function chooseSneakerProtectionLines(input: SneakerProtectionInput) {
 
   if (input.imageCountIntent !== "singleImage") {
     addUnique(lines, multiImageSneakerConsistencyCompact);
+  }
+
+  const visibility = detectFullShoeVisibility({
+    imageType: input.imageType,
+    scenePreference: input.scenePreference,
+    selectedSneakerProtectionLines: lines,
+    userExtraRequirement: input.userExtraRequirement,
+    finalPromptIntent: combinedText
+  });
+
+  if (mentionsShoelace && includesAny(combinedText, ["系鞋带", "tying shoelaces"])) {
+    addUnique(lines, shoelaceTyingActionCompact);
+    addUnique(lines, laceTongueKnotClarityCompact);
+  } else if (tiedLacesRequested || visibility.fullShoeVisibility) {
+    addUnique(
+      lines,
+      tiedLacesRequested
+        ? naturalTiedLacesCompact
+        : input.imageType === "产品静物图"
+          ? stillLifeTiedLacesCompact
+          : onFootTiedLacesCompact
+    );
+    addUnique(lines, laceTongueKnotClarityCompact);
+    addUnique(lines, visibility.bothShoesVisible ? pairedLacesConsistencyCompact : laceTensionRealismCompact);
   }
 
   return lines;
