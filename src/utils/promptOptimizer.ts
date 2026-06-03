@@ -43,11 +43,15 @@ function dedupeNegativePhraseLine(line: string) {
 }
 
 export function dedupePromptLines(text: string) {
+  const marker = "Additional user requirement:";
+  const markerIndex = text.lastIndexOf(marker);
+  const bodyText = markerIndex >= 0 ? text.slice(0, markerIndex) : text;
+  const userRequirement = markerIndex >= 0 ? text.slice(markerIndex).trim() : "";
   const seen = new Set<string>();
   const output: string[] = [];
   let previousWasBlank = false;
 
-  text.split(/\n/).forEach((rawLine) => {
+  bodyText.split(/\n/).forEach((rawLine) => {
     const line = rawLine.trimEnd();
     const trimmed = line.trim();
 
@@ -78,7 +82,8 @@ export function dedupePromptLines(text: string) {
     previousWasBlank = false;
   });
 
-  return output.join("\n").replace(/\n{3,}/g, "\n\n").trim();
+  const dedupedBody = reduceRepeatedConcepts(output.join("\n").replace(/\n{3,}/g, "\n\n").trim());
+  return [dedupedBody, userRequirement].filter(Boolean).join(" ").trim();
 }
 
 export function getPromptStats(text: string) {
@@ -109,6 +114,20 @@ function removeRepeatedLightPhrases(text: string) {
   });
 
   return output.replace(/\s+,/g, ",").replace(/\s{2,}/g, " ").trim();
+}
+
+function reduceRepeatedConcepts(text: string) {
+  return text
+    .replace(/\b(clean\s+){2,}sleeveless top\b/gi, "clean sleeveless top")
+    .replace(/\bblack clean clean sleeveless top\b/gi, "black clean sleeveless top")
+    .replace(/\brealistic realistic\b/gi, "realistic")
+    .replace(/\bbelievable believable\b/gi, "believable")
+    .replace(/\brefined refined\b/gi, "refined")
+    .replace(/\bpremium premium\b/gi, "premium")
+    .replace(/\bsoft,\s+and\b/gi, "soft light and")
+    .replace(/\s+,/g, ",")
+    .replace(/\s{2,}/g, " ")
+    .trim();
 }
 
 export function cleanFinalPrompt(text: string) {

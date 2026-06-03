@@ -10,6 +10,34 @@ const hardOutfitOverrideKeywords = [
   "按我写的穿搭"
 ];
 
+const explicitClothingKeywords = [
+  "黑色背心",
+  "白裙",
+  "短裤",
+  "短袖",
+  "半裙",
+  "连衣裙",
+  "背心",
+  "衬衫",
+  "牛仔",
+  "裤",
+  "裙",
+  "black tank",
+  "black sleeveless",
+  "white skirt",
+  "shorts",
+  "short sleeve",
+  "short-sleeve",
+  "t-shirt",
+  "tee",
+  "shirt",
+  "denim",
+  "skirt",
+  "dress",
+  "trousers",
+  "pants"
+];
+
 const positiveSummerSpecificKeywords = [
   "想要裙子",
   "需要裙子",
@@ -68,7 +96,10 @@ function isNegatedOutfitRequest(text: string) {
 }
 
 export function hasUserSpecifiedClothingRequirement(userExtraRequirement?: string) {
-  return hasAnyKeyword(userExtraRequirement, hardOutfitOverrideKeywords);
+  return (
+    hasAnyKeyword(userExtraRequirement, hardOutfitOverrideKeywords) ||
+    hasAnyKeyword(userExtraRequirement, explicitClothingKeywords)
+  );
 }
 
 export function hasSummerSpecificOutfitRequest(userExtraRequirement?: string) {
@@ -184,7 +215,7 @@ export function scoreOutfitUserPreference(entry: OutfitEntry, userExtraRequireme
   if (!isNegatedOutfitRequest(userText) && /裙子|skirt|dress/.test(userText) && /skirt|dress/.test(text)) score += 22;
   if (!isNegatedOutfitRequest(userText) && /短裤|shorts|bermuda/.test(userText) && /shorts|bermuda/.test(text)) score += 22;
   if (/运动|gym|active|健身/.test(userText) && /active|gym|movement|training/.test(text)) score += 26;
-  if (/黑色背心|black tank/.test(userText) && /black fitted tank/.test(text)) score += 45;
+  if (/黑色背心|black tank/.test(userText) && /black clean sleeveless top/.test(text)) score += 45;
   if (/背心|tank|sleeveless/.test(userText) && /tank|sleeveless/.test(text)) score += 16;
 
   return score;

@@ -26,6 +26,10 @@ http://localhost:5173
 
 系统会根据季节、鞋款和图片类型自动匹配适合 THERUIZ AURA 风格的服装搭配方向。
 
+系统默认使用 Compact Prompt 模式。后台仍保留完整的品牌规则、场景规则、穿搭库、鞋型保护、人物比例、动作、街景和负面限制逻辑，但最终只输出最关键的 8–12 句提示词，减少重复词和过长 prompt，提高团队复制效率和生图稳定性。
+
+系统已加入敏感词弱化逻辑。后台会自动减少 sexy、seductive、revealing、sports bra、bodycon、beauty selfie 等容易引发生图偏色情或审核风险的词，并替换为 clean sleeveless top、active top、refined styling、real outfit check 等更安全、更符合 THERUIZ AURA 品牌调性的表达。
+
 产品上脚图、对镜穿搭图和生活场景图会自动加入轻博主穿搭感，让画面更适合小红书和日常穿搭参考，但不会变成网红风。
 
 产品上脚图、对镜穿搭图和生活场景图会自动加入增强版活人感，让人物更真实自然，但仍保持 THERUIZ AURA 的干净、体面和高级感。

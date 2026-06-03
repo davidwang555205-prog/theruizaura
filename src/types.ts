@@ -18,6 +18,8 @@ export type ActionSafetyLevel = "A" | "B" | "C";
 
 export type PromptDetailLevel = "compact" | "standard" | "full";
 
+export type TeamPromptMode = "compact" | "standard" | "full";
+
 export type PromptStats = {
   charCount: number;
   wordCount: number;
