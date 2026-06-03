@@ -20,6 +20,33 @@ export type PromptDetailLevel = "compact" | "standard" | "full";
 
 export type TeamPromptMode = "compact" | "standard" | "full";
 
+export type TeamGarmentTypePreference =
+  | "自动匹配"
+  | "裤装"
+  | "裙装"
+  | "短裤"
+  | "连衣裙"
+  | "轻运动";
+
+export type TeamGarmentType = "trousers" | "skirt" | "shorts" | "dress" | "lightActive";
+
+export type TeamOutfitStyle =
+  | "cleanMinimal"
+  | "realDaily"
+  | "bloggerLite"
+  | "refinedFeminine"
+  | "darkAnchor"
+  | "relaxedWeekend"
+  | "polishedCommuter"
+  | "softActive";
+
+export type TeamColorDirection =
+  | "lightClean"
+  | "neutralDaily"
+  | "darkAnchor"
+  | "softAccent"
+  | "denimBased";
+
 export type PromptStats = {
   charCount: number;
   wordCount: number;
@@ -194,6 +221,7 @@ export type TeamPromptParams = {
   customShoe: string;
   season: TeamSeason;
   scenePreference: TeamScenePreference;
+  garmentTypePreference: TeamGarmentTypePreference;
   stillLifeStyle: TeamStillLifeStyle;
   extraRequirement: string;
 };
