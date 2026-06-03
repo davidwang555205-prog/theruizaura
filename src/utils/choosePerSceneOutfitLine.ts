@@ -1,23 +1,42 @@
 import type { TeamImageType, TeamScenePreference, TeamSeason, TeamShoe } from "../types";
 import {
   perSceneOutfitLibrary,
-  type PerSceneOutfitLine,
-  type PerSceneOutfitSceneKey
+  type ImageType,
+  type OutfitEntry,
+  type PerSceneOutfitSceneKey,
+  type Season
 } from "../data/perSceneOutfitLibrary";
 import {
   getImageTypeOutfitTags,
   hasUserSpecifiedClothingRequirement,
-  resolvePerSceneKey
+  isOutfitConflictingWithUserRequirement,
+  normalizePerSceneImageType,
+  normalizePerSceneSeason,
+  normalizePerSceneShoe,
+  resolvePerSceneKey,
+  scoreOutfitUserPreference
 } from "./outfitLibraryFilters";
 
 type ChoosePerSceneOutfitInput = {
-  scenePreference: TeamScenePreference;
-  season: TeamSeason;
-  shoe: TeamShoe;
-  imageType: TeamImageType;
+  scenePreference: TeamScenePreference | string;
+  season: TeamSeason | Season;
+  shoe: TeamShoe | string;
+  imageType: TeamImageType | ImageType;
   userExtraRequirement?: string;
   previousOutfitId?: string;
   generatedHistory?: string[];
+};
+
+export type ChoosePerSceneOutfitResult = {
+  selectedOutfitId: string | null;
+  selectedPerSceneOutfitLine: string | null;
+  selectedOutfit: OutfitEntry | null;
+};
+
+const emptySelection: ChoosePerSceneOutfitResult = {
+  selectedOutfitId: null,
+  selectedPerSceneOutfitLine: null,
+  selectedOutfit: null
 };
 
 function hashText(text: string) {
@@ -32,7 +51,7 @@ function hashText(text: string) {
 function getStorageKey(input: ChoosePerSceneOutfitInput, sceneKey: PerSceneOutfitSceneKey) {
   return [
     "theruiz-aura",
-    "per-scene-outfit",
+    "per-scene-outfit-phase1",
     sceneKey,
     input.season,
     input.shoe,
@@ -57,52 +76,80 @@ function writeStoredHistory(key: string, ids: string[]) {
   try {
     window.localStorage.setItem(key, JSON.stringify(ids.slice(0, 20)));
   } catch {
-    // Local storage rotation is best-effort; prompt generation should still work if storage is blocked.
+    // Best effort only. Prompt generation must still work if localStorage is unavailable.
   }
 }
 
-function scoreLine(line: PerSceneOutfitLine, input: ChoosePerSceneOutfitInput) {
-  const tags = new Set(line.styleTags);
+function containsShoe(entry: OutfitEntry, shoe: string) {
+  return entry.suitableShoes.includes("ALL") || entry.suitableShoes.includes(shoe);
+}
+
+function containsImageType(entry: OutfitEntry, imageType: ImageType | null) {
+  return imageType ? entry.imageTypes.includes(imageType) : false;
+}
+
+function withoutConflicts(candidates: OutfitEntry[], input: ChoosePerSceneOutfitInput) {
+  const filtered = candidates.filter(
+    (entry) => !isOutfitConflictingWithUserRequirement(entry, input.userExtraRequirement)
+  );
+  return filtered.length ? filtered : candidates;
+}
+
+function scoreEntry(entry: OutfitEntry, input: ChoosePerSceneOutfitInput) {
+  const season = normalizePerSceneSeason(input.season);
+  const shoe = normalizePerSceneShoe(input.shoe);
+  const imageType = normalizePerSceneImageType(input.imageType);
   const imageTags = getImageTypeOutfitTags(input.imageType);
-  const extra = (input.userExtraRequirement ?? "").toLowerCase();
+  const tags = new Set(entry.styleTags);
   let score = 0;
 
-  if (line.season.includes(input.season)) score += 30;
-  if (line.suitableShoes.includes(input.shoe)) score += 18;
-  if (line.suitableShoes.includes("自定义")) score += 3;
+  if (entry.season.includes(season)) score += 30;
+  if (containsShoe(entry, shoe)) score += 22;
+  if (entry.suitableShoes.includes("ALL")) score += 5;
+  if (containsImageType(entry, imageType)) score += 18;
 
   imageTags.forEach((tag) => {
     if (tags.has(tag)) score += 6;
   });
 
-  if (input.imageType === "对镜穿搭图" && tags.has("trouser-readability")) score += 10;
-  if (input.imageType === "产品上脚图" && tags.has("shoe-readable")) score += 10;
-  if (input.imageType === "生活场景图" && (tags.has("real life") || tags.has("warm daily"))) score += 8;
-  if ((input.scenePreference === "健身房内" || input.scenePreference === "去运动的路上") && tags.has("active")) {
-    score += 14;
-  }
+  if (entry.styleCluster.includes("darkAnchor")) score += 2;
+  if (entry.styleTags.some((tag) => /real|daily|premium gym|clean commute/.test(tag))) score += 4;
 
-  if (/裙|skirt/.test(extra) && tags.has("skirt")) score += 18;
-  if (/短裤|shorts|bermuda/.test(extra) && tags.has("shorts")) score += 18;
-  if (/牛仔|denim|jeans/.test(extra) && tags.has("denim")) score += 14;
-  if (/深色|黑|black|navy|charcoal|dark/.test(extra) && tags.has("dark anchor")) score += 12;
-  if (/运动|gym|active|健身/.test(extra) && tags.has("active")) score += 16;
-
-  return score;
+  return score + scoreOutfitUserPreference(entry, input.userExtraRequirement);
 }
 
-function selectByRotation(candidates: PerSceneOutfitLine[], input: ChoosePerSceneOutfitInput, sceneKey: PerSceneOutfitSceneKey) {
+function buildCandidatePools(input: ChoosePerSceneOutfitInput, sceneOutfits: OutfitEntry[]) {
+  const season = normalizePerSceneSeason(input.season);
+  const shoe = normalizePerSceneShoe(input.shoe);
+  const imageType = normalizePerSceneImageType(input.imageType);
+  const seasonMatches = sceneOutfits.filter((entry) => entry.season.includes(season));
+  const shoeMatches = seasonMatches.filter((entry) => containsShoe(entry, shoe));
+  const imageMatches = shoeMatches.filter((entry) => containsImageType(entry, imageType));
+
+  return [
+    withoutConflicts(imageMatches, input),
+    withoutConflicts(shoeMatches, input),
+    withoutConflicts(seasonMatches, input),
+    withoutConflicts(sceneOutfits, input),
+    sceneOutfits
+  ].filter((pool) => pool.length > 0);
+}
+
+function selectByRotation(candidates: OutfitEntry[], input: ChoosePerSceneOutfitInput, sceneKey: PerSceneOutfitSceneKey) {
+  const ranked = [...candidates].sort((a, b) => scoreEntry(b, input) - scoreEntry(a, input));
+  const topScore = ranked.length ? scoreEntry(ranked[0], input) : 0;
+  const topCandidates = ranked.filter((entry) => scoreEntry(entry, input) >= topScore - 8);
   const storageKey = getStorageKey(input, sceneKey);
   const storedHistory = readStoredHistory(storageKey);
-  const blockedIds = new Set([
-    input.previousOutfitId,
-    ...(input.generatedHistory ?? []),
-    ...storedHistory.slice(0, Math.min(8, storedHistory.length))
-  ].filter(Boolean));
-  const available = candidates.filter((line) => !blockedIds.has(line.id));
-  const pool = available.length ? available : candidates;
-  const baseIndex = hashText(`${sceneKey}|${input.season}|${input.shoe}|${input.imageType}|${input.userExtraRequirement ?? ""}`);
-  const selected = pool[baseIndex % pool.length] ?? candidates[0];
+  const blockedIds = new Set(
+    [input.previousOutfitId, ...(input.generatedHistory ?? []), ...storedHistory.slice(0, 8)].filter(Boolean)
+  );
+  const available = topCandidates.filter((entry) => !blockedIds.has(entry.id));
+  const pool = available.length ? available : topCandidates.length ? topCandidates : ranked;
+  const baseIndex = hashText(
+    `${sceneKey}|${input.season}|${input.shoe}|${input.imageType}|${input.userExtraRequirement ?? ""}|${storedHistory[0] ?? ""}`
+  );
+  const selected = pool[baseIndex % pool.length] ?? ranked[0] ?? null;
 
   if (selected) {
     writeStoredHistory(storageKey, [selected.id, ...storedHistory.filter((id) => id !== selected.id)]);
@@ -111,25 +158,26 @@ function selectByRotation(candidates: PerSceneOutfitLine[], input: ChoosePerScen
   return selected;
 }
 
-export function choosePerSceneOutfitLine(input: ChoosePerSceneOutfitInput): PerSceneOutfitLine | null {
-  if (hasUserSpecifiedClothingRequirement(input.userExtraRequirement)) return null;
+export function choosePerSceneOutfitLine(input: ChoosePerSceneOutfitInput): ChoosePerSceneOutfitResult {
+  if (hasUserSpecifiedClothingRequirement(input.userExtraRequirement)) return emptySelection;
 
   const sceneKey = resolvePerSceneKey({
     scenePreference: input.scenePreference,
     imageType: input.imageType,
     userExtraRequirement: input.userExtraRequirement
   });
-  const scene = perSceneOutfitLibrary[sceneKey];
-  if (!scene) return null;
+  if (!sceneKey) return emptySelection;
 
-  const seasonMatches = scene.outfitLines.filter((line) => line.season.includes(input.season));
-  const shoeMatches = seasonMatches.filter(
-    (line) => line.suitableShoes.includes(input.shoe) || line.suitableShoes.includes("自定义")
-  );
-  const baseCandidates = shoeMatches.length ? shoeMatches : seasonMatches.length ? seasonMatches : scene.outfitLines;
-  const scoredCandidates = [...baseCandidates].sort((a, b) => scoreLine(b, input) - scoreLine(a, input));
-  const topScore = scoredCandidates.length ? scoreLine(scoredCandidates[0], input) : 0;
-  const topCandidates = scoredCandidates.filter((line) => scoreLine(line, input) >= topScore - 8);
+  const sceneOutfits = perSceneOutfitLibrary[sceneKey];
+  if (!sceneOutfits?.length) return emptySelection;
 
-  return selectByRotation(topCandidates.length ? topCandidates : scoredCandidates, input, sceneKey);
+  const candidatePools = buildCandidatePools(input, sceneOutfits);
+  const selected = selectByRotation(candidatePools[0] ?? sceneOutfits, input, sceneKey);
+  if (!selected) return emptySelection;
+
+  return {
+    selectedOutfitId: selected.id,
+    selectedPerSceneOutfitLine: selected.compactLine,
+    selectedOutfit: selected
+  };
 }
