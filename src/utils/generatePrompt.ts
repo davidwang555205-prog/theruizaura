@@ -79,9 +79,11 @@ import {
   subtleSneakerErrorNegativeCompact,
   tiedLacesNegativeCompact
 } from "../data/sneakerProtectionProfiles";
+import { sceneRealismNegativeCompact } from "../data/sceneRealismProfiles";
 import { detectImageCountOrSeriesIntent } from "./detectImageCountOrSeriesIntent";
 import { chooseActionLine } from "./chooseActionLine";
 import { chooseBodyProportionLines } from "./chooseBodyProportionLines";
+import { chooseSceneRealismLines } from "./chooseSceneRealismLines";
 import { chooseSneakerProtectionLines } from "./chooseSneakerProtectionLines";
 import { cleanFinalPrompt, dedupePromptLines } from "./promptOptimizer";
 
@@ -331,6 +333,15 @@ function getProductStillLifePrompt(params: TeamPromptParams) {
     userExtraRequirement: extraRequirement
   });
   const timeOfDayLine = getTimeOfDayLine(params.imageType, selectedTimeOfDay);
+  const sceneRealismLines = chooseSceneRealismLines({
+    imageType: params.imageType,
+    scenePreference: resolvedScene,
+    season: params.season,
+    timeOfDay: selectedTimeOfDay,
+    hasShoe: true,
+    selectedActionLine: "",
+    userExtraRequirement: extraRequirement
+  });
   const sneakerProtectionLines = chooseSneakerProtectionLines({
     imageType: params.imageType,
     scenePreference: resolvedScene,
@@ -348,6 +359,7 @@ function getProductStillLifePrompt(params: TeamPromptParams) {
       TEAM_PRODUCT_NEGATIVE,
       sneakerErrorNegativeCompact,
       tiedLacesNegativeCompact,
+      sceneRealismNegativeCompact,
       selectedTimeOfDay === "evening" ? eveningLightNegative : ""
     ],
     "\n\n"
@@ -361,6 +373,7 @@ function getProductStillLifePrompt(params: TeamPromptParams) {
       stylePrompt,
       sceneText,
       shoeStyle,
+      ...sceneRealismLines,
       ...sneakerProtectionLines,
       TEAM_PRODUCT_PROTECTION,
       specialtyNegative
@@ -579,6 +592,18 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
     userExtraRequirement: extraRequirement,
     imageCountIntent
   });
+  const sceneRealismLines = chooseSceneRealismLines({
+    imageType: params.imageType,
+    scenePreference: resolvedScene,
+    season: params.season,
+    timeOfDay: selectedTimeOfDay,
+    hasShoe,
+    selectedActionLine: compactJoin(
+      [selectedAction?.supportLine, selectedAction?.line, selectedAction?.safetyLine],
+      " "
+    ),
+    userExtraRequirement: extraRequirement
+  });
   const negative = compactJoin(
     [
       hasShoe && params.imageType !== "非产品氛围图"
@@ -590,6 +615,7 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
           : sneakerErrorNegativeCompact
         : "",
       hasShoe ? tiedLacesNegativeCompact : "",
+      sceneRealismNegativeCompact,
       creatorStyling ? TEAM_CREATOR_NEGATIVE : "",
       accessoryLine ? luxuryAccessoryNegative : "",
       outfitStyleLine || versatilityLine ? outfitVersatilityNegative : "",
@@ -652,6 +678,7 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
       peopleImage && imageCountIntent === "multiImageSet" ? multiImageActionVariationCompact : "",
       versatilityLine,
       sceneText,
+      ...sceneRealismLines,
       ...sneakerProtectionLines,
       hasShoe && shouldUseActionPose ? actionShoeSafetyCompact : "",
       productProtection,
