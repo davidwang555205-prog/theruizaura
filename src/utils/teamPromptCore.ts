@@ -1,26 +1,23 @@
 import type {
   TeamImageType,
+  TeamPromptMode,
   TeamPromptParams,
   TeamPromptOutput,
   TeamScenePreference,
-  TeamSeason
+  TeamSeason,
+  TeamShoe
 } from "../types";
-import {
-  chooseActiveOutfitLine,
-  choosePremiumGymOutfitLine,
-  choosePremiumGymSubScene,
-  isActiveScene
-} from "../data/activeLifestyleTemplates";
-import {
-  chooseOutfitLine,
-  chooseSummerOutfitByScene
-} from "../data/seasonalOutfits";
-import { choosePerSceneOutfitLine } from "./choosePerSceneOutfitLine";
-import {
-  hasSummerSpecificOutfitRequest,
-  hasUserSpecifiedClothingRequirement
-} from "./outfitLibraryFilters";
-import { buildTeamCompactPrompt, TEAM_PROMPT_MODE } from "./teamCompactPrompt";
+import { type StandardSceneKey } from "../data/outfitDiversityRules";
+import { hasUserSpecifiedClothingRequirement } from "./outfitLibraryFilters";
+import { buildPromptByMode } from "./buildPromptByMode";
+import { chooseCameraLookLine } from "./chooseCameraLookLine";
+import { chooseChinaUrbanStreetLine } from "./chooseChinaUrbanStreetLine";
+import { chooseOutfitByGarmentType } from "./chooseOutfitByGarmentType";
+import { cleanFinalPrompt, dedupePromptLines } from "./promptOptimizer";
+import { selectCityProfileForScene } from "./selectCityProfileForScene";
+import { sensitiveWordReducer } from "./sensitiveWordReducer";
+
+export const TEAM_PROMPT_MODE: TeamPromptMode = "standard";
 
 const TEAM_SHOE_KEYWORDS = [
   "鞋子",
@@ -52,6 +49,51 @@ const TEAM_SHOE_KEYWORDS = [
   "toe box"
 ];
 
+const brandMoodLine =
+  "Create a premium THERUIZ AURA Quiet Warm Luxury image: cream-white, warm beige, soft stone, natural light, low saturation, refined daily elegance, believable comfort.";
+
+const customerFeelingLine =
+  "Express all-day ease, comfort without carelessness, clean composure, taste, and quiet put-together confidence.";
+
+const modelLine25to40 =
+  "Use one believable Asian or subtle Asian mixed woman, 25–40, with natural dark hair, clean makeup, real skin texture, realistic proportions, and calm presence.";
+
+const modelLine30to45 =
+  "Use one believable Asian or subtle Asian mixed woman, 30–45, natural dark hair, clean makeup, real skin texture, realistic proportions, and calm presence.";
+
+const gazeLine =
+  "Use a natural gaze for the task or outfit record, never a forced direct stare.";
+
+const actionLine =
+  "Use one simple daily action: slow walk, coffee, tote, flowers, book, or storefront pause.";
+
+const mirrorGazeActionLine =
+  "Use a natural mirror outfit pose with the phone hiding or cropping the face, realistic mirror proportions, one foot slightly forward, relaxed shoulders, and natural leg length.";
+
+const gymActionLine =
+  "Use a calm premium-gym action such as holding a water bottle, adjusting a gym tote, pausing near equipment, or lightly holding a dumbbell, with realistic proportions.";
+
+const bodyProportionLine =
+  "Keep body scale, leg length, hand size, foot scale, and shoe-to-leg relationship realistic.";
+
+const nonProductShoeAccuracyLine =
+  "If the THERUIZ AURA sneaker appears in this non-product atmosphere image, keep it subtle and secondary. Preserve its real color, material texture, and recognizable shape, but do not turn the image into a direct product shot.";
+
+const uploadedSneakerAccuracyLine =
+  "Use uploaded sneaker reference as strict source: low-cut German trainer silhouette, rounded toe box, slim outsole, panels, tongue, stitching, material, color, and proportions.";
+
+const selectedSneakerAccuracyLine =
+  "Preserve the selected THERUIZ AURA German trainer: low-cut silhouette, rounded toe box, slim outsole, panels, tongue, stitching, material, color, and proportions.";
+
+const shoeVisibilityLine =
+  "Keep at least one sneaker fully visible from toe to heel, with the second clearly readable.";
+
+const shoeClippingLine =
+  "Keep clean separation between ankle, sock, trouser hem or skirt edge, shoe collar, tongue, laces, floor, and props; nothing should merge into the shoe.";
+
+const lacesLine =
+  "Keep laces naturally tied, with readable loops, lace ends, eyelets, and tongue.";
+
 const TEAM_ATMOSPHERE_SEASON: Record<TeamSeason, string> = {
   春: "Use soft spring daylight, airy textures, pale neutrals, and a fresh but quiet atmosphere.",
   夏: "Use breathable summer light, linen texture, warm off-white tones, and a clean airy mood.",
@@ -81,9 +123,33 @@ const TEAM_SCENE_TEXT: Record<Exclude<TeamScenePreference, "自动匹配">, stri
   周末轻采购:
     "Use a refined weekend errands atmosphere with flowers, bakery paper bags, produce, coffee beans, tote bags, or a simple kitchen/table surface. The mood should feel like real life made beautiful through order, restraint, and good taste.",
   健身房内:
-    "Use a clean modern gym, movement studio, or calm stretching area with soft neutral light and minimal equipment. The scene should feel like light movement-oriented daily life, not professional training content.",
+    "Use a clean premium gym or boutique fitness space with muted equipment, warm grey flooring, controlled lighting, believable training space, and no crowded sports-brand atmosphere.",
   去运动的路上:
     "Use a calm city-to-gym transition setting such as a gym entrance, clean sidewalk, parking-to-gym walkway, hotel gym route, or quiet urban movement path. The mood should feel polished, practical, and ready for light activity."
+};
+
+const SHOE_STYLE_LINES: Record<TeamShoe, string> = {
+  "Cloud Dancer 云舞者":
+    "Classic clean light-tone foundation for white shirts, beige trousers, soft denim, and refined daily styling.",
+  "Sand Dollar 沙钱白":
+    "Classic clean light-tone foundation for white shirts, beige trousers, soft denim, and refined daily styling.",
+  "Delphinium Blue 飞燕草蓝":
+    "Low-saturation airy blue for white shirts, pale denim, oatmeal knitwear, and fresh spring-summer styling.",
+  "Silver Romance 银色浪漫":
+    "Soft moonlit metallic accent for warm grey, cream white, and refined urban styling; keep away from chrome or cheap shine.",
+  "Aire 微风":
+    "Light breathable spring-summer feeling for linen, airy shirts, and light trousers; keep away from sporty running-shoe styling.",
+  "Cappuccino 卡布奇诺":
+    "Warm coffee suede mood for knitwear, oatmeal, beige, and soft autumn-winter layers; keep away from masculine or heavy styling.",
+  "Lemon 柠檬":
+    "Soft butter-yellow freshness for cream white, pale denim, and clean neutral styling; keep away from childish yellow.",
+  "Maple Grove 枫林":
+    "Warm muted maple tone for soft knitwear, beige-brown layers, and gentle autumn styling; keep away from heavy masculine styling.",
+  "Oreo 奥利奥":
+    "Clean black-white balance for black, white, grey, beige, and restrained daily styling; keep away from streetwear or sporty energy.",
+  "Panda 熊猫":
+    "Clean black-white balance for black, white, grey, beige, and restrained daily styling; keep away from streetwear or sporty energy.",
+  自定义: "Use THERUIZ AURA's clean, low-saturation, refined daily styling system."
 };
 
 function shouldUsePeopleStyling(imageType: TeamImageType) {
@@ -113,6 +179,7 @@ function getTeamAutoScene(imageType: TeamImageType): Exclude<TeamScenePreference
   if (imageType === "对镜穿搭图") return "居家衣帽间";
   if (imageType === "生活场景图") return "精品超市 / 日常采购";
   if (imageType === "非产品氛围图") return "玄关出门";
+  if (imageType === "产品静物图") return "材质工作台";
   return "材质工作台";
 }
 
@@ -122,140 +189,315 @@ function resolveTeamScenePreference(params: TeamPromptParams) {
     : params.scenePreference;
 }
 
-function getTeamSceneText(params: TeamPromptParams, resolvedScene: TeamScenePreference) {
+function resolveSceneKey(params: TeamPromptParams, resolvedScene: Exclude<TeamScenePreference, "自动匹配">): StandardSceneKey {
+  const text = `${resolvedScene} ${params.extraRequirement}`.toLowerCase();
+
+  if (params.imageType === "产品静物图") return "stillLife";
+  if (params.imageType === "拍摄花絮 / 材质图" || resolvedScene === "材质工作台" || resolvedScene === "拍摄花絮") {
+    return "materialTable";
+  }
+  if (params.imageType === "对镜穿搭图") return resolvedScene === "旅行酒店" ? "hotelTravel" : "mirrorCloset";
+  if (resolvedScene === "健身房内" || /gyminterior|健身房内|premium gym/.test(text)) return "gymInterior";
+  if (resolvedScene === "去运动的路上" || /gymcommute|去运动|健身房路上/.test(text)) return "gymCommute";
+  if (/cafeexterior|咖啡|cafe|café/.test(text)) return "cafeExterior";
+  if (/bookstoremagazine|书店|杂志|bookstore|magazine/.test(text)) return "bookstoreMagazine";
+  if (/flowershop|花店|鲜花|flower/.test(text)) return "flowerShop";
+  if (/bakerydessert|面包|烘焙|bakery|dessert/.test(text)) return "bakeryDessert";
+  if (/boutique|买手店|精品店/.test(text)) return "boutiqueStreet";
+  if (resolvedScene === "精品超市 / 日常采购" || /premiumerrands|超市|采购|grocery|errands/.test(text)) return "premiumErrands";
+  if (resolvedScene === "周末城市散步") return "weekendCityWalk";
+  if (resolvedScene === "通勤上班") return "commute";
+  if (resolvedScene === "旅行酒店") return "hotelTravel";
+  if (resolvedScene === "玄关出门") return "entrywayDeparture";
+  if (resolvedScene === "周末轻采购") return "bakeryDessert";
+  if (resolvedScene === "窗边阅读") return "bookstoreMagazine";
+  return "cityCorner";
+}
+
+function getImageTypeLine(params: TeamPromptParams, sceneKey: StandardSceneKey) {
+  if (params.imageType === "产品上脚图") {
+    return "Generate a refined on-foot lifestyle image with a safe standing pose or small natural walking step. The sneakers must be complete, clear, structurally accurate, and separate from trouser hems.";
+  }
+  if (params.imageType === "对镜穿搭图") {
+    return "Generate a refined mirror outfit image with the face hidden by the phone or naturally cropped. Use a 3/4 or full-body mirror composition with clear sneakers, natural proportions, believable phone-hand structure, and clear trouser-shoe relationship.";
+  }
+  if (sceneKey === "gymInterior" || sceneKey === "gymCommute") {
+    return "Generate a refined premium-gym active-lifestyle image for THERUIZ AURA, focused on light movement, polished daily transition, and comfort rather than a sportswear campaign.";
+  }
+  if (params.imageType === "生活场景图") {
+    return "Generate a believable lifestyle image of a refined urban woman wearing THERUIZ AURA sneakers in real daily movement.";
+  }
+  if (params.imageType === "产品静物图") {
+    return "Generate premium still-life product photography with the selected THERUIZ AURA sneaker as the main subject; keep material, laces, tongue, outsole, and product scale clearly readable.";
+  }
+  if (params.imageType === "拍摄花絮 / 材质图") {
+    return "Generate a refined behind-the-scenes or material storytelling image with leather swatches, suede samples, shoelaces, color cards, care brush, product notes, shooting table, or hands arranging materials.";
+  }
+  return "Generate a non-product atmospheric THERUIZ AURA image. The product does not need to be the main subject; express quiet order, warm restraint, daily elegance, calm negative space, and refined lifestyle atmosphere.";
+}
+
+function getModelLine(params: TeamPromptParams, resolvedScene: Exclude<TeamScenePreference, "自动匹配">) {
+  if (!shouldUsePeopleStyling(params.imageType)) return "";
+  const mature =
+    resolvedScene === "通勤上班" ||
+    resolvedScene === "精品超市 / 日常采购" ||
+    resolvedScene === "旅行酒店" ||
+    params.imageType === "生活场景图";
+
+  return mature ? modelLine30to45 : modelLine25to40;
+}
+
+function getSceneText(params: TeamPromptParams, resolvedScene: Exclude<TeamScenePreference, "自动匹配">, sceneKey: StandardSceneKey) {
+  if (params.imageType === "产品静物图") {
+    return "Use a real still-life setup with believable surface texture, natural object contact, soft shadows, restrained props, clear product scale, and open shoe visibility.";
+  }
   if (params.imageType === "产品上脚图" && resolvedScene === "窗边阅读") {
     return "Use a window-side lifestyle on-foot scene with soft natural light and a calm interior mood. Keep the sneakers clear, complete, and structurally accurate.";
   }
-
   if (params.imageType === "产品上脚图" && resolvedScene === "材质工作台") {
     return "Use a material storytelling scene with the sneaker clearly present, keeping it wearable and readable rather than turning the image into a pure still life.";
   }
-
   if (params.imageType === "对镜穿搭图" && resolvedScene === "拍摄花絮") {
     return "Use a mirror outfit record in a quiet getting-ready setting, not a studio behind-the-scenes image. Keep the outfit and sneakers clear.";
   }
-
   if (params.imageType === "非产品氛围图" && resolvedScene === "通勤上班") {
     return "Use commute-related atmosphere such as a tote bag, keys, coat, entryway, calm worktable, or soft office-transition details. Do not make it a direct on-foot product image.";
   }
-
   if (params.imageType === "拍摄花絮 / 材质图" && resolvedScene === "窗边阅读") {
     return "Use a quiet material table near soft window light, with tactile samples and refined working details. Do not make a reading portrait the main image.";
   }
-
   if (params.imageType === "生活场景图" && resolvedScene === "材质工作台") {
     return "Use a refined lifestyle scene with subtle material storytelling details, keeping the woman's daily life and the brand atmosphere more important than a pure worktable still life.";
   }
-
   if (params.imageType === "生活场景图" && resolvedScene === "拍摄花絮") {
     return "Use a natural lifestyle image with a subtle behind-the-scenes feeling, not a technical studio setup.";
   }
+  if (sceneKey === "bookstoreMagazine") {
+    return "Use a calm bookstore or magazine-reading street corner with books, magazine texture, soft window light, and restrained cultural detail that feels real rather than staged.";
+  }
+  if (sceneKey === "cafeExterior") {
+    return "Use a restrained cafe exterior or sidewalk storefront moment with soft reflections, low-noise signage, and realistic daily city depth.";
+  }
 
-  return resolvedScene === "自动匹配" ? "" : TEAM_SCENE_TEXT[resolvedScene];
+  return TEAM_SCENE_TEXT[resolvedScene];
 }
 
-function getSceneLocationType(params: TeamPromptParams, resolvedScene: TeamScenePreference) {
-  if (params.imageType === "对镜穿搭图" || params.imageType === "产品静物图") return "indoor";
-  if (
-    resolvedScene === "居家衣帽间" ||
-    resolvedScene === "窗边阅读" ||
-    resolvedScene === "材质工作台" ||
-    resolvedScene === "拍摄花絮" ||
-    resolvedScene === "旅行酒店" ||
-    resolvedScene === "健身房内"
-  ) {
-    return "indoor";
+function getSceneRealismLine(input: {
+  params: TeamPromptParams;
+  sceneKey: StandardSceneKey;
+  hasCityStreetLine: boolean;
+}) {
+  if (input.params.imageType === "产品静物图" || input.sceneKey === "stillLife") {
+    return "Use a real still-life photography setup with believable surface texture, natural object contact, soft shadows, restrained props, clear product scale, and no prop covering the shoe.";
+  }
+  if (input.sceneKey === "gymInterior") {
+    return "Use a clean premium gym or boutique fitness space with muted equipment, warm grey flooring, controlled light, believable training space, and calm brand atmosphere.";
+  }
+  if (input.params.imageType === "对镜穿搭图" || input.sceneKey === "mirrorCloset") {
+    return "Use a believable real room or mirror space with natural depth, grounded floor contact, soft light, practical object placement, and straight mirror perspective.";
+  }
+  if (input.params.imageType === "拍摄花絮 / 材质图" || input.sceneKey === "materialTable") {
+    return "Use a tactile material table with realistic surface texture, natural object contact, soft shadows, restrained tools, and a quiet development mood.";
+  }
+  if (input.hasCityStreetLine && ["cafeExterior", "flowerShop", "bakeryDessert", "bookstoreMagazine", "premiumErrands"].includes(input.sceneKey)) {
+    return "Keep the storefront restrained: clean reflections, subtle interior depth, low-noise signage, and unreadable brand text.";
+  }
+  if (input.hasCityStreetLine) {
+    return "Keep the street believable and low-noise: realistic sidewalk texture, restrained storefront depth, soft shadows, subtle background life, and open shoe visibility.";
   }
 
-  return "outdoor";
+  return "Use a believable real daily space with natural depth, grounded floor contact, soft light, practical object placement, restrained props, and no staged AI-set feeling.";
 }
 
-function getTeamSeasonText(params: TeamPromptParams, resolvedScene: TeamScenePreference) {
-  const userSpecifiedClothing = hasUserSpecifiedClothingRequirement(params.extraRequirement);
+function getSneakerAccuracyLine(params: TeamPromptParams, hasShoe: boolean) {
+  if (!hasShoe) return "";
+  if (params.imageType === "非产品氛围图") return nonProductShoeAccuracyLine;
+  if (params.shoe === "自定义" && !params.customShoe.trim()) return selectedSneakerAccuracyLine;
+  return uploadedSneakerAccuracyLine;
+}
 
-  if (!shouldUsePeopleStyling(params.imageType)) {
-    return TEAM_ATMOSPHERE_SEASON[params.season];
+function getShoeVisibilityLine(params: TeamPromptParams, hasShoe: boolean) {
+  if (!hasShoe) return "";
+  if (params.imageType === "非产品氛围图") {
+    return "The shoe may appear only as a subtle partial object or background detail, not as the main product subject; do not force full on-foot display.";
   }
-
-  if (userSpecifiedClothing) return "";
-
-  const perSceneOutfitSelection = choosePerSceneOutfitLine({
-    scenePreference: resolvedScene,
-    season: params.season,
-    shoe: params.shoe,
-    imageType: resolvedScene === "健身房内" ? "gym" : params.imageType,
-    userExtraRequirement: params.extraRequirement
-  });
-
-  if (perSceneOutfitSelection.selectedPerSceneOutfitLine) {
-    return perSceneOutfitSelection.selectedPerSceneOutfitLine;
+  if (params.imageType === "拍摄花絮 / 材质图") {
+    return "If the sneaker appears in the material or behind-the-scenes image, keep the relevant shoe part readable while allowing materials and working details to remain important.";
   }
+  return shoeVisibilityLine;
+}
 
-  if (params.season === "夏" && hasSummerSpecificOutfitRequest(params.extraRequirement)) {
-    return chooseSummerOutfitByScene({
-      season: params.season,
-      shoe: params.shoe,
-      imageType: params.imageType,
-      scenePreference: resolvedScene,
-      userExtraRequirement: params.extraRequirement
-    });
+function getShoeClippingLine(params: TeamPromptParams, hasShoe: boolean) {
+  if (!hasShoe || params.imageType === "非产品氛围图") return "";
+  return shoeClippingLine;
+}
+
+function getLacesLine(params: TeamPromptParams, hasShoe: boolean) {
+  if (!hasShoe || params.imageType === "非产品氛围图") return "";
+  return lacesLine;
+}
+
+function getShoeStyleLine(params: TeamPromptParams, hasShoe: boolean) {
+  if (!hasShoe) return "";
+  if (params.imageType === "非产品氛围图") return "";
+  return params.customShoe.trim() ? "Use THERUIZ AURA's clean, low-saturation, refined daily styling system." : SHOE_STYLE_LINES[params.shoe];
+}
+
+function getNegativeLine(input: {
+  params: TeamPromptParams;
+  hasShoe: boolean;
+  cityBoundaryPhrases: string[];
+  sceneKey: StandardSceneKey;
+}) {
+  const phrases = input.hasShoe
+    ? [
+        "non-Asian models",
+        "influencer posing",
+        "AI beige-template styling",
+        "body-focused posing",
+        "distorted body",
+        "stiff hands",
+        "fake scenery or signage",
+        "loud logos",
+        "messy background",
+        "plastic skin",
+        "sneaker deformation",
+        "chunky or running-shoe sole",
+        "shoe clipping",
+        "cropped shoes",
+        "melted laces",
+        "unreadable footwear"
+      ]
+    : [
+        "generic stock photography",
+        "cheap lifestyle props",
+        "hard studio lighting",
+        "cluttered composition",
+        "influencer styling",
+        "loud colors",
+        "fake luxury staging",
+        "cold minimalism",
+        "messy backgrounds",
+        "overly commercial visual language"
+      ];
+
+  if (input.cityBoundaryPhrases.length) {
+    phrases.push("European-looking streets", "tourist landmarks", "crowded traffic", "vehicles blocking shoes", "staged city-promo scenery");
   }
-
-  if (resolvedScene === "健身房内") {
-    return choosePremiumGymOutfitLine(
-      {
-        scenePreference: resolvedScene,
-        season: params.season,
-        shoe: params.shoe,
-        userExtraRequirement: params.extraRequirement
-      },
-      choosePremiumGymSubScene({
-        scenePreference: resolvedScene,
-        season: params.season,
-        shoe: params.shoe,
-        userExtraRequirement: params.extraRequirement
-      })
+  if (input.params.imageType === "对镜穿搭图" || input.sceneKey === "mirrorCloset") {
+    phrases.push("mirror distortion", "long-leg selfie effect", "posed selfie mood");
+  }
+  if (input.sceneKey === "gymInterior" || input.sceneKey === "gymCommute") {
+    phrases.push(
+      "bodybuilding",
+      "sweaty gym influencer",
+      "technical sportswear campaign",
+      "overly bare activewear focus",
+      "technical gym shoe",
+      "chunky athletic sole"
     );
   }
-
-  if (isActiveScene(resolvedScene)) {
-    return chooseActiveOutfitLine({
-      scenePreference: resolvedScene,
-      season: params.season,
-      shoe: params.shoe,
-      userExtraRequirement: params.extraRequirement
-    });
+  if (input.params.imageType === "产品静物图" || input.sceneKey === "stillLife") {
+    phrases.push("props covering shoes", "floating objects", "fake product scale", "3D render feeling");
   }
 
-  return chooseOutfitLine({
-    season: params.season,
-    shoe: params.shoe,
-    imageType: params.imageType,
-    scenePreference: resolvedScene,
-    userExtraRequirement: params.extraRequirement
-  });
+  phrases.push("fake HDR", "heavy filters", "warped lens perspective");
+
+  return `Avoid ${Array.from(new Set(phrases)).join(", ")}.`;
+}
+
+function getPromptKind(params: TeamPromptParams, sceneKey: StandardSceneKey) {
+  if (params.imageType === "产品静物图") return "stillLife";
+  if (params.imageType === "对镜穿搭图") return "mirror";
+  if (sceneKey === "gymInterior" || sceneKey === "gymCommute") return "gym";
+  if (params.imageType === "产品上脚图") return "onFoot";
+  if (params.imageType === "生活场景图") return "lifestyle";
+  return "atmosphere";
 }
 
 export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
   const hasShoe = resolveTeamHasShoe(params);
   const resolvedScene = resolveTeamScenePreference(params);
-  const sceneText = getTeamSceneText(params, resolvedScene);
+  const sceneKey = resolveSceneKey(params, resolvedScene);
   const userSpecifiedClothing = hasUserSpecifiedClothingRequirement(params.extraRequirement);
-  const fullPrompt = "";
-
-  const prompt = buildTeamCompactPrompt({
+  const selectedCity = selectCityProfileForScene({
+    imageType: params.imageType,
+    sceneKey,
+    userExtraRequirement: params.extraRequirement
+  });
+  const cityProfile = chooseChinaUrbanStreetLine(selectedCity);
+  const cameraSelection = chooseCameraLookLine({
+    imageType: params.imageType,
+    sceneKey,
+    city: selectedCity,
+    userExtraRequirement: params.extraRequirement
+  });
+  const outfitSelection = chooseOutfitByGarmentType({
+    imageType: params.imageType,
+    sceneKey,
+    season: params.season,
+    shoe: params.shoe,
+    garmentTypePreference: params.garmentTypePreference,
+    userExtraRequirement: params.extraRequirement,
+    userSpecifiedClothing
+  });
+  const sceneText = getSceneText(params, resolvedScene, sceneKey);
+  const shoeStyleLine = getShoeStyleLine(params, hasShoe);
+  const outfitLine = [outfitSelection.outfitLine, shoeStyleLine].filter(Boolean).join(" ");
+  const sceneRealismLine = getSceneRealismLine({
     params,
-    resolvedScene,
-    sceneLocationType: getSceneLocationType(params, resolvedScene),
-    hasShoe,
-    seasonText: getTeamSeasonText(params, resolvedScene),
-    userSpecifiedClothing,
-    fullPrompt
+    sceneKey,
+    hasCityStreetLine: Boolean(cityProfile)
   });
 
+  const rawPrompt = buildPromptByMode(
+    {
+      brandMoodLine,
+      imageTypeLine: [shouldUsePeopleStyling(params.imageType) ? customerFeelingLine : "", getImageTypeLine(params, sceneKey)]
+        .filter(Boolean)
+        .join(" "),
+      modelLine: getModelLine(params, resolvedScene),
+      gazeLine: shouldUsePeopleStyling(params.imageType)
+        ? params.imageType === "对镜穿搭图"
+          ? mirrorGazeActionLine
+          : gazeLine
+        : "",
+      actionLine: shouldUsePeopleStyling(params.imageType)
+        ? sceneKey === "gymInterior" || sceneKey === "gymCommute"
+          ? gymActionLine
+          : actionLine
+        : "",
+      bodyProportionLine: shouldUsePeopleStyling(params.imageType) ? bodyProportionLine : "",
+      outfitLine: shouldUsePeopleStyling(params.imageType) ? outfitLine : "",
+      stylingRealismLine: shouldUsePeopleStyling(params.imageType)
+        ? outfitSelection.stylingRealismLine
+        : params.imageType === "非产品氛围图" || params.imageType === "拍摄花絮 / 材质图"
+          ? TEAM_ATMOSPHERE_SEASON[params.season]
+          : "",
+      cityStreetLine: cityProfile?.cityStreetLine,
+      sceneLine: cityProfile ? "" : sceneText,
+      sceneRealismLine,
+      cameraLookLine: cameraSelection.cameraLookLine,
+      sneakerAccuracyLine: getSneakerAccuracyLine(params, hasShoe),
+      shoeVisibilityLine: getShoeVisibilityLine(params, hasShoe),
+      shoeClippingLine: getShoeClippingLine(params, hasShoe),
+      lacesLine: getLacesLine(params, hasShoe),
+      negativeLine: getNegativeLine({
+        params,
+        hasShoe,
+        cityBoundaryPhrases: cityProfile?.boundaryPhrases ?? [],
+        sceneKey
+      }),
+      userExtraRequirement: params.extraRequirement.trim(),
+      promptKind: getPromptKind(params, sceneKey)
+    },
+    TEAM_PROMPT_MODE
+  );
+  const prompt = cleanFinalPrompt(dedupePromptLines(sensitiveWordReducer(rawPrompt)));
+
   return {
-    prompt: TEAM_PROMPT_MODE === "full" && fullPrompt ? fullPrompt : prompt,
+    prompt,
     hasShoe,
-    sceneText
+    sceneText: cityProfile?.cityStreetLine ?? sceneText
   };
 }
