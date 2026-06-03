@@ -1,4 +1,6 @@
-import type { TeamSeason, TeamShoe } from "../types";
+export type Season = "spring" | "summer" | "autumn" | "winter";
+
+export type ImageType = "onFoot" | "mirror" | "lifestyle" | "gym" | "gymCommute";
 
 export type PerSceneOutfitSceneKey =
   | "commute"
@@ -18,789 +20,763 @@ export type PerSceneOutfitSceneKey =
   | "gymCommute"
   | "gymInterior";
 
-export type PerSceneOutfitLine = {
+export type OutfitEntry = {
   id: string;
-  season: TeamSeason[];
-  suitableShoes: TeamShoe[];
+  sceneKey: string;
+  styleCluster: string;
+  season: Season[];
+  suitableShoes: string[];
+  imageTypes: ImageType[];
   colorMood: string[];
   styleTags: string[];
+  topCategory: string;
+  bottomCategory: string;
+  outerLayerCategory?: string;
+  bagCategory?: string;
+  accessoryCategory?: string[];
   compactLine: string;
-  forbidden: string[];
+  forbidden?: string[];
 };
 
-export type PerSceneOutfitScene = {
-  sceneKey: PerSceneOutfitSceneKey;
-  sceneName: string;
-  outfitCountTarget: 50;
-  outfitLines: PerSceneOutfitLine[];
+export const perSceneOutfitLibrary: Record<string, OutfitEntry[]> = {
+  commute: [
+    {
+      id: "commute-001",
+      sceneKey: "commute",
+      styleCluster: "cleanMinimal",
+      season: ["spring", "autumn"],
+      suitableShoes: ["Cloud Dancer", "Sand Dollar", "Oreo", "Panda", "Delphinium Blue"],
+      imageTypes: ["onFoot", "lifestyle"],
+      colorMood: ["white", "soft grey", "taupe"],
+      styleTags: ["clean commute", "polished daily", "light business"],
+      topCategory: "white cotton shirt",
+      bottomCategory: "soft grey straight trousers",
+      outerLayerCategory: "light beige trench coat",
+      bagCategory: "structured taupe tote",
+      accessoryCategory: ["simple watch"],
+      compactLine:
+        "Style her in a crisp white cotton shirt, soft grey straight trousers, a light beige trench coat, and a structured taupe tote for a clean commute look.",
+      forbidden: ["stiff corporate suit", "high heel office mood", "harsh executive styling"]
+    },
+    {
+      id: "commute-002",
+      sceneKey: "commute",
+      styleCluster: "lightBusiness",
+      season: ["summer"],
+      suitableShoes: ["Cloud Dancer", "Sand Dollar", "Aire", "Delphinium Blue", "Lemon"],
+      imageTypes: ["onFoot", "lifestyle", "mirror"],
+      colorMood: ["cream", "ivory", "taupe"],
+      styleTags: ["summer commute", "clean workwear", "breathable"],
+      topCategory: "cream fitted T-shirt",
+      bottomCategory: "ivory straight-leg pants",
+      outerLayerCategory: "light cotton blazer",
+      bagCategory: "no-logo leather tote",
+      accessoryCategory: ["subtle gold earrings"],
+      compactLine:
+        "Use a cream fitted T-shirt under a light cotton blazer, ivory straight-leg pants, and a no-logo leather tote for polished summer workwear.",
+      forbidden: ["wrinkled casual T-shirt", "exposed tank-only office look", "overly formal suit"]
+    },
+    {
+      id: "commute-003",
+      sceneKey: "commute",
+      styleCluster: "realDailyWorkwear",
+      season: ["spring", "summer", "autumn"],
+      suitableShoes: ["Cloud Dancer", "Sand Dollar", "Delphinium Blue", "Oreo", "Panda"],
+      imageTypes: ["onFoot", "lifestyle"],
+      colorMood: ["pale blue", "dark denim", "cream"],
+      styleTags: ["real daily", "office to city", "denim commute"],
+      topCategory: "pale blue cotton shirt",
+      bottomCategory: "dark indigo straight denim",
+      outerLayerCategory: "no outer layer",
+      bagCategory: "cream canvas tote",
+      accessoryCategory: ["slim leather belt"],
+      compactLine:
+        "Pair a pale blue cotton shirt with dark indigo straight denim, a slim leather belt, and a cream tote for a realistic office-to-city outfit.",
+      forbidden: ["teenage denim styling", "ripped jeans", "streetwear denim"]
+    },
+    {
+      id: "commute-004",
+      sceneKey: "commute",
+      styleCluster: "darkAnchorCommute",
+      season: ["autumn", "winter"],
+      suitableShoes: ["Cloud Dancer", "Sand Dollar", "Cappuccino", "Maple Grove", "Oreo", "Panda"],
+      imageTypes: ["onFoot", "lifestyle", "mirror"],
+      colorMood: ["navy", "warm beige", "muted brown"],
+      styleTags: ["mature commute", "dark anchor", "quiet polish"],
+      topCategory: "navy fine-knit top",
+      bottomCategory: "warm beige trousers",
+      outerLayerCategory: "soft camel jacket",
+      bagCategory: "muted brown leather bag",
+      accessoryCategory: ["simple watch"],
+      compactLine:
+        "Style her in a navy fine-knit top, warm beige trousers, a soft camel jacket, and a muted brown leather bag for mature daily commuting.",
+      forbidden: ["heavy corporate mood", "old-fashioned mature styling", "too dark outfit"]
+    },
+    {
+      id: "commute-005",
+      sceneKey: "commute",
+      styleCluster: "darkAnchorCommute",
+      season: ["spring", "autumn"],
+      suitableShoes: ["Cloud Dancer", "Sand Dollar", "Oreo", "Panda", "Silver Romance"],
+      imageTypes: ["onFoot", "lifestyle", "mirror"],
+      colorMood: ["charcoal", "white", "stone grey"],
+      styleTags: ["grounded workday", "real-life commute", "neutral contrast"],
+      topCategory: "charcoal cardigan",
+      bottomCategory: "stone grey tailored pants",
+      outerLayerCategory: "no outer layer",
+      bagCategory: "taupe shoulder bag",
+      accessoryCategory: ["minimal optical glasses"],
+      compactLine:
+        "Use a charcoal cardigan over a white tee, stone grey tailored pants, and a taupe shoulder bag for a grounded refined workday look.",
+      forbidden: ["all-beige AI styling", "cold office look", "stock-photo business outfit"]
+    },
+    {
+      id: "commute-006",
+      sceneKey: "commute",
+      styleCluster: "refinedOfficeToCity",
+      season: ["winter"],
+      suitableShoes: ["Cloud Dancer", "Sand Dollar", "Cappuccino", "Maple Grove", "Oreo", "Panda"],
+      imageTypes: ["onFoot", "lifestyle"],
+      colorMood: ["cream", "charcoal", "warm grey"],
+      styleTags: ["winter commute", "composed", "daily elegance"],
+      topCategory: "cream high-neck knit",
+      bottomCategory: "charcoal-soft grey trousers",
+      outerLayerCategory: "warm grey coat",
+      bagCategory: "grey-beige shoulder bag",
+      accessoryCategory: ["soft scarf"],
+      compactLine:
+        "Style her in a cream high-neck knit, charcoal-soft grey trousers, a warm grey coat, and a grey-beige shoulder bag for clean winter commuting.",
+      forbidden: ["bulky winter outfit", "all-black heaviness", "old-fashioned coat styling"]
+    },
+    {
+      id: "commute-007",
+      sceneKey: "commute",
+      styleCluster: "cleanMinimal",
+      season: ["spring", "summer"],
+      suitableShoes: ["Cloud Dancer", "Sand Dollar", "Aire", "Lemon", "Delphinium Blue"],
+      imageTypes: ["onFoot", "lifestyle", "mirror"],
+      colorMood: ["white", "beige", "light tan"],
+      styleTags: ["clean commute", "breathable", "minimal"],
+      topCategory: "white short-sleeve shirt",
+      bottomCategory: "beige wide-leg trousers",
+      outerLayerCategory: "no outer layer",
+      bagCategory: "light tan handbag",
+      accessoryCategory: ["subtle gold earrings"],
+      compactLine:
+        "Style her in a white short-sleeve shirt, beige wide-leg trousers, and a light tan handbag for a breathable refined commute.",
+      forbidden: ["too casual summer office", "cheap shirt styling", "overexposed skin"]
+    },
+    {
+      id: "commute-008",
+      sceneKey: "commute",
+      styleCluster: "realDailyWorkwear",
+      season: ["autumn", "winter"],
+      suitableShoes: ["Cloud Dancer", "Sand Dollar", "Cappuccino", "Maple Grove", "Oreo", "Panda"],
+      imageTypes: ["onFoot", "lifestyle"],
+      colorMood: ["black accent", "camel", "cream"],
+      styleTags: ["mature minimal", "office to errands", "real wardrobe"],
+      topCategory: "black fine-knit top",
+      bottomCategory: "warm beige straight skirt",
+      outerLayerCategory: "muted camel coat",
+      bagCategory: "black small shoulder bag",
+      accessoryCategory: ["simple watch"],
+      compactLine:
+        "Use a black fine-knit top, warm beige straight skirt, muted camel coat, and a small black shoulder bag for refined feminine autumn commuting.",
+      forbidden: ["party skirt styling", "high heel mood", "socialite office look"]
+    },
+    {
+      id: "commute-009",
+      sceneKey: "commute",
+      styleCluster: "lightBusiness",
+      season: ["spring", "autumn"],
+      suitableShoes: ["Cloud Dancer", "Sand Dollar", "Delphinium Blue", "Silver Romance", "Oreo", "Panda"],
+      imageTypes: ["onFoot", "lifestyle"],
+      colorMood: ["grey-blue", "cream", "taupe"],
+      styleTags: ["soft business", "city office", "low saturation"],
+      topCategory: "grey-blue shirt",
+      bottomCategory: "cream trousers",
+      outerLayerCategory: "light wool-blend blazer",
+      bagCategory: "taupe structured tote",
+      accessoryCategory: ["minimal optical glasses"],
+      compactLine:
+        "Pair a grey-blue shirt with cream trousers, a light wool-blend blazer, and a taupe structured tote for a soft low-saturation commute.",
+      forbidden: ["stiff blazer uniform", "cold corporate styling", "too masculine office look"]
+    },
+    {
+      id: "commute-010",
+      sceneKey: "commute",
+      styleCluster: "refinedOfficeToCity",
+      season: ["summer"],
+      suitableShoes: ["Cloud Dancer", "Sand Dollar", "Aire", "Lemon", "Delphinium Blue"],
+      imageTypes: ["onFoot", "lifestyle", "mirror"],
+      colorMood: ["cream", "soft grey", "black accent"],
+      styleTags: ["summer office", "real daily", "clean contrast"],
+      topCategory: "ivory sleeveless top",
+      bottomCategory: "soft grey summer trousers",
+      outerLayerCategory: "white oversized shirt as light layer",
+      bagCategory: "black small shoulder bag",
+      accessoryCategory: ["simple watch"],
+      compactLine:
+        "Use an ivory sleeveless top under a white oversized shirt, soft grey summer trousers, and a small black shoulder bag for a real warm-weather commute.",
+      forbidden: ["too revealing tank-only outfit", "beauty selfie mood", "cheap summer office styling"]
+    }
+  ],
+  cafeExterior: [
+    {
+      id: "cafe-001",
+      sceneKey: "cafeExterior",
+      styleCluster: "matureContrast",
+      season: ["summer"],
+      suitableShoes: ["Cloud Dancer", "Sand Dollar", "Silver Romance", "Oreo", "Panda"],
+      imageTypes: ["onFoot", "lifestyle"],
+      colorMood: ["black", "white", "taupe"],
+      styleTags: ["cafe street", "mature contrast", "light social"],
+      topCategory: "black fitted tank",
+      bottomCategory: "white straight midi skirt",
+      outerLayerCategory: "no outer layer",
+      bagCategory: "black small shoulder bag",
+      accessoryCategory: ["subtle gold earrings"],
+      compactLine:
+        "Style her in a black fitted tank, white straight midi skirt, and a small black shoulder bag for a mature cafe-side summer outfit.",
+      forbidden: ["sexy cafe pose", "mini skirt sweetness", "brunch influencer styling"]
+    },
+    {
+      id: "cafe-002",
+      sceneKey: "cafeExterior",
+      styleCluster: "quietCafeFeminine",
+      season: ["spring", "summer"],
+      suitableShoes: ["Cloud Dancer", "Sand Dollar", "Lemon", "Delphinium Blue", "Aire"],
+      imageTypes: ["onFoot", "lifestyle"],
+      colorMood: ["ivory", "beige", "soft beige"],
+      styleTags: ["soft feminine", "refined weekend", "cafe"],
+      topCategory: "ivory sleeveless top",
+      bottomCategory: "beige A-line skirt",
+      outerLayerCategory: "soft beige cardigan",
+      bagCategory: "soft beige mini bag",
+      accessoryCategory: ["subtle gold earrings"],
+      compactLine:
+        "Pair an ivory sleeveless top with a beige A-line skirt, a soft beige cardigan, and a small shoulder bag for gentle but mature cafe styling.",
+      forbidden: ["sweet girl outfit", "lace overload", "princess skirt mood"]
+    },
+    {
+      id: "cafe-003",
+      sceneKey: "cafeExterior",
+      styleCluster: "bloggerLite",
+      season: ["spring", "summer"],
+      suitableShoes: ["Cloud Dancer", "Sand Dollar", "Aire", "Delphinium Blue", "Lemon"],
+      imageTypes: ["onFoot", "lifestyle"],
+      colorMood: ["pale blue", "denim", "canvas"],
+      styleTags: ["light blogger", "real daily", "coffee walk"],
+      topCategory: "pale blue open shirt",
+      bottomCategory: "light denim jeans",
+      outerLayerCategory: "white tee base",
+      bagCategory: "natural canvas tote",
+      accessoryCategory: ["coffee cup"],
+      compactLine:
+        "Style her in a white tee under a pale blue open shirt, light denim jeans, and a natural canvas tote for a relaxed cafe-walk outfit.",
+      forbidden: ["internet celebrity cafe look", "over-posed blogger energy", "fake candid"]
+    },
+    {
+      id: "cafe-004",
+      sceneKey: "cafeExterior",
+      styleCluster: "darkAnchorCafe",
+      season: ["summer", "autumn"],
+      suitableShoes: ["Cloud Dancer", "Sand Dollar", "Cappuccino", "Maple Grove", "Silver Romance"],
+      imageTypes: ["onFoot", "lifestyle"],
+      colorMood: ["dark coffee", "cream", "taupe"],
+      styleTags: ["warm contrast", "mature cafe", "quiet depth"],
+      topCategory: "dark coffee sleeveless top",
+      bottomCategory: "cream wide-leg trousers",
+      outerLayerCategory: "no outer layer",
+      bagCategory: "taupe shoulder bag",
+      accessoryCategory: ["coffee cup"],
+      compactLine:
+        "Use a dark coffee sleeveless top, cream wide-leg trousers, and a taupe shoulder bag for quiet warm cafe-side depth.",
+      forbidden: ["too sexy tank styling", "overly dark summer look", "nightlife mood"]
+    },
+    {
+      id: "cafe-005",
+      sceneKey: "cafeExterior",
+      styleCluster: "cleanSummerCafe",
+      season: ["summer"],
+      suitableShoes: ["Aire", "Cloud Dancer", "Sand Dollar", "Lemon", "Delphinium Blue"],
+      imageTypes: ["onFoot", "lifestyle"],
+      colorMood: ["cream", "linen beige", "light tan"],
+      styleTags: ["summer cafe", "breathable", "clean daily"],
+      topCategory: "cream linen shirt",
+      bottomCategory: "ivory straight-leg pants",
+      outerLayerCategory: "no outer layer",
+      bagCategory: "light tan handbag",
+      accessoryCategory: ["understated sunglasses only outdoor"],
+      compactLine:
+        "Use a cream linen shirt, ivory straight-leg pants, and a light tan handbag for breathable summer cafe ease.",
+      forbidden: ["beach vacation styling", "resort look", "overexposed summer pose"]
+    },
+    {
+      id: "cafe-006",
+      sceneKey: "cafeExterior",
+      styleCluster: "refinedWeekendCafe",
+      season: ["spring", "autumn"],
+      suitableShoes: ["Cloud Dancer", "Sand Dollar", "Cappuccino", "Oreo", "Panda"],
+      imageTypes: ["onFoot", "lifestyle"],
+      colorMood: ["oatmeal", "dark denim", "brown"],
+      styleTags: ["weekend cafe", "real wardrobe", "soft texture"],
+      topCategory: "oatmeal lightweight knit",
+      bottomCategory: "dark indigo straight denim",
+      outerLayerCategory: "no outer layer",
+      bagCategory: "soft brown leather bag",
+      accessoryCategory: ["simple watch"],
+      compactLine:
+        "Style her in an oatmeal lightweight knit, dark indigo straight denim, and a soft brown leather bag for a real weekend cafe outfit.",
+      forbidden: ["all-beige template", "teen denim styling", "messy casual"]
+    },
+    {
+      id: "cafe-007",
+      sceneKey: "cafeExterior",
+      styleCluster: "matureContrast",
+      season: ["autumn", "winter"],
+      suitableShoes: ["Silver Romance", "Oreo", "Panda", "Cloud Dancer", "Sand Dollar"],
+      imageTypes: ["onFoot", "lifestyle"],
+      colorMood: ["black", "warm grey", "cream"],
+      styleTags: ["urban cafe", "clean contrast", "light social"],
+      topCategory: "black fine-knit top",
+      bottomCategory: "warm grey wool trousers",
+      outerLayerCategory: "cream long coat",
+      bagCategory: "black small shoulder bag",
+      accessoryCategory: ["simple watch"],
+      compactLine:
+        "Style her in a black fine-knit top, warm grey wool trousers, a cream long coat, and a small black shoulder bag for refined cafe-side winter contrast.",
+      forbidden: ["all-black heaviness", "luxury ad pose", "cold fashion distance"]
+    },
+    {
+      id: "cafe-008",
+      sceneKey: "cafeExterior",
+      styleCluster: "quietCafeFeminine",
+      season: ["spring", "summer"],
+      suitableShoes: ["Sand Dollar", "Cloud Dancer", "Lemon", "Delphinium Blue", "Silver Romance"],
+      imageTypes: ["onFoot", "lifestyle", "mirror"],
+      colorMood: ["cream", "soft grey", "taupe"],
+      styleTags: ["soft feminine", "midi skirt", "quiet cafe"],
+      topCategory: "soft grey short-sleeve knit",
+      bottomCategory: "cream column skirt",
+      outerLayerCategory: "no outer layer",
+      bagCategory: "taupe handbag",
+      accessoryCategory: ["subtle gold earrings"],
+      compactLine:
+        "Pair a soft grey short-sleeve knit with a cream column skirt and a taupe handbag for a mature soft cafe outfit.",
+      forbidden: ["too sweet skirt styling", "posed brunch look", "cheap knit texture"]
+    },
+    {
+      id: "cafe-009",
+      sceneKey: "cafeExterior",
+      styleCluster: "bloggerLite",
+      season: ["spring", "summer", "autumn"],
+      suitableShoes: ["Cloud Dancer", "Sand Dollar", "Aire", "Oreo", "Panda"],
+      imageTypes: ["onFoot", "lifestyle"],
+      colorMood: ["white", "charcoal", "linen"],
+      styleTags: ["outfit record", "real street", "friend-shot"],
+      topCategory: "charcoal ribbed tank",
+      bottomCategory: "linen trousers",
+      outerLayerCategory: "white oversized shirt as light layer",
+      bagCategory: "black flat shoulder bag",
+      accessoryCategory: ["coffee cup"],
+      compactLine:
+        "Use a charcoal ribbed tank under a white oversized shirt, linen trousers, and a black flat shoulder bag for a believable cafe outfit record.",
+      forbidden: ["beauty selfie mood", "over-styled influencer pose", "cropped shoes"]
+    },
+    {
+      id: "cafe-010",
+      sceneKey: "cafeExterior",
+      styleCluster: "refinedWeekendCafe",
+      season: ["autumn"],
+      suitableShoes: ["Cappuccino", "Maple Grove", "Cloud Dancer", "Sand Dollar", "Oreo"],
+      imageTypes: ["onFoot", "lifestyle"],
+      colorMood: ["camel", "cream", "dark denim"],
+      styleTags: ["autumn cafe", "warm neutral", "quiet luxury casual"],
+      topCategory: "cream shirt",
+      bottomCategory: "dark straight-leg denim",
+      outerLayerCategory: "soft camel jacket",
+      bagCategory: "muted brown leather bag",
+      accessoryCategory: ["simple watch"],
+      compactLine:
+        "Pair a cream shirt with dark straight-leg denim, a soft camel jacket, and a muted brown leather bag for a grounded autumn cafe look.",
+      forbidden: ["muddy brown overload", "old-fashioned autumn styling", "heavy retro mood"]
+    }
+  ],
+  weekendCityWalk: [
+    {
+      id: "weekend-001",
+      sceneKey: "weekendCityWalk",
+      styleCluster: "denimDaily",
+      season: ["spring", "summer"],
+      suitableShoes: ["Cloud Dancer", "Sand Dollar", "Aire", "Delphinium Blue", "Lemon"],
+      imageTypes: ["onFoot", "lifestyle"],
+      colorMood: ["white", "light denim", "canvas"],
+      styleTags: ["weekend walk", "denim daily", "easy styling"],
+      topCategory: "oversized white shirt",
+      bottomCategory: "light blue straight denim",
+      outerLayerCategory: "no outer layer",
+      bagCategory: "natural canvas tote",
+      accessoryCategory: ["simple watch"],
+      compactLine:
+        "Style her in an oversized white shirt, light blue straight denim, and a natural canvas tote for an easy refined weekend walk.",
+      forbidden: ["teenage denim styling", "tourist outfit", "streetwear"]
+    },
+    {
+      id: "weekend-002",
+      sceneKey: "weekendCityWalk",
+      styleCluster: "darkAnchorWeekend",
+      season: ["summer"],
+      suitableShoes: ["Cloud Dancer", "Sand Dollar", "Aire", "Oreo", "Panda"],
+      imageTypes: ["onFoot", "lifestyle"],
+      colorMood: ["black", "white", "pale denim"],
+      styleTags: ["mature weekend", "black anchor", "relaxed city"],
+      topCategory: "black fitted tank",
+      bottomCategory: "pale denim jeans",
+      outerLayerCategory: "oversized white shirt as light layer",
+      bagCategory: "black small shoulder bag",
+      accessoryCategory: ["understated sunglasses only outdoor"],
+      compactLine:
+        "Use a black fitted tank under an oversized white shirt, pale denim, and a restrained black shoulder bag for a mature relaxed city look.",
+      forbidden: ["sexy tank styling", "influencer street pose", "overexposed skin"]
+    },
+    {
+      id: "weekend-003",
+      sceneKey: "weekendCityWalk",
+      styleCluster: "relaxedWeekend",
+      season: ["spring", "autumn"],
+      suitableShoes: ["Cloud Dancer", "Sand Dollar", "Cappuccino", "Maple Grove", "Oreo"],
+      imageTypes: ["onFoot", "lifestyle"],
+      colorMood: ["cream", "oatmeal", "taupe"],
+      styleTags: ["soft weekend", "quiet daily", "relaxed trousers"],
+      topCategory: "cream lightweight knit tee",
+      bottomCategory: "oatmeal wide-leg trousers",
+      outerLayerCategory: "no outer layer",
+      bagCategory: "soft taupe handbag",
+      accessoryCategory: ["simple watch"],
+      compactLine:
+        "Pair a cream lightweight knit tee with oatmeal wide-leg trousers and a soft taupe handbag for calm weekend ease.",
+      forbidden: ["all-beige AI template", "pajama-like outfit", "shapeless basics"]
+    },
+    {
+      id: "weekend-004",
+      sceneKey: "weekendCityWalk",
+      styleCluster: "realDaily",
+      season: ["spring", "summer"],
+      suitableShoes: ["Cloud Dancer", "Sand Dollar", "Lemon", "Aire", "Delphinium Blue"],
+      imageTypes: ["onFoot", "lifestyle"],
+      colorMood: ["olive", "ivory", "warm beige"],
+      styleTags: ["non-template", "grounded daily", "city walk"],
+      topCategory: "ivory tee",
+      bottomCategory: "warm beige trousers",
+      outerLayerCategory: "soft olive shirt jacket",
+      bagCategory: "canvas tote",
+      accessoryCategory: ["simple watch"],
+      compactLine:
+        "Use a soft olive shirt jacket, ivory tee, warm beige trousers, and a canvas tote for a grounded non-template weekend outfit.",
+      forbidden: ["military styling", "too masculine olive look", "random color mixing"]
+    },
+    {
+      id: "weekend-005",
+      sceneKey: "weekendCityWalk",
+      styleCluster: "darkAnchorWeekend",
+      season: ["summer"],
+      suitableShoes: ["Cloud Dancer", "Sand Dollar", "Aire", "Oreo", "Panda"],
+      imageTypes: ["onFoot", "lifestyle"],
+      colorMood: ["navy", "light denim", "cream"],
+      styleTags: ["real summer", "clean contrast", "city walk"],
+      topCategory: "navy sleeveless knit top",
+      bottomCategory: "light denim jeans",
+      outerLayerCategory: "no outer layer",
+      bagCategory: "cream tote",
+      accessoryCategory: ["subtle gold earrings"],
+      compactLine:
+        "Style her in a navy sleeveless knit top, light denim jeans, and a cream tote for a realistic city-walk outfit with clean contrast.",
+      forbidden: ["too dark summer styling", "teen casual look", "cheap knit"]
+    },
+    {
+      id: "weekend-006",
+      sceneKey: "weekendCityWalk",
+      styleCluster: "cleanMinimal",
+      season: ["summer"],
+      suitableShoes: ["Cloud Dancer", "Sand Dollar", "Aire", "Lemon", "Delphinium Blue"],
+      imageTypes: ["onFoot", "lifestyle"],
+      colorMood: ["white", "stone grey", "woven"],
+      styleTags: ["summer walk", "shorts", "easy refined"],
+      topCategory: "white cotton T-shirt",
+      bottomCategory: "stone grey Bermuda shorts",
+      outerLayerCategory: "no outer layer",
+      bagCategory: "restrained woven bag",
+      accessoryCategory: ["simple watch"],
+      compactLine:
+        "Style her in a white cotton T-shirt, stone grey Bermuda shorts, and a restrained woven bag for a clean refined summer walk.",
+      forbidden: ["teenage shorts look", "beach outfit", "cheap T-shirt styling"]
+    },
+    {
+      id: "weekend-007",
+      sceneKey: "weekendCityWalk",
+      styleCluster: "refinedCasual",
+      season: ["autumn"],
+      suitableShoes: ["Cappuccino", "Maple Grove", "Cloud Dancer", "Sand Dollar", "Oreo"],
+      imageTypes: ["onFoot", "lifestyle"],
+      colorMood: ["chocolate brown", "dark denim", "cream"],
+      styleTags: ["autumn weekend", "real wardrobe", "warm contrast"],
+      topCategory: "chocolate brown knit cardigan",
+      bottomCategory: "dark denim",
+      outerLayerCategory: "cream tee base",
+      bagCategory: "no-logo leather shoulder bag",
+      accessoryCategory: ["simple watch"],
+      compactLine:
+        "Pair a chocolate brown knit cardigan with dark denim, a cream tee, and a no-logo leather shoulder bag for realistic autumn daily wear.",
+      forbidden: ["muddy brown overload", "old-fashioned cardigan styling", "heavy retro look"]
+    },
+    {
+      id: "weekend-008",
+      sceneKey: "weekendCityWalk",
+      styleCluster: "easyLayering",
+      season: ["winter"],
+      suitableShoes: ["Cloud Dancer", "Sand Dollar", "Cappuccino", "Maple Grove", "Oreo", "Panda"],
+      imageTypes: ["onFoot", "lifestyle"],
+      colorMood: ["charcoal", "oatmeal", "dark brown"],
+      styleTags: ["winter walk", "real depth", "warm daily"],
+      topCategory: "cream knit",
+      bottomCategory: "oatmeal wide-leg pants",
+      outerLayerCategory: "charcoal coat",
+      bagCategory: "dark brown tote",
+      accessoryCategory: ["soft scarf"],
+      compactLine:
+        "Pair a charcoal coat with oatmeal wide-leg pants, a cream knit, and a dark brown tote for realistic winter city-walk depth.",
+      forbidden: ["all-black winter", "bulky coat styling", "bleak winter mood"]
+    },
+    {
+      id: "weekend-009",
+      sceneKey: "weekendCityWalk",
+      styleCluster: "relaxedWeekend",
+      season: ["spring", "summer"],
+      suitableShoes: ["Aire", "Cloud Dancer", "Sand Dollar", "Lemon"],
+      imageTypes: ["onFoot", "lifestyle"],
+      colorMood: ["cream", "pale khaki", "light tan"],
+      styleTags: ["light weekend", "breathable", "errand walk"],
+      topCategory: "cream linen shirt",
+      bottomCategory: "pale khaki lightweight pants",
+      outerLayerCategory: "no outer layer",
+      bagCategory: "light tan handbag",
+      accessoryCategory: ["understated sunglasses only outdoor"],
+      compactLine:
+        "Use a cream linen shirt, pale khaki lightweight pants, and a light tan handbag for a breathable weekend city walk.",
+      forbidden: ["resort vacation look", "tourist outfit", "overly loose linen outfit"]
+    },
+    {
+      id: "weekend-010",
+      sceneKey: "weekendCityWalk",
+      styleCluster: "refinedCasual",
+      season: ["spring", "autumn"],
+      suitableShoes: ["Silver Romance", "Cloud Dancer", "Sand Dollar", "Oreo", "Panda"],
+      imageTypes: ["onFoot", "lifestyle"],
+      colorMood: ["soft grey", "cream", "black accent"],
+      styleTags: ["urban refined", "soft contrast", "weekend polish"],
+      topCategory: "soft grey knit top",
+      bottomCategory: "cream straight trousers",
+      outerLayerCategory: "no outer layer",
+      bagCategory: "black small shoulder bag",
+      accessoryCategory: ["simple watch"],
+      compactLine:
+        "Style her in a soft grey knit top, cream straight trousers, and a small black shoulder bag for a refined but relaxed weekend city look.",
+      forbidden: ["overly formal styling", "cold minimalism", "luxury-ad pose"]
+    }
+  ],
+  gymInterior: [
+    {
+      id: "gym-001",
+      sceneKey: "gymInterior",
+      styleCluster: "premiumGymDark",
+      season: ["summer", "spring"],
+      suitableShoes: ["Aire", "Cloud Dancer", "Sand Dollar", "Oreo", "Panda"],
+      imageTypes: ["gym", "lifestyle"],
+      colorMood: ["black", "charcoal", "neutral"],
+      styleTags: ["premium gym", "dark active", "shorts"],
+      topCategory: "black fitted T-shirt",
+      bottomCategory: "charcoal clean athletic shorts",
+      outerLayerCategory: "no outer layer",
+      bagCategory: "practical no-logo gym tote",
+      accessoryCategory: ["water bottle"],
+      compactLine:
+        "Use a black fitted T-shirt, charcoal clean athletic shorts, and a practical no-logo gym tote for a clean premium-gym look.",
+      forbidden: ["bodybuilder outfit", "neon activewear", "sports bra focus"]
+    },
+    {
+      id: "gym-002",
+      sceneKey: "gymInterior",
+      styleCluster: "cleanActiveShorts",
+      season: ["summer"],
+      suitableShoes: ["Aire", "Cloud Dancer", "Sand Dollar", "Delphinium Blue", "Lemon"],
+      imageTypes: ["gym", "lifestyle"],
+      colorMood: ["deep navy", "soft grey", "taupe"],
+      styleTags: ["premium gym", "active shorts", "calm training"],
+      topCategory: "deep navy short-sleeve active top",
+      bottomCategory: "soft grey active shorts",
+      outerLayerCategory: "no outer layer",
+      bagCategory: "minimal taupe gym bag",
+      accessoryCategory: ["water bottle"],
+      compactLine:
+        "Style her in a deep navy short-sleeve active top, soft grey active shorts, and a minimal taupe gym bag for a calm high-end training mood.",
+      forbidden: ["running gear", "neon gymwear", "fitness influencer pose"]
+    },
+    {
+      id: "gym-003",
+      sceneKey: "gymInterior",
+      styleCluster: "cleanActiveShorts",
+      season: ["summer"],
+      suitableShoes: ["Aire", "Cloud Dancer", "Sand Dollar", "Lemon"],
+      imageTypes: ["gym", "lifestyle"],
+      colorMood: ["dark coffee", "ivory", "taupe"],
+      styleTags: ["warm active", "premium gym", "summer movement"],
+      topCategory: "dark coffee fitted short-sleeve top",
+      bottomCategory: "ivory clean athletic shorts",
+      outerLayerCategory: "no outer layer",
+      bagCategory: "taupe movement tote",
+      accessoryCategory: ["water bottle"],
+      compactLine:
+        "Use a dark coffee fitted short-sleeve top, ivory clean athletic shorts, and a taupe tote for a refined summer indoor workout look.",
+      forbidden: ["too sexy activewear", "ultra-short shorts", "cheap sports set"]
+    },
+    {
+      id: "gym-004",
+      sceneKey: "gymInterior",
+      styleCluster: "gymMirrorCalm",
+      season: ["spring", "summer"],
+      suitableShoes: ["Aire", "Cloud Dancer", "Sand Dollar", "Oreo", "Panda"],
+      imageTypes: ["gym", "mirror"],
+      colorMood: ["black", "cream", "pale grey"],
+      styleTags: ["gym mirror", "light layer", "premium movement"],
+      topCategory: "black fitted tank",
+      bottomCategory: "cream sporty shorts",
+      outerLayerCategory: "lightweight pale grey outer layer",
+      bagCategory: "practical no-logo gym tote",
+      accessoryCategory: ["water bottle"],
+      compactLine:
+        "Style her in a black fitted tank, cream sporty shorts, and a lightweight pale grey outer layer for a polished movement-space outfit.",
+      forbidden: ["mirror influencer pose", "sports bra focus", "long-leg gym selfie"]
+    },
+    {
+      id: "gym-005",
+      sceneKey: "gymInterior",
+      styleCluster: "lightStrengthMoment",
+      season: ["autumn", "winter", "spring"],
+      suitableShoes: ["Cloud Dancer", "Sand Dollar", "Oreo", "Panda", "Cappuccino", "Maple Grove"],
+      imageTypes: ["gym", "lifestyle"],
+      colorMood: ["charcoal", "black", "neutral"],
+      styleTags: ["light strength", "machine area", "premium gym"],
+      topCategory: "charcoal fitted tee",
+      bottomCategory: "black straight active pants",
+      outerLayerCategory: "no outer layer",
+      bagCategory: "restrained gym tote",
+      accessoryCategory: ["light dumbbell"],
+      compactLine:
+        "Use a charcoal fitted tee, black straight active pants, and a restrained gym tote for a premium strength-area scene.",
+      forbidden: ["hardcore lifting", "bodybuilding", "powerlifting strain"]
+    },
+    {
+      id: "gym-006",
+      sceneKey: "gymInterior",
+      styleCluster: "premiumGymDark",
+      season: ["spring", "summer"],
+      suitableShoes: ["Aire", "Cloud Dancer", "Sand Dollar", "Oreo", "Panda"],
+      imageTypes: ["gym", "lifestyle"],
+      colorMood: ["graphite", "taupe", "neutral"],
+      styleTags: ["upscale gym", "dark active", "real movement"],
+      topCategory: "graphite clean athletic tee",
+      bottomCategory: "taupe active shorts",
+      outerLayerCategory: "no outer layer",
+      bagCategory: "no-logo tote",
+      accessoryCategory: ["water bottle"],
+      compactLine:
+        "Style her in a graphite clean athletic tee, taupe active shorts, and a no-logo tote for a realistic upscale gym moment.",
+      forbidden: ["compression-brand styling", "cheap gym shorts", "aggressive workout pose"]
+    },
+    {
+      id: "gym-007",
+      sceneKey: "gymInterior",
+      styleCluster: "refinedMovementSpace",
+      season: ["spring", "summer", "autumn"],
+      suitableShoes: ["Aire", "Cloud Dancer", "Sand Dollar", "Lemon"],
+      imageTypes: ["gym", "lifestyle"],
+      colorMood: ["white", "black", "structured"],
+      styleTags: ["clean contrast", "gym transition", "refined active"],
+      topCategory: "white fitted short-sleeve top",
+      bottomCategory: "black relaxed gym trousers",
+      outerLayerCategory: "no outer layer",
+      bagCategory: "clean structured gym bag",
+      accessoryCategory: ["water bottle"],
+      compactLine:
+        "Use a white fitted short-sleeve top, black relaxed gym trousers, and a clean structured gym bag for a refined contrast gym look.",
+      forbidden: ["sports campaign look", "technical running outfit", "gym-bro styling"]
+    },
+    {
+      id: "gym-008",
+      sceneKey: "gymInterior",
+      styleCluster: "gymMirrorCalm",
+      season: ["autumn", "winter"],
+      suitableShoes: ["Cloud Dancer", "Sand Dollar", "Cappuccino", "Maple Grove", "Oreo", "Panda"],
+      imageTypes: ["gym", "mirror"],
+      colorMood: ["cream", "charcoal", "taupe"],
+      styleTags: ["soft active", "gym mirror", "restrained"],
+      topCategory: "cream active tank",
+      bottomCategory: "charcoal clean leggings or straight active pants",
+      outerLayerCategory: "taupe zip outer layer",
+      bagCategory: "practical gym tote",
+      accessoryCategory: ["water bottle"],
+      compactLine:
+        "Style her in a cream active tank, charcoal clean leggings or straight active pants, and a taupe zip outer layer for a soft but grounded gym image.",
+      forbidden: ["over-tight influencer leggings", "bodycon fitness pose", "plastic activewear"]
+    },
+    {
+      id: "gym-009",
+      sceneKey: "gymInterior",
+      styleCluster: "cleanActiveShorts",
+      season: ["summer"],
+      suitableShoes: ["Aire", "Cloud Dancer", "Sand Dollar", "Delphinium Blue", "Lemon"],
+      imageTypes: ["gym", "lifestyle"],
+      colorMood: ["pale grey", "black", "cream"],
+      styleTags: ["summer gym", "shorts", "real active"],
+      topCategory: "pale grey short-sleeve tee",
+      bottomCategory: "black active shorts",
+      outerLayerCategory: "cream overshirt tied or lightly layered",
+      bagCategory: "clean gym tote",
+      accessoryCategory: ["water bottle"],
+      compactLine:
+        "Use a pale grey short-sleeve tee, black active shorts, and a cream overshirt tied or lightly layered for a believable gym-going scene.",
+      forbidden: ["ultra-short shorts", "cheap matching active set", "gym influencer energy"]
+    },
+    {
+      id: "gym-010",
+      sceneKey: "gymInterior",
+      styleCluster: "lightStrengthMoment",
+      season: ["autumn", "winter"],
+      suitableShoes: ["Cappuccino", "Maple Grove", "Cloud Dancer", "Sand Dollar", "Oreo", "Panda"],
+      imageTypes: ["gym", "lifestyle"],
+      colorMood: ["deep charcoal", "taupe", "dark active"],
+      styleTags: ["light strength", "premium gym", "calm training"],
+      topCategory: "deep charcoal athletic tee",
+      bottomCategory: "taupe jogger-style trousers",
+      outerLayerCategory: "no outer layer",
+      bagCategory: "understated gym bag",
+      accessoryCategory: ["light dumbbell", "water bottle"],
+      compactLine:
+        "Style her in a deep charcoal athletic tee, taupe jogger-style trousers, and an understated gym bag for a clean machine-area or training-break image.",
+      forbidden: ["heavy lifting strain", "bodybuilding energy", "sweaty gym realism"]
+    }
+  ]
 };
 
-type OutfitSeed = {
-  season: TeamSeason;
-  top: string;
-  bottom: string;
-  outer: string;
-  colorMood: string[];
-  styleTags: string[];
-  suitableShoes: TeamShoe[];
-};
+export const PER_SCENE_OUTFIT_PHASE1_SCENES = [
+  "commute",
+  "cafeExterior",
+  "weekendCityWalk",
+  "gymInterior"
+] as const;
 
-type SceneConfig = {
-  sceneName: string;
-  context: string;
-  bags: string[];
-  accessories: string[];
-  focusTags: string[];
-  shoeFocus: string;
-  forbidden: string[];
-};
-
-const allShoes: TeamShoe[] = [
-  "Cloud Dancer 云舞者",
-  "Sand Dollar 沙钱白",
-  "Cappuccino 卡布奇诺",
-  "Silver Romance 银色浪漫",
-  "Aire 微风",
-  "Delphinium Blue 飞燕草蓝",
-  "Lemon 柠檬",
-  "Maple Grove 枫林",
-  "Oreo 奥利奥",
-  "Panda 熊猫",
-  "自定义"
-];
-
-const cleanLightShoes: TeamShoe[] = [
-  "Cloud Dancer 云舞者",
-  "Sand Dollar 沙钱白",
-  "Aire 微风",
-  "Delphinium Blue 飞燕草蓝",
-  "Lemon 柠檬",
-  "自定义"
-];
-
-const warmTactileShoes: TeamShoe[] = [
-  "Cappuccino 卡布奇诺",
-  "Maple Grove 枫林",
-  "Sand Dollar 沙钱白",
-  "Cloud Dancer 云舞者",
-  "自定义"
-];
-
-const graphicNeutralShoes: TeamShoe[] = [
-  "Oreo 奥利奥",
-  "Panda 熊猫",
-  "Silver Romance 银色浪漫",
-  "Cloud Dancer 云舞者",
-  "自定义"
-];
-
-const activeShoes: TeamShoe[] = [
-  "Aire 微风",
-  "Cloud Dancer 云舞者",
-  "Sand Dollar 沙钱白",
-  "Oreo 奥利奥",
-  "Panda 熊猫",
-  "自定义"
-];
-
-const springSeeds: OutfitSeed[] = [
-  {
-    season: "春",
-    top: "white cotton shirt",
-    bottom: "ivory straight-leg trousers",
-    outer: "light beige trench coat",
-    colorMood: ["cream white", "warm beige", "light khaki"],
-    styleTags: ["spring", "light layering", "commute"],
-    suitableShoes: cleanLightShoes
-  },
-  {
-    season: "春",
-    top: "pale blue shirt",
-    bottom: "light blue straight-leg denim",
-    outer: "cream cropped jacket",
-    colorMood: ["pale blue", "cream", "soft denim"],
-    styleTags: ["fresh", "denim", "weekend"],
-    suitableShoes: ["Delphinium Blue 飞燕草蓝", "Cloud Dancer 云舞者", "Sand Dollar 沙钱白", "Lemon 柠檬", "自定义"]
-  },
-  {
-    season: "春",
-    top: "oatmeal lightweight knit top",
-    bottom: "beige tapered trousers",
-    outer: "pale grey fine-knit cardigan",
-    colorMood: ["oatmeal", "beige", "soft grey"],
-    styleTags: ["soft neutral", "real wardrobe", "polished"],
-    suitableShoes: allShoes
-  },
-  {
-    season: "春",
-    top: "cream silk-blend blouse",
-    bottom: "warm beige straight skirt",
-    outer: "light cotton blazer",
-    colorMood: ["cream", "warm beige", "taupe"],
-    styleTags: ["skirt", "light social", "feminine"],
-    suitableShoes: cleanLightShoes
-  },
-  {
-    season: "春",
-    top: "cream polo knit",
-    bottom: "dark indigo straight denim",
-    outer: "soft olive shirt jacket",
-    colorMood: ["cream", "olive", "dark denim"],
-    styleTags: ["dark anchor", "city", "grounded"],
-    suitableShoes: graphicNeutralShoes
-  },
-  {
-    season: "春",
-    top: "white oversized shirt",
-    bottom: "stone grey Bermuda shorts",
-    outer: "cream linen overshirt",
-    colorMood: ["white", "stone grey", "cream"],
-    styleTags: ["shorts", "shoe-readable", "spring-summer"],
-    suitableShoes: ["Cloud Dancer 云舞者", "Sand Dollar 沙钱白", "Aire 微风", "Oreo 奥利奥", "Panda 熊猫", "自定义"]
-  },
-  {
-    season: "春",
-    top: "navy fine-knit top",
-    bottom: "soft grey tailored pants",
-    outer: "light beige trench coat",
-    colorMood: ["navy", "soft grey", "beige"],
-    styleTags: ["dark anchor", "mature minimal", "commute"],
-    suitableShoes: graphicNeutralShoes
-  },
-  {
-    season: "春",
-    top: "ivory sleeveless top",
-    bottom: "cream column skirt",
-    outer: "soft camel short jacket",
-    colorMood: ["ivory", "cream", "camel"],
-    styleTags: ["skirt", "quiet feminine", "refined weekend"],
-    suitableShoes: warmTactileShoes
-  },
-  {
-    season: "春",
-    top: "soft grey short-sleeve knit",
-    bottom: "charcoal tailored trousers",
-    outer: "white oversized shirt as a light layer",
-    colorMood: ["soft grey", "charcoal", "white"],
-    styleTags: ["advanced neutral", "structured", "shoe-readable"],
-    suitableShoes: graphicNeutralShoes
-  },
-  {
-    season: "春",
-    top: "soft linen-blend shirt",
-    bottom: "pale khaki wrap skirt",
-    outer: "no outer layer",
-    colorMood: ["linen beige", "pale khaki", "warm off-white"],
-    styleTags: ["skirt", "soft seasonal", "easy"],
-    suitableShoes: cleanLightShoes
-  },
-  {
-    season: "春",
-    top: "beige short-sleeve cardigan",
-    bottom: "light denim ankle-length jeans",
-    outer: "cream short jacket",
-    colorMood: ["beige", "light denim", "cream"],
-    styleTags: ["denim", "casual feminine", "daily"],
-    suitableShoes: ["Cloud Dancer 云舞者", "Sand Dollar 沙钱白", "Delphinium Blue 飞燕草蓝", "Lemon 柠檬", "自定义"]
-  },
-  {
-    season: "春",
-    top: "dark coffee sleeveless knit",
-    bottom: "cream linen-blend trousers",
-    outer: "light beige trench coat",
-    colorMood: ["dark coffee", "cream", "beige"],
-    styleTags: ["dark anchor", "mature", "refined weekend"],
-    suitableShoes: warmTactileShoes
-  }
-];
-
-const summerSeeds: OutfitSeed[] = [
-  {
-    season: "夏",
-    top: "white short-sleeve shirt",
-    bottom: "cream linen trousers",
-    outer: "no outer layer",
-    colorMood: ["cream", "linen beige", "white"],
-    styleTags: ["breathable", "summer", "shoe-readable"],
-    suitableShoes: cleanLightShoes
-  },
-  {
-    season: "夏",
-    top: "black fitted tank under an open white shirt",
-    bottom: "white straight midi skirt",
-    outer: "no outer layer",
-    colorMood: ["black accent", "white", "cream"],
-    styleTags: ["skirt", "creator reference", "mature summer"],
-    suitableShoes: graphicNeutralShoes
-  },
-  {
-    season: "夏",
-    top: "cream fitted T-shirt",
-    bottom: "light blue straight denim",
-    outer: "white oversized shirt as a light layer",
-    colorMood: ["cream", "light denim", "white"],
-    styleTags: ["denim", "weekend", "real-life"],
-    suitableShoes: cleanLightShoes
-  },
-  {
-    season: "夏",
-    top: "ivory sleeveless top",
-    bottom: "beige tailored shorts",
-    outer: "cream linen overshirt",
-    colorMood: ["ivory", "beige", "cream"],
-    styleTags: ["shorts", "city summer", "shoe-readable"],
-    suitableShoes: ["Cloud Dancer 云舞者", "Sand Dollar 沙钱白", "Aire 微风", "Lemon 柠檬", "自定义"]
-  },
-  {
-    season: "夏",
-    top: "dark coffee sleeveless top",
-    bottom: "ivory straight-leg pants",
-    outer: "no outer layer",
-    colorMood: ["dark coffee", "ivory", "warm off-white"],
-    styleTags: ["dark anchor", "mature", "simple"],
-    suitableShoes: warmTactileShoes
-  },
-  {
-    season: "夏",
-    top: "pale blue cotton shirt",
-    bottom: "cream linen midi skirt",
-    outer: "no outer layer",
-    colorMood: ["pale blue", "cream", "white"],
-    styleTags: ["skirt", "fresh", "soft color"],
-    suitableShoes: ["Delphinium Blue 飞燕草蓝", "Cloud Dancer 云舞者", "Sand Dollar 沙钱白", "Lemon 柠檬", "自定义"]
-  },
-  {
-    season: "夏",
-    top: "navy sleeveless knit top",
-    bottom: "cream column skirt",
-    outer: "no outer layer",
-    colorMood: ["navy", "cream", "soft stone"],
-    styleTags: ["dark anchor", "quiet social", "skirt"],
-    suitableShoes: graphicNeutralShoes
-  },
-  {
-    season: "夏",
-    top: "linen shirt",
-    bottom: "stone grey Bermuda shorts",
-    outer: "no outer layer",
-    colorMood: ["linen beige", "stone grey", "taupe"],
-    styleTags: ["shorts", "errands", "quiet"],
-    suitableShoes: allShoes
-  },
-  {
-    season: "夏",
-    top: "soft grey short-sleeve knit",
-    bottom: "dark indigo denim",
-    outer: "no outer layer",
-    colorMood: ["soft grey", "dark denim", "cream"],
-    styleTags: ["denim", "dark anchor", "real wardrobe"],
-    suitableShoes: graphicNeutralShoes
-  },
-  {
-    season: "夏",
-    top: "cream blouse",
-    bottom: "soft grey straight skirt",
-    outer: "no outer layer",
-    colorMood: ["cream", "soft grey", "warm beige"],
-    styleTags: ["skirt", "polished", "light social"],
-    suitableShoes: ["Silver Romance 银色浪漫", "Cloud Dancer 云舞者", "Sand Dollar 沙钱白", "Panda 熊猫", "自定义"]
-  },
-  {
-    season: "夏",
-    top: "graphite clean athletic tee",
-    bottom: "black tailored active shorts",
-    outer: "cream linen overshirt",
-    colorMood: ["graphite", "black", "cream"],
-    styleTags: ["active", "shorts", "gym commute"],
-    suitableShoes: activeShoes
-  },
-  {
-    season: "夏",
-    top: "cream fitted T-shirt",
-    bottom: "taupe jogger-style trousers",
-    outer: "no outer layer",
-    colorMood: ["cream", "taupe", "soft stone"],
-    styleTags: ["active casual", "errands", "comfortable"],
-    suitableShoes: activeShoes
-  },
-  {
-    season: "夏",
-    top: "white oversized shirt",
-    bottom: "ivory knee-length shorts",
-    outer: "no outer layer",
-    colorMood: ["white", "ivory", "cream"],
-    styleTags: ["shorts", "clean summer", "shoe-readable"],
-    suitableShoes: cleanLightShoes
-  },
-  {
-    season: "夏",
-    top: "deep navy lightweight tee",
-    bottom: "soft grey summer trousers",
-    outer: "no outer layer",
-    colorMood: ["navy", "soft grey", "cream"],
-    styleTags: ["active minimal", "dark anchor", "city"],
-    suitableShoes: graphicNeutralShoes
-  }
-];
-
-const autumnSeeds: OutfitSeed[] = [
-  {
-    season: "秋",
-    top: "oatmeal knit sweater",
-    bottom: "dark blue straight-leg denim",
-    outer: "soft camel jacket",
-    colorMood: ["oatmeal", "dark denim", "camel"],
-    styleTags: ["denim", "autumn", "soft vintage"],
-    suitableShoes: warmTactileShoes
-  },
-  {
-    season: "秋",
-    top: "cream shirt under cappuccino knitwear",
-    bottom: "charcoal tailored trousers",
-    outer: "light beige trench coat",
-    colorMood: ["cream", "charcoal", "beige"],
-    styleTags: ["commute", "dark anchor", "polished"],
-    suitableShoes: graphicNeutralShoes
-  },
-  {
-    season: "秋",
-    top: "dark coffee fine-knit top",
-    bottom: "oatmeal relaxed pants",
-    outer: "soft olive shirt jacket",
-    colorMood: ["dark coffee", "oatmeal", "olive"],
-    styleTags: ["grounded", "weekend", "tactile"],
-    suitableShoes: warmTactileShoes
-  },
-  {
-    season: "秋",
-    top: "pale blue cotton shirt",
-    bottom: "warm beige straight skirt",
-    outer: "soft grey wool-blend coat",
-    colorMood: ["pale blue", "warm beige", "soft grey"],
-    styleTags: ["skirt", "low-saturation color", "refined"],
-    suitableShoes: ["Delphinium Blue 飞燕草蓝", "Silver Romance 银色浪漫", "Sand Dollar 沙钱白", "自定义"]
-  },
-  {
-    season: "秋",
-    top: "warm ivory fine-knit turtleneck",
-    bottom: "soft grey straight pants",
-    outer: "camel coat",
-    colorMood: ["ivory", "soft grey", "camel"],
-    styleTags: ["mature minimal", "warm", "commute"],
-    suitableShoes: allShoes
-  },
-  {
-    season: "秋",
-    top: "charcoal knit cardigan",
-    bottom: "cream wool-blend skirt",
-    outer: "light beige trench coat",
-    colorMood: ["charcoal", "cream", "beige"],
-    styleTags: ["dark anchor", "skirt", "city"],
-    suitableShoes: graphicNeutralShoes
-  },
-  {
-    season: "秋",
-    top: "white cotton shirt",
-    bottom: "beige wide-leg trousers",
-    outer: "soft camel jacket",
-    colorMood: ["white", "beige", "camel"],
-    styleTags: ["classic", "clean commute", "all-day"],
-    suitableShoes: cleanLightShoes
-  },
-  {
-    season: "秋",
-    top: "navy fine-knit top",
-    bottom: "washed dark denim jeans",
-    outer: "warm grey coat",
-    colorMood: ["navy", "dark denim", "grey"],
-    styleTags: ["dark anchor", "weekend", "quiet"],
-    suitableShoes: graphicNeutralShoes
-  },
-  {
-    season: "秋",
-    top: "cream polo knit",
-    bottom: "taupe jogger-style trousers",
-    outer: "taupe shirt jacket",
-    colorMood: ["cream", "taupe", "soft stone"],
-    styleTags: ["active casual", "travel", "comfortable"],
-    suitableShoes: activeShoes
-  },
-  {
-    season: "秋",
-    top: "soft grey wool-blend top",
-    bottom: "pale khaki wrap skirt",
-    outer: "light beige trench coat",
-    colorMood: ["soft grey", "pale khaki", "beige"],
-    styleTags: ["skirt", "soft seasonal", "feminine"],
-    suitableShoes: cleanLightShoes
-  },
-  {
-    season: "秋",
-    top: "black fine-knit top",
-    bottom: "ivory straight-leg pants",
-    outer: "muted camel coat",
-    colorMood: ["black", "ivory", "camel"],
-    styleTags: ["black-white-brown", "light social", "mature"],
-    suitableShoes: graphicNeutralShoes
-  },
-  {
-    season: "秋",
-    top: "soft linen shirt",
-    bottom: "light blue straight denim",
-    outer: "muted olive jacket",
-    colorMood: ["linen beige", "light denim", "olive"],
-    styleTags: ["denim", "casual", "real-life"],
-    suitableShoes: allShoes
-  }
-];
-
-const winterSeeds: OutfitSeed[] = [
-  {
-    season: "冬",
-    top: "warm ivory turtleneck",
-    bottom: "warm grey wool trousers",
-    outer: "cream wool coat",
-    colorMood: ["warm ivory", "warm grey", "cream"],
-    styleTags: ["winter", "clean", "commute"],
-    suitableShoes: cleanLightShoes
-  },
-  {
-    season: "冬",
-    top: "oatmeal wool sweater",
-    bottom: "dark blue structured denim",
-    outer: "soft camel coat",
-    colorMood: ["oatmeal", "dark denim", "camel"],
-    styleTags: ["denim", "warm", "real wardrobe"],
-    suitableShoes: warmTactileShoes
-  },
-  {
-    season: "冬",
-    top: "cream long-sleeve base layer",
-    bottom: "charcoal-soft grey trousers",
-    outer: "warm grey coat",
-    colorMood: ["cream", "charcoal grey", "warm grey"],
-    styleTags: ["dark anchor", "structured", "mature"],
-    suitableShoes: graphicNeutralShoes
-  },
-  {
-    season: "冬",
-    top: "navy wool sweater",
-    bottom: "winter white straight-leg pants",
-    outer: "grey-beige coat",
-    colorMood: ["navy", "winter white", "grey beige"],
-    styleTags: ["dark anchor", "winter white", "refined"],
-    suitableShoes: graphicNeutralShoes
-  },
-  {
-    season: "冬",
-    top: "cappuccino cashmere-blend sweater",
-    bottom: "oatmeal wide-leg pants",
-    outer: "minimalist cream down jacket",
-    colorMood: ["cappuccino", "oatmeal", "cream"],
-    styleTags: ["warm neutral", "practical", "comfortable"],
-    suitableShoes: warmTactileShoes
-  },
-  {
-    season: "冬",
-    top: "charcoal cardigan",
-    bottom: "muted brown straight skirt",
-    outer: "camel coat",
-    colorMood: ["charcoal", "muted brown", "camel"],
-    styleTags: ["skirt", "winter feminine", "quiet"],
-    suitableShoes: allShoes
-  },
-  {
-    season: "冬",
-    top: "winter white shirt under oatmeal knitwear",
-    bottom: "soft grey trousers",
-    outer: "oatmeal long coat",
-    colorMood: ["winter white", "soft grey", "oatmeal"],
-    styleTags: ["clean commute", "classic", "winter"],
-    suitableShoes: cleanLightShoes
-  },
-  {
-    season: "冬",
-    top: "cream high-neck knit",
-    bottom: "taupe jogger-style trousers",
-    outer: "soft olive padded jacket",
-    colorMood: ["cream", "taupe", "soft olive"],
-    styleTags: ["active casual", "gym commute", "warm"],
-    suitableShoes: activeShoes
-  },
-  {
-    season: "冬",
-    top: "black turtleneck",
-    bottom: "warm grey wool trousers",
-    outer: "cream long coat",
-    colorMood: ["black", "warm grey", "cream"],
-    styleTags: ["controlled contrast", "city", "structured"],
-    suitableShoes: graphicNeutralShoes
-  },
-  {
-    season: "冬",
-    top: "muted chocolate knit",
-    bottom: "cream winter trousers",
-    outer: "beige short wool jacket",
-    colorMood: ["chocolate", "cream", "beige"],
-    styleTags: ["warm depth", "quiet luxury", "soft"],
-    suitableShoes: warmTactileShoes
-  },
-  {
-    season: "冬",
-    top: "soft grey knitwear",
-    bottom: "black straight trousers",
-    outer: "taupe structured coat",
-    colorMood: ["soft grey", "black", "taupe"],
-    styleTags: ["dark anchor", "urban", "shoe-readable"],
-    suitableShoes: graphicNeutralShoes
-  },
-  {
-    season: "冬",
-    top: "beige wool-blend top",
-    bottom: "muted brown trousers",
-    outer: "muted brown coat",
-    colorMood: ["beige", "muted brown", "cream"],
-    styleTags: ["warm tonal", "mature", "calm"],
-    suitableShoes: warmTactileShoes
-  }
-];
-
-const seedsBySeason: Record<TeamSeason, OutfitSeed[]> = {
-  春: springSeeds,
-  夏: summerSeeds,
-  秋: autumnSeeds,
-  冬: winterSeeds
-};
-
-const sceneConfigs: Record<PerSceneOutfitSceneKey, SceneConfig> = {
-  commute: {
-    sceneName: "通勤上班",
-    context: "a calm commute or office-transition moment",
-    bags: ["a structured warm beige tote", "a soft grey shoulder bag", "a no-logo leather work tote"],
-    accessories: ["a simple watch", "minimal gold earrings", "a thin leather belt"],
-    focusTags: ["commute", "polished", "shoe-readable"],
-    shoeFocus: "clean trouser breaks and visible sneakers for all-day movement",
-    forbidden: ["stiff formal suit", "corporate stock photo", "high heels energy"]
-  },
-  weekendCityWalk: {
-    sceneName: "周末城市散步",
-    context: "a relaxed weekend city walk with tasteful daily ease",
-    bags: ["a cream canvas tote", "a taupe crossbody bag", "a soft beige shoulder bag"],
-    accessories: ["understated sunglasses", "small gold earrings", "a simple watch"],
-    focusTags: ["weekend", "city walk", "relaxed"],
-    shoeFocus: "natural steps and readable shoe-ground contact",
-    forbidden: ["tourist styling", "streetwear heaviness", "influencer street pose"]
-  },
-  cafeExterior: {
-    sceneName: "咖啡店外",
-    context: "a quiet cafe exterior or outdoor seat before a city walk",
-    bags: ["a small warm beige shoulder bag", "a light taupe handbag", "a natural canvas tote"],
-    accessories: ["a paper coffee cup", "minimal gold earrings", "a soft hair clip"],
-    focusTags: ["cafe", "weekend", "soft social"],
-    shoeFocus: "easy lower-body styling while holding coffee or standing near a cafe wall",
-    forbidden: ["brunch influencer mood", "sweet cafe pose", "loud latte art props"]
-  },
-  boutiqueStreet: {
-    sceneName: "精品店街区",
-    context: "a refined boutique street or quiet shopping walk",
-    bags: ["a restrained leather shoulder bag", "a soft camel tote", "a cream no-logo handbag"],
-    accessories: ["understated sunglasses", "a thin belt", "small gold earrings"],
-    focusTags: ["boutique street", "polished", "shopping walk"],
-    shoeFocus: "clean outfit proportions and tasteful sneaker styling",
-    forbidden: ["luxury logo showing off", "fashion blogger pose", "over-styled shopping bags"]
-  },
-  flowerShop: {
-    sceneName: "花店",
-    context: "a warm flower shop or small bouquet pickup moment",
-    bags: ["a cream tote beside a small bouquet", "a soft beige shoulder bag", "a natural canvas tote"],
-    accessories: ["a small bouquet", "a simple watch", "minimal gold earrings"],
-    focusTags: ["flower shop", "warm daily", "soft feminine"],
-    shoeFocus: "gentle daily movement without making flowers overpower the shoes",
-    forbidden: ["romantic cliche", "oversized flower prop", "bright floral overload"]
-  },
-  bakeryDessert: {
-    sceneName: "面包甜品店",
-    context: "a quiet bakery or dessert shop return-home moment",
-    bags: ["a bakery paper bag", "a light taupe handbag", "a cream canvas tote"],
-    accessories: ["a small paper bag", "simple watch", "understated sunglasses"],
-    focusTags: ["bakery", "warm daily", "errands"],
-    shoeFocus: "natural walking or standing with the shoes clearly usable for errands",
-    forbidden: ["brunch cliche", "cute dessert overload", "overly sweet styling"]
-  },
-  bookstoreMagazine: {
-    sceneName: "书店 / 杂志",
-    context: "a calm bookstore, magazine rack, or window-side reading transition",
-    bags: ["a soft beige tote with a book", "a pale grey shoulder bag", "a taupe handbag"],
-    accessories: ["a book or magazine", "minimal earrings", "a small hair clip"],
-    focusTags: ["bookstore", "quiet", "intellectual daily"],
-    shoeFocus: "relaxed stance or seated posture with readable shoes",
-    forbidden: ["academic costume", "library stock photo", "messy stacks of books"]
-  },
-  premiumErrands: {
-    sceneName: "精品超市 / 日常采购",
-    context: "a refined grocery, bakery corner, flower shop, or calm daily errand",
-    bags: ["a premium paper grocery bag", "a cream tote", "a soft brown shoulder bag"],
-    accessories: ["fresh produce in a paper bag", "a small bouquet", "a simple watch"],
-    focusTags: ["premium errands", "real life", "warm daily"],
-    shoeFocus: "comfortable city movement with visible sneakers and natural trouser hems",
-    forbidden: ["supermarket clutter", "cheap stock shopping pose", "bright packaging"]
-  },
-  hotelTravel: {
-    sceneName: "旅行酒店",
-    context: "a calm hotel room, wardrobe mirror, doorway, or suitcase corner",
-    bags: ["a travel-ready taupe tote", "a soft beige handbag", "a warm brown travel tote"],
-    accessories: ["a neatly placed suitcase", "a silk scarf", "a simple watch"],
-    focusTags: ["hotel travel", "organized", "quiet luxury"],
-    shoeFocus: "travel-ready comfort and clear shoe visibility without tourist energy",
-    forbidden: ["cheap hotel selfie", "messy luggage", "flashy hotel branding"]
-  },
-  lightSocial: {
-    sceneName: "朋友小聚",
-    context: "a light social lunch, gallery cafe, or quiet friend gathering",
-    bags: ["a small taupe handbag", "a restrained black shoulder bag", "a soft beige clutch-like bag"],
-    accessories: ["minimal gold earrings", "a silk scarf", "a slim necklace"],
-    focusTags: ["light social", "mature", "polished but relaxed"],
-    shoeFocus: "sneakers styled as a refined alternative for semi-social moments",
-    forbidden: ["nightlife", "socialite styling", "overly formal dinner look"]
-  },
-  galleryExhibition: {
-    sceneName: "画廊 / 展览",
-    context: "a quiet gallery, exhibition hallway, or light stone cultural space",
-    bags: ["a structured black shoulder bag", "a soft grey handbag", "a taupe crossbody bag"],
-    accessories: ["understated sunglasses", "small gold earrings", "a slim watch"],
-    focusTags: ["gallery", "culture", "minimal"],
-    shoeFocus: "calm negative space and clean lower-body silhouette",
-    forbidden: ["art-party styling", "cold museum stock photo", "exaggerated black outfit"]
-  },
-  cityCorner: {
-    sceneName: "城市街角",
-    context: "a quiet city corner, pale wall, crosswalk edge, or stone sidewalk",
-    bags: ["a no-logo leather tote", "a cream canvas tote", "a taupe shoulder bag"],
-    accessories: ["a simple watch", "small gold earrings", "a folded magazine"],
-    focusTags: ["city corner", "daily walk", "shoe-readable"],
-    shoeFocus: "stable natural stance and believable foot placement on city pavement",
-    forbidden: ["busy street clutter", "wide-angle street style", "tourist snapshot"]
-  },
-  mirrorCloset: {
-    sceneName: "对镜 / 衣帽间",
-    context: "a quiet wardrobe, bedroom mirror, or getting-ready corner",
-    bags: ["a cream tote placed naturally", "a small beige shoulder bag", "a warm brown handbag"],
-    accessories: ["a natural phone grip", "a simple watch", "a thin belt"],
-    focusTags: ["mirror", "outfit relationship", "trouser-readability"],
-    shoeFocus: "face-hidden mirror composition with shoes and trouser hems clearly visible",
-    forbidden: ["beauty selfie", "mirror leg stretching", "phone blocking shoes"]
-  },
-  entrywayDeparture: {
-    sceneName: "玄关出门",
-    context: "a warm neutral entryway or doorway before leaving home",
-    bags: ["a daily cream tote", "a soft beige shoulder bag", "a natural canvas tote"],
-    accessories: ["keys in hand", "a light scarf", "a simple watch"],
-    focusTags: ["entryway", "leaving home", "daily order"],
-    shoeFocus: "the moment before departure with the shoes fully ready for the day",
-    forbidden: ["messy entryway", "shoe rack clutter", "staged real-estate interior"]
-  },
-  gymCommute: {
-    sceneName: "去运动的路上",
-    context: "a polished city-to-gym transition, gym entrance, or hotel gym route",
-    bags: ["a minimal gym tote", "a graphite soft tote", "a cream canvas gym bag"],
-    accessories: ["a water bottle", "a small towel", "a simple watch"],
-    focusTags: ["active commute", "light movement", "shoe-readable"],
-    shoeFocus: "premium active-ready styling without turning the sneaker into a running shoe",
-    forbidden: ["sports brand campaign", "professional athlete styling", "gym-bro mood"]
-  },
-  gymInterior: {
-    sceneName: "健身房内",
-    context: "a clean modern gym, Pilates corner, or quiet stretching area",
-    bags: ["a folded towel nearby", "a neutral water bottle", "a minimal gym tote on a bench"],
-    accessories: ["a simple watch", "a water bottle", "a small towel"],
-    focusTags: ["gym interior", "light strength", "active"],
-    shoeFocus: "stable foot placement, safe light movement, and accurate sneaker shape",
-    forbidden: ["hardcore training", "sweaty sports ad", "neon gym lighting"]
-  }
-};
-
-const gymTopsBySeason: Record<TeamSeason, string[]> = {
-  春: ["cream long-sleeve active top", "soft grey breathable knit tee", "white cotton training tee"],
-  夏: ["white short-sleeve athletic tee", "graphite clean active tee", "cream fitted breathable T-shirt"],
-  秋: ["oatmeal light active pullover", "taupe zip training top", "cream polo knit with active ease"],
-  冬: ["cream high-neck active knit", "soft grey lightweight sweatshirt", "taupe zip jacket over a base layer"]
-};
-
-const gymBottomsBySeason: Record<TeamSeason, string[]> = {
-  春: ["taupe jogger-style trousers", "soft grey straight active pants", "cream ankle-length active trousers"],
-  夏: ["black tailored active shorts", "stone grey Bermuda active shorts", "taupe lightweight jogger trousers"],
-  秋: ["warm grey active trousers", "taupe jogger-style trousers", "dark grey straight active pants"],
-  冬: ["charcoal straight active pants", "taupe warm-up trousers", "soft grey jogger-style trousers"]
-};
-
-const gymLayersBySeason: Record<TeamSeason, string[]> = {
-  春: ["cream zip cardigan", "light beige shirt jacket", "no outer layer"],
-  夏: ["cream linen overshirt", "no outer layer", "lightweight white overshirt"],
-  秋: ["taupe zip jacket", "soft olive light jacket", "oatmeal cardigan jacket"],
-  冬: ["soft olive padded jacket", "warm grey zip jacket", "cream lightweight down vest"]
-};
-
-function adaptSeedForGymScene(seed: OutfitSeed, index: number): OutfitSeed {
-  return {
-    ...seed,
-    top: gymTopsBySeason[seed.season][index % gymTopsBySeason[seed.season].length],
-    bottom: gymBottomsBySeason[seed.season][index % gymBottomsBySeason[seed.season].length],
-    outer: gymLayersBySeason[seed.season][index % gymLayersBySeason[seed.season].length],
-    suitableShoes: activeShoes,
-    styleTags: [...seed.styleTags.filter((tag) => tag !== "skirt"), "active", "gym", "shoe-readable"]
-  };
-}
-
-function formatCompactLine(config: SceneConfig, seed: OutfitSeed, index: number) {
-  const bag = config.bags[index % config.bags.length];
-  const accessory = config.accessories[(index + 1) % config.accessories.length];
-  const outer = seed.outer === "no outer layer" ? "" : `, ${seed.outer}`;
-  const accessoryPhrase = accessory ? ` with ${accessory}` : "";
-
-  return `Style her in ${seed.top}, ${seed.bottom}${outer}, and ${bag}${accessoryPhrase} for ${config.context}. Keep ${config.shoeFocus}.`;
-}
-
-function createSceneOutfits(sceneKey: PerSceneOutfitSceneKey, config: SceneConfig): PerSceneOutfitScene {
-  const seasonalSeeds = [
-    ...seedsBySeason.春,
-    ...seedsBySeason.夏,
-    ...seedsBySeason.秋,
-    ...seedsBySeason.冬
-  ];
-
-  const outfitLines = seasonalSeeds.map((baseSeed, index) => {
-    const seed =
-      sceneKey === "gymCommute" || sceneKey === "gymInterior"
-        ? adaptSeedForGymScene(baseSeed, index)
-        : baseSeed;
-
-    return {
-      id: `${sceneKey}-${String(index + 1).padStart(2, "0")}`,
-      season: [seed.season],
-      suitableShoes: seed.suitableShoes,
-      colorMood: seed.colorMood,
-      styleTags: [...new Set([...seed.styleTags, ...config.focusTags])],
-      compactLine: formatCompactLine(config, seed, index),
-      forbidden: config.forbidden
-    };
-  });
-
-  return {
-    sceneKey,
-    sceneName: config.sceneName,
-    outfitCountTarget: 50,
-    outfitLines
-  };
-}
-
-export const perSceneOutfitLibrary: Record<PerSceneOutfitSceneKey, PerSceneOutfitScene> = Object.fromEntries(
-  (Object.entries(sceneConfigs) as Array<[PerSceneOutfitSceneKey, SceneConfig]>).map(([sceneKey, config]) => [
-    sceneKey,
-    createSceneOutfits(sceneKey, config)
-  ])
-) as Record<PerSceneOutfitSceneKey, PerSceneOutfitScene>;
-
-export const PER_SCENE_OUTFIT_TOTAL_COUNT = Object.values(perSceneOutfitLibrary).reduce(
-  (total, scene) => total + scene.outfitLines.length,
+export const PER_SCENE_OUTFIT_PHASE1_COUNT = PER_SCENE_OUTFIT_PHASE1_SCENES.reduce(
+  (total, sceneKey) => total + perSceneOutfitLibrary[sceneKey].length,
   0
 );
