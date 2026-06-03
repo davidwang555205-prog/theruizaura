@@ -74,9 +74,15 @@ import {
   peopleBodyProportionNegative
 } from "../data/bodyProportionProfiles";
 import { actionShoeSafetyCompact, multiImageActionVariationCompact } from "../data/actionPoseProfiles";
+import {
+  sneakerErrorNegativeCompact,
+  subtleSneakerErrorNegativeCompact,
+  tiedLacesNegativeCompact
+} from "../data/sneakerProtectionProfiles";
 import { detectImageCountOrSeriesIntent } from "./detectImageCountOrSeriesIntent";
 import { chooseActionLine } from "./chooseActionLine";
 import { chooseBodyProportionLines } from "./chooseBodyProportionLines";
+import { chooseSneakerProtectionLines } from "./chooseSneakerProtectionLines";
 import { cleanFinalPrompt, dedupePromptLines } from "./promptOptimizer";
 
 function compactJoin(parts: Array<string | undefined | false>, separator = "\n\n") {
@@ -316,19 +322,32 @@ function getProductStillLifePrompt(params: TeamPromptParams) {
   const shoeStyle = getTeamShoeStyle(params, true);
   const sceneText = getTeamSceneText(params);
   const extraRequirement = params.extraRequirement.trim();
+  const resolvedScene = resolveTeamScenePreference(params);
+  const imageCountIntent = detectImageCountOrSeriesIntent(extraRequirement, params.imageType);
   const selectedTimeOfDay = chooseTimeOfDay({
     imageType: params.imageType,
-    scenePreference: resolveTeamScenePreference(params),
+    scenePreference: resolvedScene,
     shoe: params.shoe,
     userExtraRequirement: extraRequirement
   });
   const timeOfDayLine = getTimeOfDayLine(params.imageType, selectedTimeOfDay);
+  const sneakerProtectionLines = chooseSneakerProtectionLines({
+    imageType: params.imageType,
+    scenePreference: resolvedScene,
+    hasShoe: true,
+    selectedOutfitLine: compactJoin([stylePrompt, shoeStyle, sceneText], " "),
+    selectedActionLine: "",
+    userExtraRequirement: extraRequirement,
+    imageCountIntent
+  });
   const specialtyNegative = compactJoin(
     [
       productStillLifeNegative,
       profile === "metallicSilver" ? metallicStillLifeNegative : "",
       profile === "breathableMesh" ? meshStillLifeNegative : "",
       TEAM_PRODUCT_NEGATIVE,
+      sneakerErrorNegativeCompact,
+      tiedLacesNegativeCompact,
       selectedTimeOfDay === "evening" ? eveningLightNegative : ""
     ],
     "\n\n"
@@ -342,6 +361,7 @@ function getProductStillLifePrompt(params: TeamPromptParams) {
       stylePrompt,
       sceneText,
       shoeStyle,
+      ...sneakerProtectionLines,
       TEAM_PRODUCT_PROTECTION,
       specialtyNegative
     ]
@@ -547,11 +567,29 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
       : hasShoe
         ? TEAM_PRODUCT_PROTECTION
         : "";
+  const sneakerProtectionLines = chooseSneakerProtectionLines({
+    imageType: params.imageType,
+    scenePreference: resolvedScene,
+    hasShoe,
+    selectedOutfitLine: seasonText,
+    selectedActionLine: compactJoin(
+      [selectedAction?.supportLine, selectedAction?.line, selectedAction?.safetyLine],
+      " "
+    ),
+    userExtraRequirement: extraRequirement,
+    imageCountIntent
+  });
   const negative = compactJoin(
     [
       hasShoe && params.imageType !== "非产品氛围图"
         ? TEAM_PRODUCT_NEGATIVE
         : TEAM_ATMOSPHERE_NEGATIVE,
+      hasShoe
+        ? params.imageType === "非产品氛围图"
+          ? subtleSneakerErrorNegativeCompact
+          : sneakerErrorNegativeCompact
+        : "",
+      hasShoe ? tiedLacesNegativeCompact : "",
       creatorStyling ? TEAM_CREATOR_NEGATIVE : "",
       accessoryLine ? luxuryAccessoryNegative : "",
       outfitStyleLine || versatilityLine ? outfitVersatilityNegative : "",
@@ -614,6 +652,7 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
       peopleImage && imageCountIntent === "multiImageSet" ? multiImageActionVariationCompact : "",
       versatilityLine,
       sceneText,
+      ...sneakerProtectionLines,
       hasShoe && shouldUseActionPose ? actionShoeSafetyCompact : "",
       productProtection,
       negative
