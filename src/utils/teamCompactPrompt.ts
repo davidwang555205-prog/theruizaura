@@ -4,7 +4,7 @@ import { buildCompactPrompt, type CompactPromptKind, type TeamPromptMode } from 
 import { cleanFinalPrompt, dedupePromptLines } from "./promptOptimizer";
 import { sensitiveWordReducer } from "./sensitiveWordReducer";
 
-export const TEAM_PROMPT_MODE: TeamPromptMode = "compact";
+export const TEAM_PROMPT_MODE: TeamPromptMode = "standard";
 
 type TeamCompactPromptInput = {
   params: TeamPromptParams;
