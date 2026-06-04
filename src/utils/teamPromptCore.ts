@@ -1,5 +1,6 @@
 import type {
   TeamImageType,
+  TeamHumanPoseCategory,
   TeamPromptMode,
   TeamPromptParams,
   TeamPromptOutput,
@@ -14,12 +15,14 @@ import { buildStructuredPrompt } from "./buildStructuredPrompt";
 import { chooseActionLine } from "./chooseActionLine";
 import { chooseCameraLookLine } from "./chooseCameraLookLine";
 import { chooseChinaUrbanStreetLine } from "./chooseChinaUrbanStreetLine";
+import { chooseHandheldObjectLines } from "./chooseHandheldObjectLines";
 import { chooseHumanRealismLines } from "./chooseHumanRealismLines";
 import { chooseOutfitByGarmentType } from "./chooseOutfitByGarmentType";
 import { cleanFinalPrompt, dedupePromptLines } from "./promptOptimizer";
 import { detectImageCountOrSeriesIntent } from "./detectImageCountOrSeriesIntent";
 import { selectCityProfileForScene } from "./selectCityProfileForScene";
 import { sensitiveWordReducer } from "./sensitiveWordReducer";
+import { sanitizeUserExtraRequirementForSingleHandheldObject } from "./chooseSinglePrimaryHandheldObject";
 
 export const TEAM_PROMPT_MODE: TeamPromptMode = "standard";
 
@@ -442,7 +445,7 @@ function mapActionPoseToHumanCategory(input: {
   params: TeamPromptParams;
   resolvedScene: Exclude<TeamScenePreference, "自动匹配">;
   poseType: TeamPoseType;
-}) {
+}): TeamHumanPoseCategory {
   const text = `${input.resolvedScene} ${input.params.extraRequirement}`.toLowerCase();
 
   if (input.params.imageType === "对镜穿搭图") return "mirror";
@@ -453,6 +456,35 @@ function mapActionPoseToHumanCategory(input: {
   if (input.poseType === "active") return "gymLightAction";
 
   return "standing";
+}
+
+function getHandheldSafeActionContextLine(input: {
+  params: TeamPromptParams;
+  resolvedScene: Exclude<TeamScenePreference, "自动匹配">;
+  poseCategory: TeamHumanPoseCategory;
+}) {
+  if (input.params.imageType === "对镜穿搭图") {
+    return "Use a natural mirror outfit pose with the phone as the only hand-held object, face hidden or cropped, relaxed shoulders, and clear sneaker visibility.";
+  }
+  if (input.poseCategory === "gymLightAction") {
+    return "Use one calm premium-gym or gym-transition action with a single selected hand-held object, relaxed posture, and grounded sneakers.";
+  }
+  if (input.poseCategory === "walking") {
+    return "Use a small natural walking step with relaxed arms and only the selected primary handheld object.";
+  }
+  if (input.poseCategory === "seated" || input.poseCategory === "laceTying" || input.poseCategory === "crouchOrLean") {
+    return "Use a simple seated or low-movement daily pose with only the selected primary handheld object, keeping hands, knees, feet, and sneakers readable.";
+  }
+
+  return "Use a simple scene-matched standing or pause moment with only the selected primary handheld object, relaxed shoulders, and clear sneaker visibility.";
+}
+
+function getSinglePurposeHandLine(primaryHandheldObject: string) {
+  if (!primaryHandheldObject) {
+    return "Hands should stay relaxed and purposeful without extra props; one hand may rest naturally or adjust a bag strap only.";
+  }
+
+  return `Hands should have one clear purpose: naturally holding the ${primaryHandheldObject}. Keep fingers relaxed, palm size believable, wrist angle natural, and no hand-object fusion.`;
 }
 
 function getPromptKind(params: TeamPromptParams, sceneKey: StandardSceneKey) {
@@ -546,15 +578,28 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
     timeOfDay: TEAM_SEASON_LIGHT[params.season],
     userExtraRequirement: params.extraRequirement
   });
+  const poseCategory = mapActionPoseToHumanCategory({
+    params,
+    resolvedScene,
+    poseType: actionSelection.poseType
+  });
+  const handheldSelection = chooseHandheldObjectLines({
+    imageType: params.imageType,
+    scenePreference: resolvedScene,
+    actionType: [actionSelection.line, actionSelection.supportLine, actionSelection.safetyLine].filter(Boolean).join(" "),
+    userExtraRequirement: params.extraRequirement,
+    selectedOutfitLine: outfitLine,
+    selectedAccessoryLine: outfitLine,
+    garmentTypePreference: params.garmentTypePreference,
+    poseCategory,
+    promptMode: TEAM_PROMPT_MODE,
+    hasShoe
+  });
   const humanRealism = chooseHumanRealismLines({
     imageType: params.imageType,
     scenePreference: resolvedScene,
     actionType: [actionSelection.line, actionSelection.supportLine, actionSelection.safetyLine].filter(Boolean).join(" "),
-    poseCategory: mapActionPoseToHumanCategory({
-      params,
-      resolvedScene,
-      poseType: actionSelection.poseType
-    }),
+    poseCategory,
     garmentTypePreference: params.garmentTypePreference,
     selectedOutfitLine: outfitLine,
     hasShoe,
@@ -585,21 +630,29 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
         .join(" ")
     : "";
   const outfitStructuredLine = shouldUsePeopleStyling(params.imageType)
-    ? [outfitLine, humanRealism.clothingWornLine, humanRealism.bloggerLiteLine, outfitSelection.stylingRealismLine]
+    ? [
+        outfitLine,
+        handheldSelection.accessoryOnlyLine,
+        humanRealism.clothingWornLine,
+        humanRealism.bloggerLiteLine,
+        outfitSelection.stylingRealismLine
+      ]
         .filter(Boolean)
         .join(" ")
     : "";
   const actionStructuredLine = shouldUsePeopleStyling(params.imageType)
     ? [
-        actionSelection.line ||
-          (params.imageType === "对镜穿搭图"
-            ? mirrorGazeActionLine
-            : sceneKey === "gymInterior" || sceneKey === "gymCommute"
-              ? gymActionLine
-              : actionLine),
-        actionSelection.supportLine,
+        getHandheldSafeActionContextLine({
+          params,
+          resolvedScene,
+          poseCategory
+        }),
+        handheldSelection.handheldObjectLine,
+        handheldSelection.handheldCoreLine,
+        handheldSelection.gripLine,
+        handheldSelection.objectSpecificLine,
         actionSelection.safetyLine,
-        humanRealism.naturalHandLine,
+        getSinglePurposeHandLine(handheldSelection.primaryHandheldObject),
         humanRealism.bodyWeightLine,
         humanRealism.expressionGazeLine || (params.imageType === "对镜穿搭图" ? "" : gazeLine)
       ]
@@ -613,6 +666,10 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
           getImageTypeLine(params, sceneKey),
           cityProfile ? sceneText : "",
           sceneRealismLine,
+          handheldSelection.spacingLine,
+          handheldSelection.weightLine,
+          handheldSelection.shoeVisibilityLine,
+          handheldSelection.simplicityLine,
           humanRealism.onFootSneakerLines,
           sneakerSceneControlLine
         ]
@@ -646,11 +703,18 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
       hasShoe,
       cityBoundaryPhrases: cityProfile?.boundaryPhrases ?? [],
       sceneKey,
-      extraPhrases: [...humanRealism.negativePhrases, ...extractAvoidPhrases(actionSelection.negative)]
+      extraPhrases: [
+        ...humanRealism.negativePhrases,
+        ...handheldSelection.negativePhrases,
+        ...extractAvoidPhrases(actionSelection.negative)
+      ]
     }),
     imageType: params.imageType,
     promptMode: TEAM_PROMPT_MODE,
-    userExtraRequirement: params.extraRequirement.trim()
+    userExtraRequirement: sanitizeUserExtraRequirementForSingleHandheldObject(
+      params.extraRequirement.trim(),
+      handheldSelection.removedHandheldObjects
+    )
   });
   const prompt = cleanFinalPrompt(dedupePromptLines(sensitiveWordReducer(rawPrompt)));
 
