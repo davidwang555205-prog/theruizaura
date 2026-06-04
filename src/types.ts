@@ -200,6 +200,15 @@ export type TeamActionComplexityLevel = "safeSimple" | "moderateDaily" | "active
 
 export type TeamPoseType = "standing" | "walking" | "seated" | "mirror" | "active" | "handsOnly" | "none";
 
+export type TeamHumanPoseCategory =
+  | "standing"
+  | "walking"
+  | "mirror"
+  | "seated"
+  | "laceTying"
+  | "gymLightAction"
+  | "crouchOrLean";
+
 export type TeamScenePreference =
   | "自动匹配"
   | "通勤上班"

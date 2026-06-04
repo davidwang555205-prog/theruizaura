@@ -3,6 +3,7 @@ import type {
   TeamPromptMode,
   TeamPromptParams,
   TeamPromptOutput,
+  TeamPoseType,
   TeamScenePreference,
   TeamSeason,
   TeamShoe
@@ -10,10 +11,13 @@ import type {
 import { type StandardSceneKey } from "../data/outfitDiversityRules";
 import { hasUserSpecifiedClothingRequirement } from "./outfitLibraryFilters";
 import { buildStructuredPrompt } from "./buildStructuredPrompt";
+import { chooseActionLine } from "./chooseActionLine";
 import { chooseCameraLookLine } from "./chooseCameraLookLine";
 import { chooseChinaUrbanStreetLine } from "./chooseChinaUrbanStreetLine";
+import { chooseHumanRealismLines } from "./chooseHumanRealismLines";
 import { chooseOutfitByGarmentType } from "./chooseOutfitByGarmentType";
 import { cleanFinalPrompt, dedupePromptLines } from "./promptOptimizer";
+import { detectImageCountOrSeriesIntent } from "./detectImageCountOrSeriesIntent";
 import { selectCityProfileForScene } from "./selectCityProfileForScene";
 import { sensitiveWordReducer } from "./sensitiveWordReducer";
 
@@ -355,6 +359,7 @@ function getNegativeLine(input: {
   hasShoe: boolean;
   cityBoundaryPhrases: string[];
   sceneKey: StandardSceneKey;
+  extraPhrases?: string[];
 }) {
   const phrases = input.hasShoe
     ? [
@@ -409,8 +414,45 @@ function getNegativeLine(input: {
   }
 
   phrases.push("fake HDR", "heavy filters", "warped lens perspective");
+  phrases.push(...(input.extraPhrases ?? []));
 
   return `Avoid ${Array.from(new Set(phrases)).join(", ")}.`;
+}
+
+function extractAvoidPhrases(line?: string) {
+  if (!line) return [];
+
+  return line
+    .replace(/^avoid\s+/i, "")
+    .replace(/\.$/, "")
+    .split(/,\s*|\s+and\s+/)
+    .map((phrase) => phrase.trim())
+    .filter(Boolean);
+}
+
+function getTeamGazeMode(params: TeamPromptParams, sceneKey: StandardSceneKey) {
+  if (params.imageType === "对镜穿搭图") return "phoneHiddenFace";
+  if (params.imageType === "产品静物图" || params.imageType === "非产品氛围图") return "noFaceNeeded";
+  if (sceneKey === "bookstoreMagazine" || sceneKey === "flowerShop" || sceneKey === "premiumErrands") return "taskFocusedGaze";
+  if (sceneKey === "cafeExterior" || sceneKey === "weekendCityWalk") return "softOffCamera";
+  return "softOffCamera";
+}
+
+function mapActionPoseToHumanCategory(input: {
+  params: TeamPromptParams;
+  resolvedScene: Exclude<TeamScenePreference, "自动匹配">;
+  poseType: TeamPoseType;
+}) {
+  const text = `${input.resolvedScene} ${input.params.extraRequirement}`.toLowerCase();
+
+  if (input.params.imageType === "对镜穿搭图") return "mirror";
+  if (/系鞋带|shoelace|shoelaces|tying laces|tying shoelaces/.test(text)) return "laceTying";
+  if (input.resolvedScene === "健身房内" || input.resolvedScene === "去运动的路上") return "gymLightAction";
+  if (input.poseType === "walking") return "walking";
+  if (input.poseType === "seated") return "seated";
+  if (input.poseType === "active") return "gymLightAction";
+
+  return "standing";
 }
 
 function getPromptKind(params: TeamPromptParams, sceneKey: StandardSceneKey) {
@@ -470,6 +512,7 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
   const hasShoe = resolveTeamHasShoe(params);
   const resolvedScene = resolveTeamScenePreference(params);
   const sceneKey = resolveSceneKey(params, resolvedScene);
+  const imageCountIntent = detectImageCountOrSeriesIntent(params.extraRequirement, params.imageType);
   const userSpecifiedClothing = hasUserSpecifiedClothingRequirement(params.extraRequirement);
   const selectedCity = selectCityProfileForScene({
     imageType: params.imageType,
@@ -495,6 +538,29 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
   const sceneText = getSceneText(params, resolvedScene, sceneKey);
   const shoeStyleLine = getShoeStyleLine(params, hasShoe);
   const outfitLine = [outfitSelection.outfitLine, shoeStyleLine].filter(Boolean).join(" ");
+  const actionSelection = chooseActionLine({
+    imageType: params.imageType,
+    scenePreference: resolvedScene,
+    selectedGazeMode: getTeamGazeMode(params, sceneKey),
+    selectedOutfitLine: outfitLine,
+    timeOfDay: TEAM_SEASON_LIGHT[params.season],
+    userExtraRequirement: params.extraRequirement
+  });
+  const humanRealism = chooseHumanRealismLines({
+    imageType: params.imageType,
+    scenePreference: resolvedScene,
+    actionType: [actionSelection.line, actionSelection.supportLine, actionSelection.safetyLine].filter(Boolean).join(" "),
+    poseCategory: mapActionPoseToHumanCategory({
+      params,
+      resolvedScene,
+      poseType: actionSelection.poseType
+    }),
+    garmentTypePreference: params.garmentTypePreference,
+    selectedOutfitLine: outfitLine,
+    hasShoe,
+    multiImageMode: imageCountIntent !== "singleImage",
+    promptMode: TEAM_PROMPT_MODE
+  });
   const sceneRealismLine = getSceneRealismLine({
     params,
     sceneKey,
@@ -508,19 +574,34 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
     .filter(Boolean)
     .join(" ");
   const modelStructuredLine = shouldUsePeopleStyling(params.imageType)
-    ? [getModelLine(params, resolvedScene), bodyProportionLine].filter(Boolean).join(" ")
+    ? [
+        getModelLine(params, resolvedScene),
+        humanRealism.livedInCoreLine,
+        humanRealism.humanProportionCoreLine,
+        humanRealism.bodySpecialLine,
+        humanRealism.multiImageConsistencyLine
+      ]
+        .filter(Boolean)
+        .join(" ")
     : "";
   const outfitStructuredLine = shouldUsePeopleStyling(params.imageType)
-    ? [outfitLine, outfitSelection.stylingRealismLine].filter(Boolean).join(" ")
+    ? [outfitLine, humanRealism.clothingWornLine, humanRealism.bloggerLiteLine, outfitSelection.stylingRealismLine]
+        .filter(Boolean)
+        .join(" ")
     : "";
   const actionStructuredLine = shouldUsePeopleStyling(params.imageType)
     ? [
-        params.imageType === "对镜穿搭图"
-          ? mirrorGazeActionLine
-          : sceneKey === "gymInterior" || sceneKey === "gymCommute"
-            ? gymActionLine
-            : actionLine,
-        params.imageType === "对镜穿搭图" ? "" : gazeLine
+        actionSelection.line ||
+          (params.imageType === "对镜穿搭图"
+            ? mirrorGazeActionLine
+            : sceneKey === "gymInterior" || sceneKey === "gymCommute"
+              ? gymActionLine
+              : actionLine),
+        actionSelection.supportLine,
+        actionSelection.safetyLine,
+        humanRealism.naturalHandLine,
+        humanRealism.bodyWeightLine,
+        humanRealism.expressionGazeLine || (params.imageType === "对镜穿搭图" ? "" : gazeLine)
       ]
         .filter(Boolean)
         .join(" ")
@@ -528,7 +609,13 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
   const sceneStructuredLine =
     params.imageType === "产品静物图"
       ? sceneRealismLine
-      : [getImageTypeLine(params, sceneKey), sceneRealismLine, sneakerSceneControlLine]
+      : [
+          getImageTypeLine(params, sceneKey),
+          cityProfile ? sceneText : "",
+          sceneRealismLine,
+          humanRealism.onFootSneakerLines,
+          sneakerSceneControlLine
+        ]
           .filter(Boolean)
           .join(" ");
   const moodStructuredLine = [
@@ -539,7 +626,8 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
       : params.imageType === "非产品氛围图" || params.imageType === "拍摄花絮 / 材质图"
         ? TEAM_ATMOSPHERE_SEASON[params.season]
         : "",
-    cameraSelection.cameraLookLine
+    cameraSelection.cameraLookLine,
+    humanRealism.realHumanDetailLine
   ]
     .filter(Boolean)
     .join(" ");
@@ -557,7 +645,8 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
       params,
       hasShoe,
       cityBoundaryPhrases: cityProfile?.boundaryPhrases ?? [],
-      sceneKey
+      sceneKey,
+      extraPhrases: [...humanRealism.negativePhrases, ...extractAvoidPhrases(actionSelection.negative)]
     }),
     imageType: params.imageType,
     promptMode: TEAM_PROMPT_MODE,

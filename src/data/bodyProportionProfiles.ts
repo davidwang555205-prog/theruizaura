@@ -54,3 +54,27 @@ export const mirrorBodyProportionNegative =
 
 export const activeBodyProportionNegative =
   "Avoid fitness-model body exaggeration, bodybuilding proportions, hyper-defined glutes, oversized thighs, performance-athlete advertisement body styling, hardcore workout action, heavy lifting strain, bodybuilding pose, aggressive gym movement, sweaty exertion, and action that turns the scene into professional sports content.";
+
+export const humanProportionStabilityCoreLine =
+  "Keep the model's anatomy realistic and balanced, with a natural head-to-body ratio, believable shoulder width, correct waist placement, realistic torso length, natural leg length, normal hand size, accurate foot scale, and a grounded shoe-to-body relationship.";
+
+export const standardBodyProportionLine =
+  "Maintain realistic body proportions: the head should not be too small, the legs should not be over-elongated, the torso should not be compressed, the arms should hang naturally, and the hands and feet should stay proportional to the body.";
+
+export const headAndShoulderBalanceLine =
+  "Keep the head size, neck thickness, shoulder width, and upper-body balance realistic and feminine, with no tiny head effect, narrow-shoulder distortion, stiff neck, or fashion-illustration exaggeration.";
+
+export const mirrorProportionStabilityLine =
+  "For mirror images, keep the mirror perspective realistic and balanced: no long-leg stretch, no tiny head, no oversized phone hand, no warped body outline, and no exaggerated lower-body length. The figure should look like a real outfit check in a normal mirror.";
+
+export const seatedAndLaceTyingProportionLine =
+  "When the model is seated, crouching, or tying shoelaces, keep the knees, thighs, calves, arms, and torso connected naturally. Avoid compressed limbs, over-bent joints, oversized hands, shortened torso, or distorted leg overlap.";
+
+export const gymBodyProportionStabilityLine =
+  "For gym or active-lifestyle scenes, keep the body athletic but natural, with realistic muscle tone, normal limb length, believable shoulder-to-waist balance, and no exaggerated fitness-body proportions. Avoid oversized thighs, inflated arms, hyper-defined abs, or sports-ad-style body distortion.";
+
+export const perspectiveStabilityLine =
+  "Use a natural photographic perspective with no aggressive wide-angle stretch, no fake telephoto flattening, and no edge distortion that changes the body, feet, or sneakers. Keep the figure grounded and visually balanced within the frame.";
+
+export const framingStabilityLine =
+  "Use a clean full-body or 3/4-body composition with enough space around the figure so the head, hands, knees, feet, and sneakers remain readable and naturally proportioned. Avoid awkward cropping that causes body distortion.";
