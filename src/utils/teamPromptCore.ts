@@ -9,7 +9,7 @@ import type {
 } from "../types";
 import { type StandardSceneKey } from "../data/outfitDiversityRules";
 import { hasUserSpecifiedClothingRequirement } from "./outfitLibraryFilters";
-import { buildPromptByMode } from "./buildPromptByMode";
+import { buildStructuredPrompt } from "./buildStructuredPrompt";
 import { chooseCameraLookLine } from "./chooseCameraLookLine";
 import { chooseChinaUrbanStreetLine } from "./chooseChinaUrbanStreetLine";
 import { chooseOutfitByGarmentType } from "./chooseOutfitByGarmentType";
@@ -93,6 +93,13 @@ const shoeClippingLine =
 
 const lacesLine =
   "Keep laces naturally tied, with readable loops, lace ends, eyelets, and tongue.";
+
+const TEAM_SEASON_LIGHT: Record<TeamSeason, string> = {
+  春: "soft spring daylight with airy brightness and gentle shadows",
+  夏: "summer natural light with warm-neutral brightness, soft street shadows, and no dark cinematic mood",
+  秋: "warm muted autumn daylight with tactile shadows and calm seasonal depth",
+  冬: "soft winter light with quiet shadows, warm-neutral clarity, and restrained brightness"
+};
 
 const TEAM_ATMOSPHERE_SEASON: Record<TeamSeason, string> = {
   春: "Use soft spring daylight, airy textures, pale neutrals, and a fresh but quiet atmosphere.",
@@ -415,6 +422,50 @@ function getPromptKind(params: TeamPromptParams, sceneKey: StandardSceneKey) {
   return "atmosphere";
 }
 
+function getTimeLine(params: TeamPromptParams, sceneKey: StandardSceneKey) {
+  if (params.imageType === "产品静物图" || sceneKey === "stillLife") {
+    return `Soft natural side light with gentle shadows, believable product photography brightness, and ${TEAM_SEASON_LIGHT[params.season]}.`;
+  }
+  if (params.imageType === "对镜穿搭图" || sceneKey === "mirrorCloset") {
+    return `Morning or soft indoor daylight with believable room shadows, natural mirror brightness, and ${TEAM_SEASON_LIGHT[params.season]}.`;
+  }
+  if (sceneKey === "gymInterior") {
+    return `Morning or controlled indoor light with clean brightness, soft equipment shadows, and ${TEAM_SEASON_LIGHT[params.season]}.`;
+  }
+  if (sceneKey === "commute" || sceneKey === "gymCommute" || sceneKey === "bakeryDessert") {
+    return `Morning natural light with soft shadows, clean daily brightness, and ${TEAM_SEASON_LIGHT[params.season]}.`;
+  }
+  if (sceneKey === "premiumErrands" || sceneKey === "boutiqueStreet" || sceneKey === "flowerShop") {
+    return `Noon to early-afternoon natural light with believable storefront brightness, soft shadows, and ${TEAM_SEASON_LIGHT[params.season]}.`;
+  }
+  if (sceneKey === "cafeExterior" || sceneKey === "weekendCityWalk" || sceneKey === "bookstoreMagazine" || sceneKey === "cityCorner") {
+    return `Late-afternoon natural light with soft street shadows, warm-neutral brightness, and ${TEAM_SEASON_LIGHT[params.season]}.`;
+  }
+  if (sceneKey === "hotelTravel") {
+    return `Soft hotel daylight with believable interior shadows, calm travel brightness, and ${TEAM_SEASON_LIGHT[params.season]}.`;
+  }
+
+  return `Natural daily light with believable brightness, soft shadows, and ${TEAM_SEASON_LIGHT[params.season]}.`;
+}
+
+function getShoeDisplayName(params: TeamPromptParams) {
+  return params.shoe === "自定义" ? params.customShoe.trim() || "selected THERUIZ AURA" : params.shoe;
+}
+
+function getProductLine(params: TeamPromptParams, hasShoe: boolean) {
+  if (!hasShoe) return "";
+  if (params.imageType === "非产品氛围图") return nonProductShoeAccuracyLine;
+
+  return [
+    `THERUIZ AURA ${getShoeDisplayName(params)} German trainer as the main product reference.`,
+    getSneakerAccuracyLine(params, hasShoe),
+    getShoeVisibilityLine(params, hasShoe),
+    getLacesLine(params, hasShoe)
+  ]
+    .filter(Boolean)
+    .join(" ");
+}
+
 export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
   const hasShoe = resolveTeamHasShoe(params);
   const resolvedScene = resolveTeamScenePreference(params);
@@ -449,50 +500,69 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
     sceneKey,
     hasCityStreetLine: Boolean(cityProfile)
   });
-
-  const rawPrompt = buildPromptByMode(
-    {
-      brandMoodLine,
-      imageTypeLine: [shouldUsePeopleStyling(params.imageType) ? customerFeelingLine : "", getImageTypeLine(params, sceneKey)]
-        .filter(Boolean)
-        .join(" "),
-      modelLine: getModelLine(params, resolvedScene),
-      gazeLine: shouldUsePeopleStyling(params.imageType)
-        ? params.imageType === "对镜穿搭图"
+  const sneakerSceneControlLine = [
+    getShoeVisibilityLine(params, hasShoe),
+    getShoeClippingLine(params, hasShoe),
+    getLacesLine(params, hasShoe)
+  ]
+    .filter(Boolean)
+    .join(" ");
+  const modelStructuredLine = shouldUsePeopleStyling(params.imageType)
+    ? [getModelLine(params, resolvedScene), bodyProportionLine].filter(Boolean).join(" ")
+    : "";
+  const outfitStructuredLine = shouldUsePeopleStyling(params.imageType)
+    ? [outfitLine, outfitSelection.stylingRealismLine].filter(Boolean).join(" ")
+    : "";
+  const actionStructuredLine = shouldUsePeopleStyling(params.imageType)
+    ? [
+        params.imageType === "对镜穿搭图"
           ? mirrorGazeActionLine
-          : gazeLine
+          : sceneKey === "gymInterior" || sceneKey === "gymCommute"
+            ? gymActionLine
+            : actionLine,
+        params.imageType === "对镜穿搭图" ? "" : gazeLine
+      ]
+        .filter(Boolean)
+        .join(" ")
+    : "";
+  const sceneStructuredLine =
+    params.imageType === "产品静物图"
+      ? sceneRealismLine
+      : [getImageTypeLine(params, sceneKey), sceneRealismLine, sneakerSceneControlLine]
+          .filter(Boolean)
+          .join(" ");
+  const moodStructuredLine = [
+    brandMoodLine,
+    shouldUsePeopleStyling(params.imageType) ? customerFeelingLine : "",
+    shouldUsePeopleStyling(params.imageType)
+      ? ""
+      : params.imageType === "非产品氛围图" || params.imageType === "拍摄花絮 / 材质图"
+        ? TEAM_ATMOSPHERE_SEASON[params.season]
         : "",
-      actionLine: shouldUsePeopleStyling(params.imageType)
-        ? sceneKey === "gymInterior" || sceneKey === "gymCommute"
-          ? gymActionLine
-          : actionLine
-        : "",
-      bodyProportionLine: shouldUsePeopleStyling(params.imageType) ? bodyProportionLine : "",
-      outfitLine: shouldUsePeopleStyling(params.imageType) ? outfitLine : "",
-      stylingRealismLine: shouldUsePeopleStyling(params.imageType)
-        ? outfitSelection.stylingRealismLine
-        : params.imageType === "非产品氛围图" || params.imageType === "拍摄花絮 / 材质图"
-          ? TEAM_ATMOSPHERE_SEASON[params.season]
-          : "",
-      cityStreetLine: cityProfile?.cityStreetLine,
-      sceneLine: cityProfile ? "" : sceneText,
-      sceneRealismLine,
-      cameraLookLine: cameraSelection.cameraLookLine,
-      sneakerAccuracyLine: getSneakerAccuracyLine(params, hasShoe),
-      shoeVisibilityLine: getShoeVisibilityLine(params, hasShoe),
-      shoeClippingLine: getShoeClippingLine(params, hasShoe),
-      lacesLine: getLacesLine(params, hasShoe),
-      negativeLine: getNegativeLine({
-        params,
-        hasShoe,
-        cityBoundaryPhrases: cityProfile?.boundaryPhrases ?? [],
-        sceneKey
-      }),
-      userExtraRequirement: params.extraRequirement.trim(),
-      promptKind: getPromptKind(params, sceneKey)
-    },
-    TEAM_PROMPT_MODE
-  );
+    cameraSelection.cameraLookLine
+  ]
+    .filter(Boolean)
+    .join(" ");
+
+  const rawPrompt = buildStructuredPrompt({
+    timeLine: getTimeLine(params, sceneKey),
+    placeLine: cityProfile?.cityStreetLine ?? sceneText,
+    productLine: getProductLine(params, hasShoe),
+    modelLine: modelStructuredLine,
+    outfitLine: outfitStructuredLine,
+    sceneLine: sceneStructuredLine,
+    moodLine: moodStructuredLine,
+    actionLine: actionStructuredLine,
+    negativeLine: getNegativeLine({
+      params,
+      hasShoe,
+      cityBoundaryPhrases: cityProfile?.boundaryPhrases ?? [],
+      sceneKey
+    }),
+    imageType: params.imageType,
+    promptMode: TEAM_PROMPT_MODE,
+    userExtraRequirement: params.extraRequirement.trim()
+  });
   const prompt = cleanFinalPrompt(dedupePromptLines(sensitiveWordReducer(rawPrompt)));
 
   return {

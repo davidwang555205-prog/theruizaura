@@ -16,6 +16,12 @@ function splitSentenceLikeText(text: string) {
   return parts.length > 1 ? parts : [text.trim()];
 }
 
+const structuredSectionTitlePattern = /^(时间|地点|人物|穿着|场景|氛围|动作|负面词|产品):$/;
+
+function isStructuredPrompt(text: string) {
+  return /(^|\n)(时间|地点|人物|穿着|场景|氛围|动作|负面词|产品):\s*(\n|$)/.test(text);
+}
+
 function dedupeNegativePhraseLine(line: string) {
   if (!/^avoid\s/i.test(line)) return line;
 
@@ -47,6 +53,7 @@ export function dedupePromptLines(text: string) {
   const markerIndex = text.lastIndexOf(marker);
   const bodyText = markerIndex >= 0 ? text.slice(0, markerIndex) : text;
   const userRequirement = markerIndex >= 0 ? text.slice(markerIndex).trim() : "";
+  const structured = isStructuredPrompt(bodyText);
   const seen = new Set<string>();
   const output: string[] = [];
   let previousWasBlank = false;
@@ -60,6 +67,12 @@ export function dedupePromptLines(text: string) {
         output.push("");
       }
       previousWasBlank = true;
+      return;
+    }
+
+    if (structuredSectionTitlePattern.test(trimmed)) {
+      output.push(trimmed);
+      previousWasBlank = false;
       return;
     }
 
@@ -83,7 +96,7 @@ export function dedupePromptLines(text: string) {
   });
 
   const dedupedBody = reduceRepeatedConcepts(output.join("\n").replace(/\n{3,}/g, "\n\n").trim());
-  return [dedupedBody, userRequirement].filter(Boolean).join(" ").trim();
+  return [dedupedBody, userRequirement].filter(Boolean).join(structured ? "\n\n" : " ").trim();
 }
 
 export function getPromptStats(text: string) {
@@ -113,7 +126,7 @@ function removeRepeatedLightPhrases(text: string) {
     });
   });
 
-  return output.replace(/\s+,/g, ",").replace(/\s{2,}/g, " ").trim();
+  return output.replace(/[ \t]+,/g, ",").replace(/[ \t]{2,}/g, " ").trim();
 }
 
 function reduceRepeatedConcepts(text: string) {
@@ -125,8 +138,8 @@ function reduceRepeatedConcepts(text: string) {
     .replace(/\brefined refined\b/gi, "refined")
     .replace(/\bpremium premium\b/gi, "premium")
     .replace(/\bsoft,\s+and\b/gi, "soft light and")
-    .replace(/\s+,/g, ",")
-    .replace(/\s{2,}/g, " ")
+    .replace(/[ \t]+,/g, ",")
+    .replace(/[ \t]{2,}/g, " ")
     .trim();
 }
 
@@ -136,6 +149,36 @@ export function cleanFinalPrompt(text: string) {
   const userRequirement =
     markerIndex >= 0 ? text.slice(markerIndex).trim().replace(/\s+$/, "") : "";
   const body = markerIndex >= 0 ? text.slice(0, markerIndex) : text;
+  const structured = isStructuredPrompt(body);
+
+  if (structured) {
+    const cleanedBody = body
+        .split(/\n/)
+        .map((line) => line.trim())
+        .filter((line) => !/^#{1,6}\s/.test(line))
+        .filter(
+          (line) =>
+            structuredSectionTitlePattern.test(line) ||
+            !/^(Prompt Output|Final Prompt|Compact Prompt|Standard Prompt|Full Debug|Module|Section|最终完整提示词|提示词输出|调试|模块)[:：]?$/i.test(
+              line
+            )
+        )
+        .map((line) =>
+          structuredSectionTitlePattern.test(line)
+            ? line
+            : line
+                .replace(/^\d+[.)、]\s*/, "")
+                .replace(/^[-*]\s+/, "")
+                .replace(/[ \t]+/g, " ")
+                .replace(/\s+([,.!?;:])/g, "$1")
+                .trim()
+        )
+        .join("\n")
+        .replace(/\n{3,}/g, "\n\n")
+        .trim();
+
+    return [cleanedBody, userRequirement].filter(Boolean).join("\n\n").trim();
+  }
 
   const cleanedBody = removeRepeatedLightPhrases(body
     .split(/\n+/)

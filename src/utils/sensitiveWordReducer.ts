@@ -105,9 +105,17 @@ export function sensitiveWordReducer(prompt: string) {
     .replace(/\bblack clean clean sleeveless top\b/gi, "black clean sleeveless top")
     .replace(/\s+,/g, ",")
     .replace(/,\s*,/g, ",")
-    .replace(/\s{2,}/g, " ")
+    .split("\n")
+    .map((line) =>
+      line
+        .replace(/[ \t]{2,}/g, " ")
+        .replace(/\s+([,.!?;:])/g, "$1")
+        .trim()
+    )
+    .join("\n")
+    .replace(/\n{3,}/g, "\n\n")
     .replace(/\s+([,.!?;:])/g, "$1")
     .trim();
 
-  return [output, userRequirement].filter(Boolean).join(" ").trim();
+  return [output, userRequirement].filter(Boolean).join(userRequirement ? "\n\n" : "").trim();
 }
