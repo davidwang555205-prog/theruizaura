@@ -58,7 +58,16 @@ const supportedSceneMap: Record<string, PerSceneOutfitSceneKey> = {
   咖啡店: "cafeExterior",
   周末咖啡: "cafeExterior",
   周末城市散步: "weekendCityWalk",
-  健身房内: "gymInterior"
+  买手店街区: "boutiqueStreet",
+  精品店街区: "boutiqueStreet",
+  花店: "flowerShop",
+  面包甜点店: "bakeryDessert",
+  书店杂志店: "bookstoreMagazine",
+  "精品超市 / 日常采购": "premiumErrands",
+  居家衣帽间: "mirrorCloset",
+  旅行酒店: "mirrorCloset",
+  健身房内: "gymInterior",
+  去运动的路上: "gymCommute"
 };
 
 const seasonMap: Record<TeamSeason, Season> = {
@@ -135,12 +144,18 @@ export function resolvePerSceneKey(input: {
 
   if (scenePreference === "自动匹配") {
     if (input.imageType === "产品上脚图") return "commute";
-    if (input.imageType === "对镜穿搭图") return extra.includes("cafe") || extra.includes("咖啡") ? "cafeExterior" : null;
+    if (input.imageType === "对镜穿搭图") return "mirrorCloset";
     if (input.imageType === "生活场景图") {
       if (/咖啡|coffee|cafe|café/.test(extra)) return "cafeExterior";
-      if (/健身|gym|active|training/.test(extra)) return "gymInterior";
+      if (/买手店|精品店|boutique/.test(extra)) return "boutiqueStreet";
+      if (/花店|鲜花|flower/.test(extra)) return "flowerShop";
+      if (/面包|甜点|烘焙|bakery|dessert/.test(extra)) return "bakeryDessert";
+      if (/书店|杂志|bookstore|magazine/.test(extra)) return "bookstoreMagazine";
+      if (/超市|采购|grocery|errands/.test(extra)) return "premiumErrands";
+      if (/健身|gym|active|training/.test(extra)) return "gymCommute";
       return "weekendCityWalk";
     }
+    if (input.imageType === "gymCommute") return "gymCommute";
     if (input.imageType === "gym") return "gymInterior";
     return null;
   }
@@ -150,6 +165,14 @@ export function resolvePerSceneKey(input: {
 
   if (scenePreference === "周末轻采购" && /咖啡|coffee|cafe|café/.test(extra)) return "cafeExterior";
   if (scenePreference === "周末城市散步" && /咖啡|coffee|cafe|café/.test(extra)) return "cafeExterior";
+  if (/咖啡|coffee|cafe|café/.test(`${scenePreference} ${extra}`)) return "cafeExterior";
+  if (/买手店|精品店|boutique/.test(`${scenePreference} ${extra}`)) return "boutiqueStreet";
+  if (/花店|鲜花|flower/.test(`${scenePreference} ${extra}`)) return "flowerShop";
+  if (/面包|甜点|烘焙|bakery|dessert/.test(`${scenePreference} ${extra}`)) return "bakeryDessert";
+  if (/书店|杂志|bookstore|magazine/.test(`${scenePreference} ${extra}`)) return "bookstoreMagazine";
+  if (/超市|采购|grocery|errands/.test(`${scenePreference} ${extra}`)) return "premiumErrands";
+  if (/衣帽间|镜前|mirror|closet/.test(`${scenePreference} ${extra}`)) return "mirrorCloset";
+  if (/去运动|健身房路上|gym commute|gym transition/.test(`${scenePreference} ${extra}`)) return "gymCommute";
 
   return null;
 }

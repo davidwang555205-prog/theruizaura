@@ -1,4 +1,5 @@
-import type { TeamImageType, TeamScenePreference, TeamSeason, TeamShoe } from "../types";
+import type { TeamGarmentTypePreference, TeamImageType, TeamScenePreference, TeamSeason, TeamShoe } from "../types";
+import type { ChinaCityProfile } from "../data/chinaUrbanStreetProfiles";
 import {
   perSceneOutfitLibrary,
   type ImageType,
@@ -6,9 +7,10 @@ import {
   type PerSceneOutfitSceneKey,
   type Season
 } from "../data/perSceneOutfitLibrary";
+import type { GarmentType, ColorDirection, OutfitStyle } from "../data/sceneOutfitSeedLibrary";
+import { chooseSmartOutfit, type ChooseSmartOutfitResult } from "./chooseSmartOutfit";
 import {
   getImageTypeOutfitTags,
-  hasUserSpecifiedClothingRequirement,
   isOutfitConflictingWithUserRequirement,
   normalizePerSceneImageType,
   normalizePerSceneSeason,
@@ -25,18 +27,34 @@ type ChoosePerSceneOutfitInput = {
   userExtraRequirement?: string;
   previousOutfitId?: string;
   generatedHistory?: string[];
+  garmentTypePreference?: TeamGarmentTypePreference;
+  cityProfile?: ChinaCityProfile | null;
 };
 
 export type ChoosePerSceneOutfitResult = {
   selectedOutfitId: string | null;
   selectedPerSceneOutfitLine: string | null;
   selectedOutfit: OutfitEntry | null;
+  selectedStylingRealismLine: string | null;
+  selectedGarmentType: GarmentType | null;
+  selectedOutfitStyle: OutfitStyle | null;
+  selectedColorDirection: ColorDirection | null;
+  selectedVisualAnchor: string | null;
+  scoreBreakdown?: ChooseSmartOutfitResult["scoreBreakdown"];
+  usedFallback?: boolean;
+  fallbackReason?: string;
+  conflictWarnings?: string[];
 };
 
 const emptySelection: ChoosePerSceneOutfitResult = {
   selectedOutfitId: null,
   selectedPerSceneOutfitLine: null,
-  selectedOutfit: null
+  selectedOutfit: null,
+  selectedStylingRealismLine: null,
+  selectedGarmentType: null,
+  selectedOutfitStyle: null,
+  selectedColorDirection: null,
+  selectedVisualAnchor: null
 };
 
 function hashText(text: string) {
@@ -159,14 +177,40 @@ function selectByRotation(candidates: OutfitEntry[], input: ChoosePerSceneOutfit
 }
 
 export function choosePerSceneOutfitLine(input: ChoosePerSceneOutfitInput): ChoosePerSceneOutfitResult {
-  if (hasUserSpecifiedClothingRequirement(input.userExtraRequirement)) return emptySelection;
-
   const sceneKey = resolvePerSceneKey({
     scenePreference: input.scenePreference,
     imageType: input.imageType,
     userExtraRequirement: input.userExtraRequirement
   });
   if (!sceneKey) return emptySelection;
+
+  const smartSelection = chooseSmartOutfit({
+    sceneKey,
+    season: normalizePerSceneSeason(input.season),
+    shoe: normalizePerSceneShoe(input.shoe),
+    imageType: normalizePerSceneImageType(input.imageType),
+    garmentTypePreference: input.garmentTypePreference ?? "自动匹配",
+    cityProfile: input.cityProfile,
+    userExtraRequirement: input.userExtraRequirement,
+    previousOutfitId: input.previousOutfitId
+  });
+
+  if (smartSelection) {
+    return {
+      selectedOutfitId: smartSelection.selectedOutfitId,
+      selectedPerSceneOutfitLine: smartSelection.selectedOutfitLine,
+      selectedOutfit: null,
+      selectedStylingRealismLine: smartSelection.selectedStylingRealismLine,
+      selectedGarmentType: smartSelection.selectedGarmentType,
+      selectedOutfitStyle: smartSelection.selectedOutfitStyle,
+      selectedColorDirection: smartSelection.selectedColorDirection,
+      selectedVisualAnchor: smartSelection.selectedVisualAnchor,
+      scoreBreakdown: smartSelection.scoreBreakdown,
+      usedFallback: smartSelection.usedFallback,
+      fallbackReason: smartSelection.fallbackReason,
+      conflictWarnings: smartSelection.conflictWarnings
+    };
+  }
 
   const sceneOutfits = perSceneOutfitLibrary[sceneKey];
   if (!sceneOutfits?.length) return emptySelection;
@@ -178,6 +222,11 @@ export function choosePerSceneOutfitLine(input: ChoosePerSceneOutfitInput): Choo
   return {
     selectedOutfitId: selected.id,
     selectedPerSceneOutfitLine: selected.compactLine,
-    selectedOutfit: selected
+    selectedOutfit: selected,
+    selectedStylingRealismLine: null,
+    selectedGarmentType: null,
+    selectedOutfitStyle: null,
+    selectedColorDirection: null,
+    selectedVisualAnchor: null
   };
 }

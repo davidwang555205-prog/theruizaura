@@ -18,6 +18,7 @@ import { chooseChinaUrbanStreetLine } from "./chooseChinaUrbanStreetLine";
 import { chooseHandheldObjectLines } from "./chooseHandheldObjectLines";
 import { chooseHumanRealismLines } from "./chooseHumanRealismLines";
 import { chooseOutfitByGarmentType } from "./chooseOutfitByGarmentType";
+import { choosePerSceneOutfitLine } from "./choosePerSceneOutfitLine";
 import { cleanFinalPrompt, dedupePromptLines } from "./promptOptimizer";
 import { detectImageCountOrSeriesIntent } from "./detectImageCountOrSeriesIntent";
 import { selectCityProfileForScene } from "./selectCityProfileForScene";
@@ -567,9 +568,22 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
     userExtraRequirement: params.extraRequirement,
     userSpecifiedClothing
   });
+  const perSceneOutfitSelection = shouldUsePeopleStyling(params.imageType)
+    ? choosePerSceneOutfitLine({
+        scenePreference: resolvedScene,
+        season: params.season,
+        shoe: params.shoe,
+        imageType: params.imageType,
+        userExtraRequirement: params.extraRequirement,
+        garmentTypePreference: params.garmentTypePreference,
+        cityProfile: selectedCity
+      })
+    : null;
   const sceneText = getSceneText(params, resolvedScene, sceneKey);
   const shoeStyleLine = getShoeStyleLine(params, hasShoe);
-  const outfitLine = [outfitSelection.outfitLine, shoeStyleLine].filter(Boolean).join(" ");
+  const baseOutfitLine = perSceneOutfitSelection?.selectedPerSceneOutfitLine ?? outfitSelection.outfitLine;
+  const baseStylingRealismLine = perSceneOutfitSelection?.selectedStylingRealismLine ?? outfitSelection.stylingRealismLine;
+  const outfitLine = [baseOutfitLine, shoeStyleLine].filter(Boolean).join(" ");
   const actionSelection = chooseActionLine({
     imageType: params.imageType,
     scenePreference: resolvedScene,
@@ -635,7 +649,7 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
         handheldSelection.accessoryOnlyLine,
         humanRealism.clothingWornLine,
         humanRealism.bloggerLiteLine,
-        outfitSelection.stylingRealismLine
+        baseStylingRealismLine
       ]
         .filter(Boolean)
         .join(" ")
