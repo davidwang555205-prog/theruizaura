@@ -528,7 +528,7 @@ function makeSceneSeeds(sceneKey: keyof typeof scenePlans): SceneOutfitSeed[] {
   const plan = scenePlans[sceneKey];
   const garmentCounts: Partial<Record<GarmentType, number>> = {};
 
-  return plan.garments.map((garment, index) => {
+  const seeds = plan.garments.map((garment, index) => {
     const draftIndex = garmentCounts[garment] ?? 0;
     garmentCounts[garment] = draftIndex + 1;
     const draft = pickDraft(garment, draftIndex);
@@ -543,6 +543,98 @@ function makeSceneSeeds(sceneKey: keyof typeof scenePlans): SceneOutfitSeed[] {
       forbidden: [...(draft.forbidden ?? []), ...plan.forbidden]
     };
   });
+
+  return enforceSeedDiversity(seeds);
+}
+
+const darkAnchorPattern = /black|charcoal|navy|dark coffee|deep olive/i;
+const lightTopPattern = /^(white|cream|beige|ivory|off-white|soft beige|warm beige)/i;
+
+function hasDarkAnchor(seed: SceneOutfitSeed) {
+  return (
+    seed.colorDirection === "darkAnchor" ||
+    darkAnchorPattern.test(
+      `${seed.topCategory} ${seed.bottomCategory} ${seed.outerLayerCategory ?? ""} ${seed.bagCategory ?? ""} ${seed.outfitLine}`
+    )
+  );
+}
+
+function hasDenim(seed: SceneOutfitSeed) {
+  return seed.colorDirection === "denimBased" || /denim/i.test(`${seed.topCategory} ${seed.bottomCategory} ${seed.outfitLine}`);
+}
+
+function hasNonLightTop(seed: SceneOutfitSeed) {
+  return !lightTopPattern.test(seed.topCategory);
+}
+
+function addDarkAnchor(seed: SceneOutfitSeed): SceneOutfitSeed {
+  return {
+    ...seed,
+    colorDirection: "darkAnchor",
+    visualAnchor: seed.visualAnchor.includes("navy") ? seed.visualAnchor : `${seed.visualAnchor} with navy anchor`,
+    outfitLine: `${seed.outfitLine.replace(/\.$/, "")}, with one subtle navy, charcoal, black, dark coffee, or deep olive anchor.`
+  };
+}
+
+function addDenimBase(seed: SceneOutfitSeed): SceneOutfitSeed {
+  const denimBottom =
+    seed.garmentType === "skirt"
+      ? "light denim midi skirt"
+      : seed.garmentType === "shorts"
+        ? "light denim Bermuda shorts"
+        : seed.garmentType === "dress"
+          ? seed.bottomCategory
+          : "dark straight denim";
+
+  return {
+    ...seed,
+    colorDirection: "denimBased",
+    bottomCategory: denimBottom,
+    visualAnchor: seed.visualAnchor.includes("denim") ? seed.visualAnchor : `${seed.visualAnchor} with denim base`,
+    outfitLine: `${seed.outfitLine.replace(/\.$/, "")}, keeping one restrained denim-based element.`
+  };
+}
+
+function addSoftAccent(seed: SceneOutfitSeed): SceneOutfitSeed {
+  return {
+    ...seed,
+    colorDirection: "softAccent",
+    visualAnchor: seed.visualAnchor.includes("misty") ? seed.visualAnchor : `${seed.visualAnchor} with misty accent`,
+    outfitLine: `${seed.outfitLine.replace(/\.$/, "")}, with one low-saturation misty blue or pale sage accent.`
+  };
+}
+
+function addNonLightTop(seed: SceneOutfitSeed): SceneOutfitSeed {
+  return {
+    ...seed,
+    topCategory: "navy fine-knit top",
+    visualAnchor: "navy fine-knit top",
+    outfitLine: `${seed.outfitLine.replace(/\.$/, "")}, led by a navy fine-knit top instead of an all-light upper body.`
+  };
+}
+
+function enforceSeedDiversity(seeds: SceneOutfitSeed[]) {
+  const next = [...seeds];
+
+  for (let index = next.length - 1; next.filter(hasDarkAnchor).length < 4 && index >= 0; index -= 1) {
+    if (!hasDarkAnchor(next[index])) next[index] = addDarkAnchor(next[index]);
+  }
+
+  for (let index = 0; next.filter(hasDenim).length < 3 && index < next.length; index += 1) {
+    if (!hasDenim(next[index])) next[index] = addDenimBase(next[index]);
+  }
+
+  for (let index = 0; next.filter((seed) => seed.colorDirection === "softAccent").length < 2 && index < next.length; index += 1) {
+    if (next[index].colorDirection !== "softAccent" && !hasDarkAnchor(next[index]) && !hasDenim(next[index])) {
+      next[index] = addSoftAccent(next[index]);
+    }
+  }
+
+  for (let index = next.length - 1; next.filter(hasNonLightTop).length < 2 && index >= 0; index -= 1) {
+    if (!hasNonLightTop(next[index])) next[index] = addNonLightTop(next[index]);
+  }
+
+  return next;
 }
 
 export const sceneOutfitSeedLibrary: Record<string, SceneOutfitSeed[]> = {

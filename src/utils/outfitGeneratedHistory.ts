@@ -43,3 +43,15 @@ export function writeOutfitGeneratedHistory(entry: OutfitGeneratedHistoryEntry) 
     // Best effort only. Prompt generation must continue even if localStorage is unavailable.
   }
 }
+
+export function clearOutfitGeneratedHistory() {
+  memoryHistory = [];
+
+  if (typeof window === "undefined") return;
+
+  try {
+    window.localStorage.removeItem(HISTORY_KEY);
+  } catch {
+    // Best effort only. Prompt generation must continue even if localStorage is unavailable.
+  }
+}

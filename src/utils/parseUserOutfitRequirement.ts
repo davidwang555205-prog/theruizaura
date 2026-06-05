@@ -41,8 +41,16 @@ export function parseUserOutfitRequirement(input: {
     }
   }
 
-  if (includesAny(text, ["不要浅色", "不要全浅色", "no light", "avoid light", "not all beige"])) {
+  if (includesAny(text, ["不要全浅色", "no all light", "no all-light", "avoid all light", "not all beige"])) {
     hardExclusions.push("all-light outfit");
+  }
+
+  if (includesAny(text, ["不要黑色", "不要黑", "no black", "avoid black"])) {
+    hardExclusions.push("black");
+  }
+
+  if (includesAny(text, ["不要手持物", "不要拿东西", "不拿东西", "no handheld", "no hand-held", "avoid handheld"])) {
+    hardExclusions.push("handheldObject");
   }
 
   if (includesAny(text, ["不要运动", "no active", "avoid active", "不要轻运动"])) {
@@ -50,7 +58,13 @@ export function parseUserOutfitRequirement(input: {
     if (input.garmentTypePreference === "轻运动") resolvedGarmentTypePreference = "自动匹配";
   }
 
-  if (includesAny(text, ["黑色", "black", "深色", "dark"])) colorPreferences.push("darkAnchor", "black top");
+  if (includesAny(text, ["不要太浅", "深一点", "深色锚点", "更深", "not too light", "darker", "dark anchor"])) {
+    colorPreferences.push("darkAnchor");
+    softPreferences.push("lessAllLight");
+  }
+  if (!includesAny(text, ["不要黑色", "不要黑", "no black", "avoid black"]) && includesAny(text, ["黑色", "black", "深色", "dark"])) {
+    colorPreferences.push("darkAnchor", "black top");
+  }
   if (includesAny(text, ["牛仔", "denim", "jeans"])) {
     colorPreferences.push("denimBased");
     itemPreferences.push("denim");
@@ -64,6 +78,8 @@ export function parseUserOutfitRequirement(input: {
   if (includesAny(text, ["轻运动", "active", "gym", "健身"])) itemPreferences.push("lightActive");
   if (includesAny(text, ["轻博主", "小红书", "ootd", "blogger"])) softPreferences.push("bloggerLite");
   if (includesAny(text, ["通勤", "office", "commute"])) softPreferences.push("polishedCommuter");
+  if (includesAny(text, ["更真实", "真实一点", "realistic", "more real", "less ai"])) softPreferences.push("realDaily");
+  if (includesAny(text, ["不要太甜", "不甜", "less sweet", "not too sweet"])) softPreferences.push("lessSweet");
 
   return {
     hardExclusions: Array.from(new Set(hardExclusions)),

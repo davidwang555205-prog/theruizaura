@@ -66,6 +66,8 @@ const shoeBlockingWords = [
   "props near shoes"
 ];
 
+const primaryHandheldWords = ["coffee", "cup", "book", "magazine", "flowers", "flower", "paper bag", "water bottle", "phone"];
+
 const handheldPairs = [
   ["coffee", "flowers"],
   ["coffee", "book"],
@@ -95,7 +97,15 @@ function includesAny(text: string, keywords: string[]) {
 }
 
 function hasMultipleMainHandheld(text: string) {
-  return handheldPairs.some(([first, second]) => text.includes(first) && text.includes(second));
+  return handheldPairs.some(([first, second]) => {
+    const firstMatch = new RegExp(`\\b${first}\\b`, "i").test(text);
+    const secondMatch = new RegExp(`\\b${second}\\b`, "i").test(text);
+    return firstMatch && secondMatch;
+  });
+}
+
+function hasPrimaryHandheldObject(text: string) {
+  return primaryHandheldWords.some((word) => new RegExp(`\\b${word}\\b`, "i").test(text));
 }
 
 function getHardRejectReason(input: ScoreOutfitCandidateInput) {
@@ -112,6 +122,10 @@ function getHardRejectReason(input: ScoreOutfitCandidateInput) {
   if (parsedUserRequirement.hardExclusions.includes("dress") && outfit.garmentType === "dress") return "user excluded dress";
   if (parsedUserRequirement.hardExclusions.includes("all-light outfit") && outfit.colorDirection === "lightClean") {
     return "user excluded all-light outfit";
+  }
+  if (parsedUserRequirement.hardExclusions.includes("black") && /\bblack\b/i.test(text)) return "user excluded black";
+  if (parsedUserRequirement.hardExclusions.includes("handheldObject") && hasPrimaryHandheldObject(text)) {
+    return "user excluded handheld objects";
   }
   if (includesAny(text, sensitiveWords)) return "contains sensitive or off-brand styling wording";
   if (includesAny(text, shoeBlockingWords)) return "contains shoe-blocking styling risk";
@@ -136,9 +150,16 @@ function scoreUserPreference(input: ScoreOutfitCandidateInput, text: string) {
 
   parsed.softPreferences.forEach((preference) => {
     if (preference === input.outfit.outfitStyle) score += 4;
+    if (preference === "lessAllLight") {
+      score += input.outfit.colorDirection === "darkAnchor" || input.outfit.colorDirection === "denimBased" ? 4 : -2;
+    }
+    if (preference === "lessSweet") {
+      score += input.outfit.outfitStyle === "cleanMinimal" || input.outfit.outfitStyle === "realDaily" ? 4 : 0;
+      score -= input.outfit.outfitStyle === "refinedFeminine" || input.outfit.colorDirection === "softAccent" ? 4 : 0;
+    }
   });
 
-  return Math.min(score, 8);
+  return Math.max(-6, Math.min(score, 8));
 }
 
 function scoreRepetition(input: ScoreOutfitCandidateInput) {

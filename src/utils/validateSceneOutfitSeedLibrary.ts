@@ -8,6 +8,8 @@ const handheldPairs = [
   ["tote", "water bottle"]
 ];
 const shoeBlockingWords = ["floor-length skirt", "floor-length dress", "maxi skirt", "long coat covering shoes", "covering shoes"];
+const darkAnchorPattern = /black|charcoal|navy|dark coffee|deep olive/i;
+const lightTopPattern = /^(white|cream|beige|ivory|off-white|soft beige|warm beige)/i;
 
 function countBy<T extends string>(items: SceneOutfitSeed[], getter: (item: SceneOutfitSeed) => T | undefined) {
   const counts = new Map<string, number>();
@@ -27,7 +29,11 @@ function overLimit(counts: Map<string, number>, limit: number, label: string) {
 
 function hasMultipleHandheld(text: string) {
   const lower = text.toLowerCase();
-  return handheldPairs.some(([a, b]) => lower.includes(a) && lower.includes(b));
+  return handheldPairs.some(([a, b]) => {
+    const first = new RegExp(`\\b${a}\\b`, "i").test(lower);
+    const second = new RegExp(`\\b${b}\\b`, "i").test(lower);
+    return first && second;
+  });
 }
 
 export function validateSceneOutfitSeedLibrary() {
@@ -42,14 +48,24 @@ export function validateSceneOutfitSeedLibrary() {
     issues.push(...overLimit(countBy(seeds, (item) => item.outfitStyle), 4, `${sceneKey} outfitStyle`));
     issues.push(...overLimit(countBy(seeds, (item) => item.visualAnchor), 2, `${sceneKey} visualAnchor`));
 
-    const darkCount = seeds.filter((item) => item.colorDirection === "darkAnchor").length;
-    const denimNeutralCount = seeds.filter((item) => item.colorDirection === "denimBased" || item.colorDirection === "neutralDaily").length;
+    const explicitDarkAnchorCount = seeds.filter((item) =>
+      darkAnchorPattern.test(
+        `${item.topCategory} ${item.bottomCategory} ${item.outerLayerCategory ?? ""} ${item.bagCategory ?? ""} ${item.outfitLine}`
+      )
+    ).length;
+    const denimCount = seeds.filter((item) =>
+      item.colorDirection === "denimBased" || /denim/i.test(`${item.topCategory} ${item.bottomCategory} ${item.outfitLine}`)
+    ).length;
     const softAccentCount = seeds.filter((item) => item.colorDirection === "softAccent").length;
     const nonLightCount = seeds.filter((item) => item.colorDirection !== "lightClean").length;
+    const nonLightTopCount = seeds.filter((item) => !lightTopPattern.test(item.topCategory)).length;
     const garmentTypes = new Set(seeds.map((item) => item.garmentType));
 
-    if (darkCount < 3) issues.push(`${sceneKey}: expected at least 3 darkAnchor outfits`);
-    if (denimNeutralCount < 3) issues.push(`${sceneKey}: expected at least 3 denimBased or neutralDaily outfits`);
+    if (explicitDarkAnchorCount < 4) {
+      issues.push(`${sceneKey}: expected at least 4 outfits with clear dark anchors`);
+    }
+    if (denimCount < 3) issues.push(`${sceneKey}: expected at least 3 denimBased outfits`);
+    if (nonLightTopCount < 2) issues.push(`${sceneKey}: expected at least 2 tops not led by white / cream / beige`);
     if (softAccentCount < 2) issues.push(`${sceneKey}: expected at least 2 softAccent outfits`);
     if (nonLightCount < 4) issues.push(`${sceneKey}: expected at least 4 outfits not led by white / beige / cream`);
     if (garmentTypes.size < 3) issues.push(`${sceneKey}: expected at least 3 garment types`);
