@@ -1,4 +1,11 @@
 const replacements: Array<[RegExp, string]> = [
+  [/\bexaggerated lower-body length\b/gi, "exaggerated leg proportion"],
+  [/\bstretched lower body\b/gi, "stretched leg proportion"],
+  [/\bdistorted lower body\b/gi, "distorted leg-and-sneaker proportion"],
+  [/\blower body distortion\b/gi, "leg-and-sneaker proportion distortion"],
+  [/\blower-body length\b/gi, "leg proportion"],
+  [/\blower body\b/gi, "full figure balance"],
+  [/\blower-body\b/gi, "full figure balance"],
   [/\blightly opening the shoe tongue\b/gi, "lightly lifting the shoe tongue"],
   [/\bopening a suitcase\b/gi, "unpacking a suitcase"],
   [/\bopening the suitcase\b/gi, "unpacking the suitcase"],

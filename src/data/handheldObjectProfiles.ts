@@ -54,7 +54,7 @@ export const waterBottleGymObjectAntiClippingLine =
   "If holding a water bottle, towel, or light dumbbell, keep the object simple, correctly scaled, and clearly gripped. It should not pass through the hand, sleeve, torso, leg, gym equipment, or sneakers. Avoid complex gym props that cause clipping.";
 
 export const paperShoppingBagAntiClippingLine =
-  "If holding a paper bag or shopping bag, keep it small to medium, hanging naturally from the hand with visible handles, slight folds, and clear separation from the legs, skirt, trousers, and sneakers. Avoid oversized bags blocking the lower body or clipping into the shoes.";
+  "If holding a paper bag or shopping bag, keep it small to medium, hanging naturally from the hand with visible handles, slight folds, and clear separation from the legs, skirt, trousers, and sneakers. Avoid oversized bags blocking the full figure and sneakers or clipping into the shoes.";
 
 export const bagAntiClippingLine =
   "If carrying a bag, keep the bag strap, handle, shoulder, arm, clothing, and hand clearly separated. The strap should sit naturally on the shoulder or hand without cutting into the neck, chest, sleeve, arm, torso, skirt, trousers, or sneakers. The bag should hang with believable weight.";

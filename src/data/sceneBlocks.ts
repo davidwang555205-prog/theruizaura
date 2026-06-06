@@ -52,8 +52,8 @@ export const BASIC_SCENE_BLOCKS: SceneBlock[] = [
     shortLabel: "上脚生活",
     englishLabel: "On-foot lifestyle scene",
     category: "basic",
-    compactPrompt: "A natural on-foot lifestyle image focused on lower body, ankles, trouser cuff, seated posture, or a small standing/walking moment. The sneakers should be clearly visible but not exaggerated. Keep the image elegant, daily, relaxed, and believable.",
-    prompt: `Create a natural on-foot lifestyle image showing the sneakers worn in a relaxed, elegant daily moment. Focus on the lower body, feet, ankles, trouser cuff, or seated posture rather than a full fashion portrait. The body movement may include sitting on a sofa edge while adjusting trouser cuffs, softly tying shoelaces, standing naturally with one foot slightly forward, walking gently with a small natural step, or rising from a sofa. Expression suggestion: relaxed, soft, natural, slightly focused on the shoes or movement, never stiff or blank.`
+    compactPrompt: "A natural on-foot lifestyle image focused on leg-and-sneaker relationship, ankles, trouser cuff, seated posture, or a small standing/walking moment. The sneakers should be clearly visible but not exaggerated. Keep the image elegant, daily, relaxed, and believable.",
+    prompt: `Create a natural on-foot lifestyle image showing the sneakers worn in a relaxed, elegant daily moment. Focus on the leg-and-sneaker relationship, feet, ankles, trouser cuff, or seated posture rather than a full fashion portrait. The body movement may include sitting on a sofa edge while adjusting trouser cuffs, softly tying shoelaces, standing naturally with one foot slightly forward, walking gently with a small natural step, or rising from a sofa. Expression suggestion: relaxed, soft, natural, slightly focused on the shoes or movement, never stiff or blank.`
   },
   {
     id: "07",

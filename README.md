@@ -35,7 +35,15 @@ http://localhost:5173
 
 系统已建立四季 × 上海、成都、深圳、杭州、北京、泛中国城市的自动匹配矩阵。北京冬季会更偏冷干和完整保暖层次；上海/杭州偏湿冷和轻羊毛叠穿；成都偏温和松弛叠穿；深圳偏轻秋冬和现代清爽层次；泛中国城市使用中等厚度。系统会避免南方城市穿得过厚、北方冬季穿得过薄、夏季暴晒、春季过甜、秋季橙黄滤镜和冬季死灰阴暗。
 
-系统已加入词汇替换规则。最终 prompt 中不再输出 opening 和 pants。鞋口相关表达统一替换为 sneaker collar / collar area / ankle entry area；裤装相关表达统一替换为 trousers / denim / shorts / active trousers / jogger-style trousers 等更准确表达，减少模型歧义。
+系统已加入“提示词稳定性总控 + 室内外光线区分总补丁”。系统会将 prompt 内容分为硬约束和软审美，确保鞋型、鞋子完整可见、人物比例、室内外光线、单一主手持物、敏感词安全等关键内容永远优先保留。后台会在生成前进行 preflight 检查，自动修复多个主手持物、室内外光线错位、每张图默认有包、鞋子被挡、季节穿搭冲突、opening / pants / lower body 词汇残留、多相机风格冲突等问题。
+
+系统同时建立图片类型专属 prompt 骨架，包括人物街拍、对镜穿搭、室内商业空间、健身房、产品静物、产品细节图。不同图片类型会自动保留不同重点，减少一个大模板控制所有场景导致的不稳定。
+
+系统已加入鞋款专属保护层。Cloud Dancer、Sand Dollar、Cappuccino、Silver Romance、Aire、Delphinium Blue、Lemon、Maple Grove、Oreo、Panda 会分别匹配专属材质、颜色和变形风险控制。
+
+系统已加入室内 / 室外光线区分逻辑，会根据场景自动判断户外街景、室内自然光、室内商业空间、健身房室内、产品静物、半室内门口光线，避免室内出现户外街拍光、户外出现棚拍窗光、健身房变运动广告光、静物图变 CGI 渲染光、门口场景出现室内外光线冲突。
+
+系统会自动替换容易造成歧义或 body-focused 风险的表达。最终 prompt 不输出 opening / pants / lower body。鞋口相关表达统一替换为 sneaker collar / ankle entry area；裤装相关表达统一替换为 trousers / denim / shorts / active trousers；人物比例相关表达统一替换为 full figure balance / leg-and-sneaker proportion / stance and foot placement 等更安全准确的表达。
 
 系统已升级为 Standard Accurate Prompt 模式。默认输出中长提示词，优先保证场景、城市街景、人物动作、穿搭、真实相机质感和鞋型保护的准确性。
 

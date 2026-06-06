@@ -1,0 +1,96 @@
+import type { LightingSpaceType } from "../data/sceneLightingSpaceProfiles";
+import type { StandardSceneKey } from "../data/outfitDiversityRules";
+import type { TeamImageType } from "../types";
+
+export type PromptTemplateKind =
+  | "onFootOutdoor"
+  | "mirrorCloset"
+  | "indoorCommercial"
+  | "gymInterior"
+  | "stillLife"
+  | "detailMacro"
+  | "atmosphere";
+
+export type PromptTemplateByImageType = {
+  templateKind: PromptTemplateKind;
+  templateSceneLine: string;
+  templateActionLine: string;
+  templateNegativeLine: string;
+};
+
+export function buildPromptTemplateByImageType(input: {
+  imageType: TeamImageType;
+  sceneKey: StandardSceneKey;
+  lightingSpaceType: LightingSpaceType;
+}) {
+  if (input.imageType === "产品静物图" || input.sceneKey === "stillLife") {
+    return {
+      templateKind: "stillLife",
+      templateSceneLine:
+        "Use a product-only still-life template: no model, no street scene, clear shoe scale, readable laces, tongue, outsole, panels, material texture, and restrained props that never cover the sneakers.",
+      templateActionLine: "",
+      templateNegativeLine: "model in still life, action pose in still life, city street in product still life, person accessories competing with product"
+    } satisfies PromptTemplateByImageType;
+  }
+
+  if (input.imageType === "拍摄花絮 / 材质图" || input.sceneKey === "materialTable") {
+    return {
+      templateKind: "detailMacro",
+      templateSceneLine:
+        "Use a material-detail or behind-the-scenes template: real product photography light, tactile material samples, clear panel boundaries, shoelace and stitching detail if visible, no artificial shine, and no exaggerated texture.",
+      templateActionLine: "If hands appear, keep them secondary, natural, and not covering the product or material details.",
+      templateNegativeLine: "artificial shine, exaggerated texture, changed panel boundary, factory clutter, technical catalog style"
+    } satisfies PromptTemplateByImageType;
+  }
+
+  if (input.imageType === "对镜穿搭图" || input.sceneKey === "mirrorCloset") {
+    return {
+      templateKind: "mirrorCloset",
+      templateSceneLine:
+        "Use a mirror outfit template: indoor natural light, phone as the primary handheld object, face hidden or cropped, stable mirror proportions, no long-leg mirror distortion, no sunglasses indoors, and full readable sneaker visibility.",
+      templateActionLine:
+        "Use the phone as the only primary handheld object; do not add coffee, flowers, book, water bottle, or a hand-held bag.",
+      templateNegativeLine:
+        "city street light in mirror room, outdoor street shadows inside mirror scene, sunglasses indoors, coffee in mirror selfie, flowers in mirror selfie, long-leg mirror distortion"
+    } satisfies PromptTemplateByImageType;
+  }
+
+  if (input.sceneKey === "gymInterior" || input.lightingSpaceType === "indoorGymLight") {
+    return {
+      templateKind: "gymInterior",
+      templateSceneLine:
+        "Use a premium gym template: clean indoor gym light, muted equipment, realistic body scale, light daily movement, no sports advertisement mood, no default gym tote, and no running-shoe transformation.",
+      templateActionLine:
+        "Keep the gym movement simple, calm, and believable, with only one selected handheld object or no handheld prop.",
+      templateNegativeLine: "sports ad lighting, sweaty influencer gym mood, bodybuilding pose, gym tote in every image, technical running shoe"
+    } satisfies PromptTemplateByImageType;
+  }
+
+  if (input.lightingSpaceType === "indoorCommercialLight") {
+    return {
+      templateKind: "indoorCommercial",
+      templateSceneLine:
+        "Use an indoor commercial-space template: believable ambient light, low-noise shelf or storefront depth, unreadable labels, controlled reflections, and props that stay secondary to the outfit and sneakers.",
+      templateActionLine: "Use a small realistic daily action that does not create prop clutter or block the shoes.",
+      templateNegativeLine: "unreadable label clutter, showroom glare, mall lighting overload, props competing with shoes"
+    } satisfies PromptTemplateByImageType;
+  }
+
+  if (input.imageType === "产品上脚图" || input.imageType === "生活场景图") {
+    return {
+      templateKind: "onFootOutdoor",
+      templateSceneLine:
+        "Use an outdoor lifestyle template when the scene is outside: real city street depth, natural daily action, correct street light, readable full figure and sneakers, and complete sneaker visibility.",
+      templateActionLine: "Use a simple daily movement that keeps the feet grounded and the sneakers clear.",
+      templateNegativeLine: "indoor studio look outdoors, foreign-looking street, tourist landmark, cropped shoes, props covering shoes"
+    } satisfies PromptTemplateByImageType;
+  }
+
+  return {
+    templateKind: "atmosphere",
+    templateSceneLine:
+      "Use an atmosphere template: quiet real space, warm restraint, low-noise objects, believable light, and no direct product-shot pressure unless the user asks for the shoe.",
+    templateActionLine: "",
+    templateNegativeLine: "generic stock mood, fake luxury staging, random props, hard studio light"
+  } satisfies PromptTemplateByImageType;
+}

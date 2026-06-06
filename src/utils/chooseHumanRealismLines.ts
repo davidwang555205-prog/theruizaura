@@ -243,7 +243,7 @@ function getNegativePhrases(poseCategory: TeamHumanPoseCategory, hasShoe: boolea
   }
 
   if (poseCategory === "mirror") {
-    phrases.push("mirror-body distortion", "stretched lower body", "oversized phone hand", "mirror-warped shoes", "cropped toe box");
+    phrases.push("mirror-body distortion", "stretched leg proportion", "oversized phone hand", "mirror-warped shoes", "cropped toe box");
   }
 
   if (poseCategory === "seated" || poseCategory === "laceTying" || poseCategory === "crouchOrLean") {

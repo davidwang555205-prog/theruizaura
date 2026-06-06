@@ -65,7 +65,7 @@ export const headAndShoulderBalanceLine =
   "Keep the head size, neck thickness, shoulder width, and upper-body balance realistic and feminine, with no tiny head effect, narrow-shoulder distortion, stiff neck, or fashion-illustration exaggeration.";
 
 export const mirrorProportionStabilityLine =
-  "For mirror images, keep the mirror perspective realistic and balanced: no long-leg stretch, no tiny head, no oversized phone hand, no warped body outline, and no exaggerated lower-body length. The figure should look like a real outfit check in a normal mirror.";
+  "For mirror images, keep the mirror perspective realistic and balanced: no long-leg stretch, no tiny head, no oversized phone hand, no warped body outline, and no exaggerated leg proportion. The figure should look like a real outfit check in a normal mirror.";
 
 export const seatedAndLaceTyingProportionLine =
   "When the model is seated, crouching, or tying shoelaces, keep the knees, thighs, calves, arms, and torso connected naturally. Avoid compressed limbs, over-bent joints, oversized hands, shortened torso, or distorted leg overlap.";

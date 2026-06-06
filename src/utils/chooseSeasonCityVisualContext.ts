@@ -4,6 +4,8 @@ import type { LayerWeight } from "../data/citySeasonClimateProfiles";
 import { getSeasonCityContext } from "../data/seasonCityContextMatrix";
 import { seasonalPhotoStyleProfiles, type SeasonKey } from "../data/seasonalPhotoStyleProfiles";
 import type { StandardSceneKey } from "../data/outfitDiversityRules";
+import type { LightingSpaceType } from "../data/sceneLightingSpaceProfiles";
+import { chooseLightingSpaceType } from "./chooseLightingSpaceType";
 import { chooseSeasonalPhotoStyleLine } from "./chooseSeasonalPhotoStyleLine";
 import { chooseSeasonClimateOutfitLayer } from "./chooseSeasonClimateOutfitLayer";
 
@@ -18,6 +20,11 @@ export type SeasonCityVisualContext = {
   preferredMaterials: string[];
   forbiddenSeasonItems: string[];
   seasonalNegativeLine: string;
+  lightingSpaceType: LightingSpaceType;
+  lightingSourceType: string;
+  indoorOutdoorLightLine: string;
+  lightingNegativeLine: string;
+  lightingSpaceSupportLine: string;
 };
 
 const seasonMap: Record<TeamSeason, SeasonKey> = {
@@ -79,6 +86,13 @@ export function chooseSeasonCityVisualContext(input: {
   const style = chooseSeasonalPhotoStyleLine({ season, cityProfile: city });
   const climate = chooseSeasonClimateOutfitLayer({ season, cityProfile: city });
   const stillLife = input.imageType === "产品静物图" || input.sceneKey === "stillLife";
+  const lighting = chooseLightingSpaceType({
+    imageType: input.imageType,
+    sceneKey: input.sceneKey,
+    cityProfile: city,
+    season: input.season as TeamSeason,
+    userExtraRequirement: input.userExtraRequirement
+  });
   const timeOfDay = context.defaultTimeOfDay;
   const seasonalLightLine = stillLife
     ? `${timeOfDay} product light. ${stillLifeSeasonLines[season]}`
@@ -108,9 +122,15 @@ export function chooseSeasonCityVisualContext(input: {
       context.avoidLine.replace(/^Avoid\s+/i, ""),
       climate.climateNegativeLine,
       climateNegativeLine,
+      lighting.lightingNegativeLine,
       shoeSeasonNegative
     ]
       .filter(Boolean)
-      .join(", ")
+      .join(", "),
+    lightingSpaceType: lighting.lightingSpaceType,
+    lightingSourceType: lighting.lightingSourceType,
+    indoorOutdoorLightLine: lighting.indoorOutdoorLightLine,
+    lightingNegativeLine: lighting.lightingNegativeLine,
+    lightingSpaceSupportLine: lighting.spaceSupportLine
   };
 }

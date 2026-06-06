@@ -68,10 +68,10 @@ export const bagConflictRuleLine =
   "If a bag is hand-held, it counts as the primary handheld object. If another primary handheld object already exists, the bag may only appear as a shoulder accessory, placed nearby, or be removed entirely. Never combine a hand-held bag with coffee, flowers, book, phone, water bottle, or paper bag in the same image.";
 
 export const accessoryShoeVisibilityRuleLine =
-  "Accessories, bags, straps, scarves, paper bags, totes, books, bottles, and jewelry should never block, crop, or visually merge with the sneakers. Keep at least one sneaker fully visible from toe to heel and keep the lower body clean.";
+  "Accessories, bags, straps, scarves, paper bags, totes, books, bottles, and jewelry should never block, crop, or visually merge with the sneakers. Keep at least one sneaker fully visible from toe to heel and keep the stance and foot placement clean.";
 
 export const accessoryAntiClippingLine =
-  "Keep accessories physically separated from hands, wrists, sleeves, torso, legs, trouser hems, and sneakers, with believable scale, weight, gravity, and no strap or object crossing the lower body.";
+  "Keep accessories physically separated from hands, wrists, sleeves, torso, legs, trouser hems, and sneakers, with believable scale, weight, gravity, and no strap or object crossing the stance and foot placement.";
 
 export const accessoryNegativePhrases = [
   "bag in every image",

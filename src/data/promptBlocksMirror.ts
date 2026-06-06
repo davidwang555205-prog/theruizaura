@@ -7,7 +7,7 @@ The face should not be the focus. The phone should naturally cover the face full
 
 The image should emphasize:
 - the outfit relationship
-- the lower-body styling
+- the leg-and-sneaker relationship
 - the sneaker-on-foot effect
 - realistic daily proportions
 - a believable everyday mirror selfie moment
@@ -145,7 +145,7 @@ The composition may show the body from upper torso or shoulder area down to the 
 The image must clearly show:
 - the outfit silhouette
 - upper-to-lower outfit relationship
-- lower-body styling
+- leg-and-sneaker relationship
 - trouser hem and shoe relationship
 - at least one sneaker fully visible
 - the second sneaker clearly readable
@@ -206,7 +206,7 @@ The seated posture should feel relaxed and believable, such as:
 
 The composition should clearly show:
 - the seated outfit silhouette
-- the lower-body styling
+- the leg-and-sneaker relationship
 - trouser hem and shoe relationship
 - ankle area
 - at least one sneaker fully visible
@@ -217,7 +217,7 @@ The composition should clearly show:
 - the lace area when possible
 - realistic floor contact or natural seated foot placement
 
-The phone may cover the face, but it must not block the lower body, the outfit relationship, or the shoes.
+The phone may cover the face, but it must not block the full figure and sneakers, the outfit relationship, or the shoes.
 
 The image should feel understated, warm, quiet, practical, and aesthetically restrained.
 

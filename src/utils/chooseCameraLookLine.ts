@@ -2,6 +2,7 @@ import type { TeamImageType } from "../types";
 import { cameraLookProfiles, type CameraLookName } from "../data/cameraLookProfiles";
 import type { ChinaCityProfile } from "../data/chinaUrbanStreetProfiles";
 import type { StandardSceneKey } from "../data/outfitDiversityRules";
+import type { LightingSpaceType } from "../data/sceneLightingSpaceProfiles";
 
 function getUserCameraPreference(extra: string): CameraLookName | null {
   if (/Leica|徕卡/i.test(extra)) return "Leica";
@@ -21,13 +22,22 @@ export function chooseCameraLookLine(input: {
   imageType: TeamImageType;
   sceneKey: StandardSceneKey;
   city: ChinaCityProfile | null;
+  lightingSpaceType?: LightingSpaceType;
   userExtraRequirement: string;
 }) {
   const userCamera = getUserCameraPreference(input.userExtraRequirement);
   let camera: CameraLookName | null = userCamera;
 
   if (!camera) {
-    if (input.imageType === "产品静物图" || input.sceneKey === "stillLife") camera = "Hasselblad";
+    if (input.lightingSpaceType === "stillLifeStudioNatural") camera = "Hasselblad";
+    else if (input.lightingSpaceType === "indoorNaturalLight") camera = "Fujifilm";
+    else if (input.lightingSpaceType === "indoorGymLight") {
+      camera = input.userExtraRequirement.includes("空间") ? "Hasselblad" : "Leica";
+    } else if (input.lightingSpaceType === "indoorCommercialLight") {
+      if (input.sceneKey === "galleryExhibition" || input.sceneKey === "boutiqueStreet") camera = "Hasselblad";
+      else camera = "Fujifilm";
+    } else if (input.lightingSpaceType === "semiIndoorThreshold") camera = "Leica";
+    else if (input.imageType === "产品静物图" || input.sceneKey === "stillLife") camera = "Hasselblad";
     else if (input.sceneKey === "hotelTravel" || input.sceneKey === "galleryExhibition") camera = "Hasselblad";
     else if (input.imageType === "对镜穿搭图" || input.sceneKey === "premiumErrands" || input.sceneKey === "flowerShop" || input.sceneKey === "bakeryDessert") {
       camera = "Fujifilm";
