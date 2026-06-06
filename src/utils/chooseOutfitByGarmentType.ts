@@ -25,6 +25,8 @@ export type StandardOutfitEntry = RotatableOutfit & {
   shoeAffinity: string[];
   imageTypes: StandardImageType[];
   compactLine: string;
+  bagCategory?: string;
+  accessoryCategory?: string[];
   stylingRealismLine?: string;
 };
 

@@ -40,6 +40,8 @@ export type ChoosePerSceneOutfitResult = {
   selectedOutfitStyle: OutfitStyle | null;
   selectedColorDirection: ColorDirection | null;
   selectedVisualAnchor: string | null;
+  selectedBagCategory?: string | null;
+  selectedAccessoryCategory?: string[] | null;
   scoreBreakdown?: ChooseSmartOutfitResult["scoreBreakdown"];
   usedFallback?: boolean;
   fallbackReason?: string;
@@ -205,6 +207,8 @@ export function choosePerSceneOutfitLine(input: ChoosePerSceneOutfitInput): Choo
       selectedOutfitStyle: smartSelection.selectedOutfitStyle,
       selectedColorDirection: smartSelection.selectedColorDirection,
       selectedVisualAnchor: smartSelection.selectedVisualAnchor,
+      selectedBagCategory: smartSelection.selectedBagCategory ?? smartSelection.selectedOutfit.bagCategory ?? null,
+      selectedAccessoryCategory: smartSelection.selectedAccessoryCategory ?? smartSelection.selectedOutfit.accessoryCategory ?? null,
       scoreBreakdown: smartSelection.scoreBreakdown,
       usedFallback: smartSelection.usedFallback,
       fallbackReason: smartSelection.fallbackReason,
@@ -227,6 +231,8 @@ export function choosePerSceneOutfitLine(input: ChoosePerSceneOutfitInput): Choo
     selectedGarmentType: null,
     selectedOutfitStyle: null,
     selectedColorDirection: null,
-    selectedVisualAnchor: null
+    selectedVisualAnchor: null,
+    selectedBagCategory: selected.bagCategory ?? null,
+    selectedAccessoryCategory: selected.accessoryCategory ?? null
   };
 }

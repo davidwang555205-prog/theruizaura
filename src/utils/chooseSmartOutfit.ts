@@ -37,10 +37,13 @@ export type ChooseSmartOutfitResult = {
   selectedOutfitId: string;
   selectedOutfitLine: string;
   selectedStylingRealismLine: string;
+  selectedOutfit: Pick<SceneOutfitSeed, "bagCategory" | "accessoryCategory">;
   selectedGarmentType: GarmentType;
   selectedOutfitStyle: SceneOutfitSeed["outfitStyle"];
   selectedColorDirection: SceneOutfitSeed["colorDirection"];
   selectedVisualAnchor: string;
+  selectedBagCategory?: string;
+  selectedAccessoryCategory?: string[];
   scoreBreakdown: OutfitScoreBreakdown;
   usedFallback: boolean;
   fallbackReason?: string;
@@ -114,10 +117,16 @@ function buildResult(input: {
     selectedOutfitId: input.selected.id,
     selectedOutfitLine: trimmed.outfitLine,
     selectedStylingRealismLine: trimmed.stylingRealismLine,
+    selectedOutfit: {
+      bagCategory: input.selected.bagCategory,
+      accessoryCategory: input.selected.accessoryCategory
+    },
     selectedGarmentType: input.selected.garmentType,
     selectedOutfitStyle: input.selected.outfitStyle,
     selectedColorDirection: input.selected.colorDirection,
     selectedVisualAnchor: input.selected.visualAnchor,
+    selectedBagCategory: input.selected.bagCategory,
+    selectedAccessoryCategory: input.selected.accessoryCategory,
     scoreBreakdown: input.scoreBreakdown,
     usedFallback: input.usedFallback,
     fallbackReason: input.fallbackReason,

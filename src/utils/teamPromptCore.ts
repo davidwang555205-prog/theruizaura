@@ -16,16 +16,19 @@ import { chooseActionLine } from "./chooseActionLine";
 import { chooseCameraLookLine } from "./chooseCameraLookLine";
 import { chooseChinaUrbanStreetLine } from "./chooseChinaUrbanStreetLine";
 import { chooseSeasonCityVisualContext } from "./chooseSeasonCityVisualContext";
+import { accessoryShoeVisibilityRuleLine } from "../data/accessoryProfiles";
 import { chooseHandheldObjectLines } from "./chooseHandheldObjectLines";
 import { chooseHumanRealismLines } from "./chooseHumanRealismLines";
 import { chooseOutfitByGarmentType } from "./chooseOutfitByGarmentType";
 import { choosePerSceneOutfitLine } from "./choosePerSceneOutfitLine";
+import { chooseSceneAccessoryLine } from "./chooseSceneAccessoryLine";
 import { cleanFinalPrompt, dedupePromptLines } from "./promptOptimizer";
 import { detectImageCountOrSeriesIntent } from "./detectImageCountOrSeriesIntent";
 import { selectCityProfileForScene } from "./selectCityProfileForScene";
 import { sensitiveWordReducer } from "./sensitiveWordReducer";
 import { sanitizeUserExtraRequirementForSingleHandheldObject } from "./chooseSinglePrimaryHandheldObject";
 import { promptVocabularyReplacer } from "./promptVocabularyReplacer";
+import { normalizeAccessoryInOutfitLine } from "./normalizeAccessoryInOutfitLine";
 
 export const TEAM_PROMPT_MODE: TeamPromptMode = "standard";
 
@@ -484,10 +487,22 @@ function getHandheldSafeActionContextLine(input: {
 
 function getSinglePurposeHandLine(primaryHandheldObject: string) {
   if (!primaryHandheldObject) {
-    return "Hands should stay relaxed and purposeful without extra props; one hand may rest naturally or adjust a bag strap only.";
+    return "Hands should stay relaxed and purposeful without extra props; one hand may rest naturally, adjust a sleeve, touch a trouser pocket, or move with a natural walking gesture.";
   }
 
   return `Hands should have one clear purpose: naturally holding the ${primaryHandheldObject}. Keep fingers relaxed, palm size believable, wrist angle natural, and no hand-object fusion.`;
+}
+
+function getAccessoryNaturalHandsLine(input: {
+  accessoryStrategy?: string;
+  primaryHandheldObject: string;
+}) {
+  if (input.primaryHandheldObject) return "";
+  if (input.accessoryStrategy === "noAccessory" || input.accessoryStrategy === "wearableOnly") {
+    return "Because no primary handheld object is needed, keep the hands naturally empty: relaxed by the side, one hand in a pocket, one hand adjusting a sleeve, or a small walking gesture.";
+  }
+
+  return "";
 }
 
 function getPromptKind(params: TeamPromptParams, sceneKey: StandardSceneKey) {
@@ -593,12 +608,12 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
   const shoeStyleLine = getShoeStyleLine(params, hasShoe);
   const baseOutfitLine = perSceneOutfitSelection?.selectedPerSceneOutfitLine ?? outfitSelection.outfitLine;
   const baseStylingRealismLine = perSceneOutfitSelection?.selectedStylingRealismLine ?? outfitSelection.stylingRealismLine;
-  const outfitLine = [baseOutfitLine, shoeStyleLine].filter(Boolean).join(" ");
+  const preAccessoryOutfitLine = [baseOutfitLine, shoeStyleLine].filter(Boolean).join(" ");
   const actionSelection = chooseActionLine({
     imageType: params.imageType,
     scenePreference: resolvedScene,
     selectedGazeMode: getTeamGazeMode(params, sceneKey),
-    selectedOutfitLine: outfitLine,
+    selectedOutfitLine: preAccessoryOutfitLine,
     timeOfDay: seasonCityVisualContext.timeOfDay,
     userExtraRequirement: params.extraRequirement
   });
@@ -612,13 +627,37 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
     scenePreference: resolvedScene,
     actionType: [actionSelection.line, actionSelection.supportLine, actionSelection.safetyLine].filter(Boolean).join(" "),
     userExtraRequirement: params.extraRequirement,
-    selectedOutfitLine: outfitLine,
-    selectedAccessoryLine: outfitLine,
+    selectedOutfitLine: preAccessoryOutfitLine,
+    selectedAccessoryLine: preAccessoryOutfitLine,
     garmentTypePreference: params.garmentTypePreference,
     poseCategory,
     promptMode: TEAM_PROMPT_MODE,
     hasShoe
   });
+  const accessorySelection = chooseSceneAccessoryLine({
+    sceneKey,
+    imageType: params.imageType,
+    season: params.season,
+    cityProfile: selectedCity,
+    selectedOutfit: {
+      bagCategory: perSceneOutfitSelection?.selectedBagCategory ?? outfitSelection.selectedOutfit?.bagCategory ?? null,
+      accessoryCategory:
+        perSceneOutfitSelection?.selectedAccessoryCategory ?? outfitSelection.selectedOutfit?.accessoryCategory ?? null
+    },
+    selectedGarmentType: perSceneOutfitSelection?.selectedGarmentType ?? outfitSelection.selectedOutfit?.garmentType ?? null,
+    selectedOutfitStyle: perSceneOutfitSelection?.selectedOutfitStyle ?? outfitSelection.selectedOutfit?.outfitStyle ?? null,
+    selectedPrimaryHandheldObject: handheldSelection.primaryHandheldObject,
+    poseCategory,
+    userExtraRequirement: params.extraRequirement,
+    promptMode: TEAM_PROMPT_MODE
+  });
+  const normalizedBaseOutfitLine = normalizeAccessoryInOutfitLine({
+    outfitLine: baseOutfitLine,
+    accessoryStrategy: accessorySelection.accessoryStrategy,
+    selectedBagAccessory: accessorySelection.selectedBagAccessory,
+    selectedPrimaryHandheldObject: handheldSelection.primaryHandheldObject
+  });
+  const outfitLine = [normalizedBaseOutfitLine, shoeStyleLine].filter(Boolean).join(" ");
   const humanRealism = chooseHumanRealismLines({
     imageType: params.imageType,
     scenePreference: resolvedScene,
@@ -657,7 +696,7 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
     ? [
         params.season === "秋" || params.season === "冬" ? seasonCityVisualContext.outfitLayerLine : "",
         outfitLine,
-        handheldSelection.accessoryOnlyLine,
+        accessorySelection.accessoryLine,
         humanRealism.clothingWornLine,
         humanRealism.bloggerLiteLine,
         baseStylingRealismLine
@@ -678,6 +717,10 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
         handheldSelection.objectSpecificLine,
         actionSelection.safetyLine,
         getSinglePurposeHandLine(handheldSelection.primaryHandheldObject),
+        getAccessoryNaturalHandsLine({
+          accessoryStrategy: accessorySelection.accessoryStrategy,
+          primaryHandheldObject: handheldSelection.primaryHandheldObject
+        }),
         humanRealism.bodyWeightLine,
         humanRealism.expressionGazeLine || (params.imageType === "对镜穿搭图" ? "" : gazeLine)
       ]
@@ -694,6 +737,7 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
           handheldSelection.spacingLine,
           handheldSelection.weightLine,
           handheldSelection.shoeVisibilityLine,
+          shouldUsePeopleStyling(params.imageType) ? accessoryShoeVisibilityRuleLine : "",
           handheldSelection.simplicityLine,
           humanRealism.onFootSneakerLines,
           sneakerSceneControlLine
@@ -735,6 +779,7 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
         ...extractAvoidPhrases(`Avoid ${seasonCityVisualContext.seasonalNegativeLine}.`),
         ...humanRealism.negativePhrases,
         ...handheldSelection.negativePhrases,
+        ...extractAvoidPhrases(accessorySelection.accessoryNegativeLine),
         ...extractAvoidPhrases(actionSelection.negative)
       ]
     }),

@@ -94,11 +94,11 @@ function getScenePriority(input: SinglePrimaryHandheldObjectInput): PrimaryHandh
 
   if (input.imageType === "对镜穿搭图" || includesAny(text, ["对镜", "镜拍", "mirror selfie"])) return ["phone"];
   if (input.scenePreference === "健身房内" || includesAny(text, ["gyminterior", "健身房内"])) return ["water bottle", "light dumbbell"];
-  if (input.scenePreference === "去运动的路上" || includesAny(text, ["gymcommute", "去运动"])) return ["gym tote held by hand", "water bottle"];
-  if (input.scenePreference === "旅行酒店" || includesAny(text, ["hotel", "酒店", "旅行"])) return ["travel tote held by hand", "small luggage handle"];
-  if (input.scenePreference === "通勤上班" || includesAny(text, ["commute", "通勤"])) return ["structured tote held by hand"];
+  if (input.scenePreference === "去运动的路上" || includesAny(text, ["gymcommute", "去运动"])) return ["water bottle"];
+  if (input.scenePreference === "旅行酒店" || includesAny(text, ["hotel", "酒店", "旅行"])) return [];
+  if (input.scenePreference === "通勤上班" || includesAny(text, ["commute", "通勤"])) return [];
   if (input.scenePreference === "精品超市 / 日常采购" || includesAny(text, ["premiumerrands", "grocery", "采购", "超市"])) {
-    return ["structured tote held by hand", "small shopping bag"];
+    return [];
   }
   if (includesAny(text, ["cafeexterior", "cafe exterior", "cafe storefront", "café exterior", "咖啡店", "咖啡馆"])) {
     return ["coffee cup"];
@@ -108,8 +108,8 @@ function getScenePriority(input: SinglePrimaryHandheldObjectInput): PrimaryHandh
     return ["small bakery paper bag", "coffee cup"];
   }
   if (includesAny(text, ["bookstoremagazine", "bookstore", "magazine shop", "书店", "杂志店"])) return ["book or magazine"];
-  if (includesAny(text, ["boutique", "精品店", "买手店"])) return ["small shopping bag", "small handbag held by hand"];
-  if (input.scenePreference === "周末城市散步") return ["coffee cup", "structured tote held by hand", "book or magazine", "small or medium flower bouquet"];
+  if (includesAny(text, ["boutique", "精品店", "买手店"])) return [];
+  if (input.scenePreference === "周末城市散步") return [];
 
   return [];
 }
@@ -162,7 +162,7 @@ export function chooseSinglePrimaryHandheldObject(
   const accessoryOnlyObjects = getAccessoryOnlyObjects(primary, allDetected);
   const handheldObjectLine = primary
     ? `Use only one primary handheld object: ${primary}. Do not add any second hand-held coffee, flowers, book, phone, bottle, paper bag, shopping bag, or hand-held tote.`
-    : "No extra handheld props; keep hands relaxed and natural, or let one hand adjust the bag strap only.";
+    : "No extra handheld props; keep hands relaxed and natural, or let one hand adjust a sleeve, trouser pocket, or clothing edge only.";
 
   return {
     primaryHandheldObject: primary,
