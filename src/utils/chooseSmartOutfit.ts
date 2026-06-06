@@ -71,13 +71,48 @@ function seedMatchesGarment(seed: SceneOutfitSeed, garment: GarmentType | null) 
   return garment ? seed.garmentType === garment : true;
 }
 
-function chooseFallback(input: ChooseSmartOutfitInput, blockedGarment: GarmentType | null) {
+function fallbackText(seed: SceneOutfitSeed) {
+  return [
+    seed.topCategory,
+    seed.bottomCategory,
+    seed.bagCategory,
+    seed.visualAnchor,
+    seed.colorDirection,
+    seed.garmentType,
+    ...(seed.accessoryCategory ?? [])
+  ]
+    .filter(Boolean)
+    .join(" ")
+    .toLowerCase();
+}
+
+function scoreFallbackDiversity(seed: SceneOutfitSeed, history: OutfitGeneratedHistoryEntry[]) {
+  const recent = history.slice(0, 5);
+  const text = fallbackText(seed);
+  let penalty = seed.bagCategory ? 4 : -6;
+
+  if (/no visible accessory|wearableonly/i.test(text)) penalty -= 4;
+
+  recent.forEach((item, index) => {
+    const weight = index < 2 ? 1 : 0.6;
+    if (item.outfitId === seed.id) penalty += 999;
+    if (item.bottomCategory === seed.bottomCategory) penalty += 20 * weight;
+    if (item.topCategory === seed.topCategory) penalty += 16 * weight;
+    if (item.bagCategory && item.bagCategory === seed.bagCategory) penalty += 12 * weight;
+    if (item.garmentType === seed.garmentType) penalty += 4 * weight;
+    if (item.colorDirection === seed.colorDirection) penalty += 4 * weight;
+  });
+
+  return penalty;
+}
+
+function chooseFallback(input: ChooseSmartOutfitInput, blockedGarment: GarmentType | null, history: OutfitGeneratedHistoryEntry[]) {
   const manualFallbacks = fallbackSafeOutfitTemplates.filter((seed) => seedMatchesGarment(seed, blockedGarment));
   const imageFallbacks = (manualFallbacks.length ? manualFallbacks : fallbackSafeOutfitTemplates).filter((seed) =>
     seedMatchesImageType(seed, input.imageType)
   );
   const pool = imageFallbacks.length ? imageFallbacks : manualFallbacks.length ? manualFallbacks : fallbackSafeOutfitTemplates;
-  return pool[0];
+  return [...pool].sort((a, b) => scoreFallbackDiversity(a, history) - scoreFallbackDiversity(b, history))[0] ?? pool[0];
 }
 
 function toHistoryEntry(input: ChooseSmartOutfitInput, selected: SceneOutfitSeed): OutfitGeneratedHistoryEntry {
@@ -179,7 +214,7 @@ export function chooseSmartOutfit(input: ChooseSmartOutfitInput): ChooseSmartOut
     });
   }
 
-  const fallback = chooseFallback(input, manualGarment);
+  const fallback = chooseFallback(input, manualGarment, history);
   const fallbackScore = scoreOutfitCandidate({
     outfit: fallback,
     sceneKey: input.sceneKey,

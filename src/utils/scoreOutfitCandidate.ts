@@ -92,6 +92,21 @@ function textFor(outfit: SceneOutfitSeed) {
     .toLowerCase();
 }
 
+function historyText(entry: OutfitGeneratedHistoryEntry) {
+  return [
+    entry.topCategory,
+    entry.bottomCategory,
+    entry.visualAnchor,
+    entry.colorDirection,
+    entry.bagCategory,
+    entry.garmentType,
+    entry.outfitStyle
+  ]
+    .filter(Boolean)
+    .join(" ")
+    .toLowerCase();
+}
+
 function includesAny(text: string, keywords: string[]) {
   return keywords.some((keyword) => text.includes(keyword.toLowerCase()));
 }
@@ -164,9 +179,18 @@ function scoreUserPreference(input: ScoreOutfitCandidateInput, text: string) {
 
 function scoreRepetition(input: ScoreOutfitCandidateInput) {
   const recent = input.generatedHistory.slice(0, 5);
+  const candidateText = textFor(input.outfit);
+  const candidateHasDenim = /denim|jeans/i.test(candidateText) || input.outfit.colorDirection === "denimBased";
+  const candidateHasWhiteShirt = /\bwhite\b[^.]*\bshirt\b/i.test(candidateText);
+  const candidateHasCreamOrOatmealKnit = /\b(cream|oatmeal)\b[^.]*\bknit/i.test(candidateText);
+  const candidateHasWhiteOversizedShirt = /\bwhite oversized shirt\b/i.test(candidateText);
+  const candidateHasStoneGreyBermuda = /\bstone grey Bermuda shorts\b/i.test(candidateText);
+  const candidateHasCreamMidiSkirt = /\bcream midi skirt\b/i.test(candidateText);
+  const candidateHasCreamShirtDress = /\bcream shirt dress\b/i.test(candidateText);
   let penalty = 0;
 
   recent.forEach((item, index) => {
+    const itemText = historyText(item);
     const weight = index < 2 ? 1 : 0.6;
     if (item.outfitId === input.outfit.id) penalty += 999;
     if (item.garmentType === input.outfit.garmentType) penalty += 4 * weight;
@@ -176,7 +200,26 @@ function scoreRepetition(input: ScoreOutfitCandidateInput) {
     if (item.bottomCategory === input.outfit.bottomCategory) penalty += 5 * weight;
     if (item.visualAnchor === input.outfit.visualAnchor) penalty += 8 * weight;
     if (item.bagCategory && item.bagCategory === input.outfit.bagCategory) penalty += 3 * weight;
+    if (candidateHasWhiteShirt && /\bwhite\b[^.]*\bshirt\b/i.test(itemText)) penalty += 6 * weight;
+    if (candidateHasCreamOrOatmealKnit && /\b(cream|oatmeal)\b[^.]*\bknit/i.test(itemText)) penalty += 6 * weight;
+    if (candidateHasWhiteOversizedShirt && /\bwhite oversized shirt\b/i.test(itemText)) penalty += 8 * weight;
+    if (candidateHasStoneGreyBermuda && /\bstone grey Bermuda shorts\b/i.test(itemText)) penalty += 12 * weight;
+    if (candidateHasCreamMidiSkirt && /\bcream midi skirt\b/i.test(itemText)) penalty += 8 * weight;
+    if (candidateHasCreamShirtDress && /\bcream shirt dress\b/i.test(itemText)) penalty += 8 * weight;
   });
+
+  if (recent.some((item) => item.bottomCategory === input.outfit.bottomCategory)) penalty += 8;
+  if (candidateHasDenim && recent.some((item) => /denim|jeans/i.test(historyText(item)) || item.colorDirection === "denimBased")) {
+    penalty += 8;
+  }
+  if (
+    candidateHasDenim &&
+    recent[0]?.sceneKey === input.sceneKey &&
+    (/denim|jeans/i.test(historyText(recent[0])) || recent[0].colorDirection === "denimBased")
+  ) {
+    penalty += 10;
+  }
+  if (input.outfit.bagCategory && recent.some((item) => item.bagCategory === input.outfit.bagCategory)) penalty += 8;
 
   return Math.round(penalty);
 }

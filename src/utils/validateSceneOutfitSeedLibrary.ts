@@ -1,4 +1,5 @@
 import { sceneOutfitSeedLibrary, type SceneOutfitSeed } from "../data/sceneOutfitSeedLibrary";
+import { validateOutfitCategoryDiversity } from "./validateOutfitCategoryDiversity";
 
 const sensitiveWords = ["sexy", "seductive", "bodycon", "sports bra", "beauty selfie", "revealing"];
 const handheldPairs = [
@@ -43,7 +44,7 @@ export function validateSceneOutfitSeedLibrary() {
     if (seeds.length !== 12) issues.push(`${sceneKey}: expected 12 outfits, got ${seeds.length}`);
 
     issues.push(...overLimit(countBy(seeds, (item) => item.topCategory), 3, `${sceneKey} topCategory`));
-    issues.push(...overLimit(countBy(seeds, (item) => item.bottomCategory), 3, `${sceneKey} bottomCategory`));
+    issues.push(...overLimit(countBy(seeds, (item) => item.bottomCategory), 2, `${sceneKey} bottomCategory`));
     issues.push(...overLimit(countBy(seeds, (item) => item.colorDirection), 4, `${sceneKey} colorDirection`));
     issues.push(...overLimit(countBy(seeds, (item) => item.outfitStyle), 4, `${sceneKey} outfitStyle`));
     issues.push(...overLimit(countBy(seeds, (item) => item.visualAnchor), 2, `${sceneKey} visualAnchor`));
@@ -80,6 +81,8 @@ export function validateSceneOutfitSeedLibrary() {
       if (item.stylingRealismLine.length > 260) issues.push(`${item.id}: stylingRealismLine exceeds suggested budget`);
     });
   });
+
+  issues.push(...validateOutfitCategoryDiversity().issues);
 
   if (issues.length) console.warn("Scene outfit seed library quality warnings:", issues);
 
