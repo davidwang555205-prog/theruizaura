@@ -18,19 +18,22 @@ import { chooseCameraLookLine } from "./chooseCameraLookLine";
 import { chooseChinaUrbanStreetLine } from "./chooseChinaUrbanStreetLine";
 import { chooseSeasonCityVisualContext } from "./chooseSeasonCityVisualContext";
 import { accessoryShoeVisibilityRuleLine } from "../data/accessoryProfiles";
-import { getShoeSpecificAccuracyLine } from "../data/shoeSpecificAccuracyProfiles";
 import { chooseHandheldObjectLines } from "./chooseHandheldObjectLines";
-import { chooseHumanRealismLines } from "./chooseHumanRealismLines";
+import { chooseHumanPresenceLines } from "./chooseHumanPresenceLines";
 import { chooseOutfitByGarmentType } from "./chooseOutfitByGarmentType";
 import { choosePerSceneOutfitLine } from "./choosePerSceneOutfitLine";
 import { chooseSceneAccessoryLine } from "./chooseSceneAccessoryLine";
+import { chooseSneakerProtectionLines } from "./chooseSneakerProtectionLines";
 import { applyPromptPriorityEngine } from "./promptPriorityEngine";
 import { controlPromptBudget } from "./promptBudgetController";
 import { cleanFinalPrompt, dedupePromptLines } from "./promptOptimizer";
 import { detectImageCountOrSeriesIntent } from "./detectImageCountOrSeriesIntent";
 import { selectCityProfileForScene } from "./selectCityProfileForScene";
 import { sensitiveWordReducer } from "./sensitiveWordReducer";
-import { sanitizeUserExtraRequirementForSingleHandheldObject } from "./chooseSinglePrimaryHandheldObject";
+import {
+  chooseSinglePrimaryHandheldObject,
+  sanitizeUserExtraRequirementForSingleHandheldObject
+} from "./chooseSinglePrimaryHandheldObject";
 import { promptVocabularyReplacer } from "./promptVocabularyReplacer";
 import { normalizeAccessoryInOutfitLine } from "./normalizeAccessoryInOutfitLine";
 import { promptPreflightCheck } from "./promptPreflightCheck";
@@ -617,6 +620,13 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
     : null;
   const sceneText = getSceneText(params, resolvedScene, sceneKey);
   const shoeStyleLine = getShoeStyleLine(params, hasShoe);
+  const sneakerProtection = chooseSneakerProtectionLines({
+    imageType: params.imageType,
+    shoe: params.shoe,
+    shoeDisplayName: getShoeDisplayName(params),
+    customShoe: params.customShoe,
+    hasShoe
+  });
   const baseOutfitLine = perSceneOutfitSelection?.selectedPerSceneOutfitLine ?? outfitSelection.outfitLine;
   const baseStylingRealismLine = perSceneOutfitSelection?.selectedStylingRealismLine ?? outfitSelection.stylingRealismLine;
   const preAccessoryOutfitLine = [baseOutfitLine, shoeStyleLine].filter(Boolean).join(" ");
@@ -633,17 +643,14 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
     resolvedScene,
     poseType: actionSelection.poseType
   });
-  const handheldSelection = chooseHandheldObjectLines({
+  const primaryHandheldSelection = chooseSinglePrimaryHandheldObject({
     imageType: params.imageType,
     scenePreference: resolvedScene,
     actionType: [actionSelection.line, actionSelection.supportLine, actionSelection.safetyLine].filter(Boolean).join(" "),
     userExtraRequirement: params.extraRequirement,
     selectedOutfitLine: preAccessoryOutfitLine,
     selectedAccessoryLine: preAccessoryOutfitLine,
-    garmentTypePreference: params.garmentTypePreference,
-    poseCategory,
-    promptMode: TEAM_PROMPT_MODE,
-    hasShoe
+    garmentTypePreference: params.garmentTypePreference
   });
   const accessorySelection = chooseSceneAccessoryLine({
     sceneKey,
@@ -657,7 +664,7 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
     },
     selectedGarmentType: perSceneOutfitSelection?.selectedGarmentType ?? outfitSelection.selectedOutfit?.garmentType ?? null,
     selectedOutfitStyle: perSceneOutfitSelection?.selectedOutfitStyle ?? outfitSelection.selectedOutfit?.outfitStyle ?? null,
-    selectedPrimaryHandheldObject: handheldSelection.primaryHandheldObject,
+    selectedPrimaryHandheldObject: primaryHandheldSelection.primaryHandheldObject,
     poseCategory,
     userExtraRequirement: params.extraRequirement,
     promptMode: TEAM_PROMPT_MODE
@@ -666,10 +673,23 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
     outfitLine: baseOutfitLine,
     accessoryStrategy: accessorySelection.accessoryStrategy,
     selectedBagAccessory: accessorySelection.selectedBagAccessory,
-    selectedPrimaryHandheldObject: handheldSelection.primaryHandheldObject
+    selectedPrimaryHandheldObject: primaryHandheldSelection.primaryHandheldObject
   });
   const outfitLine = [normalizedBaseOutfitLine, shoeStyleLine].filter(Boolean).join(" ");
-  const humanRealism = chooseHumanRealismLines({
+  const handheldSelection = chooseHandheldObjectLines({
+    imageType: params.imageType,
+    scenePreference: resolvedScene,
+    actionType: [actionSelection.line, actionSelection.supportLine, actionSelection.safetyLine].filter(Boolean).join(" "),
+    userExtraRequirement: params.extraRequirement,
+    selectedOutfitLine: outfitLine,
+    selectedAccessoryLine: accessorySelection.accessoryLine,
+    garmentTypePreference: params.garmentTypePreference,
+    poseCategory,
+    promptMode: TEAM_PROMPT_MODE,
+    hasShoe,
+    singlePrimaryHandheldObject: primaryHandheldSelection
+  });
+  const humanRealism = chooseHumanPresenceLines({
     imageType: params.imageType,
     scenePreference: resolvedScene,
     actionType: [actionSelection.line, actionSelection.supportLine, actionSelection.safetyLine].filter(Boolean).join(" "),
@@ -685,13 +705,7 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
     sceneKey,
     hasCityStreetLine: Boolean(cityProfile)
   });
-  const sneakerSceneControlLine = [
-    getShoeVisibilityLine(params, hasShoe),
-    getShoeClippingLine(params, hasShoe),
-    getLacesLine(params, hasShoe)
-  ]
-    .filter(Boolean)
-    .join(" ");
+  const sneakerSceneControlLine = sneakerProtection.sceneControlLine;
   const modelStructuredLine = shouldUsePeopleStyling(params.imageType)
     ? [
         getModelLine(params, resolvedScene),
@@ -777,10 +791,6 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
     .filter(Boolean)
     .join(" ");
 
-  const shoeSpecificAccuracyLine = getShoeSpecificAccuracyLine(
-    params.shoe,
-    hasShoe && params.imageType !== "非产品氛围图"
-  );
   const sanitizedUserExtraRequirement = sanitizeUserExtraRequirementForSingleHandheldObject(
     params.extraRequirement.trim(),
     handheldSelection.removedHandheldObjects
@@ -802,7 +812,7 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
   const basePromptParts = {
     timeLine: seasonCityVisualContext.seasonalLightLine,
     placeLine: cityProfile?.cityStreetLine ?? sceneText,
-    productLine: getProductLine(params, hasShoe),
+    productLine: sneakerProtection.productLine,
     modelLine: modelStructuredLine,
     outfitLine: outfitStructuredLine,
     sceneLine: sceneStructuredLine,
@@ -820,11 +830,11 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
         timeLine: [seasonCityVisualContext.indoorOutdoorLightLine],
         placeLine: [seasonCityVisualContext.lightingSpaceSupportLine],
         productLine: [
-          shoeSpecificAccuracyLine,
-          hasShoe ? selectedSneakerAccuracyLine : "",
-          hasShoe ? shoeVisibilityLine : "",
-          hasShoe && params.imageType !== "非产品氛围图" ? shoeClippingLine : "",
-          hasShoe && params.imageType !== "非产品氛围图" ? lacesLine : ""
+          sneakerProtection.shoeSpecificAccuracyLine,
+          sneakerProtection.accuracyLine,
+          sneakerProtection.visibilityLine,
+          sneakerProtection.clippingLine,
+          sneakerProtection.lacesLine
         ].filter(Boolean),
         modelLine: shouldUsePeopleStyling(params.imageType)
           ? [
@@ -838,7 +848,7 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
         sceneLine: [
           imageTypeTemplate.templateSceneLine,
           shouldUsePeopleStyling(params.imageType) ? accessoryShoeVisibilityRuleLine : "",
-          hasShoe ? shoeVisibilityLine : ""
+          sneakerProtection.visibilityLine
         ].filter(Boolean),
         actionLine: [
           imageTypeTemplate.templateActionLine,

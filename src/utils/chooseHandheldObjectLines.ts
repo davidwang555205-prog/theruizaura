@@ -40,6 +40,7 @@ export type HandheldObjectLinesInput = {
   poseCategory: TeamHumanPoseCategory;
   promptMode: TeamPromptMode;
   hasShoe: boolean;
+  singlePrimaryHandheldObject?: SinglePrimaryHandheldObjectOutput;
 };
 
 export type HandheldObjectLinesOutput = SinglePrimaryHandheldObjectOutput & {
@@ -103,7 +104,7 @@ function getObjectSpecificLine(primary: PrimaryHandheldObject | "") {
 export function chooseHandheldObjectLines(input: HandheldObjectLinesInput): HandheldObjectLinesOutput {
   if (!PEOPLE_IMAGE_TYPES.includes(input.imageType)) return emptyHandheldObjectLines();
 
-  const selected = chooseSinglePrimaryHandheldObject(input);
+  const selected = input.singlePrimaryHandheldObject ?? chooseSinglePrimaryHandheldObject(input);
   const hasPrimary = Boolean(selected.primaryHandheldObject);
 
   return {

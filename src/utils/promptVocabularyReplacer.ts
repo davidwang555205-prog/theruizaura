@@ -6,6 +6,7 @@ const replacements: Array<[RegExp, string]> = [
   [/\blower-body length\b/gi, "leg proportion"],
   [/\blower body\b/gi, "full figure balance"],
   [/\blower-body\b/gi, "full figure balance"],
+  [/\bsweatpants\b/gi, "relaxed jogger-style trousers"],
   [/\blightly opening the shoe tongue\b/gi, "lightly lifting the shoe tongue"],
   [/\bopening a suitcase\b/gi, "unpacking a suitcase"],
   [/\bopening the suitcase\b/gi, "unpacking the suitcase"],
