@@ -11,7 +11,7 @@ export const SEASONAL_OUTFIT_LIBRARY: Record<Season, string> = {
   Spring: `Spring styling direction:
 Use a refined spring outfit with soft low-saturation layers such as a white shirt, cream knitwear, light blue denim, oatmeal trousers, a light trench coat, or a soft beige tote. The styling should feel airy, clean, gentle, and relaxed, with understated femininity and quiet daily elegance.`,
   Summer: `Summer styling direction:
-Use a breathable summer outfit with airy low-saturation pieces such as a white short-sleeve shirt, linen trousers, cream cotton tops, soft beige pants, pale denim, or a light neutral tote bag. The styling should feel light, breathable, refined, and quietly feminine, without sporty energy or vacation-girl styling.`,
+Use a breathable summer outfit with airy low-saturation pieces such as a white short-sleeve shirt, linen trousers, cream cotton tops, soft beige trousers, pale denim, or a light neutral tote bag. The styling should feel light, breathable, refined, and quietly feminine, without sporty energy or vacation-girl styling.`,
   Autumn: `Autumn styling direction:
 Use a soft autumn outfit with warm, tactile, low-saturation layers such as oatmeal knitwear, cappuccino tones, light wool outerwear, soft denim, warm beige trousers, or a refined brown tote. The styling should feel calm, seasonal, feminine, and quietly vintage without looking heavy or costume-like.`,
   Winter: `Winter styling direction:
@@ -92,13 +92,13 @@ export const seasonalOutfitGroups: Record<TeamSeason, SeasonalOutfitGroup> = {
       "light blue straight-leg denim",
       "cream straight-leg trousers",
       "beige tapered trousers",
-      "pale khaki casual pants",
+      "pale khaki casual trousers",
       "ivory cropped trousers",
       "oatmeal wide-leg trousers",
-      "soft grey tailored pants",
+      "soft grey tailored trousers",
       "light denim ankle-length jeans",
       "linen-blend trousers",
-      "relaxed chino pants",
+      "relaxed chino trousers",
       "dark indigo straight denim"
     ],
     outerwear: [
@@ -197,14 +197,14 @@ export const seasonalOutfitGroups: Record<TeamSeason, SeasonalOutfitGroup> = {
     bottoms: [
       "cream linen trousers",
       "beige wide-leg trousers",
-      "ivory straight-leg pants",
-      "pale khaki lightweight pants",
+      "ivory straight-leg trousers",
+      "pale khaki lightweight trousers",
       "light blue denim jeans",
       "soft grey summer trousers",
       "white cropped trousers",
-      "oatmeal relaxed pants",
+      "oatmeal relaxed trousers",
       "linen-blend ankle trousers",
-      "airy cotton pants"
+      "airy cotton trousers"
     ],
     shorts: [
       "stone grey Bermuda shorts",
@@ -331,20 +331,20 @@ export const seasonalOutfitGroups: Record<TeamSeason, SeasonalOutfitGroup> = {
       "taupe"
     ],
     forbidden:
-      "Use breathable summer styling, but allow skirts, Bermuda shorts, cotton T-shirts, fitted tanks layered with shirts, polo knits, soft cardigans, black, dark coffee, navy, charcoal, olive, soft grey, and light denim as realistic wardrobe anchors. Avoid beach vacation styling, gym-only look, overexposed skin, high-saturation colors, sweet girlish shorts, overly short hot pants, cheap T-shirt styling, and AI-clean all-white outfits with no life.",
+      "Use breathable summer styling, but allow skirts, Bermuda shorts, cotton T-shirts, fitted tanks layered with shirts, polo knits, soft cardigans, black, dark coffee, navy, charcoal, olive, soft grey, and light denim as realistic wardrobe anchors. Avoid beach vacation styling, gym-only look, overexposed skin, high-saturation colors, sweet girlish shorts, overly short tailored shorts, cheap T-shirt styling, and AI-clean all-white outfits with no life.",
     compactOutfitLines: [
       "Style her in a white short-sleeve shirt, cream linen trousers, and a light neutral tote for breathable summer ease.",
       "Use a cream linen shirt, pale denim, and understated gold accessories for clean summer daily sophistication.",
       "Pair an ivory sleeveless top with beige wide-leg trousers and a soft shoulder bag for refined warm-weather comfort.",
-      "Style her with an off-white boxy shirt, oatmeal relaxed pants, and a restrained woven bag for quiet summer practicality.",
+      "Style her with an off-white boxy shirt, oatmeal relaxed trousers, and a restrained woven bag for quiet summer practicality.",
       "Use a pale blue cotton shirt, white cropped trousers, and a pale grey mini tote for a fresh low-saturation summer look.",
-      "Pair a cream fine-rib tank under a lightweight linen overshirt with ivory straight-leg pants and a light tan handbag.",
+      "Pair a cream fine-rib tank under a lightweight linen overshirt with ivory straight-leg trousers and a light tan handbag.",
       "Style her in a black fitted tank top, white straight midi skirt, and a small black shoulder bag for a mature summer contrast look.",
       "Use a dark coffee-brown sleeveless top, cream wide-leg trousers, and a taupe tote for quiet warm summer depth.",
       "Pair a navy sleeveless knit top with light denim jeans and a cream canvas tote for a realistic city summer outfit.",
       "Style her in a soft grey short-sleeve knit, beige Bermuda shorts, and a restrained leather tote for an easy refined summer day.",
       "Use a white oversized shirt over a charcoal ribbed tank, linen trousers, and a black flat shoulder bag for a believable urban summer look.",
-      "Pair an olive linen shirt with ivory pants and a natural canvas tote for a grounded, non-template summer outfit."
+      "Pair an olive linen shirt with ivory straight trousers and a natural canvas tote for a grounded, non-template summer outfit."
     ]
   },
   秋: {
@@ -368,10 +368,10 @@ export const seasonalOutfitGroups: Record<TeamSeason, SeasonalOutfitGroup> = {
     bottoms: [
       "dark blue straight-leg denim",
       "cappuccino trousers",
-      "warm beige tailored pants",
+      "warm beige tailored trousers",
       "soft brown relaxed trousers",
-      "oatmeal wide-leg pants",
-      "stone grey straight pants",
+      "oatmeal wide-leg trousers",
+      "stone grey straight trousers",
       "cream autumn trousers",
       "taupe cropped trousers",
       "washed denim jeans",
@@ -442,7 +442,7 @@ export const seasonalOutfitGroups: Record<TeamSeason, SeasonalOutfitGroup> = {
       "Style her in oatmeal knitwear, dark straight-leg denim, and a warm brown tote for soft autumn daily elegance.",
       "Use a cream shirt layered under cappuccino knitwear with warm beige trousers for a calm tactile autumn look.",
       "Pair a beige trench coat, taupe trousers, and understated leather accessories for refined autumn commuting.",
-      "Style her in a warm ivory turtleneck, stone grey straight pants, a soft brown blazer, and a taupe crossbody bag.",
+      "Style her in a warm ivory turtleneck, stone grey straight trousers, a soft brown blazer, and a taupe crossbody bag.",
       "Use a light brown cardigan, cream autumn trousers, and a muted brown structured bag for gentle daily warmth.",
       "Pair a camel knit polo with washed denim jeans, a taupe shirt jacket, and brown sunglasses for a relaxed city outfit.",
       "Style her in a charcoal wool-blend sweater, cream trousers, and a warm brown tote for a grounded autumn contrast look.",
@@ -472,15 +472,15 @@ export const seasonalOutfitGroups: Record<TeamSeason, SeasonalOutfitGroup> = {
     ],
     bottoms: [
       "warm grey wool trousers",
-      "winter white straight-leg pants",
+      "winter white straight-leg trousers",
       "dark blue structured denim",
       "beige wool-blend trousers",
       "muted brown trousers",
-      "oatmeal wide-leg pants",
-      "soft taupe pants",
+      "oatmeal wide-leg trousers",
+      "soft taupe trousers",
       "cream winter trousers",
       "charcoal-soft grey trousers",
-      "cappuccino straight pants",
+      "cappuccino straight trousers",
       "black straight trousers"
     ],
     outerwear: [
@@ -544,11 +544,11 @@ export const seasonalOutfitGroups: Record<TeamSeason, SeasonalOutfitGroup> = {
       "Style her in a warm ivory turtleneck, wool trousers, and a cream coat for clean winter sophistication.",
       "Use oatmeal knitwear, dark structured denim, and a muted brown bag for composed daily winter warmth.",
       "Pair a warm grey coat with winter white trousers and understated accessories for refined cold-weather elegance.",
-      "Style her in a cappuccino cashmere-blend sweater, soft taupe pants, a soft camel coat, and a warm brown leather tote.",
+      "Style her in a cappuccino cashmere-blend sweater, soft taupe trousers, a soft camel coat, and a warm brown leather tote.",
       "Use a cream high-neck knit, charcoal-soft grey trousers, and a grey-beige shoulder bag for clean winter balance.",
       "Pair a winter white shirt under oatmeal wool sweater with beige wool-blend trousers and a taupe structured coat.",
       "Style her in a black turtleneck, warm grey wool trousers, a cream long coat, and a structured black shoulder bag for sharp winter contrast.",
-      "Use a navy wool sweater, winter-white straight pants, and a camel coat for a mature cold-weather outfit.",
+      "Use a navy wool sweater, winter-white straight trousers, and a camel coat for a mature cold-weather outfit.",
       "Pair a charcoal coat with oatmeal wide-leg trousers, a cream knit, and a dark brown tote for realistic winter depth.",
       "Style her in a muted chocolate knit, dark denim, and a warm beige short wool jacket for a grounded everyday winter look.",
       "Use a soft olive padded jacket, cream knitwear, taupe trousers, and a no-logo tote for a clean practical winter day.",
@@ -706,7 +706,7 @@ const summerOutfitLines: SummerOutfitLine[] = [
   },
   {
     category: "commute",
-    line: "Use a cream fitted T-shirt, light cotton blazer, ivory straight-leg pants, and a taupe leather tote for polished summer workwear.",
+    line: "Use a cream fitted T-shirt, light cotton blazer, ivory straight-leg trousers, and a taupe leather tote for polished summer workwear.",
     tags: ["t-shirt", "blazer", "trousers", "taupe", "commute"],
     boundary:
       "Avoid office stiffness, full business suit, exposed tank-only office look, wrinkled casual T-shirt, and overly formal high-heel styling."
@@ -853,7 +853,7 @@ const summerOutfitLines: SummerOutfitLine[] = [
   },
   {
     category: "bookstore",
-    line: "Pair a light grey short-sleeve knit with ivory straight-leg pants and minimal optical glasses for a refined magazine-shop mood.",
+    line: "Pair a light grey short-sleeve knit with ivory straight-leg trousers and minimal optical glasses for a refined magazine-shop mood.",
     tags: ["knit", "trousers", "grey", "ivory", "bookstore"],
     boundary:
       "Avoid academic costume, heavy black styling, art-student exaggeration, and cold intellectual distance."
@@ -881,7 +881,7 @@ const summerOutfitLines: SummerOutfitLine[] = [
   },
   {
     category: "errands",
-    line: "Pair an olive linen shirt with ivory pants and a natural canvas tote for a grounded non-template errands outfit.",
+    line: "Pair an olive linen shirt with ivory straight trousers and a natural canvas tote for a grounded non-template errands outfit.",
     tags: ["shirt", "trousers", "olive", "ivory", "errands"],
     boundary:
       "Avoid messy grocery casual, sports shorts, pajama feeling, loud shopping props, and fake lifestyle staging."
@@ -902,7 +902,7 @@ const summerOutfitLines: SummerOutfitLine[] = [
   },
   {
     category: "hotel",
-    line: "Use a cream fine-rib tank under a lightweight linen overshirt, ivory straight-leg pants, and a light tan handbag.",
+    line: "Use a cream fine-rib tank under a lightweight linen overshirt, ivory straight-leg trousers, and a light tan handbag.",
     tags: ["tank", "shirt", "trousers", "cream", "ivory", "hotel"],
     boundary:
       "Avoid tourist outfit, resort vacation styling, airport sweatpants, beach bag feeling, and messy suitcase scene."
@@ -979,14 +979,14 @@ const summerOutfitLines: SummerOutfitLine[] = [
   },
   {
     category: "active",
-    line: "Style her in a clean sleeveless active top, breathable cream pants, and a light tote for a refined summer movement look.",
+    line: "Style her in a clean sleeveless active top, breathable cream trousers, and a light tote for a refined summer movement look.",
     tags: ["active", "sleeveless", "trousers", "cream", "gym"],
     boundary:
       "Avoid running gear, neon activewear, exposed sports-bra focus, gym influencer posing, and technical sports shoe styling."
   },
   {
     category: "active",
-    line: "Use a fitted white tee, soft grey straight active pants, and a minimal gym bag for a clean gym-going outfit.",
+    line: "Use a fitted white tee, soft grey straight active trousers, and a minimal gym bag for a clean gym-going outfit.",
     tags: ["active", "t-shirt", "grey", "white", "gym"],
     boundary:
       "Avoid running gear, neon activewear, exposed sports-bra focus, gym influencer posing, and technical sports shoe styling."

@@ -41,13 +41,13 @@ export type SneakerProtectionInput = {
 
 const trouserKeywords = [
   "trousers",
-  "pants",
+  "trousers",
   "jeans",
   "wide-leg",
   "straight-leg",
   "denim",
   "jogger",
-  "active pants",
+  "active trousers",
   "leggings",
   "西裤",
   "裤",

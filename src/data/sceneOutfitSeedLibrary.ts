@@ -386,13 +386,13 @@ const activePool: SeedDraft[] = [
     suitableShoes: allShoes,
     imageTypes: activeImageTypes,
     topCategory: "misty blue tee",
-    bottomCategory: "taupe active pants",
+    bottomCategory: "taupe active trousers",
     outerLayerCategory: "cream overshirt",
     bagCategory: "gym tote as secondary accessory",
     accessoryCategory: ["simple watch"],
     visualAnchor: "misty blue tee",
     outfitLine:
-      "Style her in a misty blue tee, taupe active pants, cream overshirt, and gym tote as a secondary accessory for a clean city-to-gym transition.",
+      "Style her in a misty blue tee, taupe active trousers, cream overshirt, and gym tote as a secondary accessory for a clean city-to-gym transition.",
     forbidden: baseForbidden
   },
   {
@@ -403,13 +403,13 @@ const activePool: SeedDraft[] = [
     suitableShoes: allShoes,
     imageTypes: activeImageTypes,
     topCategory: "white clean tee",
-    bottomCategory: "dark denim straight pants",
+    bottomCategory: "dark denim straight trousers",
     outerLayerCategory: "soft zip layer",
     bagCategory: "grey gym tote as secondary accessory",
     accessoryCategory: ["low socks if visible"],
     visualAnchor: "dark denim active mix",
     outfitLine:
-      "Use a white clean tee, dark denim straight pants, soft zip layer, and grey gym tote as a secondary accessory for movement-ready daily styling.",
+      "Use a white clean tee, dark denim straight trousers, soft zip layer, and grey gym tote as a secondary accessory for movement-ready daily styling.",
     forbidden: baseForbidden
   },
   {
@@ -437,13 +437,13 @@ const activePool: SeedDraft[] = [
     suitableShoes: allShoes,
     imageTypes: activeImageTypes,
     topCategory: "deep olive clean tee",
-    bottomCategory: "black straight active pants",
+    bottomCategory: "black straight active trousers",
     outerLayerCategory: "warm grey lightweight jacket",
     bagCategory: "black gym tote as secondary accessory",
     accessoryCategory: ["water bottle as single primary handheld object"],
     visualAnchor: "deep olive tee",
     outfitLine:
-      "Style her in a deep olive clean tee, black straight active pants, warm grey lightweight jacket, and black gym tote as a secondary accessory for restrained active depth.",
+      "Style her in a deep olive clean tee, black straight active trousers, warm grey lightweight jacket, and black gym tote as a secondary accessory for restrained active depth.",
     forbidden: baseForbidden
   }
 ];

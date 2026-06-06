@@ -109,7 +109,7 @@ The composition must include:
 - complete sneaker outline
 - visible toe shape
 - visible outsole edge
-- visible shoe opening and laces when possible
+- visible sneaker collar and laces when possible
 - correct floor contact
 
 Do not crop out the shoes.
@@ -211,7 +211,7 @@ The composition should clearly show:
 - ankle area
 - at least one sneaker fully visible
 - the second sneaker clearly readable
-- the shoe opening
+- the sneaker collar
 - the toe shape
 - the outsole edge
 - the lace area when possible

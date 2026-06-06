@@ -1,6 +1,6 @@
 import { sceneOutfitSeedLibrary, type SceneOutfitSeed } from "../data/sceneOutfitSeedLibrary";
 
-const sensitiveWords = ["sexy", "seductive", "bodycon", "hot pants", "sports bra", "beauty selfie", "revealing"];
+const sensitiveWords = ["sexy", "seductive", "bodycon", "sports bra", "beauty selfie", "revealing"];
 const handheldPairs = [
   ["coffee", "flowers"],
   ["coffee", "book"],

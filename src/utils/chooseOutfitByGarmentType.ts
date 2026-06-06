@@ -72,14 +72,14 @@ const standardOutfitLibrary: StandardOutfitEntry[] = [
     outfitStyle: "realDaily",
     colorDirection: "neutralDaily",
     topCategory: "cream linen shirt",
-    bottomCategory: "pale khaki lightweight pants",
+    bottomCategory: "pale khaki lightweight trousers",
     visualAnchor: "cream linen shirt",
     seasons: ["夏"],
     sceneAffinities: ["weekendCityWalk", "premiumErrands", "bakeryDessert", "cafeExterior"],
     shoeAffinity: ["Aire", "Cloud Dancer", "Sand Dollar", "Lemon", "Delphinium Blue", "ALL"],
     imageTypes: ["onFoot", "lifestyle"],
     compactLine:
-      "Use a cream linen shirt, pale khaki lightweight pants, a light tan handbag, and restrained summer accessories for breathable daily ease."
+      "Use a cream linen shirt, pale khaki lightweight trousers, a light tan handbag, and restrained summer accessories for breathable daily ease."
   },
   {
     id: "std-skirt-cream",
@@ -222,14 +222,14 @@ const standardOutfitLibrary: StandardOutfitEntry[] = [
     outfitStyle: "softActive",
     colorDirection: "lightClean",
     topCategory: "cream clean active top",
-    bottomCategory: "taupe straight active pants",
+    bottomCategory: "taupe straight active trousers",
     visualAnchor: "cream active top",
     seasons: ["春", "夏", "秋"],
     sceneAffinities: ["gymInterior", "gymCommute", "premiumErrands", "mirrorCloset"],
     shoeAffinity: ["Aire", "Cloud Dancer", "Sand Dollar", "Lemon", "ALL"],
     imageTypes: ["gym", "lifestyle", "mirror"],
     compactLine:
-      "Use a cream clean active top, taupe straight active pants, a soft zip layer, and a water bottle for refined light movement styling."
+      "Use a cream clean active top, taupe straight active trousers, a soft zip layer, and a water bottle for refined light movement styling."
   }
 ];
 

@@ -5,7 +5,7 @@ export const onFootSneakerProportionCoreLine =
   "Keep the sneakers naturally fitted on the feet with realistic scale, clean ankle alignment, correct foot volume inside the shoe, and a believable shoe-to-leg relationship. The sneakers should look worn, grounded, and anatomically connected to the body, not pasted on, oversized, empty, or distorted.";
 
 export const ankleCollarAlignmentLine =
-  "Keep the ankle, sock if visible, and sneaker collar clearly separated and anatomically aligned. The ankle should enter the low-cut sneaker naturally without melting into the collar, collapsing the shoe opening, or making the shoe look empty.";
+  "Keep the ankle, sock if visible, and sneaker collar clearly separated and anatomically aligned. The ankle should enter the low-cut sneaker naturally without melting into the collar, collapsing the sneaker collar, or making the shoe look empty.";
 
 export const lowerLegToSneakerScaleLine =
   "Keep the calf, ankle, foot, and sneaker scale consistent. The lower leg should taper naturally into the ankle, the foot should sit correctly inside the sneaker, and the sneaker should not look too bulky, tiny, wide, long, or disconnected from the leg.";
@@ -17,7 +17,7 @@ export const skirtShortsToSneakerProportionLine =
   "For skirts, dresses, shorts, and Bermuda shorts, keep the leg line natural and the ankle-to-sneaker transition clean. The sneaker should remain fully readable with realistic foot scale, no tiny feet, no oversized shoe, and no warped ankle.";
 
 export const sockToSneakerBoundaryLine =
-  "If socks appear, keep them thin, clean, and naturally positioned. Socks should not cover the tongue, merge with the collar, add bulky fabric, or distort the ankle and shoe opening. Prefer no-show socks, low socks, or simple thin white socks when appropriate.";
+  "If socks appear, keep them thin, clean, and naturally positioned. Socks should not cover the tongue, merge with the collar, add bulky fabric, or distort the ankle and sneaker collar. Prefer no-show socks, low socks, or simple thin white socks when appropriate.";
 
 export const groundedStanceLine =
   "Keep both feet grounded with realistic weight distribution, natural shoe-floor contact, and believable shadows under the outsole. Avoid floating heels, sinking soles, twisted foot angles, uneven shoe scale, or feet that do not align with the body's center of gravity.";

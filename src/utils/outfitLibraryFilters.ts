@@ -35,7 +35,7 @@ const explicitClothingKeywords = [
   "skirt",
   "dress",
   "trousers",
-  "pants"
+  "trousers"
 ];
 
 const positiveSummerSpecificKeywords = [

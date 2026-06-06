@@ -15,6 +15,7 @@ import { buildStructuredPrompt } from "./buildStructuredPrompt";
 import { chooseActionLine } from "./chooseActionLine";
 import { chooseCameraLookLine } from "./chooseCameraLookLine";
 import { chooseChinaUrbanStreetLine } from "./chooseChinaUrbanStreetLine";
+import { chooseSeasonCityVisualContext } from "./chooseSeasonCityVisualContext";
 import { chooseHandheldObjectLines } from "./chooseHandheldObjectLines";
 import { chooseHumanRealismLines } from "./chooseHumanRealismLines";
 import { chooseOutfitByGarmentType } from "./chooseOutfitByGarmentType";
@@ -24,6 +25,7 @@ import { detectImageCountOrSeriesIntent } from "./detectImageCountOrSeriesIntent
 import { selectCityProfileForScene } from "./selectCityProfileForScene";
 import { sensitiveWordReducer } from "./sensitiveWordReducer";
 import { sanitizeUserExtraRequirementForSingleHandheldObject } from "./chooseSinglePrimaryHandheldObject";
+import { promptVocabularyReplacer } from "./promptVocabularyReplacer";
 
 export const TEAM_PROMPT_MODE: TeamPromptMode = "standard";
 
@@ -553,6 +555,14 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
     userExtraRequirement: params.extraRequirement
   });
   const cityProfile = chooseChinaUrbanStreetLine(selectedCity);
+  const seasonCityVisualContext = chooseSeasonCityVisualContext({
+    season: params.season,
+    cityProfile: selectedCity,
+    sceneKey,
+    imageType: params.imageType,
+    userExtraRequirement: params.extraRequirement,
+    selectedShoe: getShoeDisplayName(params)
+  });
   const cameraSelection = chooseCameraLookLine({
     imageType: params.imageType,
     sceneKey,
@@ -589,7 +599,7 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
     scenePreference: resolvedScene,
     selectedGazeMode: getTeamGazeMode(params, sceneKey),
     selectedOutfitLine: outfitLine,
-    timeOfDay: TEAM_SEASON_LIGHT[params.season],
+    timeOfDay: seasonCityVisualContext.timeOfDay,
     userExtraRequirement: params.extraRequirement
   });
   const poseCategory = mapActionPoseToHumanCategory({
@@ -645,6 +655,7 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
     : "";
   const outfitStructuredLine = shouldUsePeopleStyling(params.imageType)
     ? [
+        params.season === "秋" || params.season === "冬" ? seasonCityVisualContext.outfitLayerLine : "",
         outfitLine,
         handheldSelection.accessoryOnlyLine,
         humanRealism.clothingWornLine,
@@ -695,8 +706,11 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
     shouldUsePeopleStyling(params.imageType)
       ? ""
       : params.imageType === "非产品氛围图" || params.imageType === "拍摄花絮 / 材质图"
-        ? TEAM_ATMOSPHERE_SEASON[params.season]
+        ? seasonCityVisualContext.seasonalPhotoStyleLine
         : "",
+    shouldUsePeopleStyling(params.imageType) || params.imageType === "产品静物图"
+      ? seasonCityVisualContext.seasonalPhotoStyleLine
+      : "",
     cameraSelection.cameraLookLine,
     humanRealism.realHumanDetailLine
   ]
@@ -704,7 +718,7 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
     .join(" ");
 
   const rawPrompt = buildStructuredPrompt({
-    timeLine: getTimeLine(params, sceneKey),
+    timeLine: seasonCityVisualContext.seasonalLightLine,
     placeLine: cityProfile?.cityStreetLine ?? sceneText,
     productLine: getProductLine(params, hasShoe),
     modelLine: modelStructuredLine,
@@ -718,6 +732,7 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
       cityBoundaryPhrases: cityProfile?.boundaryPhrases ?? [],
       sceneKey,
       extraPhrases: [
+        ...extractAvoidPhrases(`Avoid ${seasonCityVisualContext.seasonalNegativeLine}.`),
         ...humanRealism.negativePhrases,
         ...handheldSelection.negativePhrases,
         ...extractAvoidPhrases(actionSelection.negative)
@@ -730,7 +745,9 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
       handheldSelection.removedHandheldObjects
     )
   });
-  const prompt = cleanFinalPrompt(dedupePromptLines(sensitiveWordReducer(rawPrompt)));
+  const reducedPrompt = sensitiveWordReducer(rawPrompt);
+  const vocabularyAdjustedPrompt = promptVocabularyReplacer(reducedPrompt);
+  const prompt = cleanFinalPrompt(dedupePromptLines(vocabularyAdjustedPrompt));
 
   return {
     prompt,

@@ -93,7 +93,7 @@ const sceneWardrobeBias: Record<string, Partial<OutfitRecommendation>> = {
 const seasonDefaults: Record<Season, Omit<OutfitRecommendation, "season" | "scenes" | "shoe" | "material" | "outfitMode">> = {
   Spring: {
     tops: "white shirt with cream knitwear or a soft low-saturation layer",
-    bottoms: "light blue denim, oatmeal trousers, or soft beige pants",
+    bottoms: "light blue denim, oatmeal trousers, or soft beige trousers",
     outerwear: "light trench coat",
     bag: "soft beige tote",
     accessories: "minimal gold or pearl detail, understated watch, clean socks",
@@ -104,7 +104,7 @@ const seasonDefaults: Record<Season, Omit<OutfitRecommendation, "season" | "scen
   },
   Summer: {
     tops: "white short-sleeve shirt, cream cotton top, or airy linen shirt",
-    bottoms: "linen trousers, soft beige pants, or pale denim",
+    bottoms: "linen trousers, soft beige trousers, or pale denim",
     outerwear: "no heavy outerwear; use a light shirt layer if needed",
     bag: "light neutral tote",
     accessories: "minimal jewelry, breathable socks, simple sunglasses only if natural",
@@ -115,7 +115,7 @@ const seasonDefaults: Record<Season, Omit<OutfitRecommendation, "season" | "scen
   },
   Autumn: {
     tops: "oatmeal knitwear, white shirt, or cappuccino-toned soft layer",
-    bottoms: "warm beige trousers, soft denim, or light brown tailored pants",
+    bottoms: "warm beige trousers, soft denim, or light brown tailored trousers",
     outerwear: "light wool outerwear or soft trench coat",
     bag: "refined brown tote",
     accessories: "subtle scarf, understated jewelry, warm socks if visible",
@@ -126,7 +126,7 @@ const seasonDefaults: Record<Season, Omit<OutfitRecommendation, "season" | "scen
   },
   Winter: {
     tops: "oatmeal knitwear or clean cream layer",
-    bottoms: "soft wool trousers, structured denim, or warm beige pants",
+    bottoms: "soft wool trousers, structured denim, or warm beige trousers",
     outerwear: "cream, warm grey, or soft camel coat",
     bag: "muted brown tote",
     accessories: "minimal scarf, understated earrings, warm but refined socks",
@@ -182,7 +182,7 @@ export function getUnifiedOutfitForThreeImageSet(
     colorPalette: base.colorPalette,
     stylingSummary: `${base.stylingSummary}. Shoe tone adjustment: ${shoeNote}${manualNote}`,
     unifiedNote:
-      "In 3-image mode, use only one unified outfit across all three scenes. The scenes may change, but the tops, bottoms, outerwear, bag, accessories, fabrics, color palette, pants length, sleeve length, and styling details must remain consistent."
+      "In 3-image mode, use only one unified outfit across all three scenes. The scenes may change, but the tops, bottoms, outerwear, bag, accessories, fabrics, color palette, trouser length, sleeve length, and styling details must remain consistent."
   };
 }
 

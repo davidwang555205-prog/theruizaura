@@ -68,12 +68,12 @@ export const perSceneOutfitLibrary: Record<string, OutfitEntry[]> = {
       colorMood: ["cream", "ivory", "taupe"],
       styleTags: ["summer commute", "clean workwear", "breathable"],
       topCategory: "cream fitted T-shirt",
-      bottomCategory: "ivory straight-leg pants",
+      bottomCategory: "ivory straight-leg trousers",
       outerLayerCategory: "light cotton blazer",
       bagCategory: "no-logo leather tote",
       accessoryCategory: ["subtle gold earrings"],
       compactLine:
-        "Use a cream fitted T-shirt under a light cotton blazer, ivory straight-leg pants, and a no-logo leather tote for polished summer workwear.",
+        "Use a cream fitted T-shirt under a light cotton blazer, ivory straight-leg trousers, and a no-logo leather tote for polished summer workwear.",
       forbidden: ["wrinkled casual T-shirt", "exposed tank-only office look", "overly formal suit"]
     },
     {
@@ -122,12 +122,12 @@ export const perSceneOutfitLibrary: Record<string, OutfitEntry[]> = {
       colorMood: ["charcoal", "white", "stone grey"],
       styleTags: ["grounded workday", "real-life commute", "neutral contrast"],
       topCategory: "charcoal cardigan",
-      bottomCategory: "stone grey tailored pants",
+      bottomCategory: "stone grey tailored trousers",
       outerLayerCategory: "no outer layer",
       bagCategory: "taupe shoulder bag",
       accessoryCategory: ["minimal optical glasses"],
       compactLine:
-        "Use a charcoal cardigan over a white tee, stone grey tailored pants, and a taupe shoulder bag for a grounded refined workday look.",
+        "Use a charcoal cardigan over a white tee, stone grey tailored trousers, and a taupe shoulder bag for a grounded refined workday look.",
       forbidden: ["all-beige AI styling", "cold office look", "stock-photo business outfit"]
     },
     {
@@ -304,12 +304,12 @@ export const perSceneOutfitLibrary: Record<string, OutfitEntry[]> = {
       colorMood: ["cream", "linen beige", "light tan"],
       styleTags: ["summer cafe", "breathable", "clean daily"],
       topCategory: "cream linen shirt",
-      bottomCategory: "ivory straight-leg pants",
+      bottomCategory: "ivory straight-leg trousers",
       outerLayerCategory: "no outer layer",
       bagCategory: "light tan handbag",
       accessoryCategory: ["understated sunglasses only outdoor"],
       compactLine:
-        "Use a cream linen shirt, ivory straight-leg pants, and a light tan handbag for breathable summer cafe ease.",
+        "Use a cream linen shirt, ivory straight-leg trousers, and a light tan handbag for breathable summer cafe ease.",
       forbidden: ["beach vacation styling", "resort look", "overexposed summer pose"]
     },
     {
@@ -540,12 +540,12 @@ export const perSceneOutfitLibrary: Record<string, OutfitEntry[]> = {
       colorMood: ["charcoal", "oatmeal", "dark brown"],
       styleTags: ["winter walk", "real depth", "warm daily"],
       topCategory: "cream knit",
-      bottomCategory: "oatmeal wide-leg pants",
+      bottomCategory: "oatmeal wide-leg trousers",
       outerLayerCategory: "charcoal coat",
       bagCategory: "dark brown tote",
       accessoryCategory: ["soft scarf"],
       compactLine:
-        "Pair a charcoal coat with oatmeal wide-leg pants, a cream knit, and a dark brown tote for realistic winter city-walk depth.",
+        "Pair a charcoal coat with oatmeal wide-leg trousers, a cream knit, and a dark brown tote for realistic winter city-walk depth.",
       forbidden: ["all-black winter", "bulky coat styling", "bleak winter mood"]
     },
     {
@@ -558,12 +558,12 @@ export const perSceneOutfitLibrary: Record<string, OutfitEntry[]> = {
       colorMood: ["cream", "pale khaki", "light tan"],
       styleTags: ["light weekend", "breathable", "errand walk"],
       topCategory: "cream linen shirt",
-      bottomCategory: "pale khaki lightweight pants",
+      bottomCategory: "pale khaki lightweight trousers",
       outerLayerCategory: "no outer layer",
       bagCategory: "light tan handbag",
       accessoryCategory: ["understated sunglasses only outdoor"],
       compactLine:
-        "Use a cream linen shirt, pale khaki lightweight pants, and a light tan handbag for a breathable weekend city walk.",
+        "Use a cream linen shirt, pale khaki lightweight trousers, and a light tan handbag for a breathable weekend city walk.",
       forbidden: ["resort vacation look", "tourist outfit", "overly loose linen outfit"]
     },
     {
@@ -668,12 +668,12 @@ export const perSceneOutfitLibrary: Record<string, OutfitEntry[]> = {
       colorMood: ["charcoal", "black", "neutral"],
       styleTags: ["light strength", "machine area", "premium gym"],
       topCategory: "charcoal fitted tee",
-      bottomCategory: "black straight active pants",
+      bottomCategory: "black straight active trousers",
       outerLayerCategory: "no outer layer",
       bagCategory: "restrained gym tote",
       accessoryCategory: ["light dumbbell"],
       compactLine:
-        "Use a charcoal fitted tee, black straight active pants, and a restrained gym tote for a premium strength-area scene.",
+        "Use a charcoal fitted tee, black straight active trousers, and a restrained gym tote for a premium strength-area scene.",
       forbidden: ["hardcore lifting", "bodybuilding", "powerlifting strain"]
     },
     {
@@ -722,12 +722,12 @@ export const perSceneOutfitLibrary: Record<string, OutfitEntry[]> = {
       colorMood: ["cream", "charcoal", "taupe"],
       styleTags: ["soft active", "gym mirror", "restrained"],
       topCategory: "cream active tank",
-      bottomCategory: "charcoal clean leggings or straight active pants",
+      bottomCategory: "charcoal clean leggings or straight active trousers",
       outerLayerCategory: "taupe zip outer layer",
       bagCategory: "practical gym tote",
       accessoryCategory: ["water bottle"],
       compactLine:
-        "Style her in a cream active tank, charcoal clean leggings or straight active pants, and a taupe zip outer layer for a soft but grounded gym image.",
+        "Style her in a cream active tank, charcoal clean leggings or straight active trousers, and a taupe zip outer layer for a soft but grounded gym image.",
       forbidden: ["over-tight influencer leggings", "bodycon fitness pose", "plastic activewear"]
     },
     {

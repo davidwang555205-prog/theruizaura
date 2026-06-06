@@ -3,7 +3,7 @@ The uploaded THERUIZ AURA sneaker reference has the highest priority in the imag
 
 The model, pose, trouser hem, foot position, camera angle, mirror reflection, and surrounding scene must adapt to the sneaker shape - not the other way around.
 
-Do not let the foot, pose, pants, perspective, mirror angle, or body movement deform the sneaker.
+Do not let the foot, pose, trousers, perspective, mirror angle, or body movement deform the sneaker.
 
 If there is any conflict between natural pose and preserving the shoe, prioritize preserving the exact sneaker shape.
 
@@ -14,7 +14,7 @@ The sneaker must remain structurally identical to the uploaded reference:
 - same outsole curve
 - same side panel proportion
 - same heel height
-- same collar opening
+- same collar shape
 - same tongue shape
 - same lace thickness
 - same lace placement
@@ -59,7 +59,7 @@ The foot must not push through the shoe upper, tongue, collar, outsole, or heel 
 
 The shoe must not bend unnaturally to match the pose.
 
-The trouser hem must stay outside the shoe opening and must not merge with the collar or tongue.
+The trouser hem must stay outside the sneaker collar and must not merge with the collar or tongue.
 
 If the action causes visual conflict, simplify the action into a calmer, safer version while preserving the idea of the movement.`;
 
@@ -69,12 +69,12 @@ Before finalizing the image, ensure that the sneaker keeps:
 - complete toe box
 - clean outsole line
 - stable heel counter
-- natural collar opening
+- natural collar shape
 - visible tongue placement
 - correct lace route
 - no fused lace and tongue
 - no foot breaking through upper
-- no pants entering shoe opening
+- no trousers entering sneaker collar
 - no sole sinking into floor
 - no mirror or perspective distortion changing the shoe shape
 - no mismatched pair
@@ -86,13 +86,13 @@ The sneaker should look wearable, real, and structurally clean.`;
 export const TROUSER_HEM_AND_SHOE_COLLAR_SEPARATION_CONTROL = `Trouser hem and shoe collar separation control:
 The trouser hem must remain visually separate from the sneaker collar.
 
-The pants may lightly touch, hover above, or naturally drape near the shoe, but must not merge into the shoe opening.
+The trousers may lightly touch, hover above, or naturally drape near the shoe, but must not merge into the sneaker collar.
 
 Avoid:
-- pants entering the shoe collar
-- pants fused with tongue
-- pants hiding the shoe opening completely
-- pants cutting through the laces
+- trousers entering the shoe collar
+- trousers fused with tongue
+- trousers hiding the sneaker collar completely
+- trousers cutting through the laces
 - trouser fabric melting into the upper
 - hemline clipping through ankle or collar
 - overly long trousers covering the whole shoe

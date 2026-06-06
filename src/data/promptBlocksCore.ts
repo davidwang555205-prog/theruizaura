@@ -49,7 +49,7 @@ The shoe must look like the exact uploaded THERUIZ AURA sneaker in every image.`
 export const MULTI_IMAGE_CONSISTENCY_CONTROL = `Multi-image consistency control:
 If generating 3 images in one set, use the exact same model identity across all images.
 
-The model must keep the same face, same age appearance, same hairstyle, same hair color, same makeup style, same body shape, same outfit, same bag, same accessories, same clothing details, same pants length, same sleeve length, and same overall styling in every image.
+The model must keep the same face, same age appearance, same hairstyle, same hair color, same makeup style, same body shape, same outfit, same bag, same accessories, same clothing details, same trouser length, same sleeve length, and same overall styling in every image.
 
 Do not change the model's identity from image to image.
 Do not change the outfit.

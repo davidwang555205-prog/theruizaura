@@ -6,6 +6,7 @@ import type { SceneOutfitSeed } from "../data/sceneOutfitSeedLibrary";
 import { shoeOutfitPreferenceMap } from "../data/shoeOutfitPreferenceMap";
 import type { OutfitGeneratedHistoryEntry } from "./outfitGeneratedHistory";
 import type { ParsedUserOutfitRequirement } from "./parseUserOutfitRequirement";
+import { chooseSeasonClimateOutfitLayer } from "./chooseSeasonClimateOutfitLayer";
 
 export const minimumAcceptableOutfitScore = 65;
 
@@ -48,7 +49,6 @@ const sensitiveWords = [
   "sexy",
   "seductive",
   "bodycon",
-  "hot pants",
   "sports bra",
   "beauty selfie",
   "revealing",
@@ -181,6 +181,70 @@ function scoreRepetition(input: ScoreOutfitCandidateInput) {
   return Math.round(penalty);
 }
 
+const heavyWinterPattern = /wool coat|wool-blend|cashmere|high-neck knit|scarf|coldLayer|structured outerwear|warm knit|long wool coat/i;
+const autumnWinterMaterialPattern = /knit|cardigan|jacket|trench|denim|suede|wool|coat|scarf|corduroy|cashmere/i;
+const thinSummerPattern = /sleeveless top alone|linen shirt|Bermuda shorts|shorts|summer|thin cotton|tank/i;
+const thickOuterwearPattern = /heavy wool coat|puffer|snow|ski|fur-heavy|oversized coat|thick scarf/i;
+
+function scoreSeasonMaterial(input: ScoreOutfitCandidateInput, text: string) {
+  let score = 0;
+
+  if (input.season === "spring") {
+    if (["softAccent", "lightClean", "denimBased"].includes(input.outfit.colorDirection)) score += 5;
+    if (heavyWinterPattern.test(text)) score -= 8;
+  }
+
+  if (input.season === "summer") {
+    if (["lightClean", "denimBased"].includes(input.outfit.colorDirection) || input.outfit.garmentType === "lightActive") {
+      score += 5;
+    }
+    if (heavyWinterPattern.test(text)) score -= 10;
+  }
+
+  if (input.season === "autumn") {
+    if (["neutralDaily", "darkAnchor", "denimBased"].includes(input.outfit.colorDirection)) score += 5;
+    if (autumnWinterMaterialPattern.test(text)) score += 5;
+    if (/thin summer|beach|vacation|bare ankle/i.test(text)) score -= 8;
+  }
+
+  if (input.season === "winter") {
+    if (["darkAnchor", "neutralDaily", "lightClean"].includes(input.outfit.colorDirection)) score += 5;
+    if (heavyWinterPattern.test(text) || /dark denim|coat|scarf|wool|high-neck knit/i.test(text)) score += 5;
+    if (thinSummerPattern.test(text)) score -= 12;
+  }
+
+  return score;
+}
+
+function scoreCityClimate(input: ScoreOutfitCandidateInput, text: string) {
+  if (input.season !== "autumn" && input.season !== "winter") return 0;
+
+  const climate = chooseSeasonClimateOutfitLayer({
+    season: input.season,
+    cityProfile: input.cityProfile
+  });
+  let score = 0;
+  const matchedPreferred = climate.preferredMaterials.some((material) => text.includes(material.toLowerCase()));
+
+  if (matchedPreferred) score += 8;
+  if (autumnWinterMaterialPattern.test(text)) score += 5;
+  if (thinSummerPattern.test(text) && !(input.cityProfile === "Shenzhen" && climate.layerWeight === "lightLayer")) {
+    score -= input.season === "winter" ? 12 : 10;
+  }
+  if (thickOuterwearPattern.test(text) && (input.cityProfile === "Shenzhen" || climate.layerWeight === "lightLayer")) score -= 8;
+  if (/Aire|Lemon/i.test(input.shoe)) {
+    const lightContext =
+      climate.layerWeight === "lightLayer" ||
+      input.cityProfile === "Shenzhen" ||
+      input.sceneKey === "gymCommute" ||
+      input.sceneKey === "gymInterior" ||
+      input.sceneKey === "mirrorCloset";
+    if (!lightContext) score -= 8;
+  }
+
+  return score;
+}
+
 export function scoreOutfitCandidate(input: ScoreOutfitCandidateInput): OutfitScoreBreakdown {
   const text = textFor(input.outfit);
   const hardRejectReason = getHardRejectReason(input);
@@ -229,6 +293,8 @@ export function scoreOutfitCandidate(input: ScoreOutfitCandidateInput): OutfitSc
   const userRequirementScore = scoreUserPreference(input, text);
   const humanRealismScore = /real|wearable|daily|believable|grounded|fabric folds/.test(text) ? 5 : 3;
   const shoeVisibilityScore = /clear|readable|sneaker/.test(text) ? 2 : 1;
+  const seasonMaterialScore = scoreSeasonMaterial(input, text);
+  const cityClimateScore = scoreCityClimate(input, text);
 
   const sensitiveRiskPenalty = includesAny(text, sensitiveWords) ? 18 : 0;
   const repetitionPenalty = scoreRepetition(input);
@@ -253,6 +319,8 @@ export function scoreOutfitCandidate(input: ScoreOutfitCandidateInput): OutfitSc
     cityMoodScore +
     userRequirementScore +
     humanRealismScore +
+    seasonMaterialScore +
+    cityClimateScore +
     shoeVisibilityScore -
     sensitiveRiskPenalty -
     repetitionPenalty -

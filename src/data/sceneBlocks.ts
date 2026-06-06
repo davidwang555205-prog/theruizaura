@@ -62,7 +62,7 @@ export const BASIC_SCENE_BLOCKS: SceneBlock[] = [
     englishLabel: "Material storytelling still life",
     category: "basic",
     compactPrompt: "A tactile material still life around the sneakers, using suede swatches, leather samples, mesh, shoelaces, care brush, dust bag, product card, or color cards. Keep the material feeling real, warm, quiet, and editorial, without turning it into a generic product table.",
-    prompt: `Create a tactile, editorial still-life scene that highlights the material story of the sneakers. Include suede swatches, leather samples, mesh fabric samples, shoelaces, care brush, neutral dust bag, product card, small color card, or subtle development objects. The body movement may include a hand gently touching the suede surface, arranging leather samples, holding a color card, holding a care brush, lightly opening the shoe tongue, or adjusting the shoelaces. Expression suggestion: if the face appears, keep it subtle, calm, and naturally focused on the materials.`
+    prompt: `Create a tactile, editorial still-life scene that highlights the material story of the sneakers. Include suede swatches, leather samples, mesh fabric samples, shoelaces, care brush, neutral dust bag, product card, small color card, or subtle development objects. The body movement may include a hand gently touching the suede surface, arranging leather samples, holding a color card, holding a care brush, lightly lifting the shoe tongue, or adjusting the shoelaces. Expression suggestion: if the face appears, keep it subtle, calm, and naturally focused on the materials.`
   },
   {
     id: "08",
@@ -71,7 +71,7 @@ export const BASIC_SCENE_BLOCKS: SceneBlock[] = [
     englishLabel: "Travel and hotel packing",
     category: "basic",
     compactPrompt: "A refined travel or hotel packing scene in a calm warm-neutral room, near a suitcase, travel tote, bed edge, folded clothing, or soft window light. The sneakers should communicate all-day comfort and composed mobility without tourist energy or staged luggage advertising.",
-    prompt: `Create a refined travel lifestyle scene for THERUIZ AURA sneakers. Place the sneakers in a calm hotel room, beside an open suitcase, near a travel tote, on a soft bed with folded clothing, or by a hotel room window. The body movement may include opening a suitcase, placing the sneakers beside folded clothes, sitting on the hotel bed while putting on the shoes, picking up a travel tote, or standing near the window before leaving. Expression suggestion: soft, relaxed, lightly content, natural and unforced, like a calm travel moment.`
+    prompt: `Create a refined travel lifestyle scene for THERUIZ AURA sneakers. Place the sneakers in a calm hotel room, beside an open suitcase, near a travel tote, on a soft bed with folded clothing, or by a hotel room window. The body movement may include unpacking a suitcase, placing the sneakers beside folded clothes, sitting on the hotel bed while putting on the shoes, picking up a travel tote, or standing near the window before leaving. Expression suggestion: soft, relaxed, lightly content, natural and unforced, like a calm travel moment.`
   }
 ];
 
@@ -217,7 +217,7 @@ export const ACTION_COMPACT_PROMPTS: Record<string, string> = {
   "半穿鞋": "Show a simplified half-wearing idea only if needed, with the foot aligned naturally and the shoe structure preserved without clipping.",
   [MIRROR_SELFIE_ACTIONS.full]: "A face-hidden full-body mirror outfit record with both sneakers completely visible, calm posture, and no influencer selfie energy.",
   [MIRROR_SELFIE_ACTIONS.threeQuarter]: "A face-hidden 3/4 mirror outfit record with the outfit and sneakers clearly visible, at least one shoe fully shown, and the second readable.",
-  [MIRROR_SELFIE_ACTIONS.seated]: "A face-hidden seated mirror outfit record that emphasizes trouser hem, ankle area, shoe opening, shoe shape, and on-foot relationship.",
+  [MIRROR_SELFIE_ACTIONS.seated]: "A face-hidden seated mirror outfit record that emphasizes trouser hem, ankle area, sneaker collar, shoe shape, and on-foot relationship.",
   "拿包准备出门": "She naturally holds or picks up a tote before leaving, with stable feet and clearly visible sneakers.",
   "玄关站立准备出门": "She stands calmly in an entryway before leaving, with stable foot placement and the sneakers clearly shown.",
   "推门出门": "She opens or passes through a door with a small controlled movement, keeping shoe-ground contact stable and the footwear readable.",

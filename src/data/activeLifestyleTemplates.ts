@@ -115,7 +115,7 @@ const gymInteriorExpandedLines: ActiveOutfitLine[] = [
     season: ["春", "夏", "秋", "冬"],
     suitableShoes: ["Oreo 奥利奥", "Panda 熊猫", "Silver Romance 银色浪漫", "Cloud Dancer 云舞者"],
     compactLine:
-      "Use a charcoal fitted tee, black straight active pants, and a restrained gym tote for a premium strength-area scene.",
+      "Use a charcoal fitted tee, black straight active trousers, and a restrained gym tote for a premium strength-area scene.",
     forbidden:
       "Avoid neon activewear, fluorescent gymwear, compression-brand styling, bodybuilder outfit, tiny sports bra focus, ultra-short shorts, and cheap matching sports sets."
   },
@@ -145,7 +145,7 @@ const gymInteriorExpandedLines: ActiveOutfitLine[] = [
     season: ["春", "夏", "秋", "冬"],
     suitableShoes: ["Aire 微风", "Sand Dollar 沙钱白", "Lemon 柠檬", "Delphinium Blue 飞燕草蓝"],
     compactLine:
-      "Style her in a cream active tank, charcoal clean leggings or straight active pants, and a taupe zip outer layer for a soft but grounded gym image.",
+      "Style her in a cream active tank, charcoal clean leggings or straight active trousers, and a taupe zip outer layer for a soft but grounded gym image.",
     forbidden:
       "Avoid neon activewear, fluorescent gymwear, compression-brand styling, bodybuilder outfit, tiny sports bra focus, ultra-short shorts, and cheap matching sports sets."
   },
@@ -198,7 +198,7 @@ export const activeOutfitLines: ActiveOutfitLine[] = [
     season: ["春", "夏"],
     suitableShoes: ["Aire 微风", "Cloud Dancer 云舞者", "Sand Dollar 沙钱白"],
     compactLine:
-      "Use a soft studio-ready outfit with a fitted cream active top, light grey straight active pants, a clean zip jacket, and a practical neutral gym tote.",
+      "Use a soft studio-ready outfit with a fitted cream active top, light grey straight active trousers, a clean zip jacket, and a practical neutral gym tote.",
     forbidden:
       "Avoid exposed performance-bra focus, intense training mood, bodybuilder look, loud logos, neon activewear, cycling shorts focus, sweaty workout content, and influencer gym posing."
   },
@@ -238,7 +238,7 @@ export const activeOutfitLines: ActiveOutfitLine[] = [
     season: ["夏", "春"],
     suitableShoes: ["Aire 微风", "Lemon 柠檬", "Delphinium Blue 飞燕草蓝"],
     compactLine:
-      "Use a light beige sleeveless active top with cream straight active pants and a soft grey zip outer layer for a clean studio-movement outfit.",
+      "Use a light beige sleeveless active top with cream straight active trousers and a soft grey zip outer layer for a clean studio-movement outfit.",
     forbidden:
       "Avoid exposed performance-bra focus, intense training mood, bodybuilder look, loud logos, neon activewear, cycling shorts focus, sweaty workout content, and influencer gym posing."
   },
@@ -248,7 +248,7 @@ export const activeOutfitLines: ActiveOutfitLine[] = [
     season: ["冬", "秋"],
     suitableShoes: ["Cloud Dancer 云舞者", "Sand Dollar 沙钱白", "Oreo 奥利奥"],
     compactLine:
-      "Style her in a pale stone fitted tee, winter-white leggings or clean athletic pants, and an oatmeal lightweight sweatshirt tied or layered softly.",
+      "Style her in a pale stone fitted tee, winter-white leggings or clean athletic trousers, and an oatmeal lightweight sweatshirt tied or layered softly.",
     forbidden:
       "Avoid exposed performance-bra focus, intense training mood, bodybuilder look, loud logos, neon activewear, cycling shorts focus, sweaty workout content, and influencer gym posing."
   },
@@ -278,7 +278,7 @@ export const activeOutfitLines: ActiveOutfitLine[] = [
     season: ["秋", "冬", "春"],
     suitableShoes: ["Cappuccino 卡布奇诺", "Maple Grove 枫林", "Sand Dollar 沙钱白"],
     compactLine:
-      "Use a clean off-white active top, muted taupe studio pants, and a soft neutral tote for a restrained indoor fitness scene.",
+      "Use a clean off-white active top, muted taupe studio trousers, and a soft neutral tote for a restrained indoor fitness scene.",
     forbidden:
       "Avoid exposed performance-bra focus, intense training mood, bodybuilder look, loud logos, neon activewear, cycling shorts focus, sweaty workout content, and influencer gym posing."
   },
@@ -288,7 +288,7 @@ export const activeOutfitLines: ActiveOutfitLine[] = [
     season: ["冬", "秋"],
     suitableShoes: ["Oreo 奥利奥", "Panda 熊猫", "Silver Romance 银色浪漫"],
     compactLine:
-      "Style her in an ivory fitted top, refined black-grey active pants, and a light outer layer for a gym look that stays clean and wearable rather than sporty.",
+      "Style her in an ivory fitted top, refined black-grey active trousers, and a light outer layer for a gym look that stays clean and wearable rather than sporty.",
     forbidden:
       "Avoid exposed performance-bra focus, intense training mood, bodybuilder look, loud logos, neon activewear, cycling shorts focus, sweaty workout content, and influencer gym posing."
   },
@@ -298,7 +298,7 @@ export const activeOutfitLines: ActiveOutfitLine[] = [
     season: ["春", "夏"],
     suitableShoes: ["Cloud Dancer 云舞者", "Sand Dollar 沙钱白", "Aire 微风"],
     compactLine:
-      "Use a refined gym-commute look with a fitted white top, soft grey straight active pants, a light zip jacket, and a clean practical tote.",
+      "Use a refined gym-commute look with a fitted white top, soft grey straight active trousers, a light zip jacket, and a clean practical tote.",
     forbidden:
       "Avoid marathon outfit, running-club energy, technical sportswear, performance backpack styling, cycling look, tenniswear, neon accents, and heavy branded athleisure."
   },
@@ -318,7 +318,7 @@ export const activeOutfitLines: ActiveOutfitLine[] = [
     season: ["夏", "春"],
     suitableShoes: ["Aire 微风", "Delphinium Blue 飞燕草蓝", "Lemon 柠檬"],
     compactLine:
-      "Use a soft neutral athleisure outfit with a sleeveless active top, ivory breathable pants, and a clean tote for a calm city-to-gym transition.",
+      "Use a soft neutral athleisure outfit with a sleeveless active top, ivory breathable trousers, and a clean tote for a calm city-to-gym transition.",
     forbidden:
       "Avoid marathon outfit, running-club energy, technical sportswear, performance backpack styling, cycling look, tenniswear, neon accents, and heavy branded athleisure."
   },
@@ -328,7 +328,7 @@ export const activeOutfitLines: ActiveOutfitLine[] = [
     season: ["春", "夏", "秋"],
     suitableShoes: ["Panda 熊猫", "Oreo 奥利奥", "Cloud Dancer 云舞者"],
     compactLine:
-      "Style her in a light grey fitted tee, clean leggings or straight athletic pants, and a beige short outer layer for an easy gym-on-the-way outfit.",
+      "Style her in a light grey fitted tee, clean leggings or straight athletic trousers, and a beige short outer layer for an easy gym-on-the-way outfit.",
     forbidden:
       "Avoid marathon outfit, running-club energy, technical sportswear, performance backpack styling, cycling look, tenniswear, neon accents, and heavy branded athleisure."
   },
@@ -358,7 +358,7 @@ export const activeOutfitLines: ActiveOutfitLine[] = [
     season: ["冬"],
     suitableShoes: ["Cloud Dancer 云舞者", "Oreo 奥利奥", "Panda 熊猫"],
     compactLine:
-      "Use a winter-white high-neck active top, clean grey athletic pants, and a light padded jacket for a cold-weather movement-oriented outfit.",
+      "Use a winter-white high-neck active top, clean grey athletic trousers, and a light padded jacket for a cold-weather movement-oriented outfit.",
     forbidden:
       "Avoid marathon outfit, running-club energy, technical sportswear, performance backpack styling, cycling look, tenniswear, neon accents, and heavy branded athleisure."
   },
@@ -396,7 +396,7 @@ export const activeOutfitLines: ActiveOutfitLine[] = [
 
 const USER_ITEM_KEYWORDS = [
   "leggings",
-  "jogger pants",
+  "jogger trousers",
   "jogger",
   "fitted top",
   "sweatshirt",
@@ -474,7 +474,7 @@ function scorePremiumGymOutfit(line: ActiveOutfitLine, input: ActiveOutfitInput,
   const lineText = line.compactLine.toLowerCase();
   let score = scoreActiveOutfit(line, input);
 
-  if (subScene === "gymStrengthLight" && /strength|machine|dumbbell|black|charcoal|graphite|active pants|trousers|training/.test(lineText)) {
+  if (subScene === "gymStrengthLight" && /strength|machine|dumbbell|black|charcoal|graphite|active trousers|trousers|training/.test(lineText)) {
     score += 10;
   }
   if (subScene === "premiumGym" && /premium|clean|refined|crisp|quiet luxury|taupe|ivory|cream|soft grey/.test(lineText)) {
