@@ -18,6 +18,7 @@ import { chooseCameraLookLine } from "./chooseCameraLookLine";
 import { chooseChinaUrbanStreetLine } from "./chooseChinaUrbanStreetLine";
 import { chooseSeasonCityVisualContext } from "./chooseSeasonCityVisualContext";
 import { accessoryShoeVisibilityRuleLine } from "../data/accessoryProfiles";
+import { getPromptQualityPatchLines } from "../data/promptPatches";
 import { chooseHandheldObjectLines } from "./chooseHandheldObjectLines";
 import { chooseHumanPresenceLines } from "./chooseHumanPresenceLines";
 import { chooseOutfitByGarmentType } from "./chooseOutfitByGarmentType";
@@ -568,6 +569,10 @@ function getProductLine(params: TeamPromptParams, hasShoe: boolean) {
 
 export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
   const hasShoe = resolveTeamHasShoe(params);
+  const promptQualityPatchLines = getPromptQualityPatchLines({
+    imageType: params.imageType,
+    hasShoe
+  });
   const resolvedScene = resolveTeamScenePreference(params);
   const sceneKey = resolveSceneKey(params, resolvedScene);
   const imageCountIntent = detectImageCountOrSeriesIntent(params.extraRequirement, params.imageType);
@@ -710,6 +715,7 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
   const modelStructuredLine = shouldUsePeopleStyling(params.imageType)
     ? [
         getModelLine(params, resolvedScene),
+        ...promptQualityPatchLines.modelLines,
         humanRealism.livedInCoreLine,
         humanRealism.humanProportionCoreLine,
         humanRealism.bodySpecialLine,
@@ -721,6 +727,7 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
   const outfitStructuredLine = shouldUsePeopleStyling(params.imageType)
     ? [
         params.season === "秋" || params.season === "冬" ? seasonCityVisualContext.outfitLayerLine : "",
+        ...promptQualityPatchLines.outfitLines,
         outfitLine,
         accessorySelection.accessoryLine,
         humanRealism.clothingWornLine,
@@ -764,6 +771,7 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
           imageTypeTemplate.templateSceneLine,
           cityProfile ? sceneText : "",
           sceneRealismLine,
+          ...promptQualityPatchLines.sceneLines,
           seasonCityVisualContext.lightingSpaceSupportLine,
           handheldSelection.spacingLine,
           handheldSelection.weightLine,
@@ -777,6 +785,7 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
           .join(" ");
   const moodStructuredLine = [
     brandMoodLine,
+    ...promptQualityPatchLines.moodLines,
     shouldUsePeopleStyling(params.imageType) ? customerFeelingLine : "",
     shouldUsePeopleStyling(params.imageType)
       ? ""
@@ -808,7 +817,8 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
       ...extractAvoidPhrases(accessorySelection.accessoryNegativeLine),
       ...extractAvoidPhrases(actionSelection.negative),
       ...extractAvoidPhrases(`Avoid ${imageTypeTemplate.templateNegativeLine}.`),
-      ...extractAvoidPhrases(cameraSelection.cameraNegativeLine)
+      ...extractAvoidPhrases(cameraSelection.cameraNegativeLine),
+      ...promptQualityPatchLines.negativePhrases
     ]
   });
   const basePromptParts = {
@@ -832,6 +842,7 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
         timeLine: [seasonCityVisualContext.indoorOutdoorLightLine],
         placeLine: [seasonCityVisualContext.lightingSpaceSupportLine],
         productLine: [
+          ...promptQualityPatchLines.productLines,
           sneakerProtection.shoeSpecificAccuracyLine,
           sneakerProtection.accuracyLine,
           sneakerProtection.visibilityLine,
@@ -849,6 +860,7 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
         ],
         sceneLine: [
           imageTypeTemplate.templateSceneLine,
+          ...promptQualityPatchLines.sceneLines,
           shouldUsePeopleStyling(params.imageType) ? accessoryShoeVisibilityRuleLine : "",
           sneakerProtection.visibilityLine
         ].filter(Boolean),
@@ -861,6 +873,7 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
           seasonCityVisualContext.lightingNegativeLine,
           imageTypeTemplate.templateNegativeLine,
           cameraSelection.cameraNegativeLine,
+          ...promptQualityPatchLines.negativePhrases,
           "opening wording",
           "generic pants wording",
           "full figure balance wording risk",

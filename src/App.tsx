@@ -8,6 +8,7 @@ import type {
   TeamShoe
 } from "./types";
 import { generateTeamPrompt } from "./utils/generatePrompt";
+import { promptQualityPatchNotice } from "./data/promptPatches";
 
 const imageTypeOptions: TeamImageType[] = [
   "产品上脚图",
@@ -279,6 +280,10 @@ function App() {
             </div>
 
             {copyStatus && <p className="mt-3 text-sm text-aura-muted">{copyStatus}</p>}
+
+            <p className="mt-5 rounded-[18px] bg-white/65 px-4 py-3 text-sm leading-6 text-aura-muted ring-1 ring-aura-beige/70">
+              {promptQualityPatchNotice}
+            </p>
 
             <p className="mt-5 rounded-[18px] bg-aura-cream px-4 py-3 text-sm leading-6 text-aura-muted ring-1 ring-aura-beige/70">
               生成产品上脚图、对镜穿搭图、生活场景图、产品静物图时，请务必上传对应鞋款参考图，否则 AI 容易改变鞋型与颜色。
