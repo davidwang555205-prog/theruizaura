@@ -29,7 +29,7 @@ export type SceneAccessoryInput = {
   sceneKey: StandardSceneKey;
   imageType: TeamImageType;
   season: TeamSeason;
-  cityProfile: ChinaCityProfile;
+  cityProfile: ChinaCityProfile | null;
   selectedOutfit?: {
     bagCategory?: string | null;
     accessoryCategory?: string[] | null;
@@ -89,9 +89,14 @@ function isBagPrimaryObject(primary: string | null | undefined) {
   return Boolean(primary && BAG_PRIMARY_PATTERN.test(primary));
 }
 
+function getAccessoryCityProfile(cityProfile: ChinaCityProfile | null): ChinaCityProfile {
+  return cityProfile ?? "GenericChineseCity";
+}
+
 function chooseWearables(input: SceneAccessoryInput) {
   const seasonProfile = seasonAccessoryPreferences[input.season];
-  const cityProfile = cityAccessoryPreferences[input.cityProfile];
+  const normalizedCity = getAccessoryCityProfile(input.cityProfile);
+  const cityProfile = cityAccessoryPreferences[normalizedCity];
   const isOutdoor = isOutdoorScene(input.sceneKey);
   const pool = unique([
     ...(input.selectedOutfit?.accessoryCategory ?? []),
@@ -103,7 +108,7 @@ function chooseWearables(input: SceneAccessoryInput) {
     return true;
   });
 
-  const countSeed = hashText(`${input.sceneKey}|${input.season}|${input.cityProfile}|${input.userExtraRequirement}`);
+  const countSeed = hashText(`${input.sceneKey}|${input.season}|${normalizedCity}|${input.userExtraRequirement}`);
   const targetCount = input.sceneKey === "gymInterior" || input.poseCategory === "mirror" ? countSeed % 2 : (countSeed % 3);
   const selected: string[] = [];
   let cursor = countSeed;
@@ -119,10 +124,11 @@ function chooseWearables(input: SceneAccessoryInput) {
 }
 
 function chooseBag(input: SceneAccessoryInput) {
-  const seed = `${input.sceneKey}|${input.season}|${input.cityProfile}|${input.selectedOutfitStyle ?? ""}|${input.selectedGarmentType ?? ""}`;
+  const normalizedCity = getAccessoryCityProfile(input.cityProfile);
+  const seed = `${input.sceneKey}|${input.season}|${normalizedCity}|${input.selectedOutfitStyle ?? ""}|${input.selectedGarmentType ?? ""}`;
   const outfitBag = input.selectedOutfit?.bagCategory?.replace(/\s+as\s+a\s+secondary\s+accessory/i, "").trim();
   const seasonBags = seasonAccessoryPreferences[input.season].preferredBags;
-  const cityBags = cityAccessoryPreferences[input.cityProfile].preferredBags;
+  const cityBags = cityAccessoryPreferences[normalizedCity].preferredBags;
   const sceneBags: Partial<Record<StandardSceneKey, string[]>> = {
     commute: ["small shoulder bag", "crossbody bag", "structured tote placed at the side"],
     cafeExterior: ["small shoulder bag", "crossbody bag"],
@@ -143,8 +149,9 @@ function chooseStrategy(input: SceneAccessoryInput): AccessoryStrategy {
   if (!PEOPLE_IMAGE_TYPES.includes(input.imageType)) return "noAccessory";
   if (input.sceneKey === "stillLife" || input.sceneKey === "materialTable") return "noAccessory";
 
+  const normalizedCity = getAccessoryCityProfile(input.cityProfile);
   const seed = hashText(
-    `${input.sceneKey}|${input.imageType}|${input.season}|${input.cityProfile}|${input.selectedPrimaryHandheldObject ?? ""}|${input.userExtraRequirement}`
+    `${input.sceneKey}|${input.imageType}|${input.season}|${normalizedCity}|${input.selectedPrimaryHandheldObject ?? ""}|${input.userExtraRequirement}`
   );
   const primary = input.selectedPrimaryHandheldObject ?? "";
   const hasPrimary = Boolean(primary);

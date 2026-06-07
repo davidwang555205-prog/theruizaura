@@ -10,7 +10,7 @@ export type PromptPreflightInput = {
   imageType: TeamImageType;
   sceneKey: StandardSceneKey;
   season: TeamSeason;
-  cityProfile: ChinaCityProfile;
+  cityProfile: ChinaCityProfile | null;
   selectedShoe: TeamShoe | string;
   lightingSpaceType: LightingSpaceType;
   selectedOutfit?: unknown;
@@ -54,6 +54,51 @@ function addNegative(base = "", phrases: string[] = []) {
 
 function countMatches(text: string, patterns: RegExp[]) {
   return patterns.reduce((count, pattern) => count + (pattern.test(text) ? 1 : 0), 0);
+}
+
+const cameraLookNames = ["Leica", "Hasselblad", "Fujifilm", "Sony"] as const;
+
+function detectCameraLooks(text: string) {
+  return cameraLookNames.filter((name) => new RegExp(`${name}-inspired`, "i").test(text));
+}
+
+function firstCameraLook(text: string) {
+  return cameraLookNames
+    .map((name) => ({ name, index: text.search(new RegExp(`${name}-inspired`, "i")) }))
+    .filter((item) => item.index >= 0)
+    .sort((a, b) => a.index - b.index)[0]?.name;
+}
+
+function stripCameraLooksExcept(line: string | undefined, keep: (typeof cameraLookNames)[number] | undefined) {
+  if (!line || !keep) return line;
+
+  return cameraLookNames
+    .filter((name) => name !== keep)
+    .reduce((next, name) => {
+      const sentencePattern = new RegExp(`(?:^|\\s)[^.]*${name}-inspired[^.]*\\.`, "gi");
+      return next.replace(sentencePattern, " ");
+    }, line)
+    .replace(/\s{2,}/g, " ")
+    .trim();
+}
+
+function keepSingleCameraLook(parts: StructuredPromptParts) {
+  const keep = firstCameraLook(parts.moodLine ?? allText(parts));
+  return {
+    ...parts,
+    timeLine: stripCameraLooksExcept(parts.timeLine, keep),
+    placeLine: stripCameraLooksExcept(parts.placeLine, keep),
+    productLine: stripCameraLooksExcept(parts.productLine, keep),
+    modelLine: stripCameraLooksExcept(parts.modelLine, keep),
+    outfitLine: stripCameraLooksExcept(parts.outfitLine, keep),
+    sceneLine: stripCameraLooksExcept(parts.sceneLine, keep),
+    moodLine: stripCameraLooksExcept(parts.moodLine, keep),
+    actionLine: stripCameraLooksExcept(parts.actionLine, keep),
+    negativeLine: addNegative(stripCameraLooksExcept(parts.negativeLine, keep), [
+      "multiple camera looks",
+      "conflicting camera styles"
+    ])
+  };
 }
 
 function applyRepair(parts: StructuredPromptParts, repairKey: PromptRepairKey) {
@@ -142,8 +187,11 @@ export function promptPreflightCheck(input: PromptPreflightInput): PromptPreflig
     repair("vocabularyRepair", "Detected vocabulary that should be reduced or replaced.");
   }
 
-  const cameraCount = countMatches(text, [/Leica-inspired/i, /Hasselblad-inspired/i, /Fujifilm-inspired/i]);
-  if (cameraCount > 1) repair("cameraConflictRepair", "Detected multiple camera look styles.");
+  const cameraLooks = detectCameraLooks(allText(fixedPromptParts));
+  if (cameraLooks.length > 1) {
+    fixedPromptParts = keepSingleCameraLook(fixedPromptParts);
+    repair("cameraConflictRepair", "Detected multiple camera look styles.");
+  }
 
   if (input.lightingSpaceType === "outdoorStreet" && !/Chinese city|Shanghai-like|Chengdu-like|Shenzhen-like|Hangzhou-like|Beijing-like/i.test(text)) {
     repair("cityChinaRepair", "Outdoor street prompt needed Chinese city boundary reinforcement.");

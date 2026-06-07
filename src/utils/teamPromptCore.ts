@@ -589,7 +589,8 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
   const cameraSelection = chooseCameraLookLine({
     imageType: params.imageType,
     sceneKey,
-    city: selectedCity,
+    season: params.season,
+    cityProfile: selectedCity,
     lightingSpaceType: seasonCityVisualContext.lightingSpaceType,
     userExtraRequirement: params.extraRequirement
   });
@@ -806,7 +807,8 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
       ...handheldSelection.negativePhrases,
       ...extractAvoidPhrases(accessorySelection.accessoryNegativeLine),
       ...extractAvoidPhrases(actionSelection.negative),
-      ...extractAvoidPhrases(`Avoid ${imageTypeTemplate.templateNegativeLine}.`)
+      ...extractAvoidPhrases(`Avoid ${imageTypeTemplate.templateNegativeLine}.`),
+      ...extractAvoidPhrases(cameraSelection.cameraNegativeLine)
     ]
   });
   const basePromptParts = {
@@ -858,6 +860,7 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
         negativeLine: [
           seasonCityVisualContext.lightingNegativeLine,
           imageTypeTemplate.templateNegativeLine,
+          cameraSelection.cameraNegativeLine,
           "opening wording",
           "generic pants wording",
           "full figure balance wording risk",

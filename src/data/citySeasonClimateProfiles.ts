@@ -108,8 +108,9 @@ export const citySeasonClimateProfiles = {
 
 export function getCitySeasonClimateProfile(city: ChinaCityProfile | null | undefined) {
   const normalizedCity = city ?? "GenericChineseCity";
+  const profiles: CitySeasonClimateProfile[] = Object.values(citySeasonClimateProfiles);
   return (
-    Object.values(citySeasonClimateProfiles).find((profile) => profile.cities.includes(normalizedCity)) ??
+    profiles.find((profile) => profile.cities.includes(normalizedCity)) ??
     citySeasonClimateProfiles.balancedChineseWinter
   );
 }

@@ -84,6 +84,6 @@ export const promptRepairDictionary: Record<PromptRepairKey, PromptRepair> = {
   },
   cameraConflictRepair: {
     key: "cameraConflictRepair",
-    negativePhrases: ["multiple camera styles", "conflicting camera look"]
+    negativePhrases: ["multiple camera looks", "conflicting camera styles"]
   }
 };
