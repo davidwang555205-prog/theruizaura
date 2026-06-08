@@ -30,7 +30,7 @@ export const promptQualityPatches = {
   brandVisualUnity:
     "Keep the image in THERUIZ AURA Quiet Warm Luxury style: cream-white, warm beige, soft stone, natural daylight, low saturation, relaxed elegance, tactile authenticity and believable daily sophistication. Clean but warm, refined but not distant, feminine but not sweet, real but not ordinary.",
   imageTypeDifference:
-    "Adjust the composition and commercial feeling according to the selected image type. Xiaohongshu outfit images should feel natural and lifestyle-driven. Tmall detail images should be cleaner, more commercial and product-readable. Taobao main still-life images should keep the product as the absolute subject. Material detail images should focus on sharp texture, stitching, tied laces and material transitions. Mirror selfie images should feel like a real outfit record, not a beauty selfie."
+    "Adjust the composition and commercial feeling according to the selected image type. Outfit images should feel natural and lifestyle-driven. Detail images should be cleaner and product-readable. Still-life images should keep the product as the absolute subject. Brand atmosphere images may include material table or behind-the-scenes details through extra requirements."
 };
 
 export const promptQualityNegativePhrases = [
@@ -47,7 +47,6 @@ export const promptQualityNegativePhrases = [
   "loose hanging laces",
   "missing lace loops",
   "lace ends disappearing",
-  "broken laces",
   "distorted feet",
   "extra toes",
   "fused legs",
@@ -57,16 +56,8 @@ export const promptQualityNegativePhrases = [
   "plastic skin",
   "AI mannequin",
   "over-posed influencer",
-  "showroom pose",
-  "beauty selfie",
-  "forced direct stare",
   "CGI render",
   "3D render",
-  "glossy fake material",
-  "harsh overexposure",
-  "messy background",
-  "luxury cliché",
-  "logo overload",
   "European old town street",
   "American suburban street",
   "fake luxury mall background"
