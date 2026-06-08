@@ -72,6 +72,14 @@ function seedMatchesGarment(seed: SceneOutfitSeed, garment: GarmentType | null) 
   return garment ? seed.garmentType === garment : true;
 }
 
+function seedMatchesSeason(seed: SceneOutfitSeed, season: ChooseSmartOutfitInput["season"]) {
+  return seed.season.includes(season);
+}
+
+function seedMatchesShoe(seed: SceneOutfitSeed, shoe: string) {
+  return seed.suitableShoes.includes("ALL") || seed.suitableShoes.includes(shoe);
+}
+
 function fallbackText(seed: SceneOutfitSeed) {
   return [
     seed.topCategory,
@@ -120,6 +128,34 @@ function chooseFallback(
   const pool = imageFallbacks.length ? imageFallbacks : manualFallbacks.length ? manualFallbacks : fallbackSafeOutfitTemplates;
   const ranked = [...pool].sort((a, b) => scoreFallbackDiversity(a, history) - scoreFallbackDiversity(b, history));
   return ranked[rotationIndex % ranked.length] ?? ranked[0] ?? pool[0];
+}
+
+function chooseDirectSceneSeed(input: {
+  candidates: SceneOutfitSeed[];
+  season: ChooseSmartOutfitInput["season"];
+  shoe: string;
+  imageType: string | null;
+  manualGarment: GarmentType | null;
+  history: OutfitGeneratedHistoryEntry[];
+  rotationIndex: number;
+}) {
+  const base = input.candidates
+    .filter((seed) => seedMatchesSeason(seed, input.season))
+    .filter((seed) => seedMatchesShoe(seed, input.shoe))
+    .filter((seed) => seedMatchesImageType(seed, input.imageType))
+    .filter((seed) => seedMatchesGarment(seed, input.manualGarment));
+
+  const relaxed = input.candidates
+    .filter((seed) => seedMatchesSeason(seed, input.season))
+    .filter((seed) => seedMatchesImageType(seed, input.imageType))
+    .filter((seed) => seedMatchesGarment(seed, input.manualGarment));
+
+  const pool = base.length ? base : relaxed.length ? relaxed : input.candidates;
+  const recentIds = new Set(input.history.slice(0, Math.min(6, pool.length - 1)).map((item) => item.outfitId));
+  const freshPool = pool.filter((seed) => !recentIds.has(seed.id));
+  const rotationPool = freshPool.length ? freshPool : pool;
+
+  return rotationPool[input.rotationIndex % rotationPool.length] ?? rotationPool[0] ?? null;
 }
 
 function chooseRotatingSeed(
@@ -231,24 +267,57 @@ export function chooseSmartOutfit(input: ChooseSmartOutfitInput): ChooseSmartOut
     .filter((entry) => !entry.score.hardRejected)
     .sort((a, b) => b.score.totalScore - a.score.totalScore);
 
-  const selected = chooseRotatingSeed(scored, rotationIndex);
-  if (selected && selected.score.totalScore >= minimumAcceptableOutfitScore) {
+  const directSelected = chooseDirectSceneSeed({
+    candidates: sceneCandidates,
+    season: input.season,
+    shoe: input.shoe,
+    imageType: input.imageType,
+    manualGarment,
+    history,
+    rotationIndex
+  });
+
+  if (directSelected) {
+    const directScore =
+      scored.find((entry) => entry.seed.id === directSelected.id)?.score ??
+      scoreOutfitCandidate({
+        outfit: directSelected,
+        sceneKey: input.sceneKey,
+        season: input.season,
+        shoe: input.shoe,
+        imageType: input.imageType,
+        garmentTypePreference: input.garmentTypePreference,
+        cityProfile: input.cityProfile,
+        userExtraRequirement: input.userExtraRequirement,
+        parsedUserRequirement,
+        generatedHistory: history,
+        previousOutfitId: input.previousOutfitId
+      });
+
     return buildResult({
       smartInput: input,
-      selected: selected.seed,
-      scoreBreakdown: selected.score,
-      usedFallback: false,
+      selected: directSelected,
+      scoreBreakdown: directScore,
+      usedFallback: directScore.totalScore < minimumAcceptableOutfitScore,
+      fallbackReason:
+        directScore.totalScore < minimumAcceptableOutfitScore
+          ? "Rotated directly from the scene outfit library to force visible outfit variation."
+          : undefined,
       conflictWarnings: parsedUserRequirement.conflictWarnings
     });
   }
 
+  const selected = chooseRotatingSeed(scored, rotationIndex);
   if (selected) {
     return buildResult({
       smartInput: input,
       selected: selected.seed,
       scoreBreakdown: selected.score,
-      usedFallback: true,
-      fallbackReason: `Rotated to a valid alternate outfit below the strict score threshold to preserve outfit variety.`,
+      usedFallback: selected.score.totalScore < minimumAcceptableOutfitScore,
+      fallbackReason:
+        selected.score.totalScore < minimumAcceptableOutfitScore
+          ? "Rotated to a valid alternate outfit below the strict score threshold to preserve outfit variety."
+          : undefined,
       conflictWarnings: parsedUserRequirement.conflictWarnings
     });
   }
@@ -273,7 +342,7 @@ export function chooseSmartOutfit(input: ChooseSmartOutfitInput): ChooseSmartOut
     selected: fallback,
     scoreBreakdown: fallbackScore,
     usedFallback: true,
-    fallbackReason: `No seed passed hard filters; fallback safe outfit template was used.`,
+    fallbackReason: "No seed passed hard filters; fallback safe outfit template was used.",
     conflictWarnings: parsedUserRequirement.conflictWarnings
   });
 }
