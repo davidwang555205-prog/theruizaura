@@ -67,7 +67,8 @@ const initialParams: TeamPromptParams = {
   scenePreference: "自动匹配",
   garmentTypePreference: "自动匹配",
   stillLifeStyle: "与主视觉统一",
-  extraRequirement: ""
+  extraRequirement: "",
+  generationNonce: 0
 };
 
 const inputClass =
@@ -87,7 +88,13 @@ function App() {
   const [copyStatus, setCopyStatus] = useState("");
 
   const handleGenerate = () => {
-    setGeneratedPrompt(generateTeamPrompt(params).prompt);
+    const nextParams: TeamPromptParams = {
+      ...params,
+      generationNonce: params.generationNonce + 1
+    };
+
+    setParams(nextParams);
+    setGeneratedPrompt(generateTeamPrompt(nextParams).prompt);
     setCopyStatus("");
   };
 
