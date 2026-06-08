@@ -3,6 +3,7 @@ import type { TeamImageType } from "../types";
 export const promptQualityPatchLabels = [
   "鞋型保护",
   "鞋子可见性",
+  "鞋带默认系好",
   "材质规则",
   "穿模保护",
   "季节匹配",
@@ -17,7 +18,7 @@ export const promptQualityPatches = {
   sneakerShapeProtection:
     "Strictly preserve the uploaded THERUIZ AURA sneaker reference: low-cut German trainer silhouette, rounded toe box, slim outsole, original panel structure, tongue shape, stitching, lace thickness, material transitions, color relationship and proportions. Do not redesign the shoe.",
   sneakerVisibility:
-    "Keep at least one sneaker fully visible from toe to heel, with the second sneaker clearly readable. Keep trouser hems, skirt hems and socks physically separated from the sneakers. The shoe opening, tongue, laces and outsole must remain clear.",
+    "Keep at least one sneaker fully visible from toe to heel, with the second sneaker clearly readable. Keep trouser hems, skirt hems and socks physically separated from the sneakers. The shoe opening, tongue, tied laces and outsole must remain clear.",
   materialRule:
     "Only Aire 微风 uses lambskin lining. Other current THERUIZ AURA styles use pigskin lining unless manually specified.",
   bodyAndClippingProtection:
@@ -29,7 +30,7 @@ export const promptQualityPatches = {
   brandVisualUnity:
     "Keep the image in THERUIZ AURA Quiet Warm Luxury style: cream-white, warm beige, soft stone, natural daylight, low saturation, relaxed elegance, tactile authenticity and believable daily sophistication. Clean but warm, refined but not distant, feminine but not sweet, real but not ordinary.",
   imageTypeDifference:
-    "Adjust the composition and commercial feeling according to the selected image type. Xiaohongshu outfit images should feel natural and lifestyle-driven. Tmall detail images should be cleaner, more commercial and product-readable. Taobao main still-life images should keep the product as the absolute subject. Material detail images should focus on sharp texture, stitching, laces and material transitions. Mirror selfie images should feel like a real outfit record, not a beauty selfie."
+    "Adjust the composition and commercial feeling according to the selected image type. Xiaohongshu outfit images should feel natural and lifestyle-driven. Tmall detail images should be cleaner, more commercial and product-readable. Taobao main still-life images should keep the product as the absolute subject. Material detail images should focus on sharp texture, stitching, tied laces and material transitions. Mirror selfie images should feel like a real outfit record, not a beauty selfie."
 };
 
 export const promptQualityNegativePhrases = [
@@ -42,6 +43,10 @@ export const promptQualityNegativePhrases = [
   "wrong toe shape",
   "thick outsole",
   "missing laces",
+  "untied laces",
+  "loose hanging laces",
+  "missing lace loops",
+  "lace ends disappearing",
   "broken laces",
   "distorted feet",
   "extra toes",
