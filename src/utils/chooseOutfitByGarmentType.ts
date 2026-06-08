@@ -235,6 +235,19 @@ const standardOutfitLibrary: StandardOutfitEntry[] = [
   }
 ];
 
+const manualFallbackOutfitLines: Record<TeamGarmentType, string> = {
+  trousers:
+    "Use refined straight trousers or clean lightweight trousers only, with a low-saturation top and one practical bag; do not switch to skirts, dresses, or shorts.",
+  skirt:
+    "Use a refined midi skirt or clean A-line skirt only, with a mature low-saturation top and one practical bag; do not switch to trousers, shorts, or dresses.",
+  shorts:
+    "Use refined Bermuda shorts or tailored shorts only, with a clean low-saturation top and one practical bag; do not switch to long trousers, skirts, or dresses.",
+  dress:
+    "Use one refined one-piece dress only, with restrained accessories and clear sneaker visibility; do not switch to trousers, shorts, or a skirt outfit.",
+  lightActive:
+    "Use refined light-active styling only, such as a clean tee with active shorts or clean active trousers and a no-logo gym tote; do not switch to formal commuter styling."
+};
+
 function normalizeImageType(imageType: TeamImageType): StandardImageType {
   if (imageType === "产品上脚图") return "onFoot";
   if (imageType === "对镜穿搭图") return "mirror";
@@ -296,42 +309,56 @@ export function chooseOutfitByGarmentType(input: ChooseStandardOutfitInput): Sta
   }
 
   const manualGarment = getManualGarmentType(input.garmentTypePreference);
+  const imageType = normalizeImageType(input.imageType);
   const baseCandidates = standardOutfitLibrary
     .filter((entry) => entry.seasons.includes(input.season))
     .filter((entry) => entry.sceneAffinities.includes(input.sceneKey) || input.sceneKey === "cityCorner")
-    .filter((entry) => entry.imageTypes.includes(normalizeImageType(input.imageType)))
+    .filter((entry) => entry.imageTypes.includes(imageType))
     .filter((entry) => containsShoe(entry, input.shoe));
+
+  const relaxedManualCandidates = manualGarment
+    ? standardOutfitLibrary
+        .filter((entry) => entry.garmentType === manualGarment)
+        .filter((entry) => entry.imageTypes.includes(imageType))
+        .filter((entry) => entry.seasons.includes(input.season) || input.season === "秋" || input.season === "冬")
+        .filter((entry) => containsShoe(entry, input.shoe) || entry.shoeAffinity.includes("ALL"))
+    : [];
 
   const manualCandidates = manualGarment
     ? baseCandidates.filter((entry) => entry.garmentType === manualGarment)
+    : [];
+
+  const candidates = manualGarment
+    ? (manualCandidates.length ? manualCandidates : relaxedManualCandidates)
     : baseCandidates;
-  const fallbackReason = manualGarment && !manualCandidates.length ? "Selected garment type was softened for this scene." : undefined;
-  const candidates = (manualCandidates.length ? manualCandidates : baseCandidates).sort(
-    (a, b) => scoreOutfit(b, input) - scoreOutfit(a, input)
+
+  const selected = rotateOutfitVariation(
+    [...candidates].sort((a, b) => scoreOutfit(b, input) - scoreOutfit(a, input)),
+    [input.shoe, input.sceneKey, input.season, input.imageType, input.garmentTypePreference].join("|"),
+    Boolean(manualGarment)
   );
-  const rotationKey = [
-    input.shoe,
-    input.sceneKey,
-    input.season,
-    input.imageType,
-    input.garmentTypePreference
-  ].join("|");
-  const selected = rotateOutfitVariation(candidates, rotationKey, Boolean(manualGarment));
+
+  if (!selected && manualGarment) {
+    return {
+      outfitLine: manualFallbackOutfitLines[manualGarment],
+      stylingRealismLine: creatorStylingBoundaryLine,
+      selectedOutfit: null,
+      fallbackReason: "Manual garment type was enforced with a simple fallback."
+    };
+  }
 
   if (!selected) {
     return {
       outfitLine:
         "Use a low-saturation refined daily outfit with clear proportions, believable layering, and one practical bag or accessory that supports the sneakers.",
       stylingRealismLine: stylingRealismLines[0],
-      selectedOutfit: null,
-      fallbackReason
+      selectedOutfit: null
     };
   }
 
   return {
     outfitLine: selected.compactLine,
     stylingRealismLine: selected.stylingRealismLine ?? stylingRealismLines[0],
-    selectedOutfit: selected,
-    fallbackReason
+    selectedOutfit: selected
   };
 }
