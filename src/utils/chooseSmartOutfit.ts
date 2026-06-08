@@ -122,19 +122,22 @@ function chooseFallback(
   return ranked[rotationIndex % ranked.length] ?? ranked[0] ?? pool[0];
 }
 
-function chooseRotatingAcceptableSeed(
+function chooseRotatingSeed(
   scored: { seed: SceneOutfitSeed; score: OutfitScoreBreakdown }[],
   rotationIndex: number
 ) {
-  const bestScore = scored[0]?.score.totalScore ?? 0;
-  const acceptable = scored.filter(
+  if (!scored.length) return null;
+
+  const bestScore = scored[0].score.totalScore;
+  const highQualityPool = scored.filter(
     (entry) =>
       entry.score.totalScore >= minimumAcceptableOutfitScore &&
-      entry.score.totalScore >= bestScore - 12
+      entry.score.totalScore >= bestScore - 25
   );
+  const flexiblePool = scored.filter((entry) => entry.score.totalScore >= bestScore - 45);
+  const rotationPool = highQualityPool.length > 1 ? highQualityPool : flexiblePool.length > 1 ? flexiblePool : scored;
 
-  if (!acceptable.length) return null;
-  return acceptable[rotationIndex % acceptable.length] ?? acceptable[0];
+  return rotationPool[rotationIndex % rotationPool.length] ?? rotationPool[0] ?? scored[0];
 }
 
 function toHistoryEntry(input: ChooseSmartOutfitInput, selected: SceneOutfitSeed): OutfitGeneratedHistoryEntry {
@@ -228,13 +231,24 @@ export function chooseSmartOutfit(input: ChooseSmartOutfitInput): ChooseSmartOut
     .filter((entry) => !entry.score.hardRejected)
     .sort((a, b) => b.score.totalScore - a.score.totalScore);
 
-  const selected = chooseRotatingAcceptableSeed(scored, rotationIndex);
-  if (selected) {
+  const selected = chooseRotatingSeed(scored, rotationIndex);
+  if (selected && selected.score.totalScore >= minimumAcceptableOutfitScore) {
     return buildResult({
       smartInput: input,
       selected: selected.seed,
       scoreBreakdown: selected.score,
       usedFallback: false,
+      conflictWarnings: parsedUserRequirement.conflictWarnings
+    });
+  }
+
+  if (selected) {
+    return buildResult({
+      smartInput: input,
+      selected: selected.seed,
+      scoreBreakdown: selected.score,
+      usedFallback: true,
+      fallbackReason: `Rotated to a valid alternate outfit below the strict score threshold to preserve outfit variety.`,
       conflictWarnings: parsedUserRequirement.conflictWarnings
     });
   }
@@ -259,9 +273,7 @@ export function chooseSmartOutfit(input: ChooseSmartOutfitInput): ChooseSmartOut
     selected: fallback,
     scoreBreakdown: fallbackScore,
     usedFallback: true,
-    fallbackReason: scored[0]
-      ? `Best seed score ${scored[0].score.totalScore} was below minimum ${minimumAcceptableOutfitScore}.`
-      : `No seed passed hard filters; fallback safe outfit template was used.`,
+    fallbackReason: `No seed passed hard filters; fallback safe outfit template was used.`,
     conflictWarnings: parsedUserRequirement.conflictWarnings
   });
 }
