@@ -15,7 +15,6 @@ const imageTypeOptions: TeamImageType[] = [
   "对镜穿搭图",
   "生活场景图",
   "非产品氛围图",
-  "拍摄花絮 / 材质图",
   "产品静物图"
 ];
 
@@ -106,7 +105,7 @@ function App() {
             THERUIZ AURA Prompt Builder
           </h1>
           <p className="text-base leading-7 text-aura-muted">
-            团队日常使用的极简 Standard 英文提示词工具。后台自动匹配真实城市街景、相机质感、穿搭轮换和鞋型保护。
+            团队日常使用的极简 Standard 英文提示词工具。后台自动匹配真实城市街景、相机质感、多样穿搭和鞋型保护。
           </p>
         </header>
 
@@ -115,7 +114,7 @@ function App() {
             <div className="mb-6">
               <h2 className="text-xl font-semibold text-aura-charcoal">输入</h2>
               <p className="mt-2 text-sm leading-6 text-aura-muted">
-                3 秒选择，10 秒复制。前台只保留团队最常用的稳定参数。
+                3 秒选择，10 秒复制。默认入口只保留高频参数，场景放进高级选项。
               </p>
             </div>
 
@@ -172,7 +171,7 @@ function App() {
 
               {params.imageType === "非产品氛围图" && (
                 <p className="rounded-[18px] bg-aura-cream px-4 py-3 text-sm leading-6 text-aura-muted ring-1 ring-aura-beige/70">
-                  非产品氛围图不强制生成鞋子，鞋款选择默认不参与提示词，除非你在补充要求中明确提到鞋子。
+                  非产品氛围图不强制生成鞋子。材质工作台、拍摄花絮、品牌生活方式氛围，都可直接写进补充要求。
                 </p>
               )}
 
@@ -186,25 +185,6 @@ function App() {
                   }
                 >
                   {seasonOptions.map((option) => (
-                    <option key={option} value={option}>
-                      {option}
-                    </option>
-                  ))}
-                </select>
-              </label>
-
-              <label className="block space-y-2">
-                <span className="text-sm font-medium text-aura-charcoal">场景偏好</span>
-                <select
-                  className={inputClass}
-                  value={params.scenePreference}
-                  onChange={(event) =>
-                    setParams((current) =>
-                      updateField(current, "scenePreference", event.target.value as TeamScenePreference)
-                    )
-                  }
-                >
-                  {sceneOptions.map((option) => (
                     <option key={option} value={option}>
                       {option}
                     </option>
@@ -234,6 +214,33 @@ function App() {
                   ))}
                 </select>
               </label>
+
+              <details className="rounded-[20px] bg-white/55 px-4 py-3 ring-1 ring-aura-beige/70">
+                <summary className="cursor-pointer text-sm font-medium text-aura-charcoal">
+                  高级选项：手动指定场景
+                </summary>
+                <label className="mt-4 block space-y-2">
+                  <span className="text-sm font-medium text-aura-charcoal">场景偏好</span>
+                  <select
+                    className={inputClass}
+                    value={params.scenePreference}
+                    onChange={(event) =>
+                      setParams((current) =>
+                        updateField(current, "scenePreference", event.target.value as TeamScenePreference)
+                      )
+                    }
+                  >
+                    {sceneOptions.map((option) => (
+                      <option key={option} value={option}>
+                        {option}
+                      </option>
+                    ))}
+                  </select>
+                  <span className="block text-xs leading-5 text-aura-muted">
+                    日常使用建议保持自动匹配，只有明确要咖啡店、酒店、健身房、材质工作台等场景时再打开。
+                  </span>
+                </label>
+              </details>
 
               <label className="block space-y-2">
                 <span className="text-sm font-medium text-aura-charcoal">补充要求</span>
