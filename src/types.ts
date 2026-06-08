@@ -233,6 +233,7 @@ export type TeamPromptParams = {
   garmentTypePreference: TeamGarmentTypePreference;
   stillLifeStyle: TeamStillLifeStyle;
   extraRequirement: string;
+  generationNonce: number;
 };
 
 export type TeamPromptOutput = {
