@@ -7,14 +7,7 @@ import type {
   TeamSeason,
   TeamShoe
 } from "../types";
-import {
-  creatorStylingBoundaryLine,
-  getManualGarmentType,
-  sceneOutfitTendencyMap,
-  stylingRealismLines,
-  type StandardSceneKey
-} from "../data/outfitDiversityRules";
-import { normalizePerSceneShoe } from "./outfitLibraryFilters";
+import { creatorStylingBoundaryLine, getManualGarmentType, stylingRealismLines, type StandardSceneKey } from "../data/outfitDiversityRules";
 import { rotateOutfitVariation, type RotatableOutfit } from "./rotateOutfitVariation";
 
 type StandardImageType = "onFoot" | "mirror" | "lifestyle" | "gym" | "stillLife" | "atmosphere" | "material";
@@ -37,54 +30,122 @@ export type StandardOutfitSelection = {
   fallbackReason?: string;
 };
 
+const baseStylingRealismLine =
+  "Keep styling real and wearable: natural fabric folds, clear shoe visibility, believable layering, no fabric melting into shoes, and one clear outfit idea rather than over-styled AI fashion.";
+
+const allSceneKeys: StandardSceneKey[] = [
+  "commute",
+  "weekendCityWalk",
+  "premiumErrands",
+  "cafeExterior",
+  "bookstoreMagazine",
+  "flowerShop",
+  "bakeryDessert",
+  "boutiqueStreet",
+  "hotelTravel",
+  "mirrorCloset",
+  "entrywayDeparture",
+  "cityCorner",
+  "gymInterior",
+  "gymCommute",
+  "materialTable",
+  "stillLife"
+];
+
+const peopleImageTypes: StandardImageType[] = ["onFoot", "mirror", "lifestyle"];
+const allShoes = ["ALL"];
+
 const standardOutfitLibrary: StandardOutfitEntry[] = [
   {
-    id: "std-trousers-light",
+    id: "kw-trousers-white-shirt-cream-trousers",
     garmentType: "trousers",
     outfitStyle: "polishedCommuter",
     colorDirection: "lightClean",
     topCategory: "white cotton shirt",
     bottomCategory: "cream straight trousers",
-    visualAnchor: "white shirt",
+    visualAnchor: "white cotton shirt",
     seasons: ["春", "夏"],
-    sceneAffinities: ["commute", "cafeExterior", "bookstoreMagazine", "premiumErrands"],
-    shoeAffinity: ["Cloud Dancer", "Sand Dollar", "Delphinium Blue", "Aire", "Lemon", "ALL"],
-    imageTypes: ["onFoot", "lifestyle", "mirror"],
+    sceneAffinities: allSceneKeys,
+    shoeAffinity: allShoes,
+    imageTypes: peopleImageTypes,
     compactLine:
-      "Style her in a white cotton shirt, cream straight trousers, a structured taupe tote, and subtle gold earrings for clean refined daily polish."
+      "Outfit keywords: white cotton shirt, cream straight trousers, light beige shirt jacket, taupe shoulder bag, simple watch, clean polished commuter styling.",
+    bagCategory: "taupe shoulder bag as secondary accessory",
+    accessoryCategory: ["simple watch"],
+    stylingRealismLine: baseStylingRealismLine
   },
   {
-    id: "std-trousers-denim",
-    garmentType: "trousers",
-    outfitStyle: "cleanMinimal",
-    colorDirection: "denimBased",
-    topCategory: "pale blue shirt",
-    bottomCategory: "dark straight denim",
-    visualAnchor: "pale blue shirt",
-    seasons: ["春", "夏", "秋"],
-    sceneAffinities: ["commute", "weekendCityWalk", "bookstoreMagazine", "cafeExterior"],
-    shoeAffinity: ["Cloud Dancer", "Sand Dollar", "Delphinium Blue", "Silver Romance", "ALL"],
-    imageTypes: ["onFoot", "lifestyle", "mirror"],
-    compactLine:
-      "Use a pale blue shirt with dark straight denim, a slim leather belt, and a cream canvas tote for a real city outfit with denim depth."
-  },
-  {
-    id: "std-trousers-summer",
+    id: "kw-trousers-linen-khaki",
     garmentType: "trousers",
     outfitStyle: "realDaily",
     colorDirection: "neutralDaily",
     topCategory: "cream linen shirt",
-    bottomCategory: "pale khaki lightweight trousers",
+    bottomCategory: "pale khaki linen trousers",
     visualAnchor: "cream linen shirt",
-    seasons: ["夏"],
-    sceneAffinities: ["weekendCityWalk", "premiumErrands", "bakeryDessert", "cafeExterior"],
-    shoeAffinity: ["Aire", "Cloud Dancer", "Sand Dollar", "Lemon", "Delphinium Blue", "ALL"],
+    seasons: ["夏", "春"],
+    sceneAffinities: allSceneKeys,
+    shoeAffinity: allShoes,
     imageTypes: ["onFoot", "lifestyle"],
     compactLine:
-      "Use a cream linen shirt, pale khaki lightweight trousers, a light tan handbag, and restrained summer accessories for breathable daily ease."
+      "Outfit keywords: cream linen shirt, pale khaki linen trousers, thin woven belt, light tan handbag, breathable summer city-walk styling.",
+    bagCategory: "light tan handbag as secondary accessory",
+    accessoryCategory: ["thin woven belt"],
+    stylingRealismLine: baseStylingRealismLine
   },
   {
-    id: "std-skirt-cream",
+    id: "kw-trousers-denim-blue-shirt",
+    garmentType: "trousers",
+    outfitStyle: "bloggerLite",
+    colorDirection: "denimBased",
+    topCategory: "pale blue open shirt",
+    bottomCategory: "dark straight denim",
+    visualAnchor: "pale blue shirt",
+    seasons: ["春", "夏", "秋"],
+    sceneAffinities: allSceneKeys,
+    shoeAffinity: allShoes,
+    imageTypes: peopleImageTypes,
+    compactLine:
+      "Outfit keywords: white tee base, pale blue open shirt, dark straight denim, slim leather belt, cream canvas tote, real city outfit-record styling.",
+    bagCategory: "cream canvas tote as secondary accessory",
+    accessoryCategory: ["slim leather belt"],
+    stylingRealismLine: baseStylingRealismLine
+  },
+  {
+    id: "kw-trousers-dark-anchor",
+    garmentType: "trousers",
+    outfitStyle: "darkAnchor",
+    colorDirection: "darkAnchor",
+    topCategory: "dark coffee clean-cut tee",
+    bottomCategory: "taupe relaxed trousers",
+    visualAnchor: "dark coffee tee",
+    seasons: ["春", "夏", "秋"],
+    sceneAffinities: allSceneKeys,
+    shoeAffinity: allShoes,
+    imageTypes: peopleImageTypes,
+    compactLine:
+      "Outfit keywords: dark coffee clean-cut tee, taupe relaxed trousers, cotton jacket, minimal earrings, grounded dark-anchor daily styling.",
+    accessoryCategory: ["minimal earrings"],
+    stylingRealismLine: baseStylingRealismLine
+  },
+  {
+    id: "kw-trousers-knit-cardigan",
+    garmentType: "trousers",
+    outfitStyle: "realDaily",
+    colorDirection: "neutralDaily",
+    topCategory: "oatmeal lightweight knit",
+    bottomCategory: "stone relaxed trousers",
+    visualAnchor: "oatmeal knit",
+    seasons: ["春", "秋", "冬"],
+    sceneAffinities: allSceneKeys,
+    shoeAffinity: allShoes,
+    imageTypes: peopleImageTypes,
+    compactLine:
+      "Outfit keywords: oatmeal lightweight knit, stone relaxed trousers, soft grey cardigan, thin belt, calm warm-neutral daily texture.",
+    accessoryCategory: ["thin belt"],
+    stylingRealismLine: baseStylingRealismLine
+  },
+  {
+    id: "kw-skirt-grey-knit-cream-midi",
     garmentType: "skirt",
     outfitStyle: "refinedFeminine",
     colorDirection: "lightClean",
@@ -92,14 +153,17 @@ const standardOutfitLibrary: StandardOutfitEntry[] = [
     bottomCategory: "cream midi skirt",
     visualAnchor: "cream midi skirt",
     seasons: ["春", "夏"],
-    sceneAffinities: ["cafeExterior", "flowerShop", "bookstoreMagazine", "mirrorCloset"],
-    shoeAffinity: ["Cloud Dancer", "Sand Dollar", "Silver Romance", "Lemon", "Delphinium Blue", "ALL"],
-    imageTypes: ["onFoot", "lifestyle", "mirror"],
+    sceneAffinities: allSceneKeys,
+    shoeAffinity: allShoes,
+    imageTypes: peopleImageTypes,
     compactLine:
-      "Pair a soft grey short-sleeve knit with a cream midi skirt, taupe handbag, and minimal earrings for mature feminine ease."
+      "Outfit keywords: soft grey short-sleeve knit, cream midi skirt, taupe handbag, minimal earrings, mature refined feminine styling.",
+    bagCategory: "taupe handbag as secondary accessory",
+    accessoryCategory: ["minimal earrings"],
+    stylingRealismLine: baseStylingRealismLine
   },
   {
-    id: "std-skirt-accent",
+    id: "kw-skirt-oatmeal-blue",
     garmentType: "skirt",
     outfitStyle: "bloggerLite",
     colorDirection: "softAccent",
@@ -107,14 +171,35 @@ const standardOutfitLibrary: StandardOutfitEntry[] = [
     bottomCategory: "misty blue A-line skirt",
     visualAnchor: "misty blue skirt",
     seasons: ["春", "夏"],
-    sceneAffinities: ["bookstoreMagazine", "flowerShop", "cafeExterior", "weekendCityWalk"],
-    shoeAffinity: ["Delphinium Blue", "Cloud Dancer", "Sand Dollar", "Silver Romance", "ALL"],
-    imageTypes: ["onFoot", "lifestyle", "mirror"],
+    sceneAffinities: allSceneKeys,
+    shoeAffinity: allShoes,
+    imageTypes: peopleImageTypes,
     compactLine:
-      "Use an oatmeal knit top, a misty blue A-line skirt, and a pale grey shoulder bag for a low-saturation feminine outfit with subtle freshness."
+      "Outfit keywords: oatmeal knit top, misty blue A-line skirt, pale grey shoulder bag, soft low-saturation blogger outfit styling.",
+    bagCategory: "pale grey shoulder bag as secondary accessory",
+    accessoryCategory: ["small earrings"],
+    stylingRealismLine: baseStylingRealismLine
   },
   {
-    id: "std-shorts-denim",
+    id: "kw-skirt-denim-midi",
+    garmentType: "skirt",
+    outfitStyle: "realDaily",
+    colorDirection: "denimBased",
+    topCategory: "white ribbed tee",
+    bottomCategory: "washed denim midi skirt",
+    visualAnchor: "washed denim midi skirt",
+    seasons: ["春", "夏", "秋"],
+    sceneAffinities: allSceneKeys,
+    shoeAffinity: allShoes,
+    imageTypes: peopleImageTypes,
+    compactLine:
+      "Outfit keywords: white ribbed tee, washed denim midi skirt, thin beige cardigan, canvas tote, relaxed weekend denim-skirt styling.",
+    bagCategory: "canvas tote as secondary accessory",
+    accessoryCategory: ["thin beige cardigan"],
+    stylingRealismLine: baseStylingRealismLine
+  },
+  {
+    id: "kw-shorts-white-shirt-denim-bermuda",
     garmentType: "shorts",
     outfitStyle: "relaxedWeekend",
     colorDirection: "denimBased",
@@ -122,14 +207,16 @@ const standardOutfitLibrary: StandardOutfitEntry[] = [
     bottomCategory: "light denim Bermuda shorts",
     visualAnchor: "white shirt outer layer",
     seasons: ["夏"],
-    sceneAffinities: ["weekendCityWalk", "cafeExterior", "bakeryDessert", "premiumErrands"],
-    shoeAffinity: ["Aire", "Cloud Dancer", "Sand Dollar", "Lemon", "Delphinium Blue", "ALL"],
-    imageTypes: ["onFoot", "lifestyle", "mirror"],
+    sceneAffinities: allSceneKeys,
+    shoeAffinity: allShoes,
+    imageTypes: peopleImageTypes,
     compactLine:
-      "Use a white shirt worn open as a light layer, a clean inner top, light denim Bermuda shorts, and a canvas tote for refined summer movement."
+      "Outfit keywords: white shirt worn open, clean inner top, light denim Bermuda shorts, canvas tote, refined summer movement styling; do not switch to long trousers.",
+    bagCategory: "canvas tote as secondary accessory",
+    stylingRealismLine: baseStylingRealismLine
   },
   {
-    id: "std-shorts-dark",
+    id: "kw-shorts-charcoal-cream-tailored",
     garmentType: "shorts",
     outfitStyle: "bloggerLite",
     colorDirection: "darkAnchor",
@@ -137,14 +224,35 @@ const standardOutfitLibrary: StandardOutfitEntry[] = [
     bottomCategory: "cream tailored shorts",
     visualAnchor: "charcoal knit tee",
     seasons: ["夏"],
-    sceneAffinities: ["cafeExterior", "weekendCityWalk", "premiumErrands", "mirrorCloset"],
-    shoeAffinity: ["Cloud Dancer", "Sand Dollar", "Silver Romance", "Oreo", "Panda", "ALL"],
-    imageTypes: ["onFoot", "lifestyle", "mirror"],
+    sceneAffinities: allSceneKeys,
+    shoeAffinity: allShoes,
+    imageTypes: peopleImageTypes,
     compactLine:
-      "Pair a charcoal knit tee with cream tailored shorts, a black small shoulder bag, and subtle optical glasses for a grounded outfit-record feel."
+      "Outfit keywords: charcoal knit tee, cream tailored shorts, black small shoulder bag, subtle optical glasses, grounded outfit-record styling; shorts must stay visible.",
+    bagCategory: "black small shoulder bag as secondary accessory",
+    accessoryCategory: ["subtle optical glasses"],
+    stylingRealismLine: baseStylingRealismLine
   },
   {
-    id: "std-dress-ivory",
+    id: "kw-shorts-polo-bermuda",
+    garmentType: "shorts",
+    outfitStyle: "realDaily",
+    colorDirection: "neutralDaily",
+    topCategory: "cream polo shirt",
+    bottomCategory: "stone grey Bermuda shorts",
+    visualAnchor: "cream polo shirt",
+    seasons: ["夏"],
+    sceneAffinities: allSceneKeys,
+    shoeAffinity: allShoes,
+    imageTypes: ["onFoot", "lifestyle"],
+    compactLine:
+      "Outfit keywords: cream polo shirt, stone grey Bermuda shorts, woven tote, simple watch, clean weekend city styling; do not lengthen shorts into trousers.",
+    bagCategory: "woven tote as secondary accessory",
+    accessoryCategory: ["simple watch"],
+    stylingRealismLine: baseStylingRealismLine
+  },
+  {
+    id: "kw-dress-ivory-shirt-dress",
     garmentType: "dress",
     outfitStyle: "refinedFeminine",
     colorDirection: "lightClean",
@@ -152,14 +260,17 @@ const standardOutfitLibrary: StandardOutfitEntry[] = [
     bottomCategory: "ivory shirt dress",
     visualAnchor: "ivory shirt dress",
     seasons: ["春", "夏"],
-    sceneAffinities: ["flowerShop", "cafeExterior", "bookstoreMagazine", "mirrorCloset", "weekendCityWalk"],
-    shoeAffinity: ["Cloud Dancer", "Sand Dollar", "Lemon", "Delphinium Blue", "ALL"],
-    imageTypes: ["onFoot", "lifestyle", "mirror"],
+    sceneAffinities: allSceneKeys,
+    shoeAffinity: allShoes,
+    imageTypes: peopleImageTypes,
     compactLine:
-      "Choose an ivory shirt dress with a soft beige shoulder bag and minimal jewelry for relaxed feminine elegance without vacation styling."
+      "Outfit keywords: ivory shirt dress, soft beige shoulder bag, minimal jewelry, clean one-piece feminine styling with sneakers fully visible.",
+    bagCategory: "soft beige shoulder bag as secondary accessory",
+    accessoryCategory: ["minimal jewelry"],
+    stylingRealismLine: baseStylingRealismLine
   },
   {
-    id: "std-dress-grey",
+    id: "kw-dress-grey-summer",
     garmentType: "dress",
     outfitStyle: "realDaily",
     colorDirection: "neutralDaily",
@@ -167,44 +278,53 @@ const standardOutfitLibrary: StandardOutfitEntry[] = [
     bottomCategory: "soft grey summer dress",
     visualAnchor: "soft grey dress",
     seasons: ["夏"],
-    sceneAffinities: ["weekendCityWalk", "cafeExterior", "bookstoreMagazine", "premiumErrands"],
-    shoeAffinity: ["Silver Romance", "Cloud Dancer", "Sand Dollar", "Aire", "ALL"],
-    imageTypes: ["onFoot", "lifestyle", "mirror"],
+    sceneAffinities: allSceneKeys,
+    shoeAffinity: allShoes,
+    imageTypes: peopleImageTypes,
     compactLine:
-      "Use a soft grey summer dress, light taupe handbag, and restrained earrings for a calm one-piece outfit that still keeps the sneakers readable."
+      "Outfit keywords: soft grey summer dress, light taupe handbag, restrained earrings, calm one-piece daily styling, sneakers clear and not hidden by hem.",
+    bagCategory: "light taupe handbag as secondary accessory",
+    accessoryCategory: ["restrained earrings"],
+    stylingRealismLine: baseStylingRealismLine
   },
   {
-    id: "std-dress-khaki",
+    id: "kw-dress-khaki-sleeveless",
     garmentType: "dress",
     outfitStyle: "relaxedWeekend",
     colorDirection: "softAccent",
     topCategory: "pale khaki sleeveless dress",
     bottomCategory: "pale khaki sleeveless dress",
     visualAnchor: "pale khaki dress",
-    seasons: ["夏", "春"],
-    sceneAffinities: ["weekendCityWalk", "flowerShop", "bakeryDessert", "mirrorCloset"],
-    shoeAffinity: ["Aire", "Lemon", "Cloud Dancer", "Sand Dollar", "ALL"],
-    imageTypes: ["onFoot", "lifestyle", "mirror"],
+    seasons: ["春", "夏"],
+    sceneAffinities: allSceneKeys,
+    shoeAffinity: allShoes,
+    imageTypes: peopleImageTypes,
     compactLine:
-      "Choose a pale khaki sleeveless dress with a cream tote and subtle gold earrings for fresh warm-weather ease that stays mature."
+      "Outfit keywords: pale khaki sleeveless dress, cream tote, subtle gold earrings, fresh warm-weather one-piece styling, mature not sweet.",
+    bagCategory: "cream tote as secondary accessory",
+    accessoryCategory: ["subtle gold earrings"],
+    stylingRealismLine: baseStylingRealismLine
   },
   {
-    id: "std-active-black",
+    id: "kw-active-black-shorts",
     garmentType: "lightActive",
     outfitStyle: "softActive",
     colorDirection: "darkAnchor",
     topCategory: "black clean-cut T-shirt",
-    bottomCategory: "charcoal clean active shorts",
+    bottomCategory: "charcoal active shorts",
     visualAnchor: "black clean-cut T-shirt",
     seasons: ["春", "夏"],
-    sceneAffinities: ["gymInterior", "gymCommute", "premiumErrands"],
-    shoeAffinity: ["Aire", "Cloud Dancer", "Sand Dollar", "Oreo", "Panda", "ALL"],
-    imageTypes: ["gym", "lifestyle", "onFoot"],
+    sceneAffinities: allSceneKeys,
+    shoeAffinity: allShoes,
+    imageTypes: ["onFoot", "lifestyle", "gym"],
     compactLine:
-      "Use a black clean-cut T-shirt, charcoal clean active shorts, and a practical no-logo gym tote for a calm premium movement-ready outfit."
+      "Outfit keywords: black clean-cut T-shirt, charcoal active shorts, no-logo gym tote, water bottle, calm premium light-active styling.",
+    bagCategory: "no-logo gym tote as secondary accessory",
+    accessoryCategory: ["water bottle"],
+    stylingRealismLine: baseStylingRealismLine
   },
   {
-    id: "std-active-grey",
+    id: "kw-active-grey-shorts-overshirt",
     garmentType: "lightActive",
     outfitStyle: "softActive",
     colorDirection: "neutralDaily",
@@ -212,14 +332,16 @@ const standardOutfitLibrary: StandardOutfitEntry[] = [
     bottomCategory: "black active shorts",
     visualAnchor: "pale grey tee",
     seasons: ["夏"],
-    sceneAffinities: ["gymInterior", "gymCommute", "premiumErrands"],
-    shoeAffinity: ["Aire", "Cloud Dancer", "Sand Dollar", "Delphinium Blue", "Lemon", "ALL"],
-    imageTypes: ["gym", "lifestyle"],
+    sceneAffinities: allSceneKeys,
+    shoeAffinity: allShoes,
+    imageTypes: ["onFoot", "lifestyle", "gym"],
     compactLine:
-      "Style her in a pale grey short-sleeve tee, black active shorts, a cream overshirt, and a clean gym tote for a believable premium gym moment."
+      "Outfit keywords: pale grey short-sleeve tee, black active shorts, cream overshirt, clean gym tote, believable city-to-gym styling.",
+    bagCategory: "clean gym tote as secondary accessory",
+    stylingRealismLine: baseStylingRealismLine
   },
   {
-    id: "std-active-cream",
+    id: "kw-active-cream-taupe-trousers",
     garmentType: "lightActive",
     outfitStyle: "softActive",
     colorDirection: "lightClean",
@@ -227,25 +349,27 @@ const standardOutfitLibrary: StandardOutfitEntry[] = [
     bottomCategory: "taupe straight active trousers",
     visualAnchor: "cream active top",
     seasons: ["春", "夏", "秋"],
-    sceneAffinities: ["gymInterior", "gymCommute", "premiumErrands", "mirrorCloset"],
-    shoeAffinity: ["Aire", "Cloud Dancer", "Sand Dollar", "Lemon", "ALL"],
-    imageTypes: ["gym", "lifestyle", "mirror"],
+    sceneAffinities: allSceneKeys,
+    shoeAffinity: allShoes,
+    imageTypes: ["onFoot", "lifestyle", "mirror", "gym"],
     compactLine:
-      "Use a cream clean active top, taupe straight active trousers, a soft zip layer, and a water bottle for refined light movement styling."
+      "Outfit keywords: cream clean active top, taupe straight active trousers, soft zip layer, water bottle, refined light movement styling.",
+    accessoryCategory: ["water bottle"],
+    stylingRealismLine: baseStylingRealismLine
   }
 ];
 
 const manualFallbackOutfitLines: Record<TeamGarmentType, string> = {
   trousers:
-    "Use refined straight trousers or clean lightweight trousers only, with a low-saturation top and one practical bag; do not switch to skirts, dresses, or shorts.",
+    "Outfit keywords: refined straight trousers or clean lightweight trousers, low-saturation top, practical bag; do not switch to skirts, dresses, or shorts.",
   skirt:
-    "Use a refined midi skirt or clean A-line skirt only, with a mature low-saturation top and one practical bag; do not switch to trousers, shorts, or dresses.",
+    "Outfit keywords: refined midi skirt or clean A-line skirt, mature low-saturation top, practical bag; do not switch to trousers, shorts, or dresses.",
   shorts:
-    "Use refined Bermuda shorts or tailored shorts only, with a clean low-saturation top and one practical bag; do not switch to long trousers, skirts, or dresses.",
+    "Outfit keywords: refined Bermuda shorts or tailored shorts, clean low-saturation top, practical bag; do not switch to long trousers, skirts, or dresses.",
   dress:
-    "Use one refined one-piece dress only, with restrained accessories and clear sneaker visibility; do not switch to trousers, shorts, or a skirt outfit.",
+    "Outfit keywords: refined one-piece dress, restrained accessories, clear sneaker visibility; do not switch to trousers, shorts, or a skirt outfit.",
   lightActive:
-    "Use refined light-active styling only, such as a clean tee with active shorts or clean active trousers and a no-logo gym tote; do not switch to formal commuter styling."
+    "Outfit keywords: refined light-active styling, clean tee, active shorts or clean active trousers, no-logo gym tote; do not switch to formal commuter styling."
 };
 
 function normalizeImageType(imageType: TeamImageType): StandardImageType {
@@ -255,29 +379,6 @@ function normalizeImageType(imageType: TeamImageType): StandardImageType {
   if (imageType === "产品静物图") return "stillLife";
   if (imageType === "拍摄花絮 / 材质图") return "material";
   return "atmosphere";
-}
-
-function containsShoe(entry: StandardOutfitEntry, shoe: TeamShoe) {
-  const normalizedShoe = normalizePerSceneShoe(shoe);
-  return entry.shoeAffinity.includes("ALL") || entry.shoeAffinity.includes(normalizedShoe);
-}
-
-function scoreOutfit(entry: StandardOutfitEntry, input: ChooseStandardOutfitInput) {
-  const tendency = sceneOutfitTendencyMap[input.sceneKey];
-  const imageType = normalizeImageType(input.imageType);
-  let score = 0;
-
-  if (entry.seasons.includes(input.season)) score += 30;
-  if (entry.sceneAffinities.includes(input.sceneKey)) score += 28;
-  if (entry.imageTypes.includes(imageType)) score += 18;
-  if (containsShoe(entry, input.shoe)) score += 16;
-  if (tendency?.preferredStyles.includes(entry.outfitStyle)) score += 10;
-  if (tendency?.preferredColors.includes(entry.colorDirection)) score += 10;
-  if (tendency?.preferredGarments.includes(entry.garmentType)) score += 10;
-  if (input.sceneKey === "gymInterior" && entry.garmentType === "lightActive") score += 35;
-  if (input.imageType === "对镜穿搭图" && entry.imageTypes.includes("mirror")) score += 12;
-
-  return score;
 }
 
 function shouldSkipOutfit(imageType: TeamImageType) {
@@ -310,31 +411,17 @@ export function chooseOutfitByGarmentType(input: ChooseStandardOutfitInput): Sta
 
   const manualGarment = getManualGarmentType(input.garmentTypePreference);
   const imageType = normalizeImageType(input.imageType);
-  const baseCandidates = standardOutfitLibrary
+  const seasonImageCandidates = standardOutfitLibrary
     .filter((entry) => entry.seasons.includes(input.season))
-    .filter((entry) => entry.sceneAffinities.includes(input.sceneKey) || input.sceneKey === "cityCorner")
-    .filter((entry) => entry.imageTypes.includes(imageType))
-    .filter((entry) => containsShoe(entry, input.shoe));
-
-  const relaxedManualCandidates = manualGarment
-    ? standardOutfitLibrary
-        .filter((entry) => entry.garmentType === manualGarment)
-        .filter((entry) => entry.imageTypes.includes(imageType))
-        .filter((entry) => entry.seasons.includes(input.season) || input.season === "秋" || input.season === "冬")
-        .filter((entry) => containsShoe(entry, input.shoe) || entry.shoeAffinity.includes("ALL"))
-    : [];
-
-  const manualCandidates = manualGarment
-    ? baseCandidates.filter((entry) => entry.garmentType === manualGarment)
-    : [];
-
+    .filter((entry) => entry.imageTypes.includes(imageType));
+  const imageOnlyCandidates = standardOutfitLibrary.filter((entry) => entry.imageTypes.includes(imageType));
+  const broadCandidates = seasonImageCandidates.length ? seasonImageCandidates : imageOnlyCandidates;
   const candidates = manualGarment
-    ? (manualCandidates.length ? manualCandidates : relaxedManualCandidates)
-    : baseCandidates;
-
+    ? broadCandidates.filter((entry) => entry.garmentType === manualGarment)
+    : broadCandidates;
   const selected = rotateOutfitVariation(
-    [...candidates].sort((a, b) => scoreOutfit(b, input) - scoreOutfit(a, input)),
-    [input.shoe, input.sceneKey, input.season, input.imageType, input.garmentTypePreference].join("|"),
+    candidates.length ? candidates : broadCandidates,
+    [input.season, input.imageType, input.garmentTypePreference, "broad-keyword-rotation"].join("|"),
     Boolean(manualGarment)
   );
 
@@ -343,14 +430,14 @@ export function chooseOutfitByGarmentType(input: ChooseStandardOutfitInput): Sta
       outfitLine: manualFallbackOutfitLines[manualGarment],
       stylingRealismLine: creatorStylingBoundaryLine,
       selectedOutfit: null,
-      fallbackReason: "Manual garment type was enforced with a simple fallback."
+      fallbackReason: "Manual garment type was enforced with a simple keyword fallback."
     };
   }
 
   if (!selected) {
     return {
       outfitLine:
-        "Use a low-saturation refined daily outfit with clear proportions, believable layering, and one practical bag or accessory that supports the sneakers.",
+        "Outfit keywords: low-saturation refined daily outfit, clear proportions, believable layering, one practical bag or accessory, sneakers fully visible.",
       stylingRealismLine: stylingRealismLines[0],
       selectedOutfit: null
     };
