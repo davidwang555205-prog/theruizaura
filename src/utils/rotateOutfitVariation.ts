@@ -40,11 +40,17 @@ function writeIndex(key: string, nextIndex: number) {
 export function rotateOutfitVariation<T extends RotatableOutfit>(
   candidates: T[],
   key: string,
-  _manualGarment = false
+  _manualGarment = false,
+  explicitRotationIndex?: number
 ): T | null {
   if (!candidates.length) return null;
 
   const stableCandidates = [...candidates].sort((a, b) => a.id.localeCompare(b.id));
+
+  if (typeof explicitRotationIndex === "number" && Number.isFinite(explicitRotationIndex)) {
+    return stableCandidates[Math.abs(explicitRotationIndex) % stableCandidates.length] ?? stableCandidates[0];
+  }
+
   const storageKey = `theruiz-aura:standard-outfit-round-robin:${key}`;
   const currentIndex = readIndex(storageKey);
   const selected = stableCandidates[currentIndex % stableCandidates.length] ?? stableCandidates[0];
