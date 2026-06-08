@@ -74,6 +74,57 @@ const initialParams: TeamPromptParams = {
 const inputClass =
   "w-full rounded-[18px] border border-aura-beige bg-white/75 px-4 py-3 text-sm text-aura-charcoal outline-none transition focus:border-aura-clay";
 
+type RotatingOutfitOption = {
+  garment: TeamGarmentTypePreference;
+  seasons: TeamSeason[];
+  line: string;
+};
+
+const rotatingOutfitKeywordOptions: RotatingOutfitOption[] = [
+  { garment: "裤装", seasons: ["春", "夏", "秋"], line: "white cotton shirt, cream straight trousers, light beige shirt jacket, taupe shoulder bag, simple watch, clean polished commuter styling" },
+  { garment: "裤装", seasons: ["春", "夏"], line: "cream linen shirt, pale khaki linen trousers, thin woven belt, light tan handbag, breathable summer city-walk styling" },
+  { garment: "裤装", seasons: ["春", "夏", "秋"], line: "white tee base, pale blue open shirt, dark straight denim, slim leather belt, cream canvas tote, real city outfit-record styling" },
+  { garment: "裤装", seasons: ["春", "夏", "秋"], line: "dark coffee clean-cut tee, taupe relaxed trousers, cotton jacket, minimal earrings, grounded dark-anchor daily styling" },
+  { garment: "裙装", seasons: ["春", "夏"], line: "soft grey short-sleeve knit, cream midi skirt, taupe handbag, minimal earrings, mature refined feminine styling" },
+  { garment: "裙装", seasons: ["春", "夏"], line: "oatmeal knit top, misty blue A-line skirt, pale grey shoulder bag, soft low-saturation blogger outfit styling" },
+  { garment: "裙装", seasons: ["春", "夏", "秋"], line: "white ribbed tee, washed denim midi skirt, thin beige cardigan, canvas tote, relaxed weekend denim-skirt styling" },
+  { garment: "短裤", seasons: ["夏"], line: "white shirt worn open, clean inner top, light denim Bermuda shorts, canvas tote, refined summer movement styling; shorts must stay visible and must not become long trousers" },
+  { garment: "短裤", seasons: ["夏"], line: "charcoal knit tee, cream tailored shorts, black small shoulder bag, subtle optical glasses, grounded outfit-record styling; shorts must stay visible" },
+  { garment: "短裤", seasons: ["夏"], line: "cream polo shirt, stone grey Bermuda shorts, woven tote, simple watch, clean weekend city styling; do not lengthen shorts into trousers" },
+  { garment: "连衣裙", seasons: ["春", "夏"], line: "ivory shirt dress, soft beige shoulder bag, minimal jewelry, clean one-piece feminine styling with sneakers fully visible" },
+  { garment: "连衣裙", seasons: ["夏"], line: "soft grey summer dress, light taupe handbag, restrained earrings, calm one-piece daily styling, sneakers clear and not hidden by hem" },
+  { garment: "连衣裙", seasons: ["春", "夏"], line: "pale khaki sleeveless dress, cream tote, subtle gold earrings, fresh warm-weather one-piece styling, mature not sweet" },
+  { garment: "轻运动", seasons: ["春", "夏"], line: "black clean-cut T-shirt, charcoal active shorts, no-logo gym tote, water bottle, calm premium light-active styling" },
+  { garment: "轻运动", seasons: ["夏"], line: "pale grey short-sleeve tee, black active shorts, cream overshirt, clean gym tote, believable city-to-gym styling" },
+  { garment: "轻运动", seasons: ["春", "夏", "秋"], line: "cream clean active top, taupe straight active trousers, soft zip layer, water bottle, refined light movement styling" },
+  { garment: "裤装", seasons: ["秋", "冬"], line: "oatmeal lightweight knit, stone relaxed trousers, soft grey cardigan, thin belt, warm-neutral daily texture" },
+  { garment: "裤装", seasons: ["秋", "冬"], line: "cream turtleneck knit, charcoal straight trousers, camel wool coat, structured tote, clean winter commuter styling" }
+];
+
+function shouldUseRotatingOutfitLine(params: TeamPromptParams) {
+  return params.imageType === "产品上脚图" || params.imageType === "对镜穿搭图" || params.imageType === "生活场景图";
+}
+
+function getRotatingOutfitLine(params: TeamPromptParams) {
+  if (!shouldUseRotatingOutfitLine(params)) return "";
+
+  const garmentPool =
+    params.garmentTypePreference === "自动匹配"
+      ? rotatingOutfitKeywordOptions
+      : rotatingOutfitKeywordOptions.filter((option) => option.garment === params.garmentTypePreference);
+  const seasonPool = garmentPool.filter((option) => option.seasons.includes(params.season));
+  const pool = seasonPool.length ? seasonPool : garmentPool.length ? garmentPool : rotatingOutfitKeywordOptions;
+  const index = Math.abs(params.generationNonce) % pool.length;
+  const selected = pool[index] ?? pool[0];
+
+  return `Primary outfit line, use this clothing direction for the image. Outfit variation ${index + 1}/${pool.length}: Outfit keywords: ${selected.line}. Keep this outfit category fixed and keep the sneakers fully visible, with hems physically separate from the shoes.`;
+}
+
+function applyRotatingOutfitLine(prompt: string, params: TeamPromptParams) {
+  const outfitLine = getRotatingOutfitLine(params);
+  return outfitLine ? `${outfitLine}\n\n${prompt}` : prompt;
+}
+
 function updateField<K extends keyof TeamPromptParams>(
   params: TeamPromptParams,
   key: K,
@@ -84,7 +135,9 @@ function updateField<K extends keyof TeamPromptParams>(
 
 function App() {
   const [params, setParams] = useState<TeamPromptParams>(initialParams);
-  const [generatedPrompt, setGeneratedPrompt] = useState(() => generateTeamPrompt(initialParams).prompt);
+  const [generatedPrompt, setGeneratedPrompt] = useState(() =>
+    applyRotatingOutfitLine(generateTeamPrompt(initialParams).prompt, initialParams)
+  );
   const [copyStatus, setCopyStatus] = useState("");
 
   const handleGenerate = () => {
@@ -94,7 +147,7 @@ function App() {
     };
 
     setParams(nextParams);
-    setGeneratedPrompt(generateTeamPrompt(nextParams).prompt);
+    setGeneratedPrompt(applyRotatingOutfitLine(generateTeamPrompt(nextParams).prompt, nextParams));
     setCopyStatus("");
   };
 
@@ -128,51 +181,22 @@ function App() {
             <div className="space-y-5">
               <label className="block space-y-2">
                 <span className="text-sm font-medium text-aura-charcoal">图片类型</span>
-                <select
-                  className={inputClass}
-                  value={params.imageType}
-                  onChange={(event) =>
-                    setParams((current) =>
-                      updateField(current, "imageType", event.target.value as TeamImageType)
-                    )
-                  }
-                >
-                  {imageTypeOptions.map((option) => (
-                    <option key={option} value={option}>
-                      {option}
-                    </option>
-                  ))}
+                <select className={inputClass} value={params.imageType} onChange={(event) => setParams((current) => updateField(current, "imageType", event.target.value as TeamImageType))}>
+                  {imageTypeOptions.map((option) => <option key={option} value={option}>{option}</option>)}
                 </select>
               </label>
 
               <label className="block space-y-2">
                 <span className="text-sm font-medium text-aura-charcoal">鞋款</span>
-                <select
-                  className={inputClass}
-                  value={params.shoe}
-                  onChange={(event) =>
-                    setParams((current) => updateField(current, "shoe", event.target.value as TeamShoe))
-                  }
-                >
-                  {shoeOptions.map((option) => (
-                    <option key={option} value={option}>
-                      {option}
-                    </option>
-                  ))}
+                <select className={inputClass} value={params.shoe} onChange={(event) => setParams((current) => updateField(current, "shoe", event.target.value as TeamShoe))}>
+                  {shoeOptions.map((option) => <option key={option} value={option}>{option}</option>)}
                 </select>
               </label>
 
               {params.shoe === "自定义" && (
                 <label className="block space-y-2">
                   <span className="text-sm font-medium text-aura-charcoal">自定义鞋款名称</span>
-                  <input
-                    className={inputClass}
-                    value={params.customShoe}
-                    onChange={(event) =>
-                      setParams((current) => updateField(current, "customShoe", event.target.value))
-                    }
-                    placeholder="例如：Warm Grey 低饱和暖灰"
-                  />
+                  <input className={inputClass} value={params.customShoe} onChange={(event) => setParams((current) => updateField(current, "customShoe", event.target.value))} placeholder="例如：Warm Grey 低饱和暖灰" />
                 </label>
               )}
 
@@ -184,91 +208,36 @@ function App() {
 
               <label className="block space-y-2">
                 <span className="text-sm font-medium text-aura-charcoal">季节</span>
-                <select
-                  className={inputClass}
-                  value={params.season}
-                  onChange={(event) =>
-                    setParams((current) => updateField(current, "season", event.target.value as TeamSeason))
-                  }
-                >
-                  {seasonOptions.map((option) => (
-                    <option key={option} value={option}>
-                      {option}
-                    </option>
-                  ))}
+                <select className={inputClass} value={params.season} onChange={(event) => setParams((current) => updateField(current, "season", event.target.value as TeamSeason))}>
+                  {seasonOptions.map((option) => <option key={option} value={option}>{option}</option>)}
                 </select>
               </label>
 
               <label className="block space-y-2">
                 <span className="text-sm font-medium text-aura-charcoal">服装类型</span>
-                <select
-                  className={inputClass}
-                  value={params.garmentTypePreference}
-                  onChange={(event) =>
-                    setParams((current) =>
-                      updateField(
-                        current,
-                        "garmentTypePreference",
-                        event.target.value as TeamGarmentTypePreference
-                      )
-                    )
-                  }
-                >
-                  {garmentTypeOptions.map((option) => (
-                    <option key={option} value={option}>
-                      {option}
-                    </option>
-                  ))}
+                <select className={inputClass} value={params.garmentTypePreference} onChange={(event) => setParams((current) => updateField(current, "garmentTypePreference", event.target.value as TeamGarmentTypePreference))}>
+                  {garmentTypeOptions.map((option) => <option key={option} value={option}>{option}</option>)}
                 </select>
               </label>
 
               <details className="rounded-[20px] bg-white/55 px-4 py-3 ring-1 ring-aura-beige/70">
-                <summary className="cursor-pointer text-sm font-medium text-aura-charcoal">
-                  高级选项：手动指定场景
-                </summary>
+                <summary className="cursor-pointer text-sm font-medium text-aura-charcoal">高级选项：手动指定场景</summary>
                 <label className="mt-4 block space-y-2">
                   <span className="text-sm font-medium text-aura-charcoal">场景偏好</span>
-                  <select
-                    className={inputClass}
-                    value={params.scenePreference}
-                    onChange={(event) =>
-                      setParams((current) =>
-                        updateField(current, "scenePreference", event.target.value as TeamScenePreference)
-                      )
-                    }
-                  >
-                    {sceneOptions.map((option) => (
-                      <option key={option} value={option}>
-                        {option}
-                      </option>
-                    ))}
+                  <select className={inputClass} value={params.scenePreference} onChange={(event) => setParams((current) => updateField(current, "scenePreference", event.target.value as TeamScenePreference))}>
+                    {sceneOptions.map((option) => <option key={option} value={option}>{option}</option>)}
                   </select>
-                  <span className="block text-xs leading-5 text-aura-muted">
-                    日常使用建议保持自动匹配，只有明确要咖啡店、酒店、健身房、材质工作台等场景时再打开。
-                  </span>
+                  <span className="block text-xs leading-5 text-aura-muted">日常使用建议保持自动匹配，只有明确要咖啡店、酒店、健身房、材质工作台等场景时再打开。</span>
                 </label>
               </details>
 
               <label className="block space-y-2">
                 <span className="text-sm font-medium text-aura-charcoal">补充要求</span>
-                <textarea
-                  className={`${inputClass} min-h-28`}
-                  value={params.extraRequirement}
-                  onChange={(event) =>
-                    setParams((current) => updateField(current, "extraRequirement", event.target.value))
-                  }
-                  placeholder="例如：Use a soft cream cardigan and cropped straight-leg denim."
-                />
-                <span className="block text-xs leading-5 text-aura-muted">
-                  建议用英文填写补充要求，以便最终提示词保持英文。如果填写中文，系统会原样保留，不会自动删除。
-                </span>
+                <textarea className={`${inputClass} min-h-28`} value={params.extraRequirement} onChange={(event) => setParams((current) => updateField(current, "extraRequirement", event.target.value))} placeholder="例如：Use a soft cream cardigan and cropped straight-leg denim." />
+                <span className="block text-xs leading-5 text-aura-muted">建议用英文填写补充要求，以便最终提示词保持英文。如果填写中文，系统会原样保留，不会自动删除。</span>
               </label>
 
-              <button
-                type="button"
-                onClick={handleGenerate}
-                className="w-full rounded-[18px] bg-aura-charcoal px-5 py-3 text-sm font-medium text-aura-porcelain shadow-sm transition hover:bg-aura-muted"
-              >
+              <button type="button" onClick={handleGenerate} className="w-full rounded-[18px] bg-aura-charcoal px-5 py-3 text-sm font-medium text-aura-porcelain shadow-sm transition hover:bg-aura-muted">
                 生成提示词
               </button>
             </div>
@@ -280,13 +249,7 @@ function App() {
                 <h2 className="text-xl font-semibold text-aura-charcoal">最终英文提示词</h2>
                 <p className="mt-2 text-sm leading-6 text-aura-muted">Standard 版本，可直接复制使用。</p>
               </div>
-              <button
-                type="button"
-                onClick={handleCopy}
-                className="rounded-[18px] bg-aura-clay px-5 py-3 text-sm font-medium text-white shadow-sm transition hover:bg-aura-charcoal"
-              >
-                一键复制
-              </button>
+              <button type="button" onClick={handleCopy} className="rounded-[18px] bg-aura-clay px-5 py-3 text-sm font-medium text-white shadow-sm transition hover:bg-aura-charcoal">一键复制</button>
             </div>
 
             <div className="aura-scrollbar min-h-[430px] rounded-[22px] border border-aura-beige bg-white/75 p-5 text-sm leading-7 text-aura-charcoal shadow-inner lg:max-h-[610px] lg:overflow-y-auto">
