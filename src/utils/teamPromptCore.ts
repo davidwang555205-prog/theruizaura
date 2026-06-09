@@ -104,11 +104,11 @@ function getImageTypeLine(params: TeamPromptParams) {
   return "Generate a non-product atmospheric THERUIZ AURA image. The product does not need to be the main subject; express quiet order, warm restraint, daily elegance, calm negative space, and refined lifestyle atmosphere.";
 }
 
-function getActionLine(params: TeamPromptParams) {
+function getActionLine(params: TeamPromptParams, resolvedScene: Exclude<TeamScenePreference, "自动匹配">) {
   if (params.imageType === "对镜穿搭图") {
     return "Use a natural mirror outfit pose with the phone hiding or cropping the face, realistic mirror proportions, one foot slightly forward, relaxed shoulders, and natural leg length.";
   }
-  if (params.scenePreference === "健身房内" || params.scenePreference === "去运动的路上") {
+  if (resolvedScene === "健身房内" || resolvedScene === "去运动的路上") {
     return "Use one calm premium-gym or gym-transition action such as holding a water bottle, adjusting a gym tote, or pausing naturally near the entrance.";
   }
   if (params.imageType === "产品静物图") {
@@ -183,7 +183,7 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
     peopleLine,
     shoeLine,
     stillLifeProductLine,
-    getActionLine(params),
+    getActionLine(params, resolvedScene),
     "Keep styling real and not over-arranged: natural fabric folds, believable layering, realistic proportions, grounded feet, and calm daily presence.",
     userRequirementLine,
     getNegativeLine({ imageType: params.imageType, hasShoe: shoeRequired })
