@@ -31,8 +31,13 @@ function shouldUseRotatingOutfitLine(imageType: TeamImageType) {
   return imageType === "产品上脚图" || imageType === "对镜穿搭图" || imageType === "生活场景图";
 }
 
+function isFitnessIndoorScene(params: TeamPromptParams) {
+  return params.scenePreference === "健身房内";
+}
+
 export function getRotatingOutfitLine(params: TeamPromptParams) {
   if (!shouldUseRotatingOutfitLine(params.imageType)) return "";
+  if (isFitnessIndoorScene(params)) return "";
 
   const garmentPool =
     params.garmentTypePreference === "自动匹配"
