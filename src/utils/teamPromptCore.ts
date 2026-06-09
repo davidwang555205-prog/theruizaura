@@ -156,11 +156,9 @@ function getNegativeLine(input: { imageType: TeamImageType; hasShoe: boolean }) 
 
 function cleanPrompt(lines: string[]) {
   return lines
-    .map((line) => line.trim())
+    .map((line) => line.trim().replace(/[ \t]+/g, " "))
     .filter(Boolean)
     .join("\n\n")
-    .replace(/\s+/g, " ")
-    .replace(/\.\s+/g, ". ")
     .trim();
 }
 
