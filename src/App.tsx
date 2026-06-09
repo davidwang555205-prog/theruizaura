@@ -89,6 +89,13 @@ function App() {
     applyRotatingOutfitLine(generateTeamPrompt(initialParams).prompt, initialParams)
   );
   const [copyStatus, setCopyStatus] = useState("");
+  const [hasPendingChanges, setHasPendingChanges] = useState(false);
+
+  const updateParams = (updater: (current: TeamPromptParams) => TeamPromptParams) => {
+    setParams((current) => updater(current));
+    setHasPendingChanges(true);
+    setCopyStatus("");
+  };
 
   const handleGenerate = () => {
     const nextParams: TeamPromptParams = {
@@ -99,6 +106,7 @@ function App() {
     setParams(nextParams);
     setGeneratedPrompt(applyRotatingOutfitLine(generateTeamPrompt(nextParams).prompt, nextParams));
     setCopyStatus("");
+    setHasPendingChanges(false);
   };
 
   const handleCopy = async () => {
@@ -135,7 +143,7 @@ function App() {
                   className={inputClass}
                   value={params.imageType}
                   onChange={(event) =>
-                    setParams((current) =>
+                    updateParams((current) =>
                       updateField(current, "imageType", event.target.value as TeamImageType)
                     )
                   }
@@ -154,7 +162,7 @@ function App() {
                   className={inputClass}
                   value={params.shoe}
                   onChange={(event) =>
-                    setParams((current) => updateField(current, "shoe", event.target.value as TeamShoe))
+                    updateParams((current) => updateField(current, "shoe", event.target.value as TeamShoe))
                   }
                 >
                   {shoeOptions.map((option) => (
@@ -172,7 +180,7 @@ function App() {
                     className={inputClass}
                     value={params.customShoe}
                     onChange={(event) =>
-                      setParams((current) => updateField(current, "customShoe", event.target.value))
+                      updateParams((current) => updateField(current, "customShoe", event.target.value))
                     }
                     placeholder="例如：Warm Grey 低饱和暖灰"
                   />
@@ -191,7 +199,7 @@ function App() {
                   className={inputClass}
                   value={params.season}
                   onChange={(event) =>
-                    setParams((current) => updateField(current, "season", event.target.value as TeamSeason))
+                    updateParams((current) => updateField(current, "season", event.target.value as TeamSeason))
                   }
                 >
                   {seasonOptions.map((option) => (
@@ -208,7 +216,7 @@ function App() {
                   className={inputClass}
                   value={params.garmentTypePreference}
                   onChange={(event) =>
-                    setParams((current) =>
+                    updateParams((current) =>
                       updateField(
                         current,
                         "garmentTypePreference",
@@ -235,7 +243,7 @@ function App() {
                     className={inputClass}
                     value={params.scenePreference}
                     onChange={(event) =>
-                      setParams((current) =>
+                      updateParams((current) =>
                         updateField(current, "scenePreference", event.target.value as TeamScenePreference)
                       )
                     }
@@ -258,7 +266,7 @@ function App() {
                   className={`${inputClass} min-h-28`}
                   value={params.extraRequirement}
                   onChange={(event) =>
-                    setParams((current) => updateField(current, "extraRequirement", event.target.value))
+                    updateParams((current) => updateField(current, "extraRequirement", event.target.value))
                   }
                   placeholder="例如：Use a soft cream cardigan and cropped straight-leg denim."
                 />
@@ -267,12 +275,18 @@ function App() {
                 </span>
               </label>
 
+              {hasPendingChanges && (
+                <p className="rounded-[16px] bg-aura-cream px-4 py-3 text-sm leading-6 text-aura-muted ring-1 ring-aura-beige/70">
+                  参数已更改，请点击“生成提示词”刷新右侧结果。
+                </p>
+              )}
+
               <button
                 type="button"
                 onClick={handleGenerate}
                 className="w-full rounded-[18px] bg-aura-charcoal px-5 py-3 text-sm font-medium text-aura-porcelain shadow-sm transition hover:bg-aura-muted"
               >
-                生成提示词
+                {hasPendingChanges ? "重新生成提示词" : "生成提示词"}
               </button>
             </div>
           </div>
@@ -292,7 +306,7 @@ function App() {
               </button>
             </div>
 
-            <div className="aura-scrollbar min-h-[430px] rounded-[22px] border border-aura-beige bg-white/75 p-5 text-sm leading-7 text-aura-charcoal shadow-inner lg:max-h-[610px] lg:overflow-y-auto">
+            <div className="aura-scrollbar min-h-[430px] whitespace-pre-wrap rounded-[22px] border border-aura-beige bg-white/75 p-5 text-sm leading-7 text-aura-charcoal shadow-inner lg:max-h-[610px] lg:overflow-y-auto">
               {generatedPrompt}
             </div>
 
