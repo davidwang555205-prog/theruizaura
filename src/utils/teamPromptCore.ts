@@ -20,6 +20,9 @@ const shoeAccuracyLine =
 const shoeVisibilityLine =
   "Keep at least one sneaker fully visible from toe to heel, with the second clearly readable. Keep clean separation between ankle, sock, trouser hem or skirt edge, shoe collar, tongue, laces, floor, and props; nothing should merge into the shoe. Keep laces naturally tied, with readable loops, lace ends, eyelets, and tongue.";
 
+const fitnessIndoorOutfitLockLine =
+  "Fitness Indoor Outfit Lock v1.1: For any gym, pilates, yoga, fitness studio, stretching room, or workout-related indoor scene, the woman must wear believable refined activewear: fitted training top, sports bra with light zip jacket, breathable tank top, fitted T-shirt, leggings, biker shorts, training shorts, soft sweatpants, lightweight hoodie, cropped sweatshirt, or clean athletic layering. The outfit should feel suitable for light training, stretching, pilates, yoga, warm-up, or post-workout daily wear. Keep the sneakers as THERUIZ AURA lifestyle German trainers, not running shoes, not professional training shoes, not chunky gym sneakers, and not technical sports footwear. Avoid blazers, formal coats, office trousers, dresses, skirts, denim-heavy outfits, heavy knitwear, party styling, luxury evening styling, or non-fitness fashion. This lock overrides ordinary city outfit, commuter outfit, skirt, dress, denim-heavy, and user-selected garment category when the scene is 健身房内.";
+
 const shoeStyleLines: Record<TeamShoe, string> = {
   "Cloud Dancer 云舞者":
     "Classic clean light-tone foundation for white shirts, beige trousers, soft denim, and refined daily styling.",
@@ -93,6 +96,10 @@ function hasShoe(imageType: TeamImageType) {
 
 function isPeopleImageType(imageType: TeamImageType) {
   return imageType === "产品上脚图" || imageType === "对镜穿搭图" || imageType === "生活场景图";
+}
+
+function getFitnessIndoorOutfitLockLine(resolvedScene: Exclude<TeamScenePreference, "自动匹配">) {
+  return resolvedScene === "健身房内" ? fitnessIndoorOutfitLockLine : "";
 }
 
 function getImageTypeLine(params: TeamPromptParams) {
@@ -200,6 +207,7 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
   const stillLifeProductLine = params.imageType === "产品静物图" ? "Keep the sneakers as the clear subject. At least one sneaker must be fully visible from toe to heel, with the second clearly readable." : "";
   const peopleLine = isPeopleImageType(params.imageType) ? modelLine : "";
   const peopleRealismLine = isPeopleImageType(params.imageType) ? humanRealismLine : "";
+  const fitnessIndoorLine = getFitnessIndoorOutfitLockLine(resolvedScene);
   const userRequirementLine = params.extraRequirement.trim() ? `User extra requirement: ${params.extraRequirement.trim()}.` : "";
 
   const prompt = cleanPrompt([
@@ -208,6 +216,7 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
     getImageTypeLine(params),
     seasonLines[params.season],
     sceneText,
+    fitnessIndoorLine,
     peopleLine,
     peopleRealismLine,
     shoeLine,
