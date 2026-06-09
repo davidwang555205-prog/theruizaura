@@ -23,6 +23,9 @@ const shoeVisibilityLine =
 const fitnessIndoorOutfitLockLine =
   "Fitness Indoor Outfit Lock v1.1: For any gym, pilates, yoga, fitness studio, stretching room, or workout-related indoor scene, the woman must wear believable refined activewear: fitted training top, sports bra with light zip jacket, breathable tank top, fitted T-shirt, leggings, biker shorts, training shorts, soft sweatpants, lightweight hoodie, cropped sweatshirt, or clean athletic layering. The outfit should feel suitable for light training, stretching, pilates, yoga, warm-up, or post-workout daily wear. Keep the sneakers as THERUIZ AURA lifestyle German trainers, not running shoes, not professional training shoes, not chunky gym sneakers, and not technical sports footwear. Avoid blazers, formal coats, office trousers, dresses, skirts, denim-heavy outfits, heavy knitwear, party styling, luxury evening styling, or non-fitness fashion. This lock overrides ordinary city outfit, commuter outfit, skirt, dress, denim-heavy, and user-selected garment category when the scene is 健身房内.";
 
+const nonProductAtmosphereLockLine =
+  "Non-Product Atmosphere Image Lock v1.1: Prefer no visible person. If a person appears, keep them minimal and secondary, such as partial hands, a back view, or a soft out-of-focus silhouette only. Focus on refined lifestyle objects and customer-life details that imply quality, routine, and taste: coffee cup, book, flowers, tote bag, sunglasses, keys, perfume, candle, skincare, knitwear, bakery paper bag, fruit, laptop, notebook, magazine, hotel card, linen, ceramics, or quiet home and travel objects. Express a calm high-quality daily life through small details, tactile materials, soft natural light, restrained composition, and believable lived-in order. Avoid fashion-model posing, full-body subject emphasis, crowded props, loud styling, and generic stock-photo feeling.";
+
 const shoeStyleLines: Record<TeamShoe, string> = {
   "Cloud Dancer 云舞者":
     "Classic clean light-tone foundation for white shirts, beige trousers, soft denim, and refined daily styling.",
@@ -98,8 +101,16 @@ function isPeopleImageType(imageType: TeamImageType) {
   return imageType === "产品上脚图" || imageType === "对镜穿搭图" || imageType === "生活场景图";
 }
 
-function getFitnessIndoorOutfitLockLine(resolvedScene: Exclude<TeamScenePreference, "自动匹配">) {
+function getFitnessIndoorOutfitLockLine(
+  params: TeamPromptParams,
+  resolvedScene: Exclude<TeamScenePreference, "自动匹配">
+) {
+  if (params.imageType === "非产品氛围图" || params.imageType === "产品静物图") return "";
   return resolvedScene === "健身房内" ? fitnessIndoorOutfitLockLine : "";
+}
+
+function getNonProductAtmosphereLockLine(params: TeamPromptParams) {
+  return params.imageType === "非产品氛围图" ? nonProductAtmosphereLockLine : "";
 }
 
 function getImageTypeLine(params: TeamPromptParams) {
@@ -115,10 +126,13 @@ function getImageTypeLine(params: TeamPromptParams) {
   if (params.imageType === "产品静物图") {
     return "Generate premium still-life product photography with the selected THERUIZ AURA sneaker as the main subject; keep material, laces, tongue, outsole, and product scale clearly readable.";
   }
-  return "Generate a non-product atmospheric THERUIZ AURA image. The product does not need to be the main subject; express quiet order, warm restraint, daily elegance, calm negative space, and refined lifestyle atmosphere.";
+  return "Generate a non-product atmospheric THERUIZ AURA image. The product does not need to be the main subject. Prefer object-led composition that expresses quiet order, warm restraint, daily elegance, customer-life details, and refined lifestyle atmosphere.";
 }
 
 function getActionLine(params: TeamPromptParams, resolvedScene: Exclude<TeamScenePreference, "自动匹配">) {
+  if (params.imageType === "非产品氛围图") {
+    return "Use quiet brand-life details, restrained props, natural light, and clean negative space. Let the image read as a tasteful fragment of a customer's life rather than a portrait or direct product shot.";
+  }
   if (params.imageType === "对镜穿搭图") {
     return "Use a natural mirror outfit pose with the phone hiding or cropping the face, realistic mirror proportions, one foot slightly forward, relaxed shoulders, and natural leg length.";
   }
@@ -127,9 +141,6 @@ function getActionLine(params: TeamPromptParams, resolvedScene: Exclude<TeamScen
   }
   if (params.imageType === "产品静物图") {
     return "Use restrained still-life composition, real surface contact, soft shadows, believable product scale, and no CGI render feeling.";
-  }
-  if (params.imageType === "非产品氛围图") {
-    return "Use quiet brand-life details, restrained props, natural light, and clean negative space without forcing a direct product shot.";
   }
   return "Use one simple daily action: slow walk, coffee, tote, flowers, book, or storefront pause.";
 }
@@ -184,6 +195,17 @@ function getNegativeLine(input: { imageType: TeamImageType; hasShoe: boolean }) 
   if (input.imageType === "产品静物图") {
     base.push("props covering shoes", "floating objects", "fake product scale", "3D render feeling");
   }
+  if (input.imageType === "非产品氛围图") {
+    base.push(
+      "full-body character dominance",
+      "fashion editorial portrait focus",
+      "busy prop pile",
+      "generic stock lifestyle scene",
+      "over-decorated tabletop",
+      "crowded composition",
+      "hard sales-poster feeling"
+    );
+  }
 
   return `Avoid ${Array.from(new Set(base)).join(", ")}.`;
 }
@@ -207,7 +229,8 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
   const stillLifeProductLine = params.imageType === "产品静物图" ? "Keep the sneakers as the clear subject. At least one sneaker must be fully visible from toe to heel, with the second clearly readable." : "";
   const peopleLine = isPeopleImageType(params.imageType) ? modelLine : "";
   const peopleRealismLine = isPeopleImageType(params.imageType) ? humanRealismLine : "";
-  const fitnessIndoorLine = getFitnessIndoorOutfitLockLine(resolvedScene);
+  const fitnessIndoorLine = getFitnessIndoorOutfitLockLine(params, resolvedScene);
+  const nonProductAtmosphereLine = getNonProductAtmosphereLockLine(params);
   const userRequirementLine = params.extraRequirement.trim() ? `User extra requirement: ${params.extraRequirement.trim()}.` : "";
 
   const prompt = cleanPrompt([
@@ -217,6 +240,7 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
     seasonLines[params.season],
     sceneText,
     fitnessIndoorLine,
+    nonProductAtmosphereLine,
     peopleLine,
     peopleRealismLine,
     shoeLine,
