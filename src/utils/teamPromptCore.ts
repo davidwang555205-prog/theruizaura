@@ -11,6 +11,9 @@ const customerFeelingLine =
 const modelLine =
   "Use one believable Asian or subtle Asian mixed woman, 30–45, natural dark hair, clean makeup, real skin texture, realistic proportions, and calm presence.";
 
+const humanRealismLine =
+  "Make the woman feel like a real person in a natural daily moment, not an artificial fashion mannequin, showroom model, influencer pose, or over-polished commercial face. Keep real skin texture, slight natural asymmetry, believable hands, normal body proportion, realistic weight balance, relaxed shoulders, natural gaze, and calm unforced expression. The gaze and action must have a real daily reason, such as looking down at the shoes, checking the phone, adjusting clothes, holding coffee, walking, entering a store, or pausing naturally. Keep clothing naturally worn with real fabric folds, normal wrinkles, believable layering, and no fabric merging into skin or shoes.";
+
 const shoeAccuracyLine =
   "Use uploaded sneaker reference as strict source: low-cut German trainer silhouette, rounded toe box, slim outsole, panels, tongue, stitching, material, color, and proportions.";
 
@@ -88,6 +91,10 @@ function hasShoe(imageType: TeamImageType) {
   return imageType === "产品上脚图" || imageType === "对镜穿搭图" || imageType === "生活场景图" || imageType === "产品静物图";
 }
 
+function isPeopleImageType(imageType: TeamImageType) {
+  return imageType === "产品上脚图" || imageType === "对镜穿搭图" || imageType === "生活场景图";
+}
+
 function getImageTypeLine(params: TeamPromptParams) {
   if (params.imageType === "产品上脚图") {
     return "Generate a refined on-foot lifestyle image with a safe standing pose or small natural walking step. The sneakers must be complete, clear, structurally accurate, and separate from trouser hems.";
@@ -144,6 +151,26 @@ function getNegativeLine(input: { imageType: TeamImageType; hasShoe: boolean }) 
       "fabric merging into shoes"
     );
   }
+  if (isPeopleImageType(input.imageType)) {
+    base.push(
+      "artificial mannequin look",
+      "doll-like face",
+      "over-smoothed skin",
+      "perfect symmetrical face",
+      "frozen smile",
+      "forced eye contact",
+      "stiff body",
+      "fake model pose",
+      "showroom model",
+      "fashion dummy",
+      "unnatural hands",
+      "unnatural body proportion",
+      "over-lengthened legs",
+      "floating body",
+      "CGI face",
+      "synthetic fashion-campaign perfection"
+    );
+  }
   if (input.imageType === "对镜穿搭图") {
     base.push("mirror distortion", "long-leg selfie effect", "posed selfie mood");
   }
@@ -171,7 +198,8 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
     ? [`Main product: THERUIZ AURA ${shoeDisplayName}.`, shoeAccuracyLine, shoeVisibilityLine, shoeStyleLines[params.shoe]].join(" ")
     : "";
   const stillLifeProductLine = params.imageType === "产品静物图" ? "Keep the sneakers as the clear subject. At least one sneaker must be fully visible from toe to heel, with the second clearly readable." : "";
-  const peopleLine = params.imageType === "产品上脚图" || params.imageType === "对镜穿搭图" || params.imageType === "生活场景图" ? modelLine : "";
+  const peopleLine = isPeopleImageType(params.imageType) ? modelLine : "";
+  const peopleRealismLine = isPeopleImageType(params.imageType) ? humanRealismLine : "";
   const userRequirementLine = params.extraRequirement.trim() ? `User extra requirement: ${params.extraRequirement.trim()}.` : "";
 
   const prompt = cleanPrompt([
@@ -181,6 +209,7 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
     seasonLines[params.season],
     sceneText,
     peopleLine,
+    peopleRealismLine,
     shoeLine,
     stillLifeProductLine,
     getActionLine(params, resolvedScene),
