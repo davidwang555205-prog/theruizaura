@@ -7,4 +7,5 @@ type RotatingOutfitOption = {
 };
 
 const rotatingOutfitKeywordOptions: RotatingOutfitOption[] = [
-  { garment: "裤装", seasons: ["春", "夏", "秋"], line: "white cotton shirt, cream straight trousers, light beige shirt jacket, taupe shoulder bag, simple watch, clean polished commuter
+  { garment: "裤装", seasons: ["春", "夏", "秋"], line: "white cotton shirt, cream straight trousers, light beige shirt jacket, taupe shoulder bag, simple watch, clean polished commuter styling" },
+  { garment: "裤装", seasons: ["春
