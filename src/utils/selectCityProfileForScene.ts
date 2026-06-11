@@ -30,11 +30,17 @@ export function selectCityProfileForScene(input: {
   imageType: TeamImageType;
   sceneKey: StandardSceneKey;
   userExtraRequirement: string;
+  generationNonce?: number;
 }): ChinaCityProfile | null {
   if (shouldSkipCityLine(input.imageType, input.sceneKey)) return null;
 
   const userCity = userCityKeywords.find(([, pattern]) => pattern.test(input.userExtraRequirement))?.[0];
   if (userCity) return userCity;
 
-  return sceneToCityPriorityMap[input.sceneKey]?.[0] ?? "GenericChineseCity";
+  const cityPool = sceneToCityPriorityMap[input.sceneKey] ?? ["GenericChineseCity"];
+  const rotationPool = cityPool.length > 1 ? cityPool.filter((city) => city !== "GenericChineseCity") : cityPool;
+  const safePool = rotationPool.length ? rotationPool : cityPool;
+  const nonce = Math.max(0, input.generationNonce ?? 0);
+
+  return safePool[nonce % safePool.length] ?? "GenericChineseCity";
 }

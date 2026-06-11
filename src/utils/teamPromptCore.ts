@@ -276,6 +276,7 @@ function resolveSceneKey(params: TeamPromptParams, resolvedScene: Exclude<TeamSc
   if (resolvedScene === "健身房内" || /gyminterior|健身房内|premium gym/.test(text)) return "gymInterior";
   if (resolvedScene === "去运动的路上" || /gymcommute|去运动|健身房路上/.test(text)) return "gymCommute";
   if (params.imageType === "对镜穿搭图") return resolvedScene === "旅行酒店" ? "hotelTravel" : "mirrorCloset";
+  if (resolvedScene === "居家衣帽间") return "mirrorCloset";
   if (/cafeexterior|咖啡|cafe|café/.test(text)) return "cafeExterior";
   if (/bookstoremagazine|书店|杂志|bookstore|magazine/.test(text)) return "bookstoreMagazine";
   if (/flowershop|花店|鲜花|flower/.test(text)) return "flowerShop";
@@ -691,7 +692,8 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
   const selectedCity = selectCityProfileForScene({
     imageType: params.imageType,
     sceneKey,
-    userExtraRequirement: params.extraRequirement
+    userExtraRequirement: params.extraRequirement,
+    generationNonce: params.generationNonce
   });
   const cityProfile = chooseChinaUrbanStreetLine(selectedCity);
   const seasonCityVisualContext = chooseSeasonCityVisualContext({
@@ -702,6 +704,11 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
     userExtraRequirement: params.extraRequirement,
     selectedShoe: getShoeDisplayName(params)
   });
+  const cityStreetPlaceLine =
+    seasonCityVisualContext.lightingSpaceType === "outdoorStreet" ||
+    seasonCityVisualContext.lightingSpaceType === "semiIndoorThreshold"
+      ? cityProfile?.cityStreetLine
+      : "";
   const cameraSelection = chooseCameraLookLine({
     imageType: params.imageType,
     sceneKey,
@@ -948,7 +955,7 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
   });
   const basePromptParts = {
     timeLine: seasonCityVisualContext.seasonalLightLine,
-    placeLine: cityProfile?.cityStreetLine ?? sceneText,
+    placeLine: cityStreetPlaceLine || sceneText,
     productLine: sneakerProtection.productLine,
     modelLine: modelStructuredLine,
     outfitLine: outfitStructuredLine,
@@ -1049,6 +1056,6 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
   return {
     prompt,
     hasShoe,
-    sceneText: cityProfile?.cityStreetLine ?? sceneText
+    sceneText: cityStreetPlaceLine || sceneText
   };
 }
