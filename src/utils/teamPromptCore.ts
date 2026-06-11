@@ -1,5 +1,6 @@
 import type {
   TeamImageType,
+  TeamGarmentTypePreference,
   TeamHumanPoseCategory,
   TeamPromptMode,
   TeamPromptParams,
@@ -98,6 +99,9 @@ const gymActionLine =
 
 const bodyProportionLine =
   "Keep body scale, leg length, hand size, foot scale, and shoe-to-leg relationship realistic.";
+
+const gymInteriorClothingLockLine =
+  "Gym interior clothing lock: use refined fitness-related clothing only, such as clean active tops, active shorts, active trousers, leggings, zip layers, or gym-ready movement layers. Keep every styling choice clearly suitable for a premium gym interior.";
 
 const GARMENT_TYPE_LOCK_LINES = {
   裤装: "Selected clothing type: refined trousers or denim; keep trousers explicit, well fitted to the season, and shoe-readable.",
@@ -238,9 +242,9 @@ function resolveSceneKey(params: TeamPromptParams, resolvedScene: Exclude<TeamSc
   if (params.imageType === "拍摄花絮 / 材质图" || resolvedScene === "材质工作台" || resolvedScene === "拍摄花絮") {
     return "materialTable";
   }
-  if (params.imageType === "对镜穿搭图") return resolvedScene === "旅行酒店" ? "hotelTravel" : "mirrorCloset";
   if (resolvedScene === "健身房内" || /gyminterior|健身房内|premium gym/.test(text)) return "gymInterior";
   if (resolvedScene === "去运动的路上" || /gymcommute|去运动|健身房路上/.test(text)) return "gymCommute";
+  if (params.imageType === "对镜穿搭图") return resolvedScene === "旅行酒店" ? "hotelTravel" : "mirrorCloset";
   if (/cafeexterior|咖啡|cafe|café/.test(text)) return "cafeExterior";
   if (/bookstoremagazine|书店|杂志|bookstore|magazine/.test(text)) return "bookstoreMagazine";
   if (/flowershop|花店|鲜花|flower/.test(text)) return "flowerShop";
@@ -546,10 +550,17 @@ function getPromptKind(params: TeamPromptParams, sceneKey: StandardSceneKey) {
   return "atmosphere";
 }
 
-function getGarmentTypeLockLine(params: TeamPromptParams) {
-  return params.garmentTypePreference === "自动匹配"
+function getEffectiveGarmentTypePreference(
+  params: TeamPromptParams,
+  sceneKey: StandardSceneKey
+): TeamGarmentTypePreference {
+  return sceneKey === "gymInterior" ? "轻运动" : params.garmentTypePreference;
+}
+
+function getGarmentTypeLockLine(preference: TeamGarmentTypePreference) {
+  return preference === "自动匹配"
     ? ""
-    : GARMENT_TYPE_LOCK_LINES[params.garmentTypePreference];
+    : GARMENT_TYPE_LOCK_LINES[preference];
 }
 
 function getCompactPoseBodyLine(poseCategory: TeamHumanPoseCategory) {
@@ -618,8 +629,10 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
   });
   const resolvedScene = resolveTeamScenePreference(params);
   const sceneKey = resolveSceneKey(params, resolvedScene);
+  const effectiveGarmentTypePreference = getEffectiveGarmentTypePreference(params, sceneKey);
   const imageCountIntent = detectImageCountOrSeriesIntent(params.extraRequirement, params.imageType);
-  const userSpecifiedClothing = hasUserSpecifiedClothingRequirement(params.extraRequirement);
+  const userSpecifiedClothing =
+    sceneKey === "gymInterior" ? false : hasUserSpecifiedClothingRequirement(params.extraRequirement);
   const selectedCity = selectCityProfileForScene({
     imageType: params.imageType,
     sceneKey,
@@ -654,7 +667,7 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
         shoe: params.shoe,
         imageType: params.imageType,
         userExtraRequirement: params.extraRequirement,
-        garmentTypePreference: params.garmentTypePreference,
+        garmentTypePreference: effectiveGarmentTypePreference,
         cityProfile: selectedCity,
         generationNonce: params.generationNonce
       })
@@ -666,13 +679,16 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
         sceneKey,
         season: params.season,
         shoe: params.shoe,
-        garmentTypePreference: params.garmentTypePreference,
+        garmentTypePreference: effectiveGarmentTypePreference,
         userExtraRequirement: params.extraRequirement,
         userSpecifiedClothing,
         generationNonce: params.generationNonce
       });
   const sceneText = getSceneText(params, resolvedScene, sceneKey);
-  const shoeStyleLine = getShoeStyleLine(params, hasShoe);
+  const shoeStyleLine =
+    sceneKey === "gymInterior"
+      ? "Style the selected THERUIZ AURA sneaker only with refined fitness-related clothing, keeping the look active, clean, and gym-appropriate."
+      : getShoeStyleLine(params, hasShoe);
   const sneakerProtection = chooseSneakerProtectionLines({
     imageType: params.imageType,
     shoe: params.shoe,
@@ -703,7 +719,7 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
     userExtraRequirement: params.extraRequirement,
     selectedOutfitLine: preAccessoryOutfitLine,
     selectedAccessoryLine: preAccessoryOutfitLine,
-    garmentTypePreference: params.garmentTypePreference
+    garmentTypePreference: effectiveGarmentTypePreference
   });
   const accessorySelection = chooseSceneAccessoryLine({
     sceneKey,
@@ -736,7 +752,7 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
     userExtraRequirement: params.extraRequirement,
     selectedOutfitLine: outfitLine,
     selectedAccessoryLine: accessorySelection.accessoryLine,
-    garmentTypePreference: params.garmentTypePreference,
+    garmentTypePreference: effectiveGarmentTypePreference,
     poseCategory,
     promptMode: TEAM_PROMPT_MODE,
     hasShoe,
@@ -747,7 +763,7 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
     scenePreference: resolvedScene,
     actionType: [actionSelection.line, actionSelection.supportLine, actionSelection.safetyLine].filter(Boolean).join(" "),
     poseCategory,
-    garmentTypePreference: params.garmentTypePreference,
+    garmentTypePreference: effectiveGarmentTypePreference,
     selectedOutfitLine: outfitLine,
     hasShoe,
     multiImageMode: imageCountIntent !== "singleImage",
@@ -774,7 +790,8 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
   const outfitStructuredLine = shouldUsePeopleStyling(params.imageType)
     ? [
         outfitLine,
-        getGarmentTypeLockLine(params),
+        getGarmentTypeLockLine(effectiveGarmentTypePreference),
+        sceneKey === "gymInterior" ? gymInteriorClothingLockLine : "",
         baseStylingRealismLine,
         params.season === "秋" || params.season === "冬" ? seasonCityVisualContext.outfitLayerLine : "",
         ...promptQualityPatchLines.outfitLines,

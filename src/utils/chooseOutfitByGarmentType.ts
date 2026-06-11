@@ -244,6 +244,10 @@ function normalizeImageType(imageType: TeamImageType): StandardImageType {
   return "atmosphere";
 }
 
+function normalizeImageTypeForScene(input: ChooseStandardOutfitInput): StandardImageType {
+  return input.sceneKey === "gymInterior" ? "gym" : normalizeImageType(input.imageType);
+}
+
 function containsShoe(entry: StandardOutfitEntry, shoe: TeamShoe) {
   const normalizedShoe = normalizePerSceneShoe(shoe);
   return entry.shoeAffinity.includes("ALL") || entry.shoeAffinity.includes(normalizedShoe);
@@ -251,7 +255,7 @@ function containsShoe(entry: StandardOutfitEntry, shoe: TeamShoe) {
 
 function scoreOutfit(entry: StandardOutfitEntry, input: ChooseStandardOutfitInput) {
   const tendency = sceneOutfitTendencyMap[input.sceneKey];
-  const imageType = normalizeImageType(input.imageType);
+  const imageType = normalizeImageTypeForScene(input);
   let score = 0;
 
   if (entry.seasons.includes(input.season)) score += 30;
@@ -287,7 +291,9 @@ export function chooseOutfitByGarmentType(input: ChooseStandardOutfitInput): Sta
     return { outfitLine: "", stylingRealismLine: "", selectedOutfit: null };
   }
 
-  if (input.userSpecifiedClothing) {
+  const forceGymInteriorActivewear = input.sceneKey === "gymInterior";
+
+  if (input.userSpecifiedClothing && !forceGymInteriorActivewear) {
     return {
       outfitLine:
         "Use the user's requested clothing direction in a refined, mature, wearable THERUIZ AURA way, keeping the outfit polished, low-saturation, and not pose-centered.",
@@ -296,11 +302,13 @@ export function chooseOutfitByGarmentType(input: ChooseStandardOutfitInput): Sta
     };
   }
 
-  const manualGarment = getManualGarmentType(input.garmentTypePreference);
+  const manualGarment = forceGymInteriorActivewear ? "lightActive" : getManualGarmentType(input.garmentTypePreference);
+  const imageType = normalizeImageTypeForScene(input);
   const baseCandidates = standardOutfitLibrary
     .filter((entry) => entry.seasons.includes(input.season))
     .filter((entry) => entry.sceneAffinities.includes(input.sceneKey) || input.sceneKey === "cityCorner")
-    .filter((entry) => entry.imageTypes.includes(normalizeImageType(input.imageType)))
+    .filter((entry) => entry.imageTypes.includes(imageType))
+    .filter((entry) => !forceGymInteriorActivewear || entry.garmentType === "lightActive")
     .filter((entry) => containsShoe(entry, input.shoe));
 
   const manualCandidates = manualGarment
@@ -326,8 +334,9 @@ export function chooseOutfitByGarmentType(input: ChooseStandardOutfitInput): Sta
 
   if (!selected) {
     return {
-      outfitLine:
-        "Use a low-saturation refined daily outfit with clear proportions, believable layering, and one practical bag or accessory that supports the sneakers.",
+      outfitLine: forceGymInteriorActivewear
+        ? "Use refined fitness-related clothing only: a clean active top, active shorts or active trousers, a light zip layer if needed, and a practical gym bag, with every styling choice clearly suitable for a premium gym interior."
+        : "Use a low-saturation refined daily outfit with clear proportions, believable layering, and one practical bag or accessory that supports the sneakers.",
       stylingRealismLine: stylingRealismLines[0],
       selectedOutfit: null,
       fallbackReason

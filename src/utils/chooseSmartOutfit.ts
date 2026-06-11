@@ -90,6 +90,10 @@ function getManualGarment(preference: TeamGarmentTypePreference): GarmentType | 
   return preference === "自动匹配" ? null : garmentTypePreferenceMap[preference];
 }
 
+function forceGymInteriorActivewear(input: ChooseSmartOutfitInput) {
+  return input.sceneKey === "gymInterior";
+}
+
 function normalizeText(value?: string) {
   return (value ?? "").toLowerCase().replace(/\s+/g, " ").trim();
 }
@@ -292,20 +296,36 @@ export function chooseSmartOutfit(input: ChooseSmartOutfitInput): ChooseSmartOut
     userExtraRequirement: input.userExtraRequirement,
     garmentTypePreference: input.garmentTypePreference
   });
-  const manualGarment = getManualGarment(parsedUserRequirement.resolvedGarmentTypePreference);
+  const effectiveParsedUserRequirement = forceGymInteriorActivewear(input)
+    ? {
+        ...parsedUserRequirement,
+        hardExclusions: parsedUserRequirement.hardExclusions.filter((item) => item !== "lightActive"),
+        resolvedGarmentTypePreference: "轻运动" as const,
+        conflictWarnings: [
+          ...parsedUserRequirement.conflictWarnings,
+          "Gym interior forces fitness-related clothing only."
+        ]
+      }
+    : parsedUserRequirement;
+  const manualGarment = forceGymInteriorActivewear(input)
+    ? "lightActive"
+    : getManualGarment(effectiveParsedUserRequirement.resolvedGarmentTypePreference);
   const history = input.generatedHistory ?? readOutfitGeneratedHistory();
   const sceneCandidates = sceneOutfitSeedLibrary[input.sceneKey] ?? [];
+  if (forceGymInteriorActivewear(input) && !sceneCandidates.length) {
+    return null;
+  }
 
-  const filtered = sceneCandidates.filter((seed) => isSafeSeed(seed, input, manualGarment, parsedUserRequirement));
+  const filtered = sceneCandidates.filter((seed) => isSafeSeed(seed, input, manualGarment, effectiveParsedUserRequirement));
   const selected =
     selectByGenerationNonce(simplePrioritySort(applySimpleDedupe(filtered, history), history), input.generationNonce) ??
-    chooseFallback(input, manualGarment, history, parsedUserRequirement);
+    chooseFallback(input, manualGarment, history, effectiveParsedUserRequirement);
 
   if (!selected) return null;
 
   return buildResult({
     smartInput: input,
     selected,
-    conflictWarnings: parsedUserRequirement.conflictWarnings
+    conflictWarnings: effectiveParsedUserRequirement.conflictWarnings
   });
 }
