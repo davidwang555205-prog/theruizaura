@@ -78,11 +78,11 @@ const brandMoodLine =
 const customerFeelingLine =
   "Express all-day ease, comfort without carelessness, clean composure, taste, and quiet put-together confidence.";
 
-const modelLine25to40 =
-  "Use one believable Asian or subtle Asian mixed woman, 25–40, with natural dark hair, clean makeup, real skin texture, realistic proportions, and calm presence.";
+const modelLine =
+  "Use one real-looking Asian or subtle Asian mixed woman, 32–46, like a stylish real customer or everyday urban woman, not a professional fashion model. Natural dark hair, light everyday makeup, normal facial features, realistic body proportion, calm mature presence, and believable daily styling.";
 
-const modelLine30to45 =
-  "Use one believable Asian or subtle Asian mixed woman, 30–45, natural dark hair, clean makeup, real skin texture, realistic proportions, and calm presence.";
+const humanRealismLine =
+  "Make the person feel like a real customer captured in a natural daily outfit record, not an AI-generated fashion model, mannequin, showroom character, influencer, or campaign face. Use a candid human-photography feeling: slight facial asymmetry, normal skin texture, natural under-eye texture, relaxed mouth, imperfect but tasteful posture, realistic hand tension, believable foot pressure, and normal shoulder-neck relationship. The gaze must not feel posed for the camera; she should be looking down at the shoes, checking her phone, adjusting a sleeve, holding coffee, opening a bag, walking into a store, or pausing mid-movement. Keep the expression quiet, neutral, slightly task-focused, and unperformed. Avoid beauty-pageant face, perfect symmetrical AI face, frozen soft smile, empty stare, direct-camera posing, plastic skin, over-retouched commercial portrait, extra-polished fashion campaign mood, and body proportions that feel digitally idealized.";
 
 const gazeLine =
   "Use a natural gaze for the task or outfit record, never a forced direct stare.";
@@ -190,8 +190,12 @@ const SHOE_STYLE_LINES: Record<TeamShoe, string> = {
   自定义: "Use THERUIZ AURA's clean, low-saturation, refined daily styling system."
 };
 
-function shouldUsePeopleStyling(imageType: TeamImageType) {
+function isPeopleImageType(imageType: TeamImageType) {
   return imageType === "产品上脚图" || imageType === "对镜穿搭图" || imageType === "生活场景图";
+}
+
+function shouldUsePeopleStyling(imageType: TeamImageType) {
+  return isPeopleImageType(imageType);
 }
 
 function teamExtraMentionsShoe(extraRequirement: string) {
@@ -276,13 +280,8 @@ function getImageTypeLine(params: TeamPromptParams, sceneKey: StandardSceneKey) 
 
 function getModelLine(params: TeamPromptParams, resolvedScene: Exclude<TeamScenePreference, "自动匹配">) {
   if (!shouldUsePeopleStyling(params.imageType)) return "";
-  const mature =
-    resolvedScene === "通勤上班" ||
-    resolvedScene === "精品超市 / 日常采购" ||
-    resolvedScene === "旅行酒店" ||
-    params.imageType === "生活场景图";
-
-  return mature ? modelLine30to45 : modelLine25to40;
+  void resolvedScene;
+  return modelLine;
 }
 
 function getSceneText(params: TeamPromptParams, resolvedScene: Exclude<TeamScenePreference, "自动匹配">, sceneKey: StandardSceneKey) {
@@ -397,7 +396,7 @@ function getNegativeLine(input: {
         "distorted body",
         "stiff hands",
         "fake scenery or signage",
-        "loud logos",
+        "loud status branding",
         "messy background",
         "plastic skin",
         "sneaker deformation",
@@ -438,6 +437,21 @@ function getNegativeLine(input: {
   }
   if (input.params.imageType === "产品静物图" || input.sceneKey === "stillLife") {
     phrases.push("props covering shoes", "floating objects", "fake product scale", "3D render feeling");
+  }
+  if (isPeopleImageType(input.params.imageType)) {
+    phrases.push(
+      "professional fashion model face",
+      "beauty-pageant face",
+      "AI-generated woman",
+      "perfect showroom posture",
+      "empty fashion stare",
+      "over-retouched portrait",
+      "perfect influencer skin",
+      "symmetrical doll face",
+      "commercial campaign model",
+      "posed luxury advertisement",
+      "digitally idealized body"
+    );
   }
 
   phrases.push("fake HDR", "heavy filters", "warped lens perspective");
@@ -748,6 +762,7 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
   const modelStructuredLine = shouldUsePeopleStyling(params.imageType)
     ? [
         getModelLine(params, resolvedScene),
+        humanRealismLine,
         ...promptQualityPatchLines.modelLines,
         humanRealism.livedInCoreLine,
         getCompactPoseBodyLine(poseCategory),
