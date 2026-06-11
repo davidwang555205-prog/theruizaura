@@ -173,6 +173,12 @@ const TEAM_SCENE_TEXT: Record<Exclude<TeamScenePreference, "自动匹配">, stri
     "Use a calm city-to-gym transition setting such as a gym entrance, clean sidewalk, parking-to-gym walkway, hotel gym route, or quiet urban movement path. The mood should feel polished, practical, and ready for light activity."
 };
 
+const streetRealismLine =
+  "Street and background must feel like a real daily city environment, not an AI-generated clean set, luxury mall render, empty showroom street, or fake commercial backdrop. Use believable pavement texture, natural street depth, real storefront proportions, subtle signs of daily use, mild surface unevenness, small shadows, realistic curb lines, quiet background pedestrians when appropriate, parked scooters or bicycles only when natural, restrained cafe or boutique details, and imperfect but tasteful city rhythm. Avoid overly clean streets, fake storefront text, impossible architecture, repeating windows, synthetic greenery, floating objects, over-polished luxury district, empty render-like sidewalks, plastic pavement, unrealistic reflections, and staged advertising background.";
+
+const streetRealismCoreLine =
+  "Use a real daily city street background with believable pavement texture, natural street depth, real storefront proportions, subtle daily wear, realistic curb lines, and no AI-clean set or fake commercial backdrop.";
+
 const SHOE_STYLE_LINES: Record<TeamShoe, string> = {
   "Cloud Dancer 云舞者":
     "Classic clean light-tone foundation for white shirts, beige trousers, soft denim, and refined daily styling.",
@@ -203,6 +209,28 @@ function isPeopleImageType(imageType: TeamImageType) {
 
 function shouldUsePeopleStyling(imageType: TeamImageType) {
   return isPeopleImageType(imageType);
+}
+
+function shouldUseStreetRealismLine(
+  params: TeamPromptParams,
+  resolvedScene: Exclude<TeamScenePreference, "自动匹配">
+) {
+  if (
+    params.imageType !== "产品上脚图" &&
+    params.imageType !== "对镜穿搭图" &&
+    params.imageType !== "生活场景图"
+  ) {
+    return false;
+  }
+
+  return (
+    resolvedScene === "通勤上班" ||
+    resolvedScene === "周末城市散步" ||
+    resolvedScene === "精品超市 / 日常采购" ||
+    resolvedScene === "玄关出门" ||
+    resolvedScene === "周末轻采购" ||
+    resolvedScene === "去运动的路上"
+  );
 }
 
 function teamExtraMentionsShoe(extraRequirement: string) {
@@ -392,6 +420,7 @@ function getNegativeLine(input: {
   hasShoe: boolean;
   cityBoundaryPhrases: string[];
   sceneKey: StandardSceneKey;
+  hasStreetScene?: boolean;
   extraPhrases?: string[];
 }) {
   const phrases = input.hasShoe
@@ -426,6 +455,23 @@ function getNegativeLine(input: {
         "overly commercial visual language"
       ];
 
+  if (input.hasStreetScene) {
+    phrases.push(
+      "AI-generated street",
+      "fake storefront",
+      "fake signage",
+      "impossible architecture",
+      "repeating windows",
+      "synthetic greenery",
+      "empty render-like street",
+      "plastic pavement",
+      "unrealistic reflections",
+      "floating street objects",
+      "over-clean luxury district",
+      "staged commercial backdrop",
+      "3D city render feeling"
+    );
+  }
   if (input.cityBoundaryPhrases.length) {
     phrases.push("European-looking streets", "tourist landmarks", "crowded traffic", "vehicles blocking shoes", "staged city-promo scenery");
   }
@@ -636,6 +682,8 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
   });
   const resolvedScene = resolveTeamScenePreference(params);
   const sceneKey = resolveSceneKey(params, resolvedScene);
+  const streetRealismPatchLine = shouldUseStreetRealismLine(params, resolvedScene) ? streetRealismLine : "";
+  const streetRealismCorePatchLine = streetRealismPatchLine ? streetRealismCoreLine : "";
   const effectiveGarmentTypePreference = getEffectiveGarmentTypePreference(params, sceneKey);
   const imageCountIntent = detectImageCountOrSeriesIntent(params.extraRequirement, params.imageType);
   const userSpecifiedClothing =
@@ -842,8 +890,10 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
           .join(" ")
       : [
           getImageTypeLine(params, sceneKey),
+          streetRealismCorePatchLine,
           imageTypeTemplate.templateSceneLine,
           cityProfile ? sceneText : "",
+          streetRealismPatchLine,
           sceneRealismLine,
           ...promptQualityPatchLines.sceneLines,
           seasonCityVisualContext.lightingSpaceSupportLine,
@@ -884,6 +934,7 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
     hasShoe,
     cityBoundaryPhrases: cityProfile?.boundaryPhrases ?? [],
     sceneKey,
+    hasStreetScene: Boolean(streetRealismPatchLine),
     extraPhrases: [
       ...extractAvoidPhrases(`Avoid ${seasonCityVisualContext.seasonalNegativeLine}.`),
       ...humanRealism.negativePhrases,
