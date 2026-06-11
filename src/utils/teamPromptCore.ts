@@ -99,6 +99,14 @@ const gymActionLine =
 const bodyProportionLine =
   "Keep body scale, leg length, hand size, foot scale, and shoe-to-leg relationship realistic.";
 
+const GARMENT_TYPE_LOCK_LINES = {
+  裤装: "Selected clothing type: refined trousers or denim; keep trousers explicit, well fitted to the season, and shoe-readable.",
+  裙装: "Selected clothing type: refined skirt; keep the skirt explicit, mature, and shoe-readable.",
+  短裤: "Selected clothing type: refined Bermuda shorts or tailored shorts; keep shorts explicit, mature, and shoe-readable.",
+  连衣裙: "Selected clothing type: refined one-piece dress; keep the dress explicit, mature, and shoe-readable.",
+  轻运动: "Selected clothing type: refined light activewear; keep active trousers, active shorts, or movement layers explicit and premium."
+} satisfies Record<Exclude<TeamPromptParams["garmentTypePreference"], "自动匹配">, string>;
+
 const nonProductShoeAccuracyLine =
   "If the THERUIZ AURA sneaker appears in this non-product atmosphere image, keep it subtle and secondary. Preserve its real color, material texture, and recognizable shape, but do not turn the image into a direct product shot.";
 
@@ -524,6 +532,26 @@ function getPromptKind(params: TeamPromptParams, sceneKey: StandardSceneKey) {
   return "atmosphere";
 }
 
+function getGarmentTypeLockLine(params: TeamPromptParams) {
+  return params.garmentTypePreference === "自动匹配"
+    ? ""
+    : GARMENT_TYPE_LOCK_LINES[params.garmentTypePreference];
+}
+
+function getCompactPoseBodyLine(poseCategory: TeamHumanPoseCategory) {
+  if (poseCategory === "mirror") {
+    return "Keep mirror body proportions natural: no stretched legs, oversized phone, warped feet, or cropped shoes.";
+  }
+  if (poseCategory === "seated" || poseCategory === "laceTying" || poseCategory === "crouchOrLean") {
+    return "Keep seated or low-movement anatomy believable, with natural knees, ankles, hands, foot scale, and shoe contact.";
+  }
+  if (poseCategory === "gymLightAction") {
+    return "Keep light movement realistic and refined, not athletic, exaggerated, or sports-campaign-like.";
+  }
+
+  return "Keep posture grounded with natural weight shift, realistic leg proportion, hand scale, foot scale, and shoe-to-leg relationship.";
+}
+
 function getTimeLine(params: TeamPromptParams, sceneKey: StandardSceneKey) {
   if (params.imageType === "产品静物图" || sceneKey === "stillLife") {
     return `Soft natural side light with gentle shadows, believable product photography brightness, and ${TEAM_SEASON_LIGHT[params.season]}.`;
@@ -605,15 +633,6 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
     sceneKey,
     lightingSpaceType: seasonCityVisualContext.lightingSpaceType
   });
-  const outfitSelection = chooseOutfitByGarmentType({
-    imageType: params.imageType,
-    sceneKey,
-    season: params.season,
-    shoe: params.shoe,
-    garmentTypePreference: params.garmentTypePreference,
-    userExtraRequirement: params.extraRequirement,
-    userSpecifiedClothing
-  });
   const perSceneOutfitSelection = shouldUsePeopleStyling(params.imageType)
     ? choosePerSceneOutfitLine({
         scenePreference: resolvedScene,
@@ -622,9 +641,22 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
         imageType: params.imageType,
         userExtraRequirement: params.extraRequirement,
         garmentTypePreference: params.garmentTypePreference,
-        cityProfile: selectedCity
+        cityProfile: selectedCity,
+        generationNonce: params.generationNonce
       })
     : null;
+  const outfitSelection = perSceneOutfitSelection?.selectedPerSceneOutfitLine
+    ? { outfitLine: "", stylingRealismLine: "", selectedOutfit: null }
+    : chooseOutfitByGarmentType({
+        imageType: params.imageType,
+        sceneKey,
+        season: params.season,
+        shoe: params.shoe,
+        garmentTypePreference: params.garmentTypePreference,
+        userExtraRequirement: params.extraRequirement,
+        userSpecifiedClothing,
+        generationNonce: params.generationNonce
+      });
   const sceneText = getSceneText(params, resolvedScene, sceneKey);
   const shoeStyleLine = getShoeStyleLine(params, hasShoe);
   const sneakerProtection = chooseSneakerProtectionLines({
@@ -718,8 +750,7 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
         getModelLine(params, resolvedScene),
         ...promptQualityPatchLines.modelLines,
         humanRealism.livedInCoreLine,
-        humanRealism.humanProportionCoreLine,
-        humanRealism.bodySpecialLine,
+        getCompactPoseBodyLine(poseCategory),
         humanRealism.multiImageConsistencyLine
       ]
         .filter(Boolean)
@@ -727,13 +758,15 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
     : "";
   const outfitStructuredLine = shouldUsePeopleStyling(params.imageType)
     ? [
+        outfitLine,
+        getGarmentTypeLockLine(params),
+        baseStylingRealismLine,
         params.season === "秋" || params.season === "冬" ? seasonCityVisualContext.outfitLayerLine : "",
         ...promptQualityPatchLines.outfitLines,
-        outfitLine,
         accessorySelection.accessoryLine,
         humanRealism.clothingWornLine,
         humanRealism.bloggerLiteLine,
-        baseStylingRealismLine
+        "Keep outfit thickness, material weight, and styling compatible with the selected season and city climate."
       ]
         .filter(Boolean)
         .join(" ")
@@ -845,25 +878,16 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
         productLine: [
           ...promptQualityPatchLines.productLines,
           sneakerProtection.shoeSpecificAccuracyLine,
-          sneakerProtection.accuracyLine,
-          sneakerProtection.visibilityLine,
-          sneakerProtection.clippingLine,
-          sneakerProtection.lacesLine
+          sneakerProtection.clippingLine
         ].filter(Boolean),
         modelLine: shouldUsePeopleStyling(params.imageType)
-          ? [
-              bodyProportionLine,
-              "Keep realistic head-to-body ratio, natural shoulder width, natural hand scale, and natural body scale."
-            ]
+          ? [bodyProportionLine]
           : [],
-        outfitLine: [
-          "Keep outfit thickness, material weight, and styling compatible with the selected season and city climate."
-        ],
+        outfitLine: [],
         sceneLine: [
           imageTypeTemplate.templateSceneLine,
           ...promptQualityPatchLines.sceneLines,
-          shouldUsePeopleStyling(params.imageType) ? accessoryShoeVisibilityRuleLine : "",
-          sneakerProtection.visibilityLine
+          shouldUsePeopleStyling(params.imageType) && !sneakerSceneControlLine ? accessoryShoeVisibilityRuleLine : ""
         ].filter(Boolean),
         actionLine: [
           imageTypeTemplate.templateActionLine,

@@ -11,10 +11,10 @@ type PromptBudgetInput = {
 };
 
 function getBudget(input: PromptBudgetInput) {
-  if (input.imageType === "产品静物图" || input.lightingSpaceType === "stillLifeStudioNatural") return 2200;
-  if (input.imageType === "对镜穿搭图" || input.sceneKey === "mirrorCloset") return 2600;
-  if (input.sceneKey === "gymInterior" || input.lightingSpaceType === "indoorGymLight") return 2800;
-  return 2800;
+  if (input.imageType === "产品静物图" || input.lightingSpaceType === "stillLifeStudioNatural") return 1800;
+  if (input.imageType === "对镜穿搭图" || input.sceneKey === "mirrorCloset") return 2300;
+  if (input.sceneKey === "gymInterior" || input.lightingSpaceType === "indoorGymLight") return 2400;
+  return 2300;
 }
 
 function getLength(parts: StructuredPromptParts) {
@@ -59,22 +59,29 @@ export function controlPromptBudget(input: PromptBudgetInput) {
 
   if (getLength(parts) <= budget) return parts;
 
+  parts.timeLine = keepSentences(parts.timeLine, 2);
+  parts.modelLine = keepSentences(parts.modelLine, 4);
+  parts.productLine = keepSentences(parts.productLine, 4);
   parts.moodLine = keepSentences(parts.moodLine, 3);
   parts.outfitLine = keepSentences(parts.outfitLine, 4);
   parts.placeLine = keepSentences(parts.placeLine, 2);
+  parts.actionLine = keepSentences(parts.actionLine, 4);
+  parts.negativeLine = compressNegative(parts.negativeLine, 32);
 
   if (getLength(parts) <= budget) return parts;
 
   parts.sceneLine = keepSentences(parts.sceneLine, 5);
-  parts.actionLine = keepSentences(parts.actionLine, 4);
-  parts.negativeLine = compressNegative(parts.negativeLine, 48);
+  parts.actionLine = keepSentences(parts.actionLine, 3);
+  parts.modelLine = keepSentences(parts.modelLine, 3);
+  parts.negativeLine = compressNegative(parts.negativeLine, 26);
 
   if (getLength(parts) <= budget) return parts;
 
   parts.moodLine = keepSentences(parts.moodLine, 2);
   parts.outfitLine = keepSentences(parts.outfitLine, 3);
-  parts.sceneLine = keepSentences(parts.sceneLine, 4);
-  parts.negativeLine = compressNegative(parts.negativeLine, 36);
+  parts.sceneLine = keepSentences(parts.sceneLine, 3);
+  parts.actionLine = keepSentences(parts.actionLine, 2);
+  parts.negativeLine = compressNegative(parts.negativeLine, 20);
 
   return parts;
 }

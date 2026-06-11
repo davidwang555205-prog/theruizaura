@@ -27,6 +27,7 @@ type ChoosePerSceneOutfitInput = {
   generatedHistory?: string[];
   garmentTypePreference?: TeamGarmentTypePreference;
   cityProfile?: ChinaCityProfile | null;
+  generationNonce?: number;
 };
 
 export type ChoosePerSceneOutfitResult = {
@@ -164,7 +165,8 @@ export function choosePerSceneOutfitLine(input: ChoosePerSceneOutfitInput): Choo
     garmentTypePreference: input.garmentTypePreference ?? "自动匹配",
     cityProfile: input.cityProfile,
     userExtraRequirement: input.userExtraRequirement,
-    previousOutfitId: input.previousOutfitId
+    previousOutfitId: input.previousOutfitId,
+    generationNonce: input.generationNonce
   });
 
   if (smartSelection) {

@@ -279,6 +279,7 @@ export type ChooseStandardOutfitInput = {
   garmentTypePreference: TeamGarmentTypePreference;
   userExtraRequirement: string;
   userSpecifiedClothing: boolean;
+  generationNonce?: number;
 };
 
 export function chooseOutfitByGarmentType(input: ChooseStandardOutfitInput): StandardOutfitSelection {
@@ -316,7 +317,12 @@ export function chooseOutfitByGarmentType(input: ChooseStandardOutfitInput): Sta
     input.imageType,
     input.garmentTypePreference
   ].join("|");
-  const selected = rotateOutfitVariation(candidates, rotationKey, Boolean(manualGarment));
+  const selected = rotateOutfitVariation(
+    candidates,
+    rotationKey,
+    Boolean(manualGarment),
+    input.generationNonce
+  );
 
   if (!selected) {
     return {

@@ -26,6 +26,7 @@ export type ChooseSmartOutfitInput = {
   userExtraRequirement?: string;
   previousOutfitId?: string | null;
   generatedHistory?: OutfitGeneratedHistoryEntry[];
+  generationNonce?: number;
 };
 
 export type ChooseSmartOutfitResult = {
@@ -209,6 +210,13 @@ function simplePrioritySort(candidates: SceneOutfitSeed[], history: OutfitGenera
   });
 }
 
+function selectByGenerationNonce(candidates: SceneOutfitSeed[], generationNonce?: number) {
+  if (!candidates.length) return null;
+  if (typeof generationNonce !== "number" || !Number.isFinite(generationNonce)) return candidates[0];
+
+  return candidates[Math.abs(generationNonce) % candidates.length] ?? candidates[0];
+}
+
 function chooseFallback(input: ChooseSmartOutfitInput, manualGarment: GarmentType | null, history: OutfitGeneratedHistoryEntry[], parsed: ParsedUserOutfitRequirement) {
   const safeFallbacks = fallbackSafeOutfitTemplates.filter((seed) => isSafeSeed(seed, input, manualGarment, parsed));
   const relaxedFallbacks = fallbackSafeOutfitTemplates.filter((seed) => {
@@ -224,7 +232,7 @@ function chooseFallback(input: ChooseSmartOutfitInput, manualGarment: GarmentTyp
   });
   const pool = safeFallbacks.length ? safeFallbacks : relaxedFallbacks.length ? relaxedFallbacks : fallbackSafeOutfitTemplates;
   const deduped = applySimpleDedupe(pool, history);
-  return simplePrioritySort(deduped, history)[0] ?? pool[0];
+  return selectByGenerationNonce(simplePrioritySort(deduped, history), input.generationNonce) ?? pool[0];
 }
 
 function toHistoryEntry(input: ChooseSmartOutfitInput, selected: SceneOutfitSeed): OutfitGeneratedHistoryEntry {
@@ -290,7 +298,7 @@ export function chooseSmartOutfit(input: ChooseSmartOutfitInput): ChooseSmartOut
 
   const filtered = sceneCandidates.filter((seed) => isSafeSeed(seed, input, manualGarment, parsedUserRequirement));
   const selected =
-    simplePrioritySort(applySimpleDedupe(filtered, history), history)[0] ??
+    selectByGenerationNonce(simplePrioritySort(applySimpleDedupe(filtered, history), history), input.generationNonce) ??
     chooseFallback(input, manualGarment, history, parsedUserRequirement);
 
   if (!selected) return null;

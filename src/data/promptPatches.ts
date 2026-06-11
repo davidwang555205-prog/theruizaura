@@ -33,6 +33,25 @@ export const promptQualityPatches = {
     "Adjust the composition and commercial feeling according to the selected image type. Outfit images should feel natural and lifestyle-driven. Detail images should be cleaner and product-readable. Still-life images should keep the product as the absolute subject. Brand atmosphere images may include material table or behind-the-scenes details through extra requirements."
 };
 
+const compactPatchLines = {
+  sneakerShapeProtection:
+    "Preserve the uploaded low-cut German trainer shape, rounded toe box, slim outsole, panels, tongue, stitching, laces, color, material transitions, and proportions; do not redesign it.",
+  sneakerVisibility:
+    "Keep at least one sneaker fully visible, the second readable, and keep fabric, socks, collar, tongue, laces, and outsole physically separated.",
+  materialRule:
+    "Only Aire 微风 uses lambskin lining; other current THERUIZ AURA styles use pigskin lining unless manually specified.",
+  bodyAndClippingProtection:
+    "Keep body scale, leg length, hand size, foot scale, and shoe-to-leg relationship realistic; avoid fabric melting, fused legs, distorted feet, plastic skin, and AI mannequin feeling.",
+  seasonalOutfitMatch:
+    "Match outfit weight, fabric, layering, light, and city climate to the selected season.",
+  cityRealism:
+    "Use a believable contemporary Chinese city setting with realistic sidewalks, storefronts, pavement, greenery, street depth, and daily details.",
+  brandVisualUnity:
+    "Maintain THERUIZ AURA Quiet Warm Luxury: cream-white, warm beige, soft stone, natural daylight, low saturation, tactile daily sophistication.",
+  imageTypeDifference:
+    "Match composition to image type: lifestyle outfit images feel natural, detail images stay product-readable, still-life keeps the shoe as subject, mirror selfies feel like real outfit records."
+};
+
 export const promptQualityNegativePhrases = [
   "running shoes",
   "chunky sneakers",
@@ -77,17 +96,17 @@ export function getPromptQualityPatchLines(input: { imageType: TeamImageType; ha
 
   return {
     productLines: [
-      input.hasShoe ? promptQualityPatches.sneakerShapeProtection : "",
-      input.hasShoe || materialDetailImage ? promptQualityPatches.materialRule : ""
+      input.hasShoe ? compactPatchLines.sneakerShapeProtection : "",
+      input.hasShoe || materialDetailImage ? compactPatchLines.materialRule : ""
     ].filter(Boolean),
-    modelLines: [peopleImage ? promptQualityPatches.bodyAndClippingProtection : ""].filter(Boolean),
-    outfitLines: [peopleImage ? promptQualityPatches.seasonalOutfitMatch : ""].filter(Boolean),
+    modelLines: [peopleImage ? compactPatchLines.bodyAndClippingProtection : ""].filter(Boolean),
+    outfitLines: [peopleImage ? compactPatchLines.seasonalOutfitMatch : ""].filter(Boolean),
     sceneLines: [
-      input.hasShoe ? promptQualityPatches.sneakerVisibility : "",
-      promptQualityPatches.cityRealism,
-      promptQualityPatches.imageTypeDifference
+      input.hasShoe ? compactPatchLines.sneakerVisibility : "",
+      compactPatchLines.cityRealism,
+      compactPatchLines.imageTypeDifference
     ].filter(Boolean),
-    moodLines: [promptQualityPatches.brandVisualUnity].filter(Boolean),
+    moodLines: [compactPatchLines.brandVisualUnity].filter(Boolean),
     negativePhrases: promptQualityNegativePhrases
   };
 }
