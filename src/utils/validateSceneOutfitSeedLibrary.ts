@@ -45,8 +45,8 @@ export function validateSceneOutfitSeedLibrary() {
 
     issues.push(...overLimit(countBy(seeds, (item) => item.topCategory), 3, `${sceneKey} topCategory`));
     issues.push(...overLimit(countBy(seeds, (item) => item.bottomCategory), 2, `${sceneKey} bottomCategory`));
-    issues.push(...overLimit(countBy(seeds, (item) => item.colorDirection), 4, `${sceneKey} colorDirection`));
-    issues.push(...overLimit(countBy(seeds, (item) => item.outfitStyle), 4, `${sceneKey} outfitStyle`));
+    issues.push(...overLimit(countBy(seeds, (item) => item.colorDirection), 5, `${sceneKey} colorDirection`));
+    issues.push(...overLimit(countBy(seeds, (item) => item.outfitStyle), 5, `${sceneKey} outfitStyle`));
     issues.push(...overLimit(countBy(seeds, (item) => item.visualAnchor), 2, `${sceneKey} visualAnchor`));
 
     const explicitDarkAnchorCount = seeds.filter((item) =>

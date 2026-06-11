@@ -13,6 +13,7 @@ export type OutfitGeneratedHistoryEntry = {
   bottomCategory: string;
   visualAnchor: string;
   bagCategory?: string;
+  cameraLookProfile?: string;
   timestamp: number;
 };
 
@@ -32,7 +33,7 @@ export function readOutfitGeneratedHistory(): OutfitGeneratedHistoryEntry[] {
 
 export function writeOutfitGeneratedHistory(entry: OutfitGeneratedHistoryEntry) {
   const current = readOutfitGeneratedHistory();
-  const next = [entry, ...current.filter((item) => item.outfitId !== entry.outfitId)].slice(0, 20);
+  const next = [entry, ...current.filter((item) => item.outfitId !== entry.outfitId)].slice(0, 10);
   memoryHistory = next;
 
   if (typeof window === "undefined") return;

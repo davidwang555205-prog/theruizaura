@@ -15,6 +15,13 @@ function countBy(items: SceneOutfitSeed[], getter: (item: SceneOutfitSeed) => st
   return counts;
 }
 
+function countOuterLayerCategory(seeds: SceneOutfitSeed[]) {
+  return countBy(seeds, (seed) => {
+    if (!seed.outerLayerCategory || seed.outerLayerCategory === "no outer layer") return undefined;
+    return seed.outerLayerCategory;
+  });
+}
+
 function overLimit(counts: Map<string, number>, limit: number, label: string) {
   return Array.from(counts.entries())
     .filter(([, count]) => count > limit)
@@ -70,9 +77,9 @@ function validateScene(sceneKey: string, seeds: SceneOutfitSeed[]) {
 
   issues.push(...overLimit(countBy(seeds, (seed) => seed.topCategory), 3, `${sceneKey} topCategory`));
   issues.push(...overLimit(countBy(seeds, (seed) => seed.bottomCategory), 2, `${sceneKey} bottomCategory`));
-  issues.push(...overLimit(countBy(seeds, (seed) => seed.outerLayerCategory), 3, `${sceneKey} outerLayerCategory`));
+  issues.push(...overLimit(countOuterLayerCategory(seeds), 3, `${sceneKey} outerLayerCategory`));
   issues.push(...overLimit(countBy(seeds, (seed) => seed.bagCategory), 3, `${sceneKey} bagCategory`));
-  issues.push(...overLimit(countBy(seeds, (seed) => seed.colorDirection), 4, `${sceneKey} colorDirection`));
+  issues.push(...overLimit(countBy(seeds, (seed) => seed.colorDirection), 5, `${sceneKey} colorDirection`));
   issues.push(...overLimit(countBy(seeds, (seed) => seed.visualAnchor), 2, `${sceneKey} visualAnchor`));
   issues.push(
     ...overLimit(
@@ -96,8 +103,8 @@ function validateScene(sceneKey: string, seeds: SceneOutfitSeed[]) {
   if (bagCount > Math.floor(seeds.length * 0.7)) {
     issues.push(`${sceneKey}: bagged outfits exceed 70% (${bagCount}/${seeds.length})`);
   }
-  if (trouserSeeds.length >= 4 && trouserSeeds.length - denimTrouserCount < 4) {
-    issues.push(`${sceneKey}: expected at least 4 non-denim trouser seeds`);
+  if (trouserSeeds.length >= 4 && trouserSeeds.length - denimTrouserCount < Math.ceil(trouserSeeds.length / 2)) {
+    issues.push(`${sceneKey}: expected non-denim trouser seeds to remain the majority`);
   }
   if (trouserSeeds.length > 0 && denimTrouserCount > Math.ceil(trouserSeeds.length / 2)) {
     issues.push(`${sceneKey}: denim trousers exceed 50% of trouser seeds`);

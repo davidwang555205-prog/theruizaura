@@ -32,7 +32,7 @@ function buildSection(title: string, content?: string) {
 }
 
 export function buildStructuredPrompt(parts: StructuredPromptParts) {
-  const isStillLife = parts.imageType === "产品静物图";
+  const isStillLife = parts.imageType === "产品静物图" || parts.imageType === "拍摄花絮 / 材质图";
   const sections = [
     buildSection("时间", parts.timeLine),
     buildSection("地点", parts.placeLine),
