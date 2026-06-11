@@ -83,7 +83,10 @@ const modelLine =
   "Use one real-looking Asian or subtle Asian mixed woman, 32–46, like a stylish real customer or everyday urban woman, not a professional fashion model. Natural dark hair, light everyday makeup, normal facial features, realistic body proportion, calm mature presence, and believable daily styling.";
 
 const humanRealismLine =
-  "Make the person feel like a real customer captured in a natural daily outfit record, not an AI-generated fashion model, mannequin, showroom character, influencer, or campaign face. Use a candid human-photography feeling: slight facial asymmetry, normal skin texture, natural under-eye texture, relaxed mouth, imperfect but tasteful posture, realistic hand tension, believable foot pressure, and normal shoulder-neck relationship. The gaze must not feel posed for the camera; she should be looking down at the shoes, checking her phone, adjusting a sleeve, holding coffee, opening a bag, walking into a store, or pausing mid-movement. Keep the expression quiet, neutral, slightly task-focused, and unperformed. Avoid beauty-pageant face, perfect symmetrical AI face, frozen soft smile, empty stare, direct-camera posing, plastic skin, over-retouched commercial portrait, extra-polished fashion campaign mood, and body proportions that feel digitally idealized.";
+  "Make the person feel like a real customer captured in a natural daily outfit record, not an AI-generated fashion model, mannequin, showroom character, influencer, or campaign face. Use a candid human-photography feeling: slight facial asymmetry, normal skin texture, natural under-eye texture, relaxed mouth, imperfect but tasteful posture, realistic hand tension, believable foot pressure, and normal shoulder-neck relationship. Gaze direction should feel natural and varied. Allow soft casual eye contact with the camera when it feels like a real customer briefly noticing a friend taking the photo. Also allow looking slightly away, looking down at the shoes, checking the phone, adjusting clothes, holding coffee, opening a bag, or walking naturally. Do not force everyone to look away. Keep the expression quiet, neutral, slightly task-focused, and unperformed. Avoid hard staring, frozen soft smile, influencer gaze, commercial model eye contact, doll-like eyes, staged fashion portrait mood, over-retouched commercial portrait, extra-polished fashion campaign mood, and body proportions that feel digitally idealized.";
+
+const naturalGazeVariationLine =
+  "Gaze direction should feel natural and varied: allow soft casual eye contact with the camera or a relaxed look away, without hard staring, influencer gaze, or commercial model eye contact.";
 
 const gazeLine =
   "Use a natural gaze for the task or outfit record, never a forced direct stare.";
@@ -452,6 +455,10 @@ function getNegativeLine(input: {
       "over-retouched portrait",
       "perfect influencer skin",
       "symmetrical doll face",
+      "hard staring",
+      "commercial model eye contact",
+      "staged fashion portrait mood",
+      "influencer gaze",
       "commercial campaign model",
       "posed luxury advertisement",
       "digitally idealized body"
@@ -778,6 +785,7 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
   const modelStructuredLine = shouldUsePeopleStyling(params.imageType)
     ? [
         getModelLine(params, resolvedScene),
+        naturalGazeVariationLine,
         humanRealismLine,
         ...promptQualityPatchLines.modelLines,
         humanRealism.livedInCoreLine,
