@@ -17,6 +17,7 @@ export type PromptPreflightInput = {
   selectedAccessory?: string | null;
   selectedHandheldObject?: string | null;
   userExtraRequirement?: string;
+  hasShoe?: boolean;
   lightCheckOnly?: boolean;
 };
 
@@ -116,7 +117,12 @@ function applyRepair(parts: StructuredPromptParts, repairKey: PromptRepairKey) {
 }
 
 function hasShoeContext(input: PromptPreflightInput) {
+  if (input.hasShoe === false) return false;
   return /sneaker|trainer|THERUIZ AURA/i.test(`${input.promptParts.productLine ?? ""} ${input.promptParts.sceneLine ?? ""}`);
+}
+
+function hasPeopleContext(input: PromptPreflightInput) {
+  return input.imageType === "产品上脚图" || input.imageType === "对镜穿搭图" || input.imageType === "生活场景图";
 }
 
 export function promptPreflightCheck(input: PromptPreflightInput): PromptPreflightOutput {
@@ -139,9 +145,15 @@ export function promptPreflightCheck(input: PromptPreflightInput): PromptPreflig
     /hand-held tote.*water bottle|water bottle.*hand-held tote/,
     /coffee.*book|book.*coffee/
   ]);
-  if (handheldConflictCount > 0) repair("singleHandheldRepair", "Detected potential multiple primary handheld objects.");
+  if (hasPeopleContext(input) && handheldConflictCount > 0) {
+    repair("singleHandheldRepair", "Detected potential multiple primary handheld objects.");
+  }
 
-  if (/bag in every image|default bag|unnecessary bag/i.test(text) || /structured tote|canvas tote|handbag/i.test(text) && /coffee|flowers?|book|water bottle|phone/i.test(text)) {
+  if (
+    hasPeopleContext(input) &&
+    (/bag in every image|default bag|unnecessary bag/i.test(text) ||
+      (/structured tote|canvas tote|handbag/i.test(text) && /coffee|flowers?|book|water bottle|phone/i.test(text)))
+  ) {
     repair("noDefaultBagRepair", "Detected possible default bag or bag plus handheld object conflict.");
   }
 

@@ -33,10 +33,11 @@ function buildSection(title: string, content?: string) {
 
 export function buildStructuredPrompt(parts: StructuredPromptParts) {
   const isStillLife = parts.imageType === "产品静物图" || parts.imageType === "拍摄花絮 / 材质图";
+  const productSection = buildSection("产品", parts.productLine);
   const sections = [
     buildSection("时间", parts.timeLine),
     buildSection("地点", parts.placeLine),
-    isStillLife ? buildSection("产品", parts.productLine) : "",
+    productSection,
     isStillLife ? "" : buildSection("人物", parts.modelLine),
     isStillLife ? "" : buildSection("穿着", parts.outfitLine),
     buildSection("场景", parts.sceneLine),

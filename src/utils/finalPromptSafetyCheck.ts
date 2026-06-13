@@ -159,7 +159,10 @@ function keepSingleNegativeSection(prompt: string, warnings: string[]) {
   return `${body.trim()}\n\n负面词:\n${negative}`;
 }
 
-export function finalPromptSafetyCheck(finalPrompt: string): FinalPromptSafetyCheckResult {
+export function finalPromptSafetyCheck(
+  finalPrompt: string,
+  options: { hasShoe?: boolean; hasPeople?: boolean } = {}
+): FinalPromptSafetyCheckResult {
   const warnings: string[] = [];
   let prompt = finalPrompt;
 
@@ -169,8 +172,12 @@ export function finalPromptSafetyCheck(finalPrompt: string): FinalPromptSafetyCh
   prompt = removeIndoorSunglasses(prompt, warnings);
   prompt = removeDefaultBagWhenNotNeeded(prompt, warnings);
   prompt = compactHandheldNegativeLists(prompt, warnings);
-  prompt = addSingleHandheldBoundary(prompt, warnings);
-  prompt = ensureShoeVisibility(prompt, warnings);
+  if (options.hasPeople) {
+    prompt = addSingleHandheldBoundary(prompt, warnings);
+  }
+  if (options.hasShoe) {
+    prompt = ensureShoeVisibility(prompt, warnings);
+  }
   prompt = normalizeSpaces(prompt);
 
   return {

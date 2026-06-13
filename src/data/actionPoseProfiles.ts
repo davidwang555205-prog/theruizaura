@@ -7,6 +7,7 @@ export type ActionPoseInput = {
   selectedOutfitLine: string;
   timeOfDay: string;
   userExtraRequirement: string;
+  generationNonce?: number;
 };
 
 export type ActionPoseOutput = {
@@ -84,8 +85,16 @@ const gymActionPool = [
   "Walk toward the gym entrance with a clean gym tote or water bottle, using a short realistic stride."
 ];
 
-function pick<T>(items: T[]) {
-  return items[Math.floor(Math.random() * items.length)];
+function getNonce(input: ActionPoseInput, salt = 0) {
+  return Math.abs((input.generationNonce ?? 0) + salt);
+}
+
+function pick<T>(items: T[], input: ActionPoseInput, salt = 0) {
+  return items[getNonce(input, salt) % items.length] ?? items[0];
+}
+
+function chooseByNonce(input: ActionPoseInput, ratio: number, salt = 0) {
+  return (getNonce(input, salt) % 100) < ratio * 100;
 }
 
 function includesAny(text: string, keywords: string[]) {
@@ -96,7 +105,7 @@ function chooseComplexity(input: ActionPoseInput): TeamActionComplexityLevel {
   if (input.imageType === "产品静物图") return "noAction";
   if (input.imageType === "产品上脚图" || input.imageType === "对镜穿搭图") return "safeSimple";
   if (input.scenePreference === "健身房内") return "activeLight";
-  if (input.scenePreference === "去运动的路上") return Math.random() < 0.5 ? "moderateDaily" : "activeLight";
+  if (input.scenePreference === "去运动的路上") return chooseByNonce(input, 0.5, 11) ? "moderateDaily" : "activeLight";
   if (input.imageType === "生活场景图") return "moderateDaily";
   return "noAction";
 }
@@ -115,10 +124,10 @@ function chooseScenePose(input: ActionPoseInput): TeamPoseType {
   const requested = inferRequestedPose(input.userExtraRequirement.toLowerCase());
   if (requested) return requested;
   if (input.imageType === "对镜穿搭图") return "mirror";
-  if (input.scenePreference === "健身房内") return Math.random() < 0.72 ? "active" : "seated";
+  if (input.scenePreference === "健身房内") return chooseByNonce(input, 0.72, 23) ? "active" : "seated";
   if (input.scenePreference === "去运动的路上" || input.scenePreference === "周末城市散步") return "walking";
   if (input.scenePreference === "旅行酒店" || input.scenePreference === "通勤上班") {
-    return Math.random() < 0.55 ? "walking" : "standing";
+    return chooseByNonce(input, 0.55, 37) ? "walking" : "standing";
   }
   if (input.scenePreference === "窗边阅读") return "seated";
   if (input.scenePreference === "精品超市 / 日常采购") return "walking";
@@ -148,7 +157,7 @@ function chooseSceneAction(input: ActionPoseInput, poseType: TeamPoseType) {
     return "Carry a tote or small grocery bag naturally while moving through a refined daily errand scene.";
   }
   if (input.scenePreference === "健身房内") {
-    return pick(gymActionPool);
+    return pick(gymActionPool, input, 5);
   }
   if (input.scenePreference === "去运动的路上") {
     return "Walk naturally toward a gym or movement space, carrying a clean gym tote or water bottle, with a short realistic stride.";
@@ -160,11 +169,11 @@ function chooseSceneAction(input: ActionPoseInput, poseType: TeamPoseType) {
     return "Use a simple hand-focused action such as arranging swatches, holding a color card, checking product notes, or adjusting material samples.";
   }
 
-  if (poseType === "walking") return pick(walkingPosePool);
-  if (poseType === "seated") return pick(seatedPosePool);
-  if (poseType === "mirror") return pick(mirrorPosePool);
-  if (poseType === "active") return pick(gymActionPool);
-  return pick(standingPosePool);
+  if (poseType === "walking") return pick(walkingPosePool, input, 7);
+  if (poseType === "seated") return pick(seatedPosePool, input, 13);
+  if (poseType === "mirror") return pick(mirrorPosePool, input, 17);
+  if (poseType === "active") return pick(gymActionPool, input, 19);
+  return pick(standingPosePool, input, 29);
 }
 
 export function chooseActionLine(input: ActionPoseInput): ActionPoseOutput {

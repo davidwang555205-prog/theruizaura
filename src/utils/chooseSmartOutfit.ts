@@ -267,7 +267,9 @@ function buildResult(input: {
     stylingRealismLine: input.selected.stylingRealismLine
   });
 
-  writeOutfitGeneratedHistory(toHistoryEntry(input.smartInput, input.selected));
+  if (typeof input.smartInput.generationNonce !== "number") {
+    writeOutfitGeneratedHistory(toHistoryEntry(input.smartInput, input.selected));
+  }
 
   return {
     selectedOutfitId: input.selected.id,

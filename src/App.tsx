@@ -9,13 +9,13 @@ import type {
 } from "./types";
 import { generateTeamPrompt } from "./utils/generatePrompt";
 import { promptQualityPatchNotice } from "./data/promptPatches";
-import { applyRotatingOutfitLine } from "./data/outfitKeywordLibrary";
 
 const imageTypeOptions: TeamImageType[] = [
   "产品上脚图",
   "对镜穿搭图",
   "生活场景图",
   "非产品氛围图",
+  "拍摄花絮 / 材质图",
   "产品静物图"
 ];
 
@@ -85,9 +85,7 @@ function updateField<K extends keyof TeamPromptParams>(
 
 function App() {
   const [params, setParams] = useState<TeamPromptParams>(initialParams);
-  const [generatedPrompt, setGeneratedPrompt] = useState(() =>
-    applyRotatingOutfitLine(generateTeamPrompt(initialParams).prompt, initialParams)
-  );
+  const [generatedPrompt, setGeneratedPrompt] = useState(() => generateTeamPrompt(initialParams).prompt);
   const [copyStatus, setCopyStatus] = useState("");
   const [hasPendingChanges, setHasPendingChanges] = useState(false);
 
@@ -104,7 +102,7 @@ function App() {
     };
 
     setParams(nextParams);
-    setGeneratedPrompt(applyRotatingOutfitLine(generateTeamPrompt(nextParams).prompt, nextParams));
+    setGeneratedPrompt(generateTeamPrompt(nextParams).prompt);
     setCopyStatus("");
     setHasPendingChanges(false);
   };

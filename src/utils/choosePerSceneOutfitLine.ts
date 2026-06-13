@@ -137,6 +137,11 @@ function selectByRotation(candidates: OutfitEntry[], input: ChoosePerSceneOutfit
   );
   const available = candidates.filter((entry) => !blockedIds.has(entry.id));
   const pool = available.length ? available : candidates;
+
+  if (typeof input.generationNonce === "number" && Number.isFinite(input.generationNonce)) {
+    return pool[Math.abs(input.generationNonce) % pool.length] ?? candidates[0] ?? null;
+  }
+
   const baseIndex = hashText(
     `${sceneKey}|${input.season}|${input.shoe}|${input.imageType}|${input.userExtraRequirement ?? ""}|${storedHistory[0] ?? ""}`
   );

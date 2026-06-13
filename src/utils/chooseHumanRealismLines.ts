@@ -216,7 +216,7 @@ function getNegativePhrases(poseCategory: TeamHumanPoseCategory, hasShoe: boolea
     "plastic model feeling",
     "dead-eyed expression",
     "frozen smile",
-    "AI doll-like presence"
+    "doll-like presence"
   ];
 
   if (hasShoe) {

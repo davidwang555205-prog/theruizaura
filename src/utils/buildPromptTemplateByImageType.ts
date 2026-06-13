@@ -45,6 +45,16 @@ export function buildPromptTemplateByImageType(input: {
     } satisfies PromptTemplateByImageType;
   }
 
+  if (input.imageType === "非产品氛围图") {
+    return {
+      templateKind: "atmosphere",
+      templateSceneLine:
+        "Use an atmosphere template: quiet real space, warm restraint, low-noise objects, believable light, and no direct product-shot pressure unless the user asks for the shoe.",
+      templateActionLine: "",
+      templateNegativeLine: "generic stock mood, synthetic luxury staging, random props, hard studio light"
+    } satisfies PromptTemplateByImageType;
+  }
+
   if (input.imageType === "对镜穿搭图" || input.sceneKey === "mirrorCloset") {
     return {
       templateKind: "mirrorCloset",

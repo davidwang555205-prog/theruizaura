@@ -26,6 +26,7 @@ import { chooseOutfitByGarmentType } from "./chooseOutfitByGarmentType";
 import { choosePerSceneOutfitLine } from "./choosePerSceneOutfitLine";
 import { chooseSceneAccessoryLine } from "./chooseSceneAccessoryLine";
 import { chooseSneakerProtectionLines } from "./chooseSneakerProtectionLines";
+import { chooseGazeLine } from "../data/modelGaze";
 import { applyPromptPriorityEngine } from "./promptPriorityEngine";
 import { controlPromptBudget } from "./promptBudgetController";
 import { cleanFinalPrompt, dedupePromptLines } from "./promptOptimizer";
@@ -83,10 +84,7 @@ const modelLine =
   "Use one real-looking Asian or subtle Asian mixed woman, 32–46, like a stylish real customer or everyday urban woman, not a professional fashion model. Natural dark hair, light everyday makeup, normal facial features, realistic body proportion, calm mature presence, and believable daily styling.";
 
 const humanRealismLine =
-  "Make the person feel like a real customer captured in a natural daily outfit record, not a computer-perfect fashion model, mannequin, showroom character, influencer, or campaign face. Use a candid human-photography feeling: slight facial asymmetry, normal skin texture, natural under-eye texture, relaxed mouth, imperfect but tasteful posture, realistic hand tension, believable foot pressure, and normal shoulder-neck relationship. Gaze direction should feel natural and varied. Allow soft casual eye contact with the camera when it feels like a real customer briefly noticing a friend taking the photo. Also allow looking slightly away, looking down at the shoes, checking the phone, adjusting clothes, holding coffee, opening a bag, or walking naturally. Do not force everyone to look away. Keep the expression quiet, neutral, slightly task-focused, and unperformed. Avoid hard staring, frozen soft smile, influencer gaze, commercial model eye contact, doll-like eyes, staged fashion portrait mood, over-retouched commercial portrait, extra-polished fashion campaign mood, and body proportions that feel digitally idealized.";
-
-const naturalGazeVariationLine =
-  "Gaze direction should feel natural and varied: allow soft casual eye contact with the camera or a relaxed look away, without hard staring, influencer gaze, or commercial model eye contact.";
+  "Make the person feel like a real customer captured in a natural daily outfit record, not a computer-perfect fashion model, mannequin, showroom character, influencer, or campaign face. Use a candid human-photography feeling: slight facial asymmetry, normal skin texture, natural under-eye texture, relaxed mouth, imperfect but tasteful posture, realistic hand tension, believable foot pressure, and normal shoulder-neck relationship. Keep the expression quiet, neutral, slightly task-focused, and unperformed. Avoid hard staring, frozen soft smile, influencer gaze, commercial model eye contact, doll-like eyes, lifeless gaze, staged fashion portrait mood, over-retouched commercial portrait, extra-polished fashion campaign mood, and body proportions that feel digitally idealized.";
 
 const gazeLine =
   "Use a natural gaze for the task or outfit record, never a forced direct stare.";
@@ -200,7 +198,7 @@ const SCENE_VARIATION_LINES: Partial<Record<StandardSceneKey, string[]>> = {
     "Use a store-to-sidewalk transition where the outfit and sneakers remain readable while the background stays secondary."
   ],
   hotelTravel: [
-    "Use a hotel doorway or corridor-to-street transition with a small suitcase, warm neutral walls, and quiet travel order.",
+    "Use a hotel doorway, calm corridor, wardrobe area, or suitcase corner with warm neutral walls and quiet travel order.",
     "Set the moment near a room doorway or wardrobe mirror with folded clothing, a travel tote, and soft hotel daylight.",
     "Use a calm hotel entrance threshold with restrained stone texture, no luxury bragging, and believable business-travel movement.",
     "Place her beside a bed edge or luggage corner before leaving, keeping the room tidy, warm, and refined."
@@ -368,12 +366,12 @@ function resolveSceneKey(params: TeamPromptParams, resolvedScene: Exclude<TeamSc
   const text = `${resolvedScene} ${params.extraRequirement}`.toLowerCase();
 
   if (params.imageType === "产品静物图") return "stillLife";
+  if (resolvedScene === "健身房内" || /gyminterior|健身房内|premium gym/.test(text)) return "gymInterior";
+  if (resolvedScene === "去运动的路上" || /gymcommute|去运动|健身房路上/.test(text)) return "gymCommute";
   if (params.imageType === "对镜穿搭图") return resolvedScene === "旅行酒店" ? "hotelTravel" : "mirrorCloset";
   if (params.imageType === "拍摄花絮 / 材质图" || resolvedScene === "材质工作台" || resolvedScene === "拍摄花絮") {
     return "materialTable";
   }
-  if (resolvedScene === "健身房内" || /gyminterior|健身房内|premium gym/.test(text)) return "gymInterior";
-  if (resolvedScene === "去运动的路上" || /gymcommute|去运动|健身房路上/.test(text)) return "gymCommute";
   if (resolvedScene === "居家衣帽间") return "mirrorCloset";
   if (/cafeexterior|咖啡|cafe|café/.test(text)) return "cafeExterior";
   if (/bookstoremagazine|书店|杂志|bookstore|magazine/.test(text)) return "bookstoreMagazine";
@@ -482,6 +480,10 @@ function getBasePlaceLineForPrompt(input: {
   cityStreetPlaceLine: string;
 }) {
   if (input.params.imageType === "对镜穿搭图") {
+    if (input.resolvedScene === "健身房内" || input.resolvedScene === "去运动的路上") {
+      return TEAM_SCENE_TEXT[input.resolvedScene];
+    }
+
     return input.resolvedScene === "旅行酒店"
       ? TEAM_SCENE_TEXT["旅行酒店"]
       : TEAM_SCENE_TEXT["居家衣帽间"];
@@ -688,6 +690,10 @@ function getTeamGazeMode(params: TeamPromptParams, sceneKey: StandardSceneKey) {
   return "softOffCamera";
 }
 
+function isBehindTheScenesImage(params: TeamPromptParams, sceneKey: StandardSceneKey) {
+  return params.imageType === "拍摄花絮 / 材质图" || sceneKey === "materialTable";
+}
+
 function mapActionPoseToHumanCategory(input: {
   params: TeamPromptParams;
   resolvedScene: Exclude<TeamScenePreference, "自动匹配">;
@@ -755,6 +761,10 @@ function getPromptKind(params: TeamPromptParams, sceneKey: StandardSceneKey) {
   return "atmosphere";
 }
 
+function isGymSceneKey(sceneKey: StandardSceneKey) {
+  return sceneKey === "gymInterior" || sceneKey === "gymCommute";
+}
+
 function getEffectiveGarmentTypePreference(
   params: TeamPromptParams,
   sceneKey: StandardSceneKey
@@ -786,11 +796,11 @@ function getTimeLine(params: TeamPromptParams, sceneKey: StandardSceneKey) {
   if (params.imageType === "产品静物图" || sceneKey === "stillLife") {
     return `Soft natural side light with gentle shadows, believable product photography brightness, and ${TEAM_SEASON_LIGHT[params.season]}.`;
   }
-  if (params.imageType === "对镜穿搭图" || sceneKey === "mirrorCloset") {
-    return `Morning or soft indoor daylight with believable room shadows, natural mirror brightness, and ${TEAM_SEASON_LIGHT[params.season]}.`;
-  }
   if (sceneKey === "gymInterior") {
     return `Morning or controlled indoor light with clean brightness, soft equipment shadows, and ${TEAM_SEASON_LIGHT[params.season]}.`;
+  }
+  if (params.imageType === "对镜穿搭图" || sceneKey === "mirrorCloset") {
+    return `Morning or soft indoor daylight with believable room shadows, natural mirror brightness, and ${TEAM_SEASON_LIGHT[params.season]}.`;
   }
   if (sceneKey === "commute" || sceneKey === "gymCommute" || sceneKey === "bakeryDessert") {
     return `Morning natural light with soft shadows, clean daily brightness, and ${TEAM_SEASON_LIGHT[params.season]}.`;
@@ -910,7 +920,7 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
   });
   const placeLine = [sceneVariationLine, basePlaceLine].filter(Boolean).join(" ");
   const shoeStyleLine =
-    sceneKey === "gymInterior"
+    sceneKey === "gymInterior" && hasShoe
       ? "Style the selected THERUIZ AURA sneaker only with refined fitness-related clothing, keeping the look active, clean, and gym-appropriate."
       : getShoeStyleLine(params, hasShoe);
   const sneakerProtection = chooseSneakerProtectionLines({
@@ -923,13 +933,25 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
   const baseOutfitLine = perSceneOutfitSelection?.selectedPerSceneOutfitLine ?? outfitSelection.outfitLine;
   const baseStylingRealismLine = perSceneOutfitSelection?.selectedStylingRealismLine ?? outfitSelection.stylingRealismLine;
   const preAccessoryOutfitLine = [baseOutfitLine, shoeStyleLine].filter(Boolean).join(" ");
+  const gazeSelection = chooseGazeLine({
+    imageType: params.imageType,
+    scenePreference: resolvedScene,
+    isMirror: params.imageType === "对镜穿搭图" || sceneKey === "mirrorCloset",
+    isProductStillLife: params.imageType === "产品静物图" || sceneKey === "stillLife",
+    isBehindTheScenes: isBehindTheScenesImage(params, sceneKey),
+    userExtraRequirement: params.extraRequirement,
+    usesCreatorStyling: shouldUsePeopleStyling(params.imageType),
+    isMultiImageSet: imageCountIntent !== "singleImage",
+    generationNonce: params.generationNonce
+  });
   const actionSelection = chooseActionLine({
     imageType: params.imageType,
     scenePreference: resolvedScene,
-    selectedGazeMode: getTeamGazeMode(params, sceneKey),
+    selectedGazeMode: gazeSelection.mode || getTeamGazeMode(params, sceneKey),
     selectedOutfitLine: preAccessoryOutfitLine,
     timeOfDay: seasonCityVisualContext.timeOfDay,
-    userExtraRequirement: params.extraRequirement
+    userExtraRequirement: params.extraRequirement,
+    generationNonce: params.generationNonce
   });
   const poseCategory = mapActionPoseToHumanCategory({
     params,
@@ -1002,7 +1024,7 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
   const modelStructuredLine = shouldUsePeopleStyling(params.imageType)
     ? [
         getModelLine(params, resolvedScene),
-        naturalGazeVariationLine,
+        gazeSelection.line,
         humanRealismLine,
         ...promptQualityPatchLines.modelLines,
         humanRealism.livedInCoreLine,
@@ -1018,7 +1040,9 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
         getGarmentTypeLockLine(effectiveGarmentTypePreference),
         sceneKey === "gymInterior" ? gymInteriorClothingLockLine : "",
         baseStylingRealismLine,
-        params.season === "秋" || params.season === "冬" ? seasonCityVisualContext.outfitLayerLine : "",
+        (params.season === "秋" || params.season === "冬") && !isGymSceneKey(sceneKey)
+          ? seasonCityVisualContext.outfitLayerLine
+          : "",
         ...promptQualityPatchLines.outfitLines,
         accessorySelection.accessoryLine,
         humanRealism.clothingWornLine,
@@ -1047,7 +1071,9 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
           primaryHandheldObject: handheldSelection.primaryHandheldObject
         }),
         humanRealism.bodyWeightLine,
-        humanRealism.expressionGazeLine || (params.imageType === "对镜穿搭图" ? "" : gazeLine)
+        gazeSelection.mode === "lookAtCamera"
+          ? ""
+          : humanRealism.expressionGazeLine || (params.imageType === "对镜穿搭图" ? "" : gazeLine)
       ]
         .filter(Boolean)
         .join(" ")
@@ -1116,6 +1142,7 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
       ...extractAvoidPhrases(actionSelection.negative),
       ...extractAvoidPhrases(`Avoid ${imageTypeTemplate.templateNegativeLine}.`),
       ...extractAvoidPhrases(cameraSelection.cameraNegativeLine),
+      ...extractAvoidPhrases(`Avoid ${gazeSelection.negative}.`),
       ...promptQualityPatchLines.negativePhrases
     ]
   });
@@ -1152,11 +1179,13 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
           ...promptQualityPatchLines.sceneLines,
           shouldUsePeopleStyling(params.imageType) && !sneakerSceneControlLine ? accessoryShoeVisibilityRuleLine : ""
         ].filter(Boolean),
-        actionLine: [
-          imageTypeTemplate.templateActionLine,
-          handheldSelection.handheldObjectLine,
-          getSinglePurposeHandLine(handheldSelection.primaryHandheldObject)
-        ].filter(Boolean),
+        actionLine: shouldUsePeopleStyling(params.imageType)
+          ? [
+              imageTypeTemplate.templateActionLine,
+              handheldSelection.handheldObjectLine,
+              getSinglePurposeHandLine(handheldSelection.primaryHandheldObject)
+            ].filter(Boolean)
+          : [],
         negativeLine: [
           seasonCityVisualContext.lightingNegativeLine,
           imageTypeTemplate.templateNegativeLine,
@@ -1189,7 +1218,8 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
     selectedOutfit: perSceneOutfitSelection ?? outfitSelection.selectedOutfit,
     selectedAccessory: accessorySelection.selectedBagAccessory,
     selectedHandheldObject: handheldSelection.primaryHandheldObject,
-    userExtraRequirement: sanitizedUserExtraRequirement
+    userExtraRequirement: sanitizedUserExtraRequirement,
+    hasShoe
   });
   const budgetedPromptParts = controlPromptBudget({
     promptParts: preflight.fixedPromptParts,
@@ -1209,13 +1239,17 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
     selectedAccessory: accessorySelection.selectedBagAccessory,
     selectedHandheldObject: handheldSelection.primaryHandheldObject,
     userExtraRequirement: sanitizedUserExtraRequirement,
+    hasShoe,
     lightCheckOnly: true
   });
   const rawPrompt = buildStructuredPrompt(finalPreflight.fixedPromptParts);
   const reducedPrompt = sensitiveWordReducer(rawPrompt);
   const vocabularyAdjustedPrompt = promptVocabularyReplacer(reducedPrompt);
   const dedupedPrompt = dedupePromptLines(vocabularyAdjustedPrompt);
-  const safetyCheckedPrompt = finalPromptSafetyCheck(dedupedPrompt);
+  const safetyCheckedPrompt = finalPromptSafetyCheck(dedupedPrompt, {
+    hasShoe,
+    hasPeople: shouldUsePeopleStyling(params.imageType)
+  });
   const prompt = cleanFinalPrompt(safetyCheckedPrompt.prompt);
 
   return {
