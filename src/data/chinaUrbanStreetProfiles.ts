@@ -21,7 +21,7 @@ export const chinaUrbanStreetProfiles: Record<ChinaCityProfile, ChinaUrbanStreet
       "skyline landmarks",
       "tourist streets",
       "overly European styling",
-      "readable fake signage"
+      "unreadable storefront signage"
     ]
   },
   Chengdu: {
@@ -74,7 +74,7 @@ export const chinaUrbanStreetProfiles: Record<ChinaCityProfile, ChinaUrbanStreet
       "Use a real Chinese city daily street with clean sidewalks, muted storefronts, subtle greenery, curb lines, distant parked scooters or cars, soft light, and quiet mixed-use textures.",
     boundaryPhrases: [
       "European-looking streets",
-      "fake Chinese signage",
+      "unreadable Chinese-style signage",
       "crowded traffic",
       "staged city-promo scenery"
     ]

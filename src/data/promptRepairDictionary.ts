@@ -40,8 +40,8 @@ export const promptRepairDictionary: Record<PromptRepairKey, PromptRepair> = {
   indoorLightRepair: {
     key: "indoorLightRepair",
     line:
-      "Use soft indoor natural window light or believable indoor ambient light only; avoid outdoor street shadows inside the room.",
-    negativePhrases: ["outdoor street shadows inside room", "studio backdrop indoors"]
+      "Use soft indoor natural window light or believable indoor ambient light only; avoid exterior shadow patterns inside the room.",
+    negativePhrases: ["exterior shadow patterns inside room", "studio backdrop indoors"]
   },
   outdoorLightRepair: {
     key: "outdoorLightRepair",
@@ -52,8 +52,8 @@ export const promptRepairDictionary: Record<PromptRepairKey, PromptRepair> = {
   mirrorLightRepair: {
     key: "mirrorLightRepair",
     line:
-      "Use soft indoor natural window light with realistic mirror reflection, no harsh flash, no outdoor street shadows, and no long-leg mirror distortion.",
-    negativePhrases: ["harsh flash mirror selfie", "outdoor street shadows in mirror", "long-leg mirror distortion"]
+      "Use soft indoor natural window light with realistic mirror reflection, no harsh flash, no exterior shadow patterns, and no long-leg mirror distortion.",
+    negativePhrases: ["harsh flash mirror selfie", "exterior shadow patterns in mirror", "long-leg mirror distortion"]
   },
   noDefaultBagRepair: {
     key: "noDefaultBagRepair",

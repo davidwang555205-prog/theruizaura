@@ -31,11 +31,11 @@ export const sceneLightingSpaceProfiles: Record<LightingSpaceType, LightingSpace
     lightingSpaceType: "indoorNaturalLight",
     lightingSourceType: "soft indoor natural window light",
     indoorOutdoorLightLine:
-      "Use soft indoor natural window light with believable room depth, gentle shadows on the floor, natural mirror or wall reflection, and warm-neutral brightness. The light should feel like a real daily indoor outfit record, not studio lighting or outdoor street light.",
+      "Use soft indoor natural window light with believable room depth, gentle shadows on the floor, natural mirror or wall reflection, and warm-neutral brightness. The light should feel like a real daily indoor outfit record, not studio or exterior lighting.",
     lightingNegativeLine:
-      "outdoor street shadows inside room, hard flash, beauty selfie lighting, studio backdrop, overexposed mirror glare, long-leg mirror distortion",
+      "exterior shadows inside room, hard flash, beauty selfie lighting, studio backdrop, overexposed mirror glare, long-leg mirror distortion",
     spaceSupportLine:
-      "The room should feel naturally lit from a real window or soft ambient source, with no outdoor street shadows projected into the interior."
+      "The room should feel naturally lit from a real window or soft ambient source, with no exterior shadows projected into the interior."
   },
   indoorCommercialLight: {
     lightingSpaceType: "indoorCommercialLight",
@@ -43,7 +43,7 @@ export const sceneLightingSpaceProfiles: Record<LightingSpaceType, LightingSpace
     indoorOutdoorLightLine:
       "Use believable indoor commercial light mixed with soft natural spill: clean ambient lighting, subtle storefront or shelf depth, realistic reflections, controlled highlights, and no harsh showroom glare. Keep the scene real, low-noise, and secondary to the outfit and sneakers.",
     lightingNegativeLine:
-      "mall lighting overload, fake fluorescent glare, unreadable label clutter, luxury ad lighting, nightclub lighting, random neon",
+      "mall lighting overload, unreal fluorescent glare, unreadable label clutter, luxury ad lighting, nightclub lighting, random neon",
     spaceSupportLine:
       "Keep interior shelves, counters, signage, and labels quiet and unreadable, with low-noise depth that supports the outfit and sneakers."
   },
@@ -63,7 +63,7 @@ export const sceneLightingSpaceProfiles: Record<LightingSpaceType, LightingSpace
     indoorOutdoorLightLine:
       "Use real product photography light: soft natural side light or large diffused window light, gentle contact shadows, realistic material texture, clean product scale, and no CGI render feeling. The sneakers must remain the clear subject.",
     lightingNegativeLine:
-      "fake 3D render light, glossy ad shine, floating product, harsh flash, heavy shadow, excessive reflection",
+      "synthetic 3D render light, glossy ad shine, floating product, harsh flash, heavy shadow, excessive reflection",
     spaceSupportLine:
       "Use a still-life product setup with real surface contact, material scale, and no person accessories competing with the shoe."
   },
@@ -73,7 +73,7 @@ export const sceneLightingSpaceProfiles: Record<LightingSpaceType, LightingSpace
     indoorOutdoorLightLine:
       "Use threshold lighting at a real storefront or doorway: soft outdoor daylight from the street, subtle interior depth behind glass or the entrance, gentle shadow transition near the door, and believable reflections. The light should connect indoor and outdoor space naturally without looking like a studio composite.",
     lightingNegativeLine:
-      "flat pasted background, fake doorway light, indoor light fighting outdoor light, harsh backlight, unreadable fake signage, reflections covering shoes",
+      "flat pasted background, unreal doorway light, indoor light fighting outdoor light, harsh backlight, unreadable signage, reflections covering shoes",
     spaceSupportLine:
       "The doorway or storefront should connect indoor and outdoor space naturally, with reflections and shadows that do not cover the sneakers."
   }

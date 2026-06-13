@@ -1,8 +1,8 @@
 export const sceneRealismCompact =
-  "Build the scene like a real daily environment, not an AI studio set. The space should have believable architecture, natural object placement, realistic light direction, practical walking or standing space, subtle lived-in details, and clear visual logic. Keep it clean, low-saturation, refined, and supportive of the model, outfit, and sneakers.";
+  "Build the scene like a real daily environment, not a studio showroom set. The space should have believable architecture, natural object placement, realistic light direction, practical walking or standing space, subtle lived-in details, and clear visual logic. Keep it clean, low-saturation, refined, and supportive of the model, outfit, and sneakers.";
 
 export const antiAISceneBoundaryCompact =
-  "Avoid empty fake backgrounds, impossible architecture, floating objects, over-perfect interiors, generic luxury staging, CGI-like surfaces, random decorative props, unrealistic symmetry, fake storefronts, unreadable signage, and backgrounds that feel generated rather than lived in.";
+  "Avoid empty synthetic backgrounds, impossible architecture, floating objects, over-perfect interiors, generic luxury staging, CGI-like surfaces, random decorative props, unrealistic symmetry, unrealistic storefronts, unreadable signage, and backgrounds that feel generated rather than lived in.";
 
 export const subtleLivedInDetailCompact =
   "Add small believable details that make the scene feel real: a bag placed with weight, a cup on a table, slight fabric texture, natural floor marks, soft shadows, a door frame, a shelf edge, a window reflection, a coat on a chair, a paper bag, a book, a water bottle, or quiet object placement. Keep these details subtle and secondary.";
@@ -11,7 +11,7 @@ export const spatialLogicCompact =
   "Keep the scene spatially believable. The model should have enough room to stand, walk, sit, or move naturally. Doors, mirrors, counters, shelves, stairs, gym equipment, chairs, tables, and storefronts should align realistically with the floor, walls, and camera angle.";
 
 export const realLightDirectionCompact =
-  "Use believable light direction and natural shadows that match the scene. Indoor light should come from windows, ceiling lights, wall lights, or soft reflected light. Outdoor light should match the time of day. Avoid flat AI lighting, random spotlighting, harsh commercial flash, over-dramatic cinematic light, or shadows that do not match the environment.";
+  "Use believable light direction and natural shadows that match the scene. Indoor light should come from windows, ceiling lights, wall lights, or soft reflected light. Outdoor light should match the time of day. Avoid flat synthetic lighting, random spotlighting, harsh commercial flash, over-dramatic cinematic light, or shadows that do not match the environment.";
 
 export const sceneHierarchyCompact =
   "The scene should support the product story, not become the subject. Keep the model, outfit, and sneakers as the visual priority. Background architecture, props, people, vehicles, furniture, and signage must stay secondary, low-noise, and visually controlled.";
@@ -44,4 +44,4 @@ export const behindScenesMaterialRealismCompact =
   "Use a real working-table or behind-the-scenes setup with leather swatches, shoelaces, color cards, notes, camera edge, hands arranging materials, or a shot list placed naturally. The scene should feel tactile, organized, and believable.";
 
 export const sceneRealismNegativeCompact =
-  "Avoid fake AI background, empty studio-like scene, impossible architecture, floating props, mismatched shadows, random decorative objects, over-perfect luxury staging, CGI-like surfaces, unreadable fake text, cluttered environment, chaotic props, unrealistic storefront, fake gym, fake hotel, fake supermarket shelves, and any scene that feels generated rather than lived in.";
+  "Avoid synthetic background, empty studio-like scene, impossible architecture, floating props, mismatched shadows, random decorative objects, over-perfect luxury staging, CGI-like surfaces, unreadable text, cluttered environment, chaotic props, unrealistic storefront, unrealistic gym, unrealistic hotel, unrealistic supermarket shelves, and any scene that feels generated rather than lived in.";

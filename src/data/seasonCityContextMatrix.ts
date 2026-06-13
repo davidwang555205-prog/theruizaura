@@ -22,7 +22,7 @@ const cityContexts: SeasonCityContext[] = [
     photoMoodLine: "A clean Shanghai spring mood with airy street depth, muted cafe storefronts, gentle greenery, and natural skin tone.",
     layerWeight: "lightLayer",
     outfitLayerSuggestion: "light shirt, fine knit, soft cardigan, straight trousers, denim, or midi skirt with light layering.",
-    avoidLine: "Avoid fake cherry blossom mood, tourist spring scenery, overly sweet pastel, and European editorial street styling."
+    avoidLine: "Avoid staged cherry blossom mood, tourist spring scenery, overly sweet pastel, and European editorial street styling."
   },
   {
     season: "summer",
@@ -42,7 +42,7 @@ const cityContexts: SeasonCityContext[] = [
     photoMoodLine: "A refined Shanghai autumn mood with coat-and-knit material texture, old-meets-modern facades, and quiet city warmth.",
     layerWeight: "mediumLayer",
     outfitLayerSuggestion: "trench coat, light wool coat, fine-knit top, straight trousers, dark denim, or midi skirt with thin socks.",
-    avoidLine: "Avoid orange filter, heavy vintage mood, fake fallen-leaf cliché, and overly European editorial styling."
+    avoidLine: "Avoid orange filter, heavy vintage mood, staged fallen-leaf cliché, and overly European editorial styling."
   },
   {
     season: "winter",
@@ -62,7 +62,7 @@ const cityContexts: SeasonCityContext[] = [
     photoMoodLine: "A relaxed Chengdu spring mood with community-commercial storefronts, soft greenery, and calm daily pace.",
     layerWeight: "lightLayer",
     outfitLayerSuggestion: "light shirt, soft cardigan, denim, relaxed trousers, midi skirt, or shirt dress.",
-    avoidLine: "Avoid tourist alley mood, overly sweet pastel, fake scenic spring feeling, and colorful internet-famous shops."
+    avoidLine: "Avoid tourist alley mood, overly sweet pastel, staged scenic spring feeling, and colorful internet-famous shops."
   },
   {
     season: "summer",
@@ -102,7 +102,7 @@ const cityContexts: SeasonCityContext[] = [
     photoMoodLine: "A fresh Shenzhen spring mood with modern sidewalks, restrained storefronts, and polished daily clarity.",
     layerWeight: "lightLayer",
     outfitLayerSuggestion: "light shirt, clean knit tee, straight trousers, denim, light active layer, or soft cardigan.",
-    avoidLine: "Avoid overly poetic spring styling, fake scenic mood, heavy layering, and tourist-coastal imagery."
+    avoidLine: "Avoid overly poetic spring styling, staged scenic mood, heavy layering, and tourist-coastal imagery."
   },
   {
     season: "summer",
@@ -142,7 +142,7 @@ const cityContexts: SeasonCityContext[] = [
     photoMoodLine: "A soft Hangzhou spring mood with quiet cultural street atmosphere, fresh low-saturation color, and calm air.",
     layerWeight: "lightLayer",
     outfitLayerSuggestion: "soft cardigan, light shirt, fine knit, midi skirt, straight trousers, denim, or shirt dress.",
-    avoidLine: "Avoid scenic tourist mood, fake cherry blossom feeling, overly poetic costume styling, and sugary filter."
+    avoidLine: "Avoid scenic tourist mood, staged cherry blossom feeling, overly poetic costume styling, and sugary filter."
   },
   {
     season: "summer",
@@ -162,7 +162,7 @@ const cityContexts: SeasonCityContext[] = [
     photoMoodLine: "A refined Hangzhou autumn mood with calm cultural street depth, soft cardigan texture, and low-saturation warmth.",
     layerWeight: "mediumLayer",
     outfitLayerSuggestion: "soft cardigan, light wool jacket, fine-knit top, midi skirt, straight trousers, dark denim, or thin scarf.",
-    avoidLine: "Avoid heavy vintage filter, fake fallen-leaf cliché, scenic-tourist feeling, and overly poetic staging."
+    avoidLine: "Avoid heavy vintage filter, staged fallen-leaf cliché, scenic-tourist feeling, and overly poetic staging."
   },
   {
     season: "winter",
@@ -182,7 +182,7 @@ const cityContexts: SeasonCityContext[] = [
     photoMoodLine: "A composed Beijing spring mood with mature city rhythm, clean air, and soft but structured natural light.",
     layerWeight: "mediumLayer",
     outfitLayerSuggestion: "light jacket, crisp shirt, fine knit, tailored trousers, dark denim, or structured cardigan.",
-    avoidLine: "Avoid tourist landmark mood, overly sweet spring styling, fake scenic street, and political or monumental imagery."
+    avoidLine: "Avoid tourist landmark mood, overly sweet spring styling, staged scenic street, and political or monumental imagery."
   },
   {
     season: "summer",
@@ -202,7 +202,7 @@ const cityContexts: SeasonCityContext[] = [
     photoMoodLine: "A refined Beijing autumn mood with calm architectural shadows, wool texture, charcoal-beige depth, and composed city warmth.",
     layerWeight: "warmLayer",
     outfitLayerSuggestion: "wool-blend jacket, fine knit, high-neck knit, tailored trousers, charcoal trousers, dark denim, structured coat, or soft scarf.",
-    avoidLine: "Avoid orange filter, heavy retro mood, tourist hutong cliché, and fake fallen-leaf seasonal decoration."
+    avoidLine: "Avoid orange filter, heavy retro mood, tourist hutong cliché, and staged fallen-leaf seasonal decoration."
   },
   {
     season: "winter",
@@ -222,7 +222,7 @@ const cityContexts: SeasonCityContext[] = [
     photoMoodLine: "A balanced Chinese city spring mood with clean daily air, muted storefronts, and soft low-saturation freshness.",
     layerWeight: "lightLayer",
     outfitLayerSuggestion: "light shirt, fine knit, cardigan, straight trousers, denim, midi skirt, or dress.",
-    avoidLine: "Avoid fake spring scenery, sugary filter, overly sweet pastel, and tourist mood."
+    avoidLine: "Avoid staged spring scenery, sugary filter, overly sweet pastel, and tourist mood."
   },
   {
     season: "summer",
@@ -242,7 +242,7 @@ const cityContexts: SeasonCityContext[] = [
     photoMoodLine: "A balanced Chinese city autumn mood with knit texture, restrained layering, and quiet street warmth.",
     layerWeight: "mediumLayer",
     outfitLayerSuggestion: "light wool jacket, trench coat, fine-knit top, straight trousers, dark denim, soft cardigan, or midi skirt.",
-    avoidLine: "Avoid orange filter, heavy vintage, fake fallen-leaf cliché, and overly dramatic autumn mood."
+    avoidLine: "Avoid orange filter, heavy vintage, staged fallen-leaf cliché, and overly dramatic autumn mood."
   },
   {
     season: "winter",

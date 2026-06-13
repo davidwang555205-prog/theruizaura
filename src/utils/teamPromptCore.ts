@@ -83,7 +83,7 @@ const modelLine =
   "Use one real-looking Asian or subtle Asian mixed woman, 32–46, like a stylish real customer or everyday urban woman, not a professional fashion model. Natural dark hair, light everyday makeup, normal facial features, realistic body proportion, calm mature presence, and believable daily styling.";
 
 const humanRealismLine =
-  "Make the person feel like a real customer captured in a natural daily outfit record, not an AI-generated fashion model, mannequin, showroom character, influencer, or campaign face. Use a candid human-photography feeling: slight facial asymmetry, normal skin texture, natural under-eye texture, relaxed mouth, imperfect but tasteful posture, realistic hand tension, believable foot pressure, and normal shoulder-neck relationship. Gaze direction should feel natural and varied. Allow soft casual eye contact with the camera when it feels like a real customer briefly noticing a friend taking the photo. Also allow looking slightly away, looking down at the shoes, checking the phone, adjusting clothes, holding coffee, opening a bag, or walking naturally. Do not force everyone to look away. Keep the expression quiet, neutral, slightly task-focused, and unperformed. Avoid hard staring, frozen soft smile, influencer gaze, commercial model eye contact, doll-like eyes, staged fashion portrait mood, over-retouched commercial portrait, extra-polished fashion campaign mood, and body proportions that feel digitally idealized.";
+  "Make the person feel like a real customer captured in a natural daily outfit record, not a computer-perfect fashion model, mannequin, showroom character, influencer, or campaign face. Use a candid human-photography feeling: slight facial asymmetry, normal skin texture, natural under-eye texture, relaxed mouth, imperfect but tasteful posture, realistic hand tension, believable foot pressure, and normal shoulder-neck relationship. Gaze direction should feel natural and varied. Allow soft casual eye contact with the camera when it feels like a real customer briefly noticing a friend taking the photo. Also allow looking slightly away, looking down at the shoes, checking the phone, adjusting clothes, holding coffee, opening a bag, or walking naturally. Do not force everyone to look away. Keep the expression quiet, neutral, slightly task-focused, and unperformed. Avoid hard staring, frozen soft smile, influencer gaze, commercial model eye contact, doll-like eyes, staged fashion portrait mood, over-retouched commercial portrait, extra-polished fashion campaign mood, and body proportions that feel digitally idealized.";
 
 const naturalGazeVariationLine =
   "Gaze direction should feel natural and varied: allow soft casual eye contact with the camera or a relaxed look away, without hard staring, influencer gaze, or commercial model eye contact.";
@@ -174,10 +174,10 @@ const TEAM_SCENE_TEXT: Record<Exclude<TeamScenePreference, "自动匹配">, stri
 };
 
 const streetRealismLine =
-  "Street and background must feel like a real daily city environment, not an AI-generated clean set, luxury mall render, empty showroom street, or fake commercial backdrop. Use believable pavement texture, natural street depth, real storefront proportions, subtle signs of daily use, mild surface unevenness, small shadows, realistic curb lines, quiet background pedestrians when appropriate, parked scooters or bicycles only when natural, restrained cafe or boutique details, and imperfect but tasteful city rhythm. Avoid overly clean streets, fake storefront text, impossible architecture, repeating windows, synthetic greenery, floating objects, over-polished luxury district, empty render-like sidewalks, plastic pavement, unrealistic reflections, and staged advertising background.";
+  "Street and background should feel photographed in a real daily city environment: believable pavement texture, natural street depth, real storefront proportions, subtle signs of daily use, mild surface unevenness, small shadows, realistic curb lines, quiet background pedestrians when appropriate, parked scooters or bicycles only when natural, restrained cafe or boutique details, and imperfect but tasteful city rhythm.";
 
 const streetRealismCoreLine =
-  "Use a real daily city street background with believable pavement texture, natural street depth, real storefront proportions, subtle daily wear, realistic curb lines, and no AI-clean set or fake commercial backdrop.";
+  "Use a real daily city street background with believable pavement texture, natural street depth, real storefront proportions, subtle daily wear, realistic curb lines, and quiet everyday rhythm.";
 
 const SCENE_VARIATION_LINES: Partial<Record<StandardSceneKey, string[]>> = {
   commute: [
@@ -218,7 +218,7 @@ const SCENE_VARIATION_LINES: Partial<Record<StandardSceneKey, string[]>> = {
     "Place her near a simple shoe cabinet or coat hook, keeping the outfit and sneakers clear rather than prop-heavy."
   ],
   bookstoreMagazine: [
-    "Use a bookstore or magazine-shop exterior with muted shelves behind glass, readable spatial depth, and no fake signage.",
+    "Use a bookstore or magazine-shop exterior with muted shelves behind glass, readable spatial depth, and no unreadable storefront text.",
     "Set the image near a window-side reading corner with a book or magazine as the only quiet cultural cue.",
     "Use a gallery-bookshop street corner with pale walls, soft shadows, and a calm mature city rhythm.",
     "Place her by a small magazine rack or storefront step, keeping the scene real and understated."
@@ -239,7 +239,7 @@ const SCENE_VARIATION_LINES: Partial<Record<StandardSceneKey, string[]>> = {
     "Use a quiet boutique or small gallery facade with restrained materials, no luxury logo display, and natural sidewalk depth.",
     "Set the moment near a clean stone storefront with soft reflections and subtle daily wear.",
     "Use a mature city-shopping street without flashy retail energy, keeping the sneakers and outfit grounded.",
-    "Place her pausing near a simple window display, avoiding fake luxury mall or showroom mood."
+    "Place her pausing near a simple window display, avoiding synthetic luxury mall or showroom mood."
   ],
   flowerShop: [
     "Use a small flower-shop entrance as a soft daily cue, with flowers restrained and not decorative overload.",
@@ -317,7 +317,6 @@ function shouldUseStreetRealismLine(
 ) {
   if (
     params.imageType !== "产品上脚图" &&
-    params.imageType !== "对镜穿搭图" &&
     params.imageType !== "生活场景图"
   ) {
     return false;
@@ -327,7 +326,6 @@ function shouldUseStreetRealismLine(
     resolvedScene === "通勤上班" ||
     resolvedScene === "周末城市散步" ||
     resolvedScene === "精品超市 / 日常采购" ||
-    resolvedScene === "玄关出门" ||
     resolvedScene === "周末轻采购" ||
     resolvedScene === "去运动的路上"
   );
@@ -370,12 +368,12 @@ function resolveSceneKey(params: TeamPromptParams, resolvedScene: Exclude<TeamSc
   const text = `${resolvedScene} ${params.extraRequirement}`.toLowerCase();
 
   if (params.imageType === "产品静物图") return "stillLife";
+  if (params.imageType === "对镜穿搭图") return resolvedScene === "旅行酒店" ? "hotelTravel" : "mirrorCloset";
   if (params.imageType === "拍摄花絮 / 材质图" || resolvedScene === "材质工作台" || resolvedScene === "拍摄花絮") {
     return "materialTable";
   }
   if (resolvedScene === "健身房内" || /gyminterior|健身房内|premium gym/.test(text)) return "gymInterior";
   if (resolvedScene === "去运动的路上" || /gymcommute|去运动|健身房路上/.test(text)) return "gymCommute";
-  if (params.imageType === "对镜穿搭图") return resolvedScene === "旅行酒店" ? "hotelTravel" : "mirrorCloset";
   if (resolvedScene === "居家衣帽间") return "mirrorCloset";
   if (/cafeexterior|咖啡|cafe|café/.test(text)) return "cafeExterior";
   if (/bookstoremagazine|书店|杂志|bookstore|magazine/.test(text)) return "bookstoreMagazine";
@@ -458,6 +456,9 @@ function getSceneText(params: TeamPromptParams, resolvedScene: Exclude<TeamScene
   if (params.imageType === "拍摄花絮 / 材质图" && resolvedScene === "窗边阅读") {
     return "Use a quiet material table near soft window light, with tactile samples and refined working details. Do not make a reading portrait the main image.";
   }
+  if (resolvedScene === "窗边阅读") {
+    return TEAM_SCENE_TEXT["窗边阅读"];
+  }
   if (params.imageType === "生活场景图" && resolvedScene === "材质工作台") {
     return "Use a refined lifestyle scene with subtle material storytelling details, keeping the woman's daily life and the brand atmosphere more important than a pure worktable still life.";
   }
@@ -472,6 +473,21 @@ function getSceneText(params: TeamPromptParams, resolvedScene: Exclude<TeamScene
   }
 
   return TEAM_SCENE_TEXT[resolvedScene];
+}
+
+function getBasePlaceLineForPrompt(input: {
+  params: TeamPromptParams;
+  resolvedScene: Exclude<TeamScenePreference, "自动匹配">;
+  sceneText: string;
+  cityStreetPlaceLine: string;
+}) {
+  if (input.params.imageType === "对镜穿搭图") {
+    return input.resolvedScene === "旅行酒店"
+      ? TEAM_SCENE_TEXT["旅行酒店"]
+      : TEAM_SCENE_TEXT["居家衣帽间"];
+  }
+
+  return input.cityStreetPlaceLine || input.sceneText;
 }
 
 function getSceneRealismLine(input: {
@@ -498,7 +514,7 @@ function getSceneRealismLine(input: {
     return "Keep the street believable and low-noise: realistic sidewalk texture, restrained storefront depth, soft shadows, subtle background life, and open shoe visibility.";
   }
 
-  return "Use a believable real daily space with natural depth, grounded floor contact, soft light, practical object placement, restrained props, and no staged AI-set feeling.";
+  return "Use a believable real daily space with natural depth, grounded floor contact, soft light, practical object placement, restrained props, and no staged showroom-set feeling.";
 }
 
 function getSneakerAccuracyLine(params: TeamPromptParams, hasShoe: boolean) {
@@ -543,43 +559,59 @@ function getNegativeLine(input: {
   hasStreetScene?: boolean;
   extraPhrases?: string[];
 }) {
-  const phrases = input.hasShoe
+  const isStillLifeImage = input.params.imageType === "产品静物图" || input.sceneKey === "stillLife";
+  const isMaterialImage = input.params.imageType === "拍摄花絮 / 材质图" || input.sceneKey === "materialTable";
+  const phrases = isStillLifeImage || isMaterialImage
     ? [
-        "non-Asian models",
-        "influencer posing",
-        "AI beige-template styling",
-        "body-focused posing",
-        "distorted body",
-        "stiff hands",
-        "fake scenery or signage",
-        "loud status branding",
-        "messy background",
-        "plastic skin",
         "sneaker deformation",
         "chunky or running-shoe sole",
-        "shoe clipping",
         "cropped shoes",
+        "hidden shoe structure",
         "melted laces",
-        "unreadable footwear"
+        "unreadable footwear",
+        "props covering shoes",
+        "floating objects",
+        "unreal product scale",
+        "CGI product render feeling",
+        "glossy artificial material"
       ]
-    : [
-        "generic stock photography",
-        "cheap lifestyle props",
-        "hard studio lighting",
-        "cluttered composition",
-        "influencer styling",
-        "loud colors",
-        "fake luxury staging",
-        "cold minimalism",
-        "messy backgrounds",
-        "overly commercial visual language"
-      ];
+    : input.hasShoe
+      ? [
+          "non-Asian models",
+          "influencer posing",
+          "over-polished beige-template styling",
+          "body-focused posing",
+          "distorted body",
+          "stiff hands",
+          "unreal scenery or signage",
+          "loud status branding",
+          "messy background",
+          "plastic skin",
+          "sneaker deformation",
+          "chunky or running-shoe sole",
+          "shoe clipping",
+          "cropped shoes",
+          "melted laces",
+          "unreadable footwear"
+        ]
+      : [
+          "generic stock photography",
+          "cheap lifestyle props",
+          "hard studio lighting",
+          "cluttered composition",
+          "influencer styling",
+          "loud colors",
+          "synthetic luxury staging",
+          "cold minimalism",
+          "messy backgrounds",
+          "overly commercial visual language"
+        ];
 
   if (input.hasStreetScene) {
     phrases.push(
-      "AI-generated street",
-      "fake storefront",
-      "fake signage",
+      "synthetic-looking street",
+      "unreal storefront",
+      "unreadable storefront signage",
       "impossible architecture",
       "repeating windows",
       "synthetic greenery",
@@ -608,14 +640,14 @@ function getNegativeLine(input: {
       "chunky athletic sole"
     );
   }
-  if (input.params.imageType === "产品静物图" || input.sceneKey === "stillLife") {
-    phrases.push("props covering shoes", "floating objects", "fake product scale", "3D render feeling");
+  if (isStillLifeImage) {
+    phrases.push("props covering shoes", "floating objects", "unreal product scale", "3D render feeling");
   }
   if (isPeopleImageType(input.params.imageType)) {
     phrases.push(
       "professional fashion model face",
       "beauty-pageant face",
-      "AI-generated woman",
+      "computer-perfect woman",
       "perfect showroom posture",
       "empty fashion stare",
       "over-retouched portrait",
@@ -631,7 +663,7 @@ function getNegativeLine(input: {
     );
   }
 
-  phrases.push("fake HDR", "heavy filters", "warped lens perspective");
+  phrases.push("harsh HDR", "heavy filters", "warped lens perspective");
   phrases.push(...(input.extraPhrases ?? []));
 
   return `Avoid ${Array.from(new Set(phrases)).join(", ")}.`;
@@ -682,16 +714,16 @@ function getHandheldSafeActionContextLine(input: {
     return "Use a natural mirror outfit pose with the phone as the only hand-held object, face hidden or cropped, relaxed shoulders, and clear sneaker visibility.";
   }
   if (input.poseCategory === "gymLightAction") {
-    return "Use one calm premium-gym or gym-transition action with a single selected hand-held object, relaxed posture, and grounded sneakers.";
+    return "Use one calm premium-gym or gym-transition action with relaxed posture, grounded sneakers, and at most one simple hand-held object if needed.";
   }
   if (input.poseCategory === "walking") {
-    return "Use a small natural walking step with relaxed arms and only the selected primary handheld object.";
+    return "Use a small natural walking step with relaxed arms, natural hand placement, and no extra props competing with the sneakers.";
   }
   if (input.poseCategory === "seated" || input.poseCategory === "laceTying" || input.poseCategory === "crouchOrLean") {
-    return "Use a simple seated or low-movement daily pose with only the selected primary handheld object, keeping hands, knees, feet, and sneakers readable.";
+    return "Use a simple seated or low-movement daily pose, keeping hands, knees, feet, and sneakers readable without adding unnecessary hand-held props.";
   }
 
-  return "Use a simple scene-matched standing or pause moment with only the selected primary handheld object, relaxed shoulders, and clear sneaker visibility.";
+  return "Use a simple scene-matched standing or pause moment with relaxed shoulders, natural hand placement, and clear sneaker visibility.";
 }
 
 function getSinglePurposeHandLine(primaryHandheldObject: string) {
@@ -796,14 +828,16 @@ function getProductLine(params: TeamPromptParams, hasShoe: boolean) {
 
 export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
   const hasShoe = resolveTeamHasShoe(params);
-  const promptQualityPatchLines = getPromptQualityPatchLines({
-    imageType: params.imageType,
-    hasShoe
-  });
   const resolvedScene = resolveTeamScenePreference(params);
   const sceneKey = resolveSceneKey(params, resolvedScene);
   const streetRealismPatchLine = shouldUseStreetRealismLine(params, resolvedScene) ? streetRealismLine : "";
   const streetRealismCorePatchLine = streetRealismPatchLine ? streetRealismCoreLine : "";
+  const hasStreetRealism = Boolean(streetRealismPatchLine);
+  const promptQualityPatchLines = getPromptQualityPatchLines({
+    imageType: params.imageType,
+    hasShoe,
+    includeCityRealism: hasStreetRealism
+  });
   const effectiveGarmentTypePreference = getEffectiveGarmentTypePreference(params, sceneKey);
   const imageCountIntent = detectImageCountOrSeriesIntent(params.extraRequirement, params.imageType);
   const userSpecifiedClothing =
@@ -820,13 +854,14 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
     cityProfile: selectedCity,
     sceneKey,
     imageType: params.imageType,
+    scenePreference: resolvedScene,
     userExtraRequirement: params.extraRequirement,
     selectedShoe: getShoeDisplayName(params)
   });
   const cityStreetPlaceLine =
     seasonCityVisualContext.lightingSpaceType === "outdoorStreet" ||
     seasonCityVisualContext.lightingSpaceType === "semiIndoorThreshold"
-      ? cityProfile?.cityStreetLine
+      ? cityProfile?.cityStreetLine ?? ""
       : "";
   const cameraSelection = chooseCameraLookLine({
     imageType: params.imageType,
@@ -867,6 +902,13 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
   });
   const sceneText = getSceneText(params, resolvedScene, sceneKey);
   const sceneVariationLine = getSceneVariationLine(params, resolvedScene, sceneKey);
+  const basePlaceLine = getBasePlaceLineForPrompt({
+    params,
+    resolvedScene,
+    sceneText,
+    cityStreetPlaceLine
+  });
+  const placeLine = [sceneVariationLine, basePlaceLine].filter(Boolean).join(" ");
   const shoeStyleLine =
     sceneKey === "gymInterior"
       ? "Style the selected THERUIZ AURA sneaker only with refined fitness-related clothing, keeping the look active, clean, and gym-appropriate."
@@ -954,7 +996,7 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
   const sceneRealismLine = getSceneRealismLine({
     params,
     sceneKey,
-    hasCityStreetLine: Boolean(cityProfile)
+    hasCityStreetLine: Boolean(cityStreetPlaceLine)
   });
   const sneakerSceneControlLine = sneakerProtection.sceneControlLine;
   const modelStructuredLine = shouldUsePeopleStyling(params.imageType)
@@ -1024,8 +1066,6 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
           getImageTypeLine(params, sceneKey),
           streetRealismCorePatchLine,
           imageTypeTemplate.templateSceneLine,
-          cityProfile ? sceneText : "",
-          sceneVariationLine,
           streetRealismPatchLine,
           sceneRealismLine,
           ...promptQualityPatchLines.sceneLines,
@@ -1067,7 +1107,7 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
     hasShoe,
     cityBoundaryPhrases: cityProfile?.boundaryPhrases ?? [],
     sceneKey,
-    hasStreetScene: Boolean(streetRealismPatchLine),
+    hasStreetScene: hasStreetRealism,
     extraPhrases: [
       ...extractAvoidPhrases(`Avoid ${seasonCityVisualContext.seasonalNegativeLine}.`),
       ...humanRealism.negativePhrases,
@@ -1081,7 +1121,7 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
   });
   const basePromptParts = {
     timeLine: seasonCityVisualContext.seasonalLightLine,
-    placeLine: cityStreetPlaceLine || sceneText,
+    placeLine,
     productLine: sneakerProtection.productLine,
     modelLine: modelStructuredLine,
     outfitLine: outfitStructuredLine,
@@ -1109,7 +1149,6 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
           : [],
         outfitLine: [],
         sceneLine: [
-          imageTypeTemplate.templateSceneLine,
           ...promptQualityPatchLines.sceneLines,
           shouldUsePeopleStyling(params.imageType) && !sneakerSceneControlLine ? accessoryShoeVisibilityRuleLine : ""
         ].filter(Boolean),
@@ -1182,6 +1221,6 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
   return {
     prompt,
     hasShoe,
-    sceneText: [cityStreetPlaceLine || sceneText, sceneVariationLine].filter(Boolean).join(" ")
+    sceneText: placeLine
   };
 }

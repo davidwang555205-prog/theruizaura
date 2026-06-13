@@ -1,4 +1,4 @@
-import type { TeamImageType, TeamSeason } from "../types";
+import type { TeamImageType, TeamScenePreference, TeamSeason } from "../types";
 import type { ChinaCityProfile } from "../data/chinaUrbanStreetProfiles";
 import type { LayerWeight } from "../data/citySeasonClimateProfiles";
 import { getSeasonCityContext } from "../data/seasonCityContextMatrix";
@@ -48,6 +48,45 @@ const stillLifeSeasonLines: Record<SeasonKey, string> = {
     "Use cool-neutral soft light, grey stone or wool texture, calm shadow structure, and restrained product depth."
 };
 
+const indoorSeasonLines: Record<SeasonKey, { lightLine: string; photoStyleLine: string; moodLine: string }> = {
+  spring: {
+    lightLine: "Soft spring indoor daylight with airy brightness, pale neutral surfaces, gentle room shadows, and no misplaced exterior shadow pattern.",
+    photoStyleLine:
+      "Use a clean spring indoor photo style with soft daylight, fresh low-saturation color, light fabric texture, natural skin tone, and quiet airy warmth.",
+    moodLine:
+      "A calm spring indoor mood with warm neutral depth, soft wardrobe or room details, and fresh daily ease."
+  },
+  summer: {
+    lightLine: "Breathable summer indoor daylight with warm-neutral brightness, soft window or ambient shadows, clear fabric texture, and no harsh reflective glare.",
+    photoStyleLine:
+      "Use a breathable summer indoor photo style with clean natural brightness, warm-neutral whites, linen or cotton texture, and a fresh daily feeling without harsh sun.",
+    moodLine:
+      "A light summer indoor mood with breathable texture, clean room depth, and relaxed daily clarity."
+  },
+  autumn: {
+    lightLine: "Warm-muted autumn indoor light with tactile fabric shadows, calm room depth, soft brown-grey neutrals, and no staged seasonal decoration.",
+    photoStyleLine:
+      "Use a textured autumn indoor photo style with warm-neutral natural light, gentle contrast, deeper fabric texture, muted brown-grey color depth, and calm softness.",
+    moodLine:
+      "A refined autumn indoor mood with tactile layers, quiet room details, and low-saturation warmth."
+  },
+  winter: {
+    lightLine: "Soft winter indoor daylight with quiet shadows, warm-neutral clarity, thicker fabric texture, cream-grey depth, and no gloomy cold filter.",
+    photoStyleLine:
+      "Use a quiet winter indoor photo style with soft daylight, calm shadow structure, clean neutral depth, thicker fabric texture, and composed daily warmth.",
+    moodLine:
+      "A composed winter indoor mood with restrained warmth, orderly room details, and soft cream-grey depth."
+  }
+};
+
+function usesIndoorSeasonContext(lightingSpaceType: LightingSpaceType) {
+  return (
+    lightingSpaceType === "indoorNaturalLight" ||
+    lightingSpaceType === "indoorCommercialLight" ||
+    lightingSpaceType === "indoorGymLight"
+  );
+}
+
 function getShoeSeasonNegative(input: {
   season: SeasonKey;
   cityProfile: ChinaCityProfile | null | undefined;
@@ -77,6 +116,7 @@ export function chooseSeasonCityVisualContext(input: {
   cityProfile: ChinaCityProfile | null | undefined;
   sceneKey: StandardSceneKey;
   imageType: TeamImageType;
+  scenePreference?: Exclude<TeamScenePreference, "自动匹配">;
   userExtraRequirement?: string;
   selectedShoe: string;
 }): SeasonCityVisualContext {
@@ -85,20 +125,30 @@ export function chooseSeasonCityVisualContext(input: {
   const context = getSeasonCityContext(season, city);
   const style = chooseSeasonalPhotoStyleLine({ season, cityProfile: city });
   const climate = chooseSeasonClimateOutfitLayer({ season, cityProfile: city });
-  const stillLife = input.imageType === "产品静物图" || input.sceneKey === "stillLife";
+  const productOrMaterialDetail =
+    input.imageType === "产品静物图" ||
+    input.imageType === "拍摄花絮 / 材质图" ||
+    input.sceneKey === "stillLife" ||
+    input.sceneKey === "materialTable";
   const lighting = chooseLightingSpaceType({
     imageType: input.imageType,
     sceneKey: input.sceneKey,
+    scenePreference: input.scenePreference,
     cityProfile: city,
     season: input.season as TeamSeason,
     userExtraRequirement: input.userExtraRequirement
   });
   const timeOfDay = context.defaultTimeOfDay;
-  const seasonalLightLine = stillLife
+  const useIndoorSeason = usesIndoorSeasonContext(lighting.lightingSpaceType);
+  const seasonalLightLine = productOrMaterialDetail
     ? `${timeOfDay} product light. ${stillLifeSeasonLines[season]}`
+    : useIndoorSeason
+      ? `${timeOfDay} natural or ambient indoor light. ${indoorSeasonLines[season].lightLine}`
     : `${timeOfDay} natural light. ${context.lightLine}`;
-  const seasonalPhotoStyleLine = stillLife
-    ? `${seasonalPhotoStyleProfiles[season].photoStyleLine} For still life, express the season through light, material, and background color only; do not add seasonal human action or excessive props.`
+  const seasonalPhotoStyleLine = productOrMaterialDetail
+    ? `${seasonalPhotoStyleProfiles[season].photoStyleLine} For product or material detail images, express the season through light, material, and background color only; do not add seasonal human action or excessive props.`
+    : useIndoorSeason
+      ? indoorSeasonLines[season].photoStyleLine
     : style.photoStyleLine;
   const shoeSeasonNegative = getShoeSeasonNegative({
     season,
@@ -111,7 +161,7 @@ export function chooseSeasonCityVisualContext(input: {
     timeOfDay,
     seasonalLightLine,
     seasonalPhotoStyleLine,
-    citySeasonMoodLine: context.photoMoodLine,
+    citySeasonMoodLine: useIndoorSeason ? indoorSeasonLines[season].moodLine : context.photoMoodLine,
     climateProfile: climate.climateProfile,
     layerWeight: climate.layerWeight,
     outfitLayerLine: climate.outfitLayerLine,

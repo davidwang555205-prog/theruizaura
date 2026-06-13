@@ -40,6 +40,12 @@ function inferLightingSpaceType(input: ChooseLightingSpaceTypeInput): LightingSp
   if (input.imageType === "对镜穿搭图" || input.sceneKey === "mirrorCloset" || input.sceneKey === "entrywayDeparture") {
     return "indoorNaturalLight";
   }
+  if (input.scenePreference === "窗边阅读" || input.scenePreference === "居家衣帽间" || input.scenePreference === "玄关出门") {
+    return "indoorNaturalLight";
+  }
+  if (input.scenePreference === "拍摄花絮" || input.scenePreference === "材质工作台") {
+    return "stillLifeStudioNatural";
+  }
   if (input.sceneKey === "gymInterior") return "indoorGymLight";
   if (input.sceneKey === "hotelTravel") return "indoorNaturalLight";
 

@@ -5,7 +5,9 @@ import type { TeamImageType } from "../types";
 export type PromptTemplateKind =
   | "onFootOutdoor"
   | "mirrorCloset"
+  | "indoorLifestyle"
   | "indoorCommercial"
+  | "thresholdLifestyle"
   | "gymInterior"
   | "stillLife"
   | "detailMacro"
@@ -51,7 +53,7 @@ export function buildPromptTemplateByImageType(input: {
       templateActionLine:
         "Use the phone as the only primary handheld object; do not add coffee, flowers, book, water bottle, or a hand-held bag.",
       templateNegativeLine:
-        "city street light in mirror room, outdoor street shadows inside mirror scene, sunglasses indoors, coffee in mirror selfie, flowers in mirror selfie, long-leg mirror distortion"
+        "exterior light in mirror room, exterior shadow patterns inside mirror scene, sunglasses indoors, coffee in mirror selfie, flowers in mirror selfie, long-leg mirror distortion"
     } satisfies PromptTemplateByImageType;
   }
 
@@ -76,6 +78,28 @@ export function buildPromptTemplateByImageType(input: {
     } satisfies PromptTemplateByImageType;
   }
 
+  if (input.lightingSpaceType === "indoorNaturalLight") {
+    return {
+      templateKind: "indoorLifestyle",
+      templateSceneLine:
+        "Use an indoor lifestyle template: real room depth, natural window or ambient light, grounded floor contact, practical object placement, and readable full figure and sneakers.",
+      templateActionLine: "Use a small realistic daily action that fits the indoor setting and keeps the sneakers clear.",
+      templateNegativeLine:
+        "exterior location template in indoor room, exterior shadow patterns inside, unreal room depth, showroom-like interior, props blocking shoes"
+    } satisfies PromptTemplateByImageType;
+  }
+
+  if (input.lightingSpaceType === "semiIndoorThreshold") {
+    return {
+      templateKind: "thresholdLifestyle",
+      templateSceneLine:
+        "Use a doorway or storefront-threshold lifestyle template: connected indoor-outdoor light, believable entrance depth, restrained reflections, readable full figure and sneakers, and natural daily movement.",
+      templateActionLine: "Use a small realistic threshold movement such as pausing near the doorway, stepping out, or adjusting a bag.",
+      templateNegativeLine:
+        "flat pasted doorway, unreal threshold light, studio backdrop, unreadable signage, reflections covering shoes"
+    } satisfies PromptTemplateByImageType;
+  }
+
   if (input.imageType === "产品上脚图" || input.imageType === "生活场景图") {
     return {
       templateKind: "onFootOutdoor",
@@ -91,6 +115,6 @@ export function buildPromptTemplateByImageType(input: {
     templateSceneLine:
       "Use an atmosphere template: quiet real space, warm restraint, low-noise objects, believable light, and no direct product-shot pressure unless the user asks for the shoe.",
     templateActionLine: "",
-    templateNegativeLine: "generic stock mood, fake luxury staging, random props, hard studio light"
+    templateNegativeLine: "generic stock mood, synthetic luxury staging, random props, hard studio light"
   } satisfies PromptTemplateByImageType;
 }

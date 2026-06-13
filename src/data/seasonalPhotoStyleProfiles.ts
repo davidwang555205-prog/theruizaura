@@ -12,7 +12,7 @@ export const seasonalPhotoStyleProfiles: Record<SeasonKey, SeasonalPhotoStylePro
     photoStyleLine:
       "Use a clean spring photo style with soft daylight, fresh low-saturation color, gentle shadows, light greenery, natural skin tone, and a quiet airy feeling without overexposure or sweet filter.",
     negative:
-      "overly sweet pastel, fake cherry blossom mood, sugary filter, high-saturation flowers, tourist spring scenery"
+      "overly sweet pastel, staged cherry blossom mood, sugary filter, high-saturation flowers, tourist spring scenery"
   },
   summer: {
     mood: "bright, breathable, clear, warm-neutral, not hot and sweaty",
@@ -26,7 +26,7 @@ export const seasonalPhotoStyleProfiles: Record<SeasonKey, SeasonalPhotoStylePro
     photoStyleLine:
       "Use a textured autumn photo style with warm-neutral natural light, gentle contrast, deeper material texture, muted brown-grey color depth, calm street shadows, and refined city warmth without orange filter or heavy vintage mood.",
     negative:
-      "orange filter, heavy vintage mood, fake fallen-leaf cliché, overly yellow tone, pumpkin color mood, dramatic cinematic autumn"
+      "orange filter, heavy vintage mood, staged fallen-leaf cliché, overly yellow tone, pumpkin color mood, dramatic cinematic autumn"
   },
   winter: {
     mood: "quiet, crisp, layered, calm, clean, not cold-dead",
