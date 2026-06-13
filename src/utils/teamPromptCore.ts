@@ -179,6 +179,106 @@ const streetRealismLine =
 const streetRealismCoreLine =
   "Use a real daily city street background with believable pavement texture, natural street depth, real storefront proportions, subtle daily wear, realistic curb lines, and no AI-clean set or fake commercial backdrop.";
 
+const SCENE_VARIATION_LINES: Partial<Record<StandardSceneKey, string[]>> = {
+  commute: [
+    "Set the moment near a quiet office entrance with muted glass, stone steps, and a small morning flow of people in the distance.",
+    "Use a parking-to-office walkway with realistic pavement, soft tree shade, and a calm elevator-lobby transition in the background.",
+    "Place her at a restrained business-district corner, pausing near a crosswalk or building entrance without a corporate advertisement feeling.",
+    "Use a neighborhood office route with a coffee pickup point, soft storefront reflections, and believable weekday movement."
+  ],
+  weekendCityWalk: [
+    "Set the walk along a quiet cafe street with real sidewalk texture, low-noise storefronts, and natural street depth.",
+    "Use a bookstore or magazine-shop exterior with muted signage, a pale wall, and a calm mature weekend rhythm.",
+    "Place her near a gallery district or light stone facade, with subtle pedestrians and restrained city details.",
+    "Use a rain-after street feeling with slightly damp pavement, soft reflections, tree shadows, and no cinematic drama.",
+    "Use a tree-lined sidewalk with curb lines, bicycles or scooters only as distant natural details, and a relaxed daily pace."
+  ],
+  premiumErrands: [
+    "Set the scene outside a premium grocery or neighborhood market with paper bags, muted storefront depth, and realistic daily errands.",
+    "Use a bakery-corner or flower-shop-adjacent street with one restrained daily object and no decorative clutter.",
+    "Place her near a calm community-commercial entrance with clean pavement, subtle greenery, and real local-life rhythm.",
+    "Use a store-to-sidewalk transition where the outfit and sneakers remain readable while the background stays secondary."
+  ],
+  hotelTravel: [
+    "Use a hotel doorway or corridor-to-street transition with a small suitcase, warm neutral walls, and quiet travel order.",
+    "Set the moment near a room doorway or wardrobe mirror with folded clothing, a travel tote, and soft hotel daylight.",
+    "Use a calm hotel entrance threshold with restrained stone texture, no luxury bragging, and believable business-travel movement.",
+    "Place her beside a bed edge or luggage corner before leaving, keeping the room tidy, warm, and refined."
+  ],
+  mirrorCloset: [
+    "Use a full-length mirror near a wardrobe corner with natural daylight, clean floor contact, and practical getting-ready details.",
+    "Set the mirror moment in a bedroom corner with soft fabric folds, a chair or bed edge, and the sneakers clearly visible.",
+    "Use an entryway mirror before leaving home, with keys, a coat, or a tote as subtle daily cues.",
+    "Use a hotel wardrobe mirror only when the scene feels tidy, warm-neutral, and free of bathroom-selfie energy."
+  ],
+  entrywayDeparture: [
+    "Use a warm apartment entryway with doorway light, keys, coat texture, and a calm leaving-home rhythm.",
+    "Set the moment between an indoor hallway and building entrance, with soft threshold light and realistic floor contact.",
+    "Use a residential lobby or doorway transition with muted stone, quiet wall texture, and no luxury property-showroom feeling.",
+    "Place her near a simple shoe cabinet or coat hook, keeping the outfit and sneakers clear rather than prop-heavy."
+  ],
+  bookstoreMagazine: [
+    "Use a bookstore or magazine-shop exterior with muted shelves behind glass, readable spatial depth, and no fake signage.",
+    "Set the image near a window-side reading corner with a book or magazine as the only quiet cultural cue.",
+    "Use a gallery-bookshop street corner with pale walls, soft shadows, and a calm mature city rhythm.",
+    "Place her by a small magazine rack or storefront step, keeping the scene real and understated."
+  ],
+  bakeryDessert: [
+    "Use a bakery storefront with a simple paper bag, low-noise signage, and realistic sidewalk texture.",
+    "Set the scene near a flower-and-bakery corner with one restrained daily-life cue, not a romantic decorative setup.",
+    "Use a weekend errand route beside a cafe or bakery entrance, with soft reflections and believable street depth.",
+    "Place her at a neighborhood shop threshold, keeping props minimal and the sneakers easy to read."
+  ],
+  cafeExterior: [
+    "Use a restrained cafe exterior with real glass reflections, small shadows, and a quiet street rhythm.",
+    "Set the moment at a cafe doorway or outdoor chair edge, with one coffee cup and no influencer check-in feeling.",
+    "Use a pale wall beside a cafe storefront, keeping the background imperfect, lived-in, and low saturation.",
+    "Place her walking past a calm cafe window, with the outfit and sneakers more important than the storefront."
+  ],
+  boutiqueStreet: [
+    "Use a quiet boutique or small gallery facade with restrained materials, no luxury logo display, and natural sidewalk depth.",
+    "Set the moment near a clean stone storefront with soft reflections and subtle daily wear.",
+    "Use a mature city-shopping street without flashy retail energy, keeping the sneakers and outfit grounded.",
+    "Place her pausing near a simple window display, avoiding fake luxury mall or showroom mood."
+  ],
+  flowerShop: [
+    "Use a small flower-shop entrance as a soft daily cue, with flowers restrained and not decorative overload.",
+    "Set the scene at a neighborhood florist corner with muted colors, real pavement, and one simple bouquet if needed.",
+    "Use a flower-shop-adjacent sidewalk rather than a staged floral set, keeping the outfit mature and believable.",
+    "Place her walking past a low-key florist window with soft greenery and no romantic cliche."
+  ],
+  gymCommute: [
+    "Use a gym entrance or city-to-gym sidewalk with modern surfaces, subtle greenery, and a practical movement rhythm.",
+    "Set the transition near a parking-to-gym walkway or hotel gym route, keeping the outfit active but refined.",
+    "Use a clean community fitness entrance with muted equipment glimpsed only subtly, not a sports campaign.",
+    "Place her outside the gym after or before light movement, with sneakers readable and styling gym-appropriate."
+  ],
+  gymInterior: [
+    "Use a muted premium gym corner with warm grey flooring, restrained equipment, and clean daily training space.",
+    "Set the image near a bench, mat area, or light equipment zone, keeping movement simple and realistic.",
+    "Use a calm boutique fitness interior with no neon, no sports-ad lighting, and no crowded brand atmosphere.",
+    "Place her in a realistic gym transition moment, such as pausing near lockers or a water station, with activewear only."
+  ],
+  materialTable: [
+    "Use a tactile development table with leather or suede swatches, color cards, shoelaces, and clean object contact.",
+    "Set the material story near soft window light with a care brush, product notes, and restrained sample arrangement.",
+    "Use a quiet shooting-prep table with hands adjusting laces, fabric, or color cards without technical studio clutter.",
+    "Place the material details on linen, warm stone, or matte paper so texture feels real and premium."
+  ],
+  stillLife: [
+    "Use a clean product surface with warm stone, linen, matte paper, or soft plaster texture and clear shoe scale.",
+    "Set the product at a restrained 45-degree angle with subtle shadow, natural contact, and no floating render feeling.",
+    "Use a paired-shoe or single-shoe still life with minimal material props and no ecommerce catalog coldness.",
+    "Place the sneaker near a small material card or lace detail, keeping the product as the absolute subject."
+  ],
+  cityCorner: [
+    "Use a real mixed-use street corner with muted storefronts, curb lines, subtle greenery, and quiet daily movement.",
+    "Set the background at a residential-commercial corner with believable pavement, mild wear, and no staged city-promo feeling.",
+    "Use a side street with cafe or bookstore hints, natural depth, and low saturation rather than a polished sample street.",
+    "Place her at a calm crossing or corner pause, keeping the scene grounded and the sneakers readable."
+  ]
+};
+
 const SHOE_STYLE_LINES: Record<TeamShoe, string> = {
   "Cloud Dancer 云舞者":
     "Classic clean light-tone foundation for white shirts, beige trousers, soft denim, and refined daily styling.",
@@ -290,6 +390,25 @@ function resolveSceneKey(params: TeamPromptParams, resolvedScene: Exclude<TeamSc
   if (resolvedScene === "周末轻采购") return "bakeryDessert";
   if (resolvedScene === "窗边阅读") return "bookstoreMagazine";
   return "cityCorner";
+}
+
+function getSceneVariationLine(
+  params: TeamPromptParams,
+  resolvedScene: Exclude<TeamScenePreference, "自动匹配">,
+  sceneKey: StandardSceneKey
+) {
+  const windowReadingLines = [
+    "Use a quiet window-side chair or sofa edge with linen curtains, a book, soft daylight, and calm private space.",
+    "Set the moment beside a real window with a small table, magazine or cup, and warm neutral interior depth.",
+    "Use a reading corner near soft curtains and pale wall texture, keeping the mood intimate, clean, and not staged.",
+    "Place the scene near a window ledge or lounge chair with one book or magazine as the only quiet object."
+  ];
+  const lines = resolvedScene === "窗边阅读" ? windowReadingLines : SCENE_VARIATION_LINES[sceneKey];
+
+  if (!lines?.length) return "";
+
+  const nonce = Math.max(0, params.generationNonce ?? 0);
+  return lines[nonce % lines.length];
 }
 
 function getImageTypeLine(params: TeamPromptParams, sceneKey: StandardSceneKey) {
@@ -745,8 +864,9 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
         userExtraRequirement: params.extraRequirement,
         userSpecifiedClothing,
         generationNonce: params.generationNonce
-      });
+  });
   const sceneText = getSceneText(params, resolvedScene, sceneKey);
+  const sceneVariationLine = getSceneVariationLine(params, resolvedScene, sceneKey);
   const shoeStyleLine =
     sceneKey === "gymInterior"
       ? "Style the selected THERUIZ AURA sneaker only with refined fitness-related clothing, keeping the look active, clean, and gym-appropriate."
@@ -892,7 +1012,12 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
     : "";
   const sceneStructuredLine =
     params.imageType === "产品静物图"
-      ? [imageTypeTemplate.templateSceneLine, sceneRealismLine, seasonCityVisualContext.lightingSpaceSupportLine]
+      ? [
+          imageTypeTemplate.templateSceneLine,
+          sceneVariationLine,
+          sceneRealismLine,
+          seasonCityVisualContext.lightingSpaceSupportLine
+        ]
           .filter(Boolean)
           .join(" ")
       : [
@@ -900,6 +1025,7 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
           streetRealismCorePatchLine,
           imageTypeTemplate.templateSceneLine,
           cityProfile ? sceneText : "",
+          sceneVariationLine,
           streetRealismPatchLine,
           sceneRealismLine,
           ...promptQualityPatchLines.sceneLines,
@@ -1056,6 +1182,6 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
   return {
     prompt,
     hasShoe,
-    sceneText: cityStreetPlaceLine || sceneText
+    sceneText: [cityStreetPlaceLine || sceneText, sceneVariationLine].filter(Boolean).join(" ")
   };
 }
