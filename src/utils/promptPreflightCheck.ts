@@ -125,6 +125,15 @@ function hasPeopleContext(input: PromptPreflightInput) {
   return input.imageType === "产品上脚图" || input.imageType === "对镜穿搭图" || input.imageType === "生活场景图";
 }
 
+function requiresFullShoeVisibility(input: PromptPreflightInput) {
+  return (
+    input.imageType === "产品上脚图" ||
+    input.imageType === "对镜穿搭图" ||
+    input.imageType === "生活场景图" ||
+    input.imageType === "产品静物图"
+  );
+}
+
 export function promptPreflightCheck(input: PromptPreflightInput): PromptPreflightOutput {
   let fixedPromptParts = { ...input.promptParts };
   const warnings: string[] = [];
@@ -184,7 +193,9 @@ export function promptPreflightCheck(input: PromptPreflightInput): PromptPreflig
   }
 
   if (hasShoeContext(input)) {
-    if (!/fully visible from toe to heel/i.test(text)) repair("shoesBlockedRepair", "Shoe visibility line was missing.");
+    if (requiresFullShoeVisibility(input) && !/fully visible from toe to heel/i.test(text)) {
+      repair("shoesBlockedRepair", "Shoe visibility line was missing.");
+    }
     if (!/low-cut German trainer|slim outsole|rounded toe box/i.test(text)) {
       repair("shoeDeformationRepair", "Shoe shape protection needed reinforcement.");
     }

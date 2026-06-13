@@ -149,19 +149,19 @@ function ensureShoeVisibility(prompt: string, warnings: string[]) {
 }
 
 function keepSingleNegativeSection(prompt: string, warnings: string[]) {
-  const matches = [...prompt.matchAll(/负面词:/g)];
+  const matches = [...prompt.matchAll(/(?:负面词|Negative):/g)];
   if (matches.length <= 1) return prompt;
 
   warnings.push("Merged repeated negative sections.");
-  const parts = prompt.split(/负面词:/);
+  const parts = prompt.split(/(?:负面词|Negative):/);
   const body = parts.shift() ?? "";
   const negative = parts.join(" ").replace(/\s+/g, " ").trim();
-  return `${body.trim()}\n\n负面词:\n${negative}`;
+  return `${body.trim()}\n\nNegative:\n${negative}`;
 }
 
 export function finalPromptSafetyCheck(
   finalPrompt: string,
-  options: { hasShoe?: boolean; hasPeople?: boolean } = {}
+  options: { hasShoe?: boolean; hasPeople?: boolean; requireFullShoeVisibility?: boolean } = {}
 ): FinalPromptSafetyCheckResult {
   const warnings: string[] = [];
   let prompt = finalPrompt;
@@ -175,7 +175,7 @@ export function finalPromptSafetyCheck(
   if (options.hasPeople) {
     prompt = addSingleHandheldBoundary(prompt, warnings);
   }
-  if (options.hasShoe) {
+  if (options.hasShoe && options.requireFullShoeVisibility !== false) {
     prompt = ensureShoeVisibility(prompt, warnings);
   }
   prompt = normalizeSpaces(prompt);

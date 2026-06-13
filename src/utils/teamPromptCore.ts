@@ -846,6 +846,7 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
   const promptQualityPatchLines = getPromptQualityPatchLines({
     imageType: params.imageType,
     hasShoe,
+    shoe: params.shoe,
     includeCityRealism: hasStreetRealism
   });
   const effectiveGarmentTypePreference = getEffectiveGarmentTypePreference(params, sceneKey);
@@ -1248,7 +1249,8 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
   const dedupedPrompt = dedupePromptLines(vocabularyAdjustedPrompt);
   const safetyCheckedPrompt = finalPromptSafetyCheck(dedupedPrompt, {
     hasShoe,
-    hasPeople: shouldUsePeopleStyling(params.imageType)
+    hasPeople: shouldUsePeopleStyling(params.imageType),
+    requireFullShoeVisibility: hasShoe && params.imageType !== "拍摄花絮 / 材质图" && params.imageType !== "非产品氛围图"
   });
   const prompt = cleanFinalPrompt(safetyCheckedPrompt.prompt);
 

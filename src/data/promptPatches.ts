@@ -1,4 +1,4 @@
-import type { TeamImageType } from "../types";
+import type { TeamImageType, TeamShoe } from "../types";
 
 export const promptQualityPatchLabels = [
   "鞋型保护",
@@ -38,8 +38,12 @@ const compactPatchLines = {
     "Preserve the uploaded low-cut German trainer shape, rounded toe box, slim outsole, panels, tongue, stitching, laces, color, material transitions, and proportions; do not redesign it.",
   sneakerVisibility:
     "Keep at least one sneaker fully visible, the second readable, and keep fabric, socks, collar, tongue, laces, and outsole physically separated.",
-  materialRule:
-    "Only Aire 微风 uses lambskin lining; other current THERUIZ AURA styles use pigskin lining unless manually specified.",
+  aireMaterialRule:
+    "For Aire 微风, use lambskin lining only when lining is visible or relevant; keep material details accurate and secondary to the selected image type.",
+  standardMaterialRule:
+    "Use the selected THERUIZ AURA style's correct lining and material construction when visible; do not invent lambskin lining for non-Aire styles.",
+  materialDetailRule:
+    "For material or behind-the-scenes images, show only relevant material details, samples, swatches, laces, stitching, notes, or partial product details; do not turn the image into a direct full-shoe product shot unless explicitly requested.",
   bodyAndClippingProtection:
     "Keep body scale, leg length, hand size, foot scale, and shoe-to-leg relationship realistic; avoid fabric melting, fused legs, distorted feet, plastic skin, and mannequin-like stiffness.",
   seasonalOutfitMatch:
@@ -90,9 +94,23 @@ function isMaterialDetailImageType(imageType: TeamImageType) {
   return imageType === "拍摄花絮 / 材质图" || imageType === "产品静物图";
 }
 
+function getMaterialRuleLine(input: { imageType: TeamImageType; hasShoe: boolean; shoe?: TeamShoe }) {
+  const materialDetailImage = isMaterialDetailImageType(input.imageType);
+
+  if (input.imageType === "拍摄花絮 / 材质图") {
+    if (!input.hasShoe) return "";
+    return compactPatchLines.materialDetailRule;
+  }
+
+  if (!input.hasShoe && !materialDetailImage) return "";
+  if (input.shoe === "Aire 微风") return compactPatchLines.aireMaterialRule;
+  return compactPatchLines.standardMaterialRule;
+}
+
 export function getPromptQualityPatchLines(input: {
   imageType: TeamImageType;
   hasShoe: boolean;
+  shoe?: TeamShoe;
   includeCityRealism?: boolean;
 }) {
   const peopleImage = isPeopleImageType(input.imageType);
@@ -101,12 +119,14 @@ export function getPromptQualityPatchLines(input: {
   return {
     productLines: [
       input.hasShoe ? compactPatchLines.sneakerShapeProtection : "",
-      input.hasShoe || materialDetailImage ? compactPatchLines.materialRule : ""
+      getMaterialRuleLine(input)
     ].filter(Boolean),
     modelLines: [peopleImage ? compactPatchLines.bodyAndClippingProtection : ""].filter(Boolean),
     outfitLines: [peopleImage ? compactPatchLines.seasonalOutfitMatch : ""].filter(Boolean),
     sceneLines: [
-      input.hasShoe ? compactPatchLines.sneakerVisibility : "",
+      input.hasShoe && input.imageType !== "拍摄花絮 / 材质图" && input.imageType !== "非产品氛围图"
+        ? compactPatchLines.sneakerVisibility
+        : "",
       input.includeCityRealism ? compactPatchLines.cityRealism : "",
       compactPatchLines.imageTypeDifference
     ].filter(Boolean),

@@ -22,6 +22,9 @@ export type SneakerProtectionLines = {
 const nonProductShoeAccuracyLine =
   "If the THERUIZ AURA sneaker appears in this non-product atmosphere image, keep it subtle and secondary. Preserve its real color, material texture, and recognizable shape, but do not turn the image into a direct product shot.";
 
+const materialDetailShoeAccuracyLine =
+  "If a THERUIZ AURA sneaker sample, shoe part, shoelace, material panel, or partial product detail appears, keep it secondary to the material story. Preserve the uploaded reference color, material texture, panel boundary, stitching, lace thickness, and recognizable trainer structure when visible, but do not turn the image into a full-shoe product shot.";
+
 const uploadedSneakerAccuracyLine =
   "Use uploaded sneaker reference as strict source: low-cut German trainer silhouette, rounded toe box, slim outsole, panels, tongue, stitching, material, color, and proportions.";
 
@@ -60,6 +63,20 @@ export function chooseSneakerProtectionLines(input: SneakerProtectionInput): Sne
       lacesLine: "",
       sceneControlLine:
         "The shoe may appear only as a subtle partial object or background detail, not as the main product subject; do not force full on-foot display."
+    };
+  }
+
+  if (input.imageType === "拍摄花絮 / 材质图") {
+    return {
+      productLine: materialDetailShoeAccuracyLine,
+      accuracyLine: materialDetailShoeAccuracyLine,
+      shoeSpecificAccuracyLine: "",
+      visibilityLine:
+        "Show only the relevant sneaker sample, shoelace, panel, material transition, or partial product detail needed for the material story; do not force a complete pair or full on-foot display.",
+      clippingLine: "",
+      lacesLine: "",
+      sceneControlLine:
+        "Keep product details readable but secondary to swatches, notes, tools, texture, and behind-the-scenes development context."
     };
   }
 
