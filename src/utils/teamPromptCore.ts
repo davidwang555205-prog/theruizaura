@@ -116,16 +116,16 @@ const nonProductShoeAccuracyLine =
   "If the THERUIZ AURA sneaker appears in this non-product atmosphere image, keep it subtle and secondary. Preserve its real color, material texture, and recognizable shape, but do not turn the image into a direct product shot.";
 
 const nonProductAtmosphereDefinitionLine =
-  "Create a non-product THERUIZ AURA atmosphere image, not a product shot, not a model-focused fashion image, and not a generic lifestyle decoration image.";
+  "For a non-product atmospheric THERUIZ AURA image, focus primarily on the target customer's daily life, aesthetic choices, quiet routines, refined city moments, wardrobe atmosphere, home or travel details, and lifestyle rhythm. The image does not need to show sneakers, leather materials, or product development every time. It should build THERUIZ AURA's lifestyle world through believable customer daily scenes and mature aesthetic taste. Brand process details may appear occasionally, but they should not dominate all non-product atmosphere images.";
 
 const nonProductAtmosphereContentLine =
-  "Focus on brand-life details such as entryway departure, window-side reading, quiet worktable reset, material samples, paper goods, wardrobe preparation, hotel arrival order, flowers, bakery paper, folded garments, notebooks, care cards, color cards, or restrained daily objects. Product notes, color cards, care cards, or checklists may appear, but text should be subtle, partially readable, and not the visual focus. Do not show large readable text, fake brand slogans, fake store signage, random English words, messy printed labels, or AI-generated gibberish text. Shoes are not required and should not become the main subject.";
+  "Use one clear customer-life atmosphere direction: morning getting-ready routine, entryway before going out, wardrobe corner, office desk detail, car passenger seat with bag and coat, weekend coffee, flower buying, bookstore visit, premium grocery errand, hotel packing, travel suitcase detail, calm city corner, rainy-day street detail, home return moment, or quiet personal routine. These scenes should feel connected to the target customer's real life and aesthetic choices. Occasionally, the image may use material swatches, product notes, packing details, quality-check traces, or founder/team working details, but these brand-process themes should be used as supporting brand trust content, not as the default for every non-product atmosphere image.";
 
 const nonProductAtmosphereMoodLine =
-  "Keep the mood consistent with THERUIZ AURA Quiet Warm Luxury: warm, quiet, mature, ordered, low-saturation, tactile, daily, and believable, with subtle real-use traces such as a slightly shifted chair, naturally placed bag, folded garment, open notebook, used pen, stacked material samples, packing paper, or soft daily disorder. Use cream-white, warm beige, soft stone, oatmeal, warm grey, linen texture, natural daylight, low saturation, clean negative space, real object contact, soft shadows, and tactile authenticity. Do not drift into French vintage cafe style, Korean sweet style, cold minimalist showroom, resort lifestyle, socialite luxury, camping style, or trendy influencer aesthetic. Avoid perfect showroom alignment, museum-like display, sterile interior, and objects arranged too symmetrically.";
+  "Keep the mood warm, quiet, mature, restrained, orderly, and believable: cream-white, warm beige, soft stone, oatmeal, warm grey, linen texture, natural daylight, low saturation, clean negative space, real object contact, soft shadows, and tactile authenticity. The image should feel like a real customer's daily aesthetic world that THERUIZ AURA belongs to, not a random product workspace. The scene should feel used by real people, not staged for a showroom. Keep subtle signs of real use: a naturally placed bag, folded garment, open notebook, used pen, coffee cup, flower paper, grocery paper bag, suitcase corner, coat on chair, or soft daily disorder. Avoid perfect showroom alignment, museum-like display, sterile interior, and objects arranged too symmetrically.";
 
 const nonProductAtmosphereNegativeLine =
-  "Avoid large readable text, fake brand slogans, random English words, fake store signage, messy printed labels, AI-generated gibberish text, random coffee-and-flower decoration, empty Pinterest lifestyle image, fake luxury display, visible luxury logos, socialite afternoon tea mood, influencer check-in scene, over-styled prop flatlay, fake showroom, sterile AI interior, cold sample-room render, unrelated home decor, noisy commercial set, excessive props, messy clutter, fake brand signage, luxury handbag display, perfume-ad mood, jewelry showcase, hotel influencer flatlay, champagne lifestyle, fake elite lifestyle, rich-lady still life, decorative objects without brand meaning, and anything that feels disconnected from THERUIZ AURA.";
+  "Avoid making every non-product atmosphere image about shoes, leather swatches, product development, packing table, quality check, or brand process. Avoid random coffee-and-flower decoration, empty Pinterest lifestyle image, fake luxury display, visible luxury logos, socialite afternoon tea mood, influencer check-in scene, over-styled prop flatlay, fake showroom, sterile AI interior, cold sample-room render, unrelated home decor, noisy commercial set, excessive props, messy clutter, fake brand signage, large readable text, fake brand slogans, random English words, fake store signage, messy printed labels, AI-generated gibberish text, luxury handbag display, perfume-ad mood, jewelry showcase, hotel influencer flatlay, champagne lifestyle, fake elite lifestyle, rich-lady still life, decorative objects without brand meaning, and anything that feels disconnected from the target customer's real daily life and THERUIZ AURA's quiet warm luxury world.";
 
 const uploadedSneakerAccuracyLine =
   "Use uploaded sneaker reference as strict source: low-cut German trainer silhouette, rounded toe box, slim outsole, panels, tongue, stitching, material, color, and proportions.";
@@ -289,6 +289,69 @@ const SCENE_VARIATION_LINES: Partial<Record<StandardSceneKey, string[]>> = {
   ]
 };
 
+const MIRROR_SCENE_VARIATION_LINES: Partial<Record<Exclude<TeamScenePreference, "自动匹配">, string[]>> = {
+  通勤上班: [
+    "Use a commute-before-leaving mirror moment in a quiet entryway or wardrobe mirror, with office-ready styling cues kept secondary.",
+    "Set the mirror outfit record before work, near a simple doorway mirror with a tote or coat placed in the background.",
+    "Use a calm pre-commute mirror check with clean floor contact, office-ready proportions, and no outdoor street background."
+  ],
+  周末城市散步: [
+    "Use a weekend-before-going-out mirror moment in a warm home or entryway mirror, hinting at a quiet city walk through styling rather than exterior scenery.",
+    "Set the mirror outfit record before a city walk, with relaxed weekend styling and a clean doorway or wardrobe mirror.",
+    "Use a calm personal mirror check before leaving for a cafe, bookstore, or gallery walk, keeping the sneakers clearly visible."
+  ],
+  "精品超市 / 日常采购": [
+    "Use a refined errands-before-leaving mirror moment with a quiet entryway mirror and subtle grocery or bakery cues in the background.",
+    "Set the mirror outfit record before premium daily errands, with a tote or paper bag placed aside rather than held in the selfie.",
+    "Use a practical but polished mirror check before going out for groceries or neighborhood errands."
+  ],
+  旅行酒店: [
+    "Use a hotel wardrobe mirror or calm room mirror before leaving, with tidy suitcase or folded clothing cues in the background.",
+    "Set the mirror outfit record in a warm neutral hotel room, entryway mirror, or wardrobe corner with clean travel order.",
+    "Use a refined hotel mirror check with soft daylight, quiet luggage detail, and no bathroom-selfie feeling."
+  ],
+  居家衣帽间: [
+    "Use a full-length mirror near a wardrobe corner with natural daylight, clean floor contact, and practical getting-ready details.",
+    "Set the mirror moment in a bedroom or wardrobe corner with soft fabric folds, a chair or bed edge, and the sneakers clearly visible.",
+    "Use a quiet getting-ready mirror scene with wardrobe detail, clean styling, and no influencer dressing-room energy."
+  ],
+  玄关出门: [
+    "Use an entryway mirror before leaving home, with keys, a coat, or a tote as subtle background cues.",
+    "Set the mirror outfit record at a warm apartment threshold with doorway light and a calm leaving-home rhythm.",
+    "Use a simple residential hallway or doorway mirror, keeping the outfit and sneakers clear rather than prop-heavy."
+  ],
+  窗边阅读: [
+    "Use a mirror placed near a soft window-side corner with linen curtains, a chair or sofa edge, and one book or cup as a quiet background cue.",
+    "Set the mirror outfit record beside real window light, keeping the reading corner secondary and the outfit and sneakers primary.",
+    "Use a calm window-side mirror composition with soft daylight, pale wall texture, and no separate wardrobe-corner cue."
+  ],
+  材质工作台: [
+    "Use a mirror outfit record in a quiet getting-ready space with a small material table, color card, or fabric sample only as a subtle background cue.",
+    "Set the mirror scene near a restrained styling table with tactile materials placed aside, without turning it into a product development still life.",
+    "Use a clean mirror outfit check where material-story details stay secondary and the outfit-sneaker relationship stays primary."
+  ],
+  拍摄花絮: [
+    "Use a mirror outfit record in a quiet getting-ready setting with only subtle shooting-prep cues, not a studio behind-the-scenes setup.",
+    "Set the mirror moment near a styling table or wardrobe rail, keeping camera equipment minimal and secondary.",
+    "Use a real pre-shoot outfit check in a calm room mirror, with the outfit and sneakers clearer than any production detail."
+  ],
+  周末轻采购: [
+    "Use a weekend-errands-before-leaving mirror moment with a warm entryway or kitchen-adjacent mirror and one restrained daily-life cue.",
+    "Set the mirror outfit record before a light weekend purchase, with flowers, bakery bag, or produce only as background detail.",
+    "Use a relaxed but tasteful mirror check before weekend errands, keeping props quiet and sneakers readable."
+  ],
+  健身房内: [
+    "Use a premium gym mirror or locker-area mirror with muted equipment, clean floor contact, and active clothing only.",
+    "Set the mirror record inside a calm boutique fitness space, keeping the movement simple and the sneakers readable.",
+    "Use a realistic gym mirror moment with warm grey flooring, restrained equipment, and no sports-ad energy."
+  ],
+  去运动的路上: [
+    "Use a mirror check before heading to the gym, near an entryway, gym entrance mirror, or hotel gym route with active transition styling.",
+    "Set the mirror outfit record in a city-to-gym transition space, keeping the outfit active but refined.",
+    "Use a calm pre-gym mirror moment with practical movement cues and clear sneaker visibility."
+  ]
+};
+
 const SHOE_STYLE_LINES: Record<TeamShoe, string> = {
   "Cloud Dancer 云舞者":
     "Classic clean light-tone foundation for white shirts, beige trousers, soft denim, and refined daily styling.",
@@ -312,6 +375,38 @@ const SHOE_STYLE_LINES: Record<TeamShoe, string> = {
     "Clean black-white balance for black, white, grey, beige, and restrained daily styling; keep away from streetwear or sporty energy.",
   自定义: "Use THERUIZ AURA's clean, low-saturation, refined daily styling system."
 };
+
+function getSeasonAwareShoeStyleLine(params: TeamPromptParams) {
+  if (params.customShoe.trim()) return "Use THERUIZ AURA's clean, low-saturation, refined daily styling system.";
+
+  if (params.shoe === "Cappuccino 卡布奇诺") {
+    if (params.season === "春" || params.season === "夏") {
+      return "Warm coffee suede accent for cream, oatmeal, pale denim, and breathable refined styling; keep the look light, clean, and away from masculine or heavy cold-season styling.";
+    }
+    return "Warm coffee suede mood for knitwear, oatmeal, beige, and soft seasonal layering; keep away from masculine or heavy styling.";
+  }
+
+  if (params.shoe === "Maple Grove 枫林") {
+    if (params.season === "春" || params.season === "夏") {
+      return "Warm muted maple accent for cream, pale khaki, light denim, and soft neutral styling; keep it fresh, light, and not heavy or masculine.";
+    }
+    return "Warm muted maple tone for soft knitwear, beige-brown layers, and gentle seasonal styling; keep away from heavy masculine styling.";
+  }
+
+  if (params.shoe === "Aire 微风" && (params.season === "秋" || params.season === "冬")) {
+    return "Light refined mesh texture for mild-city, indoor, or gym-transition styling with clean layered outfits; avoid heavy cold-weather styling and avoid sporty running-shoe energy.";
+  }
+
+  if (params.shoe === "Delphinium Blue 飞燕草蓝" && (params.season === "秋" || params.season === "冬")) {
+    return "Low-saturation airy blue as a quiet cool accent with cream, oatmeal, warm grey, and light layered styling; avoid heavy dark winter styling.";
+  }
+
+  if (params.shoe === "Lemon 柠檬" && (params.season === "秋" || params.season === "冬")) {
+    return "Soft butter-yellow accent with cream, warm grey, oatmeal, and quiet light layering; avoid childish color and avoid forcing heavy winter styling.";
+  }
+
+  return SHOE_STYLE_LINES[params.shoe];
+}
 
 function isPeopleImageType(imageType: TeamImageType) {
   return imageType === "产品上脚图" || imageType === "对镜穿搭图" || imageType === "生活场景图";
@@ -386,7 +481,16 @@ function resolveSceneKey(params: TeamPromptParams, resolvedScene: Exclude<TeamSc
   if (params.imageType === "产品静物图") return "stillLife";
   if (resolvedScene === "健身房内" || /gyminterior|健身房内|premium gym/.test(text)) return "gymInterior";
   if (resolvedScene === "去运动的路上" || /gymcommute|去运动|健身房路上/.test(text)) return "gymCommute";
-  if (params.imageType === "对镜穿搭图") return resolvedScene === "旅行酒店" ? "hotelTravel" : "mirrorCloset";
+  if (params.imageType === "对镜穿搭图") {
+    if (resolvedScene === "通勤上班") return "commute";
+    if (resolvedScene === "周末城市散步") return "weekendCityWalk";
+    if (resolvedScene === "精品超市 / 日常采购") return "premiumErrands";
+    if (resolvedScene === "旅行酒店") return "hotelTravel";
+    if (resolvedScene === "玄关出门") return "entrywayDeparture";
+    if (resolvedScene === "窗边阅读") return "bookstoreMagazine";
+    if (resolvedScene === "周末轻采购") return "bakeryDessert";
+    return "mirrorCloset";
+  }
   if (params.imageType === "拍摄花絮 / 材质图" || resolvedScene === "材质工作台" || resolvedScene === "拍摄花絮") {
     return "materialTable";
   }
@@ -417,7 +521,12 @@ function getSceneVariationLine(
     "Use a reading corner near soft curtains and pale wall texture, keeping the mood intimate, clean, and not staged.",
     "Place the scene near a window ledge or lounge chair with one book or magazine as the only quiet object."
   ];
-  const lines = resolvedScene === "窗边阅读" ? windowReadingLines : SCENE_VARIATION_LINES[sceneKey];
+  const lines =
+    params.imageType === "对镜穿搭图"
+      ? MIRROR_SCENE_VARIATION_LINES[resolvedScene]
+      : resolvedScene === "窗边阅读"
+        ? windowReadingLines
+        : SCENE_VARIATION_LINES[sceneKey];
 
   if (!lines?.length) return "";
 
@@ -498,13 +607,7 @@ function getBasePlaceLineForPrompt(input: {
   cityStreetPlaceLine: string;
 }) {
   if (input.params.imageType === "对镜穿搭图") {
-    if (input.resolvedScene === "健身房内" || input.resolvedScene === "去运动的路上") {
-      return TEAM_SCENE_TEXT[input.resolvedScene];
-    }
-
-    return input.resolvedScene === "旅行酒店"
-      ? TEAM_SCENE_TEXT["旅行酒店"]
-      : TEAM_SCENE_TEXT["居家衣帽间"];
+    return "";
   }
 
   return input.cityStreetPlaceLine || input.sceneText;
@@ -568,7 +671,7 @@ function getLacesLine(params: TeamPromptParams, hasShoe: boolean) {
 function getShoeStyleLine(params: TeamPromptParams, hasShoe: boolean) {
   if (!hasShoe) return "";
   if (params.imageType === "非产品氛围图") return "";
-  return params.customShoe.trim() ? "Use THERUIZ AURA's clean, low-saturation, refined daily styling system." : SHOE_STYLE_LINES[params.shoe];
+  return getSeasonAwareShoeStyleLine(params);
 }
 
 function getNegativeLine(input: {
@@ -809,13 +912,17 @@ function getEffectiveGarmentTypePreference(
   params: TeamPromptParams,
   sceneKey: StandardSceneKey
 ): TeamGarmentTypePreference {
-  return sceneKey === "gymInterior" ? "轻运动" : params.garmentTypePreference;
+  return isGymSceneKey(sceneKey) ? "轻运动" : params.garmentTypePreference;
 }
 
-function getGarmentTypeLockLine(preference: TeamGarmentTypePreference) {
-  return preference === "自动匹配"
-    ? ""
-    : GARMENT_TYPE_LOCK_LINES[preference];
+function getGarmentTypeLockLine(preference: TeamGarmentTypePreference, season: TeamSeason) {
+  if (preference === "自动匹配") return "";
+
+  if (preference === "轻运动" && season !== "夏") {
+    return "Selected clothing type: refined light activewear; keep active trousers, leggings, zip layers, or movement layers explicit and premium, avoiding shorts unless the scene is clearly indoor fitness.";
+  }
+
+  return GARMENT_TYPE_LOCK_LINES[preference];
 }
 
 function getCompactPoseBodyLine(poseCategory: TeamHumanPoseCategory) {
@@ -1121,7 +1228,7 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
   const outfitStructuredLine = shouldUsePeopleStyling(params.imageType)
     ? [
         outfitLine,
-        getGarmentTypeLockLine(effectiveGarmentTypePreference),
+        getGarmentTypeLockLine(effectiveGarmentTypePreference, params.season),
         sceneKey === "gymInterior" ? gymInteriorClothingLockLine : "",
         baseStylingRealismLine,
         (params.season === "秋" || params.season === "冬") && !isGymSceneKey(sceneKey)

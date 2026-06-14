@@ -11,6 +11,7 @@ const bagWords =
   "(?:taupe|cream|canvas|woven|black|small|structured|practical|no-logo|light tan|grey|pale grey|muted brown|soft beige|beige|travel|gym|secondary|daily|refined|leather|shoulder|crossbody|handheld|hand-held|tote|handbag|bag|travel bag|gym bag|shopping bag|paper bag|bakery paper bag|luggage)";
 
 const bagClausePatterns = [
+  /,?\s*(?:and\s+)?(?:a\s+)?(?:[\w-]+\s+){0,6}(?:tote|handbag|shoulder bag|crossbody bag|woven bag|canvas tote|structured tote|travel tote|gym tote|shopping bag|paper bag|bakery paper bag)\b(?:\s+as\s+a\s+secondary\s+accessory)?(?:\s+for\s+)?/gi,
   new RegExp(`,?\\s*(?:and\\s+)?a\\s+${bagWords}(?:\\s+${bagWords}){0,5}\\s+as\\s+a\\s+secondary\\s+accessory`, "gi"),
   new RegExp(`,?\\s*(?:and\\s+)?a\\s+${bagWords}(?:\\s+${bagWords}){0,5}\\s+for\\s+`, "gi"),
   /\s+with\s+a\s+(?:taupe|cream|canvas|woven|black|small|structured|practical|light tan|grey|pale grey|muted brown|soft beige|beige|travel|gym|secondary|daily|refined|leather|shoulder|crossbody|handheld|hand-held|tote|handbag|bag|travel bag|gym bag|shopping bag|paper bag|bakery paper bag)(?:\s+(?:taupe|cream|canvas|woven|black|small|structured|practical|light tan|grey|pale grey|muted brown|soft beige|beige|travel|gym|secondary|daily|refined|leather|shoulder|crossbody|handheld|hand-held|tote|handbag|bag|travel bag|gym bag|shopping bag|paper bag|bakery paper bag)){0,5}/gi,
@@ -32,6 +33,7 @@ function cleanupLine(line: string) {
     .replace(/,\s+and\s+for\s+/gi, " for ")
     .replace(/,\s+for\s+/gi, " for ")
     .replace(/\s+for\s+for\s+/gi, " for ")
+    .replace(/\b(?:structured|no-logo|soft beige|muted brown|taupe|cream|black|small|practical|refined|leather)\s+for\s+/gi, "for ")
     .replace(/\s+\./g, ".")
     .replace(/\s+;/g, ";")
     .trim();

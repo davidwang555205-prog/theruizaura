@@ -300,15 +300,15 @@ const standardOutfitLibrary: StandardOutfitEntry[] = [
     garmentType: "dress",
     outfitStyle: "refinedFeminine",
     colorDirection: "neutralDaily",
-    topCategory: "stone grey sleeveless wool-blend dress",
-    bottomCategory: "stone grey sleeveless wool-blend dress",
-    visualAnchor: "stone grey sleeveless wool-blend dress",
+    topCategory: "stone grey long-sleeve wool-blend dress",
+    bottomCategory: "stone grey long-sleeve wool-blend dress",
+    visualAnchor: "stone grey long-sleeve wool-blend dress",
     seasons: ["秋", "冬"],
     sceneAffinities: ["mirrorCloset", "hotelTravel", "bookstoreMagazine", "lightSocial"],
     shoeAffinity: ["Cloud Dancer", "Sand Dollar", "Cappuccino", "Silver Romance", "Oreo", "Panda", "ALL"],
     imageTypes: ["onFoot", "lifestyle", "mirror"],
     compactLine:
-      "Style her in a stone grey sleeveless wool-blend dress, cream cashmere cardigan, and structured taupe handbag for quiet polished daily styling that feels warm and mature, with no fake socialite mood.",
+      "Style her in a stone grey long-sleeve wool-blend dress, cream cashmere cardigan, and structured taupe handbag for quiet polished daily styling that feels warm and mature, with no fake socialite mood.",
     bagCategory: "structured taupe handbag",
     isPremiumWardrobe: true
   },
@@ -366,7 +366,7 @@ const standardOutfitLibrary: StandardOutfitEntry[] = [
     bottomCategory: "warm grey wide-leg lounge trousers",
     visualAnchor: "warm grey wide-leg lounge trousers",
     seasons: ["春", "夏", "秋"],
-    sceneAffinities: ["gymCommute", "premiumErrands", "mirrorCloset"],
+    sceneAffinities: ["gymCommute"],
     shoeAffinity: ["Aire", "Cloud Dancer", "Sand Dollar", "Oreo", "Panda", "ALL"],
     imageTypes: ["lifestyle", "onFoot", "mirror"],
     compactLine:
