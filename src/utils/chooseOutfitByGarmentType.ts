@@ -28,6 +28,7 @@ export type StandardOutfitEntry = RotatableOutfit & {
   bagCategory?: string;
   accessoryCategory?: string[];
   stylingRealismLine?: string;
+  isPremiumWardrobe?: boolean;
 };
 
 export type StandardOutfitSelection = {
@@ -67,6 +68,59 @@ const standardOutfitLibrary: StandardOutfitEntry[] = [
     imageTypes: ["onFoot", "lifestyle", "mirror"],
     compactLine:
       "Use a pale blue shirt with dark straight denim, a slim leather belt, and a cream canvas tote for a real city outfit with denim depth."
+  },
+  {
+    id: "std-premium-trousers-silk-wool",
+    garmentType: "trousers",
+    outfitStyle: "polishedCommuter",
+    colorDirection: "neutralDaily",
+    topCategory: "ivory silk blouse",
+    bottomCategory: "warm grey wool-blend straight trousers",
+    visualAnchor: "ivory silk blouse",
+    seasons: ["春", "秋", "冬"],
+    sceneAffinities: ["commute", "premiumErrands", "hotelTravel", "mirrorCloset", "cityCorner"],
+    shoeAffinity: ["Cloud Dancer", "Sand Dollar", "Cappuccino", "Maple Grove", "Oreo", "Panda", "ALL"],
+    imageTypes: ["onFoot", "lifestyle", "mirror"],
+    compactLine:
+      "Style her in an ivory silk blouse, warm grey wool-blend straight trousers, a soft cashmere cardigan, structured taupe leather tote, and minimal leather belt for quiet luxury commuter styling with no visible luxury logos, no flashy jewelry, no fake socialite mood, and a daily believable feeling.",
+    bagCategory: "structured taupe leather tote",
+    accessoryCategory: ["minimal leather belt"],
+    isPremiumWardrobe: true
+  },
+  {
+    id: "std-premium-trousers-coat",
+    garmentType: "trousers",
+    outfitStyle: "polishedCommuter",
+    colorDirection: "darkAnchor",
+    topCategory: "cream fine-gauge knit top",
+    bottomCategory: "charcoal tailored trousers",
+    visualAnchor: "charcoal tailored trousers",
+    seasons: ["秋", "冬"],
+    sceneAffinities: ["commute", "hotelTravel", "premiumErrands", "mirrorCloset", "cityCorner"],
+    shoeAffinity: ["Cloud Dancer", "Sand Dollar", "Cappuccino", "Maple Grove", "Oreo", "Panda", "ALL"],
+    imageTypes: ["onFoot", "lifestyle", "mirror"],
+    compactLine:
+      "Style her in a cream fine-gauge knit top, charcoal tailored trousers, a camel double-face wool coat, slim leather belt, and matte gold earrings for refined office-to-city styling with no visible luxury logos, no rich-lady posing, and a mature quiet mood.",
+    accessoryCategory: ["slim leather belt", "matte gold earrings"],
+    isPremiumWardrobe: true
+  },
+  {
+    id: "std-premium-trousers-poplin",
+    garmentType: "trousers",
+    outfitStyle: "cleanMinimal",
+    colorDirection: "neutralDaily",
+    topCategory: "white cotton-poplin shirt",
+    bottomCategory: "oatmeal pleated wool trousers",
+    visualAnchor: "oatmeal pleated wool trousers",
+    seasons: ["春", "秋", "冬"],
+    sceneAffinities: ["commute", "bookstoreMagazine", "premiumErrands", "hotelTravel", "mirrorCloset"],
+    shoeAffinity: ["Cloud Dancer", "Sand Dollar", "Cappuccino", "Maple Grove", "Oreo", "Panda", "ALL"],
+    imageTypes: ["onFoot", "lifestyle", "mirror"],
+    compactLine:
+      "Use a white cotton-poplin shirt, oatmeal pleated wool trousers, a soft beige cashmere scarf, and structured brown leather handbag for understated premium wardrobe styling with no visible luxury logos and a real daily city feeling.",
+    bagCategory: "structured brown leather handbag",
+    accessoryCategory: ["soft beige cashmere scarf"],
+    isPremiumWardrobe: true
   },
   {
     id: "std-trousers-summer",
@@ -112,6 +166,41 @@ const standardOutfitLibrary: StandardOutfitEntry[] = [
     imageTypes: ["onFoot", "lifestyle", "mirror"],
     compactLine:
       "Use an oatmeal knit top, a misty blue A-line skirt, and a pale grey shoulder bag for a low-saturation feminine outfit with subtle freshness."
+  },
+  {
+    id: "std-premium-skirt-silk-pleated",
+    garmentType: "skirt",
+    outfitStyle: "refinedFeminine",
+    colorDirection: "neutralDaily",
+    topCategory: "cream silk blouse",
+    bottomCategory: "soft grey pleated midi skirt",
+    visualAnchor: "soft grey pleated midi skirt",
+    seasons: ["春", "秋"],
+    sceneAffinities: ["cafeExterior", "bookstoreMagazine", "mirrorCloset", "premiumErrands", "lightSocial"],
+    shoeAffinity: ["Cloud Dancer", "Sand Dollar", "Silver Romance", "Lemon", "Panda", "ALL"],
+    imageTypes: ["onFoot", "lifestyle", "mirror"],
+    compactLine:
+      "Pair a cream silk blouse with a soft grey pleated midi skirt, taupe leather handbag, and minimal pearl earrings for refined feminine quiet luxury styling, with sneakers clearly visible below the hem and no visible luxury logos.",
+    bagCategory: "taupe leather handbag",
+    accessoryCategory: ["minimal pearl earrings"],
+    isPremiumWardrobe: true
+  },
+  {
+    id: "std-premium-skirt-satin",
+    garmentType: "skirt",
+    outfitStyle: "refinedFeminine",
+    colorDirection: "softAccent",
+    topCategory: "ivory cashmere short-sleeve knit",
+    bottomCategory: "champagne satin midi skirt",
+    visualAnchor: "champagne satin midi skirt",
+    seasons: ["春", "秋"],
+    sceneAffinities: ["cafeExterior", "mirrorCloset", "lightSocial", "weekendCityWalk"],
+    shoeAffinity: ["Cloud Dancer", "Sand Dollar", "Silver Romance", "Lemon", "ALL"],
+    imageTypes: ["onFoot", "lifestyle", "mirror"],
+    compactLine:
+      "Style her in an ivory cashmere short-sleeve knit, champagne satin midi skirt, and structured mini leather bag for calm elegant daily styling, avoiding overly formal evening mood while staying daily and believable.",
+    bagCategory: "structured mini leather bag",
+    isPremiumWardrobe: true
   },
   {
     id: "std-shorts-denim",
@@ -189,6 +278,41 @@ const standardOutfitLibrary: StandardOutfitEntry[] = [
       "Choose a pale khaki sleeveless dress with a cream tote and subtle gold earrings for fresh warm-weather ease that stays mature."
   },
   {
+    id: "std-premium-dress-silk-shirt",
+    garmentType: "dress",
+    outfitStyle: "refinedFeminine",
+    colorDirection: "lightClean",
+    topCategory: "ivory silk shirt dress",
+    bottomCategory: "ivory silk shirt dress",
+    visualAnchor: "ivory silk shirt dress",
+    seasons: ["春", "夏"],
+    sceneAffinities: ["cafeExterior", "flowerShop", "bookstoreMagazine", "mirrorCloset", "weekendCityWalk", "lightSocial"],
+    shoeAffinity: ["Cloud Dancer", "Sand Dollar", "Silver Romance", "Lemon", "Delphinium Blue", "ALL"],
+    imageTypes: ["onFoot", "lifestyle", "mirror"],
+    compactLine:
+      "Choose an ivory silk shirt dress with a thin leather belt, soft beige shoulder bag, and minimal jewelry for refined one-piece luxury styling with sneakers fully visible and no visible luxury logos.",
+    bagCategory: "soft beige shoulder bag",
+    accessoryCategory: ["thin leather belt", "minimal jewelry"],
+    isPremiumWardrobe: true
+  },
+  {
+    id: "std-premium-dress-wool-blend",
+    garmentType: "dress",
+    outfitStyle: "refinedFeminine",
+    colorDirection: "neutralDaily",
+    topCategory: "stone grey sleeveless wool-blend dress",
+    bottomCategory: "stone grey sleeveless wool-blend dress",
+    visualAnchor: "stone grey sleeveless wool-blend dress",
+    seasons: ["秋", "冬"],
+    sceneAffinities: ["mirrorCloset", "hotelTravel", "bookstoreMagazine", "lightSocial"],
+    shoeAffinity: ["Cloud Dancer", "Sand Dollar", "Cappuccino", "Silver Romance", "Oreo", "Panda", "ALL"],
+    imageTypes: ["onFoot", "lifestyle", "mirror"],
+    compactLine:
+      "Style her in a stone grey sleeveless wool-blend dress, cream cashmere cardigan, and structured taupe handbag for quiet polished daily styling that feels warm and mature, with no fake socialite mood.",
+    bagCategory: "structured taupe handbag",
+    isPremiumWardrobe: true
+  },
+  {
     id: "std-active-black",
     garmentType: "lightActive",
     outfitStyle: "softActive",
@@ -232,6 +356,23 @@ const standardOutfitLibrary: StandardOutfitEntry[] = [
     imageTypes: ["gym", "lifestyle", "mirror"],
     compactLine:
       "Use a cream clean active top, taupe straight active trousers, a soft zip layer, and a water bottle for refined light movement styling."
+  },
+  {
+    id: "std-premium-active-transition",
+    garmentType: "lightActive",
+    outfitStyle: "softActive",
+    colorDirection: "neutralDaily",
+    topCategory: "cream ribbed active tank",
+    bottomCategory: "warm grey wide-leg lounge trousers",
+    visualAnchor: "warm grey wide-leg lounge trousers",
+    seasons: ["春", "夏", "秋"],
+    sceneAffinities: ["gymCommute", "premiumErrands", "mirrorCloset"],
+    shoeAffinity: ["Aire", "Cloud Dancer", "Sand Dollar", "Oreo", "Panda", "ALL"],
+    imageTypes: ["lifestyle", "onFoot", "mirror"],
+    compactLine:
+      "Use a cream ribbed active tank, warm grey wide-leg lounge trousers, soft beige zip layer, and no-logo leather gym tote for quiet premium gym-transition styling that feels clean and refined rather than sporty.",
+    bagCategory: "no-logo leather gym tote",
+    isPremiumWardrobe: true
   }
 ];
 
@@ -284,6 +425,7 @@ export type ChooseStandardOutfitInput = {
   userExtraRequirement: string;
   userSpecifiedClothing: boolean;
   generationNonce?: number;
+  preferPremiumWardrobe?: boolean;
 };
 
 export function chooseOutfitByGarmentType(input: ChooseStandardOutfitInput): StandardOutfitSelection {
@@ -315,7 +457,11 @@ export function chooseOutfitByGarmentType(input: ChooseStandardOutfitInput): Sta
     ? baseCandidates.filter((entry) => entry.garmentType === manualGarment)
     : baseCandidates;
   const fallbackReason = manualGarment && !manualCandidates.length ? "Selected garment type was softened for this scene." : undefined;
-  const candidates = (manualCandidates.length ? manualCandidates : baseCandidates).sort(
+  const candidatePool = manualCandidates.length ? manualCandidates : baseCandidates;
+  const premiumCandidates = input.preferPremiumWardrobe
+    ? candidatePool.filter((entry) => entry.isPremiumWardrobe)
+    : [];
+  const candidates = (premiumCandidates.length ? premiumCandidates : candidatePool).sort(
     (a, b) => scoreOutfit(b, input) - scoreOutfit(a, input)
   );
   const rotationKey = [

@@ -20,7 +20,6 @@ import { chooseChinaUrbanStreetLine } from "./chooseChinaUrbanStreetLine";
 import { chooseSeasonCityVisualContext } from "./chooseSeasonCityVisualContext";
 import { accessoryShoeVisibilityRuleLine } from "../data/accessoryProfiles";
 import { getPromptQualityPatchLines } from "../data/promptPatches";
-import { chooseSeasonalLuxuryStyle, seasonalLuxuryNegative } from "../data/seasonalLuxuryStyles";
 import { chooseHandheldObjectLines } from "./chooseHandheldObjectLines";
 import { chooseHumanPresenceLines } from "./chooseHumanPresenceLines";
 import { chooseOutfitByGarmentType } from "./chooseOutfitByGarmentType";
@@ -82,10 +81,10 @@ const customerFeelingLine =
   "Express all-day ease, comfort without carelessness, clean composure, taste, and quiet put-together confidence.";
 
 const modelLine =
-  "Use one real-looking Asian or subtle Asian mixed woman, 25–35, like a stylish young mature real customer or everyday urban woman, not a professional fashion model, teenager, girlish character, or influencer. Natural dark hair, light everyday makeup, normal facial features, realistic body proportion, calm refined presence, and believable daily styling.";
+  "Use one real-looking Asian or subtle Asian mixed woman, 32–46, like a stylish real customer or everyday urban woman, not a professional fashion model. Natural dark hair, light everyday makeup, normal facial features, realistic body proportion, calm mature presence, and believable daily styling.";
 
 const humanRealismLine =
-  "Make the person feel like a real customer captured in a natural daily outfit record, not a computer-perfect fashion model, mannequin, showroom character, influencer, or campaign face. Use a candid human-photography feeling: slight facial asymmetry, normal skin texture, natural under-eye texture, relaxed mouth, imperfect but tasteful posture, realistic hand tension, believable foot pressure, and normal shoulder-neck relationship. Keep the expression quiet, neutral, slightly task-focused, and unperformed. Avoid hard staring, frozen soft smile, influencer gaze, commercial model eye contact, doll-like eyes, lifeless gaze, staged fashion portrait mood, over-retouched commercial portrait, extra-polished fashion campaign mood, and body proportions that feel digitally idealized.";
+  "Make the person feel like a real customer captured in a natural daily outfit record, not a computer-perfect fashion model, mannequin, showroom character, influencer, or campaign face. Use a candid human-photography feeling: slight facial asymmetry, normal skin texture, natural under-eye texture, relaxed mouth, imperfect but tasteful posture, realistic hand tension, believable foot pressure, and normal shoulder-neck relationship. Natural soft eye contact is allowed when it feels like a brief real-life glance, and looking slightly away or focusing on a real task is also allowed. Keep the expression quiet, neutral, slightly task-focused, and unperformed. Avoid hard staring, frozen soft smile, influencer gaze, commercial model eye contact, doll-like eyes, lifeless gaze, staged fashion portrait mood, over-retouched commercial portrait, extra-polished fashion campaign mood, and body proportions that feel digitally idealized.";
 
 const gazeLine =
   "Use a natural gaze for the task or outfit record, never a forced direct stare.";
@@ -960,6 +959,22 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
         userSpecifiedClothing,
         generationNonce: params.generationNonce
   });
+  const premiumWardrobeSelection =
+    shouldUsePeopleStyling(params.imageType) && sceneKey !== "gymInterior" && !userSpecifiedClothing
+      ? chooseOutfitByGarmentType({
+          imageType: params.imageType,
+          sceneKey,
+          season: params.season,
+          shoe: params.shoe,
+          garmentTypePreference: effectiveGarmentTypePreference,
+          userExtraRequirement: params.extraRequirement,
+          userSpecifiedClothing,
+          generationNonce: params.generationNonce,
+          preferPremiumWardrobe: true
+        })
+      : null;
+  const selectedPremiumWardrobe =
+    premiumWardrobeSelection?.selectedOutfit?.isPremiumWardrobe ? premiumWardrobeSelection : null;
   const sceneText = getSceneText(params, resolvedScene, sceneKey);
   const sceneVariationLine = getSceneVariationLine(params, resolvedScene, sceneKey);
   const basePlaceLine = getBasePlaceLineForPrompt({
@@ -980,8 +995,12 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
     customShoe: params.customShoe,
     hasShoe
   });
-  const baseOutfitLine = perSceneOutfitSelection?.selectedPerSceneOutfitLine ?? outfitSelection.outfitLine;
-  const baseStylingRealismLine = perSceneOutfitSelection?.selectedStylingRealismLine ?? outfitSelection.stylingRealismLine;
+  const baseOutfitLine =
+    selectedPremiumWardrobe?.outfitLine ?? perSceneOutfitSelection?.selectedPerSceneOutfitLine ?? outfitSelection.outfitLine;
+  const baseStylingRealismLine =
+    selectedPremiumWardrobe?.stylingRealismLine ??
+    perSceneOutfitSelection?.selectedStylingRealismLine ??
+    outfitSelection.stylingRealismLine;
   const preAccessoryOutfitLine = [baseOutfitLine, shoeStyleLine].filter(Boolean).join(" ");
   const gazeSelection = chooseGazeLine({
     imageType: params.imageType,
@@ -1023,12 +1042,27 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
     season: params.season,
     cityProfile: selectedCity,
     selectedOutfit: {
-      bagCategory: perSceneOutfitSelection?.selectedBagCategory ?? outfitSelection.selectedOutfit?.bagCategory ?? null,
+      bagCategory:
+        selectedPremiumWardrobe?.selectedOutfit?.bagCategory ??
+        perSceneOutfitSelection?.selectedBagCategory ??
+        outfitSelection.selectedOutfit?.bagCategory ??
+        null,
       accessoryCategory:
-        perSceneOutfitSelection?.selectedAccessoryCategory ?? outfitSelection.selectedOutfit?.accessoryCategory ?? null
+        selectedPremiumWardrobe?.selectedOutfit?.accessoryCategory ??
+        perSceneOutfitSelection?.selectedAccessoryCategory ??
+        outfitSelection.selectedOutfit?.accessoryCategory ??
+        null
     },
-    selectedGarmentType: perSceneOutfitSelection?.selectedGarmentType ?? outfitSelection.selectedOutfit?.garmentType ?? null,
-    selectedOutfitStyle: perSceneOutfitSelection?.selectedOutfitStyle ?? outfitSelection.selectedOutfit?.outfitStyle ?? null,
+    selectedGarmentType:
+      selectedPremiumWardrobe?.selectedOutfit?.garmentType ??
+      perSceneOutfitSelection?.selectedGarmentType ??
+      outfitSelection.selectedOutfit?.garmentType ??
+      null,
+    selectedOutfitStyle:
+      selectedPremiumWardrobe?.selectedOutfit?.outfitStyle ??
+      perSceneOutfitSelection?.selectedOutfitStyle ??
+      outfitSelection.selectedOutfit?.outfitStyle ??
+      null,
     selectedPrimaryHandheldObject: primaryHandheldSelection.primaryHandheldObject,
     poseCategory,
     userExtraRequirement: params.extraRequirement,
@@ -1041,16 +1075,6 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
     selectedPrimaryHandheldObject: primaryHandheldSelection.primaryHandheldObject
   });
   const outfitLine = [normalizedBaseOutfitLine, shoeStyleLine].filter(Boolean).join(" ");
-  const seasonalLuxuryStyleLine = chooseSeasonalLuxuryStyle({
-    imageType: params.imageType,
-    shoe: params.shoe,
-    season: params.season,
-    scenePreference: resolvedScene,
-    selectedOutfitLine: outfitLine,
-    selectedOutfitStyleLine: baseStylingRealismLine,
-    selectedAccessoryLine: accessorySelection.accessoryLine,
-    userExtraRequirement: params.extraRequirement
-  });
   const handheldSelection = chooseHandheldObjectLines({
     imageType: params.imageType,
     scenePreference: resolvedScene,
@@ -1096,7 +1120,6 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
     : "";
   const outfitStructuredLine = shouldUsePeopleStyling(params.imageType)
     ? [
-        seasonalLuxuryStyleLine,
         outfitLine,
         getGarmentTypeLockLine(effectiveGarmentTypePreference),
         sceneKey === "gymInterior" ? gymInteriorClothingLockLine : "",
@@ -1206,7 +1229,6 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
       ...extractAvoidPhrases(`Avoid ${imageTypeTemplate.templateNegativeLine}.`),
       ...extractAvoidPhrases(cameraSelection.cameraNegativeLine),
       ...extractAvoidPhrases(`Avoid ${gazeSelection.negative}.`),
-      ...extractAvoidPhrases(seasonalLuxuryStyleLine ? seasonalLuxuryNegative : ""),
       ...extractAvoidPhrases(isNonProductAtmosphereImage(params.imageType) ? nonProductAtmosphereNegativeLine : ""),
       ...promptQualityPatchLines.negativePhrases
     ]
@@ -1280,7 +1302,7 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
     cityProfile: selectedCity,
     selectedShoe: params.shoe,
     lightingSpaceType: seasonCityVisualContext.lightingSpaceType,
-    selectedOutfit: perSceneOutfitSelection ?? outfitSelection.selectedOutfit,
+    selectedOutfit: selectedPremiumWardrobe?.selectedOutfit ?? perSceneOutfitSelection ?? outfitSelection.selectedOutfit,
     selectedAccessory: accessorySelection.selectedBagAccessory,
     selectedHandheldObject: handheldSelection.primaryHandheldObject,
     userExtraRequirement: sanitizedUserExtraRequirement,
@@ -1300,7 +1322,7 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
     cityProfile: selectedCity,
     selectedShoe: params.shoe,
     lightingSpaceType: seasonCityVisualContext.lightingSpaceType,
-    selectedOutfit: perSceneOutfitSelection ?? outfitSelection.selectedOutfit,
+    selectedOutfit: selectedPremiumWardrobe?.selectedOutfit ?? perSceneOutfitSelection ?? outfitSelection.selectedOutfit,
     selectedAccessory: accessorySelection.selectedBagAccessory,
     selectedHandheldObject: handheldSelection.primaryHandheldObject,
     userExtraRequirement: sanitizedUserExtraRequirement,

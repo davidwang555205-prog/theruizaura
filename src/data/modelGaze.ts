@@ -22,7 +22,7 @@ const naturalCameraGazeCompact =
   "Let the woman look naturally toward the camera with calm, relaxed, lightly engaged eyes, as if she briefly noticed a friend taking the photo during a real daily moment. Keep the eye focus alive and specific, with a relaxed mouth, subtle facial asymmetry, normal eyelid tension, and a quiet human expression. The gaze should feel warm and believable, not blank, forced, commercial, or influencer-like.";
 
 const taskFocusedGazeCompact =
-  "Use a natural task-focused gaze: she should look at what she is doing, such as holding a bag, browsing a book, choosing flowers, checking a tote, adjusting clothing, or walking through the scene. Avoid stiff or forced camera eye contact.";
+  "Use a natural task-focused gaze when the scene calls for it: she may look at what she is doing, such as holding a bag, browsing a book, choosing flowers, checking a tote, adjusting clothing, or walking through the scene. A soft brief glance toward the camera is also allowed if it feels like a real customer noticing a friend, not a staged portrait.";
 
 const cameraExpressionBoundaryCompact =
   "When looking at the camera, use relaxed lips, a faint natural smile, calm confidence, or soft friendly focus. Avoid beauty-ad eye contact, forced smile, influencer stare, empty doll eyes, lifeless gaze, deadpan face, or commercial model intensity.";
@@ -40,7 +40,7 @@ const gazeIdentityConsistencyCompact =
   "Even if gaze direction changes between images, keep the same Asian woman, same face, same hairstyle, same makeup, same age appearance, same body proportion, and same personal identity.";
 
 const humanPurposefulGazeCompact =
-  "Her gaze should feel human and purposeful, either naturally toward the camera or focused on a real task, with relaxed facial muscles, clear eye focus, soft but alive eyes, and believable daily presence.";
+  "Her gaze should feel human and purposeful, either naturally toward the camera or focused on a real task, with relaxed facial muscles, clear eye focus, soft but alive eyes, and believable daily presence. Do not force everyone to look away.";
 
 const lookAtCameraNegative =
   "Avoid hard staring, beauty-ad eye contact, influencer staring pose, commercial model intensity, empty doll eyes, lifeless gaze, deadpan face, stiff portrait mood, and any facial expression that feels performed rather than naturally captured.";
@@ -59,9 +59,7 @@ const noFaceKeywords = [
 
 const noCameraKeywords = [
   "不要看镜头",
-  "不看镜头",
-  "no eye contact",
-  "do not look at camera"
+  "不看镜头"
 ];
 
 const lookAtCameraKeywords = [
@@ -210,27 +208,31 @@ function chooseDefaultMode(input: GazeInput): TeamGazeMode {
   }
 
   if (taskFocusedScenes.has(input.scenePreference) && !sceneAllowsCamera(input)) {
+    if (input.imageType === "产品上脚图" || input.imageType === "生活场景图") {
+      return pickWeighted([
+        { value: "taskFocusedGaze", weight: 62 },
+        { value: "softOffCamera", weight: 23 },
+        { value: "lookAtCamera", weight: 15 }
+      ], input.generationNonce);
+    }
+
     return "taskFocusedGaze";
   }
 
   if (input.imageType === "产品上脚图") {
     return pickWeighted([
-      { value: sceneAllowsCamera(input) ? "lookAtCamera" : "softOffCamera", weight: 58 },
-      { value: "softOffCamera", weight: 30 },
-      { value: "downwardGaze", weight: 12 }
+      { value: "lookAtCamera", weight: sceneAllowsCamera(input) ? 36 : 22 },
+      { value: "softOffCamera", weight: sceneAllowsCamera(input) ? 42 : 48 },
+      { value: "downwardGaze", weight: sceneAllowsCamera(input) ? 22 : 30 }
     ], input.generationNonce);
   }
 
   if (input.imageType === "生活场景图") {
-    if (sceneAllowsCamera(input)) {
-      return pickWeighted([
-        { value: "lookAtCamera", weight: input.scenePreference === "健身房内" ? 58 : 56 },
-        { value: "softOffCamera", weight: 28 },
-        { value: "taskFocusedGaze", weight: 16 }
-      ], input.generationNonce);
-    }
-
-    return "taskFocusedGaze";
+    return pickWeighted([
+      { value: "lookAtCamera", weight: sceneAllowsCamera(input) ? (input.scenePreference === "健身房内" ? 34 : 32) : 20 },
+      { value: "softOffCamera", weight: sceneAllowsCamera(input) ? 38 : 25 },
+      { value: "taskFocusedGaze", weight: sceneAllowsCamera(input) ? 30 : 55 }
+    ], input.generationNonce);
   }
 
   return "softOffCamera";
@@ -249,7 +251,7 @@ function buildGazeLine(mode: TeamGazeMode, input: GazeInput) {
   }
 
   if (mode === "softOffCamera") {
-    return `Use a soft off-camera gaze, looking slightly beside the camera or into the surrounding scene with calm, relaxed presence rather than direct performance. ${humanPurposefulGazeCompact}${identityLine}`;
+    return `Use natural varied gaze: she may look slightly beside the camera or into the surrounding scene, and a soft brief camera glance is allowed if it feels like real life rather than direct performance. ${humanPurposefulGazeCompact}${identityLine}`;
   }
 
   if (mode === "downwardGaze") {
