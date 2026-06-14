@@ -20,6 +20,7 @@ import { chooseChinaUrbanStreetLine } from "./chooseChinaUrbanStreetLine";
 import { chooseSeasonCityVisualContext } from "./chooseSeasonCityVisualContext";
 import { accessoryShoeVisibilityRuleLine } from "../data/accessoryProfiles";
 import { getPromptQualityPatchLines } from "../data/promptPatches";
+import { chooseSeasonalLuxuryStyle, seasonalLuxuryNegative } from "../data/seasonalLuxuryStyles";
 import { chooseHandheldObjectLines } from "./chooseHandheldObjectLines";
 import { chooseHumanPresenceLines } from "./chooseHumanPresenceLines";
 import { chooseOutfitByGarmentType } from "./chooseOutfitByGarmentType";
@@ -114,6 +115,18 @@ const GARMENT_TYPE_LOCK_LINES = {
 
 const nonProductShoeAccuracyLine =
   "If the THERUIZ AURA sneaker appears in this non-product atmosphere image, keep it subtle and secondary. Preserve its real color, material texture, and recognizable shape, but do not turn the image into a direct product shot.";
+
+const nonProductAtmosphereDefinitionLine =
+  "Create a non-product THERUIZ AURA atmosphere image, not a product shot, not a model-focused fashion image, and not a generic lifestyle decoration image.";
+
+const nonProductAtmosphereContentLine =
+  "Focus on brand-life details such as entryway departure, window-side reading, quiet worktable reset, material samples, paper goods, wardrobe preparation, hotel arrival order, flowers, bakery paper, folded garments, notebooks, care cards, color cards, or restrained daily objects. Product notes, color cards, care cards, or checklists may appear, but text should be subtle, partially readable, and not the visual focus. Do not show large readable text, fake brand slogans, fake store signage, random English words, messy printed labels, or AI-generated gibberish text. Shoes are not required and should not become the main subject.";
+
+const nonProductAtmosphereMoodLine =
+  "Keep the mood consistent with THERUIZ AURA Quiet Warm Luxury: warm, quiet, mature, ordered, low-saturation, tactile, daily, and believable, with subtle real-use traces such as a slightly shifted chair, naturally placed bag, folded garment, open notebook, used pen, stacked material samples, packing paper, or soft daily disorder. Use cream-white, warm beige, soft stone, oatmeal, warm grey, linen texture, natural daylight, low saturation, clean negative space, real object contact, soft shadows, and tactile authenticity. Do not drift into French vintage cafe style, Korean sweet style, cold minimalist showroom, resort lifestyle, socialite luxury, camping style, or trendy influencer aesthetic. Avoid perfect showroom alignment, museum-like display, sterile interior, and objects arranged too symmetrically.";
+
+const nonProductAtmosphereNegativeLine =
+  "Avoid large readable text, fake brand slogans, random English words, fake store signage, messy printed labels, AI-generated gibberish text, random coffee-and-flower decoration, empty Pinterest lifestyle image, fake luxury display, visible luxury logos, socialite afternoon tea mood, influencer check-in scene, over-styled prop flatlay, fake showroom, sterile AI interior, cold sample-room render, unrelated home decor, noisy commercial set, excessive props, messy clutter, fake brand signage, luxury handbag display, perfume-ad mood, jewelry showcase, hotel influencer flatlay, champagne lifestyle, fake elite lifestyle, rich-lady still life, decorative objects without brand meaning, and anything that feels disconnected from THERUIZ AURA.";
 
 const uploadedSneakerAccuracyLine =
   "Use uploaded sneaker reference as strict source: low-cut German trainer silhouette, rounded toe box, slim outsole, panels, tongue, stitching, material, color, and proportions.";
@@ -309,6 +322,10 @@ function shouldUsePeopleStyling(imageType: TeamImageType) {
   return isPeopleImageType(imageType);
 }
 
+function isNonProductAtmosphereImage(imageType: TeamImageType) {
+  return imageType === "非产品氛围图";
+}
+
 function shouldUseStreetRealismLine(
   params: TeamPromptParams,
   resolvedScene: Exclude<TeamScenePreference, "自动匹配">
@@ -335,6 +352,8 @@ function teamExtraMentionsShoe(extraRequirement: string) {
 }
 
 function resolveTeamHasShoe(params: TeamPromptParams) {
+  if (isNonProductAtmosphereImage(params.imageType)) return false;
+
   if (
     params.imageType === "产品上脚图" ||
     params.imageType === "对镜穿搭图" ||
@@ -563,7 +582,29 @@ function getNegativeLine(input: {
 }) {
   const isStillLifeImage = input.params.imageType === "产品静物图" || input.sceneKey === "stillLife";
   const isMaterialImage = input.params.imageType === "拍摄花絮 / 材质图" || input.sceneKey === "materialTable";
-  const phrases = isStillLifeImage || isMaterialImage
+  const isNonProductAtmosphere = isNonProductAtmosphereImage(input.params.imageType);
+  const phrases = isNonProductAtmosphere
+    ? [
+        "large readable text",
+        "fake brand slogans",
+        "random English words",
+        "fake store signage",
+        "messy printed labels",
+        "AI-generated gibberish text",
+        "generic stock photography",
+        "empty Pinterest lifestyle image",
+        "fake luxury display",
+        "influencer check-in scene",
+        "fake showroom",
+        "sterile AI interior",
+        "cold sample-room render",
+        "unrelated home decor",
+        "noisy commercial set",
+        "excessive props",
+        "messy clutter",
+        "anything disconnected from THERUIZ AURA"
+      ]
+    : isStillLifeImage || isMaterialImage
     ? [
         "sneaker deformation",
         "chunky or running-shoe sole",
@@ -843,6 +884,14 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
   const streetRealismPatchLine = shouldUseStreetRealismLine(params, resolvedScene) ? streetRealismLine : "";
   const streetRealismCorePatchLine = streetRealismPatchLine ? streetRealismCoreLine : "";
   const hasStreetRealism = Boolean(streetRealismPatchLine);
+  const nonProductAtmosphereLines = isNonProductAtmosphereImage(params.imageType)
+    ? [
+        nonProductAtmosphereDefinitionLine,
+        nonProductAtmosphereContentLine,
+        nonProductAtmosphereMoodLine,
+        nonProductAtmosphereNegativeLine
+      ]
+    : [];
   const promptQualityPatchLines = getPromptQualityPatchLines({
     imageType: params.imageType,
     hasShoe,
@@ -992,6 +1041,16 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
     selectedPrimaryHandheldObject: primaryHandheldSelection.primaryHandheldObject
   });
   const outfitLine = [normalizedBaseOutfitLine, shoeStyleLine].filter(Boolean).join(" ");
+  const seasonalLuxuryStyleLine = chooseSeasonalLuxuryStyle({
+    imageType: params.imageType,
+    shoe: params.shoe,
+    season: params.season,
+    scenePreference: resolvedScene,
+    selectedOutfitLine: outfitLine,
+    selectedOutfitStyleLine: baseStylingRealismLine,
+    selectedAccessoryLine: accessorySelection.accessoryLine,
+    userExtraRequirement: params.extraRequirement
+  });
   const handheldSelection = chooseHandheldObjectLines({
     imageType: params.imageType,
     scenePreference: resolvedScene,
@@ -1037,6 +1096,7 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
     : "";
   const outfitStructuredLine = shouldUsePeopleStyling(params.imageType)
     ? [
+        seasonalLuxuryStyleLine,
         outfitLine,
         getGarmentTypeLockLine(effectiveGarmentTypePreference),
         sceneKey === "gymInterior" ? gymInteriorClothingLockLine : "",
@@ -1090,6 +1150,7 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
           .filter(Boolean)
           .join(" ")
       : [
+          ...nonProductAtmosphereLines.slice(0, 2),
           getImageTypeLine(params, sceneKey),
           streetRealismCorePatchLine,
           imageTypeTemplate.templateSceneLine,
@@ -1109,6 +1170,7 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
           .join(" ");
   const moodStructuredLine = [
     brandMoodLine,
+    isNonProductAtmosphereImage(params.imageType) ? nonProductAtmosphereMoodLine : "",
     ...promptQualityPatchLines.moodLines,
     shouldUsePeopleStyling(params.imageType) ? customerFeelingLine : "",
     shouldUsePeopleStyling(params.imageType)
@@ -1144,6 +1206,8 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
       ...extractAvoidPhrases(`Avoid ${imageTypeTemplate.templateNegativeLine}.`),
       ...extractAvoidPhrases(cameraSelection.cameraNegativeLine),
       ...extractAvoidPhrases(`Avoid ${gazeSelection.negative}.`),
+      ...extractAvoidPhrases(seasonalLuxuryStyleLine ? seasonalLuxuryNegative : ""),
+      ...extractAvoidPhrases(isNonProductAtmosphereImage(params.imageType) ? nonProductAtmosphereNegativeLine : ""),
       ...promptQualityPatchLines.negativePhrases
     ]
   });
