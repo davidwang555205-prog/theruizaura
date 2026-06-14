@@ -202,12 +202,18 @@ function applySimpleDedupe(candidates: SceneOutfitSeed[], history: OutfitGenerat
 function getSeasonalSuitabilityScore(seed: SceneOutfitSeed, season: ChooseSmartOutfitInput["season"]) {
   const text = seedText(seed);
   const has = (pattern: RegExp) => pattern.test(text);
+  const controlledAccentBonus =
+    has(/\b(cobalt blue|tomato red|deep burgundy|forest green|apple green)\b/i) &&
+    has(/\b(only saturated accent|controlled|restrained)\b/i)
+      ? 2
+      : 0;
 
   if (season === "summer") {
     return (
       (has(/\b(linen|short-sleeve|sleeveless|bermuda|shorts|cotton tee|lightweight|breathable)\b/i) ? 4 : 0) +
       (has(/\b(pale blue|cream|ivory|khaki|light denim)\b/i) ? 1 : 0) -
-      (has(/\b(wool|coat|turtleneck|scarf|cashmere|corduroy)\b/i) ? 8 : 0)
+      (has(/\b(wool|coat|turtleneck|scarf|cashmere|corduroy)\b/i) ? 8 : 0) +
+      controlledAccentBonus
     );
   }
 
@@ -215,20 +221,23 @@ function getSeasonalSuitabilityScore(seed: SceneOutfitSeed, season: ChooseSmartO
     return (
       (has(/\b(wool|coat|turtleneck|cashmere|warm grey|charcoal|navy|long-sleeve|knit dress|winter)\b/i) ? 5 : 0) +
       (has(/\b(knit|cardigan|jacket|dark denim|structured denim)\b/i) ? 2 : 0) -
-      (has(/\b(sleeveless|shorts|bermuda|linen|lightweight)\b/i) ? 8 : 0)
+      (has(/\b(sleeveless|shorts|bermuda|linen|lightweight)\b/i) ? 8 : 0) +
+      controlledAccentBonus
     );
   }
 
   if (season === "autumn") {
     return (
       (has(/\b(knit|cardigan|jacket|trench|wool|corduroy|taupe|brown|charcoal|navy|dark denim|warm grey)\b/i) ? 4 : 0) -
-      (has(/\b(sleeveless|shorts|bermuda|linen)\b/i) ? 6 : 0)
+      (has(/\b(sleeveless|shorts|bermuda|linen)\b/i) ? 6 : 0) +
+      controlledAccentBonus
     );
   }
 
   return (
     (has(/\b(shirt|denim|trench|cardigan|lightweight|pale blue|cream|ivory|khaki)\b/i) ? 3 : 0) -
-    (has(/\b(heavy wool|winter coat|turtleneck|bermuda shorts)\b/i) ? 4 : 0)
+    (has(/\b(heavy wool|winter coat|turtleneck|bermuda shorts)\b/i) ? 4 : 0) +
+    controlledAccentBonus
   );
 }
 

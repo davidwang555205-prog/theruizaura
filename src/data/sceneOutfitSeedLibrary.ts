@@ -52,7 +52,12 @@ const baseForbidden = [
   "floor-length skirt",
   "floor-length dress",
   "long coat covering shoes",
-  "oversized bag blocking shoes"
+  "oversized bag blocking shoes",
+  "head-to-toe bright color",
+  "multiple saturated accents",
+  "random color blocking",
+  "neon outfit",
+  "loud trend color styling"
 ];
 
 const imageTypes = ["onFoot", "lifestyle", "mirror"];
@@ -144,6 +149,23 @@ const trouserPool: SeedDraft[] = [
   },
   {
     garmentType: "trousers",
+    outfitStyle: "bloggerLite",
+    colorDirection: "softAccent",
+    season: ["spring", "summer"],
+    suitableShoes: allShoes,
+    imageTypes,
+    topCategory: "ivory cotton shirt",
+    bottomCategory: "stone straight trousers",
+    outerLayerCategory: "no outer layer",
+    bagCategory: "cobalt blue small shoulder bag as the only saturated accent",
+    accessoryCategory: ["simple watch"],
+    visualAnchor: "cobalt blue small shoulder bag",
+    outfitLine:
+      "Style her in an ivory cotton shirt and stone straight trousers, adding one cobalt blue small shoulder bag as the only saturated accent so the outfit stays wearable and THERUIZ AURA refined.",
+    forbidden: baseForbidden
+  },
+  {
+    garmentType: "trousers",
     outfitStyle: "cleanMinimal",
     colorDirection: "darkAnchor",
     season: ["autumn", "winter"],
@@ -157,6 +179,22 @@ const trouserPool: SeedDraft[] = [
     visualAnchor: "navy fine-knit top",
     outfitLine:
       "Use a navy fine-knit top, warm grey wool trousers, a cream short coat, and a muted brown shoulder bag as a secondary accessory for composed seasonal depth.",
+    forbidden: baseForbidden
+  },
+  {
+    garmentType: "trousers",
+    outfitStyle: "polishedCommuter",
+    colorDirection: "softAccent",
+    season: ["autumn", "winter"],
+    suitableShoes: allShoes,
+    imageTypes,
+    topCategory: "warm ivory turtleneck",
+    bottomCategory: "charcoal tailored trousers",
+    outerLayerCategory: "soft taupe coat",
+    accessoryCategory: ["deep burgundy scarf as the only saturated accent"],
+    visualAnchor: "deep burgundy scarf",
+    outfitLine:
+      "Use a warm ivory turtleneck, charcoal tailored trousers, and a soft taupe coat, with one deep burgundy scarf as the only saturated accent for quiet seasonal depth.",
     forbidden: baseForbidden
   },
   {
@@ -294,6 +332,23 @@ const skirtPool: SeedDraft[] = [
   },
   {
     garmentType: "skirt",
+    outfitStyle: "refinedFeminine",
+    colorDirection: "softAccent",
+    season: ["spring", "summer"],
+    suitableShoes: allShoes,
+    imageTypes,
+    topCategory: "soft grey fine-knit top",
+    bottomCategory: "stone A-line skirt",
+    outerLayerCategory: "no outer layer",
+    bagCategory: "tomato red mini bag as the only saturated accent",
+    accessoryCategory: ["minimal earrings"],
+    visualAnchor: "tomato red mini bag",
+    outfitLine:
+      "Pair a soft grey fine-knit top with a stone A-line skirt, using one tomato red mini bag as the only saturated accent while keeping the silhouette calm and shoe-readable.",
+    forbidden: baseForbidden
+  },
+  {
+    garmentType: "skirt",
     outfitStyle: "darkAnchor",
     colorDirection: "darkAnchor",
     season: ["autumn", "winter"],
@@ -390,6 +445,22 @@ const skirtPool: SeedDraft[] = [
     outfitLine:
       "Pair a soft grey long-sleeve top with a charcoal wool-blend skirt and taupe structured cardigan for a calm dark-anchor skirt outfit.",
     forbidden: baseForbidden
+  },
+  {
+    garmentType: "skirt",
+    outfitStyle: "darkAnchor",
+    colorDirection: "softAccent",
+    season: ["autumn", "winter"],
+    suitableShoes: allShoes,
+    imageTypes,
+    topCategory: "charcoal wool-blend top",
+    bottomCategory: "taupe straight skirt",
+    outerLayerCategory: "cream short coat",
+    accessoryCategory: ["forest green silk scarf as the only saturated accent"],
+    visualAnchor: "forest green silk scarf",
+    outfitLine:
+      "Use a charcoal wool-blend top, taupe straight skirt, and cream short coat, with one forest green silk scarf as the only saturated accent for mature seasonal contrast.",
+    forbidden: baseForbidden
   }
 ];
 
@@ -441,6 +512,22 @@ const shortsPool: SeedDraft[] = [
     visualAnchor: "soft khaki shorts",
     outfitLine:
       "Style her in a cream linen shirt and soft khaki Bermuda shorts for breathable summer styling with no visible bag.",
+    forbidden: baseForbidden
+  },
+  {
+    garmentType: "shorts",
+    outfitStyle: "bloggerLite",
+    colorDirection: "softAccent",
+    season: ["summer"],
+    suitableShoes: allShoes,
+    imageTypes,
+    topCategory: "ivory short-sleeve shirt",
+    bottomCategory: "soft khaki tailored shorts",
+    outerLayerCategory: "no outer layer",
+    accessoryCategory: ["tomato red thin belt as the only saturated accent"],
+    visualAnchor: "tomato red thin belt",
+    outfitLine:
+      "Use an ivory short-sleeve shirt and soft khaki tailored shorts, with one tomato red thin belt as the only saturated accent for a clear but restrained summer outfit.",
     forbidden: baseForbidden
   },
   {
@@ -612,6 +699,22 @@ const dressPool: SeedDraft[] = [
   {
     garmentType: "dress",
     outfitStyle: "refinedFeminine",
+    colorDirection: "softAccent",
+    season: ["spring", "summer"],
+    suitableShoes: allShoes,
+    imageTypes,
+    topCategory: "soft grey straight dress",
+    bottomCategory: "soft grey straight dress",
+    outerLayerCategory: "apple green thin cardigan",
+    accessoryCategory: ["minimal jewelry"],
+    visualAnchor: "apple green thin cardigan",
+    outfitLine:
+      "Style her in a soft grey straight dress with one apple green thin cardigan as the only saturated accent, keeping the overall outfit fresh, wearable, and not loud.",
+    forbidden: baseForbidden
+  },
+  {
+    garmentType: "dress",
+    outfitStyle: "refinedFeminine",
     colorDirection: "neutralDaily",
     season: ["autumn", "winter"],
     suitableShoes: allShoes,
@@ -624,6 +727,23 @@ const dressPool: SeedDraft[] = [
     visualAnchor: "warm beige knit dress",
     outfitLine:
       "Use a warm beige knit dress, cream short jacket, and muted brown handbag as a secondary accessory for gentle seasonal sophistication.",
+    forbidden: baseForbidden
+  },
+  {
+    garmentType: "dress",
+    outfitStyle: "darkAnchor",
+    colorDirection: "softAccent",
+    season: ["autumn", "winter"],
+    suitableShoes: allShoes,
+    imageTypes,
+    topCategory: "navy wool knit dress",
+    bottomCategory: "navy wool knit dress",
+    outerLayerCategory: "warm grey short coat",
+    bagCategory: "deep burgundy small handbag as the only saturated accent",
+    accessoryCategory: ["thin socks"],
+    visualAnchor: "deep burgundy small handbag",
+    outfitLine:
+      "Use a navy wool knit dress and warm grey short coat, adding one deep burgundy small handbag as the only saturated accent for controlled winter color.",
     forbidden: baseForbidden
   },
   {
@@ -707,6 +827,22 @@ const activePool: SeedDraft[] = [
     visualAnchor: "dark active top",
     outfitLine:
       "Style her in a dark active top and straight active trousers for a restrained city-to-gym transition without sporty branding.",
+    forbidden: baseForbidden
+  },
+  {
+    garmentType: "lightActive",
+    outfitStyle: "softActive",
+    colorDirection: "softAccent",
+    season: ["spring", "summer"],
+    suitableShoes: allShoes,
+    imageTypes: activeImageTypes,
+    topCategory: "charcoal active tee",
+    bottomCategory: "taupe active trousers",
+    outerLayerCategory: "no outer layer",
+    accessoryCategory: ["cobalt blue water bottle as the only saturated accent"],
+    visualAnchor: "cobalt blue water bottle",
+    outfitLine:
+      "Use a charcoal active tee and taupe active trousers, with one cobalt blue water bottle as the only saturated accent for a realistic city-to-gym detail.",
     forbidden: baseForbidden
   },
   {

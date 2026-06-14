@@ -116,19 +116,22 @@ const nonProductShoeAccuracyLine =
   "If the THERUIZ AURA sneaker appears in this non-product atmosphere image, keep it subtle and secondary. Preserve its real color, material texture, and recognizable shape, but do not turn the image into a direct product shot.";
 
 const nonProductAtmosphereDefinitionLine =
-  "For a non-product atmospheric THERUIZ AURA image, focus primarily on her daily life, her wardrobe, her desk, her city, her weekend, her travel rhythm, her before-leaving moment, her after-returning-home moment, and her quiet aesthetic choices. Build THERUIZ AURA's lifestyle world through believable customer daily scenes and mature taste, not through direct product display.";
+  "For a non-product atmospheric THERUIZ AURA image, express her lifestyle world through still-life details, spaces, objects, wardrobe traces, home or travel details, and quiet daily routines, without showing a full person, model, face, or portrait by default. The scene should feel like a natural part of her world, not a product forced into the scene. The image does not need to show sneakers, leather materials, or product development every time. It should build THERUIZ AURA's lifestyle recognition through believable customer daily objects, mature aesthetic taste, and quiet personal order.";
 
 const nonProductAtmosphereContentLine =
-  "Use one clear customer-life atmosphere direction: window-side reading, quiet worktable reset, wardrobe corner, hotel packing, travel suitcase detail, weekend coffee, flower buying, bookstore visit, premium grocery errand, car passenger seat with bag and coat, calm city corner, rainy-day street detail, home return moment, morning getting-ready routine, or quiet personal routine. Entryway or doorway moments may appear only when the selected scene specifically calls for leaving-home atmosphere, not as the default for every non-product image. These scenes should feel connected to the target customer's real life and aesthetic choices.";
+  "Use one clear still-life or space-based atmosphere direction from her lifestyle world: morning entryway with keys and tote bag, light wardrobe corner with white shirts and linen trousers, office desk corner with iced coffee and notebook, car passenger seat with bag and sunglasses, flower paper or premium grocery paper bag, bookstore receipt and canvas tote, hotel packing corner with summer clothes, travel suitcase detail, window-side reading table, rainy-day street detail without people, home return entryway with bag and coat, or quiet personal routine objects. These scenes should express her real life, daily rhythm, and aesthetic choices without requiring a visible person. Occasionally, material swatches, product notes, packing details, quality-check traces, or founder/team working details may appear as brand trust content, but they should not dominate all non-product atmosphere images.";
 
 const nonProductBrandProcessLine =
   "If this is a material or behind-the-scenes atmosphere image, show subtle brand-process details such as material swatches, product notes, packing traces, color cards, care tools, or hands arranging details. Keep them secondary, tactile, quiet, and not like a product development catalog.";
 
 const nonProductAtmosphereMoodLine =
-  "Keep the mood warm, quiet, mature, restrained, orderly, and believable: cream-white, warm beige, soft stone, oatmeal, warm grey, linen texture, natural daylight, low saturation, clean negative space, real object contact, soft shadows, and tactile authenticity. The image should feel like a real customer's daily aesthetic world that THERUIZ AURA belongs to, not a random product workspace. The scene should feel used by real people, not staged for a showroom. Keep subtle signs of real use: a naturally placed bag, folded garment, open notebook, used pen, coffee cup, flower paper, grocery paper bag, suitcase corner, coat on chair, or soft daily disorder. Avoid perfect showroom alignment, museum-like display, sterile interior, and objects arranged too symmetrically.";
+  "Keep the mood warm, quiet, mature, restrained, orderly, and believable: cream-white, warm beige, soft stone, oatmeal, warm grey, linen texture, natural daylight, low saturation, clean negative space, real object contact, soft shadows, and tactile authenticity. The image should feel like her lifestyle world through objects and spaces, not a staged portrait or random product workspace. The scene should feel used by real people without showing them directly: a naturally placed bag, folded garment, open notebook, used pen, coffee cup, flower paper, grocery paper bag, suitcase corner, coat on chair, or soft daily disorder. Avoid perfect showroom alignment, museum-like display, sterile interior, and objects arranged too symmetrically.";
 
 const nonProductAtmosphereNegativeLine =
-  "Avoid turning customer-lifestyle atmosphere into internal brand-process content unless the selected scene asks for it. Avoid random coffee-and-flower decoration, empty Pinterest lifestyle image, fake luxury display, visible luxury logos, socialite afternoon tea mood, influencer check-in scene, over-styled prop flatlay, fake showroom, sterile AI interior, cold sample-room render, unrelated home decor, noisy commercial set, excessive props, messy clutter, fake brand signage, large readable text, fake brand slogans, random English words, fake store signage, messy printed labels, AI-generated gibberish text, luxury handbag display, perfume-ad mood, jewelry showcase, hotel influencer flatlay, champagne lifestyle, fake elite lifestyle, rich-lady still life, decorative objects without brand meaning, and anything that feels disconnected from the target customer's real daily life and THERUIZ AURA's quiet warm luxury world.";
+  "Avoid showing a full person, model, face, portrait, posed body, influencer figure, fashion model, or staged lifestyle character in non-product atmosphere images by default. Avoid making every non-product atmosphere image about shoes, leather swatches, product development, packing table, quality check, or brand process. Avoid random coffee-and-flower decoration, empty Pinterest lifestyle image, fake luxury display, visible luxury logos, socialite afternoon tea mood, influencer check-in scene, over-styled prop flatlay, fake showroom, sterile AI interior, cold sample-room render, unrelated home decor, noisy commercial set, excessive props, messy clutter, fake brand signage, large readable text, fake brand slogans, random English words, fake store signage, messy printed labels, AI-generated gibberish text, luxury handbag display, perfume-ad mood, jewelry showcase, hotel influencer flatlay, champagne lifestyle, fake elite lifestyle, rich-lady still life, decorative objects without brand meaning, and anything that feels disconnected from her lifestyle world and THERUIZ AURA's quiet warm luxury world.";
+
+const summerLifestyleWorldLine =
+  "For summer non-product atmospheric images, express her summer lifestyle world through still-life details and lived-in spaces: light wardrobe pieces, calm morning entryway, office desk with iced coffee, car passenger seat with tote bag and sunglasses, flower or grocery paper bags, hotel packing details, window-side reading table, quiet city corner without people, and soft after-home order. Keep the scene breathable, low-saturation, warm, mature, and real, not staged, not influencer-like, not people-focused, and not overly product-focused.";
 
 const uploadedSneakerAccuracyLine =
   "Use uploaded sneaker reference as strict source: low-cut German trainer silhouette, rounded toe box, slim outsole, panels, tongue, stitching, material, color, and proportions.";
@@ -1023,11 +1026,14 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
   const conditionalNonProductBrandProcessLine = shouldUseNonProductBrandProcessLine(params, resolvedScene)
     ? nonProductBrandProcessLine
     : "";
+  const nonProductSummerLifestyleWorldLine =
+    isNonProductAtmosphereImage(params.imageType) && params.season === "夏" ? summerLifestyleWorldLine : "";
   const nonProductAtmosphereLines = isNonProductAtmosphereImage(params.imageType)
     ? [
         conditionalNonProductBrandProcessLine,
         nonProductAtmosphereDefinitionLine,
         nonProductAtmosphereContentLine,
+        nonProductSummerLifestyleWorldLine,
         nonProductAtmosphereMoodLine,
         nonProductAtmosphereNegativeLine
       ]
@@ -1315,6 +1321,7 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
           .join(" ")
       : [
           ...nonProductAtmosphereLines.slice(0, 3),
+          nonProductSummerLifestyleWorldLine,
           getImageTypeLine(params, sceneKey),
           streetRealismCorePatchLine,
           imageTypeTemplate.templateSceneLine,
