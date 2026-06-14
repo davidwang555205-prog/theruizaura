@@ -116,16 +116,19 @@ const nonProductShoeAccuracyLine =
   "If the THERUIZ AURA sneaker appears in this non-product atmosphere image, keep it subtle and secondary. Preserve its real color, material texture, and recognizable shape, but do not turn the image into a direct product shot.";
 
 const nonProductAtmosphereDefinitionLine =
-  "For a non-product atmospheric THERUIZ AURA image, focus primarily on the target customer's daily life, aesthetic choices, quiet routines, refined city moments, wardrobe atmosphere, home or travel details, and lifestyle rhythm. The image does not need to show sneakers, leather materials, or product development every time. It should build THERUIZ AURA's lifestyle world through believable customer daily scenes and mature aesthetic taste. Brand process details may appear occasionally, but they should not dominate all non-product atmosphere images.";
+  "For a non-product atmospheric THERUIZ AURA image, focus primarily on her daily life, her wardrobe, her desk, her city, her weekend, her travel rhythm, her before-leaving moment, her after-returning-home moment, and her quiet aesthetic choices. Build THERUIZ AURA's lifestyle world through believable customer daily scenes and mature taste, not through direct product display.";
 
 const nonProductAtmosphereContentLine =
-  "Use one clear customer-life atmosphere direction: morning getting-ready routine, entryway before going out, wardrobe corner, office desk detail, car passenger seat with bag and coat, weekend coffee, flower buying, bookstore visit, premium grocery errand, hotel packing, travel suitcase detail, calm city corner, rainy-day street detail, home return moment, or quiet personal routine. These scenes should feel connected to the target customer's real life and aesthetic choices. Occasionally, the image may use material swatches, product notes, packing details, quality-check traces, or founder/team working details, but these brand-process themes should be used as supporting brand trust content, not as the default for every non-product atmosphere image.";
+  "Use one clear customer-life atmosphere direction: window-side reading, quiet worktable reset, wardrobe corner, hotel packing, travel suitcase detail, weekend coffee, flower buying, bookstore visit, premium grocery errand, car passenger seat with bag and coat, calm city corner, rainy-day street detail, home return moment, morning getting-ready routine, or quiet personal routine. Entryway or doorway moments may appear only when the selected scene specifically calls for leaving-home atmosphere, not as the default for every non-product image. These scenes should feel connected to the target customer's real life and aesthetic choices.";
+
+const nonProductBrandProcessLine =
+  "If this is a material or behind-the-scenes atmosphere image, show subtle brand-process details such as material swatches, product notes, packing traces, color cards, care tools, or hands arranging details. Keep them secondary, tactile, quiet, and not like a product development catalog.";
 
 const nonProductAtmosphereMoodLine =
   "Keep the mood warm, quiet, mature, restrained, orderly, and believable: cream-white, warm beige, soft stone, oatmeal, warm grey, linen texture, natural daylight, low saturation, clean negative space, real object contact, soft shadows, and tactile authenticity. The image should feel like a real customer's daily aesthetic world that THERUIZ AURA belongs to, not a random product workspace. The scene should feel used by real people, not staged for a showroom. Keep subtle signs of real use: a naturally placed bag, folded garment, open notebook, used pen, coffee cup, flower paper, grocery paper bag, suitcase corner, coat on chair, or soft daily disorder. Avoid perfect showroom alignment, museum-like display, sterile interior, and objects arranged too symmetrically.";
 
 const nonProductAtmosphereNegativeLine =
-  "Avoid making every non-product atmosphere image about shoes, leather swatches, product development, packing table, quality check, or brand process. Avoid random coffee-and-flower decoration, empty Pinterest lifestyle image, fake luxury display, visible luxury logos, socialite afternoon tea mood, influencer check-in scene, over-styled prop flatlay, fake showroom, sterile AI interior, cold sample-room render, unrelated home decor, noisy commercial set, excessive props, messy clutter, fake brand signage, large readable text, fake brand slogans, random English words, fake store signage, messy printed labels, AI-generated gibberish text, luxury handbag display, perfume-ad mood, jewelry showcase, hotel influencer flatlay, champagne lifestyle, fake elite lifestyle, rich-lady still life, decorative objects without brand meaning, and anything that feels disconnected from the target customer's real daily life and THERUIZ AURA's quiet warm luxury world.";
+  "Avoid turning customer-lifestyle atmosphere into internal brand-process content unless the selected scene asks for it. Avoid random coffee-and-flower decoration, empty Pinterest lifestyle image, fake luxury display, visible luxury logos, socialite afternoon tea mood, influencer check-in scene, over-styled prop flatlay, fake showroom, sterile AI interior, cold sample-room render, unrelated home decor, noisy commercial set, excessive props, messy clutter, fake brand signage, large readable text, fake brand slogans, random English words, fake store signage, messy printed labels, AI-generated gibberish text, luxury handbag display, perfume-ad mood, jewelry showcase, hotel influencer flatlay, champagne lifestyle, fake elite lifestyle, rich-lady still life, decorative objects without brand meaning, and anything that feels disconnected from the target customer's real daily life and THERUIZ AURA's quiet warm luxury world.";
 
 const uploadedSneakerAccuracyLine =
   "Use uploaded sneaker reference as strict source: low-cut German trainer silhouette, rounded toe box, slim outsole, panels, tongue, stitching, material, color, and proportions.";
@@ -420,6 +423,18 @@ function isNonProductAtmosphereImage(imageType: TeamImageType) {
   return imageType === "非产品氛围图";
 }
 
+function shouldUseNonProductBrandProcessLine(
+  params: TeamPromptParams,
+  resolvedScene: Exclude<TeamScenePreference, "自动匹配">
+) {
+  if (!isNonProductAtmosphereImage(params.imageType)) return false;
+  if (resolvedScene === "材质工作台" || resolvedScene === "拍摄花絮") return true;
+
+  return /皮料|材质|开发|打包|包装|质检|产品笔记|工作台|样品|色卡|护理|拍摄花絮|material|swatch|swatches|development|packing|packaging|quality|quality check|product notes|sample|color card|care tool|behind[- ]the[- ]scenes|bts/i.test(
+    params.extraRequirement
+  );
+}
+
 function shouldUseStreetRealismLine(
   params: TeamPromptParams,
   resolvedScene: Exclude<TeamScenePreference, "自动匹配">
@@ -460,18 +475,33 @@ function resolveTeamHasShoe(params: TeamPromptParams) {
   return teamExtraMentionsShoe(params.extraRequirement);
 }
 
-function getTeamAutoScene(imageType: TeamImageType): Exclude<TeamScenePreference, "自动匹配"> {
+const NON_PRODUCT_AUTO_SCENES: Exclude<TeamScenePreference, "自动匹配">[] = [
+  "窗边阅读",
+  "周末轻采购",
+  "旅行酒店",
+  "居家衣帽间",
+  "周末城市散步",
+  "通勤上班",
+  "玄关出门"
+];
+
+function getTeamAutoScene(params: TeamPromptParams): Exclude<TeamScenePreference, "自动匹配"> {
+  const imageType = params.imageType;
+
   if (imageType === "产品上脚图") return "通勤上班";
   if (imageType === "对镜穿搭图") return "居家衣帽间";
   if (imageType === "生活场景图") return "精品超市 / 日常采购";
-  if (imageType === "非产品氛围图") return "玄关出门";
+  if (imageType === "非产品氛围图") {
+    const nonce = Math.max(0, params.generationNonce ?? 0);
+    return NON_PRODUCT_AUTO_SCENES[nonce % NON_PRODUCT_AUTO_SCENES.length];
+  }
   if (imageType === "产品静物图") return "材质工作台";
   return "材质工作台";
 }
 
 function resolveTeamScenePreference(params: TeamPromptParams) {
   return params.scenePreference === "自动匹配"
-    ? getTeamAutoScene(params.imageType)
+    ? getTeamAutoScene(params)
     : params.scenePreference;
 }
 
@@ -990,8 +1020,12 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
   const streetRealismPatchLine = shouldUseStreetRealismLine(params, resolvedScene) ? streetRealismLine : "";
   const streetRealismCorePatchLine = streetRealismPatchLine ? streetRealismCoreLine : "";
   const hasStreetRealism = Boolean(streetRealismPatchLine);
+  const conditionalNonProductBrandProcessLine = shouldUseNonProductBrandProcessLine(params, resolvedScene)
+    ? nonProductBrandProcessLine
+    : "";
   const nonProductAtmosphereLines = isNonProductAtmosphereImage(params.imageType)
     ? [
+        conditionalNonProductBrandProcessLine,
         nonProductAtmosphereDefinitionLine,
         nonProductAtmosphereContentLine,
         nonProductAtmosphereMoodLine,
@@ -1280,7 +1314,7 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
           .filter(Boolean)
           .join(" ")
       : [
-          ...nonProductAtmosphereLines.slice(0, 2),
+          ...nonProductAtmosphereLines.slice(0, 3),
           getImageTypeLine(params, sceneKey),
           streetRealismCorePatchLine,
           imageTypeTemplate.templateSceneLine,
@@ -1371,6 +1405,7 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
         outfitLine: [],
         sceneLine: [
           ...promptQualityPatchLines.sceneLines,
+          conditionalNonProductBrandProcessLine,
           shouldUsePeopleStyling(params.imageType) && !sneakerSceneControlLine ? accessoryShoeVisibilityRuleLine : ""
         ].filter(Boolean),
         actionLine: shouldUsePeopleStyling(params.imageType)
