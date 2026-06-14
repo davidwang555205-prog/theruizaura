@@ -109,8 +109,7 @@ function seedText(seed: SceneOutfitSeed) {
     seed.visualAnchor,
     seed.colorDirection,
     seed.garmentType,
-    ...(seed.accessoryCategory ?? []),
-    ...(seed.forbidden ?? [])
+    ...(seed.accessoryCategory ?? [])
   ]
     .filter(Boolean)
     .join(" ")
@@ -146,6 +145,11 @@ function seedMatchesGarment(seed: SceneOutfitSeed, garment: GarmentType | null) 
   return garment ? seed.garmentType === garment : true;
 }
 
+function seedMatchesSceneGarmentContext(seed: SceneOutfitSeed, input: ChooseSmartOutfitInput, manualGarment: GarmentType | null) {
+  if (seed.garmentType !== "lightActive") return true;
+  return manualGarment === "lightActive" || input.sceneKey === "gymCommute" || input.sceneKey === "gymInterior";
+}
+
 function conflictsWithStrongUserExclusion(seed: SceneOutfitSeed, parsed: ParsedUserOutfitRequirement) {
   const text = seedText(seed);
 
@@ -169,6 +173,7 @@ function isSafeSeed(seed: SceneOutfitSeed, input: ChooseSmartOutfitInput, manual
   if (!seedMatchesImageType(seed, input.imageType)) return false;
   if (!seedMatchesShoe(seed, input.shoe)) return false;
   if (!seedMatchesGarment(seed, manualGarment)) return false;
+  if (!seedMatchesSceneGarmentContext(seed, input, manualGarment)) return false;
   if (includesAny(text, sensitiveWords)) return false;
   if (includesAny(text, shoeBlockingWords)) return false;
   if (hasMultipleMainHandheld(text)) return false;
@@ -194,7 +199,44 @@ function applySimpleDedupe(candidates: SceneOutfitSeed[], history: OutfitGenerat
   return withoutBagRepeat.length ? withoutBagRepeat : topBase;
 }
 
-function simplePrioritySort(candidates: SceneOutfitSeed[], history: OutfitGeneratedHistoryEntry[]) {
+function getSeasonalSuitabilityScore(seed: SceneOutfitSeed, season: ChooseSmartOutfitInput["season"]) {
+  const text = seedText(seed);
+  const has = (pattern: RegExp) => pattern.test(text);
+
+  if (season === "summer") {
+    return (
+      (has(/\b(linen|short-sleeve|sleeveless|bermuda|shorts|cotton tee|lightweight|breathable)\b/i) ? 4 : 0) +
+      (has(/\b(pale blue|cream|ivory|khaki|light denim)\b/i) ? 1 : 0) -
+      (has(/\b(wool|coat|turtleneck|scarf|cashmere|corduroy)\b/i) ? 8 : 0)
+    );
+  }
+
+  if (season === "winter") {
+    return (
+      (has(/\b(wool|coat|turtleneck|cashmere|warm grey|charcoal|navy|long-sleeve|knit dress|winter)\b/i) ? 5 : 0) +
+      (has(/\b(knit|cardigan|jacket|dark denim|structured denim)\b/i) ? 2 : 0) -
+      (has(/\b(sleeveless|shorts|bermuda|linen|lightweight)\b/i) ? 8 : 0)
+    );
+  }
+
+  if (season === "autumn") {
+    return (
+      (has(/\b(knit|cardigan|jacket|trench|wool|corduroy|taupe|brown|charcoal|navy|dark denim|warm grey)\b/i) ? 4 : 0) -
+      (has(/\b(sleeveless|shorts|bermuda|linen)\b/i) ? 6 : 0)
+    );
+  }
+
+  return (
+    (has(/\b(shirt|denim|trench|cardigan|lightweight|pale blue|cream|ivory|khaki)\b/i) ? 3 : 0) -
+    (has(/\b(heavy wool|winter coat|turtleneck|bermuda shorts)\b/i) ? 4 : 0)
+  );
+}
+
+function simplePrioritySort(
+  candidates: SceneOutfitSeed[],
+  history: OutfitGeneratedHistoryEntry[],
+  season: ChooseSmartOutfitInput["season"]
+) {
   const recent = history.slice(0, 5);
 
   return [...candidates].sort((a, b) => {
@@ -206,7 +248,9 @@ function simplePrioritySort(candidates: SceneOutfitSeed[], history: OutfitGenera
     const bHasNoBag = !b.bagCategory || /no visible bag|no visible accessory|wearableonly/i.test(bText);
     const aShoeReadable = !includesAny(aText, shoeBlockingWords);
     const bShoeReadable = !includesAny(bText, shoeBlockingWords);
+    const seasonScoreDelta = getSeasonalSuitabilityScore(b, season) - getSeasonalSuitabilityScore(a, season);
 
+    if (seasonScoreDelta !== 0) return seasonScoreDelta;
     if (aRepeatsVisualAnchor !== bRepeatsVisualAnchor) return aRepeatsVisualAnchor ? 1 : -1;
     if (aShoeReadable !== bShoeReadable) return aShoeReadable ? -1 : 1;
     if (aHasNoBag !== bHasNoBag) return aHasNoBag ? -1 : 1;
@@ -214,11 +258,27 @@ function simplePrioritySort(candidates: SceneOutfitSeed[], history: OutfitGenera
   });
 }
 
-function selectByGenerationNonce(candidates: SceneOutfitSeed[], generationNonce?: number) {
+function hashSelectionSalt(value: string) {
+  return [...value].reduce((hash, char) => (hash * 31 + char.charCodeAt(0)) >>> 0, 0);
+}
+
+function buildSelectionSalt(input: ChooseSmartOutfitInput, suffix = "primary") {
+  return [
+    suffix,
+    input.sceneKey,
+    input.season,
+    input.shoe,
+    input.imageType ?? "unknown",
+    input.garmentTypePreference
+  ].join("|");
+}
+
+function selectByGenerationNonce(candidates: SceneOutfitSeed[], generationNonce?: number, selectionSalt = "") {
   if (!candidates.length) return null;
   if (typeof generationNonce !== "number" || !Number.isFinite(generationNonce)) return candidates[0];
 
-  return candidates[Math.abs(generationNonce) % candidates.length] ?? candidates[0];
+  const offset = selectionSalt ? hashSelectionSalt(selectionSalt) : 0;
+  return candidates[Math.abs(generationNonce + offset) % candidates.length] ?? candidates[0];
 }
 
 function chooseFallback(input: ChooseSmartOutfitInput, manualGarment: GarmentType | null, history: OutfitGeneratedHistoryEntry[], parsed: ParsedUserOutfitRequirement) {
@@ -226,7 +286,10 @@ function chooseFallback(input: ChooseSmartOutfitInput, manualGarment: GarmentTyp
   const relaxedFallbacks = fallbackSafeOutfitTemplates.filter((seed) => {
     const text = seedText(seed);
     return (
+      seed.season.includes(input.season) &&
+      seedMatchesShoe(seed, input.shoe) &&
       seedMatchesGarment(seed, manualGarment) &&
+      seedMatchesSceneGarmentContext(seed, input, manualGarment) &&
       seedMatchesImageType(seed, input.imageType) &&
       !includesAny(text, sensitiveWords) &&
       !includesAny(text, shoeBlockingWords) &&
@@ -234,9 +297,12 @@ function chooseFallback(input: ChooseSmartOutfitInput, manualGarment: GarmentTyp
       !conflictsWithStrongUserExclusion(seed, parsed)
     );
   });
-  const pool = safeFallbacks.length ? safeFallbacks : relaxedFallbacks.length ? relaxedFallbacks : fallbackSafeOutfitTemplates;
+  const seasonFallbacks = fallbackSafeOutfitTemplates.filter(
+    (seed) => seed.season.includes(input.season) && seedMatchesSceneGarmentContext(seed, input, manualGarment)
+  );
+  const pool = safeFallbacks.length ? safeFallbacks : relaxedFallbacks.length ? relaxedFallbacks : seasonFallbacks.length ? seasonFallbacks : fallbackSafeOutfitTemplates;
   const deduped = applySimpleDedupe(pool, history);
-  return selectByGenerationNonce(simplePrioritySort(deduped, history), input.generationNonce) ?? pool[0];
+  return selectByGenerationNonce(simplePrioritySort(deduped, history, input.season), input.generationNonce, buildSelectionSalt(input, "fallback")) ?? pool[0];
 }
 
 function toHistoryEntry(input: ChooseSmartOutfitInput, selected: SceneOutfitSeed): OutfitGeneratedHistoryEntry {
@@ -320,7 +386,11 @@ export function chooseSmartOutfit(input: ChooseSmartOutfitInput): ChooseSmartOut
 
   const filtered = sceneCandidates.filter((seed) => isSafeSeed(seed, input, manualGarment, effectiveParsedUserRequirement));
   const selected =
-    selectByGenerationNonce(simplePrioritySort(applySimpleDedupe(filtered, history), history), input.generationNonce) ??
+    selectByGenerationNonce(
+      simplePrioritySort(applySimpleDedupe(filtered, history), history, input.season),
+      input.generationNonce,
+      buildSelectionSalt(input)
+    ) ??
     chooseFallback(input, manualGarment, history, effectiveParsedUserRequirement);
 
   if (!selected) return null;

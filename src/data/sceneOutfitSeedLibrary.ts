@@ -97,7 +97,7 @@ const trouserPool: SeedDraft[] = [
     garmentType: "trousers",
     outfitStyle: "darkAnchor",
     colorDirection: "darkAnchor",
-    season: ["spring", "summer", "autumn"],
+    season: ["spring", "summer"],
     suitableShoes: allShoes,
     imageTypes,
     topCategory: "black clean sleeveless top",
