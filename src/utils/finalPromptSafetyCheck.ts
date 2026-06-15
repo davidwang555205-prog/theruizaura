@@ -23,6 +23,8 @@ const cameraNames = ["Leica", "Hasselblad", "Fujifilm", "Sony"] as const;
 function normalizeSpaces(prompt: string) {
   return prompt
     .replace(/[ \t]+/g, " ")
+    .replace(/,\s*,+/g, ",")
+    .replace(/([:;])\s*,/g, "$1")
     .replace(/\n{3,}/g, "\n\n")
     .replace(/\s+([,.!?;:])/g, "$1")
     .trim();

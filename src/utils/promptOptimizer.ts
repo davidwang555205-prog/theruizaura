@@ -138,6 +138,8 @@ function reduceRepeatedConcepts(text: string) {
     .replace(/\brefined refined\b/gi, "refined")
     .replace(/\bpremium premium\b/gi, "premium")
     .replace(/\bsoft,\s+and\b/gi, "soft light and")
+    .replace(/,\s*,+/g, ",")
+    .replace(/([:;])\s*,/g, "$1")
     .replace(/[ \t]+,/g, ",")
     .replace(/[ \t]{2,}/g, " ")
     .trim();
@@ -174,6 +176,9 @@ export function cleanFinalPrompt(text: string) {
                 .trim()
         )
         .join("\n")
+        .replace(/,\s*,+/g, ",")
+        .replace(/([:;])\s*,/g, "$1")
+        .replace(/\s+([,.!?;:])/g, "$1")
         .replace(/\n{3,}/g, "\n\n")
         .trim();
 

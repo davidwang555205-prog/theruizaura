@@ -75,7 +75,7 @@ const TEAM_SHOE_KEYWORDS = [
 ];
 
 const brandMoodLine =
-  "Create a premium THERUIZ AURA Quiet Warm Luxury image: cream-white, warm beige, soft stone, natural light, low saturation, refined daily elegance, believable comfort.";
+  "Create a premium THERUIZ AURA Quiet Warm Luxury image: cream-white, warm beige, soft stone tones, low saturation, refined daily elegance, believable comfort.";
 
 const customerFeelingLine =
   "Express all-day ease, comfort without carelessness, clean composure, taste, and quiet put-together confidence.";
@@ -223,7 +223,7 @@ const SCENE_VARIATION_LINES: Partial<Record<StandardSceneKey, string[]>> = {
   ],
   mirrorCloset: [
     "Use a full-length mirror near a wardrobe corner with natural daylight, clean floor contact, and practical getting-ready details.",
-    "Set the mirror moment in a bedroom corner with soft fabric folds, a chair or bed edge, and the sneakers clearly visible.",
+    "Set the mirror moment in a getting-ready corner with soft fabric folds, a chair or bed edge, and the sneakers clearly visible.",
     "Use an entryway mirror before leaving home, with keys, a coat, or a tote as subtle daily cues.",
     "Use a hotel wardrobe mirror only when the scene feels tidy, warm-neutral, and free of bathroom-selfie energy."
   ],
@@ -318,7 +318,7 @@ const MIRROR_SCENE_VARIATION_LINES: Partial<Record<Exclude<TeamScenePreference, 
   ],
   居家衣帽间: [
     "Use a full-length mirror near a wardrobe corner with natural daylight, clean floor contact, and practical getting-ready details.",
-    "Set the mirror moment in a bedroom or wardrobe corner with soft fabric folds, a chair or bed edge, and the sneakers clearly visible.",
+    "Set the mirror moment in a getting-ready or wardrobe corner with soft fabric folds, a chair or bed edge, and the sneakers clearly visible.",
     "Use a quiet getting-ready mirror scene with wardrobe detail, clean styling, and no influencer dressing-room energy."
   ],
   玄关出门: [
@@ -549,14 +549,22 @@ function getSceneVariationLine(
   sceneKey: StandardSceneKey
 ) {
   const windowReadingLines = [
-    "Use a quiet window-side chair or sofa edge with linen curtains, a book, soft daylight, and calm private space.",
+    "Use a quiet window-side chair or sofa edge with linen curtains, one book, and calm private space.",
     "Set the moment beside a real window with a small table, magazine or cup, and warm neutral interior depth.",
     "Use a reading corner near soft curtains and pale wall texture, keeping the mood intimate, clean, and not staged.",
     "Place the scene near a window ledge or lounge chair with one book or magazine as the only quiet object."
   ];
+  const nonProductWeekendErrandLines = [
+    "Use flower paper, a bakery paper bag, keys, or a folded tote naturally placed on an entry table after a weekend errand.",
+    "Set a quiet kitchen or dining-table surface with grocery paper bags, produce, coffee beans, or flowers arranged like real life, not a flatlay.",
+    "Use a car passenger seat or home-return chair with a tote, sunglasses, receipt, and one restrained weekend purchase detail.",
+    "Show a simple after-home order moment with paper bags, coat texture, and warm neutral light, without people or product focus."
+  ];
   const lines =
     params.imageType === "对镜穿搭图"
       ? MIRROR_SCENE_VARIATION_LINES[resolvedScene]
+      : isNonProductAtmosphereImage(params.imageType) && resolvedScene === "周末轻采购"
+        ? nonProductWeekendErrandLines
       : resolvedScene === "窗边阅读"
         ? windowReadingLines
         : SCENE_VARIATION_LINES[sceneKey];
@@ -641,6 +649,9 @@ function getBasePlaceLineForPrompt(input: {
 }) {
   if (input.params.imageType === "对镜穿搭图") {
     return "";
+  }
+  if (isNonProductAtmosphereImage(input.params.imageType)) {
+    return input.sceneText;
   }
 
   return input.cityStreetPlaceLine || input.sceneText;
@@ -951,8 +962,17 @@ function getEffectiveGarmentTypePreference(
 function getGarmentTypeLockLine(preference: TeamGarmentTypePreference, season: TeamSeason) {
   if (preference === "自动匹配") return "";
 
+  const seasonSafeFallback =
+    "Selected clothing type was automatically softened for season and scene compatibility; use the chosen season-safe outfit and keep the sneakers readable.";
+
   if (preference === "轻运动" && season !== "夏") {
     return "Selected clothing type: refined light activewear; keep active trousers, leggings, zip layers, or movement layers explicit and premium, avoiding shorts unless the scene is clearly indoor fitness.";
+  }
+  if (preference === "短裤" && season !== "夏") {
+    return seasonSafeFallback;
+  }
+  if ((preference === "裙装" || preference === "连衣裙") && season === "冬") {
+    return `${GARMENT_TYPE_LOCK_LINES[preference]} Use believable winter layering and avoid light summer styling.`;
   }
 
   return GARMENT_TYPE_LOCK_LINES[preference];

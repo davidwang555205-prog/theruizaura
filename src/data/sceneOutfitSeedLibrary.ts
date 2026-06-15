@@ -76,7 +76,7 @@ const trouserPool: SeedDraft[] = [
     bottomCategory: "cream straight trousers",
     outerLayerCategory: "light beige shirt jacket",
     bagCategory: "taupe shoulder bag as secondary accessory",
-    accessoryCategory: ["simple watch"],
+    accessoryCategory: ["small gold earrings"],
     visualAnchor: "white cotton shirt",
     outfitLine:
       "Style her in a white cotton shirt, cream straight trousers, a light beige shirt jacket, and a taupe shoulder bag as a secondary accessory for clean THERUIZ AURA daily polish.",
@@ -133,7 +133,7 @@ const trouserPool: SeedDraft[] = [
   {
     garmentType: "trousers",
     outfitStyle: "polishedCommuter",
-    colorDirection: "softAccent",
+    colorDirection: "neutralDaily",
     season: ["spring", "autumn"],
     suitableShoes: allShoes,
     imageTypes,
