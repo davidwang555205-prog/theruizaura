@@ -40,6 +40,7 @@ import {
 import { promptVocabularyReplacer } from "./promptVocabularyReplacer";
 import { normalizeAccessoryInOutfitLine } from "./normalizeAccessoryInOutfitLine";
 import { isSceneCompatibleWithImageType } from "../data/teamSceneOptions";
+import { getNonProductAtmosphereSceneLine } from "../data/nonProductAtmosphereSceneLines";
 import { promptPreflightCheck } from "./promptPreflightCheck";
 import { finalPromptSafetyCheck } from "./finalPromptSafetyCheck";
 
@@ -117,22 +118,22 @@ const nonProductShoeAccuracyLine =
   "If the THERUIZ AURA sneaker appears in this non-product atmosphere image, keep it subtle and secondary. Preserve its real color, material texture, and recognizable shape, but do not turn the image into a direct product shot.";
 
 const nonProductAtmosphereDefinitionLine =
-  "For a non-product atmospheric THERUIZ AURA image, express her lifestyle world through still-life details, spaces, objects, wardrobe traces, home or travel details, and quiet daily routines, without showing a full person, model, face, or portrait by default. The scene should feel like a natural part of her world, not a product forced into the scene. The image does not need to show sneakers, leather materials, or product development every time. It should build THERUIZ AURA's lifestyle recognition through believable customer daily objects, mature aesthetic taste, and quiet personal order.";
+  "For a non-product atmospheric THERUIZ AURA image, express the currently selected scene through its own still-life details, spatial cues, objects, and quiet daily traces, without showing a full person, model, face, or portrait by default. The scene should feel like a natural part of her world, not a product forced into it. Build lifestyle recognition through believable objects, mature taste, and quiet personal order.";
 
 const nonProductAtmosphereContentLine =
-  "Use one clear still-life or space-based atmosphere direction from her lifestyle world: morning entryway with keys and tote bag, light wardrobe corner with white shirts and linen trousers, office desk corner with iced coffee and notebook, car passenger seat with bag and sunglasses, flower paper or premium grocery paper bag, bookstore receipt and canvas tote, hotel packing corner with summer clothes, travel suitcase detail, window-side reading table, rainy-day street detail without people, home return entryway with bag and coat, or quiet personal routine objects. These scenes should express her real life, daily rhythm, and aesthetic choices without requiring a visible person. Occasionally, material swatches, product notes, packing details, quality-check traces, or founder/team working details may appear as brand trust content, but they should not dominate all non-product atmosphere images.";
+  "Use only the currently selected scene as the image's single location and narrative. Build one coherent still-life or space-based atmosphere from that setting, without mixing in cues from any other location category.";
 
 const nonProductBrandProcessLine =
   "If this is a material or behind-the-scenes atmosphere image, show subtle brand-process details such as material swatches, product notes, packing traces, color cards, care tools, or hands arranging details. Keep them secondary, tactile, quiet, and not like a product development catalog.";
 
 const nonProductAtmosphereMoodLine =
-  "Keep the mood warm, quiet, mature, restrained, orderly, and believable: cream-white, warm beige, soft stone, oatmeal, warm grey, linen texture, natural daylight, low saturation, clean negative space, real object contact, soft shadows, and tactile authenticity. The image should feel like her lifestyle world through objects and spaces, not a staged portrait or random product workspace. The scene should feel used by real people without showing them directly: a naturally placed bag, folded garment, open notebook, used pen, coffee cup, flower paper, grocery paper bag, suitcase corner, coat on chair, or soft daily disorder. Avoid perfect showroom alignment, museum-like display, sterile interior, and objects arranged too symmetrically.";
+  "Keep the mood warm, quiet, mature, restrained, orderly, and believable: cream-white, warm beige, soft stone, oatmeal, warm grey, natural daylight, low saturation, clean negative space, real object contact, soft shadows, and tactile authenticity. Use only a few naturally placed objects that belong to the selected scene. Avoid perfect showroom alignment, sterile space, decorative filler, and objects borrowed from unrelated scene categories.";
 
 const nonProductAtmosphereNegativeLine =
   "Avoid showing a full person, model, face, portrait, posed body, influencer figure, fashion model, or staged lifestyle character in non-product atmosphere images by default. Avoid making every non-product atmosphere image about shoes, leather swatches, product development, packing table, quality check, or brand process. Avoid random coffee-and-flower decoration, empty Pinterest lifestyle image, fake luxury display, visible luxury logos, socialite afternoon tea mood, influencer check-in scene, over-styled prop flatlay, fake showroom, sterile AI interior, cold sample-room render, unrelated home decor, noisy commercial set, excessive props, messy clutter, fake brand signage, large readable text, fake brand slogans, random English words, fake store signage, messy printed labels, AI-generated gibberish text, luxury handbag display, perfume-ad mood, jewelry showcase, hotel influencer flatlay, champagne lifestyle, fake elite lifestyle, rich-lady still life, decorative objects without brand meaning, and anything that feels disconnected from her lifestyle world and THERUIZ AURA's quiet warm luxury world.";
 
 const summerLifestyleWorldLine =
-  "For summer non-product atmospheric images, express her summer lifestyle world through still-life details and lived-in spaces: light wardrobe pieces, calm morning entryway, office desk with iced coffee, car passenger seat with tote bag and sunglasses, flower or grocery paper bags, hotel packing details, window-side reading table, quiet city corner without people, and soft after-home order. Keep the scene breathable, low-saturation, warm, mature, and real, not staged, not influencer-like, not people-focused, and not overly product-focused.";
+  "For a summer non-product atmosphere image, keep the selected scene identity unmistakable while using breathable light, warm-neutral color, tactile daily objects, and restrained seasonal detail. Do not substitute a different summer lifestyle location.";
 
 const uploadedSneakerAccuracyLine =
   "Use uploaded sneaker reference as strict source: low-cut German trainer silhouette, rounded toe box, slim outsole, panels, tongue, stitching, material, color, and proportions.";
@@ -859,25 +860,17 @@ function getSceneVariationLine(
     "Use a reading corner near soft curtains and pale wall texture, keeping the mood intimate, clean, and not staged.",
     "Place the scene near a window ledge or lounge chair with one book or magazine as the only quiet object."
   ];
-  const nonProductWeekendErrandLines = [
-    "Use flower paper, a bakery paper bag, keys, or a folded tote naturally placed on an entry table after a weekend errand.",
-    "Set a quiet kitchen or dining-table surface with grocery paper bags, produce, coffee beans, or flowers arranged like real life, not a flatlay.",
-    "Use a car passenger seat or home-return chair with a tote, sunglasses, receipt, and one restrained weekend purchase detail.",
-    "Show a simple after-home order moment with paper bags, coat texture, and warm neutral light, without people or product focus."
-  ];
   let lines: string[] | undefined;
 
-  if (params.imageType === "对镜穿搭图") {
+  if (isNonProductAtmosphereImage(params.imageType)) {
+    lines = [];
+  } else if (params.imageType === "对镜穿搭图") {
     lines = MIRROR_SCENE_VARIATION_LINES[resolvedScene];
   } else if (
     isSummerLifestyleScene(resolvedScene) &&
     shouldUseSummerLifestylePeopleSupport(params, resolvedScene)
   ) {
     lines = SUMMER_LIFESTYLE_SCENE_VARIATION_LINES[resolvedScene];
-  } else if (isNonProductAtmosphereImage(params.imageType) && isSummerLifestyleScene(resolvedScene)) {
-    lines = [];
-  } else if (isNonProductAtmosphereImage(params.imageType) && resolvedScene === "周末轻采购") {
-    lines = nonProductWeekendErrandLines;
   } else if (resolvedScene === "窗边阅读") {
     lines = windowReadingLines;
   } else {
@@ -925,8 +918,8 @@ function getSceneText(params: TeamPromptParams, resolvedScene: Exclude<TeamScene
     }
     return "Use a real still-life setup with believable surface texture, natural object contact, soft shadows, restrained props, clear product scale, and open shoe visibility.";
   }
-  if (isNonProductAtmosphereImage(params.imageType) && isSummerLifestyleScene(resolvedScene)) {
-    return "Translate the selected summer holiday theme into one quiet still-life or space detail from her lifestyle world, without a full person, portrait, on-foot composition, or forced product display.";
+  if (isNonProductAtmosphereImage(params.imageType)) {
+    return getNonProductAtmosphereSceneLine(resolvedScene) || TEAM_SCENE_TEXT[resolvedScene];
   }
   if (params.imageType === "产品上脚图" && resolvedScene === "窗边阅读") {
     return "Use a window-side lifestyle on-foot scene with soft natural light and a calm interior mood. Keep the sneakers clear, complete, and structurally accurate.";
@@ -936,9 +929,6 @@ function getSceneText(params: TeamPromptParams, resolvedScene: Exclude<TeamScene
   }
   if (params.imageType === "对镜穿搭图" && resolvedScene === "拍摄花絮") {
     return "Use a mirror outfit record in a quiet getting-ready setting, not a studio behind-the-scenes image. Keep the outfit and sneakers clear.";
-  }
-  if (params.imageType === "非产品氛围图" && resolvedScene === "通勤上班") {
-    return "Use commute-related atmosphere such as a tote bag, keys, coat, entryway, calm worktable, or soft office-transition details. Do not make it a direct on-foot product image.";
   }
   if (params.imageType === "拍摄花絮 / 材质图" && resolvedScene === "窗边阅读") {
     return "Use a quiet material table near soft window light, with tactile samples and refined working details. Do not make a reading portrait the main image.";
@@ -1365,6 +1355,7 @@ function getProductLine(params: TeamPromptParams, hasShoe: boolean) {
 
 export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
   const hasShoe = resolveTeamHasShoe(params);
+  const usesNonProductAtmosphere = isNonProductAtmosphereImage(params.imageType);
   const resolvedScene = resolveTeamScenePreference(params);
   const usesSummerLifestylePeopleSupport = shouldUseSummerLifestylePeopleSupport(params, resolvedScene);
   const summerLifestyleScene = isSummerLifestyleScene(resolvedScene) ? resolvedScene : null;
@@ -1434,13 +1425,17 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
     usesSummerLifestylePeopleSupport && summerLifestyleScene
       ? SUMMER_LIFESTYLE_LIGHT_LINES[summerLifestyleScene]
       : "";
-  const effectiveSeasonalLightLine = summerLifestyleLightLine || seasonCityVisualContext.seasonalLightLine;
-  const effectiveIndoorOutdoorLightLine = usesSummerLifestylePeopleSupport
+  const effectiveSeasonalLightLine = usesNonProductAtmosphere
+    ? TEAM_ATMOSPHERE_SEASON[params.season]
+    : summerLifestyleLightLine || seasonCityVisualContext.seasonalLightLine;
+  const effectiveIndoorOutdoorLightLine = usesSummerLifestylePeopleSupport || usesNonProductAtmosphere
     ? ""
     : seasonCityVisualContext.indoorOutdoorLightLine;
-  const effectiveLightingSpaceSupportLine = usesSummerLifestylePeopleSupport
-    ? "Keep the selected summer holiday or family-life setting physically believable, with natural depth, stable ground, and scene props secondary to the woman and sneakers."
-    : seasonCityVisualContext.lightingSpaceSupportLine;
+  const effectiveLightingSpaceSupportLine = usesNonProductAtmosphere
+    ? "Keep the selected non-product setting physically believable, with accurate spatial depth, natural object contact, and lighting appropriate to that exact location. Do not substitute another location category."
+    : usesSummerLifestylePeopleSupport
+      ? "Keep the selected summer holiday or family-life setting physically believable, with natural depth, stable ground, and scene props secondary to the woman and sneakers."
+      : seasonCityVisualContext.lightingSpaceSupportLine;
   const effectiveSeasonalPhotoStyleLine = usesSummerLifestylePeopleSupport
     ? "Use a realistic warm-season lifestyle photo style with natural skin tone, breathable fabric texture, low-saturation color, and no tourism-campaign polish."
     : seasonCityVisualContext.seasonalPhotoStyleLine;
@@ -1649,7 +1644,7 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
   const sceneRealismLine = getSceneRealismLine({
     params,
     sceneKey,
-    hasCityStreetLine: Boolean(cityStreetPlaceLine) && !usesSummerLifestylePeopleSupport
+    hasCityStreetLine: Boolean(cityStreetPlaceLine) && !usesSummerLifestylePeopleSupport && !usesNonProductAtmosphere
   });
   const sneakerSceneControlLine = sneakerProtection.sceneControlLine;
   const modelStructuredLine = shouldUsePeopleStyling(params.imageType)
@@ -1769,19 +1764,21 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
   const baseNegativeLine = getNegativeLine({
     params,
     hasShoe,
-    cityBoundaryPhrases: usesSummerLifestylePeopleSupport ? [] : cityProfile?.boundaryPhrases ?? [],
+    cityBoundaryPhrases: usesSummerLifestylePeopleSupport || usesNonProductAtmosphere ? [] : cityProfile?.boundaryPhrases ?? [],
     sceneKey,
     hasStreetScene: hasStreetRealism,
     extraPhrases: [
-      ...extractAvoidPhrases(`Avoid ${seasonCityVisualContext.seasonalNegativeLine}.`),
-      ...humanRealism.negativePhrases,
-      ...handheldSelection.negativePhrases,
-      ...extractAvoidPhrases(accessorySelection.accessoryNegativeLine),
-      ...extractAvoidPhrases(actionSelection.negative),
+      ...(usesNonProductAtmosphere
+        ? []
+        : extractAvoidPhrases(`Avoid ${seasonCityVisualContext.seasonalNegativeLine}.`)),
+      ...(usesNonProductAtmosphere ? [] : humanRealism.negativePhrases),
+      ...(usesNonProductAtmosphere ? [] : handheldSelection.negativePhrases),
+      ...(usesNonProductAtmosphere ? [] : extractAvoidPhrases(accessorySelection.accessoryNegativeLine)),
+      ...(usesNonProductAtmosphere ? [] : extractAvoidPhrases(actionSelection.negative)),
       ...(shouldUsePeopleStyling(params.imageType) ? extractAvoidPhrases(`Avoid ${footPlacementNegativeLine}.`) : []),
       ...extractAvoidPhrases(`Avoid ${effectiveImageTemplateNegativeLine}.`),
       ...extractAvoidPhrases(cameraSelection.cameraNegativeLine),
-      ...extractAvoidPhrases(`Avoid ${gazeSelection.negative}.`),
+      ...(usesNonProductAtmosphere ? [] : extractAvoidPhrases(`Avoid ${gazeSelection.negative}.`)),
       ...extractAvoidPhrases(isNonProductAtmosphereImage(params.imageType) ? nonProductAtmosphereNegativeLine : ""),
       ...promptQualityPatchLines.negativePhrases
     ]
@@ -1859,7 +1856,7 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
     imageType: params.imageType,
     sceneKey,
     season: params.season,
-    cityProfile: usesSummerLifestylePeopleSupport ? null : selectedCity,
+    cityProfile: usesSummerLifestylePeopleSupport || usesNonProductAtmosphere ? null : selectedCity,
     selectedShoe: params.shoe,
     lightingSpaceType: validationLightingSpaceType,
     selectedOutfit: selectedPremiumWardrobe?.selectedOutfit ?? perSceneOutfitSelection ?? outfitSelection.selectedOutfit,
@@ -1879,7 +1876,7 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
     imageType: params.imageType,
     sceneKey,
     season: params.season,
-    cityProfile: usesSummerLifestylePeopleSupport ? null : selectedCity,
+    cityProfile: usesSummerLifestylePeopleSupport || usesNonProductAtmosphere ? null : selectedCity,
     selectedShoe: params.shoe,
     lightingSpaceType: validationLightingSpaceType,
     selectedOutfit: selectedPremiumWardrobe?.selectedOutfit ?? perSceneOutfitSelection ?? outfitSelection.selectedOutfit,

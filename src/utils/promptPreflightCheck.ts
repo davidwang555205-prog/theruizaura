@@ -174,7 +174,11 @@ export function promptPreflightCheck(input: PromptPreflightInput): PromptPreflig
   if (input.lightingSpaceType === "indoorNaturalLight" && /street shadows|pavement shadows|outdoor natural street light/i.test(text)) {
     repair("indoorLightRepair", "Detected outdoor light language in indoor scene.");
   }
-  if (input.lightingSpaceType === "outdoorStreet" && /indoor window-only light|studio backdrop|soft indoor natural window light/i.test(text)) {
+  if (
+    input.imageType !== "非产品氛围图" &&
+    input.lightingSpaceType === "outdoorStreet" &&
+    /indoor window-only light|studio backdrop|soft indoor natural window light/i.test(text)
+  ) {
     repair("outdoorLightRepair", "Detected indoor light language in outdoor scene.");
   }
   if (input.imageType === "对镜穿搭图" || input.sceneKey === "mirrorCloset") {
@@ -216,7 +220,11 @@ export function promptPreflightCheck(input: PromptPreflightInput): PromptPreflig
     repair("cameraConflictRepair", "Detected multiple camera look styles.");
   }
 
-  if (input.lightingSpaceType === "outdoorStreet" && !/Chinese city|Shanghai-like|Chengdu-like|Shenzhen-like|Hangzhou-like|Beijing-like/i.test(text)) {
+  if (
+    input.imageType !== "非产品氛围图" &&
+    input.lightingSpaceType === "outdoorStreet" &&
+    !/Chinese city|Shanghai-like|Chengdu-like|Shenzhen-like|Hangzhou-like|Beijing-like/i.test(text)
+  ) {
     repair("cityChinaRepair", "Outdoor street prompt needed Chinese city boundary reinforcement.");
   }
 
