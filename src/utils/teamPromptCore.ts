@@ -186,8 +186,47 @@ const TEAM_SCENE_TEXT: Record<Exclude<TeamScenePreference, "自动匹配">, stri
   健身房内:
     "Use a clean premium gym or boutique fitness space with muted equipment, warm grey flooring, controlled lighting, believable training space, and no crowded sports-brand atmosphere.",
   去运动的路上:
-    "Use a calm city-to-gym transition setting such as a gym entrance, clean sidewalk, parking-to-gym walkway, hotel gym route, or quiet urban movement path. The mood should feel polished, practical, and ready for light activity."
+    "Use a calm city-to-gym transition setting such as a gym entrance, clean sidewalk, parking-to-gym walkway, hotel gym route, or quiet urban movement path. The mood should feel polished, practical, and ready for light activity.",
+  暑假游乐园:
+    "Use a refined summer amusement-park setting with shaded walkways, soft pavement, quiet rest-corner details, restrained family-holiday cues, and believable outdoor daylight. The scene should feel like a real summer outing, not a theme-park advertisement. Keep the sneakers clearly visible and suitable for walking.",
+  海边度假:
+    "Use a refined seaside holiday setting such as a boardwalk, resort walkway, coastal path, or hotel-by-the-sea outdoor area. Keep the atmosphere breezy, low-saturation, warm, and believable. Avoid barefoot beach-shoot styling and keep the sneakers clearly visible, clean, and naturally integrated into the scene.",
+  草原野餐:
+    "Use a quiet grassland picnic or open-field summer setting with a breathable, low-saturation atmosphere, soft natural daylight, and calm holiday rhythm. Keep the mood refined and real rather than camping-influencer styled. The sneakers should remain complete, visible, and appropriate for standing or walking on grass.",
+  酒店度假:
+    "Use a refined hotel-holiday setting such as a hotel corridor, lobby corner, room entry, terrace threshold, or luggage-side walkway. Keep the atmosphere quiet, mature, orderly, and travel-related. The sneakers should feel like part of a real holiday wardrobe and remain clearly visible.",
+  亲子自驾出行:
+    "Use a believable summer road-trip setting such as a parking area, car-side pause, roadside rest stop, or destination-arrival moment. Add subtle family-travel cues like a tote bag, sunglasses, light jacket, or travel objects, but keep the scene mature and uncluttered. The sneakers must stay clear and readable for a real walking or standing moment.",
+  暑假外出后回家:
+    "Use a quiet home-return summer setting at the entryway, front door, apartment corridor, or indoor threshold after a day out. The mood should feel warm, relaxed, and lived-in, with subtle outing traces such as a tote bag, light cardigan, or summer objects. Keep the sneakers clearly visible as part of a natural return-home moment."
 };
+
+const SUMMER_LIFESTYLE_SCENES = [
+  "暑假游乐园",
+  "海边度假",
+  "草原野餐",
+  "酒店度假",
+  "亲子自驾出行",
+  "暑假外出后回家"
+] as const satisfies readonly Exclude<TeamScenePreference, "自动匹配">[];
+
+type SummerLifestyleScene = (typeof SUMMER_LIFESTYLE_SCENES)[number];
+
+function isSummerLifestyleScene(
+  scene: Exclude<TeamScenePreference, "自动匹配">
+): scene is SummerLifestyleScene {
+  return (SUMMER_LIFESTYLE_SCENES as readonly string[]).includes(scene);
+}
+
+function shouldUseSummerLifestylePeopleSupport(
+  params: TeamPromptParams,
+  scene: Exclude<TeamScenePreference, "自动匹配">
+) {
+  return (
+    (params.imageType === "产品上脚图" || params.imageType === "生活场景图") &&
+    isSummerLifestyleScene(scene)
+  );
+}
 
 const streetRealismLine =
   "Street and background should feel photographed in a real daily city environment: believable pavement texture, natural street depth, real storefront proportions, subtle signs of daily use, mild surface unevenness, small shadows, realistic curb lines, quiet background pedestrians when appropriate, parked scooters or bicycles only when natural, restrained cafe or boutique details, and imperfect but tasteful city rhythm.";
@@ -294,6 +333,102 @@ const SCENE_VARIATION_LINES: Partial<Record<StandardSceneKey, string[]>> = {
     "Place her at a calm crossing or corner pause, keeping the scene grounded and the sneakers readable."
   ]
 };
+
+const SUMMER_LIFESTYLE_SCENE_VARIATION_LINES: Record<SummerLifestyleScene, string[]> = {
+  暑假游乐园: [
+    "Use a shaded amusement-park walkway with realistic pavement, a quiet rest corner, and restrained family-outing details rather than rides dominating the frame.",
+    "Set the moment near a calm park map area or tree-shaded path, with soft summer daylight and natural walking space around the sneakers.",
+    "Use an understated amusement-park transition area with benches, muted railings, and distant family activity kept soft and secondary."
+  ],
+  海边度假: [
+    "Use a breezy boardwalk or coastal hotel path with pale stone, soft railing lines, and a low-saturation sea horizon kept secondary.",
+    "Set the scene on a quiet seaside walkway near a hotel terrace threshold, with natural wind and no barefoot beach-shoot mood.",
+    "Use a calm coastal path with restrained greenery, warm-neutral light, and stable ground that keeps both sneakers readable."
+  ],
+  草原野餐: [
+    "Use an open grassland edge with a small picnic setup kept to one side, leaving stable standing space and clear sneaker visibility.",
+    "Set the moment on a quiet field path beside a restrained picnic blanket, with soft grass texture and no camping equipment display.",
+    "Use a low-saturation open meadow with gentle summer wind, one woven basket or tote, and natural walking room around the shoes."
+  ],
+  酒店度假: [
+    "Use a quiet hotel corridor or room-entry threshold with one suitcase detail, warm-neutral surfaces, and believable holiday movement.",
+    "Set the moment near a hotel terrace doorway or lobby-side passage, keeping luggage secondary and the outfit and sneakers clear.",
+    "Use a calm luggage-side walkway or wardrobe-to-door transition with tidy travel order and no luxury-resort advertising mood."
+  ],
+  亲子自驾出行: [
+    "Use a car-side arrival moment in a believable parking area, with the vehicle kept secondary and one family-travel cue placed naturally.",
+    "Set the scene at a quiet roadside rest stop or destination parking edge, with realistic pavement and a small walking step away from the car.",
+    "Use a destination-arrival pause near an open car door or rear-seat area without turning the image into a car advertisement."
+  ],
+  暑假外出后回家: [
+    "Use a warm apartment entryway after a day out, with keys and one tote placed naturally while the sneakers remain fully visible.",
+    "Set the moment at a front-door or corridor threshold with soft evening light, a light cardigan, and calm return-home order.",
+    "Use a lived-in home-return transition near a shoe cabinet or coat hook, keeping outing traces restrained and the footwear unobstructed."
+  ]
+};
+
+const SUMMER_LIFESTYLE_ACTION_LINES: Record<SummerLifestyleScene, string> = {
+  暑假游乐园:
+    "Use one simple amusement-park outing action: a slow walk, a small pause near a shaded walkway, or standing naturally with a tote or sunglasses kept secondary. No runway stride or tourist pose; keep both shoes unobstructed.",
+  海边度假:
+    "Use one simple seaside action: a slow boardwalk walk, a relaxed pause near a railing, or standing naturally with a light cardigan or tote kept secondary. Keep stable foot placement and no barefoot or dramatic wind pose.",
+  草原野餐:
+    "Use one simple picnic action: a small natural walk, standing beside rather than on the picnic setup, or holding one tote or light layer. Keep the feet grounded and clear of blankets, baskets, and tall grass.",
+  酒店度假:
+    "Use one simple hotel-holiday action: walking beside luggage, pausing in a corridor, or standing near a room entry. Keep luggage away from the feet and avoid luxury-hotel posing.",
+  亲子自驾出行:
+    "Use one simple road-trip action: car-side standing, a small walking step in the parking area, or holding one tote or travel item. Keep the car door, luggage, and bags away from the sneakers.",
+  暑假外出后回家:
+    "Use one simple return-home action: an entryway pause, one small step indoors, or holding one bag or light cardigan. Keep the stance relaxed and the sneakers fully readable."
+};
+
+const SUMMER_LIFESTYLE_LIGHT_LINES: Record<SummerLifestyleScene, string> = {
+  暑假游乐园:
+    "Warm-season morning or late-afternoon daylight with soft shade, believable outdoor brightness, and clear pavement contact around the sneakers.",
+  海边度假:
+    "Soft late-afternoon coastal daylight with warm-neutral brightness, gentle sea-air haze, natural shadows, and clear boardwalk contact around the sneakers.",
+  草原野餐:
+    "Soft open-field summer daylight with low-saturation green depth, gentle natural shadows, and stable ground contact around the sneakers.",
+  酒店度假:
+    "Soft hotel daylight with warm-neutral interior depth, believable corridor or doorway shadows, and clear floor contact around the sneakers.",
+  亲子自驾出行:
+    "Warm-neutral summer daylight with believable parking or rest-stop shadows, restrained vehicle reflections, and clear ground contact around the sneakers.",
+  暑假外出后回家:
+    "Soft late-afternoon entryway daylight with warm indoor-outdoor transition, gentle floor shadows, and clear contact around the sneakers."
+};
+
+const SUMMER_LIFESTYLE_SCENE_PROPS: Record<SummerLifestyleScene, string> = {
+  暑假游乐园:
+    "Add subtle amusement-park outing props only if natural: one folded park map, paper wristband, small water bottle, sunglasses, sunscreen, snack box, canvas tote, or child's sun hat. Keep props restrained and mature, never cartoonish, never like colorful children's advertising, and never blocking the sneakers.",
+  海边度假:
+    "Add subtle seaside-holiday props only if natural: one straw hat, beach towel, sunscreen, linen shirt layer, light tote, water bottle, book, sunglasses, or small sand-toy bucket. Keep the scene breezy and refined, not bikini-influencer styled, not a tropical cliche, and never blocking the sneakers.",
+  草原野餐:
+    "Add subtle grassland-picnic props only if natural: one picnic blanket, woven basket, fruit box, children's book, sun hat, canvas tote, light cardigan, paper bag, or water bottle. Keep the mood quiet and breathable, not camping-influencer styled, not gear-heavy, and never blocking the sneakers.",
+  酒店度假:
+    "Add subtle hotel-holiday props only if natural: one suitcase, travel tote, folded white shirt, light cardigan, toiletry pouch, travel notebook, room key card, sunglasses, or sunscreen. Keep it like a real travel wardrobe moment, not a luxury hotel flatlay, not influencer luggage styling, and never blocking the sneakers.",
+  亲子自驾出行:
+    "Add subtle family road-trip props only if natural: one tote, sunglasses, light jacket, child's water bottle, small travel toy, snack box, paper map, flower paper, or travel pouch near the car-side moment. Keep it mature and uncluttered, not a luxury car showcase, not messy family clutter, and never blocking the sneakers.",
+  暑假外出后回家:
+    "Add subtle after-home outing props only if natural: one tote near the entryway, keys on a tray, light cardigan, used water bottle, sunscreen, child's small hat, flower paper, grocery paper bag, or folded shirt. Keep it warm, lived-in, and orderly, not messy homewear styling, not staged interior decor, and never blocking the sneakers."
+};
+
+const SUMMER_LIFESTYLE_SCENE_NEGATIVES: Record<SummerLifestyleScene, string> = {
+  暑假游乐园:
+    "Avoid theme-park advertising, cartoon-tourist styling, colorful children's commercial mood, crowded ride imagery, and props covering footwear.",
+  海边度假:
+    "Avoid bikini-coverup styling, barefoot beach shoots, tropical resort cliches, vacation-influencer posing, and sand hiding the shoes.",
+  草原野餐:
+    "Avoid camping-influencer styling, gear-heavy outdoor scenes, oversized picnic setups, tall grass hiding shoes, and staged pastoral advertising.",
+  酒店度假:
+    "Avoid luxury-resort advertising, socialite luggage styling, hotel influencer check-in mood, suitcase clutter, and luggage covering shoes.",
+  亲子自驾出行:
+    "Avoid car-model posing, luxury-car showcase, messy family clutter, oversized travel props, open car doors blocking footwear, and staged road-trip advertising.",
+  暑假外出后回家:
+    "Avoid sloppy homewear, messy entryway clutter, staged interior decor, excessive shopping bags, and objects covering the sneakers."
+};
+
+const summerLifestyleShoeVisibilityLine =
+  "Props must support the lifestyle atmosphere without covering foot placement, laces, tongue, toe box, heel, or outsole. Keep at least one sneaker fully visible from toe to heel and the second clearly readable. If using longer hems or wider trousers, preserve full sneaker readability and keep fabric physically separate from the shoe collar.";
 
 const MIRROR_SCENE_VARIATION_LINES: Partial<Record<Exclude<TeamScenePreference, "自动匹配">, string[]>> = {
   通勤上班: [
@@ -527,6 +662,12 @@ function resolveSceneKey(params: TeamPromptParams, resolvedScene: Exclude<TeamSc
   if (params.imageType === "拍摄花絮 / 材质图" || resolvedScene === "材质工作台" || resolvedScene === "拍摄花絮") {
     return "materialTable";
   }
+  if (resolvedScene === "暑假游乐园" || resolvedScene === "海边度假" || resolvedScene === "草原野餐") {
+    return "weekendCityWalk";
+  }
+  if (resolvedScene === "酒店度假") return "hotelTravel";
+  if (resolvedScene === "亲子自驾出行") return "premiumErrands";
+  if (resolvedScene === "暑假外出后回家") return "entrywayDeparture";
   if (resolvedScene === "居家衣帽间") return "mirrorCloset";
   if (/cafeexterior|咖啡|cafe|café/.test(text)) return "cafeExterior";
   if (/bookstoremagazine|书店|杂志|bookstore|magazine/.test(text)) return "bookstoreMagazine";
@@ -560,14 +701,24 @@ function getSceneVariationLine(
     "Use a car passenger seat or home-return chair with a tote, sunglasses, receipt, and one restrained weekend purchase detail.",
     "Show a simple after-home order moment with paper bags, coat texture, and warm neutral light, without people or product focus."
   ];
-  const lines =
-    params.imageType === "对镜穿搭图"
-      ? MIRROR_SCENE_VARIATION_LINES[resolvedScene]
-      : isNonProductAtmosphereImage(params.imageType) && resolvedScene === "周末轻采购"
-        ? nonProductWeekendErrandLines
-      : resolvedScene === "窗边阅读"
-        ? windowReadingLines
-        : SCENE_VARIATION_LINES[sceneKey];
+  let lines: string[] | undefined;
+
+  if (params.imageType === "对镜穿搭图") {
+    lines = MIRROR_SCENE_VARIATION_LINES[resolvedScene];
+  } else if (
+    isSummerLifestyleScene(resolvedScene) &&
+    shouldUseSummerLifestylePeopleSupport(params, resolvedScene)
+  ) {
+    lines = SUMMER_LIFESTYLE_SCENE_VARIATION_LINES[resolvedScene];
+  } else if (isNonProductAtmosphereImage(params.imageType) && isSummerLifestyleScene(resolvedScene)) {
+    lines = [];
+  } else if (isNonProductAtmosphereImage(params.imageType) && resolvedScene === "周末轻采购") {
+    lines = nonProductWeekendErrandLines;
+  } else if (resolvedScene === "窗边阅读") {
+    lines = windowReadingLines;
+  } else {
+    lines = SCENE_VARIATION_LINES[sceneKey];
+  }
 
   if (!lines?.length) return "";
 
@@ -606,6 +757,9 @@ function getModelLine(params: TeamPromptParams, resolvedScene: Exclude<TeamScene
 function getSceneText(params: TeamPromptParams, resolvedScene: Exclude<TeamScenePreference, "自动匹配">, sceneKey: StandardSceneKey) {
   if (params.imageType === "产品静物图") {
     return "Use a real still-life setup with believable surface texture, natural object contact, soft shadows, restrained props, clear product scale, and open shoe visibility.";
+  }
+  if (isNonProductAtmosphereImage(params.imageType) && isSummerLifestyleScene(resolvedScene)) {
+    return "Translate the selected summer holiday theme into one quiet still-life or space detail from her lifestyle world, without a full person, portrait, on-foot composition, or forced product display.";
   }
   if (params.imageType === "产品上脚图" && resolvedScene === "窗边阅读") {
     return "Use a window-side lifestyle on-foot scene with soft natural light and a calm interior mood. Keep the sneakers clear, complete, and structurally accurate.";
@@ -649,6 +803,9 @@ function getBasePlaceLineForPrompt(input: {
 }) {
   if (input.params.imageType === "对镜穿搭图") {
     return "";
+  }
+  if (shouldUseSummerLifestylePeopleSupport(input.params, input.resolvedScene)) {
+    return input.sceneText;
   }
   if (isNonProductAtmosphereImage(input.params.imageType)) {
     return input.sceneText;
@@ -1039,6 +1196,23 @@ function getProductLine(params: TeamPromptParams, hasShoe: boolean) {
 export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
   const hasShoe = resolveTeamHasShoe(params);
   const resolvedScene = resolveTeamScenePreference(params);
+  const usesSummerLifestylePeopleSupport = shouldUseSummerLifestylePeopleSupport(params, resolvedScene);
+  const summerLifestyleScene = isSummerLifestyleScene(resolvedScene) ? resolvedScene : null;
+  const summerLifestyleActionLine =
+    usesSummerLifestylePeopleSupport && summerLifestyleScene
+      ? SUMMER_LIFESTYLE_ACTION_LINES[summerLifestyleScene]
+      : "";
+  const summerLifestyleScenePropsLine =
+    usesSummerLifestylePeopleSupport && summerLifestyleScene
+      ? SUMMER_LIFESTYLE_SCENE_PROPS[summerLifestyleScene]
+      : "";
+  const summerLifestyleSceneNegativeLine =
+    usesSummerLifestylePeopleSupport && summerLifestyleScene
+      ? SUMMER_LIFESTYLE_SCENE_NEGATIVES[summerLifestyleScene]
+      : "";
+  const summerLifestyleShoeSafetyLine = usesSummerLifestylePeopleSupport
+    ? summerLifestyleShoeVisibilityLine
+    : "";
   const sceneKey = resolveSceneKey(params, resolvedScene);
   const streetRealismPatchLine = shouldUseStreetRealismLine(params, resolvedScene) ? streetRealismLine : "";
   const streetRealismCorePatchLine = streetRealismPatchLine ? streetRealismCoreLine : "";
@@ -1084,9 +1258,33 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
     userExtraRequirement: params.extraRequirement,
     selectedShoe: getShoeDisplayName(params)
   });
+  const summerLifestyleLightLine =
+    usesSummerLifestylePeopleSupport && summerLifestyleScene
+      ? SUMMER_LIFESTYLE_LIGHT_LINES[summerLifestyleScene]
+      : "";
+  const effectiveSeasonalLightLine = summerLifestyleLightLine || seasonCityVisualContext.seasonalLightLine;
+  const effectiveIndoorOutdoorLightLine = usesSummerLifestylePeopleSupport
+    ? ""
+    : seasonCityVisualContext.indoorOutdoorLightLine;
+  const effectiveLightingSpaceSupportLine = usesSummerLifestylePeopleSupport
+    ? "Keep the selected summer holiday or family-life setting physically believable, with natural depth, stable ground, and scene props secondary to the woman and sneakers."
+    : seasonCityVisualContext.lightingSpaceSupportLine;
+  const effectiveSeasonalPhotoStyleLine = usesSummerLifestylePeopleSupport
+    ? "Use a realistic warm-season lifestyle photo style with natural skin tone, breathable fabric texture, low-saturation color, and no tourism-campaign polish."
+    : seasonCityVisualContext.seasonalPhotoStyleLine;
+  const effectiveCitySeasonMoodLine = usesSummerLifestylePeopleSupport
+    ? "A quiet summer family-life mood with breathable warmth, believable movement, and restrained holiday detail."
+    : seasonCityVisualContext.citySeasonMoodLine;
+  const effectiveLightingNegativeLine = usesSummerLifestylePeopleSupport
+    ? "studio-set lighting, tourism-advertising glow, harsh noon overexposure, unreal holiday backdrop"
+    : seasonCityVisualContext.lightingNegativeLine;
+  const validationLightingSpaceType = usesSummerLifestylePeopleSupport
+    ? ("semiIndoorThreshold" as const)
+    : seasonCityVisualContext.lightingSpaceType;
   const cityStreetPlaceLine =
-    seasonCityVisualContext.lightingSpaceType === "outdoorStreet" ||
-    seasonCityVisualContext.lightingSpaceType === "semiIndoorThreshold"
+    !usesSummerLifestylePeopleSupport &&
+    (seasonCityVisualContext.lightingSpaceType === "outdoorStreet" ||
+      seasonCityVisualContext.lightingSpaceType === "semiIndoorThreshold")
       ? cityProfile?.cityStreetLine ?? ""
       : "";
   const cameraSelection = chooseCameraLookLine({
@@ -1102,6 +1300,12 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
     sceneKey,
     lightingSpaceType: seasonCityVisualContext.lightingSpaceType
   });
+  const effectiveImageTemplateSceneLine = usesSummerLifestylePeopleSupport
+    ? "Use a real warm-season lifestyle template with natural outdoor or travel-space depth, one simple daily action, readable full figure and sneakers, and no tourism-advertising composition."
+    : imageTypeTemplate.templateSceneLine;
+  const effectiveImageTemplateNegativeLine = usesSummerLifestylePeopleSupport
+    ? "tourism advertisement, staged family portrait, theme-park campaign, resort campaign, cropped shoes, props covering shoes, unstable ground hiding footwear"
+    : imageTypeTemplate.templateNegativeLine;
   const perSceneOutfitSelection = shouldUsePeopleStyling(params.imageType)
     ? choosePerSceneOutfitLine({
         scenePreference: resolvedScene,
@@ -1127,7 +1331,10 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
         generationNonce: params.generationNonce
   });
   const premiumWardrobeSelection =
-    shouldUsePeopleStyling(params.imageType) && sceneKey !== "gymInterior" && !userSpecifiedClothing
+    shouldUsePeopleStyling(params.imageType) &&
+    sceneKey !== "gymInterior" &&
+    !userSpecifiedClothing &&
+    !usesSummerLifestylePeopleSupport
       ? chooseOutfitByGarmentType({
           imageType: params.imageType,
           sceneKey,
@@ -1269,7 +1476,7 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
   const sceneRealismLine = getSceneRealismLine({
     params,
     sceneKey,
-    hasCityStreetLine: Boolean(cityStreetPlaceLine)
+    hasCityStreetLine: Boolean(cityStreetPlaceLine) && !usesSummerLifestylePeopleSupport
   });
   const sneakerSceneControlLine = sneakerProtection.sceneControlLine;
   const modelStructuredLine = shouldUsePeopleStyling(params.imageType)
@@ -1305,6 +1512,7 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
     : "";
   const actionStructuredLine = shouldUsePeopleStyling(params.imageType)
     ? [
+        summerLifestyleActionLine,
         getHandheldSafeActionContextLine({
           params,
           resolvedScene,
@@ -1340,15 +1548,17 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
           .filter(Boolean)
           .join(" ")
       : [
+          summerLifestyleScenePropsLine,
+          summerLifestyleShoeSafetyLine,
           ...nonProductAtmosphereLines.slice(0, 3),
           nonProductSummerLifestyleWorldLine,
           getImageTypeLine(params, sceneKey),
           streetRealismCorePatchLine,
-          imageTypeTemplate.templateSceneLine,
+          effectiveImageTemplateSceneLine,
           streetRealismPatchLine,
           sceneRealismLine,
           ...promptQualityPatchLines.sceneLines,
-          seasonCityVisualContext.lightingSpaceSupportLine,
+          effectiveLightingSpaceSupportLine,
           handheldSelection.spacingLine,
           handheldSelection.weightLine,
           handheldSelection.shoeVisibilityLine,
@@ -1370,7 +1580,7 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
         ? seasonCityVisualContext.seasonalPhotoStyleLine
         : "",
     shouldUsePeopleStyling(params.imageType) || params.imageType === "产品静物图"
-      ? seasonCityVisualContext.seasonalPhotoStyleLine
+      ? effectiveSeasonalPhotoStyleLine
       : "",
     cameraSelection.cameraLookLine,
     humanRealism.realHumanDetailLine
@@ -1385,7 +1595,7 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
   const baseNegativeLine = getNegativeLine({
     params,
     hasShoe,
-    cityBoundaryPhrases: cityProfile?.boundaryPhrases ?? [],
+    cityBoundaryPhrases: usesSummerLifestylePeopleSupport ? [] : cityProfile?.boundaryPhrases ?? [],
     sceneKey,
     hasStreetScene: hasStreetRealism,
     extraPhrases: [
@@ -1394,7 +1604,7 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
       ...handheldSelection.negativePhrases,
       ...extractAvoidPhrases(accessorySelection.accessoryNegativeLine),
       ...extractAvoidPhrases(actionSelection.negative),
-      ...extractAvoidPhrases(`Avoid ${imageTypeTemplate.templateNegativeLine}.`),
+      ...extractAvoidPhrases(`Avoid ${effectiveImageTemplateNegativeLine}.`),
       ...extractAvoidPhrases(cameraSelection.cameraNegativeLine),
       ...extractAvoidPhrases(`Avoid ${gazeSelection.negative}.`),
       ...extractAvoidPhrases(isNonProductAtmosphereImage(params.imageType) ? nonProductAtmosphereNegativeLine : ""),
@@ -1402,7 +1612,7 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
     ]
   });
   const basePromptParts = {
-    timeLine: seasonCityVisualContext.seasonalLightLine,
+    timeLine: effectiveSeasonalLightLine,
     placeLine,
     productLine: sneakerProtection.productLine,
     modelLine: modelStructuredLine,
@@ -1419,8 +1629,8 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
     promptParts: basePromptParts,
     buckets: {
       hardConstraints: {
-        timeLine: [seasonCityVisualContext.indoorOutdoorLightLine],
-        placeLine: [seasonCityVisualContext.lightingSpaceSupportLine],
+        timeLine: [effectiveIndoorOutdoorLightLine],
+        placeLine: [effectiveLightingSpaceSupportLine],
         productLine: [
           ...promptQualityPatchLines.productLines,
           sneakerProtection.shoeSpecificAccuracyLine,
@@ -1433,18 +1643,22 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
         sceneLine: [
           ...promptQualityPatchLines.sceneLines,
           conditionalNonProductBrandProcessLine,
+          summerLifestyleScenePropsLine,
+          summerLifestyleShoeSafetyLine,
           shouldUsePeopleStyling(params.imageType) && !sneakerSceneControlLine ? accessoryShoeVisibilityRuleLine : ""
         ].filter(Boolean),
         actionLine: shouldUsePeopleStyling(params.imageType)
           ? [
               imageTypeTemplate.templateActionLine,
+              summerLifestyleActionLine,
               handheldSelection.handheldObjectLine,
               getSinglePurposeHandLine(handheldSelection.primaryHandheldObject)
             ].filter(Boolean)
           : [],
         negativeLine: [
-          seasonCityVisualContext.lightingNegativeLine,
-          imageTypeTemplate.templateNegativeLine,
+          effectiveLightingNegativeLine,
+          effectiveImageTemplateNegativeLine,
+          ...extractAvoidPhrases(summerLifestyleSceneNegativeLine),
           cameraSelection.cameraNegativeLine,
           ...promptQualityPatchLines.negativePhrases,
           "opening wording",
@@ -1459,7 +1673,7 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
         ]
       },
       softAestheticLines: {
-        moodLine: [seasonCityVisualContext.citySeasonMoodLine]
+        moodLine: [effectiveCitySeasonMoodLine]
       }
     }
   });
@@ -1468,9 +1682,9 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
     imageType: params.imageType,
     sceneKey,
     season: params.season,
-    cityProfile: selectedCity,
+    cityProfile: usesSummerLifestylePeopleSupport ? null : selectedCity,
     selectedShoe: params.shoe,
-    lightingSpaceType: seasonCityVisualContext.lightingSpaceType,
+    lightingSpaceType: validationLightingSpaceType,
     selectedOutfit: selectedPremiumWardrobe?.selectedOutfit ?? perSceneOutfitSelection ?? outfitSelection.selectedOutfit,
     selectedAccessory: accessorySelection.selectedBagAccessory,
     selectedHandheldObject: handheldSelection.primaryHandheldObject,
@@ -1481,16 +1695,16 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
     promptParts: preflight.fixedPromptParts,
     imageType: params.imageType,
     sceneKey,
-    lightingSpaceType: seasonCityVisualContext.lightingSpaceType
+    lightingSpaceType: validationLightingSpaceType
   });
   const finalPreflight = promptPreflightCheck({
     promptParts: budgetedPromptParts,
     imageType: params.imageType,
     sceneKey,
     season: params.season,
-    cityProfile: selectedCity,
+    cityProfile: usesSummerLifestylePeopleSupport ? null : selectedCity,
     selectedShoe: params.shoe,
-    lightingSpaceType: seasonCityVisualContext.lightingSpaceType,
+    lightingSpaceType: validationLightingSpaceType,
     selectedOutfit: selectedPremiumWardrobe?.selectedOutfit ?? perSceneOutfitSelection ?? outfitSelection.selectedOutfit,
     selectedAccessory: accessorySelection.selectedBagAccessory,
     selectedHandheldObject: handheldSelection.primaryHandheldObject,

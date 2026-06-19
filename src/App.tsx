@@ -57,7 +57,13 @@ const sceneOptions: TeamScenePreference[] = [
   "拍摄花絮",
   "周末轻采购",
   "健身房内",
-  "去运动的路上"
+  "去运动的路上",
+  "暑假游乐园",
+  "海边度假",
+  "草原野餐",
+  "酒店度假",
+  "亲子自驾出行",
+  "暑假外出后回家"
 ];
 
 const initialParams: TeamPromptParams = {
