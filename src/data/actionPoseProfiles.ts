@@ -23,7 +23,7 @@ export const naturalPoseAndActionCompact =
   "Use a natural, believable daily-life pose with subtle movement. The model should look like she is doing something real, such as walking slowly, adjusting a tote, holding coffee, checking her outfit, carrying flowers, browsing, preparing to leave, or pausing between activities.";
 
 export const poseSafetyBoundaryCompact =
-  "Keep the action simple and anatomically safe. Avoid crossed legs, extreme twisting, jumping, running, squatting, high kicks, dramatic stretching, deep bending, or poses that hide the sneakers, deform the feet, merge trousers into shoes, or break hands and limbs.";
+  "Keep the action simple and anatomically safe. Avoid crossed legs that hide the shoes or distort anatomy, extreme twisting, jumping, running, squatting, high kicks, dramatic stretching, deep bending, or poses that hide the sneakers, deform the feet, merge trousers into shoes, or break hands and limbs.";
 
 export const handActionCompact =
   "Hands should have a simple, purposeful action such as holding a tote, coffee, book, flowers, phone, water bottle, or adjusting a sleeve or bag strap. Keep fingers natural and relaxed.";
@@ -78,6 +78,60 @@ const mirrorPosePool = [
   "Keep the mirror pose casual and believable, like a real outfit check before leaving home."
 ];
 
+const footPoseActionLines = [
+  "Use a stable straight standing pose with both feet naturally forward, relaxed knees, realistic weight distribution, and both sneakers clearly visible from toe to heel.",
+  "Use a natural split stance with feet about shoulder-width apart, toes gently forward or slightly outward, balanced body weight, and both sneakers clearly readable.",
+  "Use a small step-standing pose with one foot slightly ahead, natural daily posture, no exaggerated stride, and at least one sneaker fully visible from toe to heel.",
+  "Use a relaxed asymmetric stance with weight gently shifted to one side, one foot slightly turned outward, clear shoe separation, and no trouser hem covering the sneaker structure.",
+  "Use a subtle cross stance with one foot lightly crossing in front only when both sneakers remain readable and the legs do not overlap unnaturally.",
+  "Use a calm storefront or entryway pause with both feet planted naturally, readable laces and tongue, realistic ankle-to-shoe alignment, and no fabric merging into the shoes.",
+  "Use a refined daily outfit-record stance with feet placed naturally on the ground, clear pavement contact, realistic proportions, and both shoes visible."
+];
+
+const walkingFootPoseLines = [
+  "Keep the walking step short and stable, with one foot only slightly ahead, realistic toe direction, clear shoe separation, and both sneakers readable.",
+  "Use a pause-between-steps stance with grounded feet, natural weight transfer, no exaggerated stride, and at least one sneaker fully visible from toe to heel."
+];
+
+const mirrorFootPoseLines = [
+  "Use a straight mirror stance with both feet naturally forward, realistic weight distribution, and both sneakers fully readable.",
+  "Use a relaxed split mirror stance with feet naturally apart, toes gently forward, clear shoe separation, and no mirror leg stretching.",
+  "Use a subtle staggered mirror stance with one foot slightly ahead, stable floor contact, natural proportions, and both sneakers visible."
+];
+
+const sceneActionLines: Partial<Record<Exclude<TeamScenePreference, "自动匹配">, string>> = {
+  商务区转角: "Use a slow natural walk or a calm corner pause with relaxed shoulders and clear sneakers.",
+  写字楼门口: "Use a small standing pause or one short step forward near the office entrance.",
+  停车后步行去办公室: "Use a small natural walking step toward the office, with one tote kept away from the feet.",
+  回家进门: "Use a relaxed entryway pause or one small step indoors while holding one simple daily item.",
+  "地铁 / 商场通道": "Use a calm natural walk or brief standing pause in the passage, with stable foot placement.",
+  "楼下便利店 / 咖啡外带": "Use a small takeaway pause with one coffee or tote kept above and away from the shoes.",
+  咖啡店门口: "Use a calm storefront pause with one coffee or tote kept secondary and the sneakers unobstructed.",
+  "书店 / 杂志店门口": "Use a small standing pause with one book, magazine, or tote kept away from the sneakers.",
+  "花店 / 买花": "Use a slow walk or quiet flower-shop pause, holding one restrained flower bundle above the shoe line.",
+  "社区市集 / 精品买菜": "Use a small walking step with one grocery paper bag kept beside the body and away from the shoes.",
+  "城市街角 / 安静街区": "Use a natural standing pause or short walk with relaxed daily posture.",
+  雨天街角: "Use a calm rainy-day pause or one small step, with an umbrella kept clear of the legs and sneakers.",
+  酒店走廊: "Use a short corridor walk or quiet hotel pause with luggage kept away from the feet.",
+  酒店房间: "Use a small standing pause near luggage or a window, keeping the floor area around both shoes clear.",
+  "酒店门口 / 门厅": "Use an entry pause beside one travel item, with a stable stance and unobstructed sneakers.",
+  "衣帽间 / 更衣角": "Use a natural outfit-record stance with relaxed shoulders and both shoes clearly shown.",
+  窗边阅读角: "Use a relaxed standing pause near the window with one book kept above the shoe line.",
+  "工作台 / 桌边整理": "Use a small pause beside the desk with one hand lightly arranging a simple object.",
+  入户镜前: "Use a believable mirror outfit-record stance with stable feet and both sneakers clearly reflected.",
+  停车场到电梯口: "Use a short car-to-elevator walking step or calm waiting pause with stable shoe-floor contact.",
+  暑假游乐园: "Use a slow walk or shaded-walkway pause, keeping park props secondary and both sneakers clear.",
+  海边度假: "Use a slow boardwalk walk or seaside-railing pause with stable ground contact and no barefoot pose.",
+  草原野餐: "Use a small walk or stand beside the picnic setup, never on it, with grass kept below the shoe structure.",
+  酒店度假: "Use a short walk near luggage or a hotel-threshold pause with clear floor space around the shoes.",
+  亲子自驾出行: "Use a car-side standing pose or small parking-area step with the car door and bags away from the sneakers.",
+  暑假外出后回家: "Use a relaxed entryway pause or return-home step with both sneakers fully readable.",
+  "瑜伽 / 普拉提工作室门口": "Use a calm studio-front pause with a refined movement-ready stance, not a performance pose.",
+  公园慢走: "Use a small natural park-path step or calm pause, never a hiking or running pose.",
+  社区步道: "Use a natural short walk or soft standing pose with grounded daily movement.",
+  周末轻旅行出发: "Use a tidy travel-start pause beside one bag, keeping luggage away from the sneakers."
+};
+
 const gymActionPool = [
   "Use a calm gym-transition action such as holding a water bottle, adjusting a gym tote, pausing near equipment, or holding a light dumbbell naturally.",
   "Pause near a machine with a water bottle or gym tote, keeping the movement calm and the sneakers grounded.",
@@ -95,6 +149,32 @@ function pick<T>(items: T[], input: ActionPoseInput, salt = 0) {
 
 function chooseByNonce(input: ActionPoseInput, ratio: number, salt = 0) {
   return (getNonce(input, salt) % 100) < ratio * 100;
+}
+
+function hashText(text: string) {
+  let hash = 0;
+  for (let index = 0; index < text.length; index += 1) {
+    hash = (hash << 5) - hash + text.charCodeAt(index);
+    hash |= 0;
+  }
+  return Math.abs(hash);
+}
+
+function chooseFootPoseLine(input: ActionPoseInput, poseType: TeamPoseType) {
+  const isPeopleImage =
+    input.imageType === "产品上脚图" || input.imageType === "生活场景图" || input.imageType === "对镜穿搭图";
+  if (!isPeopleImage || input.scenePreference === "健身房内") return "";
+  if (poseType === "none" || poseType === "handsOnly" || poseType === "seated" || poseType === "active") return "";
+
+  const pool = poseType === "mirror" ? mirrorFootPoseLines : poseType === "walking" ? walkingFootPoseLines : footPoseActionLines;
+  const seed = [
+    input.imageType,
+    input.scenePreference,
+    input.selectedOutfitLine,
+    input.userExtraRequirement,
+    input.generationNonce ?? 0
+  ].join("|");
+  return pool[hashText(seed) % pool.length] ?? pool[0];
 }
 
 function includesAny(text: string, keywords: string[]) {
@@ -126,6 +206,19 @@ function chooseScenePose(input: ActionPoseInput): TeamPoseType {
   if (input.imageType === "对镜穿搭图") return "mirror";
   if (input.scenePreference === "健身房内") return chooseByNonce(input, 0.72, 23) ? "active" : "seated";
   if (input.scenePreference === "去运动的路上" || input.scenePreference === "周末城市散步") return "walking";
+  if (
+    [
+      "停车后步行去办公室",
+      "地铁 / 商场通道",
+      "社区市集 / 精品买菜",
+      "酒店走廊",
+      "停车场到电梯口",
+      "公园慢走",
+      "社区步道"
+    ].includes(input.scenePreference)
+  ) {
+    return "walking";
+  }
   if (input.scenePreference === "旅行酒店" || input.scenePreference === "通勤上班") {
     return chooseByNonce(input, 0.55, 37) ? "walking" : "standing";
   }
@@ -144,6 +237,8 @@ function chooseSceneAction(input: ActionPoseInput, poseType: TeamPoseType) {
   if (input.imageType === "对镜穿搭图") {
     return "Hold the phone naturally to hide or crop the face, with a soft weight shift, one foot slightly forward, and the free hand relaxed or adjusting a bag strap.";
   }
+  const sceneActionLine = sceneActionLines[input.scenePreference];
+  if (sceneActionLine) return sceneActionLine;
   if (input.scenePreference === "通勤上班") {
     return "Use a small natural walking step or calm standing pose near an office entrance, holding a tote and keeping the sneakers clearly visible.";
   }
@@ -186,9 +281,11 @@ export function chooseActionLine(input: ActionPoseInput): ActionPoseOutput {
       ? handActionCompact
       : `${naturalPoseAndActionCompact} ${poseSafetyBoundaryCompact} ${handActionCompact} ${gazeActionConsistencyCompact} ${actionOutfitRealismCompact}`;
   const safetyLine = shoelaceRequested ? shoelaceActionSafetyCompact : "";
+  const sceneActionLine = poseType === "none" ? "" : chooseSceneAction(input, poseType);
+  const footPoseLine = chooseFootPoseLine(input, poseType);
 
   return {
-    line: poseType === "none" ? "" : chooseSceneAction(input, poseType),
+    line: [sceneActionLine, footPoseLine].filter(Boolean).join(" "),
     poseType,
     complexityLevel,
     supportLine,

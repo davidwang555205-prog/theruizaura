@@ -199,6 +199,177 @@ function chooseSummerLifestyleOutfit(input: ChoosePerSceneOutfitInput): ChoosePe
   };
 }
 
+type ExpandedLifestyleScene =
+  | "商务区转角"
+  | "写字楼门口"
+  | "停车后步行去办公室"
+  | "回家进门"
+  | "地铁 / 商场通道"
+  | "楼下便利店 / 咖啡外带"
+  | "咖啡店门口"
+  | "书店 / 杂志店门口"
+  | "花店 / 买花"
+  | "社区市集 / 精品买菜"
+  | "城市街角 / 安静街区"
+  | "雨天街角"
+  | "酒店走廊"
+  | "酒店房间"
+  | "酒店门口 / 门厅"
+  | "衣帽间 / 更衣角"
+  | "窗边阅读角"
+  | "工作台 / 桌边整理"
+  | "入户镜前"
+  | "停车场到电梯口"
+  | "瑜伽 / 普拉提工作室门口"
+  | "公园慢走"
+  | "社区步道"
+  | "周末轻旅行出发";
+
+type ExpandedSceneCategory = "commute" | "weekend" | "indoor" | "activeRelaxed";
+
+const expandedSceneCategories: Record<ExpandedLifestyleScene, ExpandedSceneCategory> = {
+  商务区转角: "commute",
+  写字楼门口: "commute",
+  停车后步行去办公室: "commute",
+  回家进门: "commute",
+  "地铁 / 商场通道": "commute",
+  "楼下便利店 / 咖啡外带": "commute",
+  咖啡店门口: "weekend",
+  "书店 / 杂志店门口": "weekend",
+  "花店 / 买花": "weekend",
+  "社区市集 / 精品买菜": "weekend",
+  "城市街角 / 安静街区": "weekend",
+  雨天街角: "weekend",
+  酒店走廊: "indoor",
+  酒店房间: "indoor",
+  "酒店门口 / 门厅": "indoor",
+  "衣帽间 / 更衣角": "indoor",
+  窗边阅读角: "indoor",
+  "工作台 / 桌边整理": "indoor",
+  入户镜前: "indoor",
+  停车场到电梯口: "indoor",
+  "瑜伽 / 普拉提工作室门口": "activeRelaxed",
+  公园慢走: "activeRelaxed",
+  社区步道: "activeRelaxed",
+  周末轻旅行出发: "activeRelaxed"
+};
+
+const expandedSceneOutfitConfigs: Record<ExpandedSceneCategory, SummerSceneOutfitConfig> = {
+  commute: {
+    automatic:
+      "Use a refined city commute outfit with a light shirt or fine knit, straight tailored trousers, and a restrained seasonal layer, polished but easy for real daily movement.",
+    trousers:
+      "Use a light shirt or fine knit with straight tailored trousers and a restrained seasonal layer for clean commute proportions.",
+    skirt:
+      "Use a soft blouse or fine knit with a controlled knee-to-midi skirt, keeping the hem clear of the sneakers.",
+    shorts:
+      "Use a clean shirt with refined knee-length tailored shorts, mature and city-appropriate rather than resort-like.",
+    dress:
+      "Use a restrained shirt dress with a controlled hem and a light seasonal layer for an easy polished commute.",
+    lightActive:
+      "Use a refined movement-ready top with straight active trousers and a clean overshirt or coat, practical but never gym-like.",
+    automaticGarment: "trousers",
+    outfitStyle: "polishedCommuter",
+    colorDirection: "neutralDaily",
+    visualAnchor: "straight tailored commute proportions",
+    bagCategory: "structured tote"
+  },
+  weekend: {
+    automatic:
+      "Use an understated weekend outfit with a light shirt or soft knit and relaxed denim or tailored trousers, naturally shareable but never influencer-styled.",
+    trousers:
+      "Use a light shirt or soft knit with relaxed straight trousers or clean denim for a believable weekend city look.",
+    skirt:
+      "Use a fine-knit or clean cotton top with a muted knee-to-midi skirt, relaxed and feminine without sweetness.",
+    shorts:
+      "Use a clean cotton shirt or knit tee with refined tailored shorts for mature warm-weather city ease.",
+    dress:
+      "Use a clean shirt dress or restrained knit dress with a controlled hem for quiet weekend femininity.",
+    lightActive:
+      "Use a refined walking-ready top with straight active trousers and a light overshirt, never technical sportswear.",
+    automaticGarment: "trousers",
+    outfitStyle: "relaxedWeekend",
+    colorDirection: "softAccent",
+    visualAnchor: "quiet weekend city layering",
+    bagCategory: "soft leather bag"
+  },
+  indoor: {
+    automatic:
+      "Use a quiet indoor or travel outfit with a fine knit or soft blouse, relaxed straight trousers, and a light cardigan, composed without looking staged.",
+    trousers:
+      "Use a fine knit or soft blouse with relaxed straight trousers and a light cardigan for calm indoor sophistication.",
+    skirt:
+      "Use a refined knit top with a softly structured midi skirt and light cardigan, keeping the hem controlled and the sneakers readable.",
+    shorts:
+      "Use a clean shirt or soft knit with tailored shorts and a light cardigan for a warm indoor setting, mature and not loungewear-like.",
+    dress:
+      "Use a restrained shirt dress or fine-knit dress with a controlled hem and a light cardigan.",
+    lightActive:
+      "Use a quiet knit top with straight active trousers and a soft zip layer, suitable for real movement but not styled as gym clothing.",
+    automaticGarment: "trousers",
+    outfitStyle: "refinedFeminine",
+    colorDirection: "lightClean",
+    visualAnchor: "soft indoor layering",
+    bagCategory: "compact travel bag"
+  },
+  activeRelaxed: {
+    automatic:
+      "Use a refined movement-ready daily outfit with a clean knit or cotton top, relaxed straight trousers, and a light outer layer, comfortable without becoming sportswear.",
+    trousers:
+      "Use a clean knit or cotton top with relaxed straight trousers and a light outer layer for stable everyday movement.",
+    skirt:
+      "Use a soft knit top with a controlled casual midi skirt, keeping movement natural and both sneakers readable.",
+    shorts:
+      "Use a clean cotton or fine-knit top with tailored walking shorts, mature and movement-friendly without gym styling.",
+    dress:
+      "Use a practical shirt dress with a controlled hem and a light layer for an easy departure or walking moment.",
+    lightActive:
+      "Use a clean studio-to-street top with straight active trousers and a refined light layer, minimal and functional without performance-sports branding.",
+    automaticGarment: "lightActive",
+    outfitStyle: "realDaily",
+    colorDirection: "neutralDaily",
+    visualAnchor: "refined movement-ready layers",
+    bagCategory: "practical no-logo tote"
+  }
+};
+
+function isExpandedLifestyleScene(scene: string): scene is ExpandedLifestyleScene {
+  return scene in expandedSceneCategories;
+}
+
+function chooseExpandedLifestyleOutfit(input: ChoosePerSceneOutfitInput): ChoosePerSceneOutfitResult | null {
+  const scene = String(input.scenePreference);
+  if (!isExpandedLifestyleScene(scene)) return null;
+  if (
+    input.imageType !== "产品上脚图" &&
+    input.imageType !== "生活场景图" &&
+    input.imageType !== "对镜穿搭图"
+  ) {
+    return null;
+  }
+  if (hasUserSpecifiedClothingRequirement(input.userExtraRequirement)) return null;
+
+  const category = expandedSceneCategories[scene];
+  const config = expandedSceneOutfitConfigs[category];
+  const preference = input.garmentTypePreference ?? "自动匹配";
+  const garmentType = preference === "自动匹配" ? config.automaticGarment : garmentTypeByPreference[preference];
+  const selectedLine = preference === "自动匹配" ? config.automatic : config[garmentType];
+
+  return {
+    selectedOutfitId: `expanded-scene-${category}-${scene}-${garmentType}`,
+    selectedPerSceneOutfitLine: selectedLine,
+    selectedOutfit: null,
+    selectedStylingRealismLine:
+      "Keep the outfit seasonally believable, naturally worn, proportionally clear, and practical for the selected place and action.",
+    selectedGarmentType: garmentType,
+    selectedOutfitStyle: config.outfitStyle,
+    selectedColorDirection: config.colorDirection,
+    selectedVisualAnchor: config.visualAnchor,
+    selectedBagCategory: config.bagCategory,
+    selectedAccessoryCategory: ["one restrained scene-relevant accessory"]
+  };
+}
+
 type ChoosePerSceneOutfitInput = {
   scenePreference: TeamScenePreference | string;
   season: TeamSeason | Season;
@@ -337,6 +508,9 @@ function selectByRotation(candidates: OutfitEntry[], input: ChoosePerSceneOutfit
 }
 
 export function choosePerSceneOutfitLine(input: ChoosePerSceneOutfitInput): ChoosePerSceneOutfitResult {
+  const expandedLifestyleSelection = chooseExpandedLifestyleOutfit(input);
+  if (expandedLifestyleSelection) return expandedLifestyleSelection;
+
   const summerLifestyleSelection = chooseSummerLifestyleOutfit(input);
   if (summerLifestyleSelection) return summerLifestyleSelection;
 
