@@ -9,6 +9,7 @@ import type {
 } from "./types";
 import { generateTeamPrompt } from "./utils/generatePrompt";
 import { promptQualityPatchNotice } from "./data/promptPatches";
+import { getCompatibleSceneOptions, isSceneCompatibleWithImageType } from "./data/teamSceneOptions";
 
 const imageTypeOptions: TeamImageType[] = [
   "产品上脚图",
@@ -44,52 +45,6 @@ const garmentTypeOptions: TeamGarmentTypePreference[] = [
   "轻运动"
 ];
 
-const sceneOptions: TeamScenePreference[] = [
-  "自动匹配",
-  "通勤上班",
-  "商务区转角",
-  "写字楼门口",
-  "停车后步行去办公室",
-  "玄关出门",
-  "回家进门",
-  "地铁 / 商场通道",
-  "楼下便利店 / 咖啡外带",
-  "周末城市散步",
-  "咖啡店门口",
-  "书店 / 杂志店门口",
-  "花店 / 买花",
-  "精品超市 / 日常采购",
-  "社区市集 / 精品买菜",
-  "城市街角 / 安静街区",
-  "雨天街角",
-  "周末轻采购",
-  "旅行酒店",
-  "酒店走廊",
-  "酒店房间",
-  "酒店门口 / 门厅",
-  "居家衣帽间",
-  "衣帽间 / 更衣角",
-  "窗边阅读",
-  "窗边阅读角",
-  "材质工作台",
-  "工作台 / 桌边整理",
-  "入户镜前",
-  "停车场到电梯口",
-  "拍摄花絮",
-  "暑假游乐园",
-  "海边度假",
-  "草原野餐",
-  "酒店度假",
-  "亲子自驾出行",
-  "暑假外出后回家",
-  "去运动的路上",
-  "健身房内",
-  "瑜伽 / 普拉提工作室门口",
-  "公园慢走",
-  "社区步道",
-  "周末轻旅行出发"
-];
-
 const initialParams: TeamPromptParams = {
   imageType: "产品上脚图",
   shoe: "Cloud Dancer 云舞者",
@@ -118,6 +73,7 @@ function App() {
   const [generatedPrompt, setGeneratedPrompt] = useState(() => generateTeamPrompt(initialParams).prompt);
   const [copyStatus, setCopyStatus] = useState("");
   const [hasPendingChanges, setHasPendingChanges] = useState(false);
+  const sceneOptions = getCompatibleSceneOptions(params.imageType);
 
   const updateParams = (updater: (current: TeamPromptParams) => TeamPromptParams) => {
     setParams((current) => updater(current));
@@ -170,11 +126,16 @@ function App() {
                 <select
                   className={inputClass}
                   value={params.imageType}
-                  onChange={(event) =>
-                    updateParams((current) =>
-                      updateField(current, "imageType", event.target.value as TeamImageType)
-                    )
-                  }
+                  onChange={(event) => {
+                    const imageType = event.target.value as TeamImageType;
+                    updateParams((current) => ({
+                      ...current,
+                      imageType,
+                      scenePreference: isSceneCompatibleWithImageType(imageType, current.scenePreference)
+                        ? current.scenePreference
+                        : "自动匹配"
+                    }));
+                  }}
                 >
                   {imageTypeOptions.map((option) => (
                     <option key={option} value={option}>
@@ -283,7 +244,7 @@ function App() {
                     ))}
                   </select>
                   <span className="block text-xs leading-5 text-aura-muted">
-                    日常使用建议保持自动匹配，只有明确要咖啡店、酒店、健身房、材质工作台等场景时再打开。
+                    当前仅显示适合“{params.imageType}”的场景；切换图片类型时，不兼容的旧场景会自动恢复为“自动匹配”。
                   </span>
                 </label>
               </details>

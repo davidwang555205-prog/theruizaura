@@ -39,6 +39,7 @@ import {
 } from "./chooseSinglePrimaryHandheldObject";
 import { promptVocabularyReplacer } from "./promptVocabularyReplacer";
 import { normalizeAccessoryInOutfitLine } from "./normalizeAccessoryInOutfitLine";
+import { isSceneCompatibleWithImageType } from "../data/teamSceneOptions";
 import { promptPreflightCheck } from "./promptPreflightCheck";
 import { finalPromptSafetyCheck } from "./finalPromptSafetyCheck";
 
@@ -781,7 +782,7 @@ function getTeamAutoScene(params: TeamPromptParams): Exclude<TeamScenePreference
 }
 
 function resolveTeamScenePreference(params: TeamPromptParams) {
-  return params.scenePreference === "自动匹配"
+  return params.scenePreference === "自动匹配" || !isSceneCompatibleWithImageType(params.imageType, params.scenePreference)
     ? getTeamAutoScene(params)
     : params.scenePreference;
 }
@@ -919,6 +920,9 @@ function getModelLine(params: TeamPromptParams, resolvedScene: Exclude<TeamScene
 
 function getSceneText(params: TeamPromptParams, resolvedScene: Exclude<TeamScenePreference, "自动匹配">, sceneKey: StandardSceneKey) {
   if (params.imageType === "产品静物图") {
+    if (resolvedScene === "工作台 / 桌边整理") {
+      return "Use a refined worktable still-life setup with believable paper, notebook, color-card, or care-tool details kept secondary. Keep the sneaker as the absolute subject with clear scale, natural contact, and unobstructed structure.";
+    }
     return "Use a real still-life setup with believable surface texture, natural object contact, soft shadows, restrained props, clear product scale, and open shoe visibility.";
   }
   if (isNonProductAtmosphereImage(params.imageType) && isSummerLifestyleScene(resolvedScene)) {
