@@ -4,7 +4,7 @@ import type { ImageCountIntent } from "../utils/detectImageCountOrSeriesIntent";
 export const modelIdentityProfile = {
   ethnicityRule: "Asian woman or Asian mixed-heritage woman only",
   ageRange:
-    "25-35 for standard outfit and Xiaohongshu-style visuals; 30-45 for mature commute, refined mom daily, premium grocery, travel hotel, and mature daily-life scenes",
+    "30-45 for all standard people visuals; around age 30 for studio launch visuals with an Asian mixed-heritage model",
   faceType:
     "natural East Asian or subtle Asian mixed features, refined but believable, not generic Western fashion model",
   hair:

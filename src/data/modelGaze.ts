@@ -19,10 +19,10 @@ export type GazeOutput = {
 };
 
 const naturalCameraGazeCompact =
-  "Let the woman look naturally toward the camera with calm, relaxed, lightly engaged eyes, as if she briefly noticed a friend taking the photo during a real daily moment. Keep the eye focus alive and specific, with a relaxed mouth, subtle facial asymmetry, normal eyelid tension, and a quiet human expression. The gaze should feel warm and believable, not blank, forced, commercial, or influencer-like.";
+  "Let her briefly notice the camera like a friend taking the photo, with specific eye focus, natural catchlights, relaxed eyelids and lips, and no posed commercial intensity.";
 
 const taskFocusedGazeCompact =
-  "Use a natural task-focused gaze when the scene calls for it: she may look at the single selected object, adjust clothing, check her outfit, or focus on movement and surroundings that belong to the selected location. A soft brief glance toward the camera is also allowed if it feels like a real customer noticing a friend, not a staged portrait.";
+  "Use purposeful task focus on the selected object, outfit, movement, or surroundings; a brief camera glance remains possible when it feels incidental rather than staged.";
 
 const cameraExpressionBoundaryCompact =
   "When looking at the camera, use relaxed lips, a faint natural smile, calm confidence, or soft friendly focus. Avoid beauty-ad eye contact, forced smile, influencer stare, empty doll eyes, lifeless gaze, deadpan face, or commercial model intensity.";
@@ -242,24 +242,20 @@ function buildGazeLine(mode: TeamGazeMode, input: GazeInput) {
   const identityLine = input.isMultiImageSet ? ` ${gazeIdentityConsistencyCompact}` : "";
 
   if (mode === "lookAtCamera") {
-    const cameraLine =
-      input.scenePreference === "健身房内"
-        ? `${gymCameraGazeBoundaryCompact} ${cameraExpressionBoundaryCompact} ${cameraPoseBoundaryCompact}`
-        : `${naturalCameraGazeCompact} ${cameraExpressionBoundaryCompact} ${cameraPoseBoundaryCompact}`;
-    const creatorLine = input.usesCreatorStyling ? ` ${creatorCameraGazeCompact}` : "";
-    return `${cameraLine} ${humanPurposefulGazeCompact}${creatorLine}${identityLine}`;
+    const cameraLine = input.scenePreference === "健身房内" ? gymCameraGazeBoundaryCompact : naturalCameraGazeCompact;
+    return `${cameraLine}${identityLine}`;
   }
 
   if (mode === "softOffCamera") {
-    return `Use natural varied gaze: she may look slightly beside the camera or into the surrounding scene, and a soft brief camera glance is allowed if it feels like real life rather than direct performance. ${humanPurposefulGazeCompact}${identityLine}`;
+    return `Let her eyes settle on a specific nearby point, with relaxed focus; do not force avoidance of the camera.${identityLine}`;
   }
 
   if (mode === "downwardGaze") {
-    return `Use a natural downward gaze toward the shoes, trouser hem, bag, hand movement, or floor path, keeping the mood quiet and unforced. ${humanPurposefulGazeCompact}${identityLine}`;
+    return `Use a purposeful downward glance toward the shoes, garment edge, hand movement, or floor path, without a frozen bowed-head pose.${identityLine}`;
   }
 
   if (mode === "taskFocusedGaze") {
-    return `${taskFocusedGazeCompact} ${humanPurposefulGazeCompact}${identityLine}`;
+    return `${taskFocusedGazeCompact}${identityLine}`;
   }
 
   if (mode === "phoneHiddenFace") {

@@ -67,19 +67,19 @@ Across the 3-image set, keep the same body shape, same height impression, same s
 
 export const AGE_PROMPTS: Record<AgeRange, string> = {
   "25-35":
-    "Use a refined young mature Asian or part-Asian woman aged 25-35. She should look fresh, natural, and understated, not girlish, not influencer-like.",
+    "Use a refined urban Asian or part-Asian woman aged 30-45. She should look tasteful, calm, capable, natural, and understated.",
   "30-45":
     "Use a refined urban Asian or part-Asian woman aged 30-45. She should look tasteful, calm, capable, softly feminine, and realistic, with quiet confidence and daily elegance.",
   "40-55":
-    "Use a refined mature Asian or part-Asian woman aged 40-55. She should look elegant, composed, natural, and modern, with realistic mature beauty. Avoid making her look elderly, overly formal, heavy, old-fashioned, or artificially young. Her style should feel clean, comfortable, dignified, and quietly luxurious.",
+    "Use a refined urban Asian or part-Asian woman aged 30-45. She should look elegant, composed, natural, modern, and quietly confident.",
   auto:
-    "If age range is set to automatic, use a refined Asian or part-Asian woman aged around 35-45 unless the scene suggests a younger or more mature profile."
+    "If age range is set to automatic, use a refined Asian or part-Asian woman aged 30-45."
 };
 
 export const BODY_PROPORTION_CONTROL = `Model body proportion and silhouette control:
 The model should have realistic, elegant, and natural body proportions suitable for THERUIZ AURA's refined urban female customer.
 
-She should look like a real 30-55 year old urban woman with good taste, calm confidence, and a healthy natural body, not an exaggerated runway model, influencer, teenager, athlete, or fashion editorial mannequin.
+She should look like a real 30-45 year old urban woman with good taste, calm confidence, and a healthy natural body, not an exaggerated runway model, influencer, teenager, athlete, or fashion editorial mannequin.
 
 Keep the body silhouette slim but not overly thin, refined but not fragile, feminine but not exaggerated, mature but not heavy, comfortable but not careless.
 
@@ -93,13 +93,13 @@ The final body silhouette should feel like a tasteful real woman who can wear th
 
 export const AGE_BODY_SUPPLEMENTS: Record<AgeRange, string> = {
   "25-35":
-    "25-35 body supplement: Use a fresh young mature body silhouette, slim and natural, light but not teenage, relaxed and realistic. Avoid girlish proportions, influencer waist, or overly long legs.",
+    "30-45 body supplement: Use a refined urban female silhouette with natural proportions, relaxed posture, and realistic daily movement.",
   "30-45":
     "30-45 body supplement: Use a refined core urban female body silhouette, natural, balanced, softly feminine, healthy, and realistic. She should look capable, tasteful, and comfortable in daily movement.",
   "40-55":
-    "40-55 body supplement: Use a mature refined female body silhouette, elegant, composed, natural, and modern. Avoid making the body look elderly, heavy, stiff, or overly formal. Also avoid making her artificially young or model-thin. She should feel real, graceful, and quietly confident.",
+    "30-45 body supplement: Use a refined urban female silhouette that feels elegant, composed, natural, modern, and quietly confident.",
   auto:
-    "Automatic age body supplement: default to a refined 35-45 year old urban female body silhouette with realistic proportions and calm daily elegance."
+    "Automatic age body supplement: use a refined 30-45 year old urban female silhouette with realistic proportions and calm daily elegance."
 };
 
 export const HUMAN_PROPORTION_CONTROL = `Human proportion control:

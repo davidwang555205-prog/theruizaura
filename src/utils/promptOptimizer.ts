@@ -16,10 +16,13 @@ function splitSentenceLikeText(text: string) {
   return parts.length > 1 ? parts : [text.trim()];
 }
 
-const structuredSectionTitlePattern = /^(时间|地点|人物|穿着|场景|氛围|动作|负面词|产品):$/;
+const structuredSectionTitlePattern =
+  /^(时间|地点|人物|穿着|场景|氛围|动作|负面词|产品|Time|Location|Product|Model|Outfit|Scene|Mood|Action|Negative):$/i;
 
 function isStructuredPrompt(text: string) {
-  return /(^|\n)(时间|地点|人物|穿着|场景|氛围|动作|负面词|产品):\s*(\n|$)/.test(text);
+  return /(^|\n)(时间|地点|人物|穿着|场景|氛围|动作|负面词|产品|Time|Location|Product|Model|Outfit|Scene|Mood|Action|Negative):\s*(\n|$)/i.test(
+    text
+  );
 }
 
 function dedupeNegativePhraseLine(line: string) {

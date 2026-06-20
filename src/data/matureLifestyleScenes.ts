@@ -17,7 +17,7 @@ export const MATURE_SCENE_BLOCKS: SceneBlock[] = [
     englishLabel: "After-school activity pickup",
     category: "mature",
     compactPrompt: "A realistic after-school pickup scene with subtle child cues such as a small bag, instrument case, art folder, or blurred figure. The woman looks calm, practical, and elegant. The sneakers should support real daily movement without mother-baby advertising energy.",
-    prompt: `Create a realistic refined scene of a 30-55 year old urban woman picking up a child from an after-school activity such as piano, art class, dance class, tutoring, or sports training. Keep the child's presence subtle, such as a small school bag, instrument case, art folder, or blurred child figure. The woman should look calm, practical, and elegant, wearing comfortable refined clothing with THERUIZ AURA sneakers. The scene should express easy movement, real daily rhythm, and tasteful family life. Avoid mother-baby advertisement style, exaggerated warmth, or cluttered children's environment.`
+    prompt: `Create a realistic refined scene of a 30-45 year old urban woman picking up a child from an after-school activity such as piano, art class, dance class, tutoring, or sports training. Keep the child's presence subtle, such as a small school bag, instrument case, art folder, or blurred child figure. The woman should look calm, practical, and elegant, wearing comfortable refined clothing with THERUIZ AURA sneakers. The scene should express easy movement, real daily rhythm, and tasteful family life. Avoid mother-baby advertisement style, exaggerated warmth, or cluttered children's environment.`
   },
   {
     id: "11",
@@ -26,7 +26,7 @@ export const MATURE_SCENE_BLOCKS: SceneBlock[] = [
     englishLabel: "Premium grocery and errands",
     category: "mature",
     compactPrompt: "A refined everyday errands scene in a premium grocery store, organic market, bakery corner, or calm shopping environment. She may carry a paper bag, flowers, produce, or neutral tote. Keep it warm, realistic, tasteful, and free of supermarket clutter.",
-    prompt: `Create a refined everyday errands scene for a 30-55 year old urban woman wearing THERUIZ AURA sneakers. The setting may be a premium grocery store, organic market, bakery corner, or calm daily shopping environment. She may carry a paper bag, fresh produce, flowers, or a neutral tote. The mood should feel realistic, warm, and tasteful. The sneakers should communicate comfort for daily errands while maintaining quiet elegance. Avoid supermarket clutter, cheap lifestyle stock-photo feeling, loud colors, or overly staged shopping poses.`
+    prompt: `Create a refined everyday errands scene for a 30-45 year old urban woman wearing THERUIZ AURA sneakers. The setting may be a premium grocery store, organic market, bakery corner, or calm daily shopping environment. She may carry a paper bag, fresh produce, flowers, or a neutral tote. The mood should feel realistic, warm, and tasteful. The sneakers should communicate comfort for daily errands while maintaining quiet elegance. Avoid supermarket clutter, cheap lifestyle stock-photo feeling, loud colors, or overly staged shopping poses.`
   },
   {
     id: "12",

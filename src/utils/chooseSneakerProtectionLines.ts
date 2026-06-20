@@ -39,6 +39,13 @@ const shoeClippingLine =
 
 const lacesLine = "Keep laces naturally tied, with readable loops, lace ends, eyelets, and tongue.";
 
+const onFootMaterialResponseLine =
+  "When worn, allow only subtle physical vamp flex, gentle collar compression, settled laces, and grounded contact shadow; preserve the fixed toe box, panels, outsole, and silhouette.";
+
+function isWornPeopleImage(imageType: TeamImageType) {
+  return imageType === "产品上脚图" || imageType === "对镜穿搭图" || imageType === "生活场景图";
+}
+
 export function chooseSneakerProtectionLines(input: SneakerProtectionInput): SneakerProtectionLines {
   if (!input.hasShoe) {
     return {
@@ -86,12 +93,20 @@ export function chooseSneakerProtectionLines(input: SneakerProtectionInput): Sne
   const productLine = [
     `THERUIZ AURA ${input.shoeDisplayName} German trainer as the main product reference.`,
     accuracyLine,
+    isWornPeopleImage(input.imageType) ? onFootMaterialResponseLine : "",
     shoeVisibilityLine,
     lacesLine
   ]
     .filter(Boolean)
     .join(" ");
-  const sceneControlLine = [shoeVisibilityLine, shoeClippingLine, lacesLine].filter(Boolean).join(" ");
+  const sceneControlLine = [
+    shoeVisibilityLine,
+    shoeClippingLine,
+    lacesLine,
+    isWornPeopleImage(input.imageType) ? onFootMaterialResponseLine : ""
+  ]
+    .filter(Boolean)
+    .join(" ");
 
   return {
     productLine,

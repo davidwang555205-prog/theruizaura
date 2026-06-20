@@ -36,7 +36,7 @@ Face realism control:
 Keep the face naturally refined, not plastic or overly retouched. Avoid waxy skin, hyper-smooth skin, unrealistic poreless beauty, excessive symmetry, or beauty-filter effects. Allow subtle real-life facial softness and a naturally imperfect human presence.`;
 
 export const MATURE_CUSTOMER_LIFESTYLE_CONTROL = `Mature customer lifestyle control:
-The scene should reflect a refined 30-55 year old urban woman's real daily life. She should look modern, tasteful, comfortable, and quietly confident. Avoid making the scene feel too young, too influencer-like, too girlish, too old-fashioned, or like a generic mature-woman advertisement. The mood should remain elegant, realistic, warm, and aligned with THERUIZ AURA's quiet luxury lifestyle.`;
+The scene should reflect a refined 30-45 year old urban woman's real daily life. She should look modern, tasteful, comfortable, and quietly confident. Avoid making the scene feel too young, too influencer-like, too girlish, too old-fashioned, or like a generic mature-woman advertisement. The mood should remain elegant, realistic, warm, and aligned with THERUIZ AURA's quiet luxury lifestyle.`;
 
 export const NON_PRODUCT_ATMOSPHERE_CONTROL = `Create a non-product atmospheric image for THERUIZ AURA in the brand's 92-point "Quiet Warm Luxury" style. This image should not be a direct product shot and should not be a model-focused fashion image.
 
@@ -71,13 +71,13 @@ Avoid cheap hotel selfie feeling, bathroom-counter clutter, toilet-side mirror s
 
 Avoid sneaker reconstruction, redesigned sneaker, altered toe shape, altered outsole thickness, changed side panel proportion, collapsed toe box, melted upper, warped outsole, compressed heel counter, changed tongue shape, incorrect lace route, trousers fused into shoe collar, trousers entering sneaker collar, foot breaking through upper, shoe reshaped by foot, shoe stretched by pose, sneaker simplified into generic shoe, mirror-distorted sneaker, blurred sneaker structure, missing sneaker parts, mismatched left and right shoes, unstable shoe-ground contact, and any deformation of the uploaded reference sneaker.
 
-For non-product atmosphere images, avoid generic Pinterest moodboard feeling, influencer aesthetic clichés, over-decorated interiors, loud trendy props, fake luxury staging, chaotic family clutter, empty cold minimalism, social-media brunch styling, tourism imagery, status-display luxury, and any visual language that feels disconnected from a refined 30-55 year old urban woman's real daily life.
+For non-product atmosphere images, avoid generic Pinterest moodboard feeling, influencer aesthetic clichés, over-decorated interiors, loud trendy props, fake luxury staging, chaotic family clutter, empty cold minimalism, social-media brunch styling, tourism imagery, status-display luxury, and any visual language that feels disconnected from a refined 30-45 year old urban woman's real daily life.
 
 The shoe must remain the main subject in product scenes, but it should feel naturally integrated into the woman's daily life.
 
 Keep the image refined, breathable, believable, quiet, warm, and elevated.`;
 
 export const ATMOSPHERE_NEGATIVE_CONTROL = `Negative control for non-product atmosphere:
-Avoid generic Pinterest moodboard feeling, influencer aesthetic clichés, over-decorated interiors, loud trendy props, fake luxury staging, chaotic family clutter, empty cold minimalism, social-media brunch styling, tourism imagery, status-display luxury, generic stock photography, cold studio lighting, hard commercial feeling, large logo advertising, and any visual language disconnected from a refined 30-55 year old urban woman's real daily life.
+Avoid generic Pinterest moodboard feeling, influencer aesthetic clichés, over-decorated interiors, loud trendy props, fake luxury staging, chaotic family clutter, empty cold minimalism, social-media brunch styling, tourism imagery, status-display luxury, generic stock photography, cold studio lighting, hard commercial feeling, large logo advertising, and any visual language disconnected from a refined 30-45 year old urban woman's real daily life.
 
 Keep the image refined, breathable, believable, quiet, warm, low-saturation, tactile, and elevated.`;

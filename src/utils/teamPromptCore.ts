@@ -43,6 +43,8 @@ import { isSceneCompatibleWithImageType } from "../data/teamSceneOptions";
 import { getNonProductAtmosphereSceneLine } from "../data/nonProductAtmosphereSceneLines";
 import { promptPreflightCheck } from "./promptPreflightCheck";
 import { finalPromptSafetyCheck } from "./finalPromptSafetyCheck";
+import { buildVisualScenario } from "./buildVisualScenario";
+import { promptAIRiskPreflight } from "./promptAIRiskPreflight";
 
 export const TEAM_PROMPT_MODE: TeamPromptMode = "standard";
 
@@ -83,13 +85,13 @@ const customerFeelingLine =
   "Express all-day ease, comfort without carelessness, clean composure, taste, and quiet put-together confidence.";
 
 const modelLine =
-  "Use one real-looking Asian or subtle Asian mixed woman, 32–46, like a stylish real customer or everyday urban woman, not a professional fashion model. Natural dark hair, light everyday makeup, normal facial features, realistic body proportion, calm mature presence, and believable daily styling.";
+  "Use one real-looking Asian or subtle Asian mixed-heritage woman aged 30–45 with natural dark hair, light daily makeup, realistic proportions, and calm urban presence.";
+
+const studioLaunchModelLine =
+  "Use one Asian mixed-heritage woman around age 30 for the studio launch, with natural dark hair, light daily makeup, real skin texture, realistic proportions, and no campaign severity.";
 
 const humanRealismLine =
-  "Make the person feel like a real customer captured in a natural daily outfit record, not a computer-perfect fashion model, mannequin, showroom character, influencer, or campaign face. Use a candid human-photography feeling: slight facial asymmetry, normal skin texture, natural under-eye texture, relaxed mouth, imperfect but tasteful posture, realistic hand tension, believable foot pressure, and normal shoulder-neck relationship. Natural soft eye contact is allowed when it feels like a brief real-life glance, and looking slightly away or focusing on a real task is also allowed. Keep the expression quiet, neutral, slightly task-focused, and unperformed. Avoid hard staring, frozen soft smile, influencer gaze, commercial model eye contact, doll-like eyes, lifeless gaze, staged fashion portrait mood, over-retouched commercial portrait, extra-polished fashion campaign mood, and body proportions that feel digitally idealized.";
-
-const gazeLine =
-  "Use a natural gaze for the task or outfit record, never a forced direct stare.";
+  "Show slight facial asymmetry, real pores, relaxed lips, natural catchlights, soft shoulder tension, believable hand pressure, grounded weight, and one unposed expression.";
 
 const actionLine =
   "Use one simple daily action: slow walk, coffee, tote, flowers, book, or storefront pause.";
@@ -232,7 +234,7 @@ const TEAM_SCENE_TEXT: Record<Exclude<TeamScenePreference, "自动匹配">, stri
   停车场到电梯口:
     "Use a clean parking-area to elevator-lobby transition with believable indoor lighting, real ground contact, and a subtle city-daily rhythm.",
   "瑜伽 / 普拉提工作室门口":
-    "Use a refined studio-front setting with calm storefront details, light pavement, and a clean wellness-lifestyle atmosphere. Keep it believable and understated.",
+    "Use a refined yoga or Pilates studio-front setting with calm storefront details, light pavement, and a clean wellness-lifestyle atmosphere. Keep it believable and understated.",
   公园慢走:
     "Use a clean urban-park walking setting with restrained greenery, soft paths, and a quiet daily-wellness rhythm. Avoid hiking or outdoor-sports advertisement styling.",
   社区步道:
@@ -335,9 +337,6 @@ function shouldUseSummerLifestylePeopleSupport(
 const streetRealismLine =
   "Street and background should feel photographed in a real daily city environment: believable pavement texture, natural street depth, real storefront proportions, subtle signs of daily use, mild surface unevenness, small shadows, realistic curb lines, quiet background pedestrians when appropriate, parked scooters or bicycles only when natural, restrained cafe or boutique details, and imperfect but tasteful city rhythm.";
 
-const streetRealismCoreLine =
-  "Use a real daily city street background with believable pavement texture, natural street depth, real storefront proportions, subtle daily wear, realistic curb lines, and quiet everyday rhythm.";
-
 const SCENE_VARIATION_LINES: Partial<Record<StandardSceneKey, string[]>> = {
   commute: [
     "Set the moment near a quiet office entrance with muted glass, stone steps, and a small morning flow of people in the distance.",
@@ -347,7 +346,7 @@ const SCENE_VARIATION_LINES: Partial<Record<StandardSceneKey, string[]>> = {
   ],
   weekendCityWalk: [
     "Set the walk along a quiet cafe street with real sidewalk texture, low-noise storefronts, and natural street depth.",
-    "Use a bookstore or magazine-shop exterior with muted signage, a pale wall, and a calm mature weekend rhythm.",
+    "Use a weekend city-walk route outside a bookstore or magazine shop, with muted signage, a pale wall, and a calm mature rhythm.",
     "Place her near a gallery district or light stone facade, with subtle pedestrians and restrained city details.",
     "Use a rain-after street feeling with slightly damp pavement, soft reflections, tree shadows, and no cinematic drama.",
     "Use a tree-lined sidewalk with curb lines, bicycles or scooters only as distant natural details, and a relaxed daily pace."
@@ -372,7 +371,7 @@ const SCENE_VARIATION_LINES: Partial<Record<StandardSceneKey, string[]>> = {
   ],
   entrywayDeparture: [
     "Use a warm apartment entryway with doorway light, keys, coat texture, and a calm leaving-home rhythm.",
-    "Set the moment between an indoor hallway and building entrance, with soft threshold light and realistic floor contact.",
+    "Set an entryway departure moment between an indoor hallway and building entrance, with soft threshold light and realistic floor contact.",
     "Use a residential lobby or doorway transition with muted stone, quiet wall texture, and no luxury property-showroom feeling.",
     "Place her near a simple shoe cabinet or coat hook, keeping the outfit and sneakers clear rather than prop-heavy."
   ],
@@ -414,7 +413,7 @@ const SCENE_VARIATION_LINES: Partial<Record<StandardSceneKey, string[]>> = {
   ],
   gymInterior: [
     "Use a muted premium gym corner with warm grey flooring, restrained equipment, and clean daily training space.",
-    "Set the image near a bench, mat area, or light equipment zone, keeping movement simple and realistic.",
+    "Set the image near a gym bench, mat area, or light equipment zone, keeping movement simple and realistic.",
     "Use a calm boutique fitness interior with no neon, no sports-ad lighting, and no crowded brand atmosphere.",
     "Place her in a realistic gym transition moment, such as pausing near lockers or a water station, with activewear only."
   ],
@@ -461,11 +460,11 @@ const SUMMER_LIFESTYLE_SCENE_VARIATION_LINES: Record<SummerLifestyleScene, strin
   ],
   亲子自驾出行: [
     "Use a car-side arrival moment in a believable parking area, with the vehicle kept secondary and one family-travel cue placed naturally.",
-    "Set the scene at a quiet roadside rest stop or destination parking edge, with realistic pavement and a small walking step away from the car.",
+    "Set the road-trip scene at a quiet roadside rest stop or destination parking edge, with realistic pavement and a small walking step away from the car.",
     "Use a destination-arrival pause near an open car door or rear-seat area without turning the image into a car advertisement."
   ],
   暑假外出后回家: [
-    "Use a warm apartment entryway after a day out, with keys and one tote placed naturally while the sneakers remain fully visible.",
+    "Use a warm return-home apartment entryway after a day out, with keys and one tote placed naturally while the sneakers remain fully visible.",
     "Set the moment at a front-door or corridor threshold with soft evening light, a light cardigan, and calm return-home order.",
     "Use a lived-in home-return transition near a shoe cabinet or coat hook, keeping outing traces restrained and the footwear unobstructed."
   ]
@@ -556,7 +555,7 @@ const STUDIO_LAUNCH_PROPS_LINE =
   "Prefer a clean studio with no props. Only when composition truly needs support, add at most one quiet neutral studio cue such as a low matte plinth or a barely visible seamless-paper edge. Do not combine props, keep equipment outside the main frame, preserve generous negative space, and never block the sneakers.";
 
 const STUDIO_LAUNCH_OUTFIT_BOUNDARY_LINE =
-  "Studio clothing must stay low-saturation and neutral: cream, warm grey, soft stone, taupe, navy, charcoal, muted brown, or restrained denim. No cobalt blue, tomato red, forest green, deep burgundy, neon, or other high-saturation garments; preserve the sneaker's exact color.";
+  "Studio wardrobe rule: use low-saturation, no-logo luxury-grade tailoring and tactile high-end fabric construction; use no vivid garments.";
 
 const footPlacementSafetyLine =
   "Foot placement must stay stable and readable: keep clear ground contact, realistic toe direction, correct left-right shoe relationship, natural ankle-to-shoe alignment, and no overlapping legs hiding the sneaker shape. Props must not cover the shoes, foot placement, laces, tongue, toe box, heel, or outsole.";
@@ -871,14 +870,14 @@ function getSceneVariationLine(
   sceneKey: StandardSceneKey
 ) {
   const studioLaunchLines = [
-    "Use a near-empty warm-white seamless studio with a soft-stone floor, one large diffused key light, gentle contact shadows, and uncluttered launch-ready framing.",
-    "Set the image against a clean cream cyclorama with restrained side light, subtle tonal depth, open floor space, and no decorative props.",
-    "Use a soft-grey-beige studio sweep with generous negative space, accurate material color, realistic floor contact, and no visible luxury-set decoration.",
-    "Use a plain tactile linen-toned studio backdrop with diffused directional light and an editorial but commercially readable new-launch composition, without visible equipment or prop clusters."
+    "Use a near-empty warm-white seamless studio with no props, a soft-stone floor, one large diffused key light, gentle contact shadows, and uncluttered launch-ready framing.",
+    "Set the image against a clean cream studio cyclorama with no props, restrained side light, subtle tonal depth, and open floor space.",
+    "Use a soft-grey-beige studio sweep with no props, generous negative space, accurate material color, and realistic floor contact.",
+    "Use a plain tactile linen-toned studio backdrop with no props, diffused directional light, and a commercially readable new-launch composition."
   ];
   const windowReadingLines = [
     "Use a quiet window-side chair or sofa edge with linen curtains, one book, and calm private space.",
-    "Set the moment beside a real window with a small table, magazine or cup, and warm neutral interior depth.",
+    "Set a window-side reading moment beside a real window with a small table, magazine or cup, and warm neutral interior depth.",
     "Use a reading corner near soft curtains and pale wall texture, keeping the mood intimate, clean, and not staged.",
     "Place the scene near a window ledge or lounge chair with one book or magazine as the only quiet object."
   ];
@@ -887,6 +886,10 @@ function getSceneVariationLine(
   if (resolvedScene === "棚内上新拍摄") {
     lines = studioLaunchLines;
   } else if (isNonProductAtmosphereImage(params.imageType)) {
+    lines = [];
+  } else if (isExpandedLifestyleScene(resolvedScene) || resolvedScene === "拍摄花絮") {
+    // Expanded selections already have exact place copy; a coarse scene-key
+    // variation can silently replace the user's selected location after budget trimming.
     lines = [];
   } else if (params.imageType === "对镜穿搭图") {
     lines = MIRROR_SCENE_VARIATION_LINES[resolvedScene];
@@ -931,8 +934,7 @@ function getImageTypeLine(params: TeamPromptParams, sceneKey: StandardSceneKey) 
 
 function getModelLine(params: TeamPromptParams, resolvedScene: Exclude<TeamScenePreference, "自动匹配">) {
   if (!shouldUsePeopleStyling(params.imageType)) return "";
-  void resolvedScene;
-  return modelLine;
+  return resolvedScene === "棚内上新拍摄" ? studioLaunchModelLine : modelLine;
 }
 
 function getSceneText(params: TeamPromptParams, resolvedScene: Exclude<TeamScenePreference, "自动匹配">, sceneKey: StandardSceneKey) {
@@ -1325,13 +1327,13 @@ function getGarmentTypeLockLine(preference: TeamGarmentTypePreference, season: T
   if (preference === "自动匹配") return "";
 
   if (preference === "轻运动" && season !== "夏") {
-    return "Selected clothing type: refined light activewear; keep active trousers, leggings, zip layers, or movement layers explicit and premium, avoiding shorts unless the scene is clearly indoor fitness.";
+    return "Selected clothing type: refined light activewear with active trousers, leggings, or a zip layer; use shorts only for indoor fitness.";
   }
   if (preference === "短裤" && season !== "夏") {
-    return `${GARMENT_TYPE_LOCK_LINES[preference]} Use season-appropriate tailoring, fabric weight, leg coverage, and layering without changing shorts into trousers or another garment category.`;
+    return "Selected clothing type: tailored Bermuda shorts in season-appropriate fabric and layering; do not substitute another garment category.";
   }
   if ((preference === "裙装" || preference === "连衣裙") && season === "冬") {
-    return `${GARMENT_TYPE_LOCK_LINES[preference]} Use believable winter layering and avoid light summer styling.`;
+    return `${GARMENT_TYPE_LOCK_LINES[preference]} Use believable winter-weight fabric and layering.`;
   }
 
   return GARMENT_TYPE_LOCK_LINES[preference];
@@ -1422,7 +1424,6 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
     : "";
   const sceneKey = resolveSceneKey(params, resolvedScene);
   const streetRealismPatchLine = shouldUseStreetRealismLine(params, resolvedScene) ? streetRealismLine : "";
-  const streetRealismCorePatchLine = streetRealismPatchLine ? streetRealismCoreLine : "";
   const hasStreetRealism = Boolean(streetRealismPatchLine);
   const conditionalNonProductBrandProcessLine = shouldUseNonProductBrandProcessLine(params, resolvedScene)
     ? nonProductBrandProcessLine
@@ -1464,6 +1465,15 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
     scenePreference: resolvedScene,
     userExtraRequirement: params.extraRequirement,
     selectedShoe: getShoeDisplayName(params)
+  });
+  const visualScenario = buildVisualScenario({
+    imageType: params.imageType,
+    scenePreference: resolvedScene,
+    sceneKey,
+    lightingSpaceType: seasonCityVisualContext.lightingSpaceType,
+    cityProfile: selectedCity,
+    timeOfDay: seasonCityVisualContext.timeOfDay,
+    generationNonce: params.generationNonce
   });
   const summerLifestyleLightLine =
     usesSummerLifestylePeopleSupport && summerLifestyleScene
@@ -1673,8 +1683,8 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
     ? "Use exactly one muted low-saturation garment as a soft color anchor; keep every other garment, bag, accessory, backdrop, and styling detail neutral, restrained, and easy to coordinate."
     : "";
   const outfitLine = [
-    normalizedBaseOutfitLine,
     resolvedScene === "棚内上新拍摄" ? STUDIO_LAUNCH_OUTFIT_BOUNDARY_LINE : "",
+    normalizedBaseOutfitLine,
     shoeStyleLine
   ]
     .filter(Boolean)
@@ -1715,8 +1725,6 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
         getModelLine(params, resolvedScene),
         gazeSelection.line,
         humanRealismLine,
-        ...promptQualityPatchLines.modelLines,
-        humanRealism.livedInCoreLine,
         getCompactPoseBodyLine(poseCategory),
         humanRealism.multiImageConsistencyLine
       ]
@@ -1725,19 +1733,16 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
     : "";
   const outfitStructuredLine = shouldUsePeopleStyling(params.imageType)
     ? [
-        outfitLine,
         userSpecifiedClothing ? "" : getGarmentTypeLockLine(effectiveGarmentTypePreference, params.season),
+        outfitLine,
         sceneKey === "gymInterior" ? gymInteriorClothingLockLine : "",
         saturatedGarmentBoundaryLine,
         baseStylingRealismLine,
         (params.season === "秋" || params.season === "冬") && !isGymSceneKey(sceneKey)
           ? seasonCityVisualContext.outfitLayerLine
           : "",
-        ...promptQualityPatchLines.outfitLines,
         accessorySelection.accessoryLine,
-        humanRealism.clothingWornLine,
-        humanRealism.bloggerLiteLine,
-        "Keep outfit thickness, material weight, and styling compatible with the selected season and city climate."
+        humanRealism.clothingWornLine
       ]
         .filter(Boolean)
         .join(" ")
@@ -1750,21 +1755,15 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
           resolvedScene,
           poseCategory
         }),
-        imageTypeTemplate.templateActionLine,
         handheldSelection.handheldObjectLine,
-        handheldSelection.handheldCoreLine,
         handheldSelection.gripLine,
-        handheldSelection.objectSpecificLine,
         actionSelection.safetyLine,
         getSinglePurposeHandLine(handheldSelection.primaryHandheldObject),
         getAccessoryNaturalHandsLine({
           accessoryStrategy: accessorySelection.accessoryStrategy,
           primaryHandheldObject: handheldSelection.primaryHandheldObject
         }),
-        humanRealism.bodyWeightLine,
-        gazeSelection.mode === "lookAtCamera"
-          ? ""
-          : humanRealism.expressionGazeLine || (params.imageType === "对镜穿搭图" ? "" : gazeLine)
+        humanRealism.bodyWeightLine
       ]
         .filter(Boolean)
         .join(" ")
@@ -1772,6 +1771,7 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
   const sceneStructuredLine =
     params.imageType === "产品静物图"
       ? [
+          visualScenario.scenarioLine,
           imageTypeTemplate.templateSceneLine,
           sceneVariationLine,
           sceneRealismLine,
@@ -1780,17 +1780,16 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
           .filter(Boolean)
           .join(" ")
       : [
+          visualScenario.scenarioLine,
           scenePropsLine,
           summerLifestyleShoeSafetyLine,
           footPlacementPatchLine,
           ...nonProductAtmosphereLines.slice(0, 3),
           nonProductSummerLifestyleWorldLine,
           getImageTypeLine(params, sceneKey),
-          streetRealismCorePatchLine,
           effectiveImageTemplateSceneLine,
           streetRealismPatchLine,
           sceneRealismLine,
-          ...promptQualityPatchLines.sceneLines,
           effectiveLightingSpaceSupportLine,
           handheldSelection.spacingLine,
           handheldSelection.weightLine,
@@ -1816,7 +1815,7 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
       ? effectiveSeasonalPhotoStyleLine
       : "",
     cameraSelection.cameraLookLine,
-    humanRealism.realHumanDetailLine
+    shouldUsePeopleStyling(params.imageType) ? "" : humanRealism.realHumanDetailLine
   ]
     .filter(Boolean)
     .join(" ");
@@ -1928,8 +1927,16 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
       }
     }
   });
-  const preflight = promptPreflightCheck({
+  const aiRiskPreflight = promptAIRiskPreflight({
     promptParts: prioritizedPromptParts,
+    imageType: params.imageType,
+    sceneKey,
+    visualScenarioLine: visualScenario.scenarioLine,
+    studioLaunch: resolvedScene === "棚内上新拍摄",
+    userExtraRequirement: sanitizedUserExtraRequirement
+  });
+  const preflight = promptPreflightCheck({
+    promptParts: aiRiskPreflight.fixedPromptParts,
     imageType: params.imageType,
     sceneKey,
     season: params.season,
@@ -1963,7 +1970,13 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
     hasShoe,
     lightCheckOnly: true
   });
-  const rawPrompt = buildStructuredPrompt(finalPreflight.fixedPromptParts);
+  const finalBudgetedPromptParts = controlPromptBudget({
+    promptParts: finalPreflight.fixedPromptParts,
+    imageType: params.imageType,
+    sceneKey,
+    lightingSpaceType: validationLightingSpaceType
+  });
+  const rawPrompt = buildStructuredPrompt(finalBudgetedPromptParts);
   const reducedPrompt = sensitiveWordReducer(rawPrompt);
   const vocabularyAdjustedPrompt = promptVocabularyReplacer(reducedPrompt);
   const dedupedPrompt = dedupePromptLines(vocabularyAdjustedPrompt);

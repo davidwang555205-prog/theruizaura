@@ -20,11 +20,11 @@ type TeamCompactPromptInput = {
 const brandMoodLine =
   "Create a premium THERUIZ AURA image in Quiet Warm Luxury style: cream-white, warm beige, soft stone, natural light, low saturation, refined daily elegance, and believable comfort.";
 
-const modelLine25to40 =
-  "Use one believable Asian or subtle Asian mixed woman, 25–40, natural dark hair, clean daily makeup, real skin texture, realistic body proportions, and a calm refined presence.";
-
 const modelLine30to45 =
   "Use one believable Asian or subtle Asian mixed woman, 30–45, natural dark hair, clean daily makeup, real skin texture, realistic body proportions, and a calm refined presence.";
+
+const studioLaunchModelLine =
+  "Use one believable Asian mixed-heritage woman around age 30, with natural dark hair, clean daily makeup, real skin texture, realistic body proportions, and a calm refined presence.";
 
 const sneakerAccuracyLine =
   "Use the uploaded sneaker reference as the strict source; preserve the low-cut German trainer silhouette, toe box, slim outsole, panels, tongue, stitching, material, color, proportions, and tied laces.";
@@ -78,13 +78,7 @@ function getImageTypeLine(params: TeamPromptParams, resolvedScene: TeamScenePref
 
 function getModelLine(params: TeamPromptParams, resolvedScene: TeamScenePreference) {
   if (!shouldUsePeopleStyling(params.imageType)) return "";
-  const mature =
-    params.imageType === "生活场景图" ||
-    resolvedScene === "精品超市 / 日常采购" ||
-    resolvedScene === "旅行酒店" ||
-    resolvedScene === "通勤上班" ||
-    resolvedScene === "周末轻采购";
-  return mature ? modelLine30to45 : modelLine25to40;
+  return resolvedScene === "棚内上新拍摄" ? studioLaunchModelLine : modelLine30to45;
 }
 
 function getGazeActionLine(params: TeamPromptParams, resolvedScene: TeamScenePreference) {

@@ -196,13 +196,13 @@ export const BUILT_IN_TEMPLATES: TemplateItem[] = [
   },
   {
     id: "tpl-12-mature-business",
-    name: "40–55 质感女性轻商务3图",
+    name: "30–45 质感女性轻商务3图",
     category: "product",
     purpose: "成熟女性通勤 / 商务休闲 / 高客单内容",
     recommendedPlatform: "image2.0 / GPT Image",
     productParams: {
       generationMode: "three",
-      ageRange: "40-55",
+      ageRange: "30-45",
       scenes: ["01", "13", "15"],
       action: "自动匹配",
       people: "model",
