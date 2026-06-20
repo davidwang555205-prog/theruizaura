@@ -168,7 +168,7 @@ export const seasonalOutfitGroups: Record<TeamSeason, SeasonalOutfitGroup> = {
       "Use a soft olive shirt jacket, ivory tee, warm beige trousers, and a canvas tote for a grounded spring daily look.",
       "Style her in a grey-blue shirt, dark indigo straight denim, and a cream tote for a real city-walk outfit that still feels clean.",
       "Pair a cream midi skirt with an oatmeal knit top, a muted brown belt, and a taupe handbag for refined spring softness with real-life contrast.",
-      "Use one cobalt blue fine-knit cardigan as the only saturated garment over an ivory top, with stone trousers and a soft taupe bag for controlled spring color."
+      "Use one misty light blue fine-knit cardigan as the only soft color accent over an ivory top, with stone trousers and a soft taupe bag for restrained, versatile spring color."
     ]
   },
   夏: {
@@ -332,7 +332,7 @@ export const seasonalOutfitGroups: Record<TeamSeason, SeasonalOutfitGroup> = {
       "taupe"
     ],
     forbidden:
-      "Use breathable summer styling, but allow skirts, cotton or twill Bermuda shorts, cotton T-shirts, fitted tanks layered with shirts, polo knits, soft cardigans, black, dark coffee, navy, charcoal, olive, soft grey, and light denim trousers or skirts as realistic wardrobe anchors. One controlled high-saturation garment is allowed when every other item stays neutral. Avoid beach vacation styling, gym-only look, overexposed skin, multiple high-saturation colors, sweet girlish shorts, overly short tailored shorts, cheap T-shirt styling, and AI-clean all-white outfits with no life.",
+      "Use breathable summer styling, but allow skirts, cotton or twill Bermuda shorts, cotton T-shirts, fitted tanks layered with shirts, polo knits, soft cardigans, black, dark coffee, navy, charcoal, olive, soft grey, and light denim trousers or skirts as realistic wardrobe anchors. One muted low-saturation garment may act as a soft color anchor when every other item stays neutral. Avoid beach vacation styling, gym-only look, overexposed skin, multiple competing colors, sweet girlish shorts, overly short tailored shorts, cheap T-shirt styling, and AI-clean all-white outfits with no life.",
     compactOutfitLines: [
       "Style her in a white short-sleeve shirt, cream linen trousers, and a light neutral tote for breathable summer ease.",
       "Use a cream linen shirt, pale denim, and understated gold accessories for clean summer daily sophistication.",
@@ -346,7 +346,7 @@ export const seasonalOutfitGroups: Record<TeamSeason, SeasonalOutfitGroup> = {
       "Style her in a soft grey short-sleeve knit, beige Bermuda shorts, and a restrained leather tote for an easy refined summer day.",
       "Use a white oversized shirt over a charcoal ribbed tank, linen trousers, and a black flat shoulder bag for a believable urban summer look.",
       "Pair an olive linen shirt with ivory straight trousers and a natural canvas tote for a grounded, non-template summer outfit.",
-      "Use one tomato red silk-cotton shirt as the only saturated garment with stone linen trousers and a natural canvas tote for mature summer clarity."
+      "Use one dusty rose silk-cotton shirt as the only soft color accent with stone linen trousers and a natural canvas tote for mature, versatile summer clarity."
     ]
   },
   秋: {
@@ -453,7 +453,7 @@ export const seasonalOutfitGroups: Record<TeamSeason, SeasonalOutfitGroup> = {
       "Style her in a muted olive jacket, white shirt, taupe trousers, and a soft brown bag for a less predictable autumn look.",
       "Use a black fine-knit top, warm beige straight skirt, and a muted camel coat for refined feminine autumn contrast.",
       "Pair a grey coat with winter-white trousers, an oatmeal sweater, and a dark brown structured bag for a composed late-autumn outfit.",
-      "Use one forest green fine-knit top as the only saturated garment with taupe trousers, a cream short coat, and a muted brown bag for controlled autumn depth."
+      "Use one muted sage fine-knit top as the only soft color accent with taupe trousers, a cream short coat, and a muted brown bag for restrained autumn depth."
     ]
   },
   冬: {
@@ -556,7 +556,7 @@ export const seasonalOutfitGroups: Record<TeamSeason, SeasonalOutfitGroup> = {
       "Style her in a muted chocolate knit, dark denim, and a warm beige short wool jacket for a grounded everyday winter look.",
       "Use a soft olive padded jacket, cream knitwear, taupe trousers, and a no-logo tote for a clean practical winter day.",
       "Pair a grey-beige coat with black straight trousers, an ivory scarf, and a taupe leather bag for a composed city winter outfit.",
-      "Use one deep burgundy cashmere-blend cardigan as the only saturated garment with charcoal wool trousers, a warm ivory base layer, and a taupe bag for quiet winter color."
+      "Use one muted berry-wine cashmere-blend cardigan as the only soft color accent with charcoal wool trousers, a warm ivory base layer, and a taupe bag for quiet, coordinated winter color."
     ]
   }
 };

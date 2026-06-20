@@ -1669,8 +1669,8 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
     selectedBagAccessory: accessorySelection.selectedBagAccessory,
     selectedPrimaryHandheldObject: primaryHandheldSelection.primaryHandheldObject
   });
-  const saturatedGarmentBoundaryLine = /only saturated garment|only saturated accent/i.test(normalizedBaseOutfitLine)
-    ? "Use exactly one high-saturation garment as the visual anchor; keep every other garment, bag, accessory, backdrop, and styling detail neutral, and never add a second saturated color."
+  const saturatedGarmentBoundaryLine = /only soft color accent|only muted color accent/i.test(normalizedBaseOutfitLine)
+    ? "Use exactly one muted low-saturation garment as a soft color anchor; keep every other garment, bag, accessory, backdrop, and styling detail neutral, restrained, and easy to coordinate."
     : "";
   const outfitLine = [
     normalizedBaseOutfitLine,

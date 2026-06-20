@@ -154,14 +154,14 @@ const trouserPool: SeedDraft[] = [
     season: ["spring", "summer"],
     suitableShoes: allShoes,
     imageTypes,
-    topCategory: "cobalt blue fine-knit short-sleeve top as the only saturated accent",
+    topCategory: "misty light blue fine-knit short-sleeve top as the only soft color accent",
     bottomCategory: "stone straight trousers",
     outerLayerCategory: "ivory lightweight shirt jacket",
     bagCategory: "soft taupe shoulder bag as secondary accessory",
     accessoryCategory: ["simple watch"],
-    visualAnchor: "cobalt blue fine-knit top",
+    visualAnchor: "misty light blue fine-knit top",
     outfitLine:
-      "Style her in one cobalt blue fine-knit short-sleeve top as the only saturated accent, stone straight trousers, an ivory lightweight shirt jacket, and a soft taupe shoulder bag, keeping every other element neutral and THERUIZ AURA refined.",
+      "Style her in one misty light blue fine-knit short-sleeve top as the only soft color accent, stone straight trousers, an ivory lightweight shirt jacket, and a soft taupe shoulder bag, keeping the palette restrained, versatile, and THERUIZ AURA refined.",
     forbidden: baseForbidden
   },
   {
@@ -190,12 +190,12 @@ const trouserPool: SeedDraft[] = [
     imageTypes,
     topCategory: "warm ivory fine-knit top",
     bottomCategory: "charcoal tailored trousers",
-    outerLayerCategory: "deep burgundy fine-knit cardigan as the only saturated accent",
+    outerLayerCategory: "muted berry-wine fine-knit cardigan as the only soft color accent",
     bagCategory: "soft taupe handbag as secondary accessory",
     accessoryCategory: ["simple watch"],
-    visualAnchor: "deep burgundy fine-knit cardigan",
+    visualAnchor: "muted berry-wine fine-knit cardigan",
     outfitLine:
-      "Use a warm ivory fine-knit top, charcoal tailored trousers, and one deep burgundy fine-knit cardigan as the only saturated accent, with a soft taupe handbag kept secondary for quiet seasonal depth.",
+      "Use a warm ivory fine-knit top, charcoal tailored trousers, and one muted berry-wine fine-knit cardigan as the only soft color accent, with a soft taupe handbag kept secondary for quiet seasonal depth.",
     forbidden: baseForbidden
   },
   {
@@ -338,14 +338,14 @@ const skirtPool: SeedDraft[] = [
     season: ["spring", "summer"],
     suitableShoes: allShoes,
     imageTypes,
-    topCategory: "tomato red silk-cotton shirt as the only saturated accent",
+    topCategory: "dusty rose silk-cotton shirt as the only soft color accent",
     bottomCategory: "stone A-line skirt",
     outerLayerCategory: "no outer layer",
     bagCategory: "soft taupe mini bag as secondary accessory",
     accessoryCategory: ["minimal earrings"],
-    visualAnchor: "tomato red silk-cotton shirt",
+    visualAnchor: "dusty rose silk-cotton shirt",
     outfitLine:
-      "Pair one tomato red silk-cotton shirt as the only saturated accent with a stone A-line skirt and a soft taupe mini bag, keeping the silhouette calm, mature, and shoe-readable.",
+      "Pair one dusty rose silk-cotton shirt as the only soft color accent with a stone A-line skirt and a soft taupe mini bag, keeping the silhouette calm, mature, versatile, and shoe-readable.",
     forbidden: baseForbidden
   },
   {
@@ -454,14 +454,14 @@ const skirtPool: SeedDraft[] = [
     season: ["autumn", "winter"],
     suitableShoes: allShoes,
     imageTypes,
-    topCategory: "forest green fine-knit top as the only saturated accent",
+    topCategory: "muted sage fine-knit top as the only soft color accent",
     bottomCategory: "taupe straight skirt",
     outerLayerCategory: "cream short coat",
     bagCategory: "muted brown handbag as secondary accessory",
     accessoryCategory: ["minimal gold earrings"],
-    visualAnchor: "forest green fine-knit top",
+    visualAnchor: "muted sage fine-knit top",
     outfitLine:
-      "Use one forest green fine-knit top as the only saturated accent with a taupe straight skirt, cream short coat, and muted brown handbag for mature seasonal contrast.",
+      "Use one muted sage fine-knit top as the only soft color accent with a taupe straight skirt, cream short coat, and muted brown handbag for mature, coordinated seasonal contrast.",
     forbidden: baseForbidden
   }
 ];
@@ -523,14 +523,14 @@ const shortsPool: SeedDraft[] = [
     season: ["summer"],
     suitableShoes: allShoes,
     imageTypes,
-    topCategory: "tomato red lightweight knit tee as the only saturated accent",
+    topCategory: "dusty rose lightweight knit tee as the only soft color accent",
     bottomCategory: "soft khaki tailored shorts",
     outerLayerCategory: "no outer layer",
     bagCategory: "natural canvas tote as secondary accessory",
     accessoryCategory: ["simple watch"],
-    visualAnchor: "tomato red lightweight knit tee",
+    visualAnchor: "dusty rose lightweight knit tee",
     outfitLine:
-      "Use one tomato red lightweight knit tee as the only saturated accent with soft khaki tailored shorts and a natural canvas tote, keeping the outfit clear, mature, and restrained.",
+      "Use one dusty rose lightweight knit tee as the only soft color accent with soft khaki tailored shorts and a natural canvas tote, keeping the outfit clear, mature, restrained, and easy to coordinate.",
     forbidden: baseForbidden
   },
   {
@@ -708,11 +708,11 @@ const dressPool: SeedDraft[] = [
     imageTypes,
     topCategory: "soft grey straight dress",
     bottomCategory: "soft grey straight dress",
-    outerLayerCategory: "apple green thin cardigan",
+    outerLayerCategory: "soft sage green thin cardigan",
     accessoryCategory: ["minimal jewelry"],
-    visualAnchor: "apple green thin cardigan",
+    visualAnchor: "soft sage green thin cardigan",
     outfitLine:
-      "Style her in a soft grey straight dress with one apple green thin cardigan as the only saturated accent, keeping the overall outfit fresh, wearable, and not loud.",
+      "Style her in a soft grey straight dress with one soft sage green thin cardigan as the only soft color accent, keeping the overall outfit fresh, wearable, versatile, and not loud.",
     forbidden: baseForbidden
   },
   {
@@ -741,12 +741,12 @@ const dressPool: SeedDraft[] = [
     imageTypes,
     topCategory: "navy wool knit dress",
     bottomCategory: "navy wool knit dress",
-    outerLayerCategory: "deep burgundy fine-knit cardigan as the only saturated accent",
+    outerLayerCategory: "muted berry-wine fine-knit cardigan as the only soft color accent",
     bagCategory: "warm grey small handbag as secondary accessory",
     accessoryCategory: ["thin socks"],
-    visualAnchor: "deep burgundy fine-knit cardigan",
+    visualAnchor: "muted berry-wine fine-knit cardigan",
     outfitLine:
-      "Use a navy wool knit dress with one deep burgundy fine-knit cardigan as the only saturated accent and a warm grey small handbag kept secondary for controlled winter color.",
+      "Use a navy wool knit dress with one muted berry-wine fine-knit cardigan as the only soft color accent and a warm grey small handbag kept secondary for restrained winter color.",
     forbidden: baseForbidden
   },
   {
@@ -842,10 +842,10 @@ const activePool: SeedDraft[] = [
     topCategory: "charcoal active tee",
     bottomCategory: "taupe active trousers",
     outerLayerCategory: "no outer layer",
-    accessoryCategory: ["cobalt blue water bottle as the only saturated accent"],
-    visualAnchor: "cobalt blue water bottle",
+    accessoryCategory: ["misty light blue water bottle as the only soft color accent"],
+    visualAnchor: "misty light blue water bottle",
     outfitLine:
-      "Use a charcoal active tee and taupe active trousers, with one cobalt blue water bottle as the only saturated accent for a realistic city-to-gym detail.",
+      "Use a charcoal active tee and taupe active trousers, with one misty light blue water bottle as the only soft color accent for a restrained city-to-gym detail.",
     forbidden: baseForbidden
   },
   {

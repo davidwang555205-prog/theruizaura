@@ -203,8 +203,8 @@ function getSeasonalSuitabilityScore(seed: SceneOutfitSeed, season: ChooseSmartO
   const text = seedText(seed);
   const has = (pattern: RegExp) => pattern.test(text);
   const controlledAccentBonus =
-    has(/\b(cobalt blue|tomato red|deep burgundy|forest green|apple green)\b/i) &&
-    has(/\b(only saturated accent|controlled|restrained)\b/i)
+    has(/\b(misty light blue|dusty rose|muted berry-wine|muted sage|soft sage green)\b/i) &&
+    has(/\b(only soft color accent|controlled|restrained|versatile)\b/i)
       ? 2
       : 0;
 
