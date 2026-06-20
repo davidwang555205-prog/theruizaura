@@ -20,13 +20,13 @@ export type ActionPoseOutput = {
 };
 
 export const naturalPoseAndActionCompact =
-  "Use a natural, believable daily-life pose with subtle movement. The model should look like she is doing something real, such as walking slowly, adjusting a tote, holding coffee, checking her outfit, carrying flowers, browsing, preparing to leave, or pausing between activities.";
+  "Use a natural, believable daily-life pose with subtle movement. The model should look like she is doing something real within the selected scene, such as walking slowly, checking her outfit, adjusting clothing or the selected accessory, preparing to leave, or pausing between activities.";
 
 export const poseSafetyBoundaryCompact =
   "Keep the action simple and anatomically safe. Avoid crossed legs that hide the shoes or distort anatomy, extreme twisting, jumping, running, squatting, high kicks, dramatic stretching, deep bending, or poses that hide the sneakers, deform the feet, merge trousers into shoes, or break hands and limbs.";
 
 export const handActionCompact =
-  "Hands should have a simple, purposeful action such as holding a tote, coffee, book, flowers, phone, water bottle, or adjusting a sleeve or bag strap. Keep fingers natural and relaxed.";
+  "Hands should have one simple, purposeful action appropriate to the selected scene, using only the selected scene-compatible object when needed, or adjusting a sleeve or bag strap. Keep fingers natural and relaxed.";
 
 export const actionOutfitRealismCompact =
   "The outfit should respond naturally to the action: soft fabric folds, bag weight, sleeve movement, trouser break, and shirt drape should look believable, not frozen or plastic-smooth.";
@@ -47,16 +47,16 @@ export const actionPoseNegative =
   "Avoid stiff symmetrical posing, runway posing, influencer gestures, awkward frozen limbs, over-directed commercial model actions, claw hands, extra fingers, hands fused with bag or phone, hands touching shoes, hands covering the product, long stride, running posture, floating feet, twisted legs, over-stretched calves, crossed-leg distortion, broken knees, hidden feet, and meaningless hand placement.";
 
 const standingPosePool = [
-  "Stand with a soft weight shift, one foot slightly forward, one hand holding a tote bag, and the other hand relaxed near the body.",
+  "Stand with a soft weight shift, one foot slightly forward, one hand using the selected scene-compatible object if needed, and the other hand relaxed near the body.",
   "Stand naturally while adjusting a shirt cuff or jacket edge, with both sneakers clearly visible and grounded.",
-  "Pause beside a doorway or storefront, holding a coffee or tote, with relaxed shoulders and a calm daily expression.",
+  "Pause beside the selected doorway or setting with relaxed shoulders, a calm daily expression, and no unrelated handheld prop.",
   "Stand in a quiet city corner with one knee slightly relaxed, the bag resting naturally against the body, and the shoes fully readable.",
   "Stand near a mirror, wall, or entrance while lightly checking the outfit, not posing stiffly."
 ];
 
 const walkingPosePool = [
   "Use a small natural walking step with one foot slightly ahead, keeping both sneakers visible and anatomically aligned.",
-  "Walk slowly while carrying a tote bag, with relaxed arms, natural stride length, and grounded shoe-floor contact.",
+  "Walk slowly with relaxed arms or the single selected scene-compatible object, natural stride length, and grounded shoe-floor contact.",
   "Walk out of a cafe, hotel, boutique, or gym entrance with a calm daily rhythm, not a performance pose.",
   "Take a subtle step forward while looking slightly to the side or toward the scene, keeping the trouser hem separate from the shoe collar.",
   "Move through the scene naturally with a short stride, relaxed shoulders, and clear sneaker visibility."
@@ -64,10 +64,10 @@ const walkingPosePool = [
 
 const seatedPosePool = [
   "Sit naturally on a bench or chair with relaxed knees, one foot slightly forward, and at least one sneaker fully visible.",
-  "Sit while holding a coffee, book, or phone, keeping the legs and shoes anatomically natural and readable.",
-  "Sit near a cafe table or gym bench with a tote placed beside her, posture relaxed but composed.",
+  "Sit with hands relaxed or using the single selected scene-compatible object, keeping the legs and shoes anatomically natural and readable.",
+  "Sit on seating that belongs to the selected location, with any scene-compatible accessory placed safely beside her and posture relaxed but composed.",
   "Sit with one leg slightly extended and the other naturally bent, avoiding crossed-leg distortion and keeping the shoes clear.",
-  "Rest briefly after walking or light training, holding a water bottle or tote, with natural body weight and grounded feet."
+  "Rest briefly after the selected daily activity, with hands relaxed or holding one scene-compatible object, natural body weight, and grounded feet."
 ];
 
 const mirrorPosePool = [

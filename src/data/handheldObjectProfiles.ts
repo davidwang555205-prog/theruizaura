@@ -18,7 +18,7 @@ export type PrimaryHandheldObject =
   | "towel held in hand";
 
 export const singlePrimaryHandheldObjectHardRule =
-  "Use only one primary handheld object in each image. Do not combine coffee, flowers, books, paper bags, water bottles, phones, shopping bags, or hand-held totes in the same scene. If a bag is hand-held, it counts as the primary handheld object. Keep all other accessories secondary and not hand-held.";
+  "Use at most one primary handheld object in each image, and it must belong naturally to the selected scene. If a bag is hand-held, it counts as the primary object. Keep all other accessories secondary and not hand-held.";
 
 export const handheldObjectAntiClippingCoreLine =
   "When the model holds an object, keep the object physically separated, clearly gripped, and naturally supported by the hand. The fingers, palm, wrist, object edge, clothing, bag strap, torso, legs, and sneakers must not merge, clip, float, or pass through each other.";
@@ -30,10 +30,10 @@ export const wristArmObjectSpacingLine =
   "Keep the wrist, forearm, elbow, held object, sleeve, and torso spatially separated. The object should not cut through the wrist, forearm, sleeve, chest, waist, or bag strap, and the arm should not disappear behind the object unnaturally.";
 
 export const objectWeightRealismLine =
-  "Give handheld objects believable weight and gravity. Bags should hang downward from the hand or shoulder, flowers should rest naturally in the grip, paper bags should fold with weight, books should sit flat against the palm or body, bottles should align vertically, and cups should be held upright.";
+  "Give the selected handheld object believable weight, gravity, orientation, and contact. It should sit naturally in the grip or hang from the hand or shoulder without floating, tilting impossibly, or losing its real structure.";
 
 export const handheldObjectShoeVisibilityLine =
-  "No handheld object, bag, paper bag, flower bouquet, book, bottle, or strap should block, crop, or visually merge with the sneakers. Keep the lower legs and at least one full sneaker clearly visible from toe to heel.";
+  "No handheld object or strap should block, crop, or visually merge with the sneakers. Keep the leg-and-sneaker relationship clear and at least one full sneaker visible from toe to heel.";
 
 export const handheldObjectSimplicityLine =
   "Use only one primary handheld object unless the scene truly needs none. Keep the object simple, low-noise, and easy for the model to hold naturally. Avoid multiple overlapping props, complex straps, oversized bouquets, large shopping bags, or objects crossing the body and legs.";
@@ -62,21 +62,18 @@ export const bagAntiClippingLine =
 export const handheldObjectNegativePhrases = [
   "multiple handheld props",
   "two or more main objects in hand",
-  "coffee plus flowers",
-  "coffee plus book",
-  "phone plus coffee",
-  "tote plus water bottle",
+  "two unrelated scene props held together",
   "overlapping props",
   "crowded hands",
   "hands merging with objects",
-  "fingers fused with cup",
-  "palm clipping into phone",
+  "fingers fused with an object",
+  "palm clipping into an object",
   "bag strap cutting into shoulder",
   "bag merging with torso",
-  "bouquet piercing through arm",
-  "book slicing through fingers",
-  "water bottle passing through sleeve",
-  "shopping bag blocking shoes",
+  "held object piercing through the arm",
+  "held object slicing through fingers",
+  "held object passing through a sleeve",
+  "handheld object blocking shoes",
   "floating props",
   "oversized props",
   "objects crossing the body",

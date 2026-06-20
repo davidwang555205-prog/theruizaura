@@ -48,19 +48,19 @@ export const NON_PRODUCT_ATMOSPHERE_SCENE_LINES: Partial<
   拍摄花絮:
     "Create one quiet behind-the-scenes atmosphere with a styling table, camera-monitor edge, light-stand edge, shot list, wardrobe piece, or hands adjusting details. Keep it like a real working moment, not a technical equipment display.",
   暑假游乐园:
-    "Create one unmistakable but restrained summer amusement-park atmosphere: a shaded park walkway or quiet rest corner with a folded park map, simple paper wristband, water bottle, sun hat, or distant out-of-focus ride detail. Keep it like a real family summer outing, not a theme-park advertisement, and do not replace it with a generic street or home scene.",
+    "Create one unmistakable but restrained summer amusement-park atmosphere: a shaded park walkway or quiet rest corner with a folded park map, simple paper wristband, sun hat, canvas tote, or distant out-of-focus ride detail. Keep it like a real family summer outing, not a sporty excursion or theme-park advertisement, and do not replace it with a generic street or home scene.",
   海边度假:
     "Create one unmistakable seaside-holiday atmosphere: a boardwalk, coastal hotel threshold, or quiet sea-facing corner with linen texture, sunglasses, book, light tote, or folded towel. Keep the sea context clear but restrained, without a model, tropical cliche, or generic city street.",
   草原野餐:
-    "Create one unmistakable grassland-picnic atmosphere: an open-field edge with a restrained picnic blanket, woven basket, fruit box, book, water bottle, or light cardigan under natural daylight. Keep the field context clear and real, not a generic park path or camping advertisement.",
+    "Create one unmistakable grassland-picnic atmosphere: an open-field edge with a restrained picnic blanket, woven basket, fruit box, paperback book, or light cardigan under natural daylight. Keep the field context clear and real, not a sporty outing, generic park path, or camping advertisement.",
   酒店度假:
     "Create one quiet hotel-holiday atmosphere with a terrace threshold, calm room corner, travel tote, folded light clothing, sunglasses, or a neatly placed suitcase. Keep it like a real holiday routine, not luxury-resort promotion.",
   亲子自驾出行:
-    "Create one family road-trip atmosphere through a tidy car-side or passenger-seat detail with a tote, child's water bottle, snack box, paper map, light jacket, or travel pouch. Keep the travel context clear, mature, and uncluttered, without a car-advertising mood.",
+    "Create one family road-trip atmosphere through a tidy car-side or passenger-seat detail with a tote, compact child travel pouch, snack box, folded paper map, light jacket, or travel pouch. Keep the travel context clear, mature, and uncluttered, without a sporty or car-advertising mood.",
   暑假外出后回家:
-    "Create one summer return-home atmosphere at an entryway or apartment threshold with a tote set down, keys, used water bottle, sun hat, light cardigan, flower paper, or grocery bag. Keep it warm, lived-in, and clearly after a day out.",
+    "Create one summer return-home atmosphere at an entryway or apartment threshold with a tote set down, keys, sun hat, light cardigan, flower paper, grocery bag, or a folded shirt. Keep it warm, lived-in, orderly, and clearly after a day out rather than workout-related.",
   公园慢走:
-    "Create one quiet urban-park atmosphere with a real walking path, restrained greenery, bench or railing detail, soft ground shadow, and one subtle daily object such as a water bottle or folded tote. Keep it recognizably a park, not a bookstore or generic street.",
+    "Create one quiet urban-park atmosphere with a real walking path, restrained greenery, bench or railing detail, soft ground shadow, and one subtle daily object such as a folded tote, paperback book, or light cardigan. Keep it recognizably a relaxed park, not a workout scene, bookstore, or generic street.",
   社区步道:
     "Create one neighborhood-walk atmosphere with a believable community path, soft greenery, curb or paving texture, and subtle everyday residential depth. Keep it practical and real, without a posed walker.",
   周末轻旅行出发:

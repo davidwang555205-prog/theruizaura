@@ -5,7 +5,7 @@ export const antiAISceneBoundaryCompact =
   "Avoid empty synthetic backgrounds, impossible architecture, floating objects, over-perfect interiors, generic luxury staging, CGI-like surfaces, random decorative props, unrealistic symmetry, unrealistic storefronts, unreadable signage, and backgrounds that feel generated rather than lived in.";
 
 export const subtleLivedInDetailCompact =
-  "Add small believable details that make the scene feel real: a bag placed with weight, a cup on a table, slight fabric texture, natural floor marks, soft shadows, a door frame, a shelf edge, a window reflection, a coat on a chair, a paper bag, a book, a water bottle, or quiet object placement. Keep these details subtle and secondary.";
+  "Add only small believable details that belong to the selected scene: natural surface marks, soft shadows, practical architecture, lived-in fabric texture, and at most one restrained scene-compatible object placed with realistic weight. Keep every detail subtle and secondary.";
 
 export const spatialLogicCompact =
   "Keep the scene spatially believable. The model should have enough room to stand, walk, sit, or move naturally. Doors, mirrors, counters, shelves, stairs, gym equipment, chairs, tables, and storefronts should align realistically with the floor, walls, and camera angle.";

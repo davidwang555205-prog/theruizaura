@@ -352,7 +352,7 @@ const SCENE_VARIATION_LINES: Partial<Record<StandardSceneKey, string[]>> = {
   ],
   premiumErrands: [
     "Set the scene outside a premium grocery or neighborhood market with paper bags, muted storefront depth, and realistic daily errands.",
-    "Use a bakery-corner or flower-shop-adjacent street with one restrained daily object and no decorative clutter.",
+    "Use a neighborhood grocery entrance or produce-shop edge with one restrained daily object and no decorative clutter.",
     "Place her near a calm community-commercial entrance with clean pavement, subtle greenery, and real local-life rhythm.",
     "Use a store-to-sidewalk transition where the outfit and sneakers remain readable while the background stays secondary."
   ],
@@ -486,17 +486,17 @@ const SUMMER_LIFESTYLE_LIGHT_LINES: Record<SummerLifestyleScene, string> = {
 
 const SUMMER_LIFESTYLE_SCENE_PROPS: Record<SummerLifestyleScene, string> = {
   暑假游乐园:
-    "Add subtle amusement-park outing props only if natural: one folded park map, paper wristband, small water bottle, sunglasses, sunscreen, snack box, canvas tote, or child's sun hat. Keep props restrained and mature, never cartoonish, never like colorful children's advertising, and never blocking the sneakers.",
+    "Add subtle amusement-park outing props only if natural: one folded park map, simple paper wristband, understated sunglasses, small snack box, canvas tote, or sun hat. Keep props restrained and mature, never sporty, cartoonish, or like colorful children's advertising, and never block the sneakers.",
   海边度假:
-    "Add subtle seaside-holiday props only if natural: one straw hat, beach towel, sunscreen, linen shirt layer, light tote, water bottle, book, sunglasses, or small sand-toy bucket. Keep the scene breezy and refined, not bikini-influencer styled, not a tropical cliche, and never blocking the sneakers.",
+    "Add subtle seaside-holiday props only if natural: one straw hat, folded beach towel, linen shirt layer, woven or light tote, paperback book, or understated sunglasses. Keep the scene breezy and refined, never sporty, never child-focused, not bikini-influencer styled, not a tropical cliche, and never block the sneakers.",
   草原野餐:
-    "Add subtle grassland-picnic props only if natural: one picnic blanket, woven basket, fruit box, children's book, sun hat, canvas tote, light cardigan, paper bag, or water bottle. Keep the mood quiet and breathable, not camping-influencer styled, not gear-heavy, and never blocking the sneakers.",
+    "Add subtle grassland-picnic props only if natural: one restrained picnic blanket, woven basket, fruit box, paperback book, sun hat, canvas tote, light cardigan, or small paper bag. Keep the mood quiet and breathable, not sporty, not camping-influencer styled, not gear-heavy, and never block the sneakers.",
   酒店度假:
     "Add subtle hotel-holiday props only if natural: one suitcase, travel tote, folded white shirt, light cardigan, toiletry pouch, travel notebook, room key card, sunglasses, or sunscreen. Keep it like a real travel wardrobe moment, not a luxury hotel flatlay, not influencer luggage styling, and never blocking the sneakers.",
   亲子自驾出行:
-    "Add subtle family road-trip props only if natural: one tote, sunglasses, light jacket, child's water bottle, small travel toy, snack box, paper map, flower paper, or travel pouch near the car-side moment. Keep it mature and uncluttered, not a luxury car showcase, not messy family clutter, and never blocking the sneakers.",
+    "Add subtle family road-trip props only if natural: one tote, understated sunglasses, light jacket, compact child travel pouch, small travel toy, snack box, folded paper map, or travel pouch near the car-side moment. Keep it mature and uncluttered, not sporty, not a luxury car showcase, not messy family clutter, and never block the sneakers.",
   暑假外出后回家:
-    "Add subtle after-home outing props only if natural: one tote near the entryway, keys on a tray, light cardigan, used water bottle, sunscreen, child's small hat, flower paper, grocery paper bag, or folded shirt. Keep it warm, lived-in, and orderly, not messy homewear styling, not staged interior decor, and never blocking the sneakers."
+    "Add subtle after-outing home props only if natural: one tote near the entryway, keys on a tray, light cardigan, sun hat, flower paper, grocery paper bag, or folded shirt. Keep it warm, lived-in, and orderly, not sporty, not messy homewear styling, not staged interior decor, and never block the sneakers."
 };
 
 const EXPANDED_SCENE_PROPS_LINES: Record<ExpandedLifestyleScene, string> = {
@@ -543,9 +543,9 @@ const EXPANDED_SCENE_PROPS_LINES: Record<ExpandedLifestyleScene, string> = {
   "瑜伽 / 普拉提工作室门口":
     "Add one subtle studio prop only if natural: a yoga-mat bag, studio tote, water bottle, or light jacket. Keep it refined, never performance-gym heavy, and never block the sneakers.",
   公园慢走:
-    "Add one subtle park-walk prop only if natural: a light tote, water bottle, cap, or light cardigan. Avoid hiking gear and never block the sneakers.",
+    "Add one subtle park-walk prop only if natural: a light tote, paperback book, understated cap, or light cardigan. Keep it like an easy daily walk, avoid hiking or workout gear, and never block the sneakers.",
   社区步道:
-    "Add one subtle neighborhood-walk prop only if natural: a small tote, water bottle, phone, or light outer layer. Keep it simple and never block the sneakers.",
+    "Add one subtle neighborhood-walk prop only if natural: a small tote, phone, folded newspaper, or light outer layer. Keep it like ordinary neighborhood movement, avoid workout props, and never block the sneakers.",
   周末轻旅行出发:
     "Add one subtle weekend-travel prop only if natural: a travel tote, small luggage, sunglasses, light jacket, or paper bag. Keep it tidy and never block the sneakers."
 };

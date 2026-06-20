@@ -65,10 +65,10 @@ export const accessoryCountControlLine =
   "Use only the accessories that the scene truly needs. Keep accessories minimal: at most one primary handheld object and up to two small wearable accessories. Do not add a bag by default, and avoid accessory clutter.";
 
 export const bagConflictRuleLine =
-  "If a bag is hand-held, it counts as the primary handheld object. If another primary handheld object already exists, the bag may only appear as a shoulder accessory, placed nearby, or be removed entirely. Never combine a hand-held bag with coffee, flowers, book, phone, water bottle, or paper bag in the same image.";
+  "If a bag is hand-held, it counts as the primary handheld object. If another primary handheld object already exists, the bag may only appear as a shoulder accessory, be placed nearby, or be removed entirely. Never combine a hand-held bag with a second handheld prop.";
 
 export const accessoryShoeVisibilityRuleLine =
-  "Accessories, bags, straps, scarves, paper bags, totes, books, bottles, and jewelry should never block, crop, or visually merge with the sneakers. Keep at least one sneaker fully visible from toe to heel and keep the stance and foot placement clean.";
+  "Accessories and straps should never block, crop, or visually merge with the sneakers. Keep at least one sneaker fully visible from toe to heel and keep the stance and foot placement clean.";
 
 export const accessoryAntiClippingLine =
   "Keep accessories physically separated from hands, wrists, sleeves, torso, legs, trouser hems, and sneakers, with believable scale, weight, gravity, and no strap or object crossing the stance and foot placement.";
@@ -81,11 +81,7 @@ export const accessoryNegativePhrases = [
   "bag blocking sneakers",
   "strap cutting into shoulder",
   "bag merging with torso",
-  "hand-held bag plus coffee",
-  "hand-held bag plus flowers",
-  "hand-held bag plus book",
-  "hand-held bag plus water bottle",
-  "phone plus coffee",
+  "hand-held bag plus a second handheld prop",
   "too many props",
   "props competing with shoes",
   "accessories crossing legs",
@@ -158,7 +154,7 @@ export const cityAccessoryPreferences: Record<
   },
   Shenzhen: {
     preferredWearables: ["simple watch", "no-show socks"],
-    preferredBags: ["gym tote placed nearby", "small shoulder bag"],
+    preferredBags: ["light taupe shoulder bag", "clean canvas tote"],
     avoid: ["heavy accessories"]
   },
   Hangzhou: {

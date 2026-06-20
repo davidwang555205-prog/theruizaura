@@ -161,7 +161,7 @@ export function chooseSinglePrimaryHandheldObject(
   const removed = primary ? allDetected.filter((object) => object !== primary) : allDetected;
   const accessoryOnlyObjects = getAccessoryOnlyObjects(primary, allDetected);
   const handheldObjectLine = primary
-    ? `Use only one primary handheld object: ${primary}. Do not add any second hand-held coffee, flowers, book, phone, bottle, paper bag, shopping bag, or hand-held tote.`
+    ? `Use only one primary handheld object: ${primary}. Do not add any second hand-held prop.`
     : "No extra handheld props; keep hands relaxed and natural, or let one hand adjust a sleeve, trouser pocket, or clothing edge only.";
 
   return {

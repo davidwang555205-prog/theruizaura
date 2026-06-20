@@ -16,7 +16,7 @@ export const chinaUrbanStreetProfiles: Record<ChinaCityProfile, ChinaUrbanStreet
   Shanghai: {
     city: "Shanghai",
     cityStreetLine:
-      "Use a refined Shanghai-like daily street with plane-tree shadows, narrow sidewalks, muted cafe or boutique storefronts, warm grey pavement, and quiet depth.",
+      "Use a refined Shanghai-like daily street with plane-tree shadows, narrow sidewalks, muted mixed-use storefronts, warm grey pavement, and quiet depth.",
     boundaryPhrases: [
       "skyline landmarks",
       "tourist streets",
@@ -27,7 +27,7 @@ export const chinaUrbanStreetProfiles: Record<ChinaCityProfile, ChinaUrbanStreet
   Chengdu: {
     city: "Chengdu",
     cityStreetLine:
-      "Use a believable Chengdu-like daily street with relaxed tree-lined sidewalks, low-key cafe or bakery entrances, soft greenery, community storefronts, and calm pace.",
+      "Use a believable Chengdu-like daily street with relaxed tree-lined sidewalks, low-key neighborhood entrances, soft greenery, community storefronts, and calm pace.",
     boundaryPhrases: [
       "tourist landmarks",
       "internet-famous shop clutter",
@@ -38,7 +38,7 @@ export const chinaUrbanStreetProfiles: Record<ChinaCityProfile, ChinaUrbanStreet
   Shenzhen: {
     city: "Shenzhen",
     cityStreetLine:
-      "Use a refined Shenzhen-like daily street with clean sidewalks, light stone pavement, restrained cafe or fitness storefronts, soft greenery, glass-stone textures, and calm rhythm.",
+      "Use a refined Shenzhen-like daily street with clean sidewalks, light stone pavement, restrained modern storefronts, soft greenery, glass-stone textures, and calm rhythm.",
     boundaryPhrases: [
       "skyline icons",
       "tech-park promotional scenery",
@@ -49,7 +49,7 @@ export const chinaUrbanStreetProfiles: Record<ChinaCityProfile, ChinaUrbanStreet
   Hangzhou: {
     city: "Hangzhou",
     cityStreetLine:
-      "Use a refined Hangzhou-like daily street with tree-lined sidewalks, soft grey stone pavement, calm cafe or bookstore storefronts, subtle greenery, and gentle rhythm.",
+      "Use a refined Hangzhou-like daily street with tree-lined sidewalks, soft grey stone pavement, calm cultural-neighborhood storefronts, subtle greenery, and gentle rhythm.",
     boundaryPhrases: [
       "West Lake tourist scenery",
       "historical costume mood",
@@ -60,7 +60,7 @@ export const chinaUrbanStreetProfiles: Record<ChinaCityProfile, ChinaUrbanStreet
   Beijing: {
     city: "Beijing",
     cityStreetLine:
-      "Use a believable Beijing-like daily street with broad sidewalks, muted grey-beige textures, restrained cafe or gallery storefronts, soft tree shade, and composed city rhythm.",
+      "Use a believable Beijing-like daily street with broad sidewalks, muted grey-beige textures, restrained mixed-use storefronts, soft tree shade, and composed city rhythm.",
     boundaryPhrases: [
       "political landmarks",
       "tourist hutong cliches",

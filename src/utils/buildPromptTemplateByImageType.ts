@@ -61,7 +61,7 @@ export function buildPromptTemplateByImageType(input: {
       templateSceneLine:
         "Use a mirror outfit template: indoor natural light, phone as the primary handheld object, face hidden or cropped, stable mirror proportions, no long-leg mirror distortion, no sunglasses indoors, and full readable sneaker visibility.",
       templateActionLine:
-        "Use the phone as the only primary handheld object; do not add coffee, flowers, book, water bottle, or a hand-held bag.",
+        "Use the phone as the only primary handheld object; do not add any second hand-held prop.",
       templateNegativeLine:
         "exterior light in mirror room, exterior shadow patterns inside mirror scene, sunglasses indoors, coffee in mirror selfie, flowers in mirror selfie, long-leg mirror distortion"
     } satisfies PromptTemplateByImageType;

@@ -445,12 +445,15 @@ export function chooseOutfitByGarmentType(input: ChooseStandardOutfitInput): Sta
   }
 
   const manualGarment = forceGymInteriorActivewear ? "lightActive" : getManualGarmentType(input.garmentTypePreference);
+  const allowLightActive =
+    forceGymInteriorActivewear || input.sceneKey === "gymCommute" || manualGarment === "lightActive";
   const imageType = normalizeImageTypeForScene(input);
   const baseCandidates = standardOutfitLibrary
     .filter((entry) => entry.seasons.includes(input.season))
     .filter((entry) => entry.sceneAffinities.includes(input.sceneKey) || input.sceneKey === "cityCorner")
     .filter((entry) => entry.imageTypes.includes(imageType))
     .filter((entry) => !forceGymInteriorActivewear || entry.garmentType === "lightActive")
+    .filter((entry) => allowLightActive || entry.garmentType !== "lightActive")
     .filter((entry) => containsShoe(entry, input.shoe));
 
   const manualCandidates = manualGarment

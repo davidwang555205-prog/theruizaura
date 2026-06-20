@@ -232,7 +232,7 @@ function buildAccessoryLine(input: {
   if (input.strategy === "bagAsPrimaryHandheldObject") {
     return [
       accessoryCountControlLine,
-      `Use the ${input.primary || input.bag || "bag"} as the only primary handheld object; remove coffee, flowers, books, phones, water bottles, and other hand-held props.`,
+      `Use the ${input.primary || input.bag || "bag"} as the only primary handheld object; remove every other hand-held prop.`,
       wearableLine,
       accessoryAntiClippingLine
     ]

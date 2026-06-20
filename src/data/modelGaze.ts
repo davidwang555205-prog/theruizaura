@@ -22,13 +22,13 @@ const naturalCameraGazeCompact =
   "Let the woman look naturally toward the camera with calm, relaxed, lightly engaged eyes, as if she briefly noticed a friend taking the photo during a real daily moment. Keep the eye focus alive and specific, with a relaxed mouth, subtle facial asymmetry, normal eyelid tension, and a quiet human expression. The gaze should feel warm and believable, not blank, forced, commercial, or influencer-like.";
 
 const taskFocusedGazeCompact =
-  "Use a natural task-focused gaze when the scene calls for it: she may look at what she is doing, such as holding a bag, browsing a book, choosing flowers, checking a tote, adjusting clothing, or walking through the scene. A soft brief glance toward the camera is also allowed if it feels like a real customer noticing a friend, not a staged portrait.";
+  "Use a natural task-focused gaze when the scene calls for it: she may look at the single selected object, adjust clothing, check her outfit, or focus on movement and surroundings that belong to the selected location. A soft brief glance toward the camera is also allowed if it feels like a real customer noticing a friend, not a staged portrait.";
 
 const cameraExpressionBoundaryCompact =
   "When looking at the camera, use relaxed lips, a faint natural smile, calm confidence, or soft friendly focus. Avoid beauty-ad eye contact, forced smile, influencer stare, empty doll eyes, lifeless gaze, deadpan face, or commercial model intensity.";
 
 const cameraPoseBoundaryCompact =
-  "If she looks at the camera, keep the body relaxed and believable, with slight weight shift and a natural hand position holding a tote, coffee, water bottle, book, flowers, gym bag, or jacket edge.";
+  "If she looks at the camera, keep the body relaxed and believable, with slight weight shift and a natural hand position using at most one object that clearly belongs to the selected scene.";
 
 const gymCameraGazeBoundaryCompact =
   "In gym scenes, camera gaze should feel calm, composed, and lightly engaged during a training pause or movement transition. Avoid gym-influencer eye contact, aggressive workout stare, or sportswear campaign intensity.";
