@@ -1,4 +1,5 @@
 const sensitiveReplacements: Array<[RegExp, string]> = [
+  [/\bvamp\b/gi, "forefoot upper"],
   [/\bexposed performance-bra focus\b/gi, "insufficiently layered activewear"],
   [/\bexposed sports-bra focus\b/gi, "insufficiently layered activewear"],
   [/\btiny sports bra focus\b/gi, "insufficiently layered activewear"],
@@ -85,6 +86,7 @@ const sensitiveReplacements: Array<[RegExp, string]> = [
 const deletionPatterns = [/\bbooty\b/gi];
 
 export const sensitiveWordingPatterns = [
+  "vamp",
   "sexy",
   "seductive",
   "sensual",

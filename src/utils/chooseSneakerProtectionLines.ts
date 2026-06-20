@@ -40,7 +40,7 @@ const shoeClippingLine =
 const lacesLine = "Keep laces naturally tied, with readable loops, lace ends, eyelets, and tongue.";
 
 const onFootMaterialResponseLine =
-  "When worn, allow only subtle physical vamp flex, gentle collar compression, settled laces, and grounded contact shadow; preserve the fixed toe box, panels, outsole, and silhouette.";
+  "When worn, allow only subtle physical forefoot upper flex, gentle collar compression, settled laces, and grounded contact shadow; preserve the fixed toe box, panels, outsole, and silhouette.";
 
 function isWornPeopleImage(imageType: TeamImageType) {
   return imageType === "产品上脚图" || imageType === "对镜穿搭图" || imageType === "生活场景图";
