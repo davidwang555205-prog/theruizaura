@@ -508,6 +508,8 @@ function selectByRotation(candidates: OutfitEntry[], input: ChoosePerSceneOutfit
 }
 
 export function choosePerSceneOutfitLine(input: ChoosePerSceneOutfitInput): ChoosePerSceneOutfitResult {
+  if (hasUserSpecifiedClothingRequirement(input.userExtraRequirement)) return emptySelection;
+
   const expandedLifestyleSelection = chooseExpandedLifestyleOutfit(input);
   if (expandedLifestyleSelection) return expandedLifestyleSelection;
 

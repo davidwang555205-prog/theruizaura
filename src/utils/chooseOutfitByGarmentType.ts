@@ -630,7 +630,7 @@ function chooseStudioLaunchOutfit(input: ChooseStandardOutfitInput): StandardOut
   const constructionLine = studioLuxuryConstructionLines[variationIndex];
   const materialLine = studioSeasonMaterialLines[input.season];
   const paletteClause =
-    "keeping every garment low-saturation in cream, warm grey, soft stone, taupe, charcoal, or restrained navy, with no high-saturation clothing, visible logo, showy accessory, or handheld styling prop";
+    "keeping every garment low-saturation in ivory, cream, oatmeal, warm grey, soft stone, taupe, muted blue, charcoal, winter white, or restrained navy, with no high-saturation clothing, visible logo, showy accessory, or handheld styling prop";
   let topCategory = "luxury-cut neutral top";
   let bottomCategory = "luxury-cut neutral garment";
   let compactLine = "";
@@ -678,6 +678,32 @@ function chooseStudioLaunchOutfit(input: ChooseStandardOutfitInput): StandardOut
   };
 }
 
+function chooseSeasonSafeManualOutfit(input: ChooseStandardOutfitInput): StandardOutfitSelection {
+  const studioSafeSelection = chooseStudioLaunchOutfit(input);
+  const selected = studioSafeSelection.selectedOutfit;
+
+  if (!selected) return studioSafeSelection;
+
+  const compactLine = selected.compactLine
+    .replace(/refined studio activewear/gi, "refined light activewear")
+    .replace(/handheld styling prop/gi, "unnecessary handheld styling prop");
+  const selectedOutfit: StandardOutfitEntry = {
+    ...selected,
+    id: `season-safe-${input.sceneKey}-${selected.id}`,
+    sceneAffinities: [input.sceneKey],
+    compactLine,
+    stylingRealismLine:
+      "Keep the explicitly selected garment category, while adapting its fabric weight, layering, cut, and coverage to the selected season and scene."
+  };
+
+  return {
+    outfitLine: selectedOutfit.compactLine,
+    stylingRealismLine: selectedOutfit.stylingRealismLine ?? stylingRealismLines[0],
+    selectedOutfit,
+    fallbackReason: "Used a season-safe outfit while preserving the selected garment category."
+  };
+}
+
 function scoreOutfit(entry: StandardOutfitEntry, input: ChooseStandardOutfitInput) {
   const tendency = sceneOutfitTendencyMap[input.sceneKey];
   const imageType = normalizeImageTypeForScene(input);
@@ -722,7 +748,7 @@ export function chooseOutfitByGarmentType(input: ChooseStandardOutfitInput): Sta
   if (input.userSpecifiedClothing && !forceGymInteriorActivewear) {
     return {
       outfitLine:
-        "Use the user's requested clothing direction in a refined, mature, wearable THERUIZ AURA way, keeping the outfit polished, low-saturation, and not pose-centered.",
+        "Follow the user's requested clothing direction exactly, refining only its cut, fabric quality, fit, and styling so it remains mature, wearable, and consistent with THERUIZ AURA.",
       stylingRealismLine: creatorStylingBoundaryLine,
       selectedOutfit: null
     };
@@ -753,7 +779,11 @@ export function chooseOutfitByGarmentType(input: ChooseStandardOutfitInput): Sta
   const manualCandidates = manualGarment
     ? baseCandidates.filter((entry) => entry.garmentType === manualGarment)
     : baseCandidates;
-  const fallbackReason = manualGarment && !manualCandidates.length ? "Selected garment type was softened for this scene." : undefined;
+  if (manualGarment && !manualCandidates.length) {
+    return chooseSeasonSafeManualOutfit(input);
+  }
+
+  const fallbackReason = undefined;
   const candidatePool = manualCandidates.length ? manualCandidates : baseCandidates;
   const premiumCandidates = input.preferPremiumWardrobe
     ? candidatePool.filter((entry) => entry.isPremiumWardrobe)

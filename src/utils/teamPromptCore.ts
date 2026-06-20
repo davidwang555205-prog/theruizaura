@@ -10,7 +10,7 @@ import type {
   TeamSeason,
   TeamShoe
 } from "../types";
-import { type StandardSceneKey } from "../data/outfitDiversityRules";
+import { getManualGarmentType, type StandardSceneKey } from "../data/outfitDiversityRules";
 import { hasUserSpecifiedClothingRequirement } from "./outfitLibraryFilters";
 import { buildStructuredPrompt } from "./buildStructuredPrompt";
 import { buildPromptTemplateByImageType } from "./buildPromptTemplateByImageType";
@@ -652,15 +652,15 @@ const MIRROR_SCENE_VARIATION_LINES: Partial<Record<Exclude<TeamScenePreference, 
 
 const SHOE_STYLE_LINES: Record<TeamShoe, string> = {
   "Cloud Dancer 云舞者":
-    "Classic clean light-tone foundation for white shirts, beige trousers, soft denim, and refined daily styling.",
+    "Classic clean light-tone foundation; coordinate it with cream, warm beige, soft denim blue, and refined daily neutrals.",
   "Sand Dollar 沙钱白":
-    "Classic clean light-tone foundation for white shirts, beige trousers, soft denim, and refined daily styling.",
+    "Warm off-white foundation; coordinate it with oatmeal, soft stone, pale khaki, and refined everyday neutrals.",
   "Delphinium Blue 飞燕草蓝":
-    "Low-saturation airy blue for white shirts, pale denim, oatmeal knitwear, and fresh spring-summer styling.",
+    "Low-saturation airy blue; coordinate it with warm white, pale denim blue, oatmeal, and fresh light neutrals.",
   "Silver Romance 银色浪漫":
     "Soft moonlit metallic accent for warm grey, cream white, and refined urban styling; keep away from chrome or cheap shine.",
   "Aire 微风":
-    "Light breathable spring-summer feeling for linen, airy shirts, and light trousers; keep away from sporty running-shoe styling.",
+    "Light breathable spring-summer feeling for linen, airy woven texture, and a light neutral palette; keep away from sporty running-shoe styling.",
   "Cappuccino 卡布奇诺":
     "Warm coffee suede mood for knitwear, oatmeal, beige, and soft autumn-winter layers; keep away from masculine or heavy styling.",
   "Lemon 柠檬":
@@ -998,7 +998,9 @@ function getBasePlaceLineForPrompt(input: {
   cityStreetPlaceLine: string;
 }) {
   if (input.params.imageType === "对镜穿搭图") {
-    return "";
+    // Core mirror scenes already provide a mirror-specific location variation.
+    // Expanded mirror scenes still need their selected place to remain explicit.
+    return MIRROR_SCENE_VARIATION_LINES[input.resolvedScene]?.length ? "" : input.sceneText;
   }
   if (shouldUseSummerLifestylePeopleSupport(input.params, input.resolvedScene)) {
     return input.sceneText;
@@ -1322,14 +1324,11 @@ function getEffectiveGarmentTypePreference(
 function getGarmentTypeLockLine(preference: TeamGarmentTypePreference, season: TeamSeason) {
   if (preference === "自动匹配") return "";
 
-  const seasonSafeFallback =
-    "Selected clothing type was automatically softened for season and scene compatibility; use the chosen season-safe outfit and keep the sneakers readable.";
-
   if (preference === "轻运动" && season !== "夏") {
     return "Selected clothing type: refined light activewear; keep active trousers, leggings, zip layers, or movement layers explicit and premium, avoiding shorts unless the scene is clearly indoor fitness.";
   }
   if (preference === "短裤" && season !== "夏") {
-    return seasonSafeFallback;
+    return `${GARMENT_TYPE_LOCK_LINES[preference]} Use season-appropriate tailoring, fabric weight, leg coverage, and layering without changing shorts into trousers or another garment category.`;
   }
   if ((preference === "裙装" || preference === "连衣裙") && season === "冬") {
     return `${GARMENT_TYPE_LOCK_LINES[preference]} Use believable winter layering and avoid light summer styling.`;
@@ -1530,7 +1529,7 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
         generationNonce: params.generationNonce
       })
     : null;
-  const outfitSelection = perSceneOutfitSelection?.selectedPerSceneOutfitLine
+  const outfitSelection = perSceneOutfitSelection?.selectedPerSceneOutfitLine && effectiveGarmentTypePreference === "自动匹配"
     ? { outfitLine: "", stylingRealismLine: "", selectedOutfit: null }
     : chooseOutfitByGarmentType({
         imageType: params.imageType,
@@ -1562,6 +1561,13 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
       : null;
   const selectedPremiumWardrobe =
     premiumWardrobeSelection?.selectedOutfit?.isPremiumWardrobe ? premiumWardrobeSelection : null;
+  const requestedManualGarmentType = getManualGarmentType(effectiveGarmentTypePreference);
+  const lockedManualOutfitSelection = requestedManualGarmentType
+    ? [selectedPremiumWardrobe, outfitSelection].find(
+        (selection) => selection?.selectedOutfit?.garmentType === requestedManualGarmentType
+      ) ?? null
+    : null;
+  const selectedStandardOutfit = lockedManualOutfitSelection ?? selectedPremiumWardrobe;
   const sceneText = getSceneText(params, resolvedScene, sceneKey);
   const sceneVariationLine = getSceneVariationLine(params, resolvedScene, sceneKey);
   const basePlaceLine = getBasePlaceLineForPrompt({
@@ -1574,7 +1580,9 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
   const shoeStyleLine =
     sceneKey === "gymInterior" && hasShoe
       ? "Style the selected THERUIZ AURA sneaker only with refined fitness-related clothing, keeping the look active, clean, and gym-appropriate."
-      : getShoeStyleLine(params, hasShoe);
+      : userSpecifiedClothing
+        ? ""
+        : getShoeStyleLine(params, hasShoe);
   const sneakerProtection = chooseSneakerProtectionLines({
     imageType: params.imageType,
     shoe: params.shoe,
@@ -1583,9 +1591,9 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
     hasShoe
   });
   const baseOutfitLine =
-    selectedPremiumWardrobe?.outfitLine ?? perSceneOutfitSelection?.selectedPerSceneOutfitLine ?? outfitSelection.outfitLine;
+    selectedStandardOutfit?.outfitLine ?? perSceneOutfitSelection?.selectedPerSceneOutfitLine ?? outfitSelection.outfitLine;
   const baseStylingRealismLine =
-    selectedPremiumWardrobe?.stylingRealismLine ??
+    selectedStandardOutfit?.stylingRealismLine ??
     perSceneOutfitSelection?.selectedStylingRealismLine ??
     outfitSelection.stylingRealismLine;
   const preAccessoryOutfitLine = [baseOutfitLine, shoeStyleLine].filter(Boolean).join(" ");
@@ -1630,23 +1638,23 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
     cityProfile: selectedCity,
     selectedOutfit: {
       bagCategory:
-        selectedPremiumWardrobe?.selectedOutfit?.bagCategory ??
+        selectedStandardOutfit?.selectedOutfit?.bagCategory ??
         perSceneOutfitSelection?.selectedBagCategory ??
         outfitSelection.selectedOutfit?.bagCategory ??
         null,
       accessoryCategory:
-        selectedPremiumWardrobe?.selectedOutfit?.accessoryCategory ??
+        selectedStandardOutfit?.selectedOutfit?.accessoryCategory ??
         perSceneOutfitSelection?.selectedAccessoryCategory ??
         outfitSelection.selectedOutfit?.accessoryCategory ??
         null
     },
     selectedGarmentType:
-      selectedPremiumWardrobe?.selectedOutfit?.garmentType ??
+      selectedStandardOutfit?.selectedOutfit?.garmentType ??
       perSceneOutfitSelection?.selectedGarmentType ??
       outfitSelection.selectedOutfit?.garmentType ??
       null,
     selectedOutfitStyle:
-      selectedPremiumWardrobe?.selectedOutfit?.outfitStyle ??
+      selectedStandardOutfit?.selectedOutfit?.outfitStyle ??
       perSceneOutfitSelection?.selectedOutfitStyle ??
       outfitSelection.selectedOutfit?.outfitStyle ??
       null,
@@ -1718,7 +1726,7 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
   const outfitStructuredLine = shouldUsePeopleStyling(params.imageType)
     ? [
         outfitLine,
-        getGarmentTypeLockLine(effectiveGarmentTypePreference, params.season),
+        userSpecifiedClothing ? "" : getGarmentTypeLockLine(effectiveGarmentTypePreference, params.season),
         sceneKey === "gymInterior" ? gymInteriorClothingLockLine : "",
         saturatedGarmentBoundaryLine,
         baseStylingRealismLine,
@@ -1928,7 +1936,7 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
     cityProfile: usesSummerLifestylePeopleSupport || usesNonProductAtmosphere ? null : selectedCity,
     selectedShoe: params.shoe,
     lightingSpaceType: validationLightingSpaceType,
-    selectedOutfit: selectedPremiumWardrobe?.selectedOutfit ?? perSceneOutfitSelection ?? outfitSelection.selectedOutfit,
+    selectedOutfit: selectedStandardOutfit?.selectedOutfit ?? perSceneOutfitSelection ?? outfitSelection.selectedOutfit,
     selectedAccessory: accessorySelection.selectedBagAccessory,
     selectedHandheldObject: handheldSelection.primaryHandheldObject,
     userExtraRequirement: sanitizedUserExtraRequirement,
@@ -1948,7 +1956,7 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
     cityProfile: usesSummerLifestylePeopleSupport || usesNonProductAtmosphere ? null : selectedCity,
     selectedShoe: params.shoe,
     lightingSpaceType: validationLightingSpaceType,
-    selectedOutfit: selectedPremiumWardrobe?.selectedOutfit ?? perSceneOutfitSelection ?? outfitSelection.selectedOutfit,
+    selectedOutfit: selectedStandardOutfit?.selectedOutfit ?? perSceneOutfitSelection ?? outfitSelection.selectedOutfit,
     selectedAccessory: accessorySelection.selectedBagAccessory,
     selectedHandheldObject: handheldSelection.primaryHandheldObject,
     userExtraRequirement: sanitizedUserExtraRequirement,
