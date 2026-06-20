@@ -4,6 +4,7 @@ import type { TeamImageType } from "../types";
 
 export type PromptTemplateKind =
   | "onFootOutdoor"
+  | "launchStudio"
   | "mirrorCloset"
   | "indoorLifestyle"
   | "indoorCommercial"
@@ -42,6 +43,38 @@ export function buildPromptTemplateByImageType(input: {
         "Use a material-detail or behind-the-scenes template: real product photography light, tactile material samples, clear panel boundaries, shoelace and stitching detail if visible, no artificial shine, and no exaggerated texture.",
       templateActionLine: "If hands appear, keep them secondary, natural, and not covering the product or material details.",
       templateNegativeLine: "artificial shine, exaggerated texture, changed panel boundary, factory clutter, technical catalog style"
+    } satisfies PromptTemplateByImageType;
+  }
+
+  if (input.sceneKey === "studioLaunch" || input.lightingSpaceType === "studioLaunchLight") {
+    if (input.imageType === "非产品氛围图") {
+      return {
+        templateKind: "launchStudio",
+        templateSceneLine:
+          "Use a non-product launch-studio atmosphere template with a real seamless backdrop, restrained production traces, soft directional light, accurate tonal depth, and no direct product-hero pressure.",
+        templateActionLine: "",
+        templateNegativeLine:
+          "product-only hero shot, fake CGI cyclorama, glossy showroom set, equipment clutter, multiple studio props, decorative prop cluster, floating studio objects, hard beauty lighting, high-saturation clothing"
+      } satisfies PromptTemplateByImageType;
+    }
+    if (input.imageType === "对镜穿搭图") {
+      return {
+        templateKind: "launchStudio",
+        templateSceneLine:
+          "Use a launch-studio mirror outfit template with a freestanding full-length mirror, diffused directional light, stable reflection, natural phone grip, clear outfit proportions, and fully readable sneakers.",
+        templateActionLine: "Use the phone as the only primary handheld object and keep all studio equipment outside the main reflection.",
+        templateNegativeLine:
+          "bathroom selfie, beauty-selfie light, long-leg mirror distortion, equipment blocking reflection, glossy showroom mirror set, high-saturation clothing, decorative prop cluster"
+      } satisfies PromptTemplateByImageType;
+    }
+    return {
+      templateKind: "launchStudio",
+      templateSceneLine:
+        "Use a launch-studio lifestyle template with a restrained seamless backdrop, soft directional product-readable light, stable floor contact, natural full-figure proportions, clear sneakers, and editorial-commercial balance.",
+      templateActionLine:
+        "Use one simple launch-ready stance or small controlled step with relaxed hands, natural weight shift, and unobstructed sneakers.",
+      templateNegativeLine:
+        "rigid showroom pose, glossy luxury set, flat catalog flash, CGI cyclorama, floating floor contact, equipment clutter, multiple studio props, decorative prop cluster, high-saturation clothing, cropped sneakers"
     } satisfies PromptTemplateByImageType;
   }
 

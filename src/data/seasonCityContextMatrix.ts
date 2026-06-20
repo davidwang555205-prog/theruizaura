@@ -31,7 +31,7 @@ const cityContexts: SeasonCityContext[] = [
     lightLine: "Warm-neutral summer street brightness with soft tree shadows, restrained storefront light, and no harsh noon sun.",
     photoMoodLine: "A breathable Shanghai summer street mood with refined daily clarity and visible material texture.",
     layerWeight: "lightLayer",
-    outfitLayerSuggestion: "clean sleeveless top with light layer, cotton shirt, summer trousers, denim, Bermuda shorts, or midi skirt.",
+    outfitLayerSuggestion: "clean sleeveless top with light layer, cotton shirt, summer trousers, denim trousers, cotton or twill Bermuda shorts, or midi skirt.",
     avoidLine: "Avoid harsh noon sun, sweaty mood, overexposed pavement, and crowded tourist street feeling."
   },
   {
@@ -71,7 +71,7 @@ const cityContexts: SeasonCityContext[] = [
     lightLine: "Humid but clean summer brightness with tree shade, calm street pace, and no sweaty or oily mood.",
     photoMoodLine: "A breathable Chengdu summer lifestyle mood with relaxed neighborhood rhythm and soft natural brightness.",
     layerWeight: "lightLayer",
-    outfitLayerSuggestion: "cotton shirt, clean tee, denim, Bermuda shorts, relaxed trousers, light skirt, or dress.",
+    outfitLayerSuggestion: "cotton shirt, clean tee, denim trousers or skirt, cotton or twill Bermuda shorts, relaxed trousers, light skirt, or dress.",
     avoidLine: "Avoid hotpot-street clutter, sweaty skin, neon summer, beach vacation mood, and roadside chaos."
   },
   {
@@ -111,7 +111,7 @@ const cityContexts: SeasonCityContext[] = [
     lightLine: "Clear bright summer street light with clean shadows, breathable air, modern surfaces, and no harsh heat.",
     photoMoodLine: "A polished Shenzhen summer mood with clean modern sidewalks, restrained mixed-use storefronts, and fresh brightness.",
     layerWeight: "lightLayer",
-    outfitLayerSuggestion: "clean tee, cotton shirt, clean sleeveless top with light layer, straight trousers, denim, Bermuda shorts, or light active outfit.",
+    outfitLayerSuggestion: "clean tee, cotton shirt, clean sleeveless top with light layer, straight trousers, denim trousers, cotton or twill Bermuda shorts, or light active outfit.",
     avoidLine: "Avoid tropical color, neon summer, sweaty mood, harsh noon sun, and beach vacation styling."
   },
   {
@@ -151,7 +151,7 @@ const cityContexts: SeasonCityContext[] = [
     lightLine: "Soft summer tree shade with clean humid brightness, grey stone texture, and relaxed cultural street atmosphere.",
     photoMoodLine: "A breathable Hangzhou summer mood with calm cultural-neighborhood storefronts, subtle greenery, and gentle daily clarity.",
     layerWeight: "lightLayer",
-    outfitLayerSuggestion: "clean tee, light shirt, denim, Bermuda shorts, midi skirt, dress, or thin cardigan.",
+    outfitLayerSuggestion: "clean tee, light shirt, denim trousers or skirt, cotton or twill Bermuda shorts, midi skirt, dress, or thin cardigan.",
     avoidLine: "Avoid high-saturation summer color, tourist scenic streets, harsh noon sun, and overexposed pavement."
   },
   {
@@ -191,7 +191,7 @@ const cityContexts: SeasonCityContext[] = [
     lightLine: "Clear bright summer urban light with controlled shadows, dry clean air, and no harsh tourist street mood.",
     photoMoodLine: "A restrained Beijing summer mood with clean city depth, mature daily rhythm, and real street brightness.",
     layerWeight: "lightLayer",
-    outfitLayerSuggestion: "clean shirt, lightweight trousers, denim, structured tee, light jacket for morning, or refined shorts when appropriate.",
+    outfitLayerSuggestion: "clean shirt, lightweight trousers, denim trousers, structured tee, light jacket for morning, or cotton or twill refined shorts when appropriate.",
     avoidLine: "Avoid harsh noon sun, sweaty mood, tourist landmark background, neon summer, and crowded commercial streets."
   },
   {
@@ -231,7 +231,7 @@ const cityContexts: SeasonCityContext[] = [
     lightLine: "Bright breathable daylight with soft street shadows, warm-neutral color, and realistic daily clarity.",
     photoMoodLine: "A balanced Chinese city summer mood with clean sidewalks, muted storefronts, and breathable daily brightness.",
     layerWeight: "lightLayer",
-    outfitLayerSuggestion: "cotton shirt, clean tee, clean sleeveless top with light layer, trousers, denim, Bermuda shorts, or light dress.",
+    outfitLayerSuggestion: "cotton shirt, clean tee, clean sleeveless top with light layer, trousers, denim trousers, cotton or twill Bermuda shorts, or light dress.",
     avoidLine: "Avoid harsh noon sun, tropical color, sweaty mood, neon summer, and overexposed pavement."
   },
   {

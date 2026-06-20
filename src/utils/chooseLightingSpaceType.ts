@@ -31,6 +31,8 @@ function userRequestedLightingSpace(extra = ""): LightingSpaceType | null {
 }
 
 function inferLightingSpaceType(input: ChooseLightingSpaceTypeInput): LightingSpaceType {
+  if (input.scenePreference === "棚内上新拍摄") return "studioLaunchLight";
+
   const requested = userRequestedLightingSpace(input.userExtraRequirement);
   if (requested) return requested;
 

@@ -19,6 +19,7 @@ export type StandardSceneKey =
   | "gymInterior"
   | "stillLife"
   | "materialTable"
+  | "studioLaunch"
   | "atmosphere";
 
 export const garmentTypePreferenceMap: Record<Exclude<TeamGarmentTypePreference, "自动匹配">, TeamGarmentType> = {
@@ -78,6 +79,11 @@ export const sceneOutfitTendencyMap: Partial<
     preferredStyles: ["bloggerLite", "refinedFeminine", "cleanMinimal"],
     preferredGarments: ["trousers", "skirt", "shorts", "dress", "lightActive"],
     preferredColors: ["lightClean", "neutralDaily", "darkAnchor", "softAccent", "denimBased"]
+  },
+  studioLaunch: {
+    preferredStyles: ["cleanMinimal", "polishedCommuter", "refinedFeminine", "bloggerLite"],
+    preferredGarments: ["trousers", "skirt", "shorts", "dress"],
+    preferredColors: ["lightClean", "neutralDaily", "darkAnchor", "denimBased"]
   },
   gymCommute: {
     preferredStyles: ["softActive", "realDaily"],

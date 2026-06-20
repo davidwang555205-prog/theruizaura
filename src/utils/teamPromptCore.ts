@@ -183,6 +183,8 @@ const TEAM_SCENE_TEXT: Record<Exclude<TeamScenePreference, "自动匹配">, stri
     "Use a refined material table with leather swatches, suede samples, shoelaces, color cards, product notes, or hands arranging materials.",
   拍摄花絮:
     "Use a quiet behind-the-scenes shooting moment with styling table, camera monitor, light stand edge, paper shot list, wardrobe pieces, or hands adjusting details.",
+  棚内上新拍摄:
+    "Use a near-empty indoor launch studio with a warm-white, cream, or soft-stone seamless background, soft directional studio light, believable floor contact, and generous clean negative space. Prefer no props; keep the image photographic, tactile, and suitable for a new-product launch rather than a glossy showroom campaign.",
   周末轻采购:
     "Use a refined weekend errands atmosphere with one restrained daily-life cue, a simple kitchen or table surface, and warm neutral order. The mood should feel like real life made beautiful through restraint and good taste.",
   健身房内:
@@ -550,6 +552,12 @@ const EXPANDED_SCENE_PROPS_LINES: Record<ExpandedLifestyleScene, string> = {
     "Add one subtle weekend-travel prop only if natural: a travel tote, small luggage, sunglasses, light jacket, or paper bag. Keep it tidy and never block the sneakers."
 };
 
+const STUDIO_LAUNCH_PROPS_LINE =
+  "Prefer a clean studio with no props. Only when composition truly needs support, add at most one quiet neutral studio cue such as a low matte plinth or a barely visible seamless-paper edge. Do not combine props, keep equipment outside the main frame, preserve generous negative space, and never block the sneakers.";
+
+const STUDIO_LAUNCH_OUTFIT_BOUNDARY_LINE =
+  "Studio clothing must stay low-saturation and neutral: cream, warm grey, soft stone, taupe, navy, charcoal, muted brown, or restrained denim. No cobalt blue, tomato red, forest green, deep burgundy, neon, or other high-saturation garments; preserve the sneaker's exact color.";
+
 const footPlacementSafetyLine =
   "Foot placement must stay stable and readable: keep clear ground contact, realistic toe direction, correct left-right shoe relationship, natural ankle-to-shoe alignment, and no overlapping legs hiding the sneaker shape. Props must not cover the shoes, foot placement, laces, tongue, toe box, heel, or outsole.";
 
@@ -619,6 +627,11 @@ const MIRROR_SCENE_VARIATION_LINES: Partial<Record<Exclude<TeamScenePreference, 
     "Use a mirror outfit record in a quiet getting-ready setting with only subtle shooting-prep cues, not a studio behind-the-scenes setup.",
     "Set the mirror moment near a styling table or wardrobe rail, keeping camera equipment minimal and secondary.",
     "Use a real pre-shoot outfit check in a calm room mirror, with the outfit and sneakers clearer than any production detail."
+  ],
+  棚内上新拍摄: [
+    "Use a full-length freestanding mirror inside a restrained warm-white launch studio, with clean floor contact and minimal production equipment kept outside the main composition.",
+    "Set the mirror outfit record against a soft-stone seamless studio background, using one reflector edge or styling rail only as a quiet working cue.",
+    "Use a calm pre-launch mirror check in a real studio with diffused directional light, natural phone grip, and both sneakers clearly reflected."
   ],
   周末轻采购: [
     "Use a weekend-errands-before-leaving mirror moment with a warm entryway or kitchen-adjacent mirror and one restrained daily-life cue.",
@@ -794,6 +807,9 @@ function resolveSceneKey(params: TeamPromptParams, resolvedScene: Exclude<TeamSc
   if (params.imageType === "产品静物图") return "stillLife";
   if (resolvedScene === "健身房内" || /gyminterior|健身房内|premium gym/.test(text)) return "gymInterior";
   if (resolvedScene === "去运动的路上" || /gymcommute|去运动|健身房路上/.test(text)) return "gymCommute";
+  if (resolvedScene === "棚内上新拍摄") {
+    return params.imageType === "拍摄花絮 / 材质图" ? "materialTable" : "studioLaunch";
+  }
   if (params.imageType === "对镜穿搭图") {
     if (resolvedScene === "通勤上班") return "commute";
     if (resolvedScene === "周末城市散步") return "weekendCityWalk";
@@ -854,6 +870,12 @@ function getSceneVariationLine(
   resolvedScene: Exclude<TeamScenePreference, "自动匹配">,
   sceneKey: StandardSceneKey
 ) {
+  const studioLaunchLines = [
+    "Use a near-empty warm-white seamless studio with a soft-stone floor, one large diffused key light, gentle contact shadows, and uncluttered launch-ready framing.",
+    "Set the image against a clean cream cyclorama with restrained side light, subtle tonal depth, open floor space, and no decorative props.",
+    "Use a soft-grey-beige studio sweep with generous negative space, accurate material color, realistic floor contact, and no visible luxury-set decoration.",
+    "Use a plain tactile linen-toned studio backdrop with diffused directional light and an editorial but commercially readable new-launch composition, without visible equipment or prop clusters."
+  ];
   const windowReadingLines = [
     "Use a quiet window-side chair or sofa edge with linen curtains, one book, and calm private space.",
     "Set the moment beside a real window with a small table, magazine or cup, and warm neutral interior depth.",
@@ -862,7 +884,9 @@ function getSceneVariationLine(
   ];
   let lines: string[] | undefined;
 
-  if (isNonProductAtmosphereImage(params.imageType)) {
+  if (resolvedScene === "棚内上新拍摄") {
+    lines = studioLaunchLines;
+  } else if (isNonProductAtmosphereImage(params.imageType)) {
     lines = [];
   } else if (params.imageType === "对镜穿搭图") {
     lines = MIRROR_SCENE_VARIATION_LINES[resolvedScene];
@@ -912,6 +936,21 @@ function getModelLine(params: TeamPromptParams, resolvedScene: Exclude<TeamScene
 }
 
 function getSceneText(params: TeamPromptParams, resolvedScene: Exclude<TeamScenePreference, "自动匹配">, sceneKey: StandardSceneKey) {
+  if (resolvedScene === "棚内上新拍摄") {
+    if (params.imageType === "产品静物图") {
+      return "Create a launch-ready sneaker still life on a clean matte warm-stone, cream, or soft-grey studio surface with diffused directional light, accurate color, natural contact shadow, and the product as the absolute subject. Prefer no props; if needed, use only one small neutral support element.";
+    }
+    if (params.imageType === "拍摄花絮 / 材质图") {
+      return "Use a real new-launch studio preparation moment with one focused working cue: a styling table detail, one material swatch group, one color card, a camera-monitor edge, or hands adjusting one detail. Keep equipment sparse, the frame clean, and materials tactile.";
+    }
+    if (isNonProductAtmosphereImage(params.imageType)) {
+      return "Create a clean non-product launch-studio atmosphere with warm-white seamless paper, soft light falloff, and at most one quiet working trace such as a folded wardrobe piece or shot-list edge. Keep it like a restrained real studio between takes, not a product hero shot or equipment display.";
+    }
+    if (params.imageType === "对镜穿搭图") {
+      return "Use a freestanding full-length mirror inside a restrained launch studio with a warm neutral seamless background, natural phone-hand structure, believable reflection, stable proportions, and clearly readable sneakers.";
+    }
+    return "Use a near-empty indoor new-launch studio with a warm-white, cream, or soft-stone seamless background, soft directional light, clean floor contact, generous negative space, and editorial-commercial balance. Prefer no props and keep the woman and sneakers natural, clear, and launch-ready without a rigid showroom pose.";
+  }
   if (params.imageType === "产品静物图") {
     if (resolvedScene === "工作台 / 桌边整理") {
       return "Use a refined worktable still-life setup with believable paper, notebook, color-card, or care-tool details kept secondary. Keep the sneaker as the absolute subject with clear scale, natural contact, and unobstructed structure.";
@@ -976,9 +1015,13 @@ function getBasePlaceLineForPrompt(input: {
 
 function getSceneRealismLine(input: {
   params: TeamPromptParams;
+  resolvedScene: Exclude<TeamScenePreference, "自动匹配">;
   sceneKey: StandardSceneKey;
   hasCityStreetLine: boolean;
 }) {
+  if (input.resolvedScene === "棚内上新拍摄") {
+    return "Use a physically believable, near-empty professional studio: seamless paper meets the floor naturally, light direction and contact shadows remain consistent, and material colors stay accurate. Prefer no visible equipment; if one support element is necessary, keep it neutral and secondary. Avoid fake CGI cyclorama depth, floating feet or products, glossy showroom staging, decorative prop clusters, and equipment clutter.";
+  }
   if (input.params.imageType === "产品静物图" || input.sceneKey === "stillLife") {
     return "Use a real still-life photography setup with believable surface texture, natural object contact, soft shadows, restrained props, clear product scale, and no prop covering the shoe.";
   }
@@ -1360,7 +1403,9 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
   const usesSummerLifestylePeopleSupport = shouldUseSummerLifestylePeopleSupport(params, resolvedScene);
   const summerLifestyleScene = isSummerLifestyleScene(resolvedScene) ? resolvedScene : null;
   const scenePropsLine = shouldUsePeopleStyling(params.imageType)
-    ? summerLifestyleScene
+    ? resolvedScene === "棚内上新拍摄"
+      ? STUDIO_LAUNCH_PROPS_LINE
+      : summerLifestyleScene
       ? SUMMER_LIFESTYLE_SCENE_PROPS[summerLifestyleScene]
       : isExpandedLifestyleScene(resolvedScene)
         ? EXPANDED_SCENE_PROPS_LINES[resolvedScene]
@@ -1616,7 +1661,16 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
     selectedBagAccessory: accessorySelection.selectedBagAccessory,
     selectedPrimaryHandheldObject: primaryHandheldSelection.primaryHandheldObject
   });
-  const outfitLine = [normalizedBaseOutfitLine, shoeStyleLine].filter(Boolean).join(" ");
+  const saturatedGarmentBoundaryLine = /only saturated garment|only saturated accent/i.test(normalizedBaseOutfitLine)
+    ? "Use exactly one high-saturation garment as the visual anchor; keep every other garment, bag, accessory, backdrop, and styling detail neutral, and never add a second saturated color."
+    : "";
+  const outfitLine = [
+    normalizedBaseOutfitLine,
+    resolvedScene === "棚内上新拍摄" ? STUDIO_LAUNCH_OUTFIT_BOUNDARY_LINE : "",
+    shoeStyleLine
+  ]
+    .filter(Boolean)
+    .join(" ");
   const handheldSelection = chooseHandheldObjectLines({
     imageType: params.imageType,
     scenePreference: resolvedScene,
@@ -1643,6 +1697,7 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
   });
   const sceneRealismLine = getSceneRealismLine({
     params,
+    resolvedScene,
     sceneKey,
     hasCityStreetLine: Boolean(cityStreetPlaceLine) && !usesSummerLifestylePeopleSupport && !usesNonProductAtmosphere
   });
@@ -1665,6 +1720,7 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
         outfitLine,
         getGarmentTypeLockLine(effectiveGarmentTypePreference, params.season),
         sceneKey === "gymInterior" ? gymInteriorClothingLockLine : "",
+        saturatedGarmentBoundaryLine,
         baseStylingRealismLine,
         (params.season === "秋" || params.season === "冬") && !isGymSceneKey(sceneKey)
           ? seasonCityVisualContext.outfitLayerLine
@@ -1780,7 +1836,20 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
       ...extractAvoidPhrases(cameraSelection.cameraNegativeLine),
       ...(usesNonProductAtmosphere ? [] : extractAvoidPhrases(`Avoid ${gazeSelection.negative}.`)),
       ...extractAvoidPhrases(isNonProductAtmosphereImage(params.imageType) ? nonProductAtmosphereNegativeLine : ""),
-      ...promptQualityPatchLines.negativePhrases
+      ...promptQualityPatchLines.negativePhrases,
+      ...(resolvedScene === "棚内上新拍摄"
+        ? [
+            "high-saturation clothing",
+            "cobalt blue clothing",
+            "tomato red clothing",
+            "forest green clothing",
+            "deep burgundy clothing",
+            "neon clothing",
+            "multiple studio props",
+            "decorative prop cluster",
+            "visible equipment clutter"
+          ]
+        : [])
     ]
   });
   const basePromptParts = {

@@ -86,6 +86,9 @@ function chooseByLightingSpace(input: {
   if (input.lightingSpaceType === "stillLifeStudioNatural") {
     return wantsModernClarity(input.userExtraRequirement) ? "Sony" : "Hasselblad";
   }
+  if (input.lightingSpaceType === "studioLaunchLight") {
+    return wantsModernClarity(input.userExtraRequirement) ? "Sony" : "Hasselblad";
+  }
   if (input.lightingSpaceType === "indoorGymLight") return "Sony";
   if (input.lightingSpaceType === "indoorNaturalLight") {
     return wantsModernClarity(input.userExtraRequirement) ? "Sony" : "Fujifilm";

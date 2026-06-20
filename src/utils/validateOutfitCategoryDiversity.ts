@@ -73,6 +73,7 @@ function validateScene(sceneKey: string, seeds: SceneOutfitSeed[]) {
   const garmentTypes = countGarmentTypes(seeds);
   const trouserSeeds = seeds.filter((seed) => seed.garmentType === "trousers");
   const shortsSeeds = seeds.filter((seed) => seed.garmentType === "shorts");
+  const denimShorts = shortsSeeds.filter((seed) => denimPattern.test(seed.bottomCategory));
   const denimTrouserCount = trouserSeeds.filter(hasDenim).length;
 
   issues.push(...overLimit(countBy(seeds, (seed) => seed.topCategory), 3, `${sceneKey} topCategory`));
@@ -112,6 +113,9 @@ function validateScene(sceneKey: string, seeds: SceneOutfitSeed[]) {
   if (shortsSeeds.length >= 3 && new Set(shortsSeeds.map((seed) => seed.bottomCategory)).size < 3) {
     issues.push(`${sceneKey}: expected at least 3 distinct shorts bottomCategory values`);
   }
+  if (denimShorts.length) {
+    issues.push(`${sceneKey}: denim shorts are not allowed (${denimShorts.map((seed) => seed.bottomCategory).join(", ")})`);
+  }
 
   return issues;
 }
@@ -138,6 +142,9 @@ function validateFallbackCoverage() {
   }
   if (new Set(shorts.map((seed) => seed.bottomCategory)).size < 3) {
     issues.push("fallback: expected at least 3 distinct shorts templates");
+  }
+  if (shorts.some((seed) => denimPattern.test(seed.bottomCategory))) {
+    issues.push("fallback: denim shorts are not allowed");
   }
   issues.push(...overLimit(countBy(fallbackSafeOutfitTemplates, (seed) => seed.bottomCategory), 2, "fallback bottomCategory"));
 

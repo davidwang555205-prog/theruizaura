@@ -217,13 +217,13 @@ export const fallbackSafeOutfitTemplates: SceneOutfitSeed[] = [
     id: "safe-shorts-004",
     garmentType: "shorts",
     outfitStyle: "cleanMinimal",
-    colorDirection: "denimBased",
+    colorDirection: "neutralDaily",
     topCategory: "navy knit tee",
-    bottomCategory: "light denim Bermuda shorts",
+    bottomCategory: "light stone cotton-twill Bermuda shorts",
     season: ["summer"],
     accessoryCategory: ["no visible accessory"],
-    visualAnchor: "light denim Bermuda shorts",
-    outfitLine: "Use a navy knit tee and light denim Bermuda shorts for a clean weekend outfit with no visible bag."
+    visualAnchor: "light stone cotton-twill Bermuda shorts",
+    outfitLine: "Use a navy knit tee and light stone cotton-twill Bermuda shorts for a clean weekend outfit with no visible bag."
   }),
   fallbackSeed({
     id: "safe-shorts-005",

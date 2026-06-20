@@ -138,6 +138,40 @@ const standardOutfitLibrary: StandardOutfitEntry[] = [
       "Use a cream linen shirt, pale khaki lightweight trousers, a light tan handbag, and restrained summer accessories for breathable daily ease."
   },
   {
+    id: "std-premium-trousers-cobalt-accent",
+    garmentType: "trousers",
+    outfitStyle: "cleanMinimal",
+    colorDirection: "softAccent",
+    topCategory: "cobalt blue fine-knit top as the only saturated garment",
+    bottomCategory: "stone straight trousers",
+    visualAnchor: "cobalt blue fine-knit top",
+    seasons: ["春", "夏"],
+    sceneAffinities: ["commute", "weekendCityWalk", "mirrorCloset", "cityCorner"],
+    shoeAffinity: ["Cloud Dancer", "Sand Dollar", "Silver Romance", "Aire", "ALL"],
+    imageTypes: ["onFoot", "lifestyle", "mirror"],
+    compactLine:
+      "Use one cobalt blue fine-knit top as the only saturated garment with stone straight trousers, an ivory lightweight layer, and a soft taupe bag; keep every other element neutral and refined.",
+    bagCategory: "soft taupe shoulder bag",
+    isPremiumWardrobe: true
+  },
+  {
+    id: "std-premium-trousers-burgundy-accent",
+    garmentType: "trousers",
+    outfitStyle: "polishedCommuter",
+    colorDirection: "softAccent",
+    topCategory: "warm ivory fine-knit top",
+    bottomCategory: "charcoal tailored trousers",
+    visualAnchor: "deep burgundy fine-knit cardigan",
+    seasons: ["秋", "冬"],
+    sceneAffinities: ["commute", "hotelTravel", "mirrorCloset", "premiumErrands", "cityCorner"],
+    shoeAffinity: ["Cloud Dancer", "Sand Dollar", "Cappuccino", "Maple Grove", "Oreo", "Panda", "ALL"],
+    imageTypes: ["onFoot", "lifestyle", "mirror"],
+    compactLine:
+      "Use a warm ivory fine-knit top, charcoal tailored trousers, and one deep burgundy fine-knit cardigan as the only saturated garment, with a soft taupe bag kept secondary.",
+    bagCategory: "soft taupe handbag",
+    isPremiumWardrobe: true
+  },
+  {
     id: "std-skirt-cream",
     garmentType: "skirt",
     outfitStyle: "refinedFeminine",
@@ -166,6 +200,23 @@ const standardOutfitLibrary: StandardOutfitEntry[] = [
     imageTypes: ["onFoot", "lifestyle", "mirror"],
     compactLine:
       "Use an oatmeal knit top, a misty blue A-line skirt, and a pale grey shoulder bag for a low-saturation feminine outfit with subtle freshness."
+  },
+  {
+    id: "std-premium-skirt-tomato-accent",
+    garmentType: "skirt",
+    outfitStyle: "refinedFeminine",
+    colorDirection: "softAccent",
+    topCategory: "tomato red silk-cotton shirt as the only saturated garment",
+    bottomCategory: "stone A-line skirt",
+    visualAnchor: "tomato red silk-cotton shirt",
+    seasons: ["春", "夏"],
+    sceneAffinities: ["cafeExterior", "flowerShop", "weekendCityWalk", "mirrorCloset", "cityCorner"],
+    shoeAffinity: ["Cloud Dancer", "Sand Dollar", "Silver Romance", "Aire", "ALL"],
+    imageTypes: ["onFoot", "lifestyle", "mirror"],
+    compactLine:
+      "Pair one tomato red silk-cotton shirt as the only saturated garment with a stone A-line skirt and a soft taupe mini bag, keeping the rest of the styling quiet and mature.",
+    bagCategory: "soft taupe mini bag",
+    isPremiumWardrobe: true
   },
   {
     id: "std-premium-skirt-silk-pleated",
@@ -203,19 +254,19 @@ const standardOutfitLibrary: StandardOutfitEntry[] = [
     isPremiumWardrobe: true
   },
   {
-    id: "std-shorts-denim",
+    id: "std-shorts-stone-cotton",
     garmentType: "shorts",
     outfitStyle: "relaxedWeekend",
-    colorDirection: "denimBased",
+    colorDirection: "neutralDaily",
     topCategory: "white shirt worn open",
-    bottomCategory: "light denim Bermuda shorts",
+    bottomCategory: "light stone cotton-twill Bermuda shorts",
     visualAnchor: "white shirt outer layer",
     seasons: ["夏"],
     sceneAffinities: ["weekendCityWalk", "cafeExterior", "bakeryDessert", "premiumErrands"],
     shoeAffinity: ["Aire", "Cloud Dancer", "Sand Dollar", "Lemon", "Delphinium Blue", "ALL"],
     imageTypes: ["onFoot", "lifestyle", "mirror"],
     compactLine:
-      "Use a white shirt worn open as a light layer, a clean inner top, light denim Bermuda shorts, and a canvas tote for refined summer movement."
+      "Use a white shirt worn open as a light layer, a clean inner top, light stone cotton-twill Bermuda shorts, and a canvas tote for refined summer movement."
   },
   {
     id: "std-shorts-dark",
@@ -394,6 +445,15 @@ function containsShoe(entry: StandardOutfitEntry, shoe: TeamShoe) {
   return entry.shoeAffinity.includes("ALL") || entry.shoeAffinity.includes(normalizedShoe);
 }
 
+const highSaturationGarmentPattern =
+  /cobalt blue|tomato red|forest green|deep burgundy|high-saturation garment|only saturated garment|only saturated accent/i;
+
+function hasHighSaturationGarment(entry: StandardOutfitEntry) {
+  return highSaturationGarmentPattern.test(
+    [entry.topCategory, entry.bottomCategory, entry.visualAnchor, entry.compactLine].join(" ")
+  );
+}
+
 function scoreOutfit(entry: StandardOutfitEntry, input: ChooseStandardOutfitInput) {
   const tendency = sceneOutfitTendencyMap[input.sceneKey];
   const imageType = normalizeImageTypeForScene(input);
@@ -450,7 +510,13 @@ export function chooseOutfitByGarmentType(input: ChooseStandardOutfitInput): Sta
   const imageType = normalizeImageTypeForScene(input);
   const baseCandidates = standardOutfitLibrary
     .filter((entry) => entry.seasons.includes(input.season))
-    .filter((entry) => entry.sceneAffinities.includes(input.sceneKey) || input.sceneKey === "cityCorner")
+    .filter(
+      (entry) =>
+        entry.sceneAffinities.includes(input.sceneKey) ||
+        input.sceneKey === "cityCorner" ||
+        input.sceneKey === "studioLaunch"
+    )
+    .filter((entry) => input.sceneKey !== "studioLaunch" || !hasHighSaturationGarment(entry))
     .filter((entry) => entry.imageTypes.includes(imageType))
     .filter((entry) => !forceGymInteriorActivewear || entry.garmentType === "lightActive")
     .filter((entry) => allowLightActive || entry.garmentType !== "lightActive")
@@ -485,7 +551,9 @@ export function chooseOutfitByGarmentType(input: ChooseStandardOutfitInput): Sta
     return {
       outfitLine: forceGymInteriorActivewear
         ? "Use refined fitness-related clothing only: a clean active top, active shorts or active trousers, a light zip layer if needed, and a practical gym bag, with every styling choice clearly suitable for a premium gym interior."
-        : "Use a low-saturation refined daily outfit with clear proportions, believable layering, and one practical bag or accessory that supports the sneakers.",
+        : input.sceneKey === "studioLaunch"
+          ? "Use a clean low-saturation studio outfit in cream, warm grey, soft stone, taupe, navy, charcoal, or restrained denim, with no high-saturation clothing and no unnecessary accessories."
+          : "Use a low-saturation refined daily outfit with clear proportions, believable layering, and one practical bag or accessory that supports the sneakers.",
       stylingRealismLine: stylingRealismLines[0],
       selectedOutfit: null,
       fallbackReason

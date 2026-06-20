@@ -154,14 +154,14 @@ const trouserPool: SeedDraft[] = [
     season: ["spring", "summer"],
     suitableShoes: allShoes,
     imageTypes,
-    topCategory: "ivory cotton shirt",
+    topCategory: "cobalt blue fine-knit short-sleeve top as the only saturated accent",
     bottomCategory: "stone straight trousers",
-    outerLayerCategory: "no outer layer",
-    bagCategory: "cobalt blue small shoulder bag as the only saturated accent",
+    outerLayerCategory: "ivory lightweight shirt jacket",
+    bagCategory: "soft taupe shoulder bag as secondary accessory",
     accessoryCategory: ["simple watch"],
-    visualAnchor: "cobalt blue small shoulder bag",
+    visualAnchor: "cobalt blue fine-knit top",
     outfitLine:
-      "Style her in an ivory cotton shirt and stone straight trousers, adding one cobalt blue small shoulder bag as the only saturated accent so the outfit stays wearable and THERUIZ AURA refined.",
+      "Style her in one cobalt blue fine-knit short-sleeve top as the only saturated accent, stone straight trousers, an ivory lightweight shirt jacket, and a soft taupe shoulder bag, keeping every other element neutral and THERUIZ AURA refined.",
     forbidden: baseForbidden
   },
   {
@@ -188,13 +188,14 @@ const trouserPool: SeedDraft[] = [
     season: ["autumn", "winter"],
     suitableShoes: allShoes,
     imageTypes,
-    topCategory: "warm ivory turtleneck",
+    topCategory: "warm ivory fine-knit top",
     bottomCategory: "charcoal tailored trousers",
-    outerLayerCategory: "soft taupe coat",
-    accessoryCategory: ["deep burgundy scarf as the only saturated accent"],
-    visualAnchor: "deep burgundy scarf",
+    outerLayerCategory: "deep burgundy fine-knit cardigan as the only saturated accent",
+    bagCategory: "soft taupe handbag as secondary accessory",
+    accessoryCategory: ["simple watch"],
+    visualAnchor: "deep burgundy fine-knit cardigan",
     outfitLine:
-      "Use a warm ivory turtleneck, charcoal tailored trousers, and a soft taupe coat, with one deep burgundy scarf as the only saturated accent for quiet seasonal depth.",
+      "Use a warm ivory fine-knit top, charcoal tailored trousers, and one deep burgundy fine-knit cardigan as the only saturated accent, with a soft taupe handbag kept secondary for quiet seasonal depth.",
     forbidden: baseForbidden
   },
   {
@@ -337,14 +338,14 @@ const skirtPool: SeedDraft[] = [
     season: ["spring", "summer"],
     suitableShoes: allShoes,
     imageTypes,
-    topCategory: "soft grey fine-knit top",
+    topCategory: "tomato red silk-cotton shirt as the only saturated accent",
     bottomCategory: "stone A-line skirt",
     outerLayerCategory: "no outer layer",
-    bagCategory: "tomato red mini bag as the only saturated accent",
+    bagCategory: "soft taupe mini bag as secondary accessory",
     accessoryCategory: ["minimal earrings"],
-    visualAnchor: "tomato red mini bag",
+    visualAnchor: "tomato red silk-cotton shirt",
     outfitLine:
-      "Pair a soft grey fine-knit top with a stone A-line skirt, using one tomato red mini bag as the only saturated accent while keeping the silhouette calm and shoe-readable.",
+      "Pair one tomato red silk-cotton shirt as the only saturated accent with a stone A-line skirt and a soft taupe mini bag, keeping the silhouette calm, mature, and shoe-readable.",
     forbidden: baseForbidden
   },
   {
@@ -453,13 +454,14 @@ const skirtPool: SeedDraft[] = [
     season: ["autumn", "winter"],
     suitableShoes: allShoes,
     imageTypes,
-    topCategory: "charcoal wool-blend top",
+    topCategory: "forest green fine-knit top as the only saturated accent",
     bottomCategory: "taupe straight skirt",
     outerLayerCategory: "cream short coat",
-    accessoryCategory: ["forest green silk scarf as the only saturated accent"],
-    visualAnchor: "forest green silk scarf",
+    bagCategory: "muted brown handbag as secondary accessory",
+    accessoryCategory: ["minimal gold earrings"],
+    visualAnchor: "forest green fine-knit top",
     outfitLine:
-      "Use a charcoal wool-blend top, taupe straight skirt, and cream short coat, with one forest green silk scarf as the only saturated accent for mature seasonal contrast.",
+      "Use one forest green fine-knit top as the only saturated accent with a taupe straight skirt, cream short coat, and muted brown handbag for mature seasonal contrast.",
     forbidden: baseForbidden
   }
 ];
@@ -521,29 +523,30 @@ const shortsPool: SeedDraft[] = [
     season: ["summer"],
     suitableShoes: allShoes,
     imageTypes,
-    topCategory: "ivory short-sleeve shirt",
+    topCategory: "tomato red lightweight knit tee as the only saturated accent",
     bottomCategory: "soft khaki tailored shorts",
     outerLayerCategory: "no outer layer",
-    accessoryCategory: ["tomato red thin belt as the only saturated accent"],
-    visualAnchor: "tomato red thin belt",
+    bagCategory: "natural canvas tote as secondary accessory",
+    accessoryCategory: ["simple watch"],
+    visualAnchor: "tomato red lightweight knit tee",
     outfitLine:
-      "Use an ivory short-sleeve shirt and soft khaki tailored shorts, with one tomato red thin belt as the only saturated accent for a clear but restrained summer outfit.",
+      "Use one tomato red lightweight knit tee as the only saturated accent with soft khaki tailored shorts and a natural canvas tote, keeping the outfit clear, mature, and restrained.",
     forbidden: baseForbidden
   },
   {
     garmentType: "shorts",
     outfitStyle: "cleanMinimal",
-    colorDirection: "denimBased",
+    colorDirection: "neutralDaily",
     season: ["summer"],
     suitableShoes: allShoes,
     imageTypes,
     topCategory: "navy knit tee",
-    bottomCategory: "light denim Bermuda shorts",
+    bottomCategory: "light stone cotton-twill Bermuda shorts",
     outerLayerCategory: "no outer layer",
     accessoryCategory: ["no visible accessory"],
-    visualAnchor: "light denim Bermuda shorts",
+    visualAnchor: "light stone cotton-twill Bermuda shorts",
     outfitLine:
-      "Use a navy knit tee and light denim Bermuda shorts for a clean weekend outfit with no visible bag.",
+      "Use a navy knit tee and light stone cotton-twill Bermuda shorts for a clean weekend outfit with no visible bag.",
     forbidden: baseForbidden
   },
   {
@@ -597,19 +600,19 @@ const shortsPool: SeedDraft[] = [
   },
   {
     garmentType: "shorts",
-    outfitStyle: "realDaily",
-    colorDirection: "denimBased",
+    outfitStyle: "darkAnchor",
+    colorDirection: "darkAnchor",
     season: ["summer"],
     suitableShoes: allShoes,
     imageTypes,
     topCategory: "pale blue cotton shirt",
-    bottomCategory: "dark denim Bermuda shorts",
+    bottomCategory: "charcoal cotton-twill Bermuda shorts",
     outerLayerCategory: "no outer layer",
     bagCategory: "cream canvas tote as secondary accessory",
     accessoryCategory: ["slim leather belt"],
-    visualAnchor: "dark denim Bermuda shorts",
+    visualAnchor: "charcoal cotton-twill Bermuda shorts",
     outfitLine:
-      "Use a pale blue cotton shirt, dark denim Bermuda shorts, and a cream canvas tote as a secondary accessory for a believable denim-based summer outfit.",
+      "Use a pale blue cotton shirt, charcoal cotton-twill Bermuda shorts, and a cream canvas tote as a secondary accessory for a grounded summer outfit.",
     forbidden: baseForbidden
   },
   {
@@ -738,12 +741,12 @@ const dressPool: SeedDraft[] = [
     imageTypes,
     topCategory: "navy wool knit dress",
     bottomCategory: "navy wool knit dress",
-    outerLayerCategory: "warm grey short coat",
-    bagCategory: "deep burgundy small handbag as the only saturated accent",
+    outerLayerCategory: "deep burgundy fine-knit cardigan as the only saturated accent",
+    bagCategory: "warm grey small handbag as secondary accessory",
     accessoryCategory: ["thin socks"],
-    visualAnchor: "deep burgundy small handbag",
+    visualAnchor: "deep burgundy fine-knit cardigan",
     outfitLine:
-      "Use a navy wool knit dress and warm grey short coat, adding one deep burgundy small handbag as the only saturated accent for controlled winter color.",
+      "Use a navy wool knit dress with one deep burgundy fine-knit cardigan as the only saturated accent and a warm grey small handbag kept secondary for controlled winter color.",
     forbidden: baseForbidden
   },
   {
@@ -1092,10 +1095,20 @@ function addDarkAnchor(seed: SceneOutfitSeed): SceneOutfitSeed {
 }
 
 function addDenimBase(seed: SceneOutfitSeed, index: number): SceneOutfitSeed {
+  if (seed.garmentType === "shorts") {
+    return {
+      ...seed,
+      colorDirection: "denimBased",
+      outerLayerCategory: "light denim overshirt",
+      visualAnchor: seed.visualAnchor.includes("denim") ? seed.visualAnchor : `${seed.visualAnchor} with denim overshirt`,
+      outfitLine: `${seed.outfitLine.replace(/\.$/, "")}, adding one restrained light denim overshirt while keeping the shorts in cotton, linen, or twill.`
+    };
+  }
+
   const denimBottoms: Record<GarmentType, string[]> = {
     trousers: ["dark straight denim", "light blue straight denim", "white denim straight trousers"],
     skirt: ["light denim midi skirt", "dark denim midi skirt", "soft blue denim skirt"],
-    shorts: ["light denim Bermuda shorts", "dark denim Bermuda shorts", "white denim Bermuda shorts"],
+    shorts: [seed.bottomCategory],
     dress: [seed.bottomCategory],
     lightActive: ["dark denim straight trousers", "light denim straight trousers", "white denim straight trousers"]
   };

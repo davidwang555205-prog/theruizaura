@@ -22,6 +22,7 @@ function shouldSkipCityLine(imageType: TeamImageType, sceneKey: StandardSceneKey
     sceneKey === "gymInterior" ||
     sceneKey === "stillLife" ||
     sceneKey === "materialTable" ||
+    sceneKey === "studioLaunch" ||
     sceneKey === "atmosphere"
   );
 }

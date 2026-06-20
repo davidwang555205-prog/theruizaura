@@ -118,6 +118,7 @@ const sceneActionLines: Partial<Record<Exclude<TeamScenePreference, "自动匹�
   "衣帽间 / 更衣角": "Use a natural outfit-record stance with relaxed shoulders and both shoes clearly shown.",
   窗边阅读角: "Use a relaxed standing pause near the window with one book kept above the shoe line.",
   "工作台 / 桌边整理": "Use a small pause beside the desk with one hand lightly arranging a simple object.",
+  棚内上新拍摄: "Use a restrained launch-studio pose with a soft weight shift, stable feet, relaxed hands, and the sneakers clearly readable; avoid a rigid showroom-model stance.",
   入户镜前: "Use a believable mirror outfit-record stance with stable feet and both sneakers clearly reflected.",
   停车场到电梯口: "Use a short car-to-elevator walking step or calm waiting pause with stable shoe-floor contact.",
   暑假游乐园: "Use a slow walk or shaded-walkway pause, keeping park props secondary and both sneakers clear.",

@@ -83,7 +83,8 @@ function usesIndoorSeasonContext(lightingSpaceType: LightingSpaceType) {
   return (
     lightingSpaceType === "indoorNaturalLight" ||
     lightingSpaceType === "indoorCommercialLight" ||
-    lightingSpaceType === "indoorGymLight"
+    lightingSpaceType === "indoorGymLight" ||
+    lightingSpaceType === "studioLaunchLight"
   );
 }
 
@@ -99,6 +100,7 @@ function getShoeSeasonNegative(input: {
     input.cityProfile === "Shenzhen" ||
     input.sceneKey === "gymCommute" ||
     input.sceneKey === "gymInterior" ||
+    input.sceneKey === "studioLaunch" ||
     input.sceneKey === "mirrorCloset" ||
     input.sceneKey === "hotelTravel";
 

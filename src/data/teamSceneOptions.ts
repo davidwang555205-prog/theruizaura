@@ -28,6 +28,7 @@ const peopleLifestyleScenes: TeamScenePreference[] = [
   "窗边阅读",
   "窗边阅读角",
   "工作台 / 桌边整理",
+  "棚内上新拍摄",
   "入户镜前",
   "停车场到电梯口",
   "暑假游乐园",
@@ -58,6 +59,7 @@ const mirrorScenes: TeamScenePreference[] = [
   "居家衣帽间",
   "衣帽间 / 更衣角",
   "窗边阅读角",
+  "棚内上新拍摄",
   "入户镜前",
   "停车场到电梯口",
   "酒店度假",
@@ -91,6 +93,7 @@ const atmosphereScenes: TeamScenePreference[] = [
   "工作台 / 桌边整理",
   "材质工作台",
   "拍摄花絮",
+  "棚内上新拍摄",
   "暑假游乐园",
   "海边度假",
   "草原野餐",
@@ -106,6 +109,7 @@ const materialScenes: TeamScenePreference[] = [
   "自动匹配",
   "材质工作台",
   "拍摄花絮",
+  "棚内上新拍摄",
   "工作台 / 桌边整理",
   "衣帽间 / 更衣角"
 ];
@@ -113,6 +117,7 @@ const materialScenes: TeamScenePreference[] = [
 const stillLifeScenes: TeamScenePreference[] = [
   "自动匹配",
   "材质工作台",
+  "棚内上新拍摄",
   "工作台 / 桌边整理"
 ];
 

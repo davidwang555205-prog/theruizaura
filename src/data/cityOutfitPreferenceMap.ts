@@ -25,7 +25,7 @@ export const cityOutfitPreferenceMap: Record<string, CityOutfitPreference> = {
   Chengdu: {
     preferredStyles: ["relaxedWeekend", "realDaily", "bloggerLite"],
     preferredColorDirections: ["neutralDaily", "denimBased", "softAccent"],
-    itemDirection: "denim, Bermuda shorts, open shirts, knitwear, and relaxed bags",
+    itemDirection: "denim trousers or skirts, cotton or twill Bermuda shorts, open shirts, knitwear, and relaxed bags",
     autumnWinter: {
       preferredItems: ["soft cardigan", "relaxed coat", "dark denim", "warm beige trousers", "layered shirt", "light scarf"],
       preferredColorDirections: ["neutralDaily", "denimBased", "darkAnchor", "softAccent"],

@@ -47,6 +47,8 @@ export const NON_PRODUCT_ATMOSPHERE_SCENE_LINES: Partial<
     "Create one tactile material-table atmosphere with leather or suede swatches, shoelaces, color cards, care brush, notes, and natural hand-work traces. Keep the arrangement restrained, real, and secondary to material authenticity.",
   拍摄花絮:
     "Create one quiet behind-the-scenes atmosphere with a styling table, camera-monitor edge, light-stand edge, shot list, wardrobe piece, or hands adjusting details. Keep it like a real working moment, not a technical equipment display.",
+  棚内上新拍摄:
+    "Create one restrained new-launch studio atmosphere with warm-white seamless paper, a reflector edge, styling rail, shot list, folded wardrobe piece, or quiet light-stand detail. Keep it like a real working studio between takes, without turning a person or full product into the sole subject.",
   暑假游乐园:
     "Create one unmistakable but restrained summer amusement-park atmosphere: a shaded park walkway or quiet rest corner with a folded park map, simple paper wristband, sun hat, canvas tote, or distant out-of-focus ride detail. Keep it like a real family summer outing, not a sporty excursion or theme-park advertisement, and do not replace it with a generic street or home scene.",
   海边度假:
