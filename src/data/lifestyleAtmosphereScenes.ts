@@ -12,8 +12,8 @@ export const ATMOSPHERE_SCENES: AtmosphereScene[] = [
     id: "brand-material-touch",
     label: "材质与触感",
     category: "brand",
-    compactPrompt: "A tactile material mood image with suede swatches, leather pieces, shoelaces, thread, a care brush, neutral fabric, and a minimal card on warm stone or linen. Premium, intimate, real, tactile, and restrained.",
-    prompt: `Create a tactile material mood image for THERUIZ AURA. The image should not be a direct product shot. Show refined material samples such as suede swatches, soft leather pieces, shoelaces, thread, a care brush, neutral fabric, and a minimal brand card on a warm light stone or linen surface. Premium, intimate, real, tactile, and restrained.`
+    compactPrompt: "A tactile material mood image with suede swatches, leather pieces, shoelaces, thread, a care brush, neutral fabric, and a minimal card on warm stone or linen. Premium, personal, real, tactile, and restrained.",
+    prompt: `Create a tactile material mood image for THERUIZ AURA. The image should not be a direct product shot. Show refined material samples such as suede swatches, soft leather pieces, shoelaces, thread, a care brush, neutral fabric, and a minimal brand card on a warm light stone or linen surface. Premium, personal, real, tactile, and restrained.`
   },
   {
     id: "brand-bts",
@@ -70,8 +70,8 @@ export const ATMOSPHERE_SCENES: AtmosphereScene[] = [
     label: "窗边阅读",
     category: "customer",
     customerExpectation: "我有自己的安静时间",
-    compactPrompt: "A warm window-side reading corner with chair or sofa edge, book or magazine, mug, linen curtains, and gentle daylight. Quiet, reflective, intimate, and restrained, not staged influencer reading.",
-    prompt: `Create a warm window-side reading atmosphere image for THERUIZ AURA. Show a soft interior corner with a chair or sofa edge, a book or magazine, a mug, linen curtains, and gentle daylight. The image should feel quiet, reflective, and intimate, expressing a refined woman's private moment of calm. Avoid staged influencer reading scenes, excessive props, or cold empty interiors.`
+    compactPrompt: "A warm window-side reading corner with chair or sofa edge, book or magazine, mug, linen curtains, and gentle daylight. Quiet, reflective, personal, and restrained, not staged influencer reading.",
+    prompt: `Create a warm window-side reading atmosphere image for THERUIZ AURA. Show a soft interior corner with a chair or sofa edge, a book or magazine, a mug, linen curtains, and gentle daylight. The image should feel quiet, reflective, and personal, expressing a refined woman's private moment of calm. Avoid staged influencer reading scenes, excessive props, or cold empty interiors.`
   },
   {
     id: "customer-hotel-arrival",

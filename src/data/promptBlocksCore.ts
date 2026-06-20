@@ -24,7 +24,7 @@ The mood should feel like The Row's restraint, Chloé's feminine ease, and Le La
 
 The image must not look like a generic e-commerce shoe photo. The sneaker should naturally belong in a refined, real, low-saturation lifestyle environment for a tasteful modern woman.
 
-If a model appears, use a refined Asian or part-Asian woman with natural, understated presence. Avoid exaggerated posing, strong makeup, influencer style, over-styled fashion attitude, sweet girlish aesthetics, or overly commercial expressions.
+If a model appears, use a refined Asian or part-Asian woman with natural, understated presence. Avoid exaggerated posing, strong makeup, influencer style, over-styled fashion attitude, overly youthful aesthetics, or overly commercial expressions.
 
 Use soft daylight, subtle shadows, minimal styling, calm negative space, warm neutral tones, and a believable lifestyle atmosphere.
 
@@ -85,7 +85,7 @@ Keep the body silhouette slim but not overly thin, refined but not fragile, femi
 
 Use natural human proportions: normal head-to-body ratio, realistic shoulder width, natural waist and hip proportion, believable leg length, normal calf shape, natural ankle size, realistic foot size, balanced posture, relaxed body tension.
 
-Avoid extremely long legs, nine-head fashion model proportions, oversized feet, tiny ankles, overly thin calves, exaggerated waist-to-hip ratio, influencer body shape, runway model posture, stiff mannequin body, athletic sports body, teenage body, overly mature heavy body, plastic AI body, distorted joints, broken knees, twisted ankles, and unnatural torso length.
+Avoid extremely long legs, nine-head fashion model proportions, oversized feet, tiny ankles, overly thin calves, exaggerated waist-to-hip ratio, influencer body shape, runway model posture, stiff mannequin body, athletic sports body, overly youthful body impression, overly mature heavy body, plastic AI body, distorted joints, broken knees, twisted ankles, and unnatural torso length.
 
 The model should appear elegant because of styling, posture, light, clothing, and atmosphere, not because of unrealistic body exaggeration.
 

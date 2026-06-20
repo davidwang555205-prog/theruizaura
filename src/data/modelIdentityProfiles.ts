@@ -19,7 +19,7 @@ export const modelIdentityProfile = {
   stylingConsistency:
     "same face, same age appearance, same hairstyle, same hair color, same makeup, same body proportion, same personal styling when generating more than 2 images",
   forbidden:
-    "non-Asian model, Western-dominant face, blonde model, heavy Western makeup, exaggerated mixed-race look, influencer face stereotype, fashion-week supermodel, teenage look, plastic beauty face, AI mannequin face"
+    "non-Asian model, Western-dominant face, blonde model, heavy Western makeup, exaggerated mixed-race look, influencer face stereotype, fashion-week supermodel, overly youthful look, plastic beauty face, AI mannequin face"
 };
 
 export const realLifeOutfitDiversityCompact =
@@ -73,10 +73,10 @@ export const realLifeDetailPool = [
 ];
 
 export const outfitDiversityNegative =
-  "Avoid AI beige-template outfit, overly matched pale palette, plastic-smooth clothing, perfectly symmetrical styling, lifeless mannequin outfit, unrealistic all-cream wardrobe, excessive color coordination, cheap colorful styling, loud prints, streetwear styling, sweet girl styling, and any outfit that feels generated rather than worn.";
+  "Avoid AI beige-template outfit, overly matched pale palette, plastic-smooth clothing, perfectly symmetrical styling, lifeless mannequin outfit, unrealistic all-cream wardrobe, excessive color coordination, cheap colorful styling, loud prints, streetwear styling, overly youthful styling, and any outfit that feels generated rather than worn.";
 
 export const peopleIdentityNegative =
-  "Avoid non-Asian model, Western runway face, blonde model, racially inconsistent face, changing face between images, changing hairstyle, changing makeup, changing body shape, teenage influencer look, plastic beauty face, over-smoothed skin, exaggerated mixed-race features, fashion-week supermodel energy, and generic stock-photo casting.";
+  "Avoid non-Asian model, Western runway face, blonde model, racially inconsistent face, changing face between images, changing hairstyle, changing makeup, changing body shape, overly youthful influencer look, plastic beauty face, over-smoothed skin, exaggerated mixed-race features, fashion-week supermodel energy, and generic stock-photo casting.";
 
 export const multiImageIdentityNegative =
   "Avoid different model identity across images, inconsistent face, inconsistent age, inconsistent hairstyle, inconsistent makeup, inconsistent outfit, inconsistent body proportions, and any change that makes the series feel like different people.";

@@ -27,7 +27,7 @@ export const naturalGripContactLine =
   "Make the hand-object contact believable: fingers should wrap around or support the object with correct pressure, visible separation, natural finger spacing, and realistic wrist angle. Avoid fused fingers, melted edges, extra fingers, floating objects, or objects passing through the palm.";
 
 export const wristArmObjectSpacingLine =
-  "Keep the wrist, forearm, elbow, held object, sleeve, and torso spatially separated. The object should not cut through the wrist, forearm, sleeve, chest, waist, or bag strap, and the arm should not disappear behind the object unnaturally.";
+  "Keep the wrist, forearm, elbow, held object, sleeve, and torso spatially separated. The object should not cut through the wrist, forearm, sleeve, upper torso, waist, or bag strap, and the arm should not disappear behind the object unnaturally.";
 
 export const objectWeightRealismLine =
   "Give the selected handheld object believable weight, gravity, orientation, and contact. It should sit naturally in the grip or hang from the hand or shoulder without floating, tilting impossibly, or losing its real structure.";
@@ -57,7 +57,7 @@ export const paperShoppingBagAntiClippingLine =
   "If holding a paper bag or shopping bag, keep it small to medium, hanging naturally from the hand with visible handles, slight folds, and clear separation from the legs, skirt, trousers, and sneakers. Avoid oversized bags blocking the full figure and sneakers or clipping into the shoes.";
 
 export const bagAntiClippingLine =
-  "If carrying a bag, keep the bag strap, handle, shoulder, arm, clothing, and hand clearly separated. The strap should sit naturally on the shoulder or hand without cutting into the neck, chest, sleeve, arm, torso, skirt, trousers, or sneakers. The bag should hang with believable weight.";
+  "If carrying a bag, keep the bag strap, handle, shoulder, arm, clothing, and hand clearly separated. The strap should sit naturally on the shoulder or hand without cutting into the neck, upper torso, sleeve, arm, torso, skirt, trousers, or sneakers. The bag should hang with believable weight.";
 
 export const handheldObjectNegativePhrases = [
   "multiple handheld props",

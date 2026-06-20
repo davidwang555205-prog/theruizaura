@@ -212,7 +212,7 @@ const cityContexts: SeasonCityContext[] = [
     photoMoodLine: "A composed Beijing winter mood with structured outerwear, warm fabric texture, dry clean air, and quiet urban depth.",
     layerWeight: "coldLayer",
     outfitLayerSuggestion: "wool coat, cashmere-like knit, high-neck knit, charcoal wool trousers, dark denim, structured outerwear, soft scarf, or tailored trousers.",
-    avoidLine: "Avoid thin summer styling, bare ankle, lifeless grey, snow-scene cliché, heavy tourist landmark mood, and overly soft southern outfit."
+    avoidLine: "Avoid thin summer styling, visible ankle, lifeless grey, snow-scene cliché, heavy tourist landmark mood, and overly soft southern outfit."
   },
   {
     season: "spring",

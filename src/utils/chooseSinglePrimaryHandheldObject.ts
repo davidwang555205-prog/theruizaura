@@ -100,6 +100,8 @@ function getScenePriority(input: SinglePrimaryHandheldObjectInput): PrimaryHandh
   if (input.scenePreference === "精品超市 / 日常采购" || includesAny(text, ["premiumerrands", "grocery", "采购", "超市"])) {
     return [];
   }
+  if (input.scenePreference === "朋友午餐" || input.scenePreference === "美术馆") return [];
+  if (input.scenePreference === "咖啡馆内") return ["coffee cup"];
   if (includesAny(text, ["cafeexterior", "cafe exterior", "cafe storefront", "café exterior", "咖啡店", "咖啡馆"])) {
     return ["coffee cup"];
   }

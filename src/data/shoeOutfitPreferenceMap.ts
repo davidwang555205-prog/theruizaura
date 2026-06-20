@@ -37,13 +37,13 @@ export const shoeOutfitPreferenceMap: Record<string, ShoeOutfitPreference> = {
     avoidedDirections: ["cold pale styling", "overly sweet"],
     autumnWinter: {
       preferredItems: ["camel coat", "dark coffee knit", "denim", "taupe trousers", "warm beige coat"],
-      avoidedDirections: ["cold pale styling", "sweet-girl mood"]
+      avoidedDirections: ["cold pale styling", "overly youthful mood"]
     }
   },
   "Silver Romance": {
     preferredColorDirections: ["darkAnchor", "lightClean", "neutralDaily"],
     preferredScenes: ["boutiqueStreet", "galleryExhibition", "mirrorCloset", "cafeExterior"],
-    avoidedDirections: ["fragmented color", "sweet-girl styling"],
+    avoidedDirections: ["fragmented color", "overly youthful styling"],
     autumnWinter: {
       preferredItems: ["black knit", "charcoal trousers", "cream coat", "grey wool jacket", "city evening light but not night mood"],
       avoidedDirections: ["sweet floral color", "cheap shiny metallic mood"]

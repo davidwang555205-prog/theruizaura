@@ -1,17 +1,19 @@
+import { sensitiveWordReducer } from "./sensitiveWordReducer";
+
 export type FinalPromptSafetyCheckResult = {
   prompt: string;
   warnings: string[];
 };
 
 const forbiddenReplacements: Array<[RegExp, string]> = [
-  [/\bhot pants\b/gi, "tailored shorts"],
-  [/\bsports bra\b/gi, "clean active top"],
+  [/\bhot pants\b/gi, "tailored knee-length shorts"],
+  [/\bsports bra\b/gi, "layered active top"],
   [/\bbeauty selfie\b/gi, "outfit record"],
-  [/\bbodycon\b/gi, "clean tailored"],
-  [/\bsexy\b/gi, "refined"],
-  [/\bseductive\b/gi, "understated"],
-  [/\byoung girl\b/gi, "refined woman"],
-  [/\bteen girl\b/gi, "refined woman"],
+  [/\bbodycon\b/gi, "overly close-fitting"],
+  [/\bsexy\b/gi, "body-focused"],
+  [/\bseductive\b/gi, "forced intense"],
+  [/\byoung girl\b/gi, "adult woman"],
+  [/\bteen girl\b/gi, "adult woman"],
   [/\blower-body\b/gi, "full figure balance"],
   [/\blower body\b/gi, "full figure balance"],
   [/\bpants\b/gi, "trousers"],
@@ -19,6 +21,20 @@ const forbiddenReplacements: Array<[RegExp, string]> = [
 ];
 
 const cameraNames = ["Leica", "Hasselblad", "Fujifilm", "Sony"] as const;
+
+function splitAdditionalRequirement(prompt: string) {
+  const marker = "Additional user requirement:";
+  const markerIndex = prompt.lastIndexOf(marker);
+
+  if (markerIndex < 0) {
+    return { body: prompt, userRequirement: "" };
+  }
+
+  return {
+    body: prompt.slice(0, markerIndex).trim(),
+    userRequirement: prompt.slice(markerIndex).trim()
+  };
+}
 
 function normalizeSpaces(prompt: string) {
   return prompt
@@ -166,7 +182,8 @@ export function finalPromptSafetyCheck(
   options: { hasShoe?: boolean; hasPeople?: boolean; requireFullShoeVisibility?: boolean } = {}
 ): FinalPromptSafetyCheckResult {
   const warnings: string[] = [];
-  let prompt = finalPrompt;
+  const { body, userRequirement } = splitAdditionalRequirement(finalPrompt);
+  let prompt = sensitiveWordReducer(body);
 
   prompt = keepSingleNegativeSection(prompt, warnings);
   prompt = replaceForbiddenWords(prompt, warnings);
@@ -180,7 +197,12 @@ export function finalPromptSafetyCheck(
   if (options.hasShoe && options.requireFullShoeVisibility !== false) {
     prompt = ensureShoeVisibility(prompt, warnings);
   }
+  prompt = sensitiveWordReducer(prompt);
   prompt = normalizeSpaces(prompt);
+
+  if (userRequirement) {
+    prompt = `${prompt}\n\n${userRequirement}`;
+  }
 
   return {
     prompt,

@@ -26,7 +26,7 @@ The outfit and the shoes should be the visual focus, not the face, not the phone
 
 The final image should feel like a tasteful real-life outfit record: clean, calm, practical, aesthetically pleasing, and softly aspirational.
 
-Avoid influencer mirror posing, beauty-selfie energy, exaggerated waist pose, over-sexy styling, loud social-media energy, or fashion-blogger performance.`;
+Avoid influencer mirror posing, posed-selfie energy, exaggerated waist pose, body-focused styling, loud social-media energy, or fashion-blogger performance.`;
 
 export const FACE_HIDDEN_MIRROR_SELFIE_CONTROL = `Face-hidden mirror selfie control:
 In mirror selfie scenes, do not show a full clear face as the main subject.
@@ -35,7 +35,7 @@ The phone may naturally block the face, or the framing may crop above the mouth,
 
 If any facial features appear, they should be subtle, secondary, and not the focal point.
 
-Do not create a beauty selfie.
+Do not create a posed selfie.
 Do not emphasize makeup, facial expression, or eye contact.
 
 The image should read as an outfit-focused mirror photo, not a portrait.`;
@@ -157,7 +157,7 @@ The phone may cover the face, but it must not cover the outfit, trousers, shoes,
 
 The mirror selfie should feel understated, warm, clean, and believable, like a refined urban woman quietly recording what she is wearing before leaving home.
 
-Avoid influencer mirror posing, exaggerated waist pose, beauty selfie attitude, over-sexy styling, loud social-media energy, or fashion-blogger performance.`;
+Avoid influencer mirror posing, exaggerated waist pose, posed-selfie attitude, body-focused styling, loud social-media energy, or fashion-blogger performance.`;
 
 export const SHOE_READABILITY_THREE_QUARTER_MIRROR_SELFIE = `Shoe readability in three-quarter mirror selfie:
 Even if the framing is three-quarter rather than full-body, the sneakers must remain clearly visible and readable.
@@ -221,7 +221,7 @@ The phone may cover the face, but it must not block the full figure and sneakers
 
 The image should feel understated, warm, quiet, practical, and aesthetically restrained.
 
-Avoid influencer seated mirror posing, over-sexy posture, exaggerated leg extension, beauty-selfie attitude, or staged social media performance.`;
+Avoid influencer seated mirror posing, body-focused posture, exaggerated leg extension, posed-selfie attitude, or staged social media performance.`;
 
 export const SEATED_BODY_PROPORTION_CONTROL = `Seated body proportion control:
 In seated mirror selfie scenes, keep the body proportions natural and realistic.
@@ -376,11 +376,11 @@ The hotel mirror selfie should feel like a refined woman maintaining her persona
 
 It should not feel like:
 - a tourist photo
-- a vacation-girl selfie
+- a vacation-content selfie
 - a hotel influencer check-in
 - a luxury bragging moment
 - a flashy mirror outfit post
-- a beauty selfie in a hotel bathroom
+- a posed selfie in a hotel bathroom
 
 It should feel like:
 - a calm travel outfit check

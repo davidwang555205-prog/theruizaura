@@ -47,7 +47,7 @@ export const premiumGymAccessoryLine =
   "Use a practical, clean, understated gym tote or movement bag that supports the premium active-lifestyle look without making the scene feel like a sportswear campaign or luxury-logo display.";
 
 export const premiumGymNegative =
-  "Avoid cheap commercial gym background, fluorescent lighting, crowded equipment, hardcore bodybuilding energy, sweaty lifting content, powerlifting posture, hyper-muscular styling, neon activewear, influencer gym aesthetics, and any scene that feels like a professional sportswear ad rather than THERUIZ AURA's refined active lifestyle. Avoid ultra-short shorts, exposed sports-bra focus, plastic-looking activewear, aggressive training expression, and overly dark heavy styling with no tonal balance.";
+  "Avoid cheap commercial gym background, fluorescent lighting, crowded equipment, hardcore bodybuilding energy, sweaty lifting content, powerlifting posture, hyper-muscular styling, neon activewear, influencer gym aesthetics, and any scene that feels like a professional sportswear ad rather than THERUIZ AURA's refined active lifestyle. Avoid tailored knee-length active shorts, insufficiently layered activewear, plastic-looking activewear, aggressive training expression, and overly dark heavy styling with no tonal balance.";
 
 const premiumGymScenePool = [
   "Use a clean premium gym interior with soft stone tones, warm grey flooring, minimal high-end equipment, and calm architectural lighting.",
@@ -77,7 +77,7 @@ const gymInteriorExpandedLines: ActiveOutfitLine[] = [
     compactLine:
       "Use a black fitted T-shirt, charcoal clean athletic shorts, and a practical no-logo gym tote for a clean premium-gym look.",
     forbidden:
-      "Avoid neon activewear, fluorescent gymwear, compression-brand styling, bodybuilder outfit, tiny sports bra focus, ultra-short shorts, and cheap matching sports sets."
+      "Avoid neon activewear, fluorescent gymwear, compression-brand styling, bodybuilder outfit, insufficiently layered activewear, tailored knee-length active shorts, and cheap matching sports sets."
   },
   {
     id: "gymInteriorExpanded02",
@@ -87,7 +87,7 @@ const gymInteriorExpandedLines: ActiveOutfitLine[] = [
     compactLine:
       "Style her in a deep navy short-sleeve active top, soft grey active shorts, and a minimal gym bag for a calm high-end training mood.",
     forbidden:
-      "Avoid neon activewear, fluorescent gymwear, compression-brand styling, bodybuilder outfit, tiny sports bra focus, ultra-short shorts, and cheap matching sports sets."
+      "Avoid neon activewear, fluorescent gymwear, compression-brand styling, bodybuilder outfit, insufficiently layered activewear, tailored knee-length active shorts, and cheap matching sports sets."
   },
   {
     id: "gymInteriorExpanded03",
@@ -97,7 +97,7 @@ const gymInteriorExpandedLines: ActiveOutfitLine[] = [
     compactLine:
       "Use a dark coffee fitted short-sleeve top, ivory clean athletic shorts, and a taupe tote for a refined summer indoor workout look.",
     forbidden:
-      "Avoid neon activewear, fluorescent gymwear, compression-brand styling, bodybuilder outfit, tiny sports bra focus, ultra-short shorts, and cheap matching sports sets."
+      "Avoid neon activewear, fluorescent gymwear, compression-brand styling, bodybuilder outfit, insufficiently layered activewear, tailored knee-length active shorts, and cheap matching sports sets."
   },
   {
     id: "gymInteriorExpanded04",
@@ -107,7 +107,7 @@ const gymInteriorExpandedLines: ActiveOutfitLine[] = [
     compactLine:
       "Style her in a black fitted tank, cream sporty shorts, and a lightweight pale grey outer layer for a polished movement-space outfit.",
     forbidden:
-      "Avoid neon activewear, fluorescent gymwear, compression-brand styling, bodybuilder outfit, tiny sports bra focus, ultra-short shorts, and cheap matching sports sets."
+      "Avoid neon activewear, fluorescent gymwear, compression-brand styling, bodybuilder outfit, insufficiently layered activewear, tailored knee-length active shorts, and cheap matching sports sets."
   },
   {
     id: "gymInteriorExpanded05",
@@ -117,7 +117,7 @@ const gymInteriorExpandedLines: ActiveOutfitLine[] = [
     compactLine:
       "Use a charcoal fitted tee, black straight active trousers, and a restrained gym tote for a premium strength-area scene.",
     forbidden:
-      "Avoid neon activewear, fluorescent gymwear, compression-brand styling, bodybuilder outfit, tiny sports bra focus, ultra-short shorts, and cheap matching sports sets."
+      "Avoid neon activewear, fluorescent gymwear, compression-brand styling, bodybuilder outfit, insufficiently layered activewear, tailored knee-length active shorts, and cheap matching sports sets."
   },
   {
     id: "gymInteriorExpanded06",
@@ -127,7 +127,7 @@ const gymInteriorExpandedLines: ActiveOutfitLine[] = [
     compactLine:
       "Style her in a graphite clean athletic tee, taupe active shorts, and a no-logo tote for a realistic upscale gym moment.",
     forbidden:
-      "Avoid neon activewear, fluorescent gymwear, compression-brand styling, bodybuilder outfit, tiny sports bra focus, ultra-short shorts, and cheap matching sports sets."
+      "Avoid neon activewear, fluorescent gymwear, compression-brand styling, bodybuilder outfit, insufficiently layered activewear, tailored knee-length active shorts, and cheap matching sports sets."
   },
   {
     id: "gymInteriorExpanded07",
@@ -137,7 +137,7 @@ const gymInteriorExpandedLines: ActiveOutfitLine[] = [
     compactLine:
       "Use a white fitted short-sleeve top, black relaxed gym trousers, and a clean structured gym bag for a refined contrast look.",
     forbidden:
-      "Avoid neon activewear, fluorescent gymwear, compression-brand styling, bodybuilder outfit, tiny sports bra focus, ultra-short shorts, and cheap matching sports sets."
+      "Avoid neon activewear, fluorescent gymwear, compression-brand styling, bodybuilder outfit, insufficiently layered activewear, tailored knee-length active shorts, and cheap matching sports sets."
   },
   {
     id: "gymInteriorExpanded08",
@@ -147,7 +147,7 @@ const gymInteriorExpandedLines: ActiveOutfitLine[] = [
     compactLine:
       "Style her in a cream active tank, charcoal clean leggings or straight active trousers, and a taupe zip outer layer for a soft but grounded gym image.",
     forbidden:
-      "Avoid neon activewear, fluorescent gymwear, compression-brand styling, bodybuilder outfit, tiny sports bra focus, ultra-short shorts, and cheap matching sports sets."
+      "Avoid neon activewear, fluorescent gymwear, compression-brand styling, bodybuilder outfit, insufficiently layered activewear, tailored knee-length active shorts, and cheap matching sports sets."
   },
   {
     id: "gymInteriorExpanded09",
@@ -157,7 +157,7 @@ const gymInteriorExpandedLines: ActiveOutfitLine[] = [
     compactLine:
       "Use a pale grey short-sleeve tee, black active shorts, and a cream overshirt tied or lightly layered for a believable gym-going scene.",
     forbidden:
-      "Avoid neon activewear, fluorescent gymwear, compression-brand styling, bodybuilder outfit, tiny sports bra focus, ultra-short shorts, and cheap matching sports sets."
+      "Avoid neon activewear, fluorescent gymwear, compression-brand styling, bodybuilder outfit, insufficiently layered activewear, tailored knee-length active shorts, and cheap matching sports sets."
   },
   {
     id: "gymInteriorExpanded10",
@@ -167,7 +167,7 @@ const gymInteriorExpandedLines: ActiveOutfitLine[] = [
     compactLine:
       "Style her in a dark coffee sleeveless active top, soft grey active trousers, and a black clean tote for a quiet luxury gym outfit.",
     forbidden:
-      "Avoid neon activewear, fluorescent gymwear, compression-brand styling, bodybuilder outfit, tiny sports bra focus, ultra-short shorts, and cheap matching sports sets."
+      "Avoid neon activewear, fluorescent gymwear, compression-brand styling, bodybuilder outfit, insufficiently layered activewear, tailored knee-length active shorts, and cheap matching sports sets."
   },
   {
     id: "gymInteriorExpanded11",
@@ -177,7 +177,7 @@ const gymInteriorExpandedLines: ActiveOutfitLine[] = [
     compactLine:
       "Use a black fitted short-sleeve top, ivory clean shorts, and a lightweight zip jacket for a crisp summer premium-gym look.",
     forbidden:
-      "Avoid neon activewear, fluorescent gymwear, compression-brand styling, bodybuilder outfit, tiny sports bra focus, ultra-short shorts, and cheap matching sports sets."
+      "Avoid neon activewear, fluorescent gymwear, compression-brand styling, bodybuilder outfit, insufficiently layered activewear, tailored knee-length active shorts, and cheap matching sports sets."
   },
   {
     id: "gymInteriorExpanded12",
@@ -187,7 +187,7 @@ const gymInteriorExpandedLines: ActiveOutfitLine[] = [
     compactLine:
       "Style her in a deep charcoal athletic tee, taupe jogger-style trousers, and an understated gym bag for a clean machine-area or training-break image.",
     forbidden:
-      "Avoid neon activewear, fluorescent gymwear, compression-brand styling, bodybuilder outfit, tiny sports bra focus, ultra-short shorts, and cheap matching sports sets."
+      "Avoid neon activewear, fluorescent gymwear, compression-brand styling, bodybuilder outfit, insufficiently layered activewear, tailored knee-length active shorts, and cheap matching sports sets."
   }
 ];
 
@@ -200,7 +200,7 @@ export const activeOutfitLines: ActiveOutfitLine[] = [
     compactLine:
       "Use a soft studio-ready outfit with a fitted cream active top, light grey straight active trousers, a clean zip jacket, and a practical neutral gym tote.",
     forbidden:
-      "Avoid exposed performance-bra focus, intense training mood, bodybuilder look, loud logos, neon activewear, cycling shorts focus, sweaty workout content, and influencer gym posing."
+      "Avoid insufficiently layered activewear, intense training mood, bodybuilder look, loud logos, neon activewear, cycling shorts focus, sweaty workout content, and influencer gym posing."
   },
   {
     id: "gymInterior02",
@@ -210,7 +210,7 @@ export const activeOutfitLines: ActiveOutfitLine[] = [
     compactLine:
       "Style her in a white fitted short-sleeve top, pale oatmeal active leggings, a light beige overshirt, and a minimal gym bag for a calm indoor movement look.",
     forbidden:
-      "Avoid exposed performance-bra focus, intense training mood, bodybuilder look, loud logos, neon activewear, cycling shorts focus, sweaty workout content, and influencer gym posing."
+      "Avoid insufficiently layered activewear, intense training mood, bodybuilder look, loud logos, neon activewear, cycling shorts focus, sweaty workout content, and influencer gym posing."
   },
   {
     id: "gymInterior03",
@@ -220,7 +220,7 @@ export const activeOutfitLines: ActiveOutfitLine[] = [
     compactLine:
       "Use a soft grey active set with a cream lightweight jacket and a clean tote, keeping the outfit feminine, breathable, and understated.",
     forbidden:
-      "Avoid exposed performance-bra focus, intense training mood, bodybuilder look, loud logos, neon activewear, cycling shorts focus, sweaty workout content, and influencer gym posing."
+      "Avoid insufficiently layered activewear, intense training mood, bodybuilder look, loud logos, neon activewear, cycling shorts focus, sweaty workout content, and influencer gym posing."
   },
   {
     id: "gymInterior04",
@@ -230,7 +230,7 @@ export const activeOutfitLines: ActiveOutfitLine[] = [
     compactLine:
       "Style her in a fitted off-white long-sleeve top, taupe clean jogger-style trousers, and a structured neutral tote for a refined gym-going look.",
     forbidden:
-      "Avoid exposed performance-bra focus, intense training mood, bodybuilder look, loud logos, neon activewear, cycling shorts focus, sweaty workout content, and influencer gym posing."
+      "Avoid insufficiently layered activewear, intense training mood, bodybuilder look, loud logos, neon activewear, cycling shorts focus, sweaty workout content, and influencer gym posing."
   },
   {
     id: "gymInterior05",
@@ -240,7 +240,7 @@ export const activeOutfitLines: ActiveOutfitLine[] = [
     compactLine:
       "Use a light beige sleeveless active top with cream straight active trousers and a soft grey zip outer layer for a clean studio-movement outfit.",
     forbidden:
-      "Avoid exposed performance-bra focus, intense training mood, bodybuilder look, loud logos, neon activewear, cycling shorts focus, sweaty workout content, and influencer gym posing."
+      "Avoid insufficiently layered activewear, intense training mood, bodybuilder look, loud logos, neon activewear, cycling shorts focus, sweaty workout content, and influencer gym posing."
   },
   {
     id: "gymInterior06",
@@ -250,7 +250,7 @@ export const activeOutfitLines: ActiveOutfitLine[] = [
     compactLine:
       "Style her in a pale stone fitted tee, winter-white leggings or clean athletic trousers, and an oatmeal lightweight sweatshirt tied or layered softly.",
     forbidden:
-      "Avoid exposed performance-bra focus, intense training mood, bodybuilder look, loud logos, neon activewear, cycling shorts focus, sweaty workout content, and influencer gym posing."
+      "Avoid insufficiently layered activewear, intense training mood, bodybuilder look, loud logos, neon activewear, cycling shorts focus, sweaty workout content, and influencer gym posing."
   },
   {
     id: "gymInterior07",
@@ -260,7 +260,7 @@ export const activeOutfitLines: ActiveOutfitLine[] = [
     compactLine:
       "Use a fitted warm-grey top, light neutral active trousers, and a minimal gym bag for a low-noise, movement-friendly indoor look.",
     forbidden:
-      "Avoid exposed performance-bra focus, intense training mood, bodybuilder look, loud logos, neon activewear, cycling shorts focus, sweaty workout content, and influencer gym posing."
+      "Avoid insufficiently layered activewear, intense training mood, bodybuilder look, loud logos, neon activewear, cycling shorts focus, sweaty workout content, and influencer gym posing."
   },
   {
     id: "gymInterior08",
@@ -270,7 +270,7 @@ export const activeOutfitLines: ActiveOutfitLine[] = [
     compactLine:
       "Style her in a soft cream active tank layered under a pale khaki zip jacket with straight sporty trousers for a polished active-lifestyle image.",
     forbidden:
-      "Avoid exposed performance-bra focus, intense training mood, bodybuilder look, loud logos, neon activewear, cycling shorts focus, sweaty workout content, and influencer gym posing."
+      "Avoid insufficiently layered activewear, intense training mood, bodybuilder look, loud logos, neon activewear, cycling shorts focus, sweaty workout content, and influencer gym posing."
   },
   {
     id: "gymInterior09",
@@ -280,7 +280,7 @@ export const activeOutfitLines: ActiveOutfitLine[] = [
     compactLine:
       "Use a clean off-white active top, muted taupe studio trousers, and a soft neutral tote for a restrained indoor fitness scene.",
     forbidden:
-      "Avoid exposed performance-bra focus, intense training mood, bodybuilder look, loud logos, neon activewear, cycling shorts focus, sweaty workout content, and influencer gym posing."
+      "Avoid insufficiently layered activewear, intense training mood, bodybuilder look, loud logos, neon activewear, cycling shorts focus, sweaty workout content, and influencer gym posing."
   },
   {
     id: "gymInterior10",
@@ -290,7 +290,7 @@ export const activeOutfitLines: ActiveOutfitLine[] = [
     compactLine:
       "Style her in an ivory fitted top, refined black-grey active trousers, and a light outer layer for a gym look that stays clean and wearable rather than sporty.",
     forbidden:
-      "Avoid exposed performance-bra focus, intense training mood, bodybuilder look, loud logos, neon activewear, cycling shorts focus, sweaty workout content, and influencer gym posing."
+      "Avoid insufficiently layered activewear, intense training mood, bodybuilder look, loud logos, neon activewear, cycling shorts focus, sweaty workout content, and influencer gym posing."
   },
   {
     id: "gymCommute01",

@@ -118,6 +118,9 @@ const SCENE_ACCESSORIES: Partial<Record<TeamScenePreference | "对镜穿搭", Ac
   周末轻采购: ["goyardBag", "theRowBag", "hermesBag"],
   玄关出门: ["theRowBag", "hermesBag", "celineBag"],
   窗边阅读: ["celineBag", "theRowBag", "minimalOpticalGlasses"],
+  咖啡馆内: ["theRowBag", "celineBag", "chanelBag", "minimalOpticalGlasses"],
+  朋友午餐: ["theRowBag", "celineBag", "chanelBag"],
+  美术馆: ["celineBag", "theRowBag", "minimalOpticalGlasses"],
   健身房内: ["simpleNoLogoBag", "theRowBag"],
   去运动的路上: ["theRowBag", "goyardBag", "celineBag"]
 };

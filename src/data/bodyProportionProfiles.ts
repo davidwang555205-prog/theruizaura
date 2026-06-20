@@ -8,10 +8,10 @@ export const asianFemaleProportionCompact =
   "Use believable proportions typical of a refined Asian woman: natural shoulder width, moderate waist definition, normal hip structure, elegant but realistic leg length, and grounded foot scale. Keep the silhouette feminine, clean, and balanced without making her overly thin, overly tall, or runway-exaggerated.";
 
 export const upperBodyProportionCompact =
-  "Keep the relationship between head, neck, shoulders, bust, waist, and hips natural and stable. Avoid tiny head with wide hips, exaggerated shoulders, or a waist placed too high.";
+  "Keep the relationship between head, neck, shoulders, upper torso, waist, and hips natural and stable. Avoid tiny head with wide hips, exaggerated shoulders, or a waist placed too high.";
 
 export const figureStyleBoundaryCompact =
-  "The body should feel refined, healthy, feminine, and presentable, but not ultra-thin, hyper-curvy, bodycon-glamorous, runway-editorial, or heavily retouched.";
+  "The figure should feel refined, healthy, feminine, and presentable, but not ultra-thin, exaggerated in silhouette, overly close-fitting in styling, runway-editorial, or heavily retouched.";
 
 export const standingPoseProportionCompact =
   "When standing, keep the posture relaxed and anatomically natural, with believable weight shift, realistic spacing between the feet and legs, and no rigid mannequin stance, hyper-extended legs, over-long shins, tiny feet, or too-short torso.";

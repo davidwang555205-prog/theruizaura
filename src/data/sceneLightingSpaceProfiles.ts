@@ -34,7 +34,7 @@ export const sceneLightingSpaceProfiles: Record<LightingSpaceType, LightingSpace
     indoorOutdoorLightLine:
       "Use soft indoor natural window light with believable room depth, gentle shadows on the floor, natural mirror or wall reflection, and warm-neutral brightness. The light should feel like a real daily indoor outfit record, not studio or exterior lighting.",
     lightingNegativeLine:
-      "exterior shadows inside room, hard flash, beauty selfie lighting, studio backdrop, overexposed mirror glare, long-leg mirror distortion",
+      "exterior shadows inside room, hard flash, posed selfie lighting, studio backdrop, overexposed mirror glare, long-leg mirror distortion",
     spaceSupportLine:
       "The room should feel naturally lit from a real window or soft ambient source, with no exterior shadows projected into the interior."
   },
@@ -104,6 +104,7 @@ export const outdoorStreetSceneKeys: StandardSceneKey[] = [
 ];
 
 export const indoorCommercialSceneKeys: StandardSceneKey[] = [
+  "lightSocial",
   "bookstoreMagazine",
   "premiumErrands",
   "boutiqueStreet",

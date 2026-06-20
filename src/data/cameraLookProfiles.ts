@@ -22,7 +22,7 @@ export const cameraLookProfiles: Record<CameraLookName, CameraLookProfile> = {
     cameraLookLine:
       "Use a soft daily color capture: gentle natural color, believable skin tone, warm-neutral highlights, relaxed texture, and restrained optical softness without a sugary preset.",
     cameraNegativeLine:
-      "sweet filter, overexposed pastel, fake film preset, beauty selfie lighting, low-end lifestyle filter"
+      "sweet filter, overexposed pastel, fake film preset, posed selfie lighting, low-end lifestyle filter"
   },
   Sony: {
     cameraLookLine:

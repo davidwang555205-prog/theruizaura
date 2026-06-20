@@ -92,7 +92,7 @@ export const perSceneOutfitLibrary: Record<string, OutfitEntry[]> = {
       accessoryCategory: ["slim leather belt"],
       compactLine:
         "Pair a pale blue cotton shirt with dark indigo straight denim, a slim leather belt, and a cream tote for a realistic office-to-city outfit.",
-      forbidden: ["teenage denim styling", "ripped jeans", "streetwear denim"]
+      forbidden: ["overly youthful denim styling", "ripped jeans", "streetwear denim"]
     },
     {
       id: "commute-004",
@@ -164,7 +164,7 @@ export const perSceneOutfitLibrary: Record<string, OutfitEntry[]> = {
       accessoryCategory: ["subtle gold earrings"],
       compactLine:
         "Style her in a white short-sleeve shirt, beige wide-leg trousers, and a light tan handbag for a breathable refined commute.",
-      forbidden: ["too casual summer office", "cheap shirt styling", "overexposed skin"]
+      forbidden: ["too casual summer office", "cheap shirt styling", "insufficient garment coverage"]
     },
     {
       id: "commute-008",
@@ -218,7 +218,7 @@ export const perSceneOutfitLibrary: Record<string, OutfitEntry[]> = {
       accessoryCategory: ["simple watch"],
       compactLine:
         "Use an ivory sleeveless top under a white oversized shirt, soft grey summer trousers, and a small black shoulder bag for a real warm-weather commute.",
-      forbidden: ["too revealing tank-only outfit", "beauty selfie mood", "cheap summer office styling"]
+      forbidden: ["insufficiently layered sleeveless outfit", "posed-selfie mood", "cheap summer office styling"]
     }
   ],
   cafeExterior: [
@@ -238,7 +238,7 @@ export const perSceneOutfitLibrary: Record<string, OutfitEntry[]> = {
       accessoryCategory: ["subtle gold earrings"],
       compactLine:
         "Style her in a black fitted tank, white straight midi skirt, and a small black shoulder bag for a mature cafe-side summer outfit.",
-      forbidden: ["sexy cafe pose", "mini skirt sweetness", "brunch influencer styling"]
+      forbidden: ["body-focused cafe pose", "impractical short hemline", "brunch influencer styling"]
     },
     {
       id: "cafe-002",
@@ -256,7 +256,7 @@ export const perSceneOutfitLibrary: Record<string, OutfitEntry[]> = {
       accessoryCategory: ["subtle gold earrings"],
       compactLine:
         "Pair an ivory sleeveless top with a beige A-line skirt, a soft beige cardigan, and a small shoulder bag for gentle but mature cafe styling.",
-      forbidden: ["sweet girl outfit", "lace overload", "princess skirt mood"]
+      forbidden: ["overly youthful outfit", "lace overload", "princess skirt mood"]
     },
     {
       id: "cafe-003",
@@ -292,7 +292,7 @@ export const perSceneOutfitLibrary: Record<string, OutfitEntry[]> = {
       accessoryCategory: ["coffee cup"],
       compactLine:
         "Use a dark coffee sleeveless top, cream wide-leg trousers, and a taupe shoulder bag for quiet warm cafe-side depth.",
-      forbidden: ["too sexy tank styling", "overly dark summer look", "nightlife mood"]
+      forbidden: ["body-focused sleeveless styling", "overly dark summer look", "nightlife mood"]
     },
     {
       id: "cafe-005",
@@ -382,7 +382,7 @@ export const perSceneOutfitLibrary: Record<string, OutfitEntry[]> = {
       accessoryCategory: ["coffee cup"],
       compactLine:
         "Use a charcoal ribbed tank under a white oversized shirt, linen trousers, and a black flat shoulder bag for a believable cafe outfit record.",
-      forbidden: ["beauty selfie mood", "over-styled influencer pose", "cropped shoes"]
+      forbidden: ["posed selfie mood", "over-styled influencer pose", "cropped shoes"]
     },
     {
       id: "cafe-010",
@@ -420,7 +420,7 @@ export const perSceneOutfitLibrary: Record<string, OutfitEntry[]> = {
       accessoryCategory: ["simple watch"],
       compactLine:
         "Style her in an oversized white shirt, light blue straight denim, and a natural canvas tote for an easy refined weekend walk.",
-      forbidden: ["teenage denim styling", "tourist outfit", "streetwear"]
+      forbidden: ["overly youthful denim styling", "tourist outfit", "streetwear"]
     },
     {
       id: "weekend-002",
@@ -438,7 +438,7 @@ export const perSceneOutfitLibrary: Record<string, OutfitEntry[]> = {
       accessoryCategory: ["understated sunglasses only outdoor"],
       compactLine:
         "Use a black fitted tank under an oversized white shirt, pale denim, and a restrained black shoulder bag for a mature relaxed city look.",
-      forbidden: ["sexy tank styling", "influencer street pose", "overexposed skin"]
+      forbidden: ["body-focused sleeveless styling", "influencer street pose", "insufficient garment coverage"]
     },
     {
       id: "weekend-003",
@@ -510,7 +510,7 @@ export const perSceneOutfitLibrary: Record<string, OutfitEntry[]> = {
       accessoryCategory: ["simple watch"],
       compactLine:
         "Style her in a white cotton T-shirt, stone grey Bermuda shorts, and a restrained woven bag for a clean refined summer walk.",
-      forbidden: ["teenage shorts look", "beach outfit", "cheap T-shirt styling"]
+      forbidden: ["overly youthful shorts look", "beach outfit", "cheap T-shirt styling"]
     },
     {
       id: "weekend-007",
@@ -602,7 +602,7 @@ export const perSceneOutfitLibrary: Record<string, OutfitEntry[]> = {
       accessoryCategory: ["water bottle"],
       compactLine:
         "Use a black fitted T-shirt, charcoal clean athletic shorts, and a practical no-logo gym tote for a clean premium-gym look.",
-      forbidden: ["bodybuilder outfit", "neon activewear", "sports bra focus"]
+      forbidden: ["bodybuilder outfit", "neon activewear", "insufficiently layered activewear"]
     },
     {
       id: "gym-002",
@@ -638,7 +638,7 @@ export const perSceneOutfitLibrary: Record<string, OutfitEntry[]> = {
       accessoryCategory: ["water bottle"],
       compactLine:
         "Use a dark coffee fitted short-sleeve top, ivory clean athletic shorts, and a taupe tote for a refined summer indoor workout look.",
-      forbidden: ["too sexy activewear", "ultra-short shorts", "cheap sports set"]
+      forbidden: ["body-focused activewear", "impractical short active shorts", "cheap sports set"]
     },
     {
       id: "gym-004",
@@ -656,7 +656,7 @@ export const perSceneOutfitLibrary: Record<string, OutfitEntry[]> = {
       accessoryCategory: ["water bottle"],
       compactLine:
         "Style her in a black fitted tank, cream sporty shorts, and a lightweight pale grey outer layer for a polished movement-space outfit.",
-      forbidden: ["mirror influencer pose", "sports bra focus", "long-leg gym selfie"]
+      forbidden: ["mirror influencer pose", "insufficiently layered activewear", "long-leg gym selfie"]
     },
     {
       id: "gym-005",
@@ -728,7 +728,7 @@ export const perSceneOutfitLibrary: Record<string, OutfitEntry[]> = {
       accessoryCategory: ["water bottle"],
       compactLine:
         "Style her in a cream active tank, charcoal clean leggings or straight active trousers, and a taupe zip outer layer for a soft but grounded gym image.",
-      forbidden: ["over-tight influencer leggings", "bodycon fitness pose", "plastic activewear"]
+      forbidden: ["overly close-fitting influencer leggings", "figure-emphasizing fitness pose", "plastic activewear"]
     },
     {
       id: "gym-009",
@@ -746,7 +746,7 @@ export const perSceneOutfitLibrary: Record<string, OutfitEntry[]> = {
       accessoryCategory: ["water bottle"],
       compactLine:
         "Use a pale grey short-sleeve tee, black active shorts, and a cream overshirt tied or lightly layered for a believable gym-going scene.",
-      forbidden: ["ultra-short shorts", "cheap matching active set", "gym influencer energy"]
+      forbidden: ["impractical short active shorts", "cheap matching active set", "gym influencer energy"]
     },
     {
       id: "gym-010",

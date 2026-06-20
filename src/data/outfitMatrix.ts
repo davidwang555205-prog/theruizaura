@@ -111,7 +111,7 @@ const seasonDefaults: Record<Season, Omit<OutfitRecommendation, "season" | "scen
     fabrics: "linen, cotton, light denim, breathable mesh-friendly textures",
     colorPalette: "cream white, warm beige, pale blue, light oatmeal, soft stone",
     stylingSummary:
-      "light, breathable, refined summer styling with quiet femininity, without sporty or vacation-girl energy"
+      "light, breathable, refined summer styling with quiet femininity, without sporty or vacation-content energy"
   },
   Autumn: {
     tops: "oatmeal knitwear, white shirt, or cappuccino-toned soft layer",

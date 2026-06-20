@@ -107,7 +107,7 @@ export const seasonalLuxuryStyleProfiles: SeasonalLuxuryStyleProfile[] = [
     compactLuxuryStyleLine:
       "Use a Chloé-inspired soft feminine ease direction with flowing neutral layers, light knitwear, relaxed skirts or linen trousers, warm cream tones, and subtle feminine accessories, keeping the look gentle, free, and mature rather than sweet or bohemian.",
     forbidden:
-      "Avoid festival boho, excessive ruffles, lace overload, girlish romance, vacation styling, oversized floral styling, or overly free-spirited costume feeling."
+      "Avoid festival boho, excessive ruffles, lace overload, overly youthful romance, vacation styling, oversized floral styling, or overly free-spirited costume feeling."
   },
   {
     id: "celineCityMinimal",
@@ -165,6 +165,9 @@ const SCENE_PRIORITIES: Partial<Record<TeamScenePreference | "对镜穿搭", Sea
   对镜穿搭: ["chanelRefinedFeminine", "celineCityMinimal", "theRowNoLogoRestraint"],
   居家衣帽间: ["chanelRefinedFeminine", "celineCityMinimal", "theRowNoLogoRestraint"],
   窗边阅读: ["celineCityMinimal", "theRowNoLogoRestraint"],
+  咖啡馆内: ["chloeSoftEase", "celineCityMinimal", "theRowNoLogoRestraint"],
+  朋友午餐: ["chloeSoftEase", "chanelRefinedFeminine", "theRowNoLogoRestraint"],
+  美术馆: ["celineCityMinimal", "theRowNoLogoRestraint", "chanelRefinedFeminine"],
   周末轻采购: ["loroPianaQuietCashmere", "theRowNoLogoRestraint", "chloeSoftEase"],
   玄关出门: ["theRowNoLogoRestraint", "loroPianaQuietCashmere", "celineCityMinimal"],
   去运动的路上: ["theRowNoLogoRestraint", "celineCityMinimal"]

@@ -207,6 +207,12 @@ const TEAM_SCENE_TEXT: Record<Exclude<TeamScenePreference, "自动匹配">, stri
     "Use a realistic neighborhood storefront or takeaway-coffee setting with clean pavement, small urban details, and a casual daily rhythm. Keep it real and understated, not influencer styled.",
   咖啡店门口:
     "Use a refined cafe-front setting with restrained storefront details, outdoor pavement, soft daylight, and a calm weekend city mood. Avoid tourist-cafe cliches.",
+  咖啡馆内:
+    "Use a real contemporary cafe interior with soft window light, believable table and chair spacing, restrained counter depth, quiet background patrons, and subtle signs of daily use. Keep the mood calm and refined, not a brunch set, food advertisement, or exterior storefront scene.",
+  朋友午餐:
+    "Use a quiet friends-lunch setting inside a contemporary cafe or restrained neighborhood restaurant. Keep one or two companions naturally secondary, with simple place settings, believable table spacing, and relaxed daytime conversation. Avoid party, banquet, formal evening social mood, or staged group-photo mood, and keep the outfit and sneakers readable.",
+  美术馆:
+    "Use a believable contemporary art museum or gallery interior with correctly spaced artwork, warm-white or soft-stone walls, restrained wall lighting, a bench or passage if natural, and quiet visitors kept secondary. Avoid fake exhibition text, luxury-event staging, touching artwork, or an empty CGI gallery.",
   "书店 / 杂志店门口":
     "Use a quiet bookstore or magazine-shop entrance with soft urban texture, restrained signage, and a thoughtful daily atmosphere. Keep it mature, calm, and believable.",
   "花店 / 买花":
@@ -489,7 +495,7 @@ const SUMMER_LIFESTYLE_SCENE_PROPS: Record<SummerLifestyleScene, string> = {
   暑假游乐园:
     "Add subtle amusement-park outing props only if natural: one folded park map, simple paper wristband, understated sunglasses, small snack box, canvas tote, or sun hat. Keep props restrained and mature, never sporty, cartoonish, or like colorful children's advertising, and never block the sneakers.",
   海边度假:
-    "Add subtle seaside-holiday props only if natural: one straw hat, folded beach towel, linen shirt layer, woven or light tote, paperback book, or understated sunglasses. Keep the scene breezy and refined, never sporty, never child-focused, not bikini-influencer styled, not a tropical cliche, and never block the sneakers.",
+    "Add subtle seaside-holiday props only if natural: one straw hat, folded beach towel, linen shirt layer, woven or light tote, paperback book, or understated sunglasses. Keep the scene breezy and refined, never sporty, never child-focused, not swimwear-influencer styled, not a tropical cliche, and never block the sneakers.",
   草原野餐:
     "Add subtle grassland-picnic props only if natural: one restrained picnic blanket, woven basket, fruit box, paperback book, sun hat, canvas tote, light cardigan, or small paper bag. Keep the mood quiet and breathable, not sporty, not camping-influencer styled, not gear-heavy, and never block the sneakers.",
   酒店度假:
@@ -551,6 +557,37 @@ const EXPANDED_SCENE_PROPS_LINES: Record<ExpandedLifestyleScene, string> = {
     "Add one subtle weekend-travel prop only if natural: a travel tote, small luggage, sunglasses, light jacket, or paper bag. Keep it tidy and never block the sneakers."
 };
 
+const INDOOR_SOCIAL_SCENES = ["咖啡馆内", "朋友午餐", "美术馆"] as const satisfies readonly Exclude<
+  TeamScenePreference,
+  "自动匹配"
+>[];
+
+type IndoorSocialScene = (typeof INDOOR_SOCIAL_SCENES)[number];
+
+function isIndoorSocialScene(
+  scene: Exclude<TeamScenePreference, "自动匹配">
+): scene is IndoorSocialScene {
+  return (INDOOR_SOCIAL_SCENES as readonly string[]).includes(scene);
+}
+
+const INDOOR_SOCIAL_SCENE_PROPS: Record<IndoorSocialScene, string> = {
+  咖啡馆内:
+    "Use at most one quiet cafe cue such as a ceramic cup, small shoulder bag, folded napkin, or receipt edge. Keep table surfaces sparse, text unreadable, and chairs clear of the sneakers.",
+  朋友午餐:
+    "Use simple daytime lunch cues only: restrained tableware, one glass or cup per place, and one compact bag placed beside a chair. Keep companions secondary and prevent the table, chairs, or bags from blocking the outfit and sneakers.",
+  美术馆:
+    "Use at most one subtle museum cue such as a folded exhibition leaflet with unreadable text, compact shoulder bag, or bench edge. Keep artwork untouched, wall labels unreadable, and the walking area around the sneakers clear."
+};
+
+const INDOOR_SOCIAL_SCENE_NEGATIVES: Record<IndoorSocialScene, string> = {
+  咖啡馆内:
+    "Avoid exterior cafe substitution, brunch-influencer staging, food close-up advertising, crowded table props, readable cafe branding, chairs hiding shoes, and empty showroom interiors.",
+  朋友午餐:
+    "Avoid party atmosphere, banquet table, formal evening social styling, posed group portrait, excessive food display, multiple hand-held objects, companions blocking the subject, and tables hiding the sneakers.",
+  美术馆:
+    "Avoid luxury-event staging, retail showroom mood, fake exhibition text, repeated artwork, touching artwork, dramatic conceptual posing, empty CGI gallery space, and benches or visitors blocking the sneakers."
+};
+
 const STUDIO_LAUNCH_PROPS_LINE =
   "Prefer a clean studio with no props. Only when composition truly needs support, add at most one quiet neutral studio cue such as a low matte plinth or a barely visible seamless-paper edge. Do not combine props, keep equipment outside the main frame, preserve generous negative space, and never block the sneakers.";
 
@@ -567,7 +604,7 @@ const SUMMER_LIFESTYLE_SCENE_NEGATIVES: Record<SummerLifestyleScene, string> = {
   暑假游乐园:
     "Avoid theme-park advertising, cartoon-tourist styling, colorful children's commercial mood, crowded ride imagery, and props covering footwear.",
   海边度假:
-    "Avoid bikini-coverup styling, barefoot beach shoots, tropical resort cliches, vacation-influencer posing, and sand hiding the shoes.",
+    "Avoid swimwear-coverup styling, barefoot beach shoots, tropical resort cliches, vacation-influencer posing, and sand hiding the shoes.",
   草原野餐:
     "Avoid camping-influencer styling, gear-heavy outdoor scenes, oversized picnic setups, tall grass hiding shoes, and staged pastoral advertising.",
   酒店度假:
@@ -773,6 +810,9 @@ function resolveTeamHasShoe(params: TeamPromptParams) {
 const NON_PRODUCT_AUTO_SCENES: Exclude<TeamScenePreference, "自动匹配">[] = [
   "窗边阅读",
   "周末轻采购",
+  "咖啡馆内",
+  "朋友午餐",
+  "美术馆",
   "旅行酒店",
   "居家衣帽间",
   "周末城市散步",
@@ -830,6 +870,8 @@ function resolveSceneKey(params: TeamPromptParams, resolvedScene: Exclude<TeamSc
   }
   if (resolvedScene === "楼下便利店 / 咖啡外带") return "bakeryDessert";
   if (resolvedScene === "咖啡店门口") return "cafeExterior";
+  if (resolvedScene === "咖啡馆内" || resolvedScene === "朋友午餐") return "lightSocial";
+  if (resolvedScene === "美术馆") return "galleryExhibition";
   if (resolvedScene === "书店 / 杂志店门口") return "bookstoreMagazine";
   if (resolvedScene === "花店 / 买花") return "flowerShop";
   if (resolvedScene === "社区市集 / 精品买菜") return "premiumErrands";
@@ -878,7 +920,7 @@ function getSceneVariationLine(
   const windowReadingLines = [
     "Use a quiet window-side chair or sofa edge with linen curtains, one book, and calm private space.",
     "Set a window-side reading moment beside a real window with a small table, magazine or cup, and warm neutral interior depth.",
-    "Use a reading corner near soft curtains and pale wall texture, keeping the mood intimate, clean, and not staged.",
+    "Use a reading corner near soft curtains and pale wall texture, keeping the mood quiet, personal, clean, and not staged.",
     "Place the scene near a window ledge or lounge chair with one book or magazine as the only quiet object."
   ];
   let lines: string[] | undefined;
@@ -1031,6 +1073,12 @@ function getSceneRealismLine(input: {
   }
   if (input.sceneKey === "gymInterior") {
     return "Use a clean premium gym or boutique fitness space with muted equipment, warm grey flooring, controlled light, believable training space, and calm brand atmosphere.";
+  }
+  if (input.sceneKey === "lightSocial") {
+    return "Use a believable cafe or restrained restaurant interior with correctly scaled tables and chairs, natural aisle space, soft window or ambient light, subtle signs of use, and quiet background guests. Keep tableware sparse and secondary, with a clear unobstructed view of the outfit and sneakers.";
+  }
+  if (input.sceneKey === "galleryExhibition") {
+    return "Use a believable contemporary art museum interior with realistic artwork spacing, controlled wall light, natural floor depth, quiet visitor movement, and practical walking space. Keep exhibition text unreadable and secondary, with no showroom or event-staging mood.";
   }
   if (input.params.imageType === "对镜穿搭图" || input.sceneKey === "mirrorCloset") {
     return "Use a believable real room or mirror space with natural depth, grounded floor contact, soft light, practical object placement, and straight mirror perspective.";
@@ -1188,7 +1236,7 @@ function getNegativeLine(input: {
       "bodybuilding",
       "sweaty gym influencer",
       "technical sportswear campaign",
-      "overly bare activewear focus",
+      "insufficiently layered activewear",
       "technical gym shoe",
       "chunky athletic sole"
     );
@@ -1406,6 +1454,8 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
   const scenePropsLine = shouldUsePeopleStyling(params.imageType)
     ? resolvedScene === "棚内上新拍摄"
       ? STUDIO_LAUNCH_PROPS_LINE
+      : isIndoorSocialScene(resolvedScene)
+      ? INDOOR_SOCIAL_SCENE_PROPS[resolvedScene]
       : summerLifestyleScene
       ? SUMMER_LIFESTYLE_SCENE_PROPS[summerLifestyleScene]
       : isExpandedLifestyleScene(resolvedScene)
@@ -1416,6 +1466,9 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
     usesSummerLifestylePeopleSupport && summerLifestyleScene
       ? SUMMER_LIFESTYLE_SCENE_NEGATIVES[summerLifestyleScene]
       : "";
+  const indoorSocialSceneNegativeLine = isIndoorSocialScene(resolvedScene)
+    ? INDOOR_SOCIAL_SCENE_NEGATIVES[resolvedScene]
+    : "";
   const summerLifestyleShoeSafetyLine = usesSummerLifestylePeopleSupport
     ? summerLifestyleShoeVisibilityLine
     : "";
@@ -1908,6 +1961,7 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
           effectiveLightingNegativeLine,
           effectiveImageTemplateNegativeLine,
           ...extractAvoidPhrases(summerLifestyleSceneNegativeLine),
+          ...extractAvoidPhrases(indoorSocialSceneNegativeLine),
           ...(shouldUsePeopleStyling(params.imageType) ? extractAvoidPhrases(`Avoid ${footPlacementNegativeLine}.`) : []),
           cameraSelection.cameraNegativeLine,
           ...promptQualityPatchLines.negativePhrases,
@@ -1915,11 +1969,11 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
           "generic pants wording",
           "full figure balance wording risk",
           "hyphenated figure-balance wording risk",
-          "sexy styling",
-          "seductive pose",
-          "bodycon outfit",
-          "sports bra focus",
-          "beauty selfie"
+          "body-focused styling",
+          "forced dramatic pose",
+          "overly close-fitting outfit",
+          "insufficiently layered activewear",
+          "posed selfie"
         ]
       },
       softAestheticLines: {

@@ -121,7 +121,10 @@ const cameraFriendlyScenes = new Set<Exclude<TeamScenePreference, "自动匹配"
   "周末城市散步",
   "旅行酒店",
   "健身房内",
-  "去运动的路上"
+  "去运动的路上",
+  "咖啡馆内",
+  "朋友午餐",
+  "美术馆"
 ]);
 
 const taskFocusedScenes = new Set<Exclude<TeamScenePreference, "自动匹配">>([

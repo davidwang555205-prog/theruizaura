@@ -965,13 +965,13 @@ const scenePlans: Record<string, { prefix: string; label: string; garments: Garm
     prefix: "cafe",
     label: "cafe-side",
     garments: ["trousers", "trousers", "trousers", "trousers", "skirt", "skirt", "skirt", "shorts", "shorts", "dress", "dress", "lightActive"],
-    forbidden: ["brunch influencer styling", "sweet girl outfit", "over-posed blogger energy"]
+    forbidden: ["brunch influencer styling", "overly youthful outfit", "over-posed blogger energy"]
   },
   weekendCityWalk: {
     prefix: "weekend",
     label: "weekend city walk",
     garments: ["trousers", "trousers", "trousers", "trousers", "shorts", "shorts", "shorts", "dress", "dress", "skirt", "skirt", "lightActive"],
-    forbidden: ["tourist outfit", "teenage denim styling", "streetwear dominance"]
+    forbidden: ["tourist outfit", "overly youthful denim styling", "streetwear dominance"]
   },
   boutiqueStreet: {
     prefix: "boutique",
@@ -1003,6 +1003,18 @@ const scenePlans: Record<string, { prefix: string; label: string; garments: Garm
     garments: ["trousers", "trousers", "trousers", "trousers", "trousers", "shorts", "shorts", "shorts", "lightActive", "lightActive", "skirt", "dress"],
     forbidden: ["homewear", "messy supermarket look", "shopping cart blocking shoes"]
   },
+  lightSocial: {
+    prefix: "social",
+    label: "quiet lunch or cafe interior",
+    garments: ["trousers", "trousers", "trousers", "trousers", "skirt", "skirt", "skirt", "dress", "dress", "shorts", "shorts", "lightActive"],
+    forbidden: ["party styling", "formal evening social mood", "banquet dressing", "table clutter blocking shoes"]
+  },
+  galleryExhibition: {
+    prefix: "gallery",
+    label: "contemporary art museum",
+    garments: ["trousers", "trousers", "trousers", "trousers", "trousers", "skirt", "skirt", "skirt", "dress", "dress", "shorts", "lightActive"],
+    forbidden: ["art-student costume", "all-black conceptual styling", "luxury-event dressing", "floor-length hems"]
+  },
   mirrorCloset: {
     prefix: "mirror",
     label: "mirror closet outfit record",
@@ -1026,6 +1038,8 @@ const sceneDraftOffsets: Record<string, Partial<Record<GarmentType, number>>> = 
   bakeryDessert: { shorts: 6, trousers: 10, dress: 5, skirt: 6, lightActive: 5 },
   bookstoreMagazine: { trousers: 1, skirt: 7, dress: 6, shorts: 7, lightActive: 6 },
   premiumErrands: { trousers: 3, shorts: 8, lightActive: 0, skirt: 2, dress: 7 },
+  lightSocial: { trousers: 5, skirt: 4, dress: 5, shorts: 2, lightActive: 2 },
+  galleryExhibition: { trousers: 6, skirt: 7, dress: 5, shorts: 4, lightActive: 3 },
   mirrorCloset: { trousers: 5, skirt: 1, dress: 0, shorts: 3, lightActive: 1 },
   gymCommute: { lightActive: 0, trousers: 7, shorts: 3, skirt: 4 }
 };
@@ -1184,6 +1198,8 @@ export const sceneOutfitSeedLibrary: Record<string, SceneOutfitSeed[]> = {
   bakeryDessert: makeSceneSeeds("bakeryDessert"),
   bookstoreMagazine: makeSceneSeeds("bookstoreMagazine"),
   premiumErrands: makeSceneSeeds("premiumErrands"),
+  lightSocial: makeSceneSeeds("lightSocial"),
+  galleryExhibition: makeSceneSeeds("galleryExhibition"),
   mirrorCloset: makeSceneSeeds("mirrorCloset"),
   gymCommute: makeSceneSeeds("gymCommute")
 };

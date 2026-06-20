@@ -9,6 +9,12 @@ export const NON_PRODUCT_ATMOSPHERE_SCENE_LINES: Partial<
     "Create one quiet weekend city detail: real pavement and tree shadow, a restrained cafe or bookstore facade, or a tote and receipt resting after a walk. Keep the city depth believable and do not show a posed street-style figure.",
   咖啡店门口:
     "Create one calm cafe-front atmosphere with believable pavement, restrained signage, soft window reflection, and one takeaway cup or paper bag placed naturally. Avoid check-in styling and do not make a person the subject.",
+  咖啡馆内:
+    "Create one real cafe-interior atmosphere with soft window light, a naturally used table, ceramic cup, shifted chair, restrained counter depth, and quiet background rhythm. Keep text unreadable, props sparse, and people secondary or absent; do not substitute an exterior storefront.",
+  朋友午餐:
+    "Create one quiet friends-lunch atmosphere through two simple place settings, naturally shifted chairs, soft daytime light, and subtle traces of conversation. Keep food restrained, companions secondary or implied, and avoid party, formal evening social mood, banquet, or staged table-content styling.",
+  美术馆:
+    "Create one contemporary art-museum atmosphere with correctly spaced artwork, warm-white or soft-stone walls, controlled wall light, a bench or passage edge, and quiet visitor traces. Keep labels unreadable and avoid luxury-event, retail-showroom, or empty CGI-gallery mood.",
   "书店 / 杂志店门口":
     "Create one bookstore or magazine-shop atmosphere with muted facade texture, a canvas tote, receipt, book edge, or magazine placed naturally. Keep text unreadable and the scene thoughtful rather than staged.",
   "花店 / 买花":
@@ -40,7 +46,7 @@ export const NON_PRODUCT_ATMOSPHERE_SCENE_LINES: Partial<
   窗边阅读:
     "Create one quiet window-side reading atmosphere with a book or magazine, cup, linen curtain, chair or sofa edge, and soft daylight. Keep the moment private, warm, and free of posed people.",
   窗边阅读角:
-    "Create one intimate reading-corner detail with a book, glasses, cup, linen curtain, and believable window light on a chair or side table. Avoid decorative showroom symmetry.",
+    "Create one quiet personal reading-corner detail with a book, glasses, cup, linen curtain, and believable window light on a chair or side table. Avoid decorative showroom symmetry.",
   "工作台 / 桌边整理":
     "Create one refined personal worktable atmosphere with a notebook, used pen, glasses, paper, coffee, or laptop edge placed with believable daily order. Keep it her working life, not a product-development catalog.",
   材质工作台:

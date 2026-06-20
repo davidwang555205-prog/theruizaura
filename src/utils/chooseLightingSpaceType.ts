@@ -48,6 +48,15 @@ function inferLightingSpaceType(input: ChooseLightingSpaceTypeInput): LightingSp
   if (input.scenePreference === "拍摄花絮" || input.scenePreference === "材质工作台") {
     return "stillLifeStudioNatural";
   }
+  if (
+    input.scenePreference === "咖啡馆内" ||
+    input.scenePreference === "朋友午餐" ||
+    input.scenePreference === "美术馆" ||
+    input.sceneKey === "lightSocial" ||
+    input.sceneKey === "galleryExhibition"
+  ) {
+    return "indoorCommercialLight";
+  }
   if (input.sceneKey === "gymInterior") return "indoorGymLight";
   if (input.sceneKey === "hotelTravel") return "indoorNaturalLight";
 

@@ -75,6 +75,16 @@ export const sceneOutfitTendencyMap: Partial<
     preferredGarments: ["trousers", "shorts", "lightActive"],
     preferredColors: ["neutralDaily", "darkAnchor", "lightClean"]
   },
+  lightSocial: {
+    preferredStyles: ["refinedFeminine", "bloggerLite", "cleanMinimal", "realDaily"],
+    preferredGarments: ["trousers", "skirt", "dress", "shorts"],
+    preferredColors: ["neutralDaily", "softAccent", "darkAnchor", "lightClean"]
+  },
+  galleryExhibition: {
+    preferredStyles: ["cleanMinimal", "refinedFeminine", "darkAnchor", "polishedCommuter"],
+    preferredGarments: ["trousers", "skirt", "dress"],
+    preferredColors: ["neutralDaily", "darkAnchor", "softAccent", "lightClean"]
+  },
   mirrorCloset: {
     preferredStyles: ["bloggerLite", "refinedFeminine", "cleanMinimal"],
     preferredGarments: ["trousers", "skirt", "shorts", "dress", "lightActive"],

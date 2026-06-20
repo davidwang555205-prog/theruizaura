@@ -53,7 +53,7 @@ export const HIGH_RISK_ON_FOOT_COMPACT = `High-risk on-foot pose compact:
 This action can deform footwear. Simplify the movement into a slow, stable, physically believable version. Prioritize clean sneaker structure, correct foot placement, separated trouser hem, and stable shoe-ground contact over dramatic action.`;
 
 export const MATURE_CUSTOMER_COMPACT = `Mature customer compact:
-Keep the scene aligned with a refined 30-45 year old urban woman's real daily life: modern, tasteful, comfortable, warm, and quietly confident. Avoid girlish, influencer-like, old-fashioned, or generic mature-woman stock-photo mood.`;
+Keep the scene aligned with a refined 30-45 year old urban woman's real daily life: modern, tasteful, comfortable, warm, and quietly confident. Avoid overly youthful, influencer-like, old-fashioned, or generic mature-woman stock-photo mood.`;
 
 export const CAMERA_COMPACT = `Camera compact:
 Use a natural 35mm to 50mm lifestyle perspective with realistic height and calm composition. Avoid fisheye, extreme low-angle feet shots, wide-angle distortion, motion blur around shoes, or cropped footwear.`;

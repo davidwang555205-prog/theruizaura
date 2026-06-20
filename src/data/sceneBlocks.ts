@@ -35,7 +35,7 @@ export const BASIC_SCENE_BLOCKS: SceneBlock[] = [
     englishLabel: "Morning wardrobe moment",
     category: "basic",
     compactPrompt: "A quiet wardrobe or home morning moment before leaving. Use a bedroom, wardrobe corner, sofa edge, mirror area, or bed-side setting. Focus on outfit relationship, trouser hem, and sneakers on foot, with calm natural light and private daily ease.",
-    prompt: `Create a calm morning wardrobe scene with THERUIZ AURA sneakers. Show the woman in a bedroom, wardrobe corner, sofa edge, mirror area, or beside a bed as she gets ready for the day. The body movement may include sitting on the edge of a bed while putting on the sneakers, slipping one foot into the shoe, tying shoelaces, adjusting trouser cuffs, reaching for a white shirt, checking the outfit in a mirror, or picking up a tote bag. Expression suggestion: quiet, intimate, softly focused, natural and relaxed, like a private moment before leaving home.`
+    prompt: `Create a calm morning wardrobe scene with THERUIZ AURA sneakers. Show the woman in a getting-ready room, wardrobe corner, sofa edge, mirror area, or beside a bed as she gets ready for the day. The movement may include sitting on the edge of a bed while putting on the sneakers, slipping one foot into the shoe, tying shoelaces, adjusting trouser cuffs, reaching for a white shirt, checking the outfit in a mirror, or picking up a tote bag. Expression suggestion: quiet, personally focused, natural and relaxed, like a calm moment before leaving home.`
   },
   {
     id: "05",

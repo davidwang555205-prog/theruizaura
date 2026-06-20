@@ -37,6 +37,9 @@ export const premiumGymRealismCompact =
 export const culturalSpaceRealismCompact =
   "Use a quiet cultural space with believable shelves, artwork spacing, soft wall lighting, paper or frame details, and calm walking or browsing space. The environment should feel cultured but not staged.";
 
+export const indoorSocialRealismCompact =
+  "Use a believable daytime cafe or restrained restaurant interior with correctly scaled tables and chairs, practical aisle space, soft window or ambient light, sparse tableware, subtle signs of use, and quiet background guests. Keep the space refined but lived-in, not arranged as a brunch set or food advertisement.";
+
 export const stillLifeSceneRealismCompact =
   "Use a real still-life photography setup with believable surface texture, natural object contact, soft shadows, clear product scale, and restrained material props. The shoe must remain the main subject with no prop covering its shape.";
 

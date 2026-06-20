@@ -59,7 +59,7 @@ export const cityOutfitPreferenceMap: Record<string, CityOutfitPreference> = {
     autumnWinter: {
       preferredItems: ["wool coat", "cashmere-like knit", "high-neck knit", "charcoal trousers", "dark denim", "structured coat", "soft scarf"],
       preferredColorDirections: ["darkAnchor", "neutralDaily", "lightClean"],
-      avoidedDirections: ["thin summer styling", "bare ankle", "overly soft southern outfit", "scenic tourist styling"]
+      avoidedDirections: ["thin summer styling", "visible ankle", "overly soft southern outfit", "scenic tourist styling"]
     }
   },
   GenericChineseCity: {
@@ -69,7 +69,7 @@ export const cityOutfitPreferenceMap: Record<string, CityOutfitPreference> = {
     autumnWinter: {
       preferredItems: ["light wool jacket", "trench coat", "fine-knit top", "straight trousers", "dark denim", "soft cardigan"],
       preferredColorDirections: ["neutralDaily", "darkAnchor", "lightClean", "denimBased"],
-      avoidedDirections: ["extreme winter outfit", "summer bare styling", "too region-specific outfit"]
+      avoidedDirections: ["extreme winter outfit", "under-layered summer styling", "too region-specific outfit"]
     }
   }
 };

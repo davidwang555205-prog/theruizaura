@@ -11,7 +11,7 @@ export const SEASONAL_OUTFIT_LIBRARY: Record<Season, string> = {
   Spring: `Spring styling direction:
 Use a refined spring outfit with soft low-saturation layers such as a white shirt, cream knitwear, light blue denim, oatmeal trousers, a light trench coat, or a soft beige tote. The styling should feel airy, clean, gentle, and relaxed, with understated femininity and quiet daily elegance.`,
   Summer: `Summer styling direction:
-Use a breathable summer outfit with airy low-saturation pieces such as a white short-sleeve shirt, linen trousers, cream cotton tops, soft beige trousers, pale denim, or a light neutral tote bag. The styling should feel light, breathable, refined, and quietly feminine, without sporty energy or vacation-girl styling.`,
+Use a breathable summer outfit with airy low-saturation pieces such as a white short-sleeve shirt, linen trousers, cream cotton tops, soft beige trousers, pale denim, or a light neutral tote bag. The styling should feel light, breathable, refined, and quietly feminine, without sporty energy or vacation-content styling.`,
   Autumn: `Autumn styling direction:
 Use a soft autumn outfit with warm, tactile, low-saturation layers such as oatmeal knitwear, cappuccino tones, light wool outerwear, soft denim, warm beige trousers, or a refined brown tote. The styling should feel calm, seasonal, feminine, and quietly vintage without looking heavy or costume-like.`,
   Winter: `Winter styling direction:
@@ -19,7 +19,7 @@ Use a refined winter outfit with warm clean layers such as oatmeal knitwear, a c
 };
 
 export const BRAND_MATCHED_OUTFIT_DIRECTION = `Brand-matched outfit direction:
-The outfit should align with THERUIZ AURA's "Quiet Warm Luxury" styling system. Use low-saturation, refined, practical, softly feminine clothing with quiet layering, clean proportions, and believable daily elegance. Avoid trendy influencer dressing, sporty styling, girlish sweetness, loud color contrast, or over-styled fashion energy.`;
+The outfit should align with THERUIZ AURA's "Quiet Warm Luxury" styling system. Use low-saturation, refined, practical, softly feminine clothing with quiet layering, clean proportions, and believable daily elegance. Avoid trendy influencer dressing, sporty styling, overly youthful sweetness, loud color contrast, or over-styled fashion energy.`;
 
 export const SHOE_STYLE_NOTES: Record<string, string> = {
   "Cloud Dancer 云舞者":
@@ -64,10 +64,10 @@ export type SeasonalOutfitGroup = {
 };
 
 export const summerRealisticOutfitBoundaryCompact =
-  "Summer outfits should feel breathable, real, and wearable for a refined urban woman, not like a beach vacation, teenage outfit, or influencer styling. Allow skirts, Bermuda shorts, tailored shorts, cotton T-shirts, fitted tanks layered with shirts, linen shirts, polo knits, and light cardigans, while keeping the styling mature, clean, low-saturation, and tasteful.";
+  "Summer outfits should feel breathable, real, and wearable for a refined urban woman, not like a beach vacation, overly youthful outfit, or influencer styling. Allow skirts, Bermuda shorts, tailored shorts, cotton T-shirts, clean sleeveless tops layered with shirts, linen shirts, polo knits, and light cardigans, while keeping the styling mature, clean, low-saturation, and tasteful.";
 
 export const summerOutfitNegative =
-  "Avoid beach vacation styling, teenage shorts look, overly sexy tank outfit, mini skirt sweetness, cheap T-shirt styling, overexposed skin, influencer brunch posing, high-saturation summer colors, messy casualwear, and any outfit that feels less refined than THERUIZ AURA's quiet daily elegance.";
+  "Avoid beach vacation styling, overly youthful shorts look, body-focused tank outfit, impractical short hemline, cheap T-shirt styling, insufficient garment coverage, influencer brunch posing, high-saturation summer colors, messy casualwear, and any outfit that feels less refined than THERUIZ AURA's quiet daily elegance.";
 
 export const seasonalOutfitGroups: Record<TeamSeason, SeasonalOutfitGroup> = {
   春: {
@@ -154,7 +154,7 @@ export const seasonalOutfitGroups: Record<TeamSeason, SeasonalOutfitGroup> = {
       "dark indigo"
     ],
     forbidden:
-      "Use airy and clean spring styling, but allow realistic contrast through navy, charcoal, black accents, dark denim, soft olive, muted brown, and taupe. Avoid floral overload, bright candy colors, sweet-girl styling, sporty hoodie sets, and overly perfect beige AI outfits.",
+      "Use airy and clean spring styling, but allow realistic contrast through navy, charcoal, black accents, dark denim, soft olive, muted brown, and taupe. Avoid floral overload, bright candy colors, overly youthful styling, sporty hoodie sets, and overly perfect beige AI outfits.",
     compactOutfitLines: [
       "Style her in a white cotton shirt, light blue straight-leg denim, a soft beige trench coat, and a cream tote for clean spring ease.",
       "Use cream lightweight knitwear, pale khaki tapered trousers, and a light taupe handbag for a gentle polished spring look.",
@@ -332,7 +332,7 @@ export const seasonalOutfitGroups: Record<TeamSeason, SeasonalOutfitGroup> = {
       "taupe"
     ],
     forbidden:
-      "Use breathable summer styling, but allow skirts, cotton or twill Bermuda shorts, cotton T-shirts, fitted tanks layered with shirts, polo knits, soft cardigans, black, dark coffee, navy, charcoal, olive, soft grey, and light denim trousers or skirts as realistic wardrobe anchors. One muted low-saturation garment may act as a soft color anchor when every other item stays neutral. Avoid beach vacation styling, gym-only look, overexposed skin, multiple competing colors, sweet girlish shorts, overly short tailored shorts, cheap T-shirt styling, and AI-clean all-white outfits with no life.",
+      "Use breathable summer styling, but allow skirts, cotton or twill Bermuda shorts, cotton T-shirts, clean sleeveless tops layered with shirts, polo knits, soft cardigans, black, dark coffee, navy, charcoal, olive, soft grey, and light denim trousers or skirts as realistic wardrobe anchors. One muted low-saturation garment may act as a soft color anchor when every other item stays neutral. Avoid beach vacation styling, gym-only look, insufficient garment coverage, multiple competing colors, overly youthful shorts, overly short tailored shorts, cheap T-shirt styling, and AI-clean all-white outfits with no life.",
     compactOutfitLines: [
       "Style her in a white short-sleeve shirt, cream linen trousers, and a light neutral tote for breathable summer ease.",
       "Use a cream linen shirt, pale denim, and understated gold accessories for clean summer daily sophistication.",
@@ -662,6 +662,24 @@ const SCENE_OUTFIT_LETTERS: Partial<Record<TeamScenePreference | "对镜穿搭",
     秋: ["D", "H", "I", "L"],
     冬: ["C", "E", "I"]
   },
+  咖啡馆内: {
+    春: ["D", "E", "I", "K"],
+    夏: ["B", "D", "I", "L"],
+    秋: ["A", "F", "I", "J"],
+    冬: ["B", "D", "H", "J"]
+  },
+  朋友午餐: {
+    春: ["D", "G", "I", "K"],
+    夏: ["B", "F", "I", "L"],
+    秋: ["A", "D", "H", "J"],
+    冬: ["B", "E", "H", "J"]
+  },
+  美术馆: {
+    春: ["G", "H", "I", "L"],
+    夏: ["E", "G", "H", "K"],
+    秋: ["C", "D", "H", "I"],
+    冬: ["C", "E", "G", "I"]
+  },
   玄关出门: {
     春: ["A", "G", "H", "J"],
     夏: ["A", "C", "I", "K"],
@@ -734,112 +752,112 @@ const summerOutfitLines: SummerOutfitLine[] = [
     line: "Style her in a white cotton T-shirt, light stone cotton-twill Bermuda shorts, and a cream canvas tote for an easy refined city-walk outfit.",
     tags: ["t-shirt", "shorts", "bermuda", "cotton", "stone", "white", "city", "weekend"],
     boundary:
-      "Avoid teenage shorts styling, streetwear, oversized hoodie feeling, tourist outfit, and overly casual homewear."
+      "Avoid overly youthful shorts styling, streetwear, oversized hoodie feeling, tourist outfit, and overly casual homewear."
   },
   {
     category: "cityWalk",
     line: "Use a black fitted tank under an oversized white shirt, pale denim, and a restrained black shoulder bag for a mature relaxed summer look.",
     tags: ["tank", "shirt", "denim", "black", "white", "city", "weekend"],
     boundary:
-      "Avoid teenage shorts styling, streetwear, oversized hoodie feeling, tourist outfit, and overly casual homewear."
+      "Avoid overly youthful shorts styling, streetwear, oversized hoodie feeling, tourist outfit, and overly casual homewear."
   },
   {
     category: "cityWalk",
     line: "Pair a soft grey short-sleeve knit with beige Bermuda shorts and a no-logo leather tote for a calm urban weekend outfit.",
     tags: ["knit", "shorts", "bermuda", "grey", "beige", "city", "weekend"],
     boundary:
-      "Avoid teenage shorts styling, streetwear, oversized hoodie feeling, tourist outfit, and overly casual homewear."
+      "Avoid overly youthful shorts styling, streetwear, oversized hoodie feeling, tourist outfit, and overly casual homewear."
   },
   {
     category: "cityWalk",
     line: "Style her in an oatmeal lightweight knit tee, ivory cropped trousers, and a taupe shoulder bag for breathable city ease.",
     tags: ["t-shirt", "knit", "trousers", "oatmeal", "taupe", "city"],
     boundary:
-      "Avoid teenage shorts styling, streetwear, oversized hoodie feeling, tourist outfit, and overly casual homewear."
+      "Avoid overly youthful shorts styling, streetwear, oversized hoodie feeling, tourist outfit, and overly casual homewear."
   },
   {
     category: "cafe",
     line: "Style her in a dark coffee sleeveless top, cream wide-leg trousers, and a taupe shoulder bag for quiet warm summer depth.",
     tags: ["tank", "sleeveless", "trousers", "coffee", "cream", "cafe"],
     boundary:
-      "Avoid beauty-blogger posing, brunch influencer styling, sexy selfie mood, short tight skirt, and over-accessorized café check-in."
+      "Avoid beauty-blogger posing, brunch influencer styling, performative selfie mood, impractical short hemline, and over-accessorized café check-in."
   },
   {
     category: "cafe",
     line: "Use a black fitted tank, white straight midi skirt, and a small black shoulder bag for a mature café-side outfit.",
     tags: ["tank", "skirt", "black", "white", "cafe"],
     boundary:
-      "Avoid beauty-blogger posing, brunch influencer styling, sexy selfie mood, short tight skirt, and over-accessorized café check-in."
+      "Avoid beauty-blogger posing, brunch influencer styling, performative selfie mood, impractical short hemline, and over-accessorized café check-in."
   },
   {
     category: "cafe",
     line: "Pair an ivory sleeveless top with a beige A-line skirt and a soft beige mini bag for gentle summer femininity.",
     tags: ["sleeveless", "skirt", "ivory", "beige", "cafe"],
     boundary:
-      "Avoid beauty-blogger posing, brunch influencer styling, sexy selfie mood, short tight skirt, and over-accessorized café check-in."
+      "Avoid beauty-blogger posing, brunch influencer styling, performative selfie mood, impractical short hemline, and over-accessorized café check-in."
   },
   {
     category: "cafe",
     line: "Style her in a cream ribbed tank under a pale blue open shirt, light denim jeans, and a natural canvas tote for a relaxed but polished café look.",
     tags: ["tank", "shirt", "denim", "blue", "cream", "cafe"],
     boundary:
-      "Avoid beauty-blogger posing, brunch influencer styling, sexy selfie mood, short tight skirt, and over-accessorized café check-in."
+      "Avoid beauty-blogger posing, brunch influencer styling, performative selfie mood, impractical short hemline, and over-accessorized café check-in."
   },
   {
     category: "flower",
     line: "Style her in a cream linen midi skirt, soft beige blouse, and a light taupe handbag for a gentle flower-shop moment.",
     tags: ["skirt", "blouse", "cream", "beige", "flower"],
     boundary:
-      "Avoid floral overload, girlish romance, lace, princess dress, oversized bouquet drama, and sweet influencer styling."
+      "Avoid floral overload, overly youthful romance, lace, princess dress, oversized bouquet drama, and sweet influencer styling."
   },
   {
     category: "flower",
     line: "Use an off-white shirt dress, minimal gold jewelry, and a cream tote for clean feminine summer ease.",
     tags: ["dress", "shirt dress", "off-white", "cream", "flower"],
     boundary:
-      "Avoid floral overload, girlish romance, lace, princess dress, oversized bouquet drama, and sweet influencer styling."
+      "Avoid floral overload, overly youthful romance, lace, princess dress, oversized bouquet drama, and sweet influencer styling."
   },
   {
     category: "flower",
     line: "Pair a pale khaki sleeveless dress with a soft beige cardigan and a small shoulder bag for quiet floral-scene refinement.",
     tags: ["dress", "sleeveless", "cardigan", "khaki", "flower"],
     boundary:
-      "Avoid floral overload, girlish romance, lace, princess dress, oversized bouquet drama, and sweet influencer styling."
+      "Avoid floral overload, overly youthful romance, lace, princess dress, oversized bouquet drama, and sweet influencer styling."
   },
   {
     category: "flower",
     line: "Style her in a white T-shirt, oatmeal midi skirt, and a natural canvas tote for a real daily flower-buying outfit.",
     tags: ["t-shirt", "skirt", "white", "oatmeal", "flower"],
     boundary:
-      "Avoid floral overload, girlish romance, lace, princess dress, oversized bouquet drama, and sweet influencer styling."
+      "Avoid floral overload, overly youthful romance, lace, princess dress, oversized bouquet drama, and sweet influencer styling."
   },
   {
     category: "bakery",
     line: "Style her in a cream linen shirt, stone grey Bermuda shorts, and a restrained woven bag for a refined bakery errand.",
     tags: ["shirt", "shorts", "bermuda", "grey", "bakery"],
     boundary:
-      "Avoid brunch influencer energy, childish dessert styling, colorful props, mini skirt sweetness, and vacation café look."
+      "Avoid brunch influencer energy, childish dessert styling, colorful props, impractical short hemline, and vacation café look."
   },
   {
     category: "bakery",
     line: "Use a white cotton T-shirt, beige tailored shorts, and a natural canvas tote for a clean everyday summer look.",
     tags: ["t-shirt", "shorts", "white", "beige", "bakery"],
     boundary:
-      "Avoid brunch influencer energy, childish dessert styling, colorful props, mini skirt sweetness, and vacation café look."
+      "Avoid brunch influencer energy, childish dessert styling, colorful props, impractical short hemline, and vacation café look."
   },
   {
     category: "bakery",
     line: "Pair an oatmeal lightweight knit tee with a cream column skirt and a taupe tote for soft bakery-side elegance.",
     tags: ["t-shirt", "knit", "skirt", "oatmeal", "cream", "bakery"],
     boundary:
-      "Avoid brunch influencer energy, childish dessert styling, colorful props, mini skirt sweetness, and vacation café look."
+      "Avoid brunch influencer energy, childish dessert styling, colorful props, impractical short hemline, and vacation café look."
   },
   {
     category: "bakery",
     line: "Style her in an ivory ribbed tank under a cream linen overshirt, pale khaki shorts, and a light tan handbag.",
     tags: ["tank", "shirt", "shorts", "ivory", "khaki", "bakery"],
     boundary:
-      "Avoid brunch influencer energy, childish dessert styling, colorful props, mini skirt sweetness, and vacation café look."
+      "Avoid brunch influencer energy, childish dessert styling, colorful props, impractical short hemline, and vacation café look."
   },
   {
     category: "bookstore",
@@ -930,28 +948,28 @@ const summerOutfitLines: SummerOutfitLine[] = [
     line: "Style her in a black fitted tank top, white straight midi skirt, and a small black shoulder bag for a clean mirror outfit record.",
     tags: ["tank", "skirt", "black", "white", "mirror"],
     boundary:
-      "Avoid beauty selfie, exaggerated body pose, cropped shoes, overly sexy tank styling, and mirror distortion."
+      "Avoid posed selfie, exaggerated body pose, cropped shoes, body-focused tank styling, and mirror distortion."
   },
   {
     category: "mirror",
     line: "Use an ivory sleeveless top, beige wide-leg trousers, and a soft shoulder bag for refined warm-weather comfort.",
     tags: ["sleeveless", "trousers", "ivory", "beige", "mirror"],
     boundary:
-      "Avoid beauty selfie, exaggerated body pose, cropped shoes, overly sexy tank styling, and mirror distortion."
+      "Avoid posed selfie, exaggerated body pose, cropped shoes, body-focused tank styling, and mirror distortion."
   },
   {
     category: "mirror",
     line: "Pair a white oversized shirt with pale denim and a cream tote for a relaxed summer mirror look.",
     tags: ["shirt", "denim", "white", "cream", "mirror"],
     boundary:
-      "Avoid beauty selfie, exaggerated body pose, cropped shoes, overly sexy tank styling, and mirror distortion."
+      "Avoid posed selfie, exaggerated body pose, cropped shoes, body-focused tank styling, and mirror distortion."
   },
   {
     category: "mirror",
     line: "Style her in a light grey short-sleeve knit, cream column skirt, and a taupe handbag for a mature soft mirror outfit.",
     tags: ["knit", "skirt", "grey", "cream", "mirror"],
     boundary:
-      "Avoid beauty selfie, exaggerated body pose, cropped shoes, overly sexy tank styling, and mirror distortion."
+      "Avoid posed selfie, exaggerated body pose, cropped shoes, body-focused tank styling, and mirror distortion."
   },
   {
     category: "social",
@@ -986,28 +1004,28 @@ const summerOutfitLines: SummerOutfitLine[] = [
     line: "Style her in a clean sleeveless active top, breathable cream trousers, and a light tote for a refined summer movement look.",
     tags: ["active", "sleeveless", "trousers", "cream", "gym"],
     boundary:
-      "Avoid running gear, neon activewear, exposed sports-bra focus, gym influencer posing, and technical sports shoe styling."
+      "Avoid running gear, neon activewear, insufficiently layered activewear, gym influencer posing, and technical sports shoe styling."
   },
   {
     category: "active",
     line: "Use a fitted white tee, soft grey straight active trousers, and a minimal gym bag for a clean gym-going outfit.",
     tags: ["active", "t-shirt", "grey", "white", "gym"],
     boundary:
-      "Avoid running gear, neon activewear, exposed sports-bra focus, gym influencer posing, and technical sports shoe styling."
+      "Avoid running gear, neon activewear, insufficiently layered activewear, gym influencer posing, and technical sports shoe styling."
   },
   {
     category: "active",
     line: "Pair a pale neutral active set with a lightweight white overshirt for a gym-to-city summer look.",
     tags: ["active", "shirt", "white", "neutral", "gym"],
     boundary:
-      "Avoid running gear, neon activewear, exposed sports-bra focus, gym influencer posing, and technical sports shoe styling."
+      "Avoid running gear, neon activewear, insufficiently layered activewear, gym influencer posing, and technical sports shoe styling."
   },
   {
     category: "active",
     line: "Style her in a cream fitted top, pale khaki jogger-style trousers, and a practical no-logo tote for movement-oriented daily wear.",
     tags: ["active", "t-shirt", "trousers", "cream", "khaki", "gym"],
     boundary:
-      "Avoid running gear, neon activewear, exposed sports-bra focus, gym influencer posing, and technical sports shoe styling."
+      "Avoid running gear, neon activewear, insufficiently layered activewear, gym influencer posing, and technical sports shoe styling."
   }
 ];
 
@@ -1016,6 +1034,7 @@ function getSummerSceneCategory(input: TeamOutfitSelectionInput): SummerOutfitCa
 
   if (/健身|运动|gym|workout|movement|active/.test(text)) return "active";
   if (/咖啡|cafe|coffee|brunch|店铺|打卡/.test(text)) return "cafe";
+  if (/美术馆|画廊|gallery|museum|exhibition/.test(text)) return "social";
   if (/花店|买花|花束|flower|florist/.test(text)) return "flower";
   if (/面包|甜品|bakery|bread|dessert|pastry/.test(text)) return "bakery";
   if (/书店|杂志|bookstore|magazine|reading/.test(text)) return "bookstore";
@@ -1251,6 +1270,14 @@ function getTeamScenePreferenceWords(imageType: TeamImageType, scenePreference: 
 
   if (scenePreference === "居家衣帽间") {
     words.push("outfit", "shirt", "knitwear", "layering", "reference");
+  }
+
+  if (scenePreference === "咖啡馆内" || scenePreference === "朋友午餐") {
+    words.push("social", "refined", "knitwear", "skirt", "trousers", "small bag");
+  }
+
+  if (scenePreference === "美术馆") {
+    words.push("gallery", "tailored", "grey", "navy", "skirt", "trousers", "minimal");
   }
 
   return words;

@@ -28,7 +28,7 @@ export const citySeasonClimateProfiles = {
       "structured outerwear"
     ],
     forbidden: [
-      "bare ankle",
+      "visible ankle",
       "thin summer top",
       "sleeveless top alone",
       "light linen look",
@@ -102,7 +102,7 @@ export const citySeasonClimateProfiles = {
       "soft cardigan",
       "wool-blend layer"
     ],
-    forbidden: ["extreme winter outfit", "summer bare styling", "too region-specific outfit"]
+    forbidden: ["extreme winter outfit", "under-layered summer styling", "too region-specific outfit"]
   }
 } satisfies Record<string, CitySeasonClimateProfile>;
 

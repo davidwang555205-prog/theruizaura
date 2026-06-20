@@ -11,7 +11,7 @@ export const tastefulBloggerLiteRealismLine =
   "The image may have a light Xiaohongshu outfit-record feeling, but it should stay grounded and real: a tasteful daily outfit post, not a staged influencer shoot. Use subtle styling details, natural gestures, and one clear visual anchor without over-posing, heavy makeup, or exaggerated trend styling.";
 
 export const naturalExpressionAndGazeLine =
-  "Keep the expression relaxed and believable, with calm but alive eyes, no frozen smile, no exaggerated model stare, and no beauty-selfie energy. The gaze should match the selected scene and action, whether softly toward the camera for an outfit record, toward the single selected object or walking direction, or phone-hidden for a mirror image.";
+  "Keep the expression relaxed and believable, with calm but alive eyes, no frozen smile, no exaggerated model stare, and no posed-selfie energy. The gaze should match the selected scene and action, whether softly toward the camera for an outfit record, toward the single selected object or walking direction, or phone-hidden for a mirror image.";
 
 export const naturalHandBehaviorLine =
   "Hands should have one clear daily purpose that matches the selected scene: holding the single selected scene-compatible object, adjusting a bag or clothing edge, using a phone when required, or resting naturally. Keep palm size, finger length, wrist angle, and grip pressure believable.";

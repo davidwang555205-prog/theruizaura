@@ -11,7 +11,7 @@ const replacements: Array<[RegExp, string]> = [
   [/\bopening a suitcase\b/gi, "unpacking a suitcase"],
   [/\bopening the suitcase\b/gi, "unpacking the suitcase"],
   [/\bopening suitcase\b/gi, "unpacking suitcase"],
-  [/\bhot pants\b/gi, "tailored shorts"],
+  [/\bhot pants\b/gi, "tailored knee-length shorts"],
   [/\bshoe opening area\b/gi, "collar area"],
   [/\bshoe opening collapsing\b/gi, "collapsed sneaker collar"],
   [/\bopening of the shoe\b/gi, "sneaker collar and ankle entry"],

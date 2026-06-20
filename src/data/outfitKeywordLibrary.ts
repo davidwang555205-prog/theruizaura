@@ -56,7 +56,7 @@ const rotatingOutfitKeywordOptions: RotatingOutfitKeywordOption[] = [
     garment: "短裤",
     seasons: ["夏"],
     keywords:
-      "stone grey tailored shorts, off-white boxy shirt, restrained woven bag, clean warm-weather city styling, adult and polished rather than girlish."
+      "stone grey tailored shorts, off-white boxy shirt, restrained woven bag, clean warm-weather city styling, adult and polished rather than overly youthful."
   },
   {
     garment: "连衣裙",

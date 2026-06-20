@@ -68,6 +68,18 @@ const gymDetails = [
   "Include natural mirror depth, equipment with practical clearance, and a quiet background user rather than an empty showroom gym."
 ];
 
+const indoorSocialDetails = [
+  "Include one naturally shifted chair, subtle tabletop wear, and softly separated background guests without readable menu text.",
+  "Include realistic table spacing, one used ceramic cup or glass, and gentle window-to-interior light variation without food styling.",
+  "Include a practical aisle, restrained counter depth, and one quiet sign of recent use rather than a perfectly arranged cafe set."
+];
+
+const galleryDetails = [
+  "Include realistic artwork spacing, subtle wall-light falloff, and one or two quiet visitors at different depths without readable labels.",
+  "Include a lightly worn gallery floor, a restrained bench edge, and varied frame spacing rather than repeated AI-generated artwork.",
+  "Include practical walking clearance, soft wall texture, and one folded leaflet edge with unreadable text kept secondary."
+];
+
 const studioDetails = [
   "Include a real seamless-paper floor transition, faint floor scuffs, and consistent soft shadow falloff; keep props absent or singular.",
   "Include subtle backdrop texture, one practical floor mark, and a restrained off-frame production trace without visible equipment clutter.",
@@ -99,6 +111,8 @@ const summerOutdoorDetails = [
 ];
 
 export function getVisualScenarioDetailPool(sceneKey: StandardSceneKey, scenePreference = "") {
+  if (/咖啡馆内|朋友午餐/.test(scenePreference) || sceneKey === "lightSocial") return indoorSocialDetails;
+  if (/美术馆/.test(scenePreference) || sceneKey === "galleryExhibition") return galleryDetails;
   if (/窗边阅读/.test(scenePreference)) return windowDetails;
   if (/工作台 \/ 桌边整理/.test(scenePreference)) return deskDetails;
   if (/地铁|商场通道|停车场到电梯口/.test(scenePreference)) return transitDetails;
@@ -117,6 +131,9 @@ export function getVisualScenarioDetailPool(sceneKey: StandardSceneKey, scenePre
 }
 
 export function getDefaultBackgroundDensity(sceneKey: StandardSceneKey, scenePreference = ""): BackgroundDensity {
+  if (/咖啡馆内|朋友午餐|美术馆/.test(scenePreference) || sceneKey === "lightSocial" || sceneKey === "galleryExhibition") {
+    return "normalDaily";
+  }
   if (/窗边阅读|衣帽间|更衣角|入户镜前|回家进门|桌边整理|地铁|商场通道|酒店|旅行/.test(scenePreference)) {
     return "privateInterior";
   }

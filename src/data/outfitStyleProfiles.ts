@@ -40,7 +40,7 @@ export const productVersatilityCompact =
   "The sneakers should feel highly versatile and easy to style across different daily situations. They should naturally complete the outfit without stealing attention, making the whole look clean, composed, comfortable, and tasteful.";
 
 export const outfitVersatilityNegative =
-  "Avoid styling that makes the sneakers look limited to only one scene, overly sporty, too casual, too dressy, too trendy, too girlish, too streetwear, or disconnected from the outfit. Avoid any outfit that makes the sneakers feel hard to wear in real daily life.";
+  "Avoid styling that makes the sneakers look limited to only one scene, overly sporty, too casual, too dressy, too trendy, overly youthful, too streetwear, or disconnected from the outfit. Avoid any outfit that makes the sneakers feel hard to wear in real daily life.";
 
 export const outfitStyleProfiles: OutfitStyleProfile[] = [
   {
@@ -150,7 +150,7 @@ export const outfitStyleProfiles: OutfitStyleProfile[] = [
     compactSupplementLine:
       "Keep the styling lightly feminine, gentle, clean, and mature, showing that the sneakers can soften and modernize feminine outfits.",
     forbidden:
-      "Avoid sweet girl styling, lace overload, floral overload, princess dress feeling, overly romantic mood, or childish femininity."
+      "Avoid overly youthful styling, lace overload, floral overload, princess dress feeling, overly romantic mood, or childish femininity."
   },
   {
     id: "softDenimDaily",
@@ -173,12 +173,12 @@ export const outfitStyleProfiles: OutfitStyleProfile[] = [
     compactSupplementLine:
       "Keep the styling in a soft denim daily mood, showing the sneakers as an effortless match with everyday denim.",
     forbidden:
-      "Avoid street denim styling, ripped jeans, oversized streetwear, teenage casual look, or sporty sneaker energy."
+      "Avoid street denim styling, ripped jeans, oversized streetwear, overly youthful casual look, or sporty sneaker energy."
   },
   {
     id: "galleryIntellectual",
     styleName: "Gallery Intellectual",
-    suitableScenes: ["展览", "画廊", "书店", "杂志店", "咖啡店外", "城市街角", "对镜穿搭图"],
+    suitableScenes: ["展览", "画廊", "美术馆", "书店", "杂志店", "咖啡店外", "城市街角", "对镜穿搭图"],
     suitableShoes: [
       "Cloud Dancer 云舞者",
       "Sand Dollar 沙钱白",
@@ -244,7 +244,7 @@ export const outfitStyleProfiles: OutfitStyleProfile[] = [
   {
     id: "matureMinimal",
     styleName: "Mature Minimal",
-    suitableScenes: ["通勤上班", "对镜穿搭图", "旅行酒店", "展览", "画廊", "逛街", "精品店", "居家衣帽间"],
+    suitableScenes: ["通勤上班", "对镜穿搭图", "旅行酒店", "展览", "画廊", "美术馆", "逛街", "精品店", "居家衣帽间"],
     suitableShoes: [
       "Cloud Dancer 云舞者",
       "Sand Dollar 沙钱白",
@@ -255,19 +255,19 @@ export const outfitStyleProfiles: OutfitStyleProfile[] = [
       "Silver Romance 银色浪漫"
     ],
     seasonalFit: ["春", "秋", "冬"],
-    outfitDirection: "low-saturation layers, mostly trousers, no-logo bags, clean lines, and a 35-55 refined customer mood",
+    outfitDirection: "low-saturation layers, mostly trousers, no-logo bags, clean lines, and a refined 30-45 customer mood",
     accessoryDirection: "no-logo leather accessories and restrained jewelry",
     compactStyleLine:
-      "Use a mature minimal styling direction with low-saturation layers, clean trousers, no-logo leather accessories, and a calm composed silhouette, showing the sneakers can support a refined 35–55 daily wardrobe.",
+      "Use a mature minimal styling direction with low-saturation layers, clean trousers, no-logo leather accessories, and a calm composed silhouette, showing the sneakers can support a refined 30-45 daily wardrobe.",
     compactSupplementLine:
-      "Keep the styling mature minimal, low-saturation, composed, and suitable for a refined 35–55 daily wardrobe.",
+      "Keep the styling mature minimal, low-saturation, composed, and suitable for a refined 30-45 daily wardrobe.",
     forbidden:
       "Avoid old-fashioned mature styling, shapeless basics, harsh minimalism, overly plain outfit, or cold corporate look."
   },
   {
     id: "elegantLightSocial",
     styleName: "Elegant Light Social",
-    suitableScenes: ["朋友小聚", "咖啡店外", "轻打卡店铺", "逛街", "精品店", "面包店", "甜品店"],
+    suitableScenes: ["朋友小聚", "朋友午餐", "咖啡馆内", "咖啡店外", "轻打卡店铺", "逛街", "精品店", "面包店", "甜品店"],
     suitableShoes: [
       "Silver Romance 银色浪漫",
       "Cloud Dancer 云舞者",
@@ -318,6 +318,9 @@ const SCENE_PROFILE_PRIORITIES: Partial<Record<TeamScenePreference, OutfitStyleP
   居家衣帽间: ["matureMinimal", "cleanCommute", "lightFeminine", "quietLuxuryCasual"],
   玄关出门: ["premiumErrands", "modernMomDaily", "cleanCommute"],
   窗边阅读: ["galleryIntellectual", "matureMinimal", "quietLuxuryCasual"],
+  咖啡馆内: ["elegantLightSocial", "refinedWeekend", "relaxedUrban"],
+  朋友午餐: ["elegantLightSocial", "quietLuxuryCasual", "refinedWeekend"],
+  美术馆: ["galleryIntellectual", "matureMinimal", "elegantLightSocial"],
   周末轻采购: ["premiumErrands", "modernMomDaily", "refinedWeekend"],
   材质工作台: ["galleryIntellectual", "matureMinimal"],
   拍摄花絮: ["matureMinimal", "galleryIntellectual"],

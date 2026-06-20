@@ -81,7 +81,16 @@ function isIndoorScene(sceneKey: StandardSceneKey, imageType: TeamImageType) {
     imageType === "对镜穿搭图" ||
     imageType === "产品静物图" ||
     imageType === "拍摄花絮 / 材质图" ||
-    ["mirrorCloset", "hotelTravel", "gymInterior", "materialTable", "stillLife", "bookstoreMagazine"].includes(sceneKey)
+    [
+      "mirrorCloset",
+      "hotelTravel",
+      "gymInterior",
+      "materialTable",
+      "stillLife",
+      "bookstoreMagazine",
+      "lightSocial",
+      "galleryExhibition"
+    ].includes(sceneKey)
   );
 }
 
@@ -138,7 +147,9 @@ function chooseBag(input: SceneAccessoryInput) {
     hotelTravel: ["travel tote placed nearby", "small shoulder bag"],
     gymCommute: ["gym tote placed nearby", "small shoulder bag"],
     gymInterior: ["gym tote placed on bench or floor, not in hand"],
-    mirrorCloset: ["small bag placed nearby or worn quietly on shoulder"]
+    mirrorCloset: ["small bag placed nearby or worn quietly on shoulder"],
+    lightSocial: ["small shoulder bag placed beside the chair", "quiet crossbody bag worn close to the figure"],
+    galleryExhibition: ["small shoulder bag worn close to the figure", "quiet crossbody bag"]
   };
 
   const pool = unique([...(outfitBag ? [outfitBag] : []), ...(sceneBags[input.sceneKey] ?? []), ...cityBags, ...seasonBags]);
@@ -174,6 +185,8 @@ function chooseStrategy(input: SceneAccessoryInput): AccessoryStrategy {
   if (input.sceneKey === "premiumErrands") return seed % 10 < 5 ? "bagAsSecondaryAccessory" : "wearableOnly";
   if (input.sceneKey === "boutiqueStreet") return seed % 10 < 5 ? "bagAsSecondaryAccessory" : "wearableOnly";
   if (input.sceneKey === "hotelTravel") return seed % 10 < 4 ? "bagAsSecondaryAccessory" : "noAccessory";
+  if (input.sceneKey === "lightSocial") return seed % 10 < 4 ? "bagAsSecondaryAccessory" : seed % 2 === 0 ? "wearableOnly" : "noAccessory";
+  if (input.sceneKey === "galleryExhibition") return seed % 10 < 3 ? "bagAsSecondaryAccessory" : seed % 2 === 0 ? "wearableOnly" : "noAccessory";
   if (input.sceneKey === "weekendCityWalk") return seed % 10 < 3 ? "bagAsSecondaryAccessory" : seed % 2 === 0 ? "wearableOnly" : "noAccessory";
   if (input.sceneKey === "gymInterior") return seed % 5 === 0 ? "wearableOnly" : "noAccessory";
   if (input.sceneKey === "gymCommute") return seed % 10 < 3 ? "bagAsSecondaryAccessory" : "wearableOnly";

@@ -5,6 +5,7 @@ import {
   culturalSpaceRealismCompact,
   gettingReadyMirrorRealismCompact,
   hotelRealismCompact,
+  indoorSocialRealismCompact,
   premiumErrandsRealismCompact,
   premiumGymRealismCompact,
   realLightDirectionCompact,
@@ -89,6 +90,10 @@ function getSceneProfile(input: SceneRealismInput) {
       : urbanStreetRealismCompact;
   }
   if (input.scenePreference === "旅行酒店") return hotelRealismCompact;
+  if (input.scenePreference === "咖啡馆内" || input.scenePreference === "朋友午餐") {
+    return indoorSocialRealismCompact;
+  }
+  if (input.scenePreference === "美术馆") return culturalSpaceRealismCompact;
   if (
     input.imageType === "对镜穿搭图" ||
     input.scenePreference === "居家衣帽间" ||
@@ -126,7 +131,10 @@ function shouldUseIndoorSpatialLogic(input: SceneRealismInput) {
     input.scenePreference === "窗边阅读" ||
     input.scenePreference === "材质工作台" ||
     input.scenePreference === "拍摄花絮" ||
-    input.scenePreference === "健身房内"
+    input.scenePreference === "健身房内" ||
+    input.scenePreference === "咖啡馆内" ||
+    input.scenePreference === "朋友午餐" ||
+    input.scenePreference === "美术馆"
   );
 }
 
