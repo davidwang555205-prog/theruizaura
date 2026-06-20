@@ -454,6 +454,230 @@ function hasHighSaturationGarment(entry: StandardOutfitEntry) {
   );
 }
 
+type StudioWardrobePiece = {
+  top: string;
+  bottom: string;
+  layer?: string;
+};
+
+const studioSeasonTopPools: Record<TeamSeason, string[]> = {
+  春: [
+    "an ivory silk-cotton shirt",
+    "a pale grey fine-gauge merino knit",
+    "a soft blue compact-poplin shirt"
+  ],
+  夏: [
+    "an ivory silk-linen shirt",
+    "a warm-white mercerized-cotton knit tee",
+    "a pale grey featherweight knit polo"
+  ],
+  秋: [
+    "an oatmeal fine-gauge cashmere knit",
+    "an ivory washed-silk blouse",
+    "a warm grey compact merino polo knit"
+  ],
+  冬: [
+    "a warm ivory cashmere turtleneck",
+    "an oatmeal dense fine-knit sweater",
+    "a soft grey double-knit top"
+  ]
+};
+
+const studioSeasonBottomPools: Record<
+  TeamSeason,
+  Record<"trousers" | "skirt" | "shorts", string[]>
+> = {
+  春: {
+    trousers: [
+      "warm grey high-twist wool straight trousers",
+      "soft-stone fluid wool wide-leg trousers",
+      "oatmeal wool-silk pleated trousers"
+    ],
+    skirt: [
+      "a soft grey silk-wool A-line midi skirt",
+      "a taupe compact-twill column midi skirt",
+      "a warm ivory fine-pleated wool-blend midi skirt"
+    ],
+    shorts: [
+      "soft-stone wool-silk tailored Bermuda shorts",
+      "taupe cotton-silk tailored shorts",
+      "warm grey compact-twill Bermuda shorts"
+    ]
+  },
+  夏: {
+    trousers: [
+      "soft-stone high-twist summer-wool trousers",
+      "taupe silk-linen straight trousers",
+      "warm grey lightweight fluid-twill trousers"
+    ],
+    skirt: [
+      "an ivory silk-linen A-line midi skirt",
+      "a soft-stone cupro column skirt",
+      "a taupe featherweight pleated midi skirt"
+    ],
+    shorts: [
+      "soft-stone silk-linen tailored Bermuda shorts",
+      "warm grey high-twist wool tailored shorts",
+      "taupe compact-cotton Bermuda shorts"
+    ]
+  },
+  秋: {
+    trousers: [
+      "charcoal fluid-wool straight trousers",
+      "taupe double-pleated wool trousers",
+      "warm beige brushed-wool wide-leg trousers"
+    ],
+    skirt: [
+      "a charcoal wool-silk column midi skirt",
+      "an oatmeal compact-knit midi skirt",
+      "a taupe brushed-wool A-line midi skirt"
+    ],
+    shorts: [
+      "charcoal wool-silk tailored Bermuda shorts",
+      "taupe brushed-wool tailored shorts",
+      "warm grey double-face Bermuda shorts"
+    ]
+  },
+  冬: {
+    trousers: [
+      "charcoal double-face wool straight trousers",
+      "winter-white dense wool trousers",
+      "taupe cashmere-blend wide-leg trousers"
+    ],
+    skirt: [
+      "a charcoal double-knit column midi skirt",
+      "a winter-white wool A-line midi skirt",
+      "a taupe cashmere-blend straight midi skirt"
+    ],
+    shorts: [
+      "charcoal double-face wool tailored Bermuda shorts",
+      "taupe cashmere-blend tailored shorts",
+      "warm grey dense-wool Bermuda shorts"
+    ]
+  }
+};
+
+const studioSeasonDressPools: Record<TeamSeason, string[]> = {
+  春: [
+    "an ivory silk-twill shirt dress with a precise waist line",
+    "a soft-stone compact-knit midi dress with clean shoulder structure",
+    "a pale grey wool-silk column dress with relaxed shaping"
+  ],
+  夏: [
+    "an ivory silk-linen shirt dress with an easy controlled drape",
+    "a soft-stone mercerized-cotton midi dress with clean panel lines",
+    "a taupe featherweight crepe dress with restrained volume"
+  ],
+  秋: [
+    "an oatmeal fine-knit midi dress with sculpted relaxed proportions",
+    "a warm grey wool-silk shirt dress with a precise collar and cuff",
+    "a taupe compact-knit column dress with clean seam architecture"
+  ],
+  冬: [
+    "a warm ivory cashmere-blend midi dress with quiet structure",
+    "a charcoal double-knit column dress with refined seam shaping",
+    "a taupe fine-wool shirt dress with a precise collar and controlled volume"
+  ]
+};
+
+const studioSeasonActivePools: Record<TeamSeason, StudioWardrobePiece[]> = {
+  春: [
+    { top: "a cream matte rib-knit active top", bottom: "taupe bonded-jersey straight active trousers", layer: "a soft-stone lightweight zip jacket" },
+    { top: "a pale grey compact-knit polo top", bottom: "charcoal fluid active trousers", layer: "an ivory technical-cotton overshirt" },
+    { top: "a warm-white clean-cut tee", bottom: "soft grey tailored active trousers", layer: "a taupe matte jersey layer" }
+  ],
+  夏: [
+    { top: "an ivory mercerized-cotton active tee", bottom: "warm grey lightweight active trousers" },
+    { top: "a pale grey fine-rib active top", bottom: "taupe tailored active shorts", layer: "a featherweight cream overshirt" },
+    { top: "a warm-white compact-knit sleeveless top", bottom: "charcoal fluid active trousers" }
+  ],
+  秋: [
+    { top: "an oatmeal compact-knit active top", bottom: "charcoal tailored active trousers", layer: "a taupe matte zip jacket" },
+    { top: "a warm grey fine-merino polo top", bottom: "soft-stone bonded-jersey trousers", layer: "an ivory technical-cotton jacket" },
+    { top: "a cream dense jersey tee", bottom: "taupe fluid active trousers", layer: "a soft grey knit layer" }
+  ],
+  冬: [
+    { top: "a warm ivory fine-merino active knit", bottom: "charcoal dense-jersey active trousers", layer: "a taupe clean insulated jacket" },
+    { top: "an oatmeal compact-knit top", bottom: "warm grey structured active trousers", layer: "a cream matte zip layer" },
+    { top: "a soft grey double-knit top", bottom: "taupe winter-weight active trousers", layer: "a warm-white lightweight padded jacket" }
+  ]
+};
+
+const studioLuxuryConstructionLines = [
+  "Demand luxury-grade tailoring with precise shoulder and collar lines, balanced volume, clean internal structure, refined seam work, and controlled natural drape.",
+  "Render high-end ready-to-wear quality through exact hems, subtle shaping, dense matte surfaces, believable fabric weight, and soft dimensional folds.",
+  "Use no-logo luxury construction with sculpted but relaxed proportions, clean edge finishing, tactile natural fibers, and no synthetic shine."
+];
+
+const studioSeasonMaterialLines: Record<TeamSeason, string> = {
+  春: "Use breathable silk-cotton, fine merino, light wool-silk, or compact poplin with a fresh but substantial hand feel.",
+  夏: "Use breathable silk-linen, high-twist summer wool, mercerized cotton, or featherweight crepe with an opaque refined finish.",
+  秋: "Use cashmere-feeling knit, brushed wool, washed silk, or compact twill with tactile depth and controlled layering.",
+  冬: "Use fine cashmere, double-face wool, dense knit, or refined winter-weight twill with warmth but no bulky volume."
+};
+
+function getStudioAutomaticGarmentTypes(season: TeamSeason): TeamGarmentType[] {
+  return season === "夏" ? ["trousers", "skirt", "shorts", "dress"] : ["trousers", "skirt", "dress"];
+}
+
+function chooseStudioLaunchOutfit(input: ChooseStandardOutfitInput): StandardOutfitSelection {
+  const nonce = Math.max(0, Math.abs(input.generationNonce ?? 0));
+  const manualGarment = getManualGarmentType(input.garmentTypePreference);
+  const automaticGarments = getStudioAutomaticGarmentTypes(input.season);
+  const garmentType = manualGarment ?? automaticGarments[nonce % automaticGarments.length] ?? "trousers";
+  const variationStep = manualGarment ? nonce : Math.floor(nonce / automaticGarments.length);
+  const variationIndex = variationStep % 3;
+  const constructionLine = studioLuxuryConstructionLines[variationIndex];
+  const materialLine = studioSeasonMaterialLines[input.season];
+  const paletteClause =
+    "keeping every garment low-saturation in cream, warm grey, soft stone, taupe, charcoal, or restrained navy, with no high-saturation clothing, visible logo, showy accessory, or handheld styling prop";
+  let topCategory = "luxury-cut neutral top";
+  let bottomCategory = "luxury-cut neutral garment";
+  let compactLine = "";
+
+  if (garmentType === "dress") {
+    const dress = studioSeasonDressPools[input.season][variationIndex];
+    topCategory = dress;
+    bottomCategory = dress;
+    compactLine = `Style her in ${dress}, ${paletteClause}. ${constructionLine} ${materialLine}`;
+  } else if (garmentType === "lightActive") {
+    const active = studioSeasonActivePools[input.season][variationIndex];
+    topCategory = active.top;
+    bottomCategory = active.bottom;
+    compactLine = `Style her in ${active.top}, ${active.bottom}${active.layer ? `, and ${active.layer}` : ""} as refined studio activewear, ${paletteClause}. ${constructionLine} ${materialLine}`;
+  } else {
+    const top = studioSeasonTopPools[input.season][variationIndex];
+    const bottom = studioSeasonBottomPools[input.season][garmentType][variationIndex];
+    topCategory = top;
+    bottomCategory = bottom;
+    compactLine = `Style her in ${top} with ${bottom}, ${paletteClause}. ${constructionLine} ${materialLine}`;
+  }
+
+  const selectedOutfit: StandardOutfitEntry = {
+    id: `studio-${input.season}-${garmentType}-${variationIndex}`,
+    garmentType,
+    outfitStyle: garmentType === "lightActive" ? "softActive" : garmentType === "skirt" || garmentType === "dress" ? "refinedFeminine" : "cleanMinimal",
+    colorDirection: variationIndex === 1 ? "neutralDaily" : variationIndex === 2 ? "darkAnchor" : "lightClean",
+    topCategory,
+    bottomCategory,
+    visualAnchor: bottomCategory,
+    seasons: [input.season],
+    sceneAffinities: ["studioLaunch"],
+    shoeAffinity: ["ALL"],
+    imageTypes: [normalizeImageType(input.imageType)],
+    compactLine,
+    stylingRealismLine:
+      "Make the studio wardrobe look genuinely expensive through cut, material density, seam precision, fabric behavior, and natural fit rather than branding or decorative styling.",
+    isPremiumWardrobe: true
+  };
+
+  return {
+    outfitLine: selectedOutfit.compactLine,
+    stylingRealismLine: selectedOutfit.stylingRealismLine ?? stylingRealismLines[0],
+    selectedOutfit
+  };
+}
+
 function scoreOutfit(entry: StandardOutfitEntry, input: ChooseStandardOutfitInput) {
   const tendency = sceneOutfitTendencyMap[input.sceneKey];
   const imageType = normalizeImageTypeForScene(input);
@@ -504,6 +728,10 @@ export function chooseOutfitByGarmentType(input: ChooseStandardOutfitInput): Sta
     };
   }
 
+  if (input.sceneKey === "studioLaunch") {
+    return chooseStudioLaunchOutfit(input);
+  }
+
   const manualGarment = forceGymInteriorActivewear ? "lightActive" : getManualGarmentType(input.garmentTypePreference);
   const allowLightActive =
     forceGymInteriorActivewear || input.sceneKey === "gymCommute" || manualGarment === "lightActive";
@@ -551,9 +779,7 @@ export function chooseOutfitByGarmentType(input: ChooseStandardOutfitInput): Sta
     return {
       outfitLine: forceGymInteriorActivewear
         ? "Use refined fitness-related clothing only: a clean active top, active shorts or active trousers, a light zip layer if needed, and a practical gym bag, with every styling choice clearly suitable for a premium gym interior."
-        : input.sceneKey === "studioLaunch"
-          ? "Use a clean low-saturation studio outfit in cream, warm grey, soft stone, taupe, navy, charcoal, or restrained denim, with no high-saturation clothing and no unnecessary accessories."
-          : "Use a low-saturation refined daily outfit with clear proportions, believable layering, and one practical bag or accessory that supports the sneakers.",
+        : "Use a low-saturation refined daily outfit with clear proportions, believable layering, and one practical bag or accessory that supports the sneakers.",
       stylingRealismLine: stylingRealismLines[0],
       selectedOutfit: null,
       fallbackReason
