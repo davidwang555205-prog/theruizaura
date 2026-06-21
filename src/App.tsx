@@ -2,6 +2,7 @@ import { useState } from "react";
 import type {
   TeamGarmentTypePreference,
   TeamImageType,
+  TeamModelChoice,
   TeamPromptParams,
   TeamScenePreference,
   TeamSeason,
@@ -10,6 +11,7 @@ import type {
 import { generateTeamPrompt } from "./utils/generatePrompt";
 import { promptQualityPatchNotice } from "./data/promptPatches";
 import { getCompatibleSceneOptions, isSceneCompatibleWithImageType } from "./data/teamSceneOptions";
+import { TEAM_MODEL_OPTIONS } from "./data/teamModelProfiles";
 
 const imageTypeOptions: TeamImageType[] = [
   "产品上脚图",
@@ -45,8 +47,11 @@ const garmentTypeOptions: TeamGarmentTypePreference[] = [
   "轻运动"
 ];
 
+const peopleImageTypes: TeamImageType[] = ["产品上脚图", "对镜穿搭图", "生活场景图"];
+
 const initialParams: TeamPromptParams = {
   imageType: "产品上脚图",
+  modelChoice: "30–45岁客户画像模特",
   shoe: "Cloud Dancer 云舞者",
   customShoe: "",
   season: "春",
@@ -74,6 +79,7 @@ function App() {
   const [copyStatus, setCopyStatus] = useState("");
   const [hasPendingChanges, setHasPendingChanges] = useState(false);
   const sceneOptions = getCompatibleSceneOptions(params.imageType);
+  const showsModelChoice = peopleImageTypes.includes(params.imageType);
 
   const updateParams = (updater: (current: TeamPromptParams) => TeamPromptParams) => {
     setParams((current) => updater(current));
@@ -144,6 +150,30 @@ function App() {
                   ))}
                 </select>
               </label>
+
+              {showsModelChoice && (
+                <label className="block space-y-2">
+                  <span className="text-sm font-medium text-aura-charcoal">人物选择</span>
+                  <select
+                    className={inputClass}
+                    value={params.modelChoice}
+                    onChange={(event) =>
+                      updateParams((current) =>
+                        updateField(current, "modelChoice", event.target.value as TeamModelChoice)
+                      )
+                    }
+                  >
+                    {TEAM_MODEL_OPTIONS.map((option) => (
+                      <option key={option} value={option}>
+                        {option}
+                      </option>
+                    ))}
+                  </select>
+                  <span className="block text-xs leading-5 text-aura-muted">
+                    仅人物类图片启用；静物、材质与非产品氛围图不会加入模特描述。
+                  </span>
+                </label>
+              )}
 
               <label className="block space-y-2">
                 <span className="text-sm font-medium text-aura-charcoal">鞋款</span>

@@ -58,7 +58,7 @@ export const NON_PRODUCT_ATMOSPHERE_SCENE_LINES: Partial<
   暑假游乐园:
     "Create one unmistakable but restrained summer amusement-park atmosphere: a shaded park walkway or quiet rest corner with a folded park map, simple paper wristband, sun hat, canvas tote, or distant out-of-focus ride detail. Keep it like a real family summer outing, not a sporty excursion or theme-park advertisement, and do not replace it with a generic street or home scene.",
   海边度假:
-    "Create one unmistakable seaside-holiday atmosphere: a boardwalk, coastal hotel threshold, or quiet sea-facing corner with linen texture, sunglasses, book, light tote, or folded towel. Keep the sea context clear but restrained, without a model, tropical cliche, or generic city street.",
+    "Create a South of France or southern Italy Mediterranean seaside atmosphere using a pale limestone promenade, warm off-white coastal lane, restrained hotel-terrace threshold, or quiet sea-facing corner. Add only one subtle cue such as linen texture, sunglasses, a book, or a woven bag. Keep the location lived-in and regionally believable rather than tropical, postcard-like, or generic.",
   草原野餐:
     "Create one unmistakable grassland-picnic atmosphere: an open-field edge with a restrained picnic blanket, woven basket, fruit box, paperback book, or light cardigan under natural daylight. Keep the field context clear and real, not a sporty outing, generic park path, or camping advertisement.",
   酒店度假:

@@ -1,5 +1,6 @@
 import type { StandardSceneKey } from "../data/outfitDiversityRules";
-import type { TeamImageType } from "../types";
+import type { TeamImageType, TeamModelChoice } from "../types";
+import { getTeamModelProfile } from "../data/teamModelProfiles";
 import type { StructuredPromptParts } from "./buildStructuredPrompt";
 
 export type PromptAIRiskFlag =
@@ -18,11 +19,13 @@ function appendLine(base = "", line = "") {
   return [base.trim(), line.trim()].filter(Boolean).join(" ");
 }
 
-function normalizeAge(line: string, studioLaunch: boolean) {
-  const age = studioLaunch ? "around age 30" : "aged 30–45";
+function normalizeAge(line: string, modelChoice: TeamModelChoice) {
+  const age = getTeamModelProfile(modelChoice).agePhrase;
   return line
-    .replace(/\b(?:aged?\s+)?(?:25|30|32)\s*[–-]\s*(?:35|40|45|46)\b/gi, age)
-    .replace(/25-35 for standard[^.;]*/gi, "30-45 for standard people visuals");
+    .replace(/\baged?\s+(?:25|30|32)\s*[–-]\s*(?:30|35|40|45|46)\b/gi, age)
+    .replace(/\baround age\s+(?:25|30)\b/gi, age)
+    .replace(/\b(?:25|30)[- ]year[- ]old\b/gi, age)
+    .replace(/25-35 for standard[^.;]*/gi, age);
 }
 
 function countConcepts(text: string, patterns: RegExp[]) {
@@ -35,6 +38,7 @@ export function promptAIRiskPreflight(input: {
   sceneKey: StandardSceneKey;
   visualScenarioLine: string;
   studioLaunch: boolean;
+  modelChoice: TeamModelChoice;
   userExtraRequirement?: string;
 }) {
   const fixedPromptParts = { ...input.promptParts };
@@ -43,7 +47,7 @@ export function promptAIRiskPreflight(input: {
   const peopleImage = isPeopleImage(input.imageType);
 
   if (peopleImage && fixedPromptParts.modelLine) {
-    const normalized = normalizeAge(fixedPromptParts.modelLine, input.studioLaunch);
+    const normalized = normalizeAge(fixedPromptParts.modelLine, input.modelChoice);
     if (normalized !== fixedPromptParts.modelLine) {
       fixedPromptParts.modelLine = normalized;
       riskFlags.push("ageConflict");

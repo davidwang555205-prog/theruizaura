@@ -109,11 +109,17 @@ function compressNegativeLine(line = "") {
 
 function compressModelLine(line = "") {
   if (!line.trim()) return "";
+  if (/European woman aged 25[–-]30/i.test(line)) {
+    return "Use one believable European woman aged 25–30 with natural proportions, real skin texture, and a calm refined presence.";
+  }
+  if (/Asian mixed-heritage woman around age 30/i.test(line)) {
+    return "Use one believable Asian mixed-heritage woman around age 30 with natural proportions, real skin texture, and a calm refined presence.";
+  }
   if (line.includes("30–45")) {
     return "Use one believable Asian or subtle Asian mixed woman, 30–45, with natural proportions and a calm refined presence.";
   }
 
-  return "Use one believable Asian or subtle Asian mixed woman with natural proportions and a calm refined presence.";
+  return normalizeSentence(line);
 }
 
 function compressSneakerAccuracyLine(line = "") {

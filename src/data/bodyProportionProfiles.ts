@@ -1,11 +1,11 @@
 export const naturalBodyProportionCompact =
-  "Use realistic body proportions for an Asian or subtle Asian mixed woman. Keep the head-to-body ratio natural, shoulder width believable, waist placement realistic, leg length proportionate, and feet grounded. The figure should look refined and presentable, not runway-elongated, compressed, or AI-distorted.";
+  "Use realistic body proportions for the selected adult woman. Keep the head-to-body ratio natural, shoulder width believable, waist placement realistic, leg length proportionate, and feet grounded. The figure should look refined and presentable, not runway-elongated, compressed, or AI-distorted.";
 
 export const bodyProportionBoundaryCompact =
   "Keep the model's overall proportions balanced and believable. Avoid tiny head, extra-long legs, ultra-short torso, overly narrow shoulders, exaggerated waistline, doll-like proportions, or fashion-illustration body shape.";
 
 export const asianFemaleProportionCompact =
-  "Use believable proportions typical of a refined Asian woman: natural shoulder width, moderate waist definition, normal hip structure, elegant but realistic leg length, and grounded foot scale. Keep the silhouette feminine, clean, and balanced without making her overly thin, overly tall, or runway-exaggerated.";
+  "Use believable proportions for the selected adult woman: natural shoulder width, moderate waist definition, normal hip structure, elegant but realistic leg length, and grounded foot scale. Keep the silhouette feminine, clean, and balanced without making her overly thin, overly tall, or runway-exaggerated.";
 
 export const upperBodyProportionCompact =
   "Keep the relationship between head, neck, shoulders, upper torso, waist, and hips natural and stable. Avoid tiny head with wide hips, exaggerated shoulders, or a waist placed too high.";

@@ -37,7 +37,7 @@ const creatorCameraGazeCompact =
   "The image may have a naturally shareable outfit-record feeling, and direct camera gaze is allowed when appropriate, but it must feel like a calm real-life photo taken by a friend, not an influencer performance.";
 
 const gazeIdentityConsistencyCompact =
-  "Even if gaze direction changes between images, keep the same Asian woman, same face, same hairstyle, same makeup, same age appearance, same body proportion, and same personal identity.";
+  "Even if gaze direction changes between images, keep the same selected woman, face, hairstyle, makeup, age appearance, body proportions, and personal identity.";
 
 const humanPurposefulGazeCompact =
   "Her gaze should feel human and purposeful, either naturally toward the camera or focused on a real task, with relaxed facial muscles, clear eye focus, soft but alive eyes, and believable daily presence. Do not force everyone to look away.";

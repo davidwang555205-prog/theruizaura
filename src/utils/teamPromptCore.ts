@@ -45,6 +45,11 @@ import { promptPreflightCheck } from "./promptPreflightCheck";
 import { finalPromptSafetyCheck } from "./finalPromptSafetyCheck";
 import { buildVisualScenario } from "./buildVisualScenario";
 import { promptAIRiskPreflight } from "./promptAIRiskPreflight";
+import {
+  getTeamModelConsistencyLine,
+  getTeamModelLine,
+  getTeamModelNegativePhrases
+} from "../data/teamModelProfiles";
 
 export const TEAM_PROMPT_MODE: TeamPromptMode = "standard";
 
@@ -83,12 +88,6 @@ const brandMoodLine =
 
 const customerFeelingLine =
   "Express all-day ease, comfort without carelessness, clean composure, taste, and quiet put-together confidence.";
-
-const modelLine =
-  "Use one real-looking Asian or subtle Asian mixed-heritage woman aged 30–45 with natural dark hair, light daily makeup, realistic proportions, and calm urban presence.";
-
-const studioLaunchModelLine =
-  "Use one Asian mixed-heritage woman around age 30 for the studio launch, with natural dark hair, light daily makeup, real skin texture, realistic proportions, and no campaign severity.";
 
 const humanRealismLine =
   "Show slight facial asymmetry, real pores, relaxed lips, natural catchlights, soft shoulder tension, believable hand pressure, grounded weight, and one unposed expression.";
@@ -250,7 +249,7 @@ const TEAM_SCENE_TEXT: Record<Exclude<TeamScenePreference, "自动匹配">, stri
   暑假游乐园:
     "Use a refined summer amusement-park setting with shaded walkways, soft pavement, quiet rest-corner details, restrained family-holiday cues, and believable outdoor daylight. The scene should feel like a real summer outing, not a theme-park advertisement. Keep the sneakers clearly visible and suitable for walking.",
   海边度假:
-    "Use a refined seaside holiday setting such as a boardwalk, resort walkway, coastal path, or hotel-by-the-sea outdoor area. Keep the atmosphere breezy, low-saturation, warm, and believable. Avoid barefoot beach-shoot styling and keep the sneakers clearly visible, clean, and naturally integrated into the scene.",
+    "Use a believable Mediterranean seaside setting in the South of France or southern Italy: a quiet Riviera promenade, pale limestone coastal path, restrained hotel terrace threshold, or warm off-white seaside lane. Keep the atmosphere breezy, low-saturation, warm, and lived-in rather than postcard-perfect. Avoid barefoot beach-shoot styling and keep the sneakers clearly visible, clean, and naturally integrated into the scene.",
   草原野餐:
     "Use a quiet grassland picnic or open-field summer setting with a breathable, low-saturation atmosphere, soft natural daylight, and calm holiday rhythm. Keep the mood refined and real rather than camping-influencer styled. The sneakers should remain complete, visible, and appropriate for standing or walking on grass.",
   酒店度假:
@@ -450,9 +449,12 @@ const SUMMER_LIFESTYLE_SCENE_VARIATION_LINES: Record<SummerLifestyleScene, strin
     "Use an understated amusement-park transition area with benches, muted railings, and distant family activity kept soft and secondary."
   ],
   海边度假: [
-    "Use a breezy boardwalk or coastal hotel path with pale stone, soft railing lines, and a low-saturation sea horizon kept secondary.",
-    "Set the scene on a quiet seaside walkway near a hotel terrace threshold, with natural wind and no barefoot beach-shoot mood.",
-    "Use a calm coastal path with restrained greenery, warm-neutral light, and stable ground that keeps both sneakers readable."
+    "Use a quiet South of France Mediterranean promenade with pale limestone paving, weathered cream facades, restrained awnings, and a low-saturation sea horizon kept secondary.",
+    "Set the scene on a southern Italian coastal lane with warm off-white plaster, subtle terracotta detail, realistic stone paving, and the sea visible naturally at the end of the street.",
+    "Use a calm French Riviera hotel-terrace threshold with pale stone, muted sage shutters, soft railing lines, and natural wind without luxury-resort advertising polish.",
+    "Use a restrained southern Italy seafront walkway with limestone walls, small shadows, subtle daily wear, and stable ground that keeps both sneakers readable.",
+    "Place the moment on a lived-in South of France coastal path with modest cafe frontage, natural pavement variation, sparse Mediterranean greenery, and quiet local rhythm.",
+    "Use a southern Italian hotel-by-the-sea passage with warm plaster, aged stone edges, linen curtains glimpsed inside, and an understated blue-grey sea beyond."
   ],
   草原野餐: [
     "Use an open grassland edge with a small picnic setup kept to one side, leaving stable standing space and clear sneaker visibility.",
@@ -480,7 +482,7 @@ const SUMMER_LIFESTYLE_LIGHT_LINES: Record<SummerLifestyleScene, string> = {
   暑假游乐园:
     "Warm-season morning or late-afternoon daylight with soft shade, believable outdoor brightness, and clear pavement contact around the sneakers.",
   海边度假:
-    "Soft late-afternoon coastal daylight with warm-neutral brightness, gentle sea-air haze, natural shadows, and clear boardwalk contact around the sneakers.",
+    "Soft late-afternoon Mediterranean daylight with warm-neutral brightness, gentle sea-air haze, natural limestone shadows, and clear ground contact around the sneakers.",
   草原野餐:
     "Soft open-field summer daylight with low-saturation green depth, gentle natural shadows, and stable ground contact around the sneakers.",
   酒店度假:
@@ -495,7 +497,7 @@ const SUMMER_LIFESTYLE_SCENE_PROPS: Record<SummerLifestyleScene, string> = {
   暑假游乐园:
     "Add subtle amusement-park outing props only if natural: one folded park map, simple paper wristband, understated sunglasses, small snack box, canvas tote, or sun hat. Keep props restrained and mature, never sporty, cartoonish, or like colorful children's advertising, and never block the sneakers.",
   海边度假:
-    "Add subtle seaside-holiday props only if natural: one straw hat, folded beach towel, linen shirt layer, woven or light tote, paperback book, or understated sunglasses. Keep the scene breezy and refined, never sporty, never child-focused, not swimwear-influencer styled, not a tropical cliche, and never block the sneakers.",
+    "Add at most one subtle Mediterranean holiday cue only if natural: understated sunglasses, a paperback book, a linen overshirt, or one woven or soft leather bag. Keep it secondary, breezy, and refined; never sporty, never child-focused, never tropical or swimwear-influencer styled, and never block the sneakers.",
   草原野餐:
     "Add subtle grassland-picnic props only if natural: one restrained picnic blanket, woven basket, fruit box, paperback book, sun hat, canvas tote, light cardigan, or small paper bag. Keep the mood quiet and breathable, not sporty, not camping-influencer styled, not gear-heavy, and never block the sneakers.",
   酒店度假:
@@ -604,7 +606,7 @@ const SUMMER_LIFESTYLE_SCENE_NEGATIVES: Record<SummerLifestyleScene, string> = {
   暑假游乐园:
     "Avoid theme-park advertising, cartoon-tourist styling, colorful children's commercial mood, crowded ride imagery, and props covering footwear.",
   海边度假:
-    "Avoid swimwear-coverup styling, barefoot beach shoots, tropical resort cliches, vacation-influencer posing, and sand hiding the shoes.",
+    "Avoid swimwear-coverup styling, barefoot beach shoots, tropical resorts, American boardwalk imagery, Chinese urban waterfronts, Greek-island blue-dome cliches, crowded beach clubs, tourist-postcard polish, vacation-influencer posing, and sand hiding the shoes.",
   草原野餐:
     "Avoid camping-influencer styling, gear-heavy outdoor scenes, oversized picnic setups, tall grass hiding shoes, and staged pastoral advertising.",
   酒店度假:
@@ -974,9 +976,9 @@ function getImageTypeLine(params: TeamPromptParams, sceneKey: StandardSceneKey) 
   return "Generate a non-product atmospheric THERUIZ AURA image. The product does not need to be the main subject; express quiet order, warm restraint, daily elegance, calm negative space, and refined lifestyle atmosphere.";
 }
 
-function getModelLine(params: TeamPromptParams, resolvedScene: Exclude<TeamScenePreference, "自动匹配">) {
+function getModelLine(params: TeamPromptParams) {
   if (!shouldUsePeopleStyling(params.imageType)) return "";
-  return resolvedScene === "棚内上新拍摄" ? studioLaunchModelLine : modelLine;
+  return getTeamModelLine(params.modelChoice);
 }
 
 function getSceneText(params: TeamPromptParams, resolvedScene: Exclude<TeamScenePreference, "自动匹配">, sceneKey: StandardSceneKey) {
@@ -1130,6 +1132,16 @@ function getShoeStyleLine(params: TeamPromptParams, hasShoe: boolean) {
   return getSeasonAwareShoeStyleLine(params);
 }
 
+function getSeasideShoeStyleLine(params: TeamPromptParams) {
+  if (params.shoe === "Cappuccino 卡布奇诺") {
+    return "Use the warm coffee suede as a quiet accent with cream, soft stone, pale khaki, and breathable woven layers; keep the coastal outfit light, refined, and not masculine.";
+  }
+  if (params.shoe === "Maple Grove 枫林") {
+    return "Use the muted maple tone as a warm accent with cream, pale khaki, soft beige, and breathable woven layers; keep the coastal outfit light and not heavy.";
+  }
+  return getSeasonAwareShoeStyleLine(params);
+}
+
 function getNegativeLine(input: {
   params: TeamPromptParams;
   hasShoe: boolean;
@@ -1178,7 +1190,6 @@ function getNegativeLine(input: {
       ]
     : input.hasShoe
       ? [
-          "non-Asian models",
           "influencer posing",
           "over-polished beige-template styling",
           "body-focused posing",
@@ -1246,6 +1257,7 @@ function getNegativeLine(input: {
   }
   if (isPeopleImageType(input.params.imageType)) {
     phrases.push(
+      ...getTeamModelNegativePhrases(input.params.modelChoice),
       "professional fashion model face",
       "beauty-pageant face",
       "computer-perfect woman",
@@ -1592,7 +1604,8 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
         generationNonce: params.generationNonce
       })
     : null;
-  const outfitSelection = perSceneOutfitSelection?.selectedPerSceneOutfitLine && effectiveGarmentTypePreference === "自动匹配"
+  const hasLockedPerSceneOutfit = Boolean(perSceneOutfitSelection?.selectedPerSceneOutfitLine);
+  const outfitSelection = hasLockedPerSceneOutfit
     ? { outfitLine: "", stylingRealismLine: "", selectedOutfit: null }
     : chooseOutfitByGarmentType({
         imageType: params.imageType,
@@ -1608,6 +1621,7 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
     shouldUsePeopleStyling(params.imageType) &&
     sceneKey !== "gymInterior" &&
     !userSpecifiedClothing &&
+    !hasLockedPerSceneOutfit &&
     !usesSummerLifestylePeopleSupport &&
     !isExpandedLifestyleScene(resolvedScene)
       ? chooseOutfitByGarmentType({
@@ -1645,7 +1659,9 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
       ? "Style the selected THERUIZ AURA sneaker only with refined fitness-related clothing, keeping the look active, clean, and gym-appropriate."
       : userSpecifiedClothing
         ? ""
-        : getShoeStyleLine(params, hasShoe);
+        : resolvedScene === "海边度假" && hasShoe
+          ? getSeasideShoeStyleLine(params)
+          : getShoeStyleLine(params, hasShoe);
   const sneakerProtection = chooseSneakerProtectionLines({
     imageType: params.imageType,
     shoe: params.shoe,
@@ -1775,7 +1791,8 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
   const sneakerSceneControlLine = sneakerProtection.sceneControlLine;
   const modelStructuredLine = shouldUsePeopleStyling(params.imageType)
     ? [
-        getModelLine(params, resolvedScene),
+        getModelLine(params),
+        getTeamModelConsistencyLine(params.modelChoice, imageCountIntent),
         gazeSelection.line,
         humanRealismLine,
         getCompactPoseBodyLine(poseCategory),
@@ -1786,12 +1803,16 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
     : "";
   const outfitStructuredLine = shouldUsePeopleStyling(params.imageType)
     ? [
-        userSpecifiedClothing ? "" : getGarmentTypeLockLine(effectiveGarmentTypePreference, params.season),
+        userSpecifiedClothing || resolvedScene === "海边度假"
+          ? ""
+          : getGarmentTypeLockLine(effectiveGarmentTypePreference, params.season),
         outfitLine,
         sceneKey === "gymInterior" ? gymInteriorClothingLockLine : "",
         saturatedGarmentBoundaryLine,
         baseStylingRealismLine,
-        (params.season === "秋" || params.season === "冬") && !isGymSceneKey(sceneKey)
+        (params.season === "秋" || params.season === "冬") &&
+        !isGymSceneKey(sceneKey) &&
+        resolvedScene !== "海边度假"
           ? seasonCityVisualContext.outfitLayerLine
           : "",
         accessorySelection.accessoryLine,
@@ -1987,6 +2008,7 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
     sceneKey,
     visualScenarioLine: visualScenario.scenarioLine,
     studioLaunch: resolvedScene === "棚内上新拍摄",
+    modelChoice: params.modelChoice,
     userExtraRequirement: sanitizedUserExtraRequirement
   });
   const preflight = promptPreflightCheck({

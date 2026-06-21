@@ -186,6 +186,11 @@ export type TeamShoe =
 
 export type TeamSeason = "春" | "夏" | "秋" | "冬";
 
+export type TeamModelChoice =
+  | "欧洲25–30岁女模特"
+  | "亚裔混血模特"
+  | "30–45岁客户画像模特";
+
 export type TeamStillLifeStyle = "与主视觉统一" | "自动按产品判断";
 
 export type TeamGazeMode =
@@ -260,6 +265,7 @@ export type TeamScenePreference =
 
 export type TeamPromptParams = {
   imageType: TeamImageType;
+  modelChoice: TeamModelChoice;
   shoe: TeamShoe;
   customShoe: string;
   season: TeamSeason;

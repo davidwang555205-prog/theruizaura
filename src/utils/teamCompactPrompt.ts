@@ -3,6 +3,7 @@ import { isActiveScene } from "../data/activeLifestyleTemplates";
 import { buildCompactPrompt, type CompactPromptKind, type TeamPromptMode } from "./buildCompactPrompt";
 import { cleanFinalPrompt, dedupePromptLines } from "./promptOptimizer";
 import { sensitiveWordReducer } from "./sensitiveWordReducer";
+import { getTeamModelLine, getTeamModelNegativePhrases } from "../data/teamModelProfiles";
 
 export const TEAM_PROMPT_MODE: TeamPromptMode = "standard";
 
@@ -19,12 +20,6 @@ type TeamCompactPromptInput = {
 
 const brandMoodLine =
   "Create a premium THERUIZ AURA image in Quiet Warm Luxury style: cream-white, warm beige, soft stone, natural light, low saturation, refined daily elegance, and believable comfort.";
-
-const modelLine30to45 =
-  "Use one believable Asian or subtle Asian mixed woman, 30–45, natural dark hair, clean daily makeup, real skin texture, realistic body proportions, and a calm refined presence.";
-
-const studioLaunchModelLine =
-  "Use one believable Asian mixed-heritage woman around age 30, with natural dark hair, clean daily makeup, real skin texture, realistic body proportions, and a calm refined presence.";
 
 const sneakerAccuracyLine =
   "Use the uploaded sneaker reference as the strict source; preserve the low-cut German trainer silhouette, toe box, slim outsole, panels, tongue, stitching, material, color, proportions, and tied laces.";
@@ -76,9 +71,9 @@ function getImageTypeLine(params: TeamPromptParams, resolvedScene: TeamScenePref
   return "Generate a non-product atmospheric THERUIZ AURA image focused on quiet order, warm restraint, and daily elegance.";
 }
 
-function getModelLine(params: TeamPromptParams, resolvedScene: TeamScenePreference) {
+function getModelLine(params: TeamPromptParams) {
   if (!shouldUsePeopleStyling(params.imageType)) return "";
-  return resolvedScene === "棚内上新拍摄" ? studioLaunchModelLine : modelLine30to45;
+  return getTeamModelLine(params.modelChoice);
 }
 
 function getGazeActionLine(params: TeamPromptParams, resolvedScene: TeamScenePreference) {
@@ -173,8 +168,6 @@ function getNegativeLine(input: TeamCompactPromptInput, extraRequirement: string
   const { params, resolvedScene, hasShoe, sceneLocationType } = input;
   const phrases = hasShoe
     ? [
-        "non-Asian models",
-        "Western runway face",
         "influencer posing",
         "AI beige-template styling",
         "distorted body proportions",
@@ -202,6 +195,10 @@ function getNegativeLine(input: TeamCompactPromptInput, extraRequirement: string
         "overly commercial visual language"
       ];
 
+  if (shouldUsePeopleStyling(params.imageType)) {
+    phrases.push(...getTeamModelNegativePhrases(params.modelChoice));
+  }
+
   if (params.imageType === "对镜穿搭图") phrases.push("mirror distortion", "long-leg selfie effect", "posed selfie mood");
   if (isPremiumGymScene(params, resolvedScene)) phrases.push("bodybuilding", "sweaty gym influencer", "technical sportswear");
   if (sceneLocationType === "outdoor" || resolvedScene === "周末城市散步" || /咖啡|cafe|café|店外/.test(extraRequirement.toLowerCase())) {
@@ -220,7 +217,7 @@ export function buildTeamCompactPrompt(input: TeamCompactPromptInput) {
         buildCompactPrompt({
           brandMoodLine,
           imageTypeLine: getImageTypeLine(input.params, input.resolvedScene),
-          modelLine: getModelLine(input.params, input.resolvedScene),
+          modelLine: getModelLine(input.params),
           gazeActionLine: getGazeActionLine(input.params, input.resolvedScene),
           outfitLine: getOutfitLine(input, extraRequirement),
           sceneLine: getSceneLine(input, extraRequirement),

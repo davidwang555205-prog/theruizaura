@@ -62,17 +62,17 @@ const summerSceneOutfitConfigs: Record<SummerLifestyleScene, SummerSceneOutfitCo
   },
   海边度假: {
     automatic:
-      "Use a refined seaside-holiday outfit: a lightweight linen shirt, cream sleeveless knit, breathable straight trousers or soft beige shorts, and one woven or soft leather bag, breezy and mature rather than resort-influencer styled.",
+      "Use a refined seaside-holiday outfit: a lightweight cotton-poplin or linen-blend shirt, breathable straight trousers, and one woven or soft leather bag, breezy and mature rather than resort-influencer styled.",
     trousers:
-      "Use a lightweight linen shirt with breathable cream straight trousers and one soft leather or woven bag for a refined boardwalk outfit.",
+      "Use a lightweight cotton-poplin shirt with breathable linen-blend straight trousers and one soft leather or woven bag for a refined boardwalk outfit.",
     skirt:
-      "Use a cream fine-knit top with a muted flowing midi skirt and one woven bag, keeping the hem away from the sneakers and avoiding resort drama.",
+      "Use an ivory silk-cotton blouse with a lightweight softly structured midi skirt and one woven bag, keeping the hem away from the sneakers and avoiding resort drama.",
     shorts:
-      "Use a cream clean sleeveless knit with soft beige tailored shorts and one woven or soft leather bag for mature seaside ease.",
+      "Use an airy cotton-poplin sleeveless blouse with soft beige tailored Bermuda shorts and one woven or soft leather bag for mature seaside ease.",
     dress:
-      "Use an ivory linen-blend shirt dress with a controlled hem, light cardigan, and one soft bag for a real hotel-by-the-sea wardrobe.",
+      "Use an ivory linen-blend shirt dress with a controlled hem, a lightweight woven overshirt if needed, and one soft bag for a real hotel-by-the-sea wardrobe.",
     lightActive:
-      "Use a refined coastal walking look with a clean active top, breathable straight active trousers, and a light overshirt, never like beach sportswear.",
+      "Use a refined coastal walking look with a clean cotton-poplin top, breathable straight active trousers, and a lightweight woven overshirt, never like beach sportswear.",
     automaticGarment: "trousers",
     outfitStyle: "refinedFeminine",
     colorDirection: "lightClean",
@@ -157,6 +157,21 @@ const summerSceneOutfitConfigs: Record<SummerLifestyleScene, SummerSceneOutfitCo
   }
 };
 
+const seasideSeasonLayerLines: Record<TeamSeason, string> = {
+  春: "Use a light cotton-twill overshirt only if the sea breeze needs one, keeping the outfit airy and mild.",
+  夏: "Keep the outfit open, breathable, and sunlit with linen blend, cotton poplin, and washed cotton; an outer layer is optional.",
+  秋: "Interpret autumn as a mild coastal day and use a lightweight cotton-twill shirt jacket or compact woven overshirt instead of cold-city layering.",
+  冬: "Interpret winter as a mild sunny coastal day and use a clean wind-resistant woven jacket over cotton-poplin layers, keeping the outfit light rather than bulky."
+};
+
+function normalizeTeamSeason(season: TeamSeason | Season): TeamSeason {
+  const normalized = normalizePerSceneSeason(season);
+  if (normalized === "spring") return "春";
+  if (normalized === "summer") return "夏";
+  if (normalized === "autumn") return "秋";
+  return "冬";
+}
+
 const garmentTypeByPreference: Record<Exclude<TeamGarmentTypePreference, "自动匹配">, GarmentType> = {
   裤装: "trousers",
   裙装: "skirt",
@@ -173,23 +188,29 @@ function chooseSummerLifestyleOutfit(input: ChoosePerSceneOutfitInput): ChoosePe
   const scene = String(input.scenePreference);
   if (!isSummerLifestyleScene(scene)) return null;
   if (input.imageType !== "产品上脚图" && input.imageType !== "生活场景图") return null;
-  if (normalizePerSceneSeason(input.season) !== "summer") return null;
+  if (scene !== "海边度假" && normalizePerSceneSeason(input.season) !== "summer") return null;
   if (hasUserSpecifiedClothingRequirement(input.userExtraRequirement)) return null;
 
   const preference = input.garmentTypePreference ?? "自动匹配";
   const config = summerSceneOutfitConfigs[scene];
   const garmentType = preference === "自动匹配" ? config.automaticGarment : garmentTypeByPreference[preference];
-  const selectedLine =
+  const selectedBaseLine =
     preference === "自动匹配"
       ? config.automatic
       : config[garmentType];
+  const selectedLine =
+    scene === "海边度假"
+      ? `${selectedBaseLine} ${seasideSeasonLayerLines[normalizeTeamSeason(input.season)]}`
+      : selectedBaseLine;
 
   return {
     selectedOutfitId: `summer-lifestyle-${scene}-${garmentType}`,
     selectedPerSceneOutfitLine: selectedLine,
     selectedOutfit: null,
     selectedStylingRealismLine:
-      "Keep the outfit practical for real summer movement, mature, breathable, and naturally worn, with restrained styling and clear sneaker visibility.",
+      scene === "海边度假"
+        ? "Keep the seaside outfit mature, breathable, and naturally worn. Use lightweight woven fabrics rather than sweater-like or heavy cold-city layers, with restrained styling and clear sneaker visibility."
+        : "Keep the outfit practical for real summer movement, mature, breathable, and naturally worn, with restrained styling and clear sneaker visibility.",
     selectedGarmentType: garmentType,
     selectedOutfitStyle: config.outfitStyle,
     selectedColorDirection: config.colorDirection,
