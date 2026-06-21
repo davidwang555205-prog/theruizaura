@@ -159,10 +159,247 @@ const summerSceneOutfitConfigs: Record<SummerLifestyleScene, SummerSceneOutfitCo
 
 const seasideSeasonLayerLines: Record<TeamSeason, string> = {
   春: "Use a light cotton-twill overshirt only if the sea breeze needs one, keeping the outfit airy and mild.",
-  夏: "Keep the outfit open, breathable, and sunlit with linen blend, cotton poplin, and washed cotton; an outer layer is optional.",
+  夏: "Keep the outfit airy, breathable, and sunlit with linen blend, cotton poplin, and washed cotton; an outer layer is optional.",
   秋: "Interpret autumn as a mild coastal day and use a lightweight cotton-twill shirt jacket or compact woven overshirt instead of cold-city layering.",
   冬: "Interpret winter as a mild sunny coastal day and use a clean wind-resistant woven jacket over cotton-poplin layers, keeping the outfit light rather than bulky."
 };
+
+type SeasideOutfitVariant = {
+  id: string;
+  line: string;
+  garmentType: GarmentType;
+  seasons: TeamSeason[];
+  visualAnchor: string;
+  bagCategory: string;
+  automatic?: boolean;
+};
+
+const seasideOutfitVariants: SeasideOutfitVariant[] = [
+  {
+    id: "stone-linen-trousers",
+    line:
+      "Use an ivory cotton-poplin shirt with soft-stone linen-blend straight trousers and one light taupe leather shoulder bag for quiet Mediterranean ease.",
+    garmentType: "trousers",
+    seasons: ["春", "夏", "秋", "冬"],
+    visualAnchor: "soft-stone linen-blend straight trousers",
+    bagCategory: "light taupe leather shoulder bag",
+    automatic: true
+  },
+  {
+    id: "pale-blue-coastal-trousers",
+    line:
+      "Use a pale mist-blue cotton shirt with cream lightweight tailored trousers and one restrained canvas-leather tote, keeping the palette fresh and coastal rather than resort-like.",
+    garmentType: "trousers",
+    seasons: ["春", "夏", "秋"],
+    visualAnchor: "pale mist-blue cotton shirt",
+    bagCategory: "restrained canvas-leather tote",
+    automatic: true
+  },
+  {
+    id: "khaki-coastal-trousers",
+    line:
+      "Use a warm-white woven polo top with pale-khaki pleated straight trousers and one compact soft leather bag for a polished seaside promenade look.",
+    garmentType: "trousers",
+    seasons: ["春", "夏", "秋", "冬"],
+    visualAnchor: "pale-khaki pleated straight trousers",
+    bagCategory: "compact soft leather bag",
+    automatic: true
+  },
+  {
+    id: "winter-coastal-trousers",
+    line:
+      "Use a brushed cotton shirt, warm stone cotton-twill trousers, and a clean lightweight wind-resistant jacket with one muted leather bag for a mild winter Mediterranean day.",
+    garmentType: "trousers",
+    seasons: ["秋", "冬"],
+    visualAnchor: "lightweight wind-resistant coastal jacket",
+    bagCategory: "muted leather bag",
+    automatic: true
+  },
+  {
+    id: "ivory-column-skirt",
+    line:
+      "Use a pale blue silk-cotton blouse with an ivory softly structured column skirt and one woven shoulder bag, keeping the hem controlled and the sneakers clear.",
+    garmentType: "skirt",
+    seasons: ["春", "夏", "秋"],
+    visualAnchor: "ivory softly structured column skirt",
+    bagCategory: "woven shoulder bag",
+    automatic: true
+  },
+  {
+    id: "stone-midi-skirt",
+    line:
+      "Use a warm-white long-sleeve poplin top with a soft-stone A-line midi skirt and one compact taupe bag for understated coastal femininity.",
+    garmentType: "skirt",
+    seasons: ["春", "秋", "冬"],
+    visualAnchor: "soft-stone A-line midi skirt",
+    bagCategory: "compact taupe bag",
+    automatic: true
+  },
+  {
+    id: "summer-pale-sage-skirt",
+    line:
+      "Use a warm-white cotton shell with a pale sage lightweight A-line midi skirt and one small taupe shoulder bag for fresh, controlled summer femininity.",
+    garmentType: "skirt",
+    seasons: ["夏"],
+    visualAnchor: "pale sage lightweight A-line midi skirt",
+    bagCategory: "small taupe shoulder bag",
+    automatic: true
+  },
+  {
+    id: "winter-coastal-skirt",
+    line:
+      "Use a crisp cotton shirt, a warm-grey woven midi skirt, fine neutral socks, and a lightweight cotton-twill jacket with one small leather bag for a mild coastal winter.",
+    garmentType: "skirt",
+    seasons: ["冬"],
+    visualAnchor: "warm-grey woven midi skirt",
+    bagCategory: "small leather bag",
+    automatic: true
+  },
+  {
+    id: "beige-bermuda-shorts",
+    line:
+      "Use an airy cotton-poplin sleeveless blouse with soft beige tailored Bermuda shorts and one woven shoulder bag for mature summer seaside ease.",
+    garmentType: "shorts",
+    seasons: ["夏"],
+    visualAnchor: "soft beige tailored Bermuda shorts",
+    bagCategory: "woven shoulder bag",
+    automatic: true
+  },
+  {
+    id: "stone-bermuda-shorts",
+    line:
+      "Use a clean short-sleeve cotton shirt with stone tailored Bermuda shorts and one compact soft leather bag, keeping the silhouette relaxed and refined.",
+    garmentType: "shorts",
+    seasons: ["春", "夏", "秋"],
+    visualAnchor: "stone tailored Bermuda shorts",
+    bagCategory: "compact soft leather bag",
+    automatic: true
+  },
+  {
+    id: "khaki-bermuda-shoulder-season",
+    line:
+      "Use a warm-white long-sleeve cotton shirt with pale-khaki tailored Bermuda shorts and a light woven overshirt for a mild spring or autumn coastal walk.",
+    garmentType: "shorts",
+    seasons: ["春", "秋"],
+    visualAnchor: "pale-khaki tailored Bermuda shorts",
+    bagCategory: "",
+    automatic: true
+  },
+  {
+    id: "winter-coastal-bermuda",
+    line:
+      "Use a long-sleeve cotton-poplin shirt with knee-length cotton-twill Bermuda shorts, fine neutral socks, and a lightweight wind-resistant jacket for a mild sunny coastal winter.",
+    garmentType: "shorts",
+    seasons: ["冬"],
+    visualAnchor: "knee-length cotton-twill Bermuda shorts",
+    bagCategory: ""
+  },
+  {
+    id: "winter-stone-bermuda",
+    line:
+      "Use a brushed cotton shirt with stone knee-length Bermuda shorts, fine warm-grey socks, and a compact cotton-twill jacket for a sunny Mediterranean winter promenade.",
+    garmentType: "shorts",
+    seasons: ["冬"],
+    visualAnchor: "stone knee-length Bermuda shorts",
+    bagCategory: "compact soft leather bag"
+  },
+  {
+    id: "ivory-shirt-dress",
+    line:
+      "Use an ivory linen-blend shirt dress with a controlled midi hem and one soft taupe bag for a real hotel-by-the-sea wardrobe.",
+    garmentType: "dress",
+    seasons: ["春", "夏", "秋"],
+    visualAnchor: "ivory linen-blend shirt dress",
+    bagCategory: "soft taupe bag",
+    automatic: true
+  },
+  {
+    id: "pale-sage-shirt-dress",
+    line:
+      "Use a pale sage washed-cotton shirt dress with a controlled hem and one small woven bag, keeping the color muted and easy against Mediterranean stone.",
+    garmentType: "dress",
+    seasons: ["春", "夏", "秋"],
+    visualAnchor: "pale sage washed-cotton shirt dress",
+    bagCategory: "small woven bag",
+    automatic: true
+  },
+  {
+    id: "winter-coastal-shirt-dress",
+    line:
+      "Use a long-sleeve warm-white cotton-twill shirt dress with a controlled hem, fine neutral socks, and a compact wind-resistant woven jacket for mild coastal winter light.",
+    garmentType: "dress",
+    seasons: ["冬"],
+    visualAnchor: "warm-white cotton-twill shirt dress",
+    bagCategory: "",
+    automatic: true
+  },
+  {
+    id: "winter-stone-shirt-dress",
+    line:
+      "Use a soft-stone long-sleeve cotton shirt dress with a controlled hem, fine neutral socks, and a warm-white wind-resistant woven jacket for quiet coastal winter clarity.",
+    garmentType: "dress",
+    seasons: ["冬"],
+    visualAnchor: "soft-stone long-sleeve cotton shirt dress",
+    bagCategory: "small taupe shoulder bag",
+    automatic: true
+  },
+  {
+    id: "coastal-active-trousers",
+    line:
+      "Use a clean cotton polo top with breathable straight active trousers and a lightweight woven overshirt for an easy coastal walk, never technical beach sportswear.",
+    garmentType: "lightActive",
+    seasons: ["春", "夏", "秋", "冬"],
+    visualAnchor: "breathable straight active trousers",
+    bagCategory: "",
+    automatic: true
+  },
+  {
+    id: "summer-coastal-active",
+    line:
+      "Use a warm-white cotton tee with pale stone straight active trousers and one light cotton overshirt for a breathable Mediterranean promenade walk.",
+    garmentType: "lightActive",
+    seasons: ["夏"],
+    visualAnchor: "pale stone straight active trousers",
+    bagCategory: "",
+    automatic: true
+  },
+  {
+    id: "spring-coastal-active",
+    line:
+      "Use a pale blue woven cotton top with cream straight active trousers and a lightweight warm-white overshirt for a refined spring promenade.",
+    garmentType: "lightActive",
+    seasons: ["春"],
+    visualAnchor: "cream straight active trousers",
+    bagCategory: "",
+    automatic: true
+  },
+  {
+    id: "cool-season-coastal-active",
+    line:
+      "Use a long-sleeve woven cotton top with straight active trousers and a clean wind-resistant jacket for calm coastal movement without a sports-campaign feeling.",
+    garmentType: "lightActive",
+    seasons: ["秋", "冬"],
+    visualAnchor: "clean wind-resistant active layer",
+    bagCategory: "",
+    automatic: true
+  }
+];
+
+function chooseSeasideOutfitVariant(input: ChoosePerSceneOutfitInput, preference: TeamGarmentTypePreference) {
+  const season = normalizeTeamSeason(input.season);
+  const requestedGarment = preference === "自动匹配" ? null : garmentTypeByPreference[preference];
+  const seasonMatches = seasideOutfitVariants.filter(
+    (variant) =>
+      variant.seasons.includes(season) &&
+      (requestedGarment ? variant.garmentType === requestedGarment : variant.automatic)
+  );
+  const garmentFallback = requestedGarment
+    ? seasideOutfitVariants.filter((variant) => variant.garmentType === requestedGarment)
+    : seasideOutfitVariants.filter((variant) => variant.automatic);
+  const pool = seasonMatches.length ? seasonMatches : garmentFallback;
+  const nonce = Math.max(0, Math.abs(input.generationNonce ?? 0));
+  return pool[nonce % pool.length] ?? seasideOutfitVariants[0];
+}
 
 function normalizeTeamSeason(season: TeamSeason | Season): TeamSeason {
   const normalized = normalizePerSceneSeason(season);
@@ -193,29 +430,29 @@ function chooseSummerLifestyleOutfit(input: ChoosePerSceneOutfitInput): ChoosePe
 
   const preference = input.garmentTypePreference ?? "自动匹配";
   const config = summerSceneOutfitConfigs[scene];
-  const garmentType = preference === "自动匹配" ? config.automaticGarment : garmentTypeByPreference[preference];
-  const selectedBaseLine =
-    preference === "自动匹配"
-      ? config.automatic
-      : config[garmentType];
+  const seasideVariant = scene === "海边度假" ? chooseSeasideOutfitVariant(input, preference) : null;
+  const garmentType = seasideVariant?.garmentType ??
+    (preference === "自动匹配" ? config.automaticGarment : garmentTypeByPreference[preference]);
+  const selectedBaseLine = seasideVariant?.line ??
+    (preference === "自动匹配" ? config.automatic : config[garmentType]);
   const selectedLine =
     scene === "海边度假"
       ? `${selectedBaseLine} ${seasideSeasonLayerLines[normalizeTeamSeason(input.season)]}`
       : selectedBaseLine;
 
   return {
-    selectedOutfitId: `summer-lifestyle-${scene}-${garmentType}`,
+    selectedOutfitId: `summer-lifestyle-${scene}-${garmentType}-${seasideVariant?.id ?? "base"}`,
     selectedPerSceneOutfitLine: selectedLine,
     selectedOutfit: null,
     selectedStylingRealismLine:
       scene === "海边度假"
-        ? "Keep the seaside outfit mature, breathable, and naturally worn. Use lightweight woven fabrics rather than sweater-like or heavy cold-city layers, with restrained styling and clear sneaker visibility."
+        ? "Keep the seaside styling mature, breathable, and naturally worn. Use lightweight woven fabrics and compact coastal layers, with restrained proportions and clear sneaker visibility."
         : "Keep the outfit practical for real summer movement, mature, breathable, and naturally worn, with restrained styling and clear sneaker visibility.",
     selectedGarmentType: garmentType,
     selectedOutfitStyle: config.outfitStyle,
     selectedColorDirection: config.colorDirection,
-    selectedVisualAnchor: config.visualAnchor,
-    selectedBagCategory: config.bagCategory,
+    selectedVisualAnchor: seasideVariant?.visualAnchor ?? config.visualAnchor,
+    selectedBagCategory: seasideVariant?.bagCategory ?? config.bagCategory,
     selectedAccessoryCategory: ["one restrained scene-relevant accessory"]
   };
 }

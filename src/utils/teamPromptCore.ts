@@ -32,6 +32,8 @@ import { controlPromptBudget } from "./promptBudgetController";
 import { cleanFinalPrompt, dedupePromptLines } from "./promptOptimizer";
 import { detectImageCountOrSeriesIntent } from "./detectImageCountOrSeriesIntent";
 import { selectCityProfileForScene } from "./selectCityProfileForScene";
+import { selectEuropeanStreetProfileForScene } from "./selectEuropeanStreetProfileForScene";
+import { getEuropeanSeasonContext } from "../data/europeanUrbanStreetProfiles";
 import { sensitiveWordReducer } from "./sensitiveWordReducer";
 import {
   chooseSinglePrimaryHandheldObject,
@@ -1042,6 +1044,7 @@ function getBasePlaceLineForPrompt(input: {
   resolvedScene: Exclude<TeamScenePreference, "自动匹配">;
   sceneText: string;
   cityStreetPlaceLine: string;
+  isEuropeanStreet: boolean;
 }) {
   if (input.params.imageType === "对镜穿搭图") {
     // Core mirror scenes already provide a mirror-specific location variation.
@@ -1050,6 +1053,9 @@ function getBasePlaceLineForPrompt(input: {
   }
   if (shouldUseSummerLifestylePeopleSupport(input.params, input.resolvedScene)) {
     return input.sceneText;
+  }
+  if (input.isEuropeanStreet && input.cityStreetPlaceLine) {
+    return input.cityStreetPlaceLine;
   }
   if (isExpandedLifestyleScene(input.resolvedScene)) {
     return input.sceneText;
@@ -1148,6 +1154,7 @@ function getNegativeLine(input: {
   cityBoundaryPhrases: string[];
   sceneKey: StandardSceneKey;
   hasStreetScene?: boolean;
+  streetRegion?: "china" | "europe";
   extraPhrases?: string[];
 }) {
   const isStillLifeImage = input.params.imageType === "产品静物图" || input.sceneKey === "stillLife";
@@ -1237,7 +1244,8 @@ function getNegativeLine(input: {
     );
   }
   if (input.cityBoundaryPhrases.length) {
-    phrases.push("European-looking streets", "tourist landmarks", "crowded traffic", "vehicles blocking shoes", "staged city-promo scenery");
+    if (input.streetRegion !== "europe") phrases.push("European-looking streets");
+    phrases.push("tourist landmarks", "crowded traffic", "vehicles blocking shoes", "staged city-promo scenery");
   }
   if (input.params.imageType === "对镜穿搭图" || input.sceneKey === "mirrorCloset") {
     phrases.push("mirror distortion", "long-leg selfie effect", "posed selfie mood");
@@ -1505,23 +1513,35 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
         nonProductAtmosphereNegativeLine
       ]
     : [];
-  const promptQualityPatchLines = getPromptQualityPatchLines({
-    imageType: params.imageType,
-    hasShoe,
-    shoe: params.shoe,
-    includeCityRealism: hasStreetRealism
-  });
   const effectiveGarmentTypePreference = getEffectiveGarmentTypePreference(params, sceneKey);
   const imageCountIntent = detectImageCountOrSeriesIntent(params.extraRequirement, params.imageType);
   const userSpecifiedClothing =
     sceneKey === "gymInterior" ? false : hasUserSpecifiedClothingRequirement(params.extraRequirement);
-  const selectedCity = selectCityProfileForScene({
+  const selectedEuropeanStreet = selectEuropeanStreetProfileForScene({
     imageType: params.imageType,
     sceneKey,
+    scenePreference: resolvedScene,
     userExtraRequirement: params.extraRequirement,
     generationNonce: params.generationNonce
   });
-  const cityProfile = chooseChinaUrbanStreetLine(selectedCity);
+  const selectedCity = selectedEuropeanStreet
+    ? null
+    : selectCityProfileForScene({
+        imageType: params.imageType,
+        sceneKey,
+        userExtraRequirement: params.extraRequirement,
+        generationNonce: params.generationNonce
+      });
+  const cityProfile = selectedEuropeanStreet ?? chooseChinaUrbanStreetLine(selectedCity);
+  const isEuropeanStreet = Boolean(selectedEuropeanStreet);
+  const europeanSeasonContext = isEuropeanStreet ? getEuropeanSeasonContext(params.season) : null;
+  const promptQualityPatchLines = getPromptQualityPatchLines({
+    imageType: params.imageType,
+    hasShoe,
+    shoe: params.shoe,
+    includeCityRealism: hasStreetRealism || isEuropeanStreet,
+    streetRegion: isEuropeanStreet ? "europe" : "china"
+  });
   const seasonCityVisualContext = chooseSeasonCityVisualContext({
     season: params.season,
     cityProfile: selectedCity,
@@ -1544,9 +1564,11 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
     usesSummerLifestylePeopleSupport && summerLifestyleScene
       ? SUMMER_LIFESTYLE_LIGHT_LINES[summerLifestyleScene]
       : "";
-  const effectiveSeasonalLightLine = usesNonProductAtmosphere
-    ? TEAM_ATMOSPHERE_SEASON[params.season]
-    : summerLifestyleLightLine || seasonCityVisualContext.seasonalLightLine;
+  const effectiveSeasonalLightLine =
+    europeanSeasonContext?.lightLine ??
+    (usesNonProductAtmosphere
+      ? TEAM_ATMOSPHERE_SEASON[params.season]
+      : summerLifestyleLightLine || seasonCityVisualContext.seasonalLightLine);
   const effectiveIndoorOutdoorLightLine = usesSummerLifestylePeopleSupport || usesNonProductAtmosphere
     ? ""
     : seasonCityVisualContext.indoorOutdoorLightLine;
@@ -1555,22 +1577,27 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
     : usesSummerLifestylePeopleSupport
       ? "Keep the selected summer holiday or family-life setting physically believable, with natural depth, stable ground, and scene props secondary to the woman and sneakers."
       : seasonCityVisualContext.lightingSpaceSupportLine;
-  const effectiveSeasonalPhotoStyleLine = usesSummerLifestylePeopleSupport
-    ? "Use a realistic warm-season lifestyle photo style with natural skin tone, breathable fabric texture, low-saturation color, and no tourism-campaign polish."
-    : seasonCityVisualContext.seasonalPhotoStyleLine;
-  const effectiveCitySeasonMoodLine = usesSummerLifestylePeopleSupport
-    ? "A quiet summer family-life mood with breathable warmth, believable movement, and restrained holiday detail."
-    : seasonCityVisualContext.citySeasonMoodLine;
+  const effectiveSeasonalPhotoStyleLine =
+    europeanSeasonContext?.photoStyleLine ??
+    (usesSummerLifestylePeopleSupport
+      ? "Use a realistic warm-season lifestyle photo style with natural skin tone, breathable fabric texture, low-saturation color, and no tourism-campaign polish."
+      : seasonCityVisualContext.seasonalPhotoStyleLine);
+  const effectiveCitySeasonMoodLine =
+    europeanSeasonContext?.moodLine ??
+    (usesSummerLifestylePeopleSupport
+      ? "A quiet summer family-life mood with breathable warmth, believable movement, and restrained holiday detail."
+      : seasonCityVisualContext.citySeasonMoodLine);
   const effectiveLightingNegativeLine = usesSummerLifestylePeopleSupport
     ? "studio-set lighting, tourism-advertising glow, harsh noon overexposure, unreal holiday backdrop"
     : seasonCityVisualContext.lightingNegativeLine;
   const validationLightingSpaceType = usesSummerLifestylePeopleSupport
     ? ("semiIndoorThreshold" as const)
     : seasonCityVisualContext.lightingSpaceType;
-  const cityStreetPlaceLine =
-    !usesSummerLifestylePeopleSupport &&
-    (seasonCityVisualContext.lightingSpaceType === "outdoorStreet" ||
-      seasonCityVisualContext.lightingSpaceType === "semiIndoorThreshold")
+  const cityStreetPlaceLine = isEuropeanStreet
+    ? selectedEuropeanStreet?.cityStreetLine ?? ""
+    : !usesSummerLifestylePeopleSupport &&
+        (seasonCityVisualContext.lightingSpaceType === "outdoorStreet" ||
+          seasonCityVisualContext.lightingSpaceType === "semiIndoorThreshold")
       ? cityProfile?.cityStreetLine ?? ""
       : "";
   const cameraSelection = chooseCameraLookLine({
@@ -1651,9 +1678,15 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
     params,
     resolvedScene,
     sceneText,
-    cityStreetPlaceLine
+    cityStreetPlaceLine,
+    isEuropeanStreet
   });
-  const placeLine = [sceneVariationLine, basePlaceLine].filter(Boolean).join(" ");
+  const placeLine = (isEuropeanStreet
+    ? [basePlaceLine, sceneVariationLine]
+    : [sceneVariationLine, basePlaceLine]
+  )
+    .filter(Boolean)
+    .join(" ");
   const shoeStyleLine =
     sceneKey === "gymInterior" && hasShoe
       ? "Style the selected THERUIZ AURA sneaker only with refined fitness-related clothing, keeping the look active, clean, and gym-appropriate."
@@ -1813,7 +1846,7 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
         (params.season === "秋" || params.season === "冬") &&
         !isGymSceneKey(sceneKey) &&
         resolvedScene !== "海边度假"
-          ? seasonCityVisualContext.outfitLayerLine
+          ? europeanSeasonContext?.outfitLayerLine ?? seasonCityVisualContext.outfitLayerLine
           : "",
         accessorySelection.accessoryLine,
         humanRealism.clothingWornLine
@@ -1883,7 +1916,7 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
     shouldUsePeopleStyling(params.imageType)
       ? ""
       : params.imageType === "非产品氛围图" || params.imageType === "拍摄花絮 / 材质图"
-        ? seasonCityVisualContext.seasonalPhotoStyleLine
+        ? europeanSeasonContext?.photoStyleLine ?? seasonCityVisualContext.seasonalPhotoStyleLine
         : "",
     shouldUsePeopleStyling(params.imageType) || params.imageType === "产品静物图"
       ? effectiveSeasonalPhotoStyleLine
@@ -1901,13 +1934,18 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
   const baseNegativeLine = getNegativeLine({
     params,
     hasShoe,
-    cityBoundaryPhrases: usesSummerLifestylePeopleSupport || usesNonProductAtmosphere ? [] : cityProfile?.boundaryPhrases ?? [],
+    cityBoundaryPhrases: usesSummerLifestylePeopleSupport
+      ? []
+      : selectedEuropeanStreet?.boundaryPhrases ?? (usesNonProductAtmosphere ? [] : cityProfile?.boundaryPhrases ?? []),
     sceneKey,
-    hasStreetScene: hasStreetRealism,
+    hasStreetScene: hasStreetRealism || isEuropeanStreet,
+    streetRegion: isEuropeanStreet ? "europe" : "china",
     extraPhrases: [
       ...(usesNonProductAtmosphere
         ? []
-        : extractAvoidPhrases(`Avoid ${seasonCityVisualContext.seasonalNegativeLine}.`)),
+        : extractAvoidPhrases(
+            `Avoid ${europeanSeasonContext?.negativeLine ?? seasonCityVisualContext.seasonalNegativeLine}.`
+          )),
       ...(usesNonProductAtmosphere ? [] : humanRealism.negativePhrases),
       ...(usesNonProductAtmosphere ? [] : handheldSelection.negativePhrases),
       ...(usesNonProductAtmosphere ? [] : extractAvoidPhrases(accessorySelection.accessoryNegativeLine)),
@@ -2023,7 +2061,8 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
     selectedAccessory: accessorySelection.selectedBagAccessory,
     selectedHandheldObject: handheldSelection.primaryHandheldObject,
     userExtraRequirement: sanitizedUserExtraRequirement,
-    hasShoe
+    hasShoe,
+    allowEuropeanStreet: isEuropeanStreet
   });
   const budgetedPromptParts = controlPromptBudget({
     promptParts: preflight.fixedPromptParts,
@@ -2044,6 +2083,7 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
     selectedHandheldObject: handheldSelection.primaryHandheldObject,
     userExtraRequirement: sanitizedUserExtraRequirement,
     hasShoe,
+    allowEuropeanStreet: isEuropeanStreet,
     lightCheckOnly: true
   });
   const finalBudgetedPromptParts = controlPromptBudget({

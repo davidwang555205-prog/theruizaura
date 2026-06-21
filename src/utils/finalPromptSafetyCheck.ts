@@ -8,7 +8,7 @@ export type FinalPromptSafetyCheckResult = {
 const forbiddenReplacements: Array<[RegExp, string]> = [
   [/\bhot pants\b/gi, "tailored knee-length shorts"],
   [/\bsports bra\b/gi, "layered active top"],
-  [/\bbeauty selfie\b/gi, "outfit record"],
+  [/\bbeauty selfie\b/gi, "styling record"],
   [/\bbodycon\b/gi, "overly close-fitting"],
   [/\bsexy\b/gi, "body-focused"],
   [/\bseductive\b/gi, "forced intense"],
@@ -16,8 +16,11 @@ const forbiddenReplacements: Array<[RegExp, string]> = [
   [/\bteen girl\b/gi, "adult woman"],
   [/\blower-body\b/gi, "full figure balance"],
   [/\blower body\b/gi, "full figure balance"],
+  [/\boutfits\b/gi, "looks"],
+  [/\boutfit\b/gi, "look"],
   [/\bpants\b/gi, "trousers"],
-  [/\bopening\b/gi, "ankle entry area"]
+  [/\bopening\b/gi, "ankle entry area"],
+  [/\bopen\b/gi, "clear"]
 ];
 
 const cameraNames = ["Leica", "Hasselblad", "Fujifilm", "Sony"] as const;

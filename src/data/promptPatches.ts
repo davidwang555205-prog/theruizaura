@@ -27,6 +27,8 @@ export const promptQualityPatches = {
     "Make the outfit, fabric thickness, layering, light and city atmosphere match the selected season and city climate. Summer should feel breathable and light. Autumn should use soft layering. Winter should use believable warm layering. Spring should feel mild and fresh.",
   cityRealism:
     "Use a believable contemporary Chinese city environment. Keep sidewalks, storefronts, pavement, greenery, street depth and daily details realistic. Avoid European old town streets, American suburban streets, synthetic luxury mall backgrounds or studio-like outdoor sets unless specifically selected.",
+  europeanCityRealism:
+    "Use a believable contemporary European city environment with realistic architecture, pavement, storefront proportions, daily wear, natural street depth, subtle local movement, and no tourist-landmark or postcard staging.",
   brandVisualUnity:
     "Keep the image in THERUIZ AURA Quiet Warm Luxury style: cream-white, warm beige, soft stone, natural daylight, low saturation, relaxed elegance, tactile authenticity and believable daily sophistication. Clean but warm, refined but not distant, feminine but not sweet, real but not ordinary.",
   imageTypeDifference:
@@ -50,6 +52,8 @@ const compactPatchLines = {
     "Match outfit weight, fabric, layering, light, and city climate to the selected season.",
   cityRealism:
     "Use a believable contemporary Chinese city setting with realistic sidewalks, storefronts, pavement, greenery, street depth, and daily details.",
+  europeanCityRealism:
+    "Use a believable contemporary European city street with realistic architecture, pavement, storefront proportions, daily wear, natural depth, subtle local movement, and no tourist-landmark or postcard staging.",
   brandVisualUnity:
     "Maintain THERUIZ AURA Quiet Warm Luxury: cream-white, warm beige, soft stone, natural daylight, low saturation, tactile daily sophistication.",
   imageTypeDifference:
@@ -112,6 +116,7 @@ export function getPromptQualityPatchLines(input: {
   hasShoe: boolean;
   shoe?: TeamShoe;
   includeCityRealism?: boolean;
+  streetRegion?: "china" | "europe";
 }) {
   const peopleImage = isPeopleImageType(input.imageType);
   const materialDetailImage = isMaterialDetailImageType(input.imageType);
@@ -127,10 +132,17 @@ export function getPromptQualityPatchLines(input: {
       input.hasShoe && input.imageType !== "拍摄花絮 / 材质图" && input.imageType !== "非产品氛围图"
         ? compactPatchLines.sneakerVisibility
         : "",
-      input.includeCityRealism ? compactPatchLines.cityRealism : "",
+      input.includeCityRealism
+        ? input.streetRegion === "europe"
+          ? compactPatchLines.europeanCityRealism
+          : compactPatchLines.cityRealism
+        : "",
       compactPatchLines.imageTypeDifference
     ].filter(Boolean),
     moodLines: [compactPatchLines.brandVisualUnity].filter(Boolean),
-    negativePhrases: promptQualityNegativePhrases
+    negativePhrases:
+      input.streetRegion === "europe"
+        ? promptQualityNegativePhrases.filter((phrase) => phrase !== "European old town street")
+        : promptQualityNegativePhrases
   };
 }

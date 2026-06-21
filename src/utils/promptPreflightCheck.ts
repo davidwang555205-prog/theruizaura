@@ -18,6 +18,7 @@ export type PromptPreflightInput = {
   selectedHandheldObject?: string | null;
   userExtraRequirement?: string;
   hasShoe?: boolean;
+  allowEuropeanStreet?: boolean;
   lightCheckOnly?: boolean;
 };
 
@@ -223,6 +224,7 @@ export function promptPreflightCheck(input: PromptPreflightInput): PromptPreflig
   if (
     input.imageType !== "非产品氛围图" &&
     input.lightingSpaceType === "outdoorStreet" &&
+    !input.allowEuropeanStreet &&
     !/Chinese city|Shanghai-like|Chengdu-like|Shenzhen-like|Hangzhou-like|Beijing-like/i.test(text)
   ) {
     repair("cityChinaRepair", "Outdoor street prompt needed Chinese city boundary reinforcement.");

@@ -39,7 +39,7 @@ export function buildStructuredPrompt(parts: StructuredPromptParts) {
     buildSection("Location", parts.placeLine),
     productSection,
     isStillLife ? "" : buildSection("Model", parts.modelLine),
-    isStillLife ? "" : buildSection("Outfit", parts.outfitLine),
+    isStillLife ? "" : buildSection("Styling", parts.outfitLine),
     buildSection("Scene", parts.sceneLine),
     buildSection("Mood", parts.moodLine),
     isStillLife ? "" : buildSection("Action", parts.actionLine),

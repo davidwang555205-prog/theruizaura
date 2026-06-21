@@ -17,10 +17,10 @@ function splitSentenceLikeText(text: string) {
 }
 
 const structuredSectionTitlePattern =
-  /^(时间|地点|人物|穿着|场景|氛围|动作|负面词|产品|Time|Location|Product|Model|Outfit|Scene|Mood|Action|Negative):$/i;
+  /^(时间|地点|人物|穿着|场景|氛围|动作|负面词|产品|Time|Location|Product|Model|Outfit|Styling|Scene|Mood|Action|Negative):$/i;
 
 function isStructuredPrompt(text: string) {
-  return /(^|\n)(时间|地点|人物|穿着|场景|氛围|动作|负面词|产品|Time|Location|Product|Model|Outfit|Scene|Mood|Action|Negative):\s*(\n|$)/i.test(
+  return /(^|\n)(时间|地点|人物|穿着|场景|氛围|动作|负面词|产品|Time|Location|Product|Model|Outfit|Styling|Scene|Mood|Action|Negative):\s*(\n|$)/i.test(
     text
   );
 }
