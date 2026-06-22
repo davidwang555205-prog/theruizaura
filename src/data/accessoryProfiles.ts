@@ -54,9 +54,10 @@ export const accessoryProfiles: Record<AccessoryProfileCategory, string[]> = {
     "no visible accessory",
     "clean outfit only",
     "hands relaxed",
-    "one hand in pocket",
     "one hand adjusting sleeve",
-    "one hand touching trouser pocket",
+    "one hand lightly settling an outer-layer edge",
+    "one hand resting naturally near the side seam",
+    "hands moving with a small natural walking gesture",
     "simple posture without props"
   ]
 };

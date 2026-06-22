@@ -32,7 +32,7 @@ const peopleSectionCaps: Record<BudgetSection, number> = {
   outfitLine: 80,
   sceneLine: 48,
   moodLine: 18,
-  actionLine: 30,
+  actionLine: 34,
   negativeLine: 41
 };
 
@@ -134,6 +134,12 @@ function limitWords(line = "", maxWords: number, allowPartial = false) {
   return kept.join(" ").trim();
 }
 
+function limitActionLine(line = "", maxWords: number) {
+  const firstAction = splitSentences(line)[0] ?? "";
+  if (!firstAction) return "";
+  return countWords(firstAction) <= maxWords ? firstAction : limitWords(firstAction, maxWords, true);
+}
+
 function compressNegative(line = "", maxWords: number) {
   if (!line) return "";
   const prefix = /^Avoid\s+/i.test(line) ? "Avoid " : "";
@@ -172,13 +178,17 @@ export function controlPromptBudget(input: PromptBudgetInput) {
 
   sectionOrder.forEach((key) => {
     const line = parts[key] ?? "";
-    parts[key] = key === "negativeLine"
-      ? compressNegative(line, caps[key])
-      : limitWords(reduceSemanticRepeats(line), caps[key], key === "outfitLine");
+    if (key === "negativeLine") {
+      parts[key] = compressNegative(line, caps[key]);
+    } else if (key === "actionLine") {
+      parts[key] = limitActionLine(reduceSemanticRepeats(line), caps[key]);
+    } else {
+      parts[key] = limitWords(reduceSemanticRepeats(line), caps[key], key === "outfitLine");
+    }
   });
 
   if (totalWords(parts) > globalCap) {
-    const shrinkOrder: BudgetSection[] = ["moodLine", "actionLine", "negativeLine", "outfitLine", "sceneLine", "placeLine"];
+    const shrinkOrder: BudgetSection[] = ["moodLine", "negativeLine", "sceneLine", "placeLine", "outfitLine"];
     for (const key of shrinkOrder) {
       if (totalWords(parts) <= globalCap) break;
       const current = countWords(parts[key]);

@@ -1353,7 +1353,7 @@ function getHandheldSafeActionContextLine(input: {
 
 function getSinglePurposeHandLine(primaryHandheldObject: string) {
   if (!primaryHandheldObject) {
-    return "Hands should stay relaxed and purposeful without extra props; one hand may rest naturally, adjust a sleeve, touch a trouser pocket, or move with a natural walking gesture.";
+    return "Hands should stay relaxed and purposeful without extra props; one hand may rest naturally by the side, adjust a sleeve or clothing edge, or move with a small natural walking gesture.";
   }
 
   return `Hands should have one clear purpose: naturally holding the ${primaryHandheldObject}. Keep fingers relaxed, palm size believable, wrist angle natural, and no hand-object fusion.`;
@@ -1365,7 +1365,7 @@ function getAccessoryNaturalHandsLine(input: {
 }) {
   if (input.primaryHandheldObject) return "";
   if (input.accessoryStrategy === "noAccessory" || input.accessoryStrategy === "wearableOnly") {
-    return "Because no primary handheld object is needed, keep the hands naturally empty: relaxed by the side, one hand in a pocket, one hand adjusting a sleeve, or a small walking gesture.";
+    return "Because no primary handheld object is needed, keep the hands naturally empty: relaxed by the side, lightly adjusting a sleeve or outer-layer edge, or moving with a small walking gesture.";
   }
 
   return "";

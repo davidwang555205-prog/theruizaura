@@ -49,17 +49,28 @@ export const actionPoseNegative =
 const standingPosePool = [
   "Stand with a soft weight shift, one foot slightly forward, one hand using the selected scene-compatible object if needed, and the other hand relaxed near the body.",
   "Stand naturally while adjusting a shirt cuff or jacket edge, with both sneakers clearly visible and grounded.",
-  "Pause beside the selected doorway or setting with relaxed shoulders, a calm daily expression, and no unrelated handheld prop.",
-  "Stand in a quiet city corner with one knee slightly relaxed, the bag resting naturally against the body, and the shoes fully readable.",
-  "Stand near a mirror, wall, or entrance while lightly checking the outfit, not posing stiffly."
+  "Pause within the selected setting with relaxed shoulders, a calm daily expression, and no unrelated handheld prop.",
+  "Turn the shoulders slightly toward the selected setting while keeping both feet stable and the sneakers fully readable.",
+  "Lightly settle an outer-layer lapel or clothing edge, with the other hand resting naturally by the side.",
+  "Pause as if about to continue the day, with a gentle weight transfer and naturally separated hands.",
+  "Briefly smooth one sleeve while maintaining a relaxed upright posture and clear shoe visibility.",
+  "Use a quiet three-quarter standing angle with the head turning naturally toward the setting and both feet grounded.",
+  "Let both arms settle asymmetrically in a natural in-between moment, avoiding a rigid symmetrical fashion pose.",
+  "Stand after a small half-turn with one heel naturally settled, realistic balance, and no exaggerated body curve.",
+  "Rest one hand lightly at the pocket edge only as an occasional natural gesture, with the other arm relaxed and both sneakers unobstructed."
 ];
 
 const walkingPosePool = [
   "Use a small natural walking step with one foot slightly ahead, keeping both sneakers visible and anatomically aligned.",
   "Walk slowly with relaxed arms or the single selected scene-compatible object, natural stride length, and grounded shoe-floor contact.",
-  "Walk out of a cafe, hotel, boutique, or gym entrance with a calm daily rhythm, not a performance pose.",
+  "Move away from or toward the selected setting with a calm daily rhythm, not a performance pose.",
   "Take a subtle step forward while looking slightly to the side or toward the scene, keeping the trouser hem separate from the shoe collar.",
-  "Move through the scene naturally with a short stride, relaxed shoulders, and clear sneaker visibility."
+  "Move through the scene naturally with a short stride, relaxed shoulders, and clear sneaker visibility.",
+  "Slow down between two steps as if noticing something nearby, with a believable weight transfer and relaxed hands.",
+  "Begin a small diagonal step across the frame, keeping the stride compact and both shoes structurally readable.",
+  "Finish a short step and prepare to pause, with natural arm swing and stable contact between the sneakers and ground.",
+  "Walk at an unhurried pace while turning the head slightly toward the surroundings, without twisting the torso or feet.",
+  "Take one measured step past the selected setting, allowing subtle fabric movement while keeping the shoes sharp and unobstructed."
 ];
 
 const seatedPosePool = [
@@ -67,7 +78,12 @@ const seatedPosePool = [
   "Sit with hands relaxed or using the single selected scene-compatible object, keeping the legs and shoes anatomically natural and readable.",
   "Sit on seating that belongs to the selected location, with any scene-compatible accessory placed safely beside her and posture relaxed but composed.",
   "Sit with one leg slightly extended and the other naturally bent, avoiding crossed-leg distortion and keeping the shoes clear.",
-  "Rest briefly after the selected daily activity, with hands relaxed or holding one scene-compatible object, natural body weight, and grounded feet."
+  "Rest briefly after the selected daily activity, with hands relaxed or holding one scene-compatible object, natural body weight, and grounded feet.",
+  "Sit near the front edge of the seat with a slight forward lean, relaxed shoulders, and both feet placed naturally on the floor.",
+  "Turn the upper body slightly toward the selected setting while keeping the knees, ankles, and sneakers naturally aligned.",
+  "Settle into a brief in-between seated moment with one forearm resting lightly above the thigh and the other hand relaxed.",
+  "Sit with the feet gently staggered rather than crossed, preserving clear ankle-to-sneaker relationships and believable balance.",
+  "Shift lightly on the seat as if preparing to stand, while keeping the movement small and both sneakers unobstructed."
 ];
 
 const mirrorPosePool = [
@@ -75,7 +91,12 @@ const mirrorPosePool = [
   "Stand with a soft weight shift in front of the mirror, one foot slightly forward, keeping at least one sneaker fully visible.",
   "Hold the phone at chest or face level naturally, avoiding long-leg selfie distortion and stiff influencer pose.",
   "Lightly adjust the bag strap or shirt hem with the free hand while keeping the outfit and sneakers readable.",
-  "Keep the mirror pose casual and believable, like a real outfit check before leaving home."
+  "Keep the mirror pose casual and believable, like a real outfit check before leaving home.",
+  "Use the free hand to smooth a sleeve or outer-layer edge while the phone remains clear of the clothing and sneakers.",
+  "Turn the shoulders a few degrees from the mirror while maintaining realistic leg length, stable feet, and a relaxed phone grip.",
+  "Lower the phone slightly without blocking the torso, trouser line, or shoes, as if checking the full look before leaving.",
+  "Pause mid-adjustment with the free hand near a cuff or clothing edge, keeping the gesture understated and anatomically natural.",
+  "Use a quiet three-quarter mirror stance with a subtle head angle, relaxed shoulders, and both sneakers clearly reflected."
 ];
 
 const footPoseActionLines = [
@@ -243,33 +264,104 @@ function chooseSceneAction(input: ActionPoseInput, poseType: TeamPoseType) {
     return "Use a safe seated shoelace-adjusting moment with the sneaker fully visible, hands separated from the laces, and no extreme bending.";
   }
   if (input.imageType === "对镜穿搭图") {
-    return "Hold the phone naturally to hide or crop the face, with a soft weight shift, one foot slightly forward, and the free hand relaxed or adjusting a bag strap.";
+    return pick(mirrorPosePool, input, 47);
   }
   const sceneActionLine = sceneActionLines[input.scenePreference];
-  if (sceneActionLine) return sceneActionLine;
+  if (sceneActionLine) {
+    const variationPool =
+      poseType === "walking"
+        ? walkingPosePool
+        : poseType === "seated"
+          ? seatedPosePool
+          : poseType === "active"
+            ? gymActionPool
+            : standingPosePool;
+    return pick([sceneActionLine, ...variationPool], input, 53);
+  }
   if (input.scenePreference === "通勤上班") {
-    return "Use a small natural walking step or calm standing pose near an office entrance, holding a tote and keeping the sneakers clearly visible.";
+    return pick(
+      [
+        "Use a small natural walking step toward the office entrance, with relaxed arms and clearly grounded sneakers.",
+        "Pause near the office entrance while lightly settling one sleeve, with stable feet and an unperformed daily posture.",
+        "Wait calmly near the elevator or building threshold, shifting weight naturally while keeping both sneakers readable.",
+        "Finish a short commute step and turn the shoulders slightly toward the entrance, with relaxed hands and clear footwear."
+      ],
+      input,
+      59
+    );
   }
   if (input.scenePreference === "周末城市散步") {
-    return "Use a slow natural city-walk step with relaxed arms, a tote or coffee in hand, and clear grounded sneakers.";
+    return pick(
+      [
+        "Use a slow natural city-walk step with relaxed arms, compact stride, and clear grounded sneakers.",
+        "Pause briefly beside the selected street setting as if noticing a nearby storefront, with a soft weight shift and natural hands.",
+        "Take one small diagonal step along the pavement while turning the head gently toward the surroundings.",
+        "Slow between two steps near the selected weekend setting, keeping the movement candid and both shoes unobstructed."
+      ],
+      input,
+      61
+    );
   }
   if (input.scenePreference === "旅行酒店") {
-    return "Walk through a calm hotel corridor or stand near a hotel doorway with a tote or suitcase handle, keeping the sneakers clear.";
+    return pick(
+      [
+        "Walk through the calm hotel transition space with a short natural stride and clearly visible sneakers.",
+        "Pause near the room doorway while settling an outer layer, keeping the floor area around both shoes clear.",
+        "Stand near the wardrobe or window with a gentle weight shift, as if checking the day before leaving.",
+        "Finish a short corridor step and pause naturally, with relaxed shoulders and stable shoe-floor contact."
+      ],
+      input,
+      67
+    );
   }
   if (input.scenePreference === "精品超市 / 日常采购") {
-    return "Carry a tote or small grocery bag naturally while moving through a refined daily errand scene.";
+    return pick(
+      [
+        "Move through the refined daily errand setting with a short natural step and relaxed hands.",
+        "Pause beside a restrained display as if making a simple choice, keeping the stance easy and the sneakers clear.",
+        "Take one measured step away from the selected store area with natural arm movement and grounded footwear.",
+        "Wait briefly near the counter or exit while lightly adjusting a sleeve, with both feet naturally placed."
+      ],
+      input,
+      71
+    );
   }
   if (input.scenePreference === "健身房内") {
     return pick(gymActionPool, input, 5);
   }
   if (input.scenePreference === "去运动的路上") {
-    return "Walk naturally toward a gym or movement space, carrying a clean gym tote or water bottle, with a short realistic stride.";
+    return pick(
+      [
+        "Walk naturally toward the movement space with a short realistic stride and relaxed arm swing.",
+        "Pause briefly near the studio entrance while settling a light outer layer, keeping both sneakers grounded.",
+        "Finish a small approach step and shift weight naturally, with calm movement-ready posture and clear footwear."
+      ],
+      input,
+      73
+    );
   }
   if (input.scenePreference === "窗边阅读") {
-    return "Hold or browse a book or magazine with a quiet task-focused seated posture, keeping the outfit and shoes readable if shoes appear.";
+    return pick(
+      [
+        "Browse a book with a quiet task-focused seated posture, keeping the clothing and shoes readable if they appear.",
+        "Pause between pages and look briefly toward the window, with relaxed shoulders, natural hands, and grounded feet.",
+        "Sit comfortably near the window with the book resting naturally, using a subtle in-between movement rather than a posed portrait."
+      ],
+      input,
+      79
+    );
   }
   if (input.scenePreference === "材质工作台" || input.scenePreference === "拍摄花絮") {
-    return "Use a simple hand-focused action such as arranging swatches, holding a color card, checking product notes, or adjusting material samples.";
+    return pick(
+      [
+        "Use one simple hand-focused action to arrange material swatches with clean spacing and believable touch.",
+        "Hold one color card near the selected material while the other hand rests naturally outside the main composition.",
+        "Review one product note or shot-list detail with restrained hand movement and no unnecessary prop clutter.",
+        "Adjust one material sample or styling detail gently, keeping fingers natural and the work surface organized."
+      ],
+      input,
+      83
+    );
   }
 
   if (poseType === "walking") return pick(walkingPosePool, input, 7);

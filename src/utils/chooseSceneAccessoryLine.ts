@@ -214,7 +214,7 @@ function buildAccessoryLine(input: {
   if (input.strategy === "noAccessory") {
     return [
       accessoryCountControlLine,
-      `Do not add a visible bag or extra handheld prop; ${input.noAccessoryReason} Hands may stay relaxed, one hand may rest in a pocket, or one hand may adjust a sleeve.`
+      `Do not add a visible bag or extra handheld prop; ${input.noAccessoryReason} Hands may stay relaxed by the side, lightly adjust a sleeve or clothing edge, or move with a small natural gesture.`
     ]
       .filter(Boolean)
       .join(" ");
