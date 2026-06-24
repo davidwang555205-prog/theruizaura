@@ -52,7 +52,7 @@ const TEAM_MODEL_PROFILES: Record<TeamModelChoice, TeamModelProfile> = {
   },
   "30–45岁客户画像模特": {
     promptLine:
-      "Use one real-looking Asian or subtle Asian mixed-heritage woman aged 30–45, with natural dark hair, light daily makeup, real skin texure, realistic proportions, and calm urban presence. She should feel like a tasteful THERUIZ AURA customer rather than a professional campaign model.",
+      "Use one real-looking Asian or subtle Asian mixed-heritage woman aged 30–45, with natural dark hair, light daily makeup, real skin texture, realistic proportions, and calm urban presence. She should feel like a tasteful THERUIZ AURA customer rather than a professional campaign model.",
     identityLabel: "selected THERUIZ AURA customer woman aged 30–45",
     agePhrase: "aged 30–45",
     negativePhrases: [
