@@ -22,9 +22,9 @@ function appendLine(base = "", line = "") {
 function normalizeAge(line: string, modelChoice: TeamModelChoice) {
   const age = getTeamModelProfile(modelChoice).agePhrase;
   return line
-    .replace(/\baged?\s+(?:25|30|32)\s*[–-]\s*(?:30|35|40|45|46)\b/gi, age)
-    .replace(/\baround age\s+(?:25|30)\b/gi, age)
-    .replace(/\b(?:25|30)[- ]year[- ]old\b/gi, age)
+    .replace(/\baged?\s+(?:20|25|30|32)\s*[–-]\s*(?:25|30|35|40|45|46)\b/gi, age)
+    .replace(/\baround age\s+(?:20|25|30)\b/gi, age)
+    .replace(/\b(?:20|25|30)[- ]year[- ]old\b/gi, age)
     .replace(/25-35 for standard[^.;]*/gi, age);
 }
 
