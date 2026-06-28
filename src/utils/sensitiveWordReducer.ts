@@ -144,12 +144,6 @@ export function detectSensitiveWording(prompt: string) {
 
 export function sensitiveWordReducer(prompt: string) {
   const { body, userRequirement } = splitAdditionalRequirement(prompt);
-  const detected = detectSensitiveWording(body);
-
-  if (detected.length > 0) {
-    console.warn("Sensitive wording reduced:", detected.join(", "));
-  }
-
   let output = body;
 
   sensitiveReplacements.forEach(([pattern, replacement]) => {

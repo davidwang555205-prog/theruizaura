@@ -2,6 +2,7 @@ import { useState } from "react";
 import type {
   TeamGarmentTypePreference,
   TeamImageType,
+  TeamModelContinuity,
   TeamModelChoice,
   TeamPromptParams,
   TeamScenePreference,
@@ -12,6 +13,7 @@ import { generateTeamPrompt } from "./utils/generatePrompt";
 import { promptQualityPatchNotice } from "./data/promptPatches";
 import { getCompatibleSceneOptions, isSceneCompatibleWithImageType } from "./data/teamSceneOptions";
 import { TEAM_MODEL_OPTIONS } from "./data/teamModelProfiles";
+import { TEAM_MODEL_CONTINUITY_OPTIONS } from "./data/modelContinuityProfiles";
 
 const imageTypeOptions: TeamImageType[] = [
   "产品上脚图",
@@ -52,6 +54,7 @@ const peopleImageTypes: TeamImageType[] = ["产品上脚图", "对镜穿搭图",
 const initialParams: TeamPromptParams = {
   imageType: "产品上脚图",
   modelChoice: "30–45岁客户画像模特",
+  modelContinuity: "新人物",
   shoe: "Cloud Dancer 云舞者",
   customShoe: "",
   season: "春",
@@ -152,27 +155,51 @@ function App() {
               </label>
 
               {showsModelChoice && (
-                <label className="block space-y-2">
-                  <span className="text-sm font-medium text-aura-charcoal">人物选择</span>
-                  <select
-                    className={inputClass}
-                    value={params.modelChoice}
-                    onChange={(event) =>
-                      updateParams((current) =>
-                        updateField(current, "modelChoice", event.target.value as TeamModelChoice)
-                      )
-                    }
-                  >
-                    {TEAM_MODEL_OPTIONS.map((option) => (
-                      <option key={option} value={option}>
-                        {option}
-                      </option>
-                    ))}
-                  </select>
-                  <span className="block text-xs leading-5 text-aura-muted">
-                    仅人物类图片启用；静物、材质与非产品氛围图不会加入模特描述。
-                  </span>
-                </label>
+                <>
+                  <label className="block space-y-2">
+                    <span className="text-sm font-medium text-aura-charcoal">人物选择</span>
+                    <select
+                      className={inputClass}
+                      value={params.modelChoice}
+                      onChange={(event) =>
+                        updateParams((current) =>
+                          updateField(current, "modelChoice", event.target.value as TeamModelChoice)
+                        )
+                      }
+                    >
+                      {TEAM_MODEL_OPTIONS.map((option) => (
+                        <option key={option} value={option}>
+                          {option}
+                        </option>
+                      ))}
+                    </select>
+                    <span className="block text-xs leading-5 text-aura-muted">
+                      仅人物类图片启用；静物、材质与非产品氛围图不会加入模特描述。
+                    </span>
+                  </label>
+
+                  <label className="block space-y-2">
+                    <span className="text-sm font-medium text-aura-charcoal">人物连续性</span>
+                    <select
+                      className={inputClass}
+                      value={params.modelContinuity}
+                      onChange={(event) =>
+                        updateParams((current) =>
+                          updateField(current, "modelContinuity", event.target.value as TeamModelContinuity)
+                        )
+                      }
+                    >
+                      {TEAM_MODEL_CONTINUITY_OPTIONS.map((option) => (
+                        <option key={option} value={option}>
+                          {option}
+                        </option>
+                      ))}
+                    </select>
+                    <span className="block text-xs leading-5 text-aura-muted">
+                      如需延续上一组人物，请在生图工具中同时上传上一组满意的人物图作为人物参考图。
+                    </span>
+                  </label>
+                </>
               )}
 
               <label className="block space-y-2">

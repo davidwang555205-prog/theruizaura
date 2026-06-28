@@ -52,6 +52,10 @@ import {
   getTeamModelLine,
   getTeamModelNegativePhrases
 } from "../data/teamModelProfiles";
+import {
+  getModelContinuityLine,
+  getModelContinuityNegativePhrases
+} from "../data/modelContinuityProfiles";
 
 export const TEAM_PROMPT_MODE: TeamPromptMode = "standard";
 
@@ -179,7 +183,7 @@ const TEAM_SCENE_TEXT: Record<Exclude<TeamScenePreference, "自动匹配">, stri
   居家衣帽间:
     "Use a quiet wardrobe, getting-ready space, mirror, or getting-ready corner. Focus on outfit relationship, daily ease, and refined personal style.",
   玄关出门:
-    "Use a warm neutral entryway with keys, tote bag, coat, doorway light, or subtle daily objects. The mood should express leaving home easily and tastefully.",
+    "Use a warm neutral entryway with a tote bag, coat, doorway light, folded note, or subtle daily objects. The mood should express leaving home easily and tastefully.",
   窗边阅读:
     "Use a soft window-side reading corner with a book, cup, linen curtain, chair, or sofa edge. The mood should feel calm, private, and warm.",
   材质工作台:
@@ -373,11 +377,11 @@ const SCENE_VARIATION_LINES: Partial<Record<StandardSceneKey, string[]>> = {
   mirrorCloset: [
     "Use a full-length mirror near a wardrobe corner with natural daylight, clean floor contact, and practical getting-ready details.",
     "Set the mirror moment in a getting-ready corner with soft fabric folds, a chair or bed edge, and the sneakers clearly visible.",
-    "Use an entryway mirror before leaving home, with keys, a coat, or a tote as subtle daily cues.",
+    "Use an entryway mirror before leaving home, with a folded note, a coat, or a tote as subtle daily cues.",
     "Use a hotel wardrobe mirror only when the scene feels tidy, warm-neutral, and free of bathroom-selfie energy."
   ],
   entrywayDeparture: [
-    "Use a warm apartment entryway with doorway light, keys, coat texture, and a calm leaving-home rhythm.",
+    "Use a warm apartment entryway with doorway light, a small ceramic tray, coat texture, and a calm leaving-home rhythm.",
     "Set an entryway departure moment between an indoor hallway and building entrance, with soft threshold light and realistic floor contact.",
     "Use a residential lobby or doorway transition with muted stone, quiet wall texture, and no luxury property-showroom feeling.",
     "Place her near a simple shoe cabinet or coat hook, keeping the outfit and sneakers clear rather than prop-heavy."
@@ -474,7 +478,7 @@ const SUMMER_LIFESTYLE_SCENE_VARIATION_LINES: Record<SummerLifestyleScene, strin
     "Use a destination-arrival pause near an open car door or rear-seat area without turning the image into a car advertisement."
   ],
   暑假外出后回家: [
-    "Use a warm return-home apartment entryway after a day out, with keys and one tote placed naturally while the sneakers remain fully visible.",
+    "Use a warm return-home apartment entryway after a day out, with one tote and a folded note placed naturally while the sneakers remain fully visible.",
     "Set the moment at a front-door or corridor threshold with soft evening light, a light cardigan, and calm return-home order.",
     "Use a lived-in home-return transition near a shoe cabinet or coat hook, keeping outing traces restrained and the footwear unobstructed."
   ]
@@ -503,11 +507,11 @@ const SUMMER_LIFESTYLE_SCENE_PROPS: Record<SummerLifestyleScene, string> = {
   草原野餐:
     "Add subtle grassland-picnic props only if natural: one restrained picnic blanket, woven basket, fruit box, paperback book, sun hat, canvas tote, light cardigan, or small paper bag. Keep the mood quiet and breathable, not sporty, not camping-influencer styled, not gear-heavy, and never block the sneakers.",
   酒店度假:
-    "Add subtle hotel-holiday props only if natural: one suitcase, travel tote, folded white shirt, light cardigan, toiletry pouch, travel notebook, room key card, sunglasses, or sunscreen. Keep it like a real travel wardrobe moment, not a luxury hotel flatlay, not influencer luggage styling, and never blocking the sneakers.",
+    "Add subtle hotel-holiday props only if natural: one suitcase, travel tote, folded white shirt, light cardigan, toiletry pouch, travel notebook, folded itinerary card, sunglasses, or sunscreen. Keep it like a real travel wardrobe moment, not a luxury hotel flatlay, not influencer luggage styling, and never blocking the sneakers.",
   亲子自驾出行:
     "Add subtle family road-trip props only if natural: one tote, understated sunglasses, light jacket, compact child travel pouch, small travel toy, snack box, folded paper map, or travel pouch near the car-side moment. Keep it mature and uncluttered, not sporty, not a luxury car showcase, not messy family clutter, and never block the sneakers.",
   暑假外出后回家:
-    "Add subtle after-outing home props only if natural: one tote near the entryway, keys on a tray, light cardigan, sun hat, flower paper, grocery paper bag, or folded shirt. Keep it warm, lived-in, and orderly, not sporty, not messy homewear styling, not staged interior decor, and never block the sneakers."
+    "Add subtle after-outing home props only if natural: one tote near the entryway, a small ceramic tray, light cardigan, sun hat, flower paper, grocery paper bag, or folded shirt. Keep it warm, lived-in, and orderly, not sporty, not messy homewear styling, not staged interior decor, and never block the sneakers."
 };
 
 const EXPANDED_SCENE_PROPS_LINES: Record<ExpandedLifestyleScene, string> = {
@@ -516,9 +520,9 @@ const EXPANDED_SCENE_PROPS_LINES: Record<ExpandedLifestyleScene, string> = {
   写字楼门口:
     "Add one subtle office-entry prop only if natural: a tote, takeaway coffee, slim brief-style bag, or light outer layer. Never block the sneakers.",
   停车后步行去办公室:
-    "Add one subtle workday-transition prop only if natural: a tote, car key, sunglasses, or light outer layer. Avoid luxury-car showcase mood and never block the sneakers.",
+    "Add one subtle workday-transition prop only if natural: a tote, phone, sunglasses, or light outer layer. Avoid luxury-car showcase mood and never block the sneakers.",
   回家进门:
-    "Add one subtle return-home prop only if natural: a tote, keys on a tray, folded cardigan, or light shopping bag. Keep it lived-in and orderly, never messy, and never block the sneakers.",
+    "Add one subtle return-home prop only if natural: a tote, small ceramic tray, folded cardigan, or light shopping bag. Keep it lived-in and orderly, never messy, and never block the sneakers.",
   "地铁 / 商场通道":
     "Add one subtle urban-passage prop only if natural: a small handbag, tote, takeaway coffee, or phone. Keep the scene calm and uncluttered, never blocking the sneakers.",
   "楼下便利店 / 咖啡外带":
@@ -536,7 +540,7 @@ const EXPANDED_SCENE_PROPS_LINES: Record<ExpandedLifestyleScene, string> = {
   雨天街角:
     "Add one subtle rainy-day prop only if natural: an umbrella, raincoat edge, or tote, with slightly wet pavement. Avoid dramatic storm mood and never block the sneakers.",
   酒店走廊:
-    "Add one subtle hotel-corridor prop only if natural: small luggage, a travel tote, key card, or light cardigan. Keep it quiet and mature, never blocking the sneakers.",
+    "Add one subtle hotel-corridor prop only if natural: small luggage, a travel tote, folded itinerary card, or light cardigan. Keep it quiet and mature, never blocking the sneakers.",
   酒店房间:
     "Add one subtle hotel-room prop only if natural: a suitcase, folded shirt, travel notebook, tote, or soft cardigan. Avoid luxury-hotel flatlay mood and never block the sneakers.",
   "酒店门口 / 门厅":
@@ -548,7 +552,7 @@ const EXPANDED_SCENE_PROPS_LINES: Record<ExpandedLifestyleScene, string> = {
   "工作台 / 桌边整理":
     "Add one subtle desk prop only if natural: a notebook, paper, pen, laptop edge, or coffee. Keep it lived-in and refined, never blocking the sneakers.",
   入户镜前:
-    "Add one subtle entryway-mirror prop only if natural: a tote, keys, light outerwear, or folded cardigan. Keep both sneakers clearly visible in the mirror.",
+    "Add one subtle entryway-mirror prop only if natural: a tote, folded note, light outerwear, or folded cardigan. Keep both sneakers clearly visible in the mirror.",
   停车场到电梯口:
     "Add one subtle transition prop only if natural: a tote, sunglasses, phone, or light jacket. Avoid car-showroom mood and never block the sneakers.",
   "瑜伽 / 普拉提工作室门口":
@@ -649,7 +653,7 @@ const MIRROR_SCENE_VARIATION_LINES: Partial<Record<Exclude<TeamScenePreference, 
     "Use a quiet getting-ready mirror scene with wardrobe detail, clean styling, and no influencer dressing-room energy."
   ],
   玄关出门: [
-    "Use an entryway mirror before leaving home, with keys, a coat, or a tote as subtle background cues.",
+    "Use an entryway mirror before leaving home, with a folded note, a coat, or a tote as subtle background cues.",
     "Set the mirror outfit record at a warm apartment threshold with doorway light and a calm leaving-home rhythm.",
     "Use a simple residential hallway or doorway mirror, keeping the outfit and sneakers clear rather than prop-heavy."
   ],
@@ -1266,6 +1270,7 @@ function getNegativeLine(input: {
   if (isPeopleImageType(input.params.imageType)) {
     phrases.push(
       ...getTeamModelNegativePhrases(input.params.modelChoice),
+      ...getModelContinuityNegativePhrases(input.params.modelContinuity),
       "professional fashion model face",
       "beauty-pageant face",
       "computer-perfect woman",
@@ -1284,6 +1289,15 @@ function getNegativeLine(input: {
     );
   }
 
+  phrases.push(
+    "visible physical keys",
+    "visible keychains",
+    "visible key rings",
+    "door keys",
+    "car keys",
+    "house keys",
+    "hotel key cards"
+  );
   phrases.push("harsh HDR", "heavy filters", "warped lens perspective");
   phrases.push(...(input.extraPhrases ?? []));
 
@@ -1824,6 +1838,7 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
   const sneakerSceneControlLine = sneakerProtection.sceneControlLine;
   const modelStructuredLine = shouldUsePeopleStyling(params.imageType)
     ? [
+        getModelContinuityLine(params.modelContinuity),
         getModelLine(params),
         getTeamModelConsistencyLine(params.modelChoice, imageCountIntent),
         gazeSelection.line,

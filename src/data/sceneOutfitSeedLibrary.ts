@@ -1064,7 +1064,7 @@ function makeSceneSeeds(sceneKey: keyof typeof scenePlans): SceneOutfitSeed[] {
       ...draft,
       id,
       sceneKey,
-      outfitLine: `${draft.outfitLine} Keep it suitable for a ${plan.label} scene with clear lower-leg and sneaker readability.`,
+      outfitLine: `${draft.outfitLine} Keep it suitable for ${plan.label}, with clear sneaker readability.`,
       stylingRealismLine: draft.stylingRealismLine ?? (index % 2 === 0 ? stylingRealismA : stylingRealismB),
       forbidden: [...(draft.forbidden ?? []), ...plan.forbidden]
     };
@@ -1115,7 +1115,7 @@ function addDenimBase(seed: SceneOutfitSeed, index: number): SceneOutfitSeed {
       colorDirection: "denimBased",
       outerLayerCategory: "light denim overshirt",
       visualAnchor: seed.visualAnchor.includes("denim") ? seed.visualAnchor : `${seed.visualAnchor} with denim overshirt`,
-      outfitLine: `${seed.outfitLine.replace(/\.$/, "")}, adding one restrained light denim overshirt while keeping the shorts in cotton, linen, or twill.`
+      outfitLine: `${seed.outfitLine.replace(/\.$/, "")}, with one restrained light denim overshirt.`
     };
   }
 
@@ -1156,6 +1156,42 @@ function addNonLightTop(seed: SceneOutfitSeed): SceneOutfitSeed {
   };
 }
 
+const accessoryAlternates = [
+  "minimal gold earrings",
+  "subtle optical glasses",
+  "thin leather belt",
+  "hair clip",
+  "no visible accessory",
+  "clean low socks"
+];
+
+function limitRepeatedAccessories(seeds: SceneOutfitSeed[]) {
+  const counts = new Map<string, number>();
+  seeds.forEach((seed) => {
+    (seed.accessoryCategory ?? []).forEach((accessory) => {
+      counts.set(accessory, (counts.get(accessory) ?? 0) + 1);
+    });
+  });
+
+  const next = [...seeds];
+  next.forEach((seed, index) => {
+    const accessory = seed.accessoryCategory?.[0];
+    if (!accessory || (counts.get(accessory) ?? 0) <= 4) return;
+
+    const replacement = accessoryAlternates.find((candidate) => (counts.get(candidate) ?? 0) < 4 && candidate !== accessory);
+    if (!replacement) return;
+
+    counts.set(accessory, (counts.get(accessory) ?? 1) - 1);
+    counts.set(replacement, (counts.get(replacement) ?? 0) + 1);
+    next[index] = {
+      ...seed,
+      accessoryCategory: [replacement]
+    };
+  });
+
+  return next;
+}
+
 function enforceSeedDiversity(seeds: SceneOutfitSeed[]) {
   const next = [...seeds];
 
@@ -1186,7 +1222,7 @@ function enforceSeedDiversity(seeds: SceneOutfitSeed[]) {
     if (!hasExplicitDarkAnchor(next[index])) next[index] = addDarkAnchor(next[index]);
   }
 
-  return next;
+  return limitRepeatedAccessories(next);
 }
 
 export const sceneOutfitSeedLibrary: Record<string, SceneOutfitSeed[]> = {

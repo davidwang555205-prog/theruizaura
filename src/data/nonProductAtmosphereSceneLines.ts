@@ -4,7 +4,7 @@ export const NON_PRODUCT_ATMOSPHERE_SCENE_LINES: Partial<
   Record<Exclude<TeamScenePreference, "自动匹配">, string>
 > = {
   通勤上班:
-    "Create one commute-related atmosphere detail: an orderly entry table, office-bound tote and keys, coat on a chair, or a quiet office-transition corner. Keep it object- and space-led, with no posed commuter portrait.",
+    "Create one commute-related atmosphere detail: an orderly entry table, office-bound tote and folded receipt, coat on a chair, or a quiet office-transition corner. Keep it object- and space-led, with no posed commuter portrait.",
   周末城市散步:
     "Create one quiet weekend city detail: real pavement and tree shadow, a restrained cafe or bookstore facade, or a tote and receipt resting after a walk. Keep the city depth believable and do not show a posed street-style figure.",
   咖啡店门口:
@@ -30,19 +30,19 @@ export const NON_PRODUCT_ATMOSPHERE_SCENE_LINES: Partial<
   周末轻采购:
     "Create one after-errand atmosphere with flowers, bakery paper, produce, coffee beans, a receipt, or a folded tote placed naturally at home. Show real-life order without flatlay styling.",
   旅行酒店:
-    "Create one calm hotel-travel atmosphere with a tidy suitcase corner, folded clothing, key card, travel notebook, or tote near soft hotel daylight. Keep it orderly and personal, not a luxury-hotel advertisement.",
+    "Create one calm hotel-travel atmosphere with a tidy suitcase corner, folded clothing, folded itinerary card, travel notebook, or tote near soft hotel daylight. Keep it orderly and personal, not a luxury-hotel advertisement.",
   酒店房间:
     "Create one believable hotel-room detail with a bed or chair edge, neatly opened suitcase, folded clothing, curtain light, and one travel object. Avoid bathroom counters, luggage clutter, and brochure styling.",
   "酒店门口 / 门厅":
-    "Create one quiet hotel-threshold atmosphere with restrained stone or wood texture, subtle luggage or key-card detail, and believable arrival light. Keep the entrance secondary and avoid luxury check-in imagery.",
+    "Create one quiet hotel-threshold atmosphere with restrained stone or wood texture, subtle luggage or folded itinerary detail, and believable arrival light. Keep the entrance secondary and avoid luxury check-in imagery.",
   居家衣帽间:
     "Create one calm wardrobe atmosphere with a white shirt, soft knit, denim, hanger, mirror edge, or tote arranged like a real getting-ready routine. Keep it personal and lightly lived-in, not a fashion showroom.",
   "衣帽间 / 更衣角":
     "Create one dressing-corner atmosphere with soft garment folds, a hanger, cardigan, chair edge, mirror edge, or folded daily outfit. Keep the space practical, warm, and naturally used.",
   玄关出门:
-    "Create one before-leaving entryway atmosphere with keys, tote, coat, doorway light, and a clean but lived-in threshold. Express easy departure without showing a posed person.",
+    "Create one before-leaving entryway atmosphere with a tote, coat, folded note, doorway light, and a clean but lived-in threshold. Express easy departure without showing a posed person.",
   回家进门:
-    "Create one return-home entryway atmosphere with keys on a tray, a tote set down naturally, folded cardigan, paper bag, or soft corridor light. Keep it warm and orderly rather than decorated.",
+    "Create one return-home entryway atmosphere with a small ceramic tray, a tote set down naturally, folded cardigan, paper bag, or soft corridor light. Keep it warm and orderly rather than decorated.",
   窗边阅读:
     "Create one quiet window-side reading atmosphere with a book or magazine, cup, linen curtain, chair or sofa edge, and soft daylight. Keep the moment private, warm, and free of posed people.",
   窗边阅读角:
@@ -66,7 +66,7 @@ export const NON_PRODUCT_ATMOSPHERE_SCENE_LINES: Partial<
   亲子自驾出行:
     "Create one family road-trip atmosphere through a tidy car-side or passenger-seat detail with a tote, compact child travel pouch, snack box, folded paper map, light jacket, or travel pouch. Keep the travel context clear, mature, and uncluttered, without a sporty or car-advertising mood.",
   暑假外出后回家:
-    "Create one summer return-home atmosphere at an entryway or apartment threshold with a tote set down, keys, sun hat, light cardigan, flower paper, grocery bag, or a folded shirt. Keep it warm, lived-in, orderly, and clearly after a day out rather than workout-related.",
+    "Create one summer return-home atmosphere at an entryway or apartment threshold with a tote set down, folded note, sun hat, light cardigan, flower paper, grocery bag, or a folded shirt. Keep it warm, lived-in, orderly, and clearly after a day out rather than workout-related.",
   公园慢走:
     "Create one quiet urban-park atmosphere with a real walking path, restrained greenery, bench or railing detail, soft ground shadow, and one subtle daily object such as a folded tote, paperback book, or light cardigan. Keep it recognizably a relaxed park, not a workout scene, bookstore, or generic street.",
   社区步道:

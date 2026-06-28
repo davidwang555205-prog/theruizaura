@@ -32,7 +32,7 @@ const streetDetails = [
 ];
 
 const interiorDetails = [
-  "Include one shifted chair, natural curtain folds, and a lightly used phone case or key tray, all clean but not perfectly arranged.",
+  "Include one shifted chair, natural curtain folds, and a lightly used phone case or small ceramic tray, all clean but not perfectly arranged.",
   "Include a soft garment fold, a slightly open wardrobe edge, and believable floor wear where daily movement occurs.",
   "Include a used book edge, a cup ring shadow, and naturally settled fabric rather than symmetrical styling.",
   "Include a practical doorway transition, one everyday object set down with weight, and imperfect reflected light."
@@ -57,7 +57,7 @@ const transitDetails = [
 ];
 
 const hotelDetails = [
-  "Include a neat suitcase edge, a room key card, and a natural curtain fold; keep travel traces orderly and sparse.",
+  "Include a neat suitcase edge, a folded itinerary card, and a natural curtain fold; keep travel traces orderly and sparse.",
   "Include one folded garment, a softly indented chair cushion, and realistic window reflection without tourist display styling.",
   "Include a luggage handle near the wardrobe, a used but tidy bedside surface, and warm-neutral ambient falloff."
 ];

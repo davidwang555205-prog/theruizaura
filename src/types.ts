@@ -192,6 +192,8 @@ export type TeamModelChoice =
   | "亚裔混血模特"
   | "30–45岁客户画像模特";
 
+export type TeamModelContinuity = "新人物" | "延续上一组人物";
+
 export type TeamStillLifeStyle = "与主视觉统一" | "自动按产品判断";
 
 export type TeamGazeMode =
@@ -267,6 +269,7 @@ export type TeamScenePreference =
 export type TeamPromptParams = {
   imageType: TeamImageType;
   modelChoice: TeamModelChoice;
+  modelContinuity: TeamModelContinuity;
   shoe: TeamShoe;
   customShoe: string;
   season: TeamSeason;

@@ -18,7 +18,7 @@ export const promptQualityPatches = {
   sneakerShapeProtection:
     "Strictly preserve the uploaded THERUIZ AURA sneaker reference: low-cut German trainer silhouette, rounded toe box, slim outsole, original panel structure, tongue shape, stitching, lace thickness, material transitions, color relationship and proportions. Do not redesign the shoe.",
   sneakerVisibility:
-    "Keep at least one sneaker fully visible from toe to heel, with the second sneaker clearly readable. Keep trouser hems, skirt hems and socks physically separated from the sneakers. The shoe opening, tongue, tied laces and outsole must remain clear.",
+    "Keep at least one sneaker fully visible from toe to heel, with the second sneaker clearly readable. Keep trouser hems, skirt hems and socks physically separated from the sneakers. The sneaker collar, tongue, tied laces and outsole must remain clear.",
   materialRule:
     "Only Aire 微风 uses lambskin lining. Other current THERUIZ AURA styles use pigskin lining unless manually specified.",
   bodyAndClippingProtection:

@@ -26,8 +26,8 @@ export const ATMOSPHERE_SCENES: AtmosphereScene[] = [
     id: "brand-everyday-objects",
     label: "生活物件",
     category: "brand",
-    compactPrompt: "A small restrained set of tasteful daily objects: neutral tote, coffee cup, book, keys, white shirt fabric, light denim, hand cream, or paper bag. Avoid clutter, influencer flat lay, or decorative stock-photo styling.",
-    prompt: `Create a refined everyday object mood image for THERUIZ AURA. No shoes as the main subject. Show a small selection of tasteful daily objects belonging to a modern woman: a neutral tote bag, coffee cup, book, keys, white shirt fabric, light denim, hand cream, or a simple paper bag. Not cluttered, not influencer flat lay, not decorative lifestyle stock.`
+    compactPrompt: "A small restrained set of tasteful daily objects: neutral tote, coffee cup, book, small ceramic tray, white shirt fabric, light denim, hand cream, or paper bag. Avoid clutter, influencer flat lay, or decorative stock-photo styling.",
+    prompt: `Create a refined everyday object mood image for THERUIZ AURA. No shoes as the main subject. Show a small selection of tasteful daily objects belonging to a modern woman: a neutral tote bag, coffee cup, book, small ceramic tray, white shirt fabric, light denim, hand cream, or a simple paper bag. Not cluttered, not influencer flat lay, not decorative lifestyle stock.`
   },
   {
     id: "brand-wardrobe-prep",
@@ -62,8 +62,8 @@ export const ATMOSPHERE_SCENES: AtmosphereScene[] = [
     label: "玄关出门时刻",
     category: "customer",
     customerExpectation: "早上出门不用纠结",
-    compactPrompt: "A calm entryway departure moment with warm beige space, soft doorway light, neutral tote, keys, light trench, or subtle daily objects. Express easy, orderly, tasteful leaving-home energy with soft light and quiet negative space.",
-    prompt: `Create a refined non-product atmospheric image for THERUIZ AURA showing a calm entryway departure moment. The setting may include a cream-white or warm beige entryway, a softly lit doorway, a neutral tote bag, keys, a light trench coat, or subtle daily objects near the door. The image should express the feeling of leaving home in an easy, orderly, and tasteful way. Use soft natural light, quiet negative space, low saturation, and warm restraint. Avoid clutter, heavy styling, or generic lifestyle stock photography.`
+    compactPrompt: "A calm entryway departure moment with warm beige space, soft doorway light, neutral tote, folded note, light trench, or subtle daily objects. Express easy, orderly, tasteful leaving-home energy with soft light and quiet negative space.",
+    prompt: `Create a refined non-product atmospheric image for THERUIZ AURA showing a calm entryway departure moment. The setting may include a cream-white or warm beige entryway, a softly lit doorway, a neutral tote bag, a folded note, a light trench coat, or subtle daily objects near the door. The image should express the feeling of leaving home in an easy, orderly, and tasteful way. Use soft natural light, quiet negative space, low saturation, and warm restraint. Avoid clutter, heavy styling, or generic lifestyle stock photography.`
   },
   {
     id: "customer-reading",
