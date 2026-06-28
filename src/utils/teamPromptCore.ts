@@ -50,7 +50,8 @@ import { promptAIRiskPreflight } from "./promptAIRiskPreflight";
 import {
   getTeamModelConsistencyLine,
   getTeamModelLine,
-  getTeamModelNegativePhrases
+  getTeamModelNegativePhrases,
+  getTeamModelPriorityNegativePhrases
 } from "../data/teamModelProfiles";
 import {
   getModelContinuityLine,
@@ -1203,6 +1204,7 @@ function getNegativeLine(input: {
     : input.hasShoe
       ? [
           ...getModelContinuityPriorityNegativePhrases(input.params.modelContinuity, input.params.modelChoice),
+          ...getTeamModelPriorityNegativePhrases(input.params.modelChoice),
           "influencer posing",
           "over-clean AI lifestyle template",
           "pasted subject",

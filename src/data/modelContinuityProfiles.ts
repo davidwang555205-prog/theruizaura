@@ -2,24 +2,19 @@ import type { TeamModelChoice, TeamModelContinuity } from "../types";
 
 export const TEAM_MODEL_CONTINUITY_OPTIONS: TeamModelContinuity[] = ["新人物", "延续上一组人物"];
 
-const continuityIdentityLabels: Record<TeamModelChoice, string> = {
-  "欧洲25–30岁女模特": "European woman aged 25-30",
-  "亚裔20–25岁模特": "Asian woman aged 20-25",
-  亚裔混血模特: "Asian mixed-heritage woman aged 25-30",
-  "30–45岁客户画像模特": "Asian or Asian-mixed customer woman aged 30-45"
+const modelContinuityLines: Record<TeamModelChoice, string> = {
+  "欧洲25–30岁女模特":
+    "Use the previous approved woman image as the only person reference; continue the exact same 25-30 European individual, not another similar European model, across front, side, three-quarter, mirror, seated, walking, close, medium, and full-body views: same face shape, eye spacing, brows, nose-mouth ratio, hairline, hair part, hair volume, hair color, skin tone, makeup, gaze temperament, body scale, and identity; only scene, pose, camera distance, styling, and composition may change.",
+  "亚裔20–25岁模特":
+    "Use the previous approved woman image as the only person reference; continue the exact same 20-25 Asian individual, not another similar Asian model, across front, side, three-quarter, mirror, seated, walking, close, medium, and full-body views: same face shape, eye spacing, brows, nose-mouth ratio, hairline, hair part, hair volume, hair color, skin tone, makeup, gaze temperament, quiet aura, body scale, and identity; only scene, pose, camera distance, styling, and composition may change.",
+  亚裔混血模特:
+    "Use the previous approved woman image as the only person reference; continue the exact same 25-30 Asian mixed-heritage individual, not another similar mixed-heritage model, across front, side, three-quarter, mirror, seated, walking, close, medium, and full-body views: same face shape, eye spacing, brows, nose-mouth ratio, hairline, hair part, hair volume, hair color, skin tone, makeup, gaze temperament, quiet aura, body scale, and identity; only scene, pose, camera distance, styling, and composition may change.",
+  "30–45岁客户画像模特":
+    "Use the previous approved woman image as the only person reference; continue the exact same 30-45 Asian or subtle Asian-mixed individual, not another similar customer type, across front, side, three-quarter, mirror, seated, walking, close, medium, and full-body views: same face shape, cheekbone-jawline contour, eye spacing, brows, nose-mouth ratio, hairline, hair part, hair volume, hair color, skin tone, makeup, gaze temperament, quiet aura, body scale, and identity; only scene, pose, camera distance, styling, and composition may change."
 };
 
 function buildSamePersonContinuityLine(modelChoice: TeamModelChoice) {
-  if (modelChoice === "30–45岁客户画像模特") {
-    return "Use the previous approved woman image as the only person reference; continue the exact same 30-45 Asian or subtle Asian-mixed individual, not another similar customer type, across front, side, three-quarter, mirror, seated, walking, close, medium, and full-body views: same face shape, cheekbone-jawline contour, eye spacing, brows, nose-mouth ratio, hairline, hair part, hair volume, hair color, skin tone, makeup, gaze temperament, quiet aura, body scale, and identity; only scene, pose, camera distance, styling, and composition may change.";
-  }
-
-  const identityLabel = continuityIdentityLabels[modelChoice];
-  const castingBoundary =
-    modelChoice === "欧洲25–30岁女模特"
-      ? ""
-      : "; avoid European or Western-dominant casting drift";
-  return `Use the previous approved woman image as a real-camera person reference; keep the exact same ${identityLabel} across front, side, three-quarter, mirror, seated, walking, close, medium, and full-body views: facial geometry, eyes, brows, nose-mouth ratio, hairstyle, hair color, skin tone, makeup, gaze style, expression temperament, quiet aura, body scale, hand-foot scale, and identity${castingBoundary}; only scene, pose, camera distance, styling, and composition may change.`;
+  return modelContinuityLines[modelChoice];
 }
 
 const samePersonNegativePhrases = [
@@ -47,17 +42,32 @@ const samePersonNegativePhrases = [
   "similar but not the same model"
 ];
 
-const samePersonPriorityNegativePhrases = [
-  "different woman from previous reference",
-  "identity reset from previous reference"
-];
-
-const customerContinuityPriorityNegativePhrases = [
-  "another similar 30-45 customer",
-  "same customer type but different woman",
-  "changed face from previous reference",
-  "identity reset from previous reference"
-];
+const priorityContinuityNegativePhrases: Record<TeamModelChoice, string[]> = {
+  "欧洲25–30岁女模特": [
+    "generic AI European face",
+    "similar European model but different woman",
+    "changed face from previous reference",
+    "identity reset from previous reference"
+  ],
+  "亚裔20–25岁模特": [
+    "generic AI Asian face",
+    "similar Asian model but different woman",
+    "changed face from previous reference",
+    "identity reset from previous reference"
+  ],
+  亚裔混血模特: [
+    "generic AI mixed-heritage face",
+    "similar mixed-heritage model but different woman",
+    "changed face from previous reference",
+    "European-looking drift from previous reference"
+  ],
+  "30–45岁客户画像模特": [
+    "generic AI mature customer face",
+    "similar customer type but different woman",
+    "changed face from previous reference",
+    "identity reset from previous reference"
+  ]
+};
 
 export function getModelContinuityLine(modelContinuity: TeamModelContinuity, modelChoice: TeamModelChoice) {
   if (modelContinuity !== "延续上一组人物") return "";
@@ -69,9 +79,7 @@ export function getModelContinuityPriorityNegativePhrases(
   modelChoice: TeamModelChoice
 ) {
   if (modelContinuity !== "延续上一组人物") return [];
-  return modelChoice === "30–45岁客户画像模特"
-    ? customerContinuityPriorityNegativePhrases
-    : samePersonPriorityNegativePhrases;
+  return priorityContinuityNegativePhrases[modelChoice];
 }
 
 export function getModelContinuityNegativePhrases(modelContinuity: TeamModelContinuity) {

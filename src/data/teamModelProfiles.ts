@@ -5,6 +5,7 @@ type TeamModelProfile = {
   promptLine: string;
   identityLabel: string;
   agePhrase: string;
+  priorityNegativePhrases: string[];
   negativePhrases: string[];
 };
 
@@ -18,9 +19,15 @@ export const TEAM_MODEL_OPTIONS: TeamModelChoice[] = [
 const TEAM_MODEL_PROFILES: Record<TeamModelChoice, TeamModelProfile> = {
   "欧洲25–30岁女模特": {
     promptLine:
-      "Use one real-looking European woman aged 25–30, with believable European facial features, natural skin texture, understated daily makeup, realistic proportions, and a candid real-camera contemporary presence. Keep her refined and approachable rather than runway-cast or influencer-like.",
+      "Use one real-looking European woman aged 25–30, with believable European facial features, slight facial asymmetry, normal skin and under-eye texture, understated daily makeup, realistic proportions, and a candid real-camera presence. Keep her approachable and unperformed, not runway-cast, doll-like, influencer-like, or campaign-faced.",
     identityLabel: "selected European woman aged 25–30",
     agePhrase: "aged 25–30",
+    priorityNegativePhrases: [
+      "generic AI European face",
+      "over-smoothed European beauty face",
+      "runway-cast face",
+      "doll-like facial symmetry"
+    ],
     negativePhrases: [
       "model identity inconsistent with the selected European profile",
       "age drift outside 25–30",
@@ -29,9 +36,15 @@ const TEAM_MODEL_PROFILES: Record<TeamModelChoice, TeamModelProfile> = {
   },
   "亚裔20–25岁模特": {
     promptLine:
-      "Use one real-looking Asian woman aged 20–25, with natural dark hair, real skin texture, understated daily makeup, realistic proportions, and a fresh but refined real-camera daily presence. Keep her clearly Asian, adult, tasteful, quiet, and approachable rather than European-looking, Western-dominant, blonde, student-like, girlish, influencer-like, or campaign-model-like.",
+      "Use one real-looking Asian woman aged 20–25, with natural dark hair, clearly Asian adult features, slight facial asymmetry, normal skin and under-eye texture, understated daily makeup, realistic proportions, and a fresh real-camera daily presence. Keep her tasteful and quiet, not European-looking, student-like, doll-like, influencer-like, or campaign-faced.",
     identityLabel: "selected Asian woman aged 20–25",
     agePhrase: "aged 20–25",
+    priorityNegativePhrases: [
+      "generic AI Asian face",
+      "over-smoothed youthful beauty face",
+      "student-like casting",
+      "doll-like facial symmetry"
+    ],
     negativePhrases: [
       "model identity inconsistent with the selected Asian 20–25 profile",
       "European-looking model",
@@ -45,9 +58,15 @@ const TEAM_MODEL_PROFILES: Record<TeamModelChoice, TeamModelProfile> = {
   },
   亚裔混血模特: {
     promptLine:
-      "Use one real-looking Asian mixed-heritage woman aged 25–30, with natural dark or deep brown hair, subtle Asian mixed features, real skin texture, understated daily makeup, realistic proportions, and calm real-camera refined presence. Keep her Asian mixed-heritage rather than European-looking, Western-dominant, blonde, stereotyped, or campaign-model severe.",
+      "Use one real-looking Asian mixed-heritage woman aged 25–30, with subtle Asian mixed features, natural dark or deep brown hair, slight facial asymmetry, normal skin and under-eye texture, understated daily makeup, realistic proportions, and a calm real-camera presence. Keep her Asian mixed-heritage and unperformed, not European-looking, Western-dominant, blonde, stereotyped, doll-like, or campaign-faced.",
     identityLabel: "selected Asian mixed-heritage woman aged 25–30",
     agePhrase: "aged 25–30",
+    priorityNegativePhrases: [
+      "generic AI mixed-heritage face",
+      "European-looking mixed model drift",
+      "over-smoothed mixed-heritage beauty face",
+      "doll-like facial symmetry"
+    ],
     negativePhrases: [
       "model identity inconsistent with the selected Asian mixed-heritage profile",
       "European-looking model",
@@ -60,9 +79,15 @@ const TEAM_MODEL_PROFILES: Record<TeamModelChoice, TeamModelProfile> = {
   },
   "30–45岁客户画像模特": {
     promptLine:
-      "Use one real-looking Asian or subtle Asian mixed-heritage woman aged 30–45, with natural dark hair, light daily makeup, real skin texture, realistic proportions, and calm real-camera urban presence. Keep her Asian or subtle Asian mixed-heritage rather than European-looking, Western-dominant, blonde, or professional-campaign-like.",
+      "Use one real-looking Asian or subtle Asian mixed-heritage woman aged 30–45, with natural dark hair, slight facial asymmetry, normal skin and under-eye texture, light daily makeup, realistic proportions, and calm real-camera urban presence. Keep her like a real tasteful customer, not European-looking, Western-dominant, blonde, doll-like, or professional-campaign-faced.",
     identityLabel: "selected Asian or subtle Asian mixed-heritage THERUIZ AURA customer woman aged 30–45",
     agePhrase: "aged 30–45",
+    priorityNegativePhrases: [
+      "generic AI mature customer face",
+      "over-smoothed mature beauty face",
+      "professional campaign face",
+      "doll-like facial symmetry"
+    ],
     negativePhrases: [
       "model identity inconsistent with the selected 30–45 customer profile",
       "European-looking model",
@@ -85,6 +110,10 @@ export function getTeamModelLine(modelChoice: TeamModelChoice) {
 
 export function getTeamModelNegativePhrases(modelChoice: TeamModelChoice) {
   return getTeamModelProfile(modelChoice).negativePhrases;
+}
+
+export function getTeamModelPriorityNegativePhrases(modelChoice: TeamModelChoice) {
+  return getTeamModelProfile(modelChoice).priorityNegativePhrases;
 }
 
 export function getTeamModelConsistencyLine(modelChoice: TeamModelChoice, intent: ImageCountIntent) {
