@@ -54,7 +54,8 @@ import {
 } from "../data/teamModelProfiles";
 import {
   getModelContinuityLine,
-  getModelContinuityNegativePhrases
+  getModelContinuityNegativePhrases,
+  getModelContinuityPriorityNegativePhrases
 } from "../data/modelContinuityProfiles";
 
 export const TEAM_PROMPT_MODE: TeamPromptMode = "standard";
@@ -1201,6 +1202,7 @@ function getNegativeLine(input: {
       ]
     : input.hasShoe
       ? [
+          ...getModelContinuityPriorityNegativePhrases(input.params.modelContinuity, input.params.modelChoice),
           "influencer posing",
           "over-clean AI lifestyle template",
           "pasted subject",

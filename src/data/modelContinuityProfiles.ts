@@ -10,6 +10,10 @@ const continuityIdentityLabels: Record<TeamModelChoice, string> = {
 };
 
 function buildSamePersonContinuityLine(modelChoice: TeamModelChoice) {
+  if (modelChoice === "30–45岁客户画像模特") {
+    return "Use the previous approved woman image as the only person reference; continue the exact same 30-45 Asian or subtle Asian-mixed individual, not another similar customer type, across front, side, three-quarter, mirror, seated, walking, close, medium, and full-body views: same face shape, cheekbone-jawline contour, eye spacing, brows, nose-mouth ratio, hairline, hair part, hair volume, hair color, skin tone, makeup, gaze temperament, quiet aura, body scale, and identity; only scene, pose, camera distance, styling, and composition may change.";
+  }
+
   const identityLabel = continuityIdentityLabels[modelChoice];
   const castingBoundary =
     modelChoice === "欧洲25–30岁女模特"
@@ -43,9 +47,31 @@ const samePersonNegativePhrases = [
   "similar but not the same model"
 ];
 
+const samePersonPriorityNegativePhrases = [
+  "different woman from previous reference",
+  "identity reset from previous reference"
+];
+
+const customerContinuityPriorityNegativePhrases = [
+  "another similar 30-45 customer",
+  "same customer type but different woman",
+  "changed face from previous reference",
+  "identity reset from previous reference"
+];
+
 export function getModelContinuityLine(modelContinuity: TeamModelContinuity, modelChoice: TeamModelChoice) {
   if (modelContinuity !== "延续上一组人物") return "";
   return buildSamePersonContinuityLine(modelChoice);
+}
+
+export function getModelContinuityPriorityNegativePhrases(
+  modelContinuity: TeamModelContinuity,
+  modelChoice: TeamModelChoice
+) {
+  if (modelContinuity !== "延续上一组人物") return [];
+  return modelChoice === "30–45岁客户画像模特"
+    ? customerContinuityPriorityNegativePhrases
+    : samePersonPriorityNegativePhrases;
 }
 
 export function getModelContinuityNegativePhrases(modelContinuity: TeamModelContinuity) {
