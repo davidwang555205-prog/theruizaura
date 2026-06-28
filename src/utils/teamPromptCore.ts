@@ -96,7 +96,7 @@ const customerFeelingLine =
   "Express all-day ease, comfort without carelessness, clean composure, taste, and quiet put-together confidence.";
 
 const humanRealismLine =
-  "Show slight facial asymmetry, real pores, relaxed lips, natural catchlights, soft shoulder tension, believable hand pressure, grounded weight, and one unposed expression.";
+  "Keep one candid in-between expression with slight facial asymmetry, relaxed mouth, natural catchlights, soft shoulder-neck tension, grounded weight, and believable hand pressure.";
 
 const actionLine =
   "Use one simple daily action: slow walk, coffee, tote, flowers, book, or storefront pause.";
@@ -346,7 +346,7 @@ function shouldUseSummerLifestylePeopleSupport(
 }
 
 const streetRealismLine =
-  "Street and background should feel photographed in a real daily city environment: believable pavement texture, natural street depth, real storefront proportions, subtle signs of daily use, mild surface unevenness, small shadows, realistic curb lines, quiet background pedestrians when appropriate, parked scooters or bicycles only when natural, restrained cafe or boutique details, and imperfect but tasteful city rhythm.";
+  "Street and background should feel captured in a real daily city environment, not a generated lifestyle set: believable pavement texture, natural street depth, real storefront proportions, subtle signs of daily use, mild surface unevenness, small shadows, realistic curb lines, quiet background pedestrians when appropriate, parked scooters or bicycles only when natural, restrained cafe or boutique details, and imperfect but tasteful city rhythm.";
 
 const SCENE_VARIATION_LINES: Partial<Record<StandardSceneKey, string[]>> = {
   commute: [
@@ -1202,11 +1202,14 @@ function getNegativeLine(input: {
     : input.hasShoe
       ? [
           "influencer posing",
-          "over-polished beige-template styling",
+          "over-clean AI lifestyle template",
+          "pasted subject",
           "body-focused posing",
           "distorted body",
           "stiff hands",
           "unreal scenery or signage",
+          "over-smoothed skin",
+          "lifeless eyes",
           "loud status branding",
           "messy background",
           "plastic skin",

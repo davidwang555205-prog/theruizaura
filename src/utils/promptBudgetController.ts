@@ -135,9 +135,9 @@ function limitWords(line = "", maxWords: number, allowPartial = false) {
 }
 
 function limitActionLine(line = "", maxWords: number) {
-  const firstAction = splitSentences(line)[0] ?? "";
-  if (!firstAction) return "";
-  return countWords(firstAction) <= maxWords ? firstAction : limitWords(firstAction, maxWords, true);
+  const actionCore = splitSentences(line).slice(0, 2).join(" ");
+  if (!actionCore) return "";
+  return countWords(actionCore) <= maxWords ? actionCore : limitWords(actionCore, maxWords, true);
 }
 
 function compressNegative(line = "", maxWords: number) {

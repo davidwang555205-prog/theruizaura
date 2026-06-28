@@ -15,7 +15,7 @@ function buildSamePersonContinuityLine(modelChoice: TeamModelChoice) {
     modelChoice === "欧洲25–30岁女模特"
       ? ""
       : "; avoid European or Western-dominant casting drift";
-  return `Use the previous approved woman image as a person reference; keep the exact same ${identityLabel} across front, side, three-quarter, mirror, seated, walking, close, medium, and full-body views: facial geometry, eyes, brows, nose-mouth ratio, hairstyle, hair color, skin tone, makeup, gaze style, expression temperament, quiet aura, body scale, hand-foot scale, and identity${castingBoundary}; only scene, pose, camera distance, styling, and composition may change.`;
+  return `Use the previous approved woman image as a real-camera person reference; keep the exact same ${identityLabel} across front, side, three-quarter, mirror, seated, walking, close, medium, and full-body views: facial geometry, eyes, brows, nose-mouth ratio, hairstyle, hair color, skin tone, makeup, gaze style, expression temperament, quiet aura, body scale, hand-foot scale, and identity${castingBoundary}; only scene, pose, camera distance, styling, and composition may change.`;
 }
 
 const samePersonNegativePhrases = [

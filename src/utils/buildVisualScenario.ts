@@ -54,7 +54,7 @@ export function buildVisualScenario(input: {
   const backgroundDensityLine = backgroundDensityLines[backgroundDensity];
   const livedInDetailLine = details[detailIndex];
   const coherenceLine =
-    "Keep location, light, action, gaze, hands, clothing, and background inside one coherent instant.";
+    "Capture one coherent real-camera moment: location, light, action, gaze, hands, clothing, and background must align naturally, with no pasted subject or staged AI set.";
 
   return {
     backgroundDensity,
