@@ -29,11 +29,15 @@ const TEAM_MODEL_PROFILES: Record<TeamModelChoice, TeamModelProfile> = {
   },
   "亚裔20–25岁模特": {
     promptLine:
-      "Use one real-looking Asian woman aged 20–25, with natural dark hair, real skin texture, understated daily makeup, realistic proportions, and a fresh but refined daily presence. Keep her adult, tasteful, quiet, and approachable rather than student-like, girlish, influencer-like, or campaign-model-like.",
+      "Use one real-looking Asian woman aged 20–25, with natural dark hair, real skin texture, understated daily makeup, realistic proportions, and a fresh but refined daily presence. Keep her clearly Asian, adult, tasteful, quiet, and approachable rather than European-looking, Western-dominant, blonde, student-like, girlish, influencer-like, or campaign-model-like.",
     identityLabel: "selected Asian woman aged 20–25",
     agePhrase: "aged 20–25",
     negativePhrases: [
       "model identity inconsistent with the selected Asian 20–25 profile",
+      "European-looking model",
+      "Western-dominant face",
+      "blonde model",
+      "non-Asian casting",
       "age drift outside 20–25",
       "overly youthful casting",
       "student-like styling"
@@ -41,22 +45,30 @@ const TEAM_MODEL_PROFILES: Record<TeamModelChoice, TeamModelProfile> = {
   },
   亚裔混血模特: {
     promptLine:
-      "Use one real-looking Asian mixed-heritage woman aged 25–30, with natural dark or deep brown hair, subtle mixed features, real skin texture, understated daily makeup, realistic proportions, and calm refined presence. Avoid exaggerated mixed-heritage stereotypes or campaign-model severity.",
+      "Use one real-looking Asian mixed-heritage woman aged 25–30, with natural dark or deep brown hair, subtle Asian mixed features, real skin texture, understated daily makeup, realistic proportions, and calm refined presence. Keep her Asian mixed-heritage rather than European-looking, Western-dominant, blonde, stereotyped, or campaign-model severe.",
     identityLabel: "selected Asian mixed-heritage woman aged 25–30",
     agePhrase: "aged 25–30",
     negativePhrases: [
       "model identity inconsistent with the selected Asian mixed-heritage profile",
+      "European-looking model",
+      "Western-dominant face",
+      "blonde model",
+      "non-Asian casting",
       "age drift outside 25–30",
       "exaggerated mixed-heritage stereotype"
     ]
   },
   "30–45岁客户画像模特": {
     promptLine:
-      "Use one real-looking Asian or subtle Asian mixed-heritage woman aged 30–45, with natural dark hair, light daily makeup, real skin texture, realistic proportions, and calm urban presence. She should feel like a tasteful THERUIZ AURA customer rather than a professional campaign model.",
-    identityLabel: "selected THERUIZ AURA customer woman aged 30–45",
+      "Use one real-looking Asian or subtle Asian mixed-heritage woman aged 30–45, with natural dark hair, light daily makeup, real skin texture, realistic proportions, and calm urban presence. Keep her Asian or subtle Asian mixed-heritage rather than European-looking, Western-dominant, blonde, or professional-campaign-like.",
+    identityLabel: "selected Asian or subtle Asian mixed-heritage THERUIZ AURA customer woman aged 30–45",
     agePhrase: "aged 30–45",
     negativePhrases: [
       "model identity inconsistent with the selected 30–45 customer profile",
+      "European-looking model",
+      "Western-dominant face",
+      "blonde model",
+      "non-Asian casting",
       "age drift outside 30–45",
       "overly youthful campaign casting"
     ]

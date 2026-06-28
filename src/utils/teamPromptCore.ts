@@ -1838,7 +1838,7 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
   const sneakerSceneControlLine = sneakerProtection.sceneControlLine;
   const modelStructuredLine = shouldUsePeopleStyling(params.imageType)
     ? [
-        getModelContinuityLine(params.modelContinuity),
+        getModelContinuityLine(params.modelContinuity, params.modelChoice),
         getModelLine(params),
         getTeamModelConsistencyLine(params.modelChoice, imageCountIntent),
         gazeSelection.line,
