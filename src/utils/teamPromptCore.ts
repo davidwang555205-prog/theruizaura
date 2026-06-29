@@ -2,6 +2,7 @@ import type {
   TeamImageType,
   TeamGarmentTypePreference,
   TeamHumanPoseCategory,
+  TeamModelChoice,
   TeamPromptMode,
   TeamPromptParams,
   TeamPromptOutput,
@@ -41,6 +42,12 @@ import {
 } from "./chooseSinglePrimaryHandheldObject";
 import { promptVocabularyReplacer } from "./promptVocabularyReplacer";
 import { normalizeAccessoryInOutfitLine } from "./normalizeAccessoryInOutfitLine";
+import {
+  adaptFinalPromptForModelChoice,
+  adaptOutfitLineForModelChoice,
+  getMenswearGarmentTypeLockLine,
+  isMaleModelChoice
+} from "./modelGenderAdapter";
 import { isSceneCompatibleWithImageType } from "../data/teamSceneOptions";
 import { getNonProductAtmosphereSceneLine } from "../data/nonProductAtmosphereSceneLines";
 import { promptPreflightCheck } from "./promptPreflightCheck";
@@ -1277,7 +1284,7 @@ function getNegativeLine(input: {
   if (isPeopleImageType(input.params.imageType)) {
     phrases.push(
       ...getTeamModelNegativePhrases(input.params.modelChoice),
-      ...getModelContinuityNegativePhrases(input.params.modelContinuity),
+      ...getModelContinuityNegativePhrases(input.params.modelContinuity, input.params.modelChoice),
       "professional fashion model face",
       "beauty-pageant face",
       "computer-perfect woman",
@@ -1412,8 +1419,16 @@ function getEffectiveGarmentTypePreference(
   return sceneKey === "gymInterior" ? "轻运动" : params.garmentTypePreference;
 }
 
-function getGarmentTypeLockLine(preference: TeamGarmentTypePreference, season: TeamSeason) {
+function getGarmentTypeLockLine(
+  preference: TeamGarmentTypePreference,
+  season: TeamSeason,
+  modelChoice?: TeamModelChoice
+) {
   if (preference === "自动匹配") return "";
+
+  if (isMaleModelChoice(modelChoice)) {
+    return getMenswearGarmentTypeLockLine(preference, season, modelChoice);
+  }
 
   if (preference === "轻运动" && season !== "夏") {
     return "Selected clothing type: refined light activewear with active trousers, leggings, or a zip layer; use shorts only for indoor fitness.";
@@ -1805,13 +1820,21 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
   const saturatedGarmentBoundaryLine = /only soft color accent|only muted color accent/i.test(normalizedBaseOutfitLine)
     ? "Use exactly one muted low-saturation garment as a soft color anchor; keep every other garment, bag, accessory, backdrop, and styling detail neutral, restrained, and easy to coordinate."
     : "";
-  const outfitLine = [
+  const rawOutfitLine = [
     resolvedScene === "棚内上新拍摄" ? STUDIO_LAUNCH_OUTFIT_BOUNDARY_LINE : "",
     normalizedBaseOutfitLine,
     shoeStyleLine
   ]
     .filter(Boolean)
     .join(" ");
+  const outfitLine = shouldUsePeopleStyling(params.imageType)
+    ? adaptOutfitLineForModelChoice({
+        outfitLine: rawOutfitLine,
+        modelChoice: params.modelChoice,
+        garmentTypePreference: effectiveGarmentTypePreference,
+        season: params.season
+      })
+    : rawOutfitLine;
   const handheldSelection = chooseHandheldObjectLines({
     imageType: params.imageType,
     scenePreference: resolvedScene,
@@ -1860,7 +1883,7 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
     ? [
         userSpecifiedClothing || resolvedScene === "海边度假"
           ? ""
-          : getGarmentTypeLockLine(effectiveGarmentTypePreference, params.season),
+          : getGarmentTypeLockLine(effectiveGarmentTypePreference, params.season, params.modelChoice),
         outfitLine,
         sceneKey === "gymInterior" ? gymInteriorClothingLockLine : "",
         saturatedGarmentBoundaryLine,
@@ -2123,7 +2146,10 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
     hasPeople: shouldUsePeopleStyling(params.imageType),
     requireFullShoeVisibility: hasShoe && params.imageType !== "拍摄花絮 / 材质图" && params.imageType !== "非产品氛围图"
   });
-  const prompt = cleanFinalPrompt(safetyCheckedPrompt.prompt);
+  const modelAdjustedPrompt = shouldUsePeopleStyling(params.imageType)
+    ? adaptFinalPromptForModelChoice(safetyCheckedPrompt.prompt, params.modelChoice)
+    : safetyCheckedPrompt.prompt;
+  const prompt = cleanFinalPrompt(modelAdjustedPrompt);
 
   return {
     prompt,

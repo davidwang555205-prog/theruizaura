@@ -5,6 +5,8 @@ export const TEAM_MODEL_CONTINUITY_OPTIONS: TeamModelContinuity[] = ["新人物"
 const modelContinuityLines: Record<TeamModelChoice, string> = {
   "欧洲25–30岁女模特":
     "Use the previous approved woman image as the only person reference; continue the exact same 25-30 European individual, not another similar European model, across front, side, three-quarter, mirror, seated, walking, close, medium, and full-body views: same face shape, eye spacing, brows, nose-mouth ratio, hairline, hair part, hair volume, hair color, skin tone, makeup, gaze temperament, body scale, and identity; only scene, pose, camera distance, styling, and composition may change.",
+  "欧洲30岁左右男模特":
+    "Use the previous approved man image as the only person reference; continue the exact same European male individual around age 30, not another similar man, across front, side, three-quarter, mirror, seated, walking, close, medium, and full-body views: same face shape, eye spacing, brows, nose-mouth ratio, hairline, hair part, hair volume, hair color, skin tone, grooming, gaze temperament, body scale, and identity; only scene, pose, camera distance, styling, and composition may change.",
   "亚裔20–25岁模特":
     "Use the previous approved woman image as the only person reference; continue the exact same 20-25 Asian individual, not another similar Asian model, across front, side, three-quarter, mirror, seated, walking, close, medium, and full-body views: same face shape, eye spacing, brows, nose-mouth ratio, hairline, hair part, hair volume, hair color, skin tone, makeup, gaze temperament, quiet aura, body scale, and identity; only scene, pose, camera distance, styling, and composition may change.",
   亚裔混血模特:
@@ -49,6 +51,12 @@ const priorityContinuityNegativePhrases: Record<TeamModelChoice, string[]> = {
     "changed face from previous reference",
     "identity reset from previous reference"
   ],
+  "欧洲30岁左右男模特": [
+    "generic AI European male face",
+    "similar European male model but different man",
+    "changed face from previous reference",
+    "identity reset from previous reference"
+  ],
   "亚裔20–25岁模特": [
     "generic AI Asian face",
     "similar Asian model but different woman",
@@ -82,7 +90,12 @@ export function getModelContinuityPriorityNegativePhrases(
   return priorityContinuityNegativePhrases[modelChoice];
 }
 
-export function getModelContinuityNegativePhrases(modelContinuity: TeamModelContinuity) {
+export function getModelContinuityNegativePhrases(modelContinuity: TeamModelContinuity, modelChoice?: TeamModelChoice) {
   if (modelContinuity !== "延续上一组人物") return [];
+  if (modelChoice === "欧洲30岁左右男模特") {
+    return samePersonNegativePhrases.map((phrase) =>
+      phrase === "different makeup style" ? "different grooming style" : phrase
+    );
+  }
   return samePersonNegativePhrases;
 }

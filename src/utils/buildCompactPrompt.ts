@@ -109,6 +109,9 @@ function compressNegativeLine(line = "") {
 
 function compressModelLine(line = "") {
   if (!line.trim()) return "";
+  if (/European man around age 30/i.test(line)) {
+    return "Use one believable European man around age 30 with natural proportions, real skin texture, understated grooming, and a calm refined presence.";
+  }
   if (/European woman aged 25[–-]30/i.test(line)) {
     return "Use one believable European woman aged 25–30 with natural proportions, real skin texture, and a calm refined presence.";
   }

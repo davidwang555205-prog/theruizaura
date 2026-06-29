@@ -11,6 +11,7 @@ type TeamModelProfile = {
 
 export const TEAM_MODEL_OPTIONS: TeamModelChoice[] = [
   "欧洲25–30岁女模特",
+  "欧洲30岁左右男模特",
   "亚裔20–25岁模特",
   "亚裔混血模特",
   "30–45岁客户画像模特"
@@ -32,6 +33,28 @@ const TEAM_MODEL_PROFILES: Record<TeamModelChoice, TeamModelProfile> = {
       "model identity inconsistent with the selected European profile",
       "age drift outside 25–30",
       "runway-supermodel severity"
+    ]
+  },
+  "欧洲30岁左右男模特": {
+    promptLine:
+      "Use one real-looking European man around age 30, with believable European male facial features, slight facial asymmetry, normal skin and under-eye texture, natural hair texture, understated grooming, realistic proportions, and a candid real-camera presence. Keep him refined, calm, mature, and unperformed, not runway-cast, gym-influencer-like, doll-like, overly muscular, or campaign-faced.",
+    identityLabel: "selected European man around age 30",
+    agePhrase: "around age 30",
+    priorityNegativePhrases: [
+      "generic AI European male face",
+      "over-smoothed male beauty face",
+      "runway-cast male face",
+      "overly muscular model body",
+      "doll-like facial symmetry"
+    ],
+    negativePhrases: [
+      "model identity inconsistent with the selected European male profile",
+      "age drift away from around 30",
+      "female model",
+      "feminine styling",
+      "runway-supermodel severity",
+      "gym-influencer body",
+      "overly muscular body"
     ]
   },
   "亚裔20–25岁模特": {
@@ -121,5 +144,6 @@ export function getTeamModelConsistencyLine(modelChoice: TeamModelChoice, intent
 
   const profile = getTeamModelProfile(modelChoice);
   const setLabel = intent === "twoImageSet" ? "two-image set" : "multi-image set";
-  return `Across the ${setLabel}, keep the exact same ${profile.identityLabel}, face, age appearance, hairstyle, hair color, makeup, skin tone, body proportions, outfit, accessories, and personal identity.`;
+  const groomingDetail = modelChoice === "欧洲30岁左右男模特" ? "grooming" : "makeup";
+  return `Across the ${setLabel}, keep the exact same ${profile.identityLabel}, face, age appearance, hairstyle, hair color, ${groomingDetail}, skin tone, body proportions, outfit, accessories, and personal identity.`;
 }

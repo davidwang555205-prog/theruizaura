@@ -188,6 +188,7 @@ export type TeamSeason = "春" | "夏" | "秋" | "冬";
 
 export type TeamModelChoice =
   | "欧洲25–30岁女模特"
+  | "欧洲30岁左右男模特"
   | "亚裔20–25岁模特"
   | "亚裔混血模特"
   | "30–45岁客户画像模特";

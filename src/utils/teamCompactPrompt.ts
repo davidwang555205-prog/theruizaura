@@ -4,6 +4,7 @@ import { buildCompactPrompt, type CompactPromptKind, type TeamPromptMode } from 
 import { cleanFinalPrompt, dedupePromptLines } from "./promptOptimizer";
 import { sensitiveWordReducer } from "./sensitiveWordReducer";
 import { getTeamModelLine, getTeamModelNegativePhrases } from "../data/teamModelProfiles";
+import { adaptFinalPromptForModelChoice, adaptOutfitLineForModelChoice } from "./modelGenderAdapter";
 
 export const TEAM_PROMPT_MODE: TeamPromptMode = "standard";
 
@@ -118,11 +119,23 @@ function removeAvoidSentences(line: string) {
 }
 
 function getOutfitLine(input: TeamCompactPromptInput, extraRequirement: string) {
-  if (input.outfitLineOverride) return sensitiveWordReducer(removeAvoidSentences(input.outfitLineOverride));
+  if (input.outfitLineOverride) {
+    return adaptOutfitLineForModelChoice({
+      outfitLine: sensitiveWordReducer(removeAvoidSentences(input.outfitLineOverride)),
+      modelChoice: input.params.modelChoice,
+      garmentTypePreference: input.params.garmentTypePreference,
+      season: input.params.season
+    });
+  }
   const rawLine = input.userSpecifiedClothing
     ? getSafeUserOutfitLine(extraRequirement, input.params, input.resolvedScene)
     : input.seasonText;
-  return sensitiveWordReducer(rawLine);
+  return adaptOutfitLineForModelChoice({
+    outfitLine: sensitiveWordReducer(rawLine),
+    modelChoice: input.params.modelChoice,
+    garmentTypePreference: input.params.garmentTypePreference,
+    season: input.params.season
+  });
 }
 
 function getSceneLine(input: TeamCompactPromptInput, extraRequirement: string) {
@@ -211,7 +224,7 @@ function getNegativeLine(input: TeamCompactPromptInput, extraRequirement: string
 
 export function buildTeamCompactPrompt(input: TeamCompactPromptInput) {
   const extraRequirement = input.params.extraRequirement.trim();
-  return dedupePromptLines(
+  const prompt = dedupePromptLines(
     sensitiveWordReducer(
       cleanFinalPrompt(
         buildCompactPrompt({
@@ -234,4 +247,8 @@ export function buildTeamCompactPrompt(input: TeamCompactPromptInput) {
       )
     )
   );
+
+  return shouldUsePeopleStyling(input.params.imageType)
+    ? adaptFinalPromptForModelChoice(prompt, input.params.modelChoice)
+    : prompt;
 }
