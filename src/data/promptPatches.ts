@@ -39,7 +39,7 @@ const compactPatchLines = {
   sneakerShapeProtection:
     "Preserve the uploaded low-cut German trainer shape, rounded toe box, slim outsole, panels, tongue, stitching, laces, color, material transitions, and proportions; do not redesign it.",
   sneakerVisibility:
-    "Keep at least one sneaker fully visible, the second readable, and keep fabric, socks, collar, tongue, laces, and outsole physically separated.",
+    "Keep at least one sneaker fully visible, the second readable, outsole grounded, and keep fabric, socks, collar, tongue, tied laces, and floor contact physically separated.",
   aireMaterialRule:
     "For Aire 微风, use lambskin lining only when lining is visible or relevant; keep material details accurate and secondary to the selected image type.",
   standardMaterialRule:

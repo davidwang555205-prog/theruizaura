@@ -32,15 +32,15 @@ const selectedSneakerAccuracyLine =
   "Preserve the selected THERUIZ AURA German trainer: low-cut silhouette, rounded toe box, slim outsole, panels, tongue, stitching, material, color, and proportions.";
 
 const shoeVisibilityLine =
-  "Keep at least one sneaker fully visible from toe to heel, with the second clearly readable.";
+  "Keep at least one sneaker fully visible from toe to heel, with the second clearly readable and grounded.";
 
 const shoeClippingLine =
-  "Keep clean separation between ankle, sock, trouser hem or skirt edge, shoe collar, tongue, laces, floor, and props; nothing should merge into the shoe.";
+  "Keep the foot seated inside the shoe; ankle, sock, trouser hem or skirt edge, collar, tongue, tied laces, outsole, floor, and props stay separate and readable; no clipping or fabric fusion.";
 
 const lacesLine = "Keep laces naturally tied, with readable loops, lace ends, eyelets, and tongue.";
 
 const onFootMaterialResponseLine =
-  "When worn, allow only subtle physical forefoot upper flex, gentle collar compression, settled laces, and grounded contact shadow; preserve the fixed toe box, panels, outsole, and silhouette.";
+  "When worn, allow only subtle forefoot upper flex, gentle collar compression, settled laces, and grounded contact shadow; never let the foot, pose, or fabric reshape the toe box, panels, outsole, or silhouette.";
 
 function isWornPeopleImage(imageType: TeamImageType) {
   return imageType === "产品上脚图" || imageType === "对镜穿搭图" || imageType === "生活场景图";

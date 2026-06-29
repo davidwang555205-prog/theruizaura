@@ -611,6 +611,20 @@ const STUDIO_LAUNCH_PROPS_LINE =
 const STUDIO_LAUNCH_OUTFIT_BOUNDARY_LINE =
   "Studio wardrobe rule: use low-saturation, no-logo luxury-grade tailoring and tactile high-end fabric construction; use no vivid garments.";
 
+const STUDIO_LAUNCH_ON_FOOT_ANGLE_LINES = [
+  "Use a launch-ready full-figure studio angle with a stable 35-50mm perspective, clean floor contact, full styling proportions, and both sneakers clearly readable.",
+  "Use a lower-third studio styling angle from the jacket hem or trouser line down to the sneakers, keeping trouser break, ankle area, shoe collar, tongue, laces, outsole, and floor contact clear.",
+  "Use a sneaker-on-foot close-up studio angle from the lower leg and trouser hem to the floor, with at least one sneaker fully visible from toe to heel and the second sneaker clearly readable.",
+  "Use a controlled 3/4 front-side on-foot studio angle that shows toe shape, side panels, slim outsole line, lace area, trouser hem separation, and natural shoe-ground contact."
+];
+
+const STUDIO_LAUNCH_MIRROR_ANGLE_LINES = [
+  "Use a launch-studio full-length mirror angle with stable reflection, natural phone grip, readable full styling proportions, and both sneakers clearly reflected.",
+  "Use a lower-third mirror composition inside the launch studio, cropping from jacket hem or trouser line down to the sneakers while keeping the phone out of the outfit and shoe area.",
+  "Use a mirror sneaker-on-foot detail angle with the reflection showing trouser break, ankle area, shoe collar, laces, outsole, and floor contact clearly.",
+  "Use a clean 3/4 mirror outfit angle that keeps the reflection straight, the legs natural, and the sneakers large enough to read without mirror distortion."
+];
+
 const footPlacementSafetyLine =
   "Foot placement must stay stable and readable: keep clear ground contact, realistic toe direction, correct left-right shoe relationship, natural ankle-to-shoe alignment, and no overlapping legs hiding the sneaker shape. Props must not cover the shoes, foot placement, laces, tongue, toe box, heel, or outsole.";
 
@@ -964,6 +978,27 @@ function getSceneVariationLine(
   }
 
   if (!lines?.length) return "";
+
+  const nonce = Math.max(0, params.generationNonce ?? 0);
+  return lines[nonce % lines.length];
+}
+
+function getStudioLaunchAngleLine(params: TeamPromptParams, resolvedScene: Exclude<TeamScenePreference, "自动匹配">, hasShoe: boolean) {
+  if (resolvedScene !== "棚内上新拍摄" || !hasShoe || !shouldUsePeopleStyling(params.imageType)) return "";
+
+  const lines = params.imageType === "对镜穿搭图" ? STUDIO_LAUNCH_MIRROR_ANGLE_LINES : STUDIO_LAUNCH_ON_FOOT_ANGLE_LINES;
+  const selectedIndex =
+    params.studioLaunchAnglePreference === "全身棚拍角度"
+      ? 0
+      : params.studioLaunchAnglePreference === "下半身1/3角度"
+        ? 1
+        : params.studioLaunchAnglePreference === "鞋子上脚特写角度"
+          ? 2
+          : params.studioLaunchAnglePreference === "3/4侧前方上脚角度"
+            ? 3
+            : null;
+
+  if (selectedIndex !== null) return lines[selectedIndex];
 
   const nonce = Math.max(0, params.generationNonce ?? 0);
   return lines[nonce % lines.length];
@@ -1596,6 +1631,7 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
     timeOfDay: seasonCityVisualContext.timeOfDay,
     generationNonce: params.generationNonce
   });
+  const studioLaunchAngleLine = getStudioLaunchAngleLine(params, resolvedScene, hasShoe);
   const summerLifestyleLightLine =
     usesSummerLifestylePeopleSupport && summerLifestyleScene
       ? SUMMER_LIFESTYLE_LIGHT_LINES[summerLifestyleScene]
@@ -1933,6 +1969,7 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
           .filter(Boolean)
           .join(" ")
       : [
+          studioLaunchAngleLine,
           visualScenario.scenarioLine,
           scenePropsLine,
           summerLifestyleShoeSafetyLine,
@@ -2047,6 +2084,7 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
           : [],
         outfitLine: [],
         sceneLine: [
+          studioLaunchAngleLine,
           ...promptQualityPatchLines.sceneLines,
           conditionalNonProductBrandProcessLine,
           scenePropsLine,

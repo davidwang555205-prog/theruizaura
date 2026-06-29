@@ -201,6 +201,12 @@ export function promptPreflightCheck(input: PromptPreflightInput): PromptPreflig
     if (requiresFullShoeVisibility(input) && !/fully visible from toe to heel/i.test(text)) {
       repair("shoesBlockedRepair", "Shoe visibility line was missing.");
     }
+    if (
+      hasPeopleContext(input) &&
+      !/foot seated inside the shoe|no clipping or fabric fusion|nothing should merge into the shoe/i.test(text)
+    ) {
+      repair("shoeClippingRepair", "On-foot clipping protection line was missing.");
+    }
     if (!/low-cut German trainer|slim outsole|rounded toe box/i.test(text)) {
       repair("shoeDeformationRepair", "Shoe shape protection needed reinforcement.");
     }

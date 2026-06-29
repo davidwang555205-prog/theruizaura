@@ -149,6 +149,16 @@ function appendBeforeUserRequirement(prompt: string, line: string) {
   return `${body.trim()} ${line}${marker}${extra}`;
 }
 
+function appendBeforeNegativeOrUserRequirement(prompt: string, line: string) {
+  const negativeMarker = "\n\nNegative:";
+  if (prompt.includes(negativeMarker)) {
+    const [body, negative] = prompt.split(negativeMarker);
+    return `${body.trim()} ${line}${negativeMarker}${negative}`;
+  }
+
+  return appendBeforeUserRequirement(prompt, line);
+}
+
 function addSingleHandheldBoundary(prompt: string, warnings: string[]) {
   if (!hasMultiplePrimaryHandheld(prompt)) return prompt;
   warnings.push("Added single-handheld boundary.");
@@ -166,7 +176,21 @@ function ensureShoeVisibility(prompt: string, warnings: string[]) {
   if (!hasShoeContext || /fully visible from toe to heel/i.test(prompt)) return prompt;
 
   warnings.push("Added shoe visibility line.");
-  return appendBeforeUserRequirement(prompt, "Keep at least one sneaker fully visible from toe to heel.");
+  return appendBeforeNegativeOrUserRequirement(prompt, "Keep at least one sneaker fully visible from toe to heel.");
+}
+
+function ensureOnFootShoeFit(prompt: string, warnings: string[]) {
+  const hasShoeContext = /sneaker|trainer|THERUIZ AURA/i.test(prompt);
+  const hasFitProtection =
+    /foot seated inside the shoe|no clipping or fabric fusion|nothing should merge into the shoe/i.test(prompt);
+
+  if (!hasShoeContext || hasFitProtection) return prompt;
+
+  warnings.push("Added on-foot shoe fit line.");
+  return appendBeforeNegativeOrUserRequirement(
+    prompt,
+    "Keep the foot seated inside the shoe; collar, tongue, tied laces, trouser or skirt hem, outsole, and floor contact stay separate and readable, with no clipping or fabric fusion."
+  );
 }
 
 function keepSingleNegativeSection(prompt: string, warnings: string[]) {
@@ -199,6 +223,9 @@ export function finalPromptSafetyCheck(
   }
   if (options.hasShoe && options.requireFullShoeVisibility !== false) {
     prompt = ensureShoeVisibility(prompt, warnings);
+  }
+  if (options.hasShoe && options.hasPeople && options.requireFullShoeVisibility !== false) {
+    prompt = ensureOnFootShoeFit(prompt, warnings);
   }
   prompt = sensitiveWordReducer(prompt);
   prompt = normalizeSpaces(prompt);

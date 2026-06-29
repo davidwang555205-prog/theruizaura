@@ -197,6 +197,13 @@ export type TeamModelContinuity = "新人物" | "延续上一组人物";
 
 export type TeamStillLifeStyle = "与主视觉统一" | "自动按产品判断";
 
+export type TeamStudioLaunchAnglePreference =
+  | "自动匹配"
+  | "全身棚拍角度"
+  | "下半身1/3角度"
+  | "鞋子上脚特写角度"
+  | "3/4侧前方上脚角度";
+
 export type TeamGazeMode =
   | "lookAtCamera"
   | "softOffCamera"
@@ -276,6 +283,7 @@ export type TeamPromptParams = {
   season: TeamSeason;
   scenePreference: TeamScenePreference;
   garmentTypePreference: TeamGarmentTypePreference;
+  studioLaunchAnglePreference: TeamStudioLaunchAnglePreference;
   stillLifeStyle: TeamStillLifeStyle;
   extraRequirement: string;
   generationNonce: number;

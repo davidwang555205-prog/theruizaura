@@ -7,7 +7,8 @@ import type {
   TeamPromptParams,
   TeamScenePreference,
   TeamSeason,
-  TeamShoe
+  TeamShoe,
+  TeamStudioLaunchAnglePreference
 } from "./types";
 import { generateTeamPrompt } from "./utils/generatePrompt";
 import { promptQualityPatchNotice } from "./data/promptPatches";
@@ -49,6 +50,14 @@ const garmentTypeOptions: TeamGarmentTypePreference[] = [
   "轻运动"
 ];
 
+const studioLaunchAngleOptions: TeamStudioLaunchAnglePreference[] = [
+  "自动匹配",
+  "全身棚拍角度",
+  "下半身1/3角度",
+  "鞋子上脚特写角度",
+  "3/4侧前方上脚角度"
+];
+
 const peopleImageTypes: TeamImageType[] = ["产品上脚图", "对镜穿搭图", "生活场景图"];
 
 const initialParams: TeamPromptParams = {
@@ -60,6 +69,7 @@ const initialParams: TeamPromptParams = {
   season: "春",
   scenePreference: "自动匹配",
   garmentTypePreference: "自动匹配",
+  studioLaunchAnglePreference: "自动匹配",
   stillLifeStyle: "与主视觉统一",
   extraRequirement: "",
   generationNonce: 0
@@ -142,7 +152,11 @@ function App() {
                       imageType,
                       scenePreference: isSceneCompatibleWithImageType(imageType, current.scenePreference)
                         ? current.scenePreference
-                        : "自动匹配"
+                        : "自动匹配",
+                      studioLaunchAnglePreference:
+                        peopleImageTypes.includes(imageType) && current.scenePreference === "棚内上新拍摄"
+                          ? current.studioLaunchAnglePreference
+                          : "自动匹配"
                     }));
                   }}
                 >
@@ -290,7 +304,15 @@ function App() {
                     value={params.scenePreference}
                     onChange={(event) =>
                       updateParams((current) =>
-                        updateField(current, "scenePreference", event.target.value as TeamScenePreference)
+                        updateField(
+                          {
+                            ...current,
+                            studioLaunchAnglePreference:
+                              event.target.value === "棚内上新拍摄" ? current.studioLaunchAnglePreference : "自动匹配"
+                          },
+                          "scenePreference",
+                          event.target.value as TeamScenePreference
+                        )
                       )
                     }
                   >
@@ -304,6 +326,34 @@ function App() {
                     当前仅显示适合“{params.imageType}”的场景；切换图片类型时，不兼容的旧场景会自动恢复为“自动匹配”。
                   </span>
                 </label>
+
+                {params.scenePreference === "棚内上新拍摄" && showsModelChoice && (
+                  <label className="mt-4 block space-y-2">
+                    <span className="text-sm font-medium text-aura-charcoal">棚内拍摄角度</span>
+                    <select
+                      className={inputClass}
+                      value={params.studioLaunchAnglePreference}
+                      onChange={(event) =>
+                        updateParams((current) =>
+                          updateField(
+                            current,
+                            "studioLaunchAnglePreference",
+                            event.target.value as TeamStudioLaunchAnglePreference
+                          )
+                        )
+                      }
+                    >
+                      {studioLaunchAngleOptions.map((option) => (
+                        <option key={option} value={option}>
+                          {option}
+                        </option>
+                      ))}
+                    </select>
+                    <span className="block text-xs leading-5 text-aura-muted">
+                      只影响棚内人物类图片。光线、背景、低饱和服装和道具克制规则保持不变。
+                    </span>
+                  </label>
+                )}
               </details>
 
               <label className="block space-y-2">
