@@ -32,6 +32,7 @@ const replacements: Array<[RegExp, string]> = [
   [/\boutfit line\b/gi, "styling direction"],
   [/\boutfits\b/gi, "looks"],
   [/\boutfit\b/gi, "look"],
+  [/\blook-record\b/gi, "styling record"],
   [/\bsweatpants\b/gi, "relaxed jogger-style trousers"],
   [/\blightly opening the shoe tongue\b/gi, "lightly lifting the shoe tongue"],
   [/\bopening a suitcase\b/gi, "unpacking a suitcase"],

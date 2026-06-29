@@ -630,7 +630,7 @@ function chooseStudioLaunchOutfit(input: ChooseStandardOutfitInput): StandardOut
   const constructionLine = studioLuxuryConstructionLines[variationIndex];
   const materialLine = studioSeasonMaterialLines[input.season];
   const paletteClause =
-    "keeping every garment low-saturation in ivory, cream, oatmeal, warm grey, soft stone, taupe, muted blue, charcoal, winter white, or restrained navy, with no high-saturation clothing, visible logo, showy accessory, or handheld styling prop";
+    "keeping every garment in a restrained low-chroma palette such as ivory, cream, oatmeal, warm grey, soft stone, taupe, muted blue, charcoal, winter white, or restrained navy, with no visible logo, showy accessory, or handheld styling prop";
   let topCategory = "luxury-cut neutral top";
   let bottomCategory = "luxury-cut neutral garment";
   let compactLine = "";

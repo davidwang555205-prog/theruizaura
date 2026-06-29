@@ -105,7 +105,7 @@ const footPoseActionLines = [
   "Use a small step-standing pose with one foot slightly ahead, natural daily posture, no exaggerated stride, and at least one sneaker fully visible from toe to heel.",
   "Use a relaxed asymmetric stance with weight gently shifted to one side, one foot slightly turned outward, clear shoe separation, and no trouser hem covering the sneaker structure.",
   "Use a subtle cross stance with one foot lightly crossing in front only when both sneakers remain readable and the legs do not overlap unnaturally.",
-  "Use a calm storefront or entryway pause with both feet planted naturally, readable laces and tongue, realistic ankle-to-shoe alignment, and no fabric merging into the shoes.",
+  "Use a calm standing pause with both feet planted naturally, readable laces and tongue, realistic ankle-to-shoe alignment, and no fabric merging into the shoes.",
   "Use a refined daily outfit-record stance with feet placed naturally on the ground, clear pavement contact, realistic proportions, and both shoes visible."
 ];
 

@@ -16,6 +16,17 @@ export type VisualScenario = {
   scenarioLine: string;
 };
 
+function getCoherenceLine(imageType: TeamImageType) {
+  if (imageType === "产品静物图" || imageType === "拍摄花絮 / 材质图") {
+    return "Capture one coherent real-camera product or material moment: product scale, surface, light, shadows, material texture, object contact, and background must align naturally, with no floating product or staged AI set.";
+  }
+  if (imageType === "非产品氛围图") {
+    return "Capture one coherent real-camera atmosphere moment: location, light, objects, surfaces, shadows, and background must align naturally, with no random decorative filler or staged AI set.";
+  }
+
+  return "Capture one coherent real-camera moment: location, light, action, gaze, hands, clothing, and background must align naturally, with no pasted subject or staged AI set.";
+}
+
 function hashText(value: string) {
   return Array.from(value).reduce((hash, char) => (hash * 31 + char.charCodeAt(0)) >>> 0, 2166136261);
 }
@@ -53,8 +64,7 @@ export function buildVisualScenario(input: {
   const backgroundDensity = resolveDensity(input.sceneKey, input.scenePreference, nonce);
   const backgroundDensityLine = backgroundDensityLines[backgroundDensity];
   const livedInDetailLine = details[detailIndex];
-  const coherenceLine =
-    "Capture one coherent real-camera moment: location, light, action, gaze, hands, clothing, and background must align naturally, with no pasted subject or staged AI set.";
+  const coherenceLine = getCoherenceLine(input.imageType);
 
   return {
     backgroundDensity,

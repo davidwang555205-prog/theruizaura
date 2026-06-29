@@ -20,7 +20,11 @@ import { chooseCameraLookLine } from "./chooseCameraLookLine";
 import { chooseChinaUrbanStreetLine } from "./chooseChinaUrbanStreetLine";
 import { chooseSeasonCityVisualContext } from "./chooseSeasonCityVisualContext";
 import { accessoryShoeVisibilityRuleLine } from "../data/accessoryProfiles";
-import { getPromptQualityPatchLines } from "../data/promptPatches";
+import {
+  getPhotoRealityPatchLines,
+  getPromptQualityPatchLines,
+  type PhotoRealityMode
+} from "../data/promptPatches";
 import { chooseHandheldObjectLines } from "./chooseHandheldObjectLines";
 import { chooseHumanPresenceLines } from "./chooseHumanPresenceLines";
 import { chooseOutfitByGarmentType } from "./chooseOutfitByGarmentType";
@@ -612,17 +616,17 @@ const STUDIO_LAUNCH_OUTFIT_BOUNDARY_LINE =
   "Studio wardrobe rule: use low-saturation, no-logo luxury-grade tailoring and tactile high-end fabric construction; use no vivid garments.";
 
 const STUDIO_LAUNCH_ON_FOOT_ANGLE_LINES = [
-  "Use a launch-ready full-figure studio angle with a stable 35-50mm perspective, clean floor contact, full styling proportions, and both sneakers clearly readable.",
-  "Use a lower-third studio styling angle from the jacket hem or trouser line down to the sneakers, keeping trouser break, ankle area, shoe collar, tongue, laces, outsole, and floor contact clear.",
-  "Use a natural medium-close sneaker-on-foot studio detail angle from the lower leg and trouser hem to the floor, keeping the shoes readable but not foreground-enlarged, with at least one sneaker fully visible from toe to heel and the second sneaker clearly readable.",
-  "Use a controlled 3/4 front-side on-foot studio angle that shows toe shape, side panels, slim outsole line, lace area, trouser hem separation, and natural shoe-ground contact."
+  "Use a premium controlled launch-studio full-figure angle with a stable 35-50mm perspective, clean floor contact, full styling proportions, and both sneakers clearly readable.",
+  "Use a premium controlled lower-third studio styling angle from the jacket hem or trouser line down to the sneakers, keeping trouser break, shoe collar, laces, outsole, and floor contact clear.",
+  "Use a premium controlled medium-close sneaker-on-foot studio detail angle from the lower leg and trouser hem to the floor, keeping the shoes readable but not foreground-enlarged.",
+  "Use a premium controlled 3/4 front-side on-foot studio angle that shows toe shape, side panels, slim outsole line, lace area, trouser hem separation, and natural shoe-ground contact."
 ];
 
 const STUDIO_LAUNCH_MIRROR_ANGLE_LINES = [
-  "Use a launch-studio full-length mirror angle with stable reflection, natural phone grip, readable full styling proportions, and both sneakers clearly reflected.",
-  "Use a lower-third mirror composition inside the launch studio, cropping from jacket hem or trouser line down to the sneakers while keeping the phone out of the outfit and shoe area.",
-  "Use a natural medium-close mirror sneaker-on-foot detail angle with the reflection showing trouser break, ankle area, shoe collar, laces, outsole, and floor contact clearly, without enlarging the sneakers.",
-  "Use a clean 3/4 mirror outfit angle that keeps the reflection straight, the legs natural, and the sneakers readable without mirror enlargement or distortion."
+  "Use a premium controlled launch-studio full-length mirror angle with stable reflection, natural phone grip, readable full styling proportions, and both sneakers clearly reflected.",
+  "Use a premium controlled lower-third mirror composition inside the launch studio, cropping from jacket hem or trouser line down to the sneakers while keeping the phone out of the look and shoe area.",
+  "Use a premium controlled medium-close mirror sneaker-on-foot detail angle with trouser break, shoe collar, laces, outsole, and floor contact clear, without enlarging the sneakers.",
+  "Use a premium controlled 3/4 mirror look angle that keeps the reflection straight, the legs natural, and the sneakers readable without mirror enlargement or distortion."
 ];
 
 const footPlacementSafetyLine =
@@ -725,20 +729,34 @@ const SHOE_STYLE_LINES: Record<TeamShoe, string> = {
   "Delphinium Blue 飞燕草蓝":
     "Low-saturation airy blue; coordinate it with warm white, pale denim blue, oatmeal, and fresh light neutrals.",
   "Silver Romance 银色浪漫":
-    "Soft moonlit metallic accent for warm grey, cream white, and refined urban styling; keep away from chrome or cheap shine.",
+    "Soft moonlit metallic accent for warm grey, cream white, and refined urban styling with a restrained satin-like glow.",
   "Aire 微风":
-    "Light breathable spring-summer feeling for linen, airy woven texture, and a light neutral palette; keep away from sporty running-shoe styling.",
+    "Light breathable spring-summer feeling for linen, airy woven texture, and a light neutral palette with refined daily ease.",
   "Cappuccino 卡布奇诺":
-    "Warm coffee suede mood for knitwear, oatmeal, beige, and soft autumn-winter layers; keep away from masculine or heavy styling.",
+    "Warm coffee suede mood for knitwear, oatmeal, beige, and softly balanced seasonal layers.",
   "Lemon 柠檬":
-    "Soft butter-yellow freshness for cream white, pale denim, and clean neutral styling; keep away from childish yellow.",
+    "Soft butter-yellow freshness for cream white, pale denim, and clean neutral styling with a mature low-saturation tone.",
   "Maple Grove 枫林":
-    "Warm muted maple tone for soft knitwear, beige-brown layers, and gentle autumn styling; keep away from heavy masculine styling.",
+    "Warm muted maple tone for soft knitwear, beige-brown layers, and gentle balanced seasonal styling.",
   "Oreo 奥利奥":
-    "Clean black-white balance for black, white, grey, beige, and restrained daily styling; keep away from streetwear or sporty energy.",
+    "Clean black-white balance for black, white, grey, beige, and restrained daily styling with a soft refined edge.",
   "Panda 熊猫":
-    "Clean black-white balance for black, white, grey, beige, and restrained daily styling; keep away from streetwear or sporty energy.",
+    "Clean black-white balance for black, white, grey, beige, and restrained daily styling with a soft refined edge.",
   自定义: "Use THERUIZ AURA's clean, low-saturation, refined daily styling system."
+};
+
+const TEAM_SHOE_ENGLISH_NAMES: Record<TeamShoe, string> = {
+  "Cloud Dancer 云舞者": "Cloud Dancer",
+  "Sand Dollar 沙钱白": "Sand Dollar",
+  "Cappuccino 卡布奇诺": "Cappuccino",
+  "Silver Romance 银色浪漫": "Silver Romance",
+  "Aire 微风": "Aire",
+  "Delphinium Blue 飞燕草蓝": "Delphinium Blue",
+  "Lemon 柠檬": "Lemon",
+  "Maple Grove 枫林": "Maple Grove",
+  "Oreo 奥利奥": "Oreo",
+  "Panda 熊猫": "Panda",
+  自定义: "selected THERUIZ AURA"
 };
 
 function getSeasonAwareShoeStyleLine(params: TeamPromptParams) {
@@ -746,28 +764,28 @@ function getSeasonAwareShoeStyleLine(params: TeamPromptParams) {
 
   if (params.shoe === "Cappuccino 卡布奇诺") {
     if (params.season === "春" || params.season === "夏") {
-      return "Warm coffee suede accent for cream, oatmeal, pale denim, and breathable refined styling; keep the look light, clean, and away from masculine or heavy cold-season styling.";
+      return "Warm coffee suede accent for cream, oatmeal, pale denim, and breathable refined styling; keep the look light, clean, and softly balanced.";
     }
-    return "Warm coffee suede mood for knitwear, oatmeal, beige, and soft seasonal layering; keep away from masculine or heavy styling.";
+    return "Warm coffee suede mood for knitwear, oatmeal, beige, and soft balanced seasonal layering.";
   }
 
   if (params.shoe === "Maple Grove 枫林") {
     if (params.season === "春" || params.season === "夏") {
-      return "Warm muted maple accent for cream, pale khaki, light denim, and soft neutral styling; keep it fresh, light, and not heavy or masculine.";
+      return "Warm muted maple accent for cream, pale khaki, light denim, and soft neutral styling; keep it fresh, light, and balanced.";
     }
-    return "Warm muted maple tone for soft knitwear, beige-brown layers, and gentle seasonal styling; keep away from heavy masculine styling.";
+    return "Warm muted maple tone for soft knitwear, beige-brown layers, and gentle balanced seasonal styling.";
   }
 
   if (params.shoe === "Aire 微风" && (params.season === "秋" || params.season === "冬")) {
-    return "Light refined mesh texture for mild-city, indoor, or gym-transition styling with clean layered outfits; avoid heavy cold-weather styling and avoid sporty running-shoe energy.";
+    return "Light refined mesh texture for mild-city, indoor, coastal, or gym-transition styling with clean breathable layers and a refined daily feel.";
   }
 
   if (params.shoe === "Delphinium Blue 飞燕草蓝" && (params.season === "秋" || params.season === "冬")) {
-    return "Low-saturation airy blue as a quiet cool accent with cream, oatmeal, warm grey, and light layered styling; avoid heavy dark winter styling.";
+    return "Low-saturation airy blue as a quiet cool accent with cream, oatmeal, warm grey, and light layered styling.";
   }
 
   if (params.shoe === "Lemon 柠檬" && (params.season === "秋" || params.season === "冬")) {
-    return "Soft butter-yellow accent with cream, warm grey, oatmeal, and quiet light layering; avoid childish color and avoid forcing heavy winter styling.";
+    return "Soft butter-yellow accent with cream, warm grey, oatmeal, and quiet light layering in a mature low-saturation palette.";
   }
 
   return SHOE_STYLE_LINES[params.shoe];
@@ -1188,12 +1206,25 @@ function getShoeStyleLine(params: TeamPromptParams, hasShoe: boolean) {
 
 function getSeasideShoeStyleLine(params: TeamPromptParams) {
   if (params.shoe === "Cappuccino 卡布奇诺") {
-    return "Use the warm coffee suede as a quiet accent with cream, soft stone, pale khaki, and breathable woven layers; keep the coastal outfit light, refined, and not masculine.";
+    return "Use the warm coffee suede as a quiet accent with cream, soft stone, pale khaki, and breathable woven layers for a light refined coastal look.";
   }
   if (params.shoe === "Maple Grove 枫林") {
-    return "Use the muted maple tone as a warm accent with cream, pale khaki, soft beige, and breathable woven layers; keep the coastal outfit light and not heavy.";
+    return "Use the muted maple tone as a warm accent with cream, pale khaki, soft beige, and breathable woven layers for a light refined coastal look.";
   }
   return getSeasonAwareShoeStyleLine(params);
+}
+
+function getPhotoRealityMode(
+  params: TeamPromptParams,
+  resolvedScene: Exclude<TeamScenePreference, "自动匹配">,
+  sceneKey: StandardSceneKey
+): PhotoRealityMode {
+  if (isNonProductAtmosphereImage(params.imageType)) return "lifestyleAtmosphere";
+  if (params.imageType === "产品静物图" || params.imageType === "拍摄花絮 / 材质图" || sceneKey === "stillLife" || sceneKey === "materialTable") {
+    return "materialTruth";
+  }
+  if (resolvedScene === "棚内上新拍摄") return "premiumStudio";
+  return "realDaily";
 }
 
 function getNegativeLine(input: {
@@ -1339,13 +1370,12 @@ function getNegativeLine(input: {
   }
 
   phrases.push(
-    "visible physical keys",
-    "visible keychains",
-    "visible key rings",
-    "door keys",
-    "car keys",
-    "house keys",
-    "hotel key cards"
+    "small metal access items",
+    "ringed access items",
+    "door-access items",
+    "car-access items",
+    "house-access items",
+    "hotel access cards"
   );
   phrases.push("harsh HDR", "heavy filters", "warped lens perspective");
   phrases.push(...(input.extraPhrases ?? []));
@@ -1519,7 +1549,7 @@ function getTimeLine(params: TeamPromptParams, sceneKey: StandardSceneKey) {
 }
 
 function getShoeDisplayName(params: TeamPromptParams) {
-  return params.shoe === "自定义" ? params.customShoe.trim() || "selected THERUIZ AURA" : params.shoe;
+  return params.shoe === "自定义" ? params.customShoe.trim() || "selected THERUIZ AURA" : TEAM_SHOE_ENGLISH_NAMES[params.shoe];
 }
 
 function getProductLine(params: TeamPromptParams, hasShoe: boolean) {
@@ -1567,6 +1597,8 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
     ? footPlacementSafetyLine
     : "";
   const sceneKey = resolveSceneKey(params, resolvedScene);
+  const photoRealityMode = getPhotoRealityMode(params, resolvedScene, sceneKey);
+  const photoRealityPatchLines = getPhotoRealityPatchLines(photoRealityMode);
   const streetRealismPatchLine = shouldUseStreetRealismLine(params, resolvedScene) ? streetRealismLine : "";
   const hasStreetRealism = Boolean(streetRealismPatchLine);
   const conditionalNonProductBrandProcessLine = shouldUseNonProductBrandProcessLine(params, resolvedScene)
@@ -1960,6 +1992,7 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
   const sceneStructuredLine =
     params.imageType === "产品静物图"
       ? [
+          photoRealityPatchLines.sceneLine,
           visualScenario.scenarioLine,
           imageTypeTemplate.templateSceneLine,
           sceneVariationLine,
@@ -1970,6 +2003,7 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
           .join(" ")
       : [
           studioLaunchAngleLine,
+          photoRealityPatchLines.sceneLine,
           visualScenario.scenarioLine,
           scenePropsLine,
           summerLifestyleShoeSafetyLine,
@@ -1993,6 +2027,7 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
           .join(" ");
   const moodStructuredLine = [
     brandMoodLine,
+    photoRealityPatchLines.moodLine,
     isNonProductAtmosphereImage(params.imageType) ? nonProductAtmosphereMoodLine : "",
     ...promptQualityPatchLines.moodLines,
     shouldUsePeopleStyling(params.imageType) ? customerFeelingLine : "",
@@ -2039,6 +2074,7 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
       ...(usesNonProductAtmosphere ? [] : extractAvoidPhrases(`Avoid ${gazeSelection.negative}.`)),
       ...extractAvoidPhrases(isNonProductAtmosphereImage(params.imageType) ? nonProductAtmosphereNegativeLine : ""),
       ...promptQualityPatchLines.negativePhrases,
+      ...photoRealityPatchLines.negativePhrases,
       ...(resolvedScene === "棚内上新拍摄"
         ? [
             "high-saturation clothing",
@@ -2085,6 +2121,7 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
         outfitLine: [],
         sceneLine: [
           studioLaunchAngleLine,
+          photoRealityPatchLines.sceneLine,
           ...promptQualityPatchLines.sceneLines,
           conditionalNonProductBrandProcessLine,
           scenePropsLine,
@@ -2108,6 +2145,7 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
           ...(shouldUsePeopleStyling(params.imageType) ? extractAvoidPhrases(`Avoid ${footPlacementNegativeLine}.`) : []),
           cameraSelection.cameraNegativeLine,
           ...promptQualityPatchLines.negativePhrases,
+          ...photoRealityPatchLines.negativePhrases,
           "opening wording",
           "generic pants wording",
           "full figure balance wording risk",

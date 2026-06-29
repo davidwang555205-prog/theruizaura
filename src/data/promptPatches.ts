@@ -1,5 +1,11 @@
 import type { TeamImageType, TeamShoe } from "../types";
 
+export type PhotoRealityMode =
+  | "premiumStudio"
+  | "realDaily"
+  | "materialTruth"
+  | "lifestyleAtmosphere";
+
 export const promptQualityPatchLabels = [
   "鞋型保护",
   "鞋子可见性",
@@ -20,7 +26,7 @@ export const promptQualityPatches = {
   sneakerVisibility:
     "Keep at least one sneaker fully visible from toe to heel, with the second sneaker clearly readable. Keep trouser hems, skirt hems and socks physically separated from the sneakers. The sneaker collar, tongue, tied laces and outsole must remain clear.",
   materialRule:
-    "Only Aire 微风 uses lambskin lining. Other current THERUIZ AURA styles use pigskin lining unless manually specified.",
+    "Only Aire uses lambskin lining. Other current THERUIZ AURA styles use pigskin lining unless manually specified.",
   bodyAndClippingProtection:
     "Keep body scale, leg length, hand size, foot scale and shoe-to-leg relationship realistic. No fabric melting into shoes, no fused legs, no distorted feet, no extra toes, no over-stretched legs, no plastic skin, no mannequin-like stiffness.",
   seasonalOutfitMatch:
@@ -41,7 +47,7 @@ const compactPatchLines = {
   sneakerVisibility:
     "Keep at least one sneaker fully visible, the second readable, outsole grounded, and keep fabric, socks, collar, tongue, tied laces, and floor contact physically separated.",
   aireMaterialRule:
-    "For Aire 微风, use lambskin lining only when lining is visible or relevant; keep material details accurate and secondary to the selected image type.",
+    "For Aire, use lambskin lining only when lining is visible or relevant; keep material details accurate and secondary to the selected image type.",
   standardMaterialRule:
     "Use the selected THERUIZ AURA style's correct lining and material construction when visible; do not invent lambskin lining for non-Aire styles.",
   materialDetailRule:
@@ -94,6 +100,74 @@ export const promptQualityNegativePhrases = [
   "American suburban street",
   "synthetic luxury mall background"
 ];
+
+const photoRealityModeLines: Record<
+  PhotoRealityMode,
+  { sceneLine: string; moodLine: string; negativePhrases: string[] }
+> = {
+  premiumStudio: {
+    sceneLine:
+      "Premium launch-studio polish: seamless background, soft directional key light, precise contact shadows, accurate product color, no lived-in clutter.",
+    moodLine:
+      "The studio image should feel commercial-grade, quiet, tactile, and expensive, with realism shown through skin texture, fabric behavior, material accuracy, floor contact, and natural shadows rather than messy lifestyle details.",
+    negativePhrases: [
+      "messy candid feeling",
+      "random daily clutter",
+      "documentary street mood",
+      "cheap studio setup",
+      "glossy CGI studio",
+      "flat catalog flash",
+      "over-lived-in background"
+    ]
+  },
+  realDaily: {
+    sceneLine:
+      "Real daily photo feeling: slight imperfect framing, natural depth falloff, mild surface wear, believable background life.",
+    moodLine:
+      "The image should feel like a refined real-camera daily capture: tasteful and elevated, but not overly polished, empty, staged, or showroom-like.",
+    negativePhrases: [
+      "AI lifestyle set",
+      "empty perfect street",
+      "showroom-like staging",
+      "fake storefront depth",
+      "over-polished campaign mood",
+      "pasted subject",
+      "synthetic background"
+    ]
+  },
+  materialTruth: {
+    sceneLine:
+      "Material-truth clarity: real surface contact, accurate color, tactile stitching, lace texture, panel transitions, soft shadows.",
+    moodLine:
+      "The product or material image should feel premium and physically real, with texture and construction carrying the value rather than decorative props or artificial gloss.",
+    negativePhrases: [
+      "CGI product render",
+      "glossy fake material",
+      "floating product",
+      "cheap e-commerce table",
+      "decorative clutter",
+      "fake material texture"
+    ]
+  },
+  lifestyleAtmosphere: {
+    sceneLine:
+      "Her lifestyle world: believable daily objects, natural object contact, warm restraint, clean personal rhythm.",
+    moodLine:
+      "The atmosphere image should feel like her day, wardrobe, table, city, weekend, travel, before-leaving or after-returning moment, with real life made orderly and tasteful.",
+    negativePhrases: [
+      "brand-process overload",
+      "product development catalog",
+      "empty Pinterest scene",
+      "fake elite lifestyle",
+      "random decorative props",
+      "sterile showroom atmosphere"
+    ]
+  }
+};
+
+export function getPhotoRealityPatchLines(mode: PhotoRealityMode) {
+  return photoRealityModeLines[mode];
+}
 
 function isPeopleImageType(imageType: TeamImageType) {
   return imageType === "产品上脚图" || imageType === "对镜穿搭图" || imageType === "生活场景图";

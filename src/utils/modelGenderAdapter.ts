@@ -90,7 +90,15 @@ export function getMenswearGarmentTypeLockLine(
 ) {
   if (!isMaleModelChoice(modelChoice) || preference === "自动匹配") return "";
 
-  return `Selected menswear direction: ${getMenswearEquivalentLine(preference, season)} Avoid dresses, skirts, blouses, jewelry-heavy styling, feminine styling, runway menswear, or gym-influencer styling.`;
+  const direction: Record<Exclude<TeamGarmentTypePreference, "自动匹配">, string> = {
+    裤装: "refined men's trousers, straight denim, city chinos, shirt, knit polo, blazer, trench, or coat",
+    短裤: "refined men's knee-length tailored shorts or cotton-linen Bermuda shorts with a clean shirt, knit polo, or light overshirt",
+    裙装: "menswear with soft drape: relaxed tailored trousers or wide-leg trousers with clear sneaker visibility",
+    连衣裙: "coordinated menswear set: clean shirt-and-trouser or overshirt-and-trouser styling",
+    轻运动: "refined men's activewear: clean active top with active shorts, active trousers, or a zip layer"
+  };
+
+  return `Selected menswear direction: ${direction[preference]}; keep it quietly tailored, logo-free, masculine, and grounded in real daily menswear.`;
 }
 
 function replaceFemalePronouns(text: string) {
@@ -235,6 +243,8 @@ export function adaptOutfitLineForModelChoice(input: {
 export function adaptFinalPromptForModelChoice(prompt: string, modelChoice: TeamModelChoice) {
   if (!isMaleModelChoice(modelChoice)) return prompt;
   return replaceFemaleGarments(replaceFemalePronouns(prompt))
+    .replace(/\bfitted fine cotton tee\b/gi, "clean-cut fine cotton tee")
+    .replace(/\bfitted tee\b/gi, "clean-cut tee")
     .replace(/\bcomputer-perfect man\b/gi, "computer-perfect person")
     .replace(/\bprofessional fashion model face\b/gi, "professional campaign face")
     .replace(/\s{2,}/g, " ")
