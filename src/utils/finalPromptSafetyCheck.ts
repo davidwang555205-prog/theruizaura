@@ -193,6 +193,20 @@ function ensureOnFootShoeFit(prompt: string, warnings: string[]) {
   );
 }
 
+function ensureOnFootShoeScale(prompt: string, warnings: string[]) {
+  const hasShoeContext = /sneaker|trainer|THERUIZ AURA/i.test(prompt);
+  const hasScaleProtection =
+    /sneakers? (?:scaled|at) (?:a )?natural foot scale|shoe-to-leg scale|not enlarged in the foreground|no oversized sneakers/i.test(prompt);
+
+  if (!hasShoeContext || hasScaleProtection) return prompt;
+
+  warnings.push("Added on-foot shoe scale line.");
+  return appendBeforeNegativeOrUserRequirement(
+    prompt,
+    "Keep the sneakers at natural foot scale: readable but not enlarged in the foreground, with a medium-distance 35-50mm perspective, no extreme close-up, low-angle feet shot, wide-angle distortion, or oversized shoe-to-leg scale."
+  );
+}
+
 function keepSingleNegativeSection(prompt: string, warnings: string[]) {
   const matches = [...prompt.matchAll(/(?:负面词|Negative):/g)];
   if (matches.length <= 1) return prompt;
@@ -226,6 +240,7 @@ export function finalPromptSafetyCheck(
   }
   if (options.hasShoe && options.hasPeople && options.requireFullShoeVisibility !== false) {
     prompt = ensureOnFootShoeFit(prompt, warnings);
+    prompt = ensureOnFootShoeScale(prompt, warnings);
   }
   prompt = sensitiveWordReducer(prompt);
   prompt = normalizeSpaces(prompt);

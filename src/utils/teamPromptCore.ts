@@ -614,15 +614,15 @@ const STUDIO_LAUNCH_OUTFIT_BOUNDARY_LINE =
 const STUDIO_LAUNCH_ON_FOOT_ANGLE_LINES = [
   "Use a launch-ready full-figure studio angle with a stable 35-50mm perspective, clean floor contact, full styling proportions, and both sneakers clearly readable.",
   "Use a lower-third studio styling angle from the jacket hem or trouser line down to the sneakers, keeping trouser break, ankle area, shoe collar, tongue, laces, outsole, and floor contact clear.",
-  "Use a sneaker-on-foot close-up studio angle from the lower leg and trouser hem to the floor, with at least one sneaker fully visible from toe to heel and the second sneaker clearly readable.",
+  "Use a natural medium-close sneaker-on-foot studio detail angle from the lower leg and trouser hem to the floor, keeping the shoes readable but not foreground-enlarged, with at least one sneaker fully visible from toe to heel and the second sneaker clearly readable.",
   "Use a controlled 3/4 front-side on-foot studio angle that shows toe shape, side panels, slim outsole line, lace area, trouser hem separation, and natural shoe-ground contact."
 ];
 
 const STUDIO_LAUNCH_MIRROR_ANGLE_LINES = [
   "Use a launch-studio full-length mirror angle with stable reflection, natural phone grip, readable full styling proportions, and both sneakers clearly reflected.",
   "Use a lower-third mirror composition inside the launch studio, cropping from jacket hem or trouser line down to the sneakers while keeping the phone out of the outfit and shoe area.",
-  "Use a mirror sneaker-on-foot detail angle with the reflection showing trouser break, ankle area, shoe collar, laces, outsole, and floor contact clearly.",
-  "Use a clean 3/4 mirror outfit angle that keeps the reflection straight, the legs natural, and the sneakers large enough to read without mirror distortion."
+  "Use a natural medium-close mirror sneaker-on-foot detail angle with the reflection showing trouser break, ankle area, shoe collar, laces, outsole, and floor contact clearly, without enlarging the sneakers.",
+  "Use a clean 3/4 mirror outfit angle that keeps the reflection straight, the legs natural, and the sneakers readable without mirror enlargement or distortion."
 ];
 
 const footPlacementSafetyLine =
