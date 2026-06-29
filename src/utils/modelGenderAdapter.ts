@@ -20,7 +20,7 @@ function getSeasonalMenswearLines(season: TeamSeason) {
     ],
     夏: [
       "Style him in a linen-cotton shirt, breathable tailored trousers, and a restrained canvas-leather tote for refined summer business casual.",
-      "Style him in a fine knit polo, cream linen trousers, and a slim leather belt for light summer polish without sporty energy.",
+      "Style him in a mercerized-cotton polo, cream linen trousers, and a slim leather belt for light summer polish without sporty energy.",
       "Style him in a silk-cotton short-sleeve shirt, soft stone tailored shorts, and understated accessories for warm-weather sophistication.",
       "Style him in a pale blue shirt, ivory lightweight trousers, and a soft taupe overshirt carried or layered only if natural for breathable summer depth.",
       "Style him in a cream cotton tee under a lightweight linen overshirt, beige trousers, and a simple watch for easy but elevated summer styling."
@@ -55,7 +55,7 @@ function getMenswearTailoringQualityLine(preference: TeamGarmentTypePreference, 
 
   const seasonalFabrics: Record<TeamSeason, string> = {
     春: "crisp cotton, silk-cotton, light wool, soft suede, or fine knit texture",
-    夏: "linen-cotton, silk-cotton, breathable cotton, lightweight knit, or thin canvas texture",
+    夏: "linen-cotton, silk-cotton, breathable cotton, mercerized cotton, or thin canvas texture",
     秋: "fine wool, brushed cotton, soft suede, cashmere-blend knit, or warm cotton twill texture",
     冬: "wool, cashmere-blend knit, double-face wool, brushed cotton, structured denim, or soft suede texture"
   };
@@ -65,10 +65,10 @@ function getMenswearTailoringQualityLine(preference: TeamGarmentTypePreference, 
 
 function getMenswearEquivalentLine(preference: TeamGarmentTypePreference, season: TeamSeason, seed = "") {
   if (preference === "裤装") {
-    return `Use refined men's business-casual trousers: tailored wool trousers, straight denim, relaxed linen trousers, or clean city chinos with a shirt, knit polo, overshirt, blazer, trench, or coat. ${getMenswearTailoringQualityLine(preference, season)}`;
+    return `Use refined men's business-casual trousers: tailored wool trousers, straight denim, relaxed linen trousers, or clean city chinos with a shirt, cotton polo, overshirt, blazer, trench, or coat. ${getMenswearTailoringQualityLine(preference, season)}`;
   }
   if (preference === "短裤") {
-    return `Use refined men's knee-length tailored shorts or cotton-linen Bermuda shorts with a clean shirt, knit polo, or light overshirt; avoid denim shorts, beachwear, or sporty shorts outside active scenes. ${getMenswearTailoringQualityLine(preference, season)}`;
+    return `Use refined men's knee-length tailored shorts or cotton-linen Bermuda shorts with a clean shirt, cotton polo, or light overshirt; avoid denim shorts, beachwear, or sporty shorts outside active scenes. ${getMenswearTailoringQualityLine(preference, season)}`;
   }
   if (preference === "裙装") {
     return `Use menswear with similar soft drape and visual ease: soft tailored trousers or relaxed wide-leg trousers with elegant movement, refined proportions, and clear sneaker visibility. ${getMenswearTailoringQualityLine(preference, season)}`;
@@ -91,8 +91,8 @@ export function getMenswearGarmentTypeLockLine(
   if (!isMaleModelChoice(modelChoice) || preference === "自动匹配") return "";
 
   const direction: Record<Exclude<TeamGarmentTypePreference, "自动匹配">, string> = {
-    裤装: "refined men's trousers, straight denim, city chinos, shirt, knit polo, blazer, trench, or coat",
-    短裤: "refined men's knee-length tailored shorts or cotton-linen Bermuda shorts with a clean shirt, knit polo, or light overshirt",
+    裤装: "refined men's trousers, straight denim, city chinos, shirt, cotton polo, blazer, trench, or coat",
+    短裤: "refined men's knee-length tailored shorts or cotton-linen Bermuda shorts with a clean shirt, cotton polo, or light overshirt",
     裙装: "menswear with soft drape: relaxed tailored trousers or wide-leg trousers with clear sneaker visibility",
     连衣裙: "coordinated menswear set: clean shirt-and-trouser or overshirt-and-trouser styling",
     轻运动: "refined men's activewear: clean active top with active shorts, active trousers, or a zip layer"

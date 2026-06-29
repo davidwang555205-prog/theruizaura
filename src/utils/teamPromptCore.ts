@@ -46,6 +46,7 @@ import {
 } from "./chooseSinglePrimaryHandheldObject";
 import { promptVocabularyReplacer } from "./promptVocabularyReplacer";
 import { normalizeAccessoryInOutfitLine } from "./normalizeAccessoryInOutfitLine";
+import { sanitizeSeasonalOutfitLine } from "./sanitizeSeasonalOutfitLine";
 import {
   adaptFinalPromptForModelChoice,
   adaptOutfitLineForModelChoice,
@@ -276,7 +277,7 @@ const TEAM_SCENE_TEXT: Record<Exclude<TeamScenePreference, "自动匹配">, stri
   亲子自驾出行:
     "Use a believable summer road-trip setting such as a parking area, car-side pause, roadside rest stop, or destination-arrival moment. Add subtle family-travel cues like a tote bag, sunglasses, light jacket, or travel objects, but keep the scene mature and uncluttered. The sneakers must stay clear and readable for a real walking or standing moment.",
   暑假外出后回家:
-    "Use a quiet home-return summer setting at the entryway, front door, apartment corridor, or indoor threshold after a day out. The mood should feel warm, relaxed, and lived-in, with subtle outing traces such as a tote bag, light cardigan, or summer objects. Keep the sneakers clearly visible as part of a natural return-home moment."
+    "Use a quiet home-return summer setting at the entryway, front door, apartment corridor, or indoor threshold after a day out. The mood should feel warm, relaxed, and lived-in, with subtle outing traces such as a tote bag, folded shirt, or summer objects. Keep the sneakers clearly visible as part of a natural return-home moment."
 };
 
 const EXPANDED_LIFESTYLE_SCENES = [
@@ -492,7 +493,7 @@ const SUMMER_LIFESTYLE_SCENE_VARIATION_LINES: Record<SummerLifestyleScene, strin
   ],
   暑假外出后回家: [
     "Use a warm return-home apartment entryway after a day out, with one tote and a folded note placed naturally while the sneakers remain fully visible.",
-    "Set the moment at a front-door or corridor threshold with soft evening light, a light cardigan, and calm return-home order.",
+    "Set the moment at a front-door or corridor threshold with soft evening light, a folded cotton shirt, and calm return-home order.",
     "Use a lived-in home-return transition near a shoe cabinet or coat hook, keeping outing traces restrained and the footwear unobstructed."
   ]
 };
@@ -518,13 +519,13 @@ const SUMMER_LIFESTYLE_SCENE_PROPS: Record<SummerLifestyleScene, string> = {
   海边度假:
     "Add at most one subtle Mediterranean holiday cue only if natural: understated sunglasses, a paperback book, a linen overshirt, or one woven or soft leather bag. Keep it secondary, breezy, and refined; never sporty, never child-focused, never tropical or swimwear-influencer styled, and never block the sneakers.",
   草原野餐:
-    "Add subtle grassland-picnic props only if natural: one restrained picnic blanket, woven basket, fruit box, paperback book, sun hat, canvas tote, light cardigan, or small paper bag. Keep the mood quiet and breathable, not sporty, not camping-influencer styled, not gear-heavy, and never block the sneakers.",
+    "Add subtle grassland-picnic props only if natural: one restrained picnic blanket, woven basket, fruit box, paperback book, sun hat, canvas tote, folded cotton shirt, or small paper bag. Keep the mood quiet and breathable, not sporty, not camping-influencer styled, not gear-heavy, and never block the sneakers.",
   酒店度假:
-    "Add subtle hotel-holiday props only if natural: one suitcase, travel tote, folded white shirt, light cardigan, toiletry pouch, travel notebook, folded itinerary card, sunglasses, or sunscreen. Keep it like a real travel wardrobe moment, not a luxury hotel flatlay, not influencer luggage styling, and never blocking the sneakers.",
+    "Add subtle hotel-holiday props only if natural: one suitcase, travel tote, folded white shirt, light cotton overshirt, toiletry pouch, travel notebook, folded itinerary card, sunglasses, or sunscreen. Keep it like a real travel wardrobe moment, not a luxury hotel flatlay, not influencer luggage styling, and never blocking the sneakers.",
   亲子自驾出行:
     "Add subtle family road-trip props only if natural: one tote, understated sunglasses, light jacket, compact child travel pouch, small travel toy, snack box, folded paper map, or travel pouch near the car-side moment. Keep it mature and uncluttered, not sporty, not a luxury car showcase, not messy family clutter, and never block the sneakers.",
   暑假外出后回家:
-    "Add subtle after-outing home props only if natural: one tote near the entryway, a small ceramic tray, light cardigan, sun hat, flower paper, grocery paper bag, or folded shirt. Keep it warm, lived-in, and orderly, not sporty, not messy homewear styling, not staged interior decor, and never block the sneakers."
+    "Add subtle after-outing home props only if natural: one tote near the entryway, a small ceramic tray, folded cotton shirt, sun hat, flower paper, grocery paper bag, or folded shirt. Keep it warm, lived-in, and orderly, not sporty, not messy homewear styling, not staged interior decor, and never block the sneakers."
 };
 
 const EXPANDED_SCENE_PROPS_LINES: Record<ExpandedLifestyleScene, string> = {
@@ -535,7 +536,7 @@ const EXPANDED_SCENE_PROPS_LINES: Record<ExpandedLifestyleScene, string> = {
   停车后步行去办公室:
     "Add one subtle workday-transition prop only if natural: a tote, phone, sunglasses, or light outer layer. Avoid luxury-car showcase mood and never block the sneakers.",
   回家进门:
-    "Add one subtle return-home prop only if natural: a tote, small ceramic tray, folded cardigan, or light shopping bag. Keep it lived-in and orderly, never messy, and never block the sneakers.",
+    "Add one subtle return-home prop only if natural: a tote, small ceramic tray, folded cotton shirt, or light shopping bag. Keep it lived-in and orderly, never messy, and never block the sneakers.",
   "地铁 / 商场通道":
     "Add one subtle urban-passage prop only if natural: a small handbag, tote, takeaway coffee, or phone. Keep the scene calm and uncluttered, never blocking the sneakers.",
   "楼下便利店 / 咖啡外带":
@@ -553,25 +554,25 @@ const EXPANDED_SCENE_PROPS_LINES: Record<ExpandedLifestyleScene, string> = {
   雨天街角:
     "Add one subtle rainy-day prop only if natural: an umbrella, raincoat edge, or tote, with slightly wet pavement. Avoid dramatic storm mood and never block the sneakers.",
   酒店走廊:
-    "Add one subtle hotel-corridor prop only if natural: small luggage, a travel tote, folded itinerary card, or light cardigan. Keep it quiet and mature, never blocking the sneakers.",
+    "Add one subtle hotel-corridor prop only if natural: small luggage, a travel tote, folded itinerary card, or light cotton overshirt. Keep it quiet and mature, never blocking the sneakers.",
   酒店房间:
-    "Add one subtle hotel-room prop only if natural: a suitcase, folded shirt, travel notebook, tote, or soft cardigan. Avoid luxury-hotel flatlay mood and never block the sneakers.",
+    "Add one subtle hotel-room prop only if natural: a suitcase, folded shirt, travel notebook, tote, or light cotton overshirt. Avoid luxury-hotel flatlay mood and never block the sneakers.",
   "酒店门口 / 门厅":
     "Add one subtle hotel-entry prop only if natural: luggage, a travel tote, sunglasses, or light outerwear. Avoid glamorous resort-advertising mood and never block the sneakers.",
   "衣帽间 / 更衣角":
-    "Add one subtle wardrobe prop only if natural: a hanger, folded garment, light cardigan, or tote. Keep the scene personal and tidy, never blocking the sneakers.",
+    "Add one subtle wardrobe prop only if natural: a hanger, folded garment, light cotton overshirt, or tote. Keep the scene personal and tidy, never blocking the sneakers.",
   窗边阅读角:
     "Add one subtle reading-corner prop only if natural: a book, coffee, folded shirt, or soft blanket edge. Avoid decorative flatlay mood and never block the sneakers.",
   "工作台 / 桌边整理":
     "Add one subtle desk prop only if natural: a notebook, paper, pen, laptop edge, or coffee. Keep it lived-in and refined, never blocking the sneakers.",
   入户镜前:
-    "Add one subtle entryway-mirror prop only if natural: a tote, folded note, light outerwear, or folded cardigan. Keep both sneakers clearly visible in the mirror.",
+    "Add one subtle entryway-mirror prop only if natural: a tote, folded note, light outerwear, or folded cotton shirt. Keep both sneakers clearly visible in the mirror.",
   停车场到电梯口:
     "Add one subtle transition prop only if natural: a tote, sunglasses, phone, or light jacket. Avoid car-showroom mood and never block the sneakers.",
   "瑜伽 / 普拉提工作室门口":
     "Add one subtle studio prop only if natural: a yoga-mat bag, studio tote, water bottle, or light jacket. Keep it refined, never performance-gym heavy, and never block the sneakers.",
   公园慢走:
-    "Add one subtle park-walk prop only if natural: a light tote, paperback book, understated cap, or light cardigan. Keep it like an easy daily walk, avoid hiking or workout gear, and never block the sneakers.",
+    "Add one subtle park-walk prop only if natural: a light tote, paperback book, understated cap, or folded cotton shirt. Keep it like an easy daily walk, avoid hiking or workout gear, and never block the sneakers.",
   社区步道:
     "Add one subtle neighborhood-walk prop only if natural: a small tote, phone, folded newspaper, or light outer layer. Keep it like ordinary neighborhood movement, avoid workout props, and never block the sneakers.",
   周末轻旅行出发:
@@ -1895,7 +1896,7 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
   ]
     .filter(Boolean)
     .join(" ");
-  const outfitLine = shouldUsePeopleStyling(params.imageType)
+  const adaptedOutfitLine = shouldUsePeopleStyling(params.imageType)
     ? adaptOutfitLineForModelChoice({
         outfitLine: rawOutfitLine,
         modelChoice: params.modelChoice,
@@ -1904,6 +1905,7 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
         generationNonce: params.generationNonce
       })
     : rawOutfitLine;
+  const outfitLine = sanitizeSeasonalOutfitLine(adaptedOutfitLine, params.season);
   const handheldSelection = chooseHandheldObjectLines({
     imageType: params.imageType,
     scenePreference: resolvedScene,

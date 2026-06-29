@@ -17,6 +17,7 @@ import {
   normalizePerSceneShoe,
   resolvePerSceneKey
 } from "./outfitLibraryFilters";
+import { sanitizeSeasonalOutfitLine } from "./sanitizeSeasonalOutfitLine";
 
 type SummerLifestyleScene =
   | "暑假游乐园"
@@ -43,13 +44,13 @@ type SummerSceneOutfitConfig = {
 const summerSceneOutfitConfigs: Record<SummerLifestyleScene, SummerSceneOutfitConfig> = {
   暑假游乐园: {
     automatic:
-      "Use a refined summer amusement-park outfit: a light cotton shirt or soft knit top, pale beige relaxed shorts, breathable layers, and a structured canvas tote, practical for walking and mature rather than cartoonish or sporty-childish.",
+      "Use a refined summer amusement-park outfit: a light cotton shirt or silk-cotton top, pale beige relaxed shorts, breathable woven layers, and a structured canvas tote, practical for walking and mature rather than cartoonish or sporty-childish.",
     trousers:
       "Use a light cotton shirt with breathable ivory straight trousers and a structured canvas tote for a practical amusement-park walk.",
     skirt:
-      "Use a soft knit top with a muted knee-to-midi skirt and a compact tote, keeping the hem controlled and the sneakers fully readable.",
+      "Use a soft silk-cotton blouse with a muted knee-to-midi skirt and a compact tote, keeping the hem controlled and the sneakers fully readable.",
     shorts:
-      "Use a light cotton shirt or knit tee with ivory or pale beige tailored shorts and a structured canvas tote for mature summer walking comfort.",
+      "Use a light cotton shirt or mercerized-cotton tee with ivory or pale beige tailored shorts and a structured canvas tote for mature summer walking comfort.",
     dress:
       "Use a clean cotton shirt dress with a controlled hem and a small structured tote for a refined amusement-park outing without tourist styling.",
     lightActive:
@@ -81,17 +82,17 @@ const summerSceneOutfitConfigs: Record<SummerLifestyleScene, SummerSceneOutfitCo
   },
   草原野餐: {
     automatic:
-      "Use a quiet grassland-picnic outfit: a light shirt or cream knit top, soft beige or muted-sage relaxed trousers, an easy summer layer, and one woven tote or canvas bag, refined rather than camping-influencer styled.",
+      "Use a quiet grassland-picnic outfit: a light shirt or cream cotton-poplin top, soft beige or muted-sage relaxed trousers, an easy woven summer layer, and one woven tote or canvas bag, refined rather than camping-influencer styled.",
     trousers:
-      "Use a light shirt or cream knit top with muted-sage or soft beige relaxed trousers and one woven tote for quiet grassland ease.",
+      "Use a light shirt or cream cotton-poplin top with muted-sage or soft beige relaxed trousers and one woven tote for quiet grassland ease.",
     skirt:
-      "Use a cream knit top with a muted midi skirt and one canvas bag, keeping the hem controlled and the sneakers clear above the grass.",
+      "Use a cream silk-cotton top with a muted midi skirt and one canvas bag, keeping the hem controlled and the sneakers clear above the grass.",
     shorts:
       "Use a soft cotton shirt with stone or beige tailored shorts and one canvas tote for breathable picnic movement without outdoor-gear styling.",
     dress:
-      "Use a restrained cotton shirt dress with a light cardigan and one woven tote, keeping the silhouette practical and not pastoral-costume-like.",
+      "Use a restrained cotton shirt dress with a light cotton overshirt and one woven tote, keeping the silhouette practical and not pastoral-costume-like.",
     lightActive:
-      "Use a refined movement-ready look with a clean knit tee, muted active trousers, and a light overshirt, never technical or camping-oriented.",
+      "Use a refined movement-ready look with a clean mercerized-cotton tee, muted active trousers, and a light overshirt, never technical or camping-oriented.",
     automaticGarment: "trousers",
     outfitStyle: "realDaily",
     colorDirection: "softAccent",
@@ -100,17 +101,17 @@ const summerSceneOutfitConfigs: Record<SummerLifestyleScene, SummerSceneOutfitCo
   },
   酒店度假: {
     automatic:
-      "Use a refined hotel-holiday outfit: an ivory shirt dress, quiet knit set, or cream blouse with soft trousers, plus a light cardigan and structured travel tote, polished but relaxed rather than staged luxury-resort fashion.",
+      "Use a refined hotel-holiday outfit: an ivory shirt dress, quiet silk-cotton set, or cream blouse with soft trousers, plus a lightweight shirt layer and structured travel tote, polished but relaxed rather than staged luxury-resort fashion.",
     trousers:
-      "Use a cream blouse with soft straight trousers, a light cardigan, and structured travel tote for a calm hotel-holiday wardrobe.",
+      "Use a cream blouse with soft straight trousers, a lightweight shirt layer, and structured travel tote for a calm hotel-holiday wardrobe.",
     skirt:
-      "Use a fine-knit top with a muted midi skirt, light cardigan, and compact travel tote, keeping the sneakers clearly visible below the hem.",
+      "Use a silk-cotton top with a muted midi skirt, lightweight shirt layer, and compact travel tote, keeping the sneakers clearly visible below the hem.",
     shorts:
       "Use a clean silk-cotton shirt with refined tailored shorts and a structured travel tote for warm-weather hotel ease without resort posing.",
     dress:
-      "Use an ivory shirt dress with a controlled hem, light cardigan, and structured travel tote for a real hotel-holiday outfit.",
+      "Use an ivory shirt dress with a controlled hem, lightweight cotton overshirt, and structured travel tote for a real hotel-holiday outfit.",
     lightActive:
-      "Use a quiet travel-ready knit set with refined active trousers, a light zip layer, and a no-logo travel tote, never like hotel gym clothing.",
+      "Use a quiet travel-ready cotton-poplin set with refined active trousers, a light zip layer, and a no-logo travel tote, never like hotel gym clothing.",
     automaticGarment: "dress",
     outfitStyle: "polishedCommuter",
     colorDirection: "lightClean",
@@ -119,15 +120,15 @@ const summerSceneOutfitConfigs: Record<SummerLifestyleScene, SummerSceneOutfitCo
   },
   亲子自驾出行: {
     automatic:
-      "Use a refined family road-trip outfit: a soft cotton shirt, cream knit top, relaxed straight trousers or tailored shorts, a light outer layer, and one comfortable tote, practical for car-side movement and destination arrival.",
+      "Use a refined family road-trip outfit: a soft cotton shirt, cream cotton-poplin top, relaxed straight trousers or tailored shorts, a light woven outer layer, and one comfortable tote, practical for car-side movement and destination arrival.",
     trousers:
       "Use a soft cotton shirt with relaxed straight trousers, a light outer layer, and one comfortable tote for practical car-side movement.",
     skirt:
-      "Use a clean knit top with a controlled muted midi skirt and one comfortable tote, keeping the hem and car door away from the sneakers.",
+      "Use a clean silk-cotton top with a controlled muted midi skirt and one comfortable tote, keeping the hem and car door away from the sneakers.",
     shorts:
-      "Use a cream knit top with tailored beige shorts, a light overshirt, and one comfortable tote for easy summer road-trip movement.",
+      "Use a cream cotton-poplin top with tailored beige shorts, a light overshirt, and one comfortable tote for easy summer road-trip movement.",
     dress:
-      "Use a practical cotton shirt dress with a light cardigan and one travel tote, keeping the silhouette mature and easy for getting in and out of the car.",
+      "Use a practical cotton shirt dress with a light cotton overshirt and one travel tote, keeping the silhouette mature and easy for getting in and out of the car.",
     lightActive:
       "Use a refined travel-active look with a clean tee, straight active trousers, a light zip layer, and one practical tote, never like a sports campaign.",
     automaticGarment: "trousers",
@@ -138,21 +139,21 @@ const summerSceneOutfitConfigs: Record<SummerLifestyleScene, SummerSceneOutfitCo
   },
   暑假外出后回家: {
     automatic:
-      "Use a relaxed summer return-home outfit: a light shirt or soft knit top, breathable trousers or easy tailored shorts, a thin cardigan or shirt layer, and one tote, lived-in and calm rather than posed or homewear-like.",
+      "Use a relaxed summer return-home outfit: a light shirt or soft silk-cotton top, breathable trousers or easy tailored shorts, a thin cotton overshirt or shirt layer, and one tote, lived-in and calm rather than posed or homewear-like.",
     trousers:
-      "Use a light shirt or soft knit top with breathable straight trousers, a thin cardigan, and one tote for a calm return-home moment.",
+      "Use a light shirt or soft silk-cotton top with breathable straight trousers, a thin cotton overshirt, and one tote for a calm return-home moment.",
     skirt:
-      "Use a soft knit top with a relaxed muted skirt and thin cardigan, keeping the hem controlled and the sneakers visible at the entryway.",
+      "Use a soft silk-cotton top with a relaxed muted skirt and thin cotton overshirt, keeping the hem controlled and the sneakers visible at the entryway.",
     shorts:
-      "Use a light shirt with easy tailored shorts, a thin cardigan, and one tote for a natural after-outing return without homewear styling.",
+      "Use a light shirt with easy tailored shorts, a thin cotton overshirt, and one tote for a natural after-outing return without homewear styling.",
     dress:
-      "Use a relaxed cotton shirt dress with a thin cardigan and one tote for a warm, lived-in return-home outfit that still feels composed.",
+      "Use a relaxed cotton shirt dress with a thin cotton overshirt and one tote for a warm, lived-in return-home outfit that still feels composed.",
     lightActive:
       "Use a clean light active top with relaxed active trousers and a thin shirt layer for an easy return-home moment, never sloppy or gym-ad-like.",
     automaticGarment: "trousers",
     outfitStyle: "realDaily",
     colorDirection: "neutralDaily",
-    visualAnchor: "thin summer cardigan",
+    visualAnchor: "thin summer shirt layer",
     bagCategory: "everyday tote"
   }
 };
@@ -439,10 +440,11 @@ function chooseSummerLifestyleOutfit(input: ChoosePerSceneOutfitInput): ChoosePe
     scene === "海边度假"
       ? `${selectedBaseLine} ${seasideSeasonLayerLines[normalizeTeamSeason(input.season)]}`
       : selectedBaseLine;
+  const selectedSeasonalLine = sanitizeSeasonalOutfitLine(selectedLine, input.season);
 
   return {
     selectedOutfitId: `summer-lifestyle-${scene}-${garmentType}-${seasideVariant?.id ?? "base"}`,
-    selectedPerSceneOutfitLine: selectedLine,
+    selectedPerSceneOutfitLine: selectedSeasonalLine,
     selectedOutfit: null,
     selectedStylingRealismLine:
       scene === "海边度假"
@@ -611,7 +613,10 @@ function chooseExpandedLifestyleOutfit(input: ChoosePerSceneOutfitInput): Choose
   const config = expandedSceneOutfitConfigs[category];
   const preference = input.garmentTypePreference ?? "自动匹配";
   const garmentType = preference === "自动匹配" ? config.automaticGarment : garmentTypeByPreference[preference];
-  const selectedLine = preference === "自动匹配" ? config.automatic : config[garmentType];
+  const selectedLine = sanitizeSeasonalOutfitLine(
+    preference === "自动匹配" ? config.automatic : config[garmentType],
+    input.season
+  );
 
   return {
     selectedOutfitId: `expanded-scene-${category}-${scene}-${garmentType}`,
@@ -796,7 +801,10 @@ export function choosePerSceneOutfitLine(input: ChoosePerSceneOutfitInput): Choo
   if (smartSelection) {
     return {
       selectedOutfitId: smartSelection.selectedOutfitId,
-      selectedPerSceneOutfitLine: smartSelection.selectedOutfitLine,
+      selectedPerSceneOutfitLine: sanitizeSeasonalOutfitLine(
+        smartSelection.selectedOutfitLine,
+        input.season
+      ),
       selectedOutfit: null,
       selectedStylingRealismLine: smartSelection.selectedStylingRealismLine,
       selectedGarmentType: smartSelection.selectedGarmentType,
@@ -818,7 +826,7 @@ export function choosePerSceneOutfitLine(input: ChoosePerSceneOutfitInput): Choo
 
   return {
     selectedOutfitId: selected.id,
-    selectedPerSceneOutfitLine: selected.compactLine,
+    selectedPerSceneOutfitLine: sanitizeSeasonalOutfitLine(selected.compactLine, input.season),
     selectedOutfit: selected,
     selectedStylingRealismLine: null,
     selectedGarmentType: null,

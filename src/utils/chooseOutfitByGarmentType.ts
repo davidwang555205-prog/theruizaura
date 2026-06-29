@@ -16,6 +16,7 @@ import {
 } from "../data/outfitDiversityRules";
 import { normalizePerSceneShoe } from "./outfitLibraryFilters";
 import { rotateOutfitVariation, type RotatableOutfit } from "./rotateOutfitVariation";
+import { sanitizeSeasonalOutfitLine } from "./sanitizeSeasonalOutfitLine";
 
 type StandardImageType = "onFoot" | "mirror" | "lifestyle" | "gym" | "stillLife" | "atmosphere" | "material";
 
@@ -176,7 +177,7 @@ const standardOutfitLibrary: StandardOutfitEntry[] = [
     garmentType: "skirt",
     outfitStyle: "refinedFeminine",
     colorDirection: "lightClean",
-    topCategory: "soft grey short-sleeve knit",
+    topCategory: "soft grey silk-cotton short-sleeve blouse",
     bottomCategory: "cream midi skirt",
     visualAnchor: "cream midi skirt",
     seasons: ["春", "夏"],
@@ -184,14 +185,14 @@ const standardOutfitLibrary: StandardOutfitEntry[] = [
     shoeAffinity: ["Cloud Dancer", "Sand Dollar", "Silver Romance", "Lemon", "Delphinium Blue", "ALL"],
     imageTypes: ["onFoot", "lifestyle", "mirror"],
     compactLine:
-      "Pair a soft grey short-sleeve knit with a cream midi skirt, taupe handbag, and minimal earrings for mature feminine ease."
+      "Pair a soft grey silk-cotton short-sleeve blouse with a cream midi skirt, taupe handbag, and minimal earrings for breathable mature feminine ease."
   },
   {
     id: "std-skirt-accent",
     garmentType: "skirt",
     outfitStyle: "bloggerLite",
     colorDirection: "softAccent",
-    topCategory: "oatmeal knit top",
+    topCategory: "oatmeal cotton-poplin top",
     bottomCategory: "misty blue A-line skirt",
     visualAnchor: "misty blue skirt",
     seasons: ["春", "夏"],
@@ -199,7 +200,7 @@ const standardOutfitLibrary: StandardOutfitEntry[] = [
     shoeAffinity: ["Delphinium Blue", "Cloud Dancer", "Sand Dollar", "Silver Romance", "ALL"],
     imageTypes: ["onFoot", "lifestyle", "mirror"],
     compactLine:
-      "Use an oatmeal knit top, a misty blue A-line skirt, and a pale grey shoulder bag for a low-saturation feminine outfit with subtle freshness."
+      "Use an oatmeal cotton-poplin top, a misty blue A-line skirt, and a pale grey shoulder bag for a low-saturation feminine outfit with subtle freshness."
   },
   {
     id: "std-premium-skirt-tomato-accent",
@@ -241,7 +242,7 @@ const standardOutfitLibrary: StandardOutfitEntry[] = [
     garmentType: "skirt",
     outfitStyle: "refinedFeminine",
     colorDirection: "softAccent",
-    topCategory: "ivory cashmere short-sleeve knit",
+    topCategory: "ivory silk-cotton short-sleeve top",
     bottomCategory: "champagne satin midi skirt",
     visualAnchor: "champagne satin midi skirt",
     seasons: ["春", "秋"],
@@ -249,7 +250,7 @@ const standardOutfitLibrary: StandardOutfitEntry[] = [
     shoeAffinity: ["Cloud Dancer", "Sand Dollar", "Silver Romance", "Lemon", "ALL"],
     imageTypes: ["onFoot", "lifestyle", "mirror"],
     compactLine:
-      "Style her in an ivory cashmere short-sleeve knit, champagne satin midi skirt, and structured mini leather bag for calm elegant daily styling, avoiding overly formal evening mood while staying daily and believable.",
+      "Style her in an ivory silk-cotton short-sleeve top, champagne satin midi skirt, and structured mini leather bag for calm elegant daily styling, avoiding overly formal evening mood while staying daily and believable.",
     bagCategory: "structured mini leather bag",
     isPremiumWardrobe: true
   },
@@ -273,15 +274,15 @@ const standardOutfitLibrary: StandardOutfitEntry[] = [
     garmentType: "shorts",
     outfitStyle: "bloggerLite",
     colorDirection: "darkAnchor",
-    topCategory: "charcoal knit tee",
+    topCategory: "charcoal mercerized-cotton tee",
     bottomCategory: "cream tailored shorts",
-    visualAnchor: "charcoal knit tee",
+    visualAnchor: "charcoal mercerized-cotton tee",
     seasons: ["夏"],
     sceneAffinities: ["cafeExterior", "weekendCityWalk", "premiumErrands", "mirrorCloset"],
     shoeAffinity: ["Cloud Dancer", "Sand Dollar", "Silver Romance", "Oreo", "Panda", "ALL"],
     imageTypes: ["onFoot", "lifestyle", "mirror"],
     compactLine:
-      "Pair a charcoal knit tee with cream tailored shorts, a black small shoulder bag, and subtle optical glasses for a grounded outfit-record feel."
+      "Pair a charcoal mercerized-cotton tee with cream tailored shorts, a black small shoulder bag, and subtle optical glasses for a grounded summer outfit-record feel."
   },
   {
     id: "std-dress-ivory",
@@ -468,8 +469,8 @@ const studioSeasonTopPools: Record<TeamSeason, string[]> = {
   ],
   夏: [
     "an ivory silk-linen shirt",
-    "a warm-white mercerized-cotton knit tee",
-    "a pale grey featherweight knit polo"
+    "a warm-white mercerized-cotton tee",
+    "a pale grey featherweight cotton polo"
   ],
   秋: [
     "an oatmeal fine-gauge cashmere knit",
@@ -589,7 +590,7 @@ const studioSeasonActivePools: Record<TeamSeason, StudioWardrobePiece[]> = {
   夏: [
     { top: "an ivory mercerized-cotton active tee", bottom: "warm grey lightweight active trousers" },
     { top: "a pale grey fine-rib active top", bottom: "taupe tailored active shorts", layer: "a featherweight cream overshirt" },
-    { top: "a warm-white compact-knit sleeveless top", bottom: "charcoal fluid active trousers" }
+    { top: "a warm-white structured sleeveless cotton top", bottom: "charcoal fluid active trousers" }
   ],
   秋: [
     { top: "an oatmeal compact-knit active top", bottom: "charcoal tailored active trousers", layer: "a taupe matte zip jacket" },
@@ -639,18 +640,27 @@ function chooseStudioLaunchOutfit(input: ChooseStandardOutfitInput): StandardOut
     const dress = studioSeasonDressPools[input.season][variationIndex];
     topCategory = dress;
     bottomCategory = dress;
-    compactLine = `Style her in ${dress}, ${paletteClause}. ${constructionLine} ${materialLine}`;
+    compactLine = sanitizeSeasonalOutfitLine(
+      `Style her in ${dress}, ${paletteClause}. ${constructionLine} ${materialLine}`,
+      input.season
+    );
   } else if (garmentType === "lightActive") {
     const active = studioSeasonActivePools[input.season][variationIndex];
     topCategory = active.top;
     bottomCategory = active.bottom;
-    compactLine = `Style her in ${active.top}, ${active.bottom}${active.layer ? `, and ${active.layer}` : ""} as refined studio activewear, ${paletteClause}. ${constructionLine} ${materialLine}`;
+    compactLine = sanitizeSeasonalOutfitLine(
+      `Style her in ${active.top}, ${active.bottom}${active.layer ? `, and ${active.layer}` : ""} as refined studio activewear, ${paletteClause}. ${constructionLine} ${materialLine}`,
+      input.season
+    );
   } else {
     const top = studioSeasonTopPools[input.season][variationIndex];
     const bottom = studioSeasonBottomPools[input.season][garmentType][variationIndex];
     topCategory = top;
     bottomCategory = bottom;
-    compactLine = `Style her in ${top} with ${bottom}, ${paletteClause}. ${constructionLine} ${materialLine}`;
+    compactLine = sanitizeSeasonalOutfitLine(
+      `Style her in ${top} with ${bottom}, ${paletteClause}. ${constructionLine} ${materialLine}`,
+      input.season
+    );
   }
 
   const selectedOutfit: StandardOutfitEntry = {
@@ -684,7 +694,7 @@ function chooseSeasonSafeManualOutfit(input: ChooseStandardOutfitInput): Standar
 
   if (!selected) return studioSafeSelection;
 
-  const compactLine = selected.compactLine
+  const compactLine = sanitizeSeasonalOutfitLine(selected.compactLine, input.season)
     .replace(/refined studio activewear/gi, "refined light activewear")
     .replace(/handheld styling prop/gi, "unnecessary handheld styling prop");
   const selectedOutfit: StandardOutfitEntry = {
@@ -697,7 +707,7 @@ function chooseSeasonSafeManualOutfit(input: ChooseStandardOutfitInput): Standar
   };
 
   return {
-    outfitLine: selectedOutfit.compactLine,
+    outfitLine: sanitizeSeasonalOutfitLine(selectedOutfit.compactLine, input.season),
     stylingRealismLine: selectedOutfit.stylingRealismLine ?? stylingRealismLines[0],
     selectedOutfit,
     fallbackReason: "Used a season-safe outfit while preserving the selected garment category."
@@ -817,7 +827,7 @@ export function chooseOutfitByGarmentType(input: ChooseStandardOutfitInput): Sta
   }
 
   return {
-    outfitLine: selected.compactLine,
+    outfitLine: sanitizeSeasonalOutfitLine(selected.compactLine, input.season),
     stylingRealismLine: selected.stylingRealismLine ?? stylingRealismLines[0],
     selectedOutfit: selected,
     fallbackReason

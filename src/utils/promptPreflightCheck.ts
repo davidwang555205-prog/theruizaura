@@ -193,7 +193,7 @@ export function promptPreflightCheck(input: PromptPreflightInput): PromptPreflig
 
   if ((input.cityProfile === "Beijing" && input.season === "冬" && /sleeveless|shorts|bare ankle/i.test(text)) ||
       (input.cityProfile === "Shenzhen" && input.season === "冬" && /heavy northern coat|puffer-heavy|snow/i.test(text)) ||
-      (input.season === "夏" && /wool coat|heavy coat|winter coat/i.test(text))) {
+      (input.season === "夏" && /wool coat|heavy coat|winter coat|cashmere|turtleneck|short-sleeve knit|knit top|knit tee|knit polo|fine-knit|cardigan/i.test(text))) {
     repair("seasonMismatchRepair", "Detected possible season and city outfit thickness mismatch.");
   }
 

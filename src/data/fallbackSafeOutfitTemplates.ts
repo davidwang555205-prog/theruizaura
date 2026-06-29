@@ -133,12 +133,12 @@ export const fallbackSafeOutfitTemplates: SceneOutfitSeed[] = [
     garmentType: "skirt",
     outfitStyle: "refinedFeminine",
     colorDirection: "lightClean",
-    topCategory: "soft grey knit top",
+    topCategory: "soft grey silk-cotton top",
     bottomCategory: "cream column skirt",
     season: ["spring", "autumn", "winter"],
     accessoryCategory: ["clean low socks"],
     visualAnchor: "cream column skirt",
-    outfitLine: "Pair a soft grey knit top with a cream column skirt and clean low socks for safe feminine styling."
+    outfitLine: "Pair a soft grey silk-cotton top with a cream column skirt and clean low socks for safe feminine styling."
   }),
   fallbackSeed({
     id: "safe-skirt-002",
@@ -157,12 +157,12 @@ export const fallbackSafeOutfitTemplates: SceneOutfitSeed[] = [
     garmentType: "skirt",
     outfitStyle: "darkAnchor",
     colorDirection: "darkAnchor",
-    topCategory: "black fine-knit top",
+    topCategory: "black fine silk-cotton top",
     bottomCategory: "soft grey midi skirt",
     season: ["spring", "autumn", "winter"],
     accessoryCategory: ["no visible accessory"],
-    visualAnchor: "black fine-knit top",
-    outfitLine: "Style her in a black fine-knit top and soft grey midi skirt for a refined city outfit with no visible bag."
+    visualAnchor: "black fine silk-cotton top",
+    outfitLine: "Style her in a black fine silk-cotton top and soft grey midi skirt for a refined city outfit with no visible bag."
   }),
   fallbackSeed({
     id: "safe-skirt-004",
@@ -218,12 +218,12 @@ export const fallbackSafeOutfitTemplates: SceneOutfitSeed[] = [
     garmentType: "shorts",
     outfitStyle: "cleanMinimal",
     colorDirection: "neutralDaily",
-    topCategory: "navy knit tee",
+    topCategory: "navy mercerized-cotton tee",
     bottomCategory: "light stone cotton-twill Bermuda shorts",
     season: ["summer"],
     accessoryCategory: ["no visible accessory"],
     visualAnchor: "light stone cotton-twill Bermuda shorts",
-    outfitLine: "Use a navy knit tee and light stone cotton-twill Bermuda shorts for a clean weekend outfit with no visible bag."
+    outfitLine: "Use a navy mercerized-cotton tee and light stone cotton-twill Bermuda shorts for a clean weekend outfit with no visible bag."
   }),
   fallbackSeed({
     id: "safe-shorts-005",
