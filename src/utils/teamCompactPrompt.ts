@@ -124,7 +124,8 @@ function getOutfitLine(input: TeamCompactPromptInput, extraRequirement: string) 
       outfitLine: sensitiveWordReducer(removeAvoidSentences(input.outfitLineOverride)),
       modelChoice: input.params.modelChoice,
       garmentTypePreference: input.params.garmentTypePreference,
-      season: input.params.season
+      season: input.params.season,
+      generationNonce: input.params.generationNonce
     });
   }
   const rawLine = input.userSpecifiedClothing
@@ -134,7 +135,8 @@ function getOutfitLine(input: TeamCompactPromptInput, extraRequirement: string) 
     outfitLine: sensitiveWordReducer(rawLine),
     modelChoice: input.params.modelChoice,
     garmentTypePreference: input.params.garmentTypePreference,
-    season: input.params.season
+    season: input.params.season,
+    generationNonce: input.params.generationNonce
   });
 }
 

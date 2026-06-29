@@ -1832,7 +1832,8 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
         outfitLine: rawOutfitLine,
         modelChoice: params.modelChoice,
         garmentTypePreference: effectiveGarmentTypePreference,
-        season: params.season
+        season: params.season,
+        generationNonce: params.generationNonce
       })
     : rawOutfitLine;
   const handheldSelection = chooseHandheldObjectLines({
