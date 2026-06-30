@@ -1,6 +1,6 @@
 import type { LightingSpaceType } from "../data/sceneLightingSpaceProfiles";
 import type { StandardSceneKey } from "../data/outfitDiversityRules";
-import type { TeamImageType } from "../types";
+import type { TeamImageType, TeamModelContinuity } from "../types";
 import type { StructuredPromptParts } from "./buildStructuredPrompt";
 
 type PromptBudgetInput = {
@@ -8,6 +8,7 @@ type PromptBudgetInput = {
   imageType: TeamImageType;
   sceneKey: StandardSceneKey;
   lightingSpaceType: LightingSpaceType;
+  modelContinuity?: TeamModelContinuity;
 };
 
 type BudgetSection = Exclude<keyof StructuredPromptParts, "imageType" | "promptMode" | "userExtraRequirement">;
@@ -172,8 +173,13 @@ function totalWords(parts: StructuredPromptParts) {
 
 export function controlPromptBudget(input: PromptBudgetInput) {
   const peopleImage = isPeopleImage(input.imageType);
-  const caps = peopleImage ? peopleSectionCaps : nonPeopleSectionCaps;
-  const globalCap = peopleImage ? 350 : 270;
+  const usesSamePersonContinuity = peopleImage && input.modelContinuity === "延续上一组人物";
+  const caps = peopleImage
+    ? usesSamePersonContinuity
+      ? { ...peopleSectionCaps, modelLine: 128, negativeLine: 62 }
+      : peopleSectionCaps
+    : nonPeopleSectionCaps;
+  const globalCap = peopleImage ? (usesSamePersonContinuity ? 410 : 350) : 270;
   const parts = { ...input.promptParts };
 
   sectionOrder.forEach((key) => {

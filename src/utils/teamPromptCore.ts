@@ -2192,7 +2192,8 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
     promptParts: preflight.fixedPromptParts,
     imageType: params.imageType,
     sceneKey,
-    lightingSpaceType: validationLightingSpaceType
+    lightingSpaceType: validationLightingSpaceType,
+    modelContinuity: params.modelContinuity
   });
   const finalPreflight = promptPreflightCheck({
     promptParts: budgetedPromptParts,
@@ -2214,7 +2215,8 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
     promptParts: finalPreflight.fixedPromptParts,
     imageType: params.imageType,
     sceneKey,
-    lightingSpaceType: validationLightingSpaceType
+    lightingSpaceType: validationLightingSpaceType,
+    modelContinuity: params.modelContinuity
   });
   const rawPrompt = buildStructuredPrompt(finalBudgetedPromptParts);
   const reducedPrompt = sensitiveWordReducer(rawPrompt);

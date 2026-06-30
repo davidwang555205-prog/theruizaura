@@ -247,6 +247,6 @@ export function adaptFinalPromptForModelChoice(prompt: string, modelChoice: Team
     .replace(/\bfitted tee\b/gi, "clean-cut tee")
     .replace(/\bcomputer-perfect man\b/gi, "computer-perfect person")
     .replace(/\bprofessional fashion model face\b/gi, "professional campaign face")
-    .replace(/\s{2,}/g, " ")
+    .replace(/[ \t]{2,}/g, " ")
     .trim();
 }
