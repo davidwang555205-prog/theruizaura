@@ -151,18 +151,6 @@ export type TemplateItem = {
   createdAt?: string;
 };
 
-export type FailureDiagnosisItem = {
-  id: string;
-  label: string;
-  cause: string;
-  direction: string;
-  recommendedActions: string[];
-  recommendedScenes: string[];
-  recommendedDetailLevel: PromptDetailLevel;
-  modulesToAdd: string[];
-  modulesToReduce: string[];
-};
-
 export type TeamImageType =
   | "产品上脚图"
   | "对镜穿搭图"

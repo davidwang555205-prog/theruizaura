@@ -5,6 +5,7 @@ import { getSeasonCityContext } from "../data/seasonCityContextMatrix";
 import { seasonalPhotoStyleProfiles, type SeasonKey } from "../data/seasonalPhotoStyleProfiles";
 import type { StandardSceneKey } from "../data/outfitDiversityRules";
 import type { LightingSpaceType } from "../data/sceneLightingSpaceProfiles";
+import { auraOutdoorReferenceSeasonalToneLine } from "../data/photoToneProfiles";
 import { chooseLightingSpaceType } from "./chooseLightingSpaceType";
 import { chooseSeasonalPhotoStyleLine } from "./chooseSeasonalPhotoStyleLine";
 import { chooseSeasonClimateOutfitLayer } from "./chooseSeasonClimateOutfitLayer";
@@ -88,6 +89,28 @@ function usesIndoorSeasonContext(lightingSpaceType: LightingSpaceType) {
   );
 }
 
+function shouldUseUnifiedOutdoorReferenceTone(input: {
+  imageType: TeamImageType;
+  sceneKey: StandardSceneKey;
+  lightingSpaceType: LightingSpaceType;
+  productOrMaterialDetail: boolean;
+}) {
+  if (input.productOrMaterialDetail) return false;
+  if (
+    input.imageType !== "产品上脚图" &&
+    input.imageType !== "对镜穿搭图" &&
+    input.imageType !== "生活场景图"
+  ) {
+    return false;
+  }
+  if (input.sceneKey === "studioLaunch" || input.lightingSpaceType === "studioLaunchLight") return false;
+  if (input.sceneKey === "gymInterior" || input.sceneKey === "gymCommute" || input.lightingSpaceType === "indoorGymLight") {
+    return false;
+  }
+
+  return true;
+}
+
 function getShoeSeasonNegative(input: {
   season: SeasonKey;
   cityProfile: ChinaCityProfile | null | undefined;
@@ -142,6 +165,12 @@ export function chooseSeasonCityVisualContext(input: {
   });
   const timeOfDay = context.defaultTimeOfDay;
   const useIndoorSeason = usesIndoorSeasonContext(lighting.lightingSpaceType);
+  const useUnifiedOutdoorReferenceTone = shouldUseUnifiedOutdoorReferenceTone({
+    imageType: input.imageType,
+    sceneKey: input.sceneKey,
+    lightingSpaceType: lighting.lightingSpaceType,
+    productOrMaterialDetail
+  });
   const seasonalLightLine = productOrMaterialDetail
     ? `${timeOfDay} product light. ${stillLifeSeasonLines[season]}`
     : useIndoorSeason
@@ -149,6 +178,8 @@ export function chooseSeasonCityVisualContext(input: {
     : `${timeOfDay} natural light. ${context.lightLine}`;
   const seasonalPhotoStyleLine = productOrMaterialDetail
     ? `${seasonalPhotoStyleProfiles[season].photoStyleLine} For product or material detail images, express the season through light, material, and background color only; do not add seasonal human action or excessive props.`
+    : useUnifiedOutdoorReferenceTone
+      ? auraOutdoorReferenceSeasonalToneLine
     : useIndoorSeason
       ? indoorSeasonLines[season].photoStyleLine
     : style.photoStyleLine;

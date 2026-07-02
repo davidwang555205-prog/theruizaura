@@ -418,6 +418,162 @@ const garmentTypeByPreference: Record<Exclude<TeamGarmentTypePreference, "自动
   轻运动: "lightActive"
 };
 
+type OutfitLineKey = "automatic" | GarmentType;
+
+function getDefaultSceneOutfitLine(config: SummerSceneOutfitConfig, lineKey: OutfitLineKey) {
+  return lineKey === "automatic" ? config.automatic : config[lineKey];
+}
+
+function pickSceneOutfitLine(
+  variations: Partial<Record<OutfitLineKey, string[]>> | undefined,
+  config: SummerSceneOutfitConfig,
+  lineKey: OutfitLineKey,
+  nonce = 0
+) {
+  const fallback = getDefaultSceneOutfitLine(config, lineKey);
+  const pool = variations?.[lineKey]?.length ? variations[lineKey] : [fallback];
+  return pool[Math.abs(nonce) % pool.length] ?? fallback;
+}
+
+const summerSceneOutfitVariationLines: Record<SummerLifestyleScene, Partial<Record<OutfitLineKey, string[]>>> = {
+  暑假游乐园: {
+    automatic: [
+      "Use a pale blue cotton-poplin shirt, soft khaki tailored shorts, and understated sunglasses for mature summer walking comfort.",
+      "Use a cream mercerized-cotton polo with ivory straight trousers and a light cotton overshirt tied or carried only if natural.",
+      "Use a warm-white silk-cotton short-sleeve shirt with stone tailored Bermuda shorts for a clean amusement-park outfit that stays adult and refined."
+    ],
+    trousers: [
+      "Use a light cotton shirt with breathable ivory straight trousers for a practical amusement-park walk.",
+      "Use a pale blue shirt with linen-blend ankle trousers and a slim leather belt for clean summer movement."
+    ],
+    skirt: [
+      "Use a soft silk-cotton top with a muted knee-to-midi skirt, keeping the hem controlled and the sneakers fully readable.",
+      "Use a cream cotton blouse with a stone straight skirt and simple accessories for a mature summer outing."
+    ],
+    shorts: [
+      "Use a light cotton shirt with ivory or pale beige tailored shorts for mature summer walking comfort.",
+      "Use a mercerized-cotton tee with soft stone Bermuda shorts and a clean belt for practical refined ease."
+    ],
+    dress: [
+      "Use a clean cotton shirt dress with a controlled hem for a refined amusement-park outing without tourist styling.",
+      "Use a warm-white poplin dress with a compact silhouette, keeping movement easy and sneakers clear."
+    ],
+    lightActive: [
+      "Use a refined active-inspired summer look with a clean tee and tailored active shorts or light active trousers, never sporty-childish.",
+      "Use a breathable polo top with straight active trousers and restrained accessories for calm summer movement."
+    ]
+  },
+  海边度假: {},
+  草原野餐: {
+    automatic: [
+      "Use a warm-white cotton-poplin shirt with muted-sage relaxed trousers and a light woven summer layer for quiet grassland ease.",
+      "Use a pale oat silk-cotton top with soft beige straight trousers and a sunlit cotton overshirt, refined rather than outdoor-gear styled.",
+      "Use a light blue woven shirt with cream relaxed trousers for breathable picnic movement without camping-influencer styling."
+    ],
+    trousers: [
+      "Use a light shirt with muted-sage relaxed trousers for quiet grassland ease.",
+      "Use a cream cotton-poplin top with soft beige straight trousers and a light woven layer."
+    ],
+    skirt: [
+      "Use a cream silk-cotton top with a muted midi skirt, keeping the hem controlled and the sneakers clear above the grass.",
+      "Use a pale oat blouse with a soft stone straight skirt for gentle picnic styling that stays practical."
+    ],
+    shorts: [
+      "Use a soft cotton shirt with stone or beige tailored shorts for breathable picnic movement without outdoor-gear styling.",
+      "Use a warm-white short-sleeve shirt with soft khaki Bermuda shorts for calm summer grassland movement."
+    ],
+    dress: [
+      "Use a restrained cotton shirt dress with a light cotton overshirt, keeping the silhouette practical and not pastoral-costume-like.",
+      "Use a simple ivory poplin dress with a controlled hem and clean sneakers visible above the grass."
+    ],
+    lightActive: [
+      "Use a clean mercerized-cotton tee with muted active trousers and a light overshirt, never technical or camping-oriented.",
+      "Use a breathable woven top with straight active trousers for refined outdoor movement without hiking styling."
+    ]
+  },
+  酒店度假: {
+    automatic: [
+      "Use a cream silk-cotton shirt with soft straight trousers and a lightweight shirt layer for a calm hotel-holiday wardrobe.",
+      "Use an ivory shirt dress with a controlled hem and understated accessories for relaxed hotel daylight.",
+      "Use a pale beige linen-blend top with cream tailored trousers for quiet travel polish without resort posing."
+    ],
+    trousers: [
+      "Use a cream silk-cotton shirt with soft straight trousers and a lightweight shirt layer for a calm hotel-holiday wardrobe.",
+      "Use an ivory sleeved top with pale stone trousers for clean hotel daylight and easy walking."
+    ],
+    skirt: [
+      "Use a silk-cotton top with a muted midi skirt and lightweight shirt layer, keeping the sneakers clearly visible below the hem.",
+      "Use a warm-white blouse with a soft stone straight skirt for a polished but relaxed hotel moment."
+    ],
+    shorts: [
+      "Use a clean silk-cotton shirt with refined tailored shorts for warm-weather hotel ease without resort posing.",
+      "Use a cream cotton-poplin top with pale khaki Bermuda shorts for quiet hotel-holiday movement."
+    ],
+    dress: [
+      "Use an ivory shirt dress with a controlled hem and lightweight cotton overshirt for a real hotel-holiday outfit.",
+      "Use a soft beige poplin dress with restrained proportions and clear sneaker visibility."
+    ],
+    lightActive: [
+      "Use a quiet travel-ready cotton-poplin set with refined active trousers and a light zip layer, never like hotel gym clothing.",
+      "Use a clean polo top with straight active trousers for a calm hotel-to-walk transition."
+    ]
+  },
+  亲子自驾出行: {
+    automatic: [
+      "Use a soft cotton shirt with relaxed straight trousers and a light outer layer for practical car-side movement.",
+      "Use a cream cotton-poplin top with tailored beige shorts and a light overshirt for easy summer road-trip movement.",
+      "Use a pale blue shirt with soft stone trousers for a composed family travel outfit that keeps sneakers readable."
+    ],
+    trousers: [
+      "Use a soft cotton shirt with relaxed straight trousers and a light outer layer for practical car-side movement.",
+      "Use a pale blue shirt with soft stone trousers and restrained accessories for destination-arrival ease."
+    ],
+    skirt: [
+      "Use a clean silk-cotton top with a controlled muted midi skirt, keeping the hem and car door away from the sneakers.",
+      "Use a warm-white cotton shirt with a soft grey straight skirt for mature road-trip polish."
+    ],
+    shorts: [
+      "Use a cream cotton-poplin top with tailored beige shorts and a light overshirt for easy summer road-trip movement.",
+      "Use a pale oat short-sleeve shirt with stone Bermuda shorts for practical warm-weather car-side movement."
+    ],
+    dress: [
+      "Use a practical cotton shirt dress with a light cotton overshirt, keeping the silhouette mature and easy for getting in and out of the car.",
+      "Use an ivory poplin dress with a controlled hem and clean sneaker visibility for a calm destination-arrival moment."
+    ],
+    lightActive: [
+      "Use a clean tee with straight active trousers and a light zip layer, never like a sports campaign.",
+      "Use a refined active polo with soft straight active trousers for easy car-side movement."
+    ]
+  },
+  暑假外出后回家: {
+    automatic: [
+      "Use a light cotton shirt with breathable straight trousers and a thin cotton overshirt for a calm return-home moment.",
+      "Use a soft silk-cotton top with easy tailored shorts and a thin shirt layer for a natural after-outing return.",
+      "Use a pale blue shirt with cream relaxed trousers for a lived-in but composed summer entryway moment."
+    ],
+    trousers: [
+      "Use a light cotton shirt with breathable straight trousers and a thin cotton overshirt for a calm return-home moment.",
+      "Use a soft silk-cotton top with pale beige straight trousers for an orderly after-outing return."
+    ],
+    skirt: [
+      "Use a soft silk-cotton top with a relaxed muted skirt and thin cotton overshirt, keeping the hem controlled and the sneakers visible at the entryway.",
+      "Use a warm-white shirt with a stone straight skirt for a quiet return-home outfit record."
+    ],
+    shorts: [
+      "Use a light shirt with easy tailored shorts and a thin cotton overshirt for a natural after-outing return without homewear styling.",
+      "Use a cream mercerized-cotton tee with soft khaki Bermuda shorts for breathable home-return ease."
+    ],
+    dress: [
+      "Use a relaxed cotton shirt dress with a thin cotton overshirt for a warm, lived-in return-home outfit that still feels composed.",
+      "Use a simple ivory poplin dress with clear sneaker visibility for an easy summer entryway moment."
+    ],
+    lightActive: [
+      "Use a clean light active top with relaxed active trousers and a thin shirt layer for an easy return-home moment, never sloppy or gym-ad-like.",
+      "Use a breathable cotton polo with straight active trousers for a relaxed but neat after-outing return."
+    ]
+  }
+};
+
 function isSummerLifestyleScene(scene: string): scene is SummerLifestyleScene {
   return scene in summerSceneOutfitConfigs;
 }
@@ -434,8 +590,9 @@ function chooseSummerLifestyleOutfit(input: ChoosePerSceneOutfitInput): ChoosePe
   const seasideVariant = scene === "海边度假" ? chooseSeasideOutfitVariant(input, preference) : null;
   const garmentType = seasideVariant?.garmentType ??
     (preference === "自动匹配" ? config.automaticGarment : garmentTypeByPreference[preference]);
+  const lineKey: OutfitLineKey = preference === "自动匹配" ? "automatic" : garmentType;
   const selectedBaseLine = seasideVariant?.line ??
-    (preference === "自动匹配" ? config.automatic : config[garmentType]);
+    pickSceneOutfitLine(summerSceneOutfitVariationLines[scene], config, lineKey, input.generationNonce);
   const selectedLine =
     scene === "海边度假"
       ? `${selectedBaseLine} ${seasideSeasonLayerLines[normalizeTeamSeason(input.season)]}`
@@ -593,6 +750,120 @@ const expandedSceneOutfitConfigs: Record<ExpandedSceneCategory, SummerSceneOutfi
   }
 };
 
+const expandedSceneOutfitVariationLines: Record<ExpandedSceneCategory, Partial<Record<OutfitLineKey, string[]>>> = {
+  commute: {
+    automatic: [
+      "Use a refined city commute outfit with a pale cotton shirt, straight tailored trousers, and a restrained seasonal layer, polished but easy for real daily movement.",
+      "Use a silk-cotton top with warm-grey tailored trousers and a clean blazer for quiet office-to-city polish.",
+      "Use a light blue shirt with ivory straight trousers and a soft neutral trench or coat for calm commute proportions."
+    ],
+    trousers: [
+      "Use a light shirt with straight tailored trousers and a restrained seasonal layer for clean commute proportions.",
+      "Use a cream fine-gauge top with taupe wide-leg trousers and a precise short jacket for a refined workday outline.",
+      "Use a pale blue cotton shirt with warm beige tailored trousers for quiet office-entry ease."
+    ],
+    skirt: [
+      "Use a soft silk-cotton top with a controlled knee-to-midi skirt, keeping the hem clear of the sneakers.",
+      "Use a pale cotton shirt with a soft grey straight skirt and a light blazer for a composed commute look."
+    ],
+    shorts: [
+      "Use a clean shirt with refined knee-length tailored shorts, mature and city-appropriate rather than resort-like.",
+      "Use a mercerized-cotton polo with stone tailored Bermuda shorts and a light structured layer for warm commute movement."
+    ],
+    dress: [
+      "Use a restrained shirt dress with a controlled hem and a light seasonal layer for an easy polished commute.",
+      "Use a warm-white poplin dress with a compact blazer or trench layer, keeping the sneakers clear and readable."
+    ],
+    lightActive: [
+      "Use a refined movement-ready top with straight active trousers and a clean overshirt or coat, practical but never gym-like.",
+      "Use a crisp polo top with tailored active trousers and a soft neutral layer for a quiet city-transition look."
+    ]
+  },
+  weekend: {
+    automatic: [
+      "Use an understated weekend outfit with a clean cotton shirt and relaxed denim or tailored trousers, naturally shareable but never influencer-styled.",
+      "Use a soft taupe top with cream straight trousers and an easy overshirt for mature weekend city movement.",
+      "Use a pale blue shirt with dark straight denim and restrained accessories for a real bookstore or cafe-side outfit."
+    ],
+    trousers: [
+      "Use a light shirt with relaxed straight trousers or clean denim for a believable weekend city look.",
+      "Use a cream cotton top with soft stone wide-leg trousers and a light neutral layer for calm weekend ease.",
+      "Use a mist-blue woven shirt with warm beige trousers for a low-saturation city-walk outfit."
+    ],
+    skirt: [
+      "Use a fine-knit or clean cotton top with a muted knee-to-midi skirt, relaxed and feminine without sweetness.",
+      "Use a silk-cotton shirt with a soft stone straight skirt for a quiet cafe, bookstore, or gallery moment."
+    ],
+    shorts: [
+      "Use a clean cotton shirt or knit tee with refined tailored shorts for mature warm-weather city ease.",
+      "Use a pale woven short-sleeve shirt with stone Bermuda shorts for a refined neighborhood walk."
+    ],
+    dress: [
+      "Use a clean shirt dress with a controlled hem for quiet weekend femininity.",
+      "Use a restrained cotton-poplin dress with simple accessories for a relaxed city-walk outfit."
+    ],
+    lightActive: [
+      "Use a refined walking-ready top with straight active trousers and a light overshirt, never technical sportswear.",
+      "Use a soft polo top with clean active trousers and a calm woven layer for ordinary weekend movement."
+    ]
+  },
+  indoor: {
+    automatic: [
+      "Use a quiet indoor or travel outfit with a soft cotton shirt, relaxed straight trousers, and a light cardigan, composed without looking staged.",
+      "Use a cream silk-cotton top with warm grey trousers and a fine-gauge layer for a calm wardrobe or hotel moment.",
+      "Use a pale blue shirt with soft beige trousers and a compact cardigan for private daily ease."
+    ],
+    trousers: [
+      "Use a fine knit or soft shirt with relaxed straight trousers and a light cardigan for calm indoor sophistication.",
+      "Use a cream cotton top with warm grey trousers and a soft neutral layer for quiet indoor polish.",
+      "Use a pale woven shirt with oatmeal trousers for a warm-neutral hotel or wardrobe corner."
+    ],
+    skirt: [
+      "Use a refined knit top with a softly structured midi skirt and light cardigan, keeping the hem controlled and the sneakers readable.",
+      "Use a silk-cotton shirt with a stone straight skirt for calm mirror, hotel, or reading-corner styling."
+    ],
+    shorts: [
+      "Use a clean shirt or soft cotton top with tailored shorts and a light cardigan for a warm indoor setting, mature and not loungewear-like.",
+      "Use a cream short-sleeve shirt with pale khaki Bermuda shorts for a quiet hotel-room or getting-ready moment."
+    ],
+    dress: [
+      "Use a restrained shirt dress with a controlled hem and a light cardigan.",
+      "Use an ivory poplin dress with a compact soft layer, keeping the outfit personal and real."
+    ],
+    lightActive: [
+      "Use a quiet knit top with straight active trousers and a soft zip layer, suitable for real movement but not styled as gym clothing.",
+      "Use a clean cotton polo with relaxed active trousers and a light layer for a calm indoor transition."
+    ]
+  },
+  activeRelaxed: {
+    automatic: [
+      "Use a refined movement-ready daily outfit with a clean cotton top, relaxed straight trousers, and a light outer layer, comfortable without becoming sportswear.",
+      "Use a soft polo top with straight active trousers and a restrained woven layer for ordinary park or studio-to-street movement.",
+      "Use a pale woven shirt with relaxed trousers for easy walking, keeping the styling practical but premium."
+    ],
+    trousers: [
+      "Use a clean cotton top with relaxed straight trousers and a light outer layer for stable everyday movement.",
+      "Use a mercerized-cotton polo with soft stone trousers and a quiet overshirt for refined walking comfort."
+    ],
+    skirt: [
+      "Use a soft cotton top with a controlled casual midi skirt, keeping movement natural and both sneakers readable.",
+      "Use a pale shirt with a soft straight skirt and a light layer for gentle park or neighborhood movement."
+    ],
+    shorts: [
+      "Use a clean cotton or fine-knit top with tailored walking shorts, mature and movement-friendly without gym styling.",
+      "Use a crisp short-sleeve shirt with stone Bermuda shorts and restrained accessories for warm daily movement."
+    ],
+    dress: [
+      "Use a practical shirt dress with a controlled hem and a light layer for an easy departure or walking moment.",
+      "Use a simple cotton-poplin dress with a compact outer layer, practical but still refined."
+    ],
+    lightActive: [
+      "Use a clean studio-to-street top with straight active trousers and a refined light layer, minimal and functional without performance-sports branding.",
+      "Use a premium active polo with tailored active trousers and a quiet zip layer for calm movement."
+    ]
+  }
+};
+
 function isExpandedLifestyleScene(scene: string): scene is ExpandedLifestyleScene {
   return scene in expandedSceneCategories;
 }
@@ -613,8 +884,9 @@ function chooseExpandedLifestyleOutfit(input: ChoosePerSceneOutfitInput): Choose
   const config = expandedSceneOutfitConfigs[category];
   const preference = input.garmentTypePreference ?? "自动匹配";
   const garmentType = preference === "自动匹配" ? config.automaticGarment : garmentTypeByPreference[preference];
+  const lineKey: OutfitLineKey = preference === "自动匹配" ? "automatic" : garmentType;
   const selectedLine = sanitizeSeasonalOutfitLine(
-    preference === "自动匹配" ? config.automatic : config[garmentType],
+    pickSceneOutfitLine(expandedSceneOutfitVariationLines[category], config, lineKey, input.generationNonce),
     input.season
   );
 

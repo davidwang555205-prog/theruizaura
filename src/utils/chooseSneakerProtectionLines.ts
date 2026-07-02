@@ -35,7 +35,7 @@ const shoeVisibilityLine =
   "Keep at least one sneaker fully visible from toe to heel, with the second clearly readable and grounded.";
 
 const shoeClippingLine =
-  "Keep the foot seated inside the shoe; ankle, sock, trouser hem or skirt edge, collar, tongue, tied laces, outsole, floor, and props stay separate and readable; no clipping or fabric fusion.";
+  "Keep the foot seated inside the shoe; ankle, sock, garment hem, collar, tongue, tied laces, outsole, floor, and props stay separate and readable; no clipping or fabric fusion.";
 
 const lacesLine = "Keep laces naturally tied, with readable loops, lace ends, eyelets, and tongue.";
 

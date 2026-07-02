@@ -12,14 +12,14 @@ function pickLine(lines: string[], seed = "") {
 function getSeasonalMenswearLines(season: TeamSeason) {
   const lines: Record<TeamSeason, string[]> = {
     春: [
-      "Style him in a crisp cotton shirt, light wool blazer, softly pleated tailored trousers, and a no-logo leather tote for polished spring business casual.",
+      "Style him in a crisp cotton shirt, light wool blazer, softly pleated tailored trousers, and no visible hand-held accessory for polished spring business casual.",
       "Style him in a fine knit polo, pale tailored chinos, a soft beige trench, and a slim leather belt for clean spring city ease.",
       "Style him in a silk-cotton shirt, straight light denim, a stone overshirt, and understated leather accessories for refined relaxed spring styling.",
       "Style him in an ivory crewneck knit, warm beige tailored trousers, a light taupe jacket, and a simple watch for mild spring sophistication.",
       "Style him in a pale blue cotton shirt, cream tailored trousers, and a soft grey blazer for a quiet commute-ready spring look."
     ],
     夏: [
-      "Style him in a linen-cotton shirt, breathable tailored trousers, and a restrained canvas-leather tote for refined summer business casual.",
+      "Style him in a linen-cotton shirt, breathable tailored trousers, and no visible hand-held accessory for refined summer business casual.",
       "Style him in a mercerized-cotton polo, cream linen trousers, and a slim leather belt for light summer polish without sporty energy.",
       "Style him in a silk-cotton short-sleeve shirt, soft stone tailored shorts, and understated accessories for warm-weather sophistication.",
       "Style him in a pale blue shirt, ivory lightweight trousers, and a soft taupe overshirt carried or layered only if natural for breathable summer depth.",
@@ -61,6 +61,41 @@ function getMenswearTailoringQualityLine(preference: TeamGarmentTypePreference, 
   };
 
   return `Keep the menswear luxury-level but quiet: precise shoulder line, clean collar, refined fabric drape, natural trouser break, premium seams and buttons, and tactile ${seasonalFabrics[season]}.`;
+}
+
+function hasCoastalContext(text: string) {
+  return /\b(seaside|coastal|Mediterranean|boardwalk|promenade|sea breeze|hotel-by-the-sea)\b/i.test(text);
+}
+
+function getCoastalMenswearLine(season: TeamSeason, seed = "") {
+  const lines: Record<TeamSeason, string[]> = {
+    春: [
+      "Style him in a pale cotton-poplin shirt, cream straight trousers, and a light cotton-twill overshirt for refined Mediterranean spring ease.",
+      "Style him in a linen-cotton shirt, soft stone trousers, and a slim leather belt for a clean coastal promenade look.",
+      "Style him in a warm-white woven polo, pale khaki straight trousers, and understated leather accessories for mild coastal daylight."
+    ],
+    夏: [
+      "Style him in a linen-cotton short-sleeve shirt, breathable straight trousers, and understated leather accessories for refined summer coastal ease.",
+      "Style him in a cream mercerized-cotton polo, pale stone tailored shorts, and a slim leather belt for mature seaside movement.",
+      "Style him in a pale blue cotton shirt, ivory lightweight trousers, and clean no-logo accessories for breathable Mediterranean daylight."
+    ],
+    秋: [
+      "Style him in a brushed cotton shirt, warm stone cotton-twill trousers, and a clean lightweight coastal jacket for a mild autumn Mediterranean day.",
+      "Style him in a silk-cotton shirt, taupe straight trousers, and a compact cotton-twill overshirt for quiet coastal depth.",
+      "Style him in a warm-white woven polo, soft beige trousers, and a light suede-touch jacket for refined autumn seaside ease."
+    ],
+    冬: [
+      "Style him in a long-sleeve cotton-poplin shirt, warm stone cotton-twill trousers, and a clean wind-resistant woven jacket for a mild sunny Mediterranean winter.",
+      "Style him in a brushed cotton shirt, cream straight trousers, and a lightweight coastal jacket for quiet winter seaside clarity.",
+      "Style him in a warm-white cotton top, taupe trousers, and a compact wind-resistant layer for refined coastal winter daylight."
+    ]
+  };
+
+  return pickLine(lines[season], seed);
+}
+
+function getCoastalMenswearTailoringQualityLine() {
+  return "Keep the coastal menswear luxury-level but light: precise shoulder line, clean collar, refined fabric drape, natural trouser break, premium seams and buttons, and tactile cotton-poplin, linen-cotton, silk-cotton, brushed cotton, cotton twill, or soft suede-touch texture.";
 }
 
 function getMenswearEquivalentLine(preference: TeamGarmentTypePreference, season: TeamSeason, seed = "") {
@@ -168,10 +203,10 @@ function replaceFemaleGarments(text: string) {
     [/\bcotton T-shirt\b/gi, "fine cotton tee under a light overshirt"],
     [/\bT-shirt\b/gi, "fine cotton tee"],
     [/\bunbuttoned overshirt\b/gi, "relaxed layered overshirt"],
-    [/\bhandbag\b/gi, "no-logo leather tote"],
-    [/\bmini bag\b/gi, "slim leather crossbody bag"],
-    [/\bsmall shoulder bag\b/gi, "slim leather crossbody bag"],
-    [/\bshoulder bag\b/gi, "slim leather crossbody bag"],
+    [/\bhandbag\b/gi, "no visible hand-held accessory"],
+    [/\bmini bag\b/gi, "no visible hand-held accessory"],
+    [/\bsmall shoulder bag\b/gi, "no visible hand-held accessory"],
+    [/\bshoulder bag\b/gi, "no visible hand-held accessory"],
     [/\bminimal pearl earrings\b/gi, "simple watch"],
     [/\bmatte gold earrings\b/gi, "simple watch"],
     [/\bgold earrings\b/gi, "simple watch"],
@@ -186,6 +221,45 @@ function replaceFemaleGarments(text: string) {
   ];
 
   return replacements.reduce((next, [pattern, replacement]) => next.replace(pattern, replacement), text);
+}
+
+function removeMaleBagLanguage(text: string) {
+  return text
+    .replace(/\b(?:shopping|grocery|bakery|paper|travel|gym)\s+bags?\s+blocking\s+sneakers\b/gi, "accessories blocking sneakers")
+    .replace(/\bbags?\s+blocking\s+sneakers\b/gi, "accessories blocking sneakers")
+    .replace(/\b(?:totes?|handbags?|crossbody\s+bags?|shoulder\s+bags?|mini\s+bags?|paper\s+bags?|shopping\s+bags?|grocery\s+bags?|bakery\s+bags?|travel\s+totes?|gym\s+bags?|canvas\s+totes?|leather\s+totes?)\b/gi, "hand-held accessory")
+    .replace(/\b(?:structured|restrained|secondary|no-logo|leather|canvas-leather|canvas|travel|gym|soft|taupe|cream|black|slim|small|compact|practical|comfortable|woven|light tan|muted brown|grey-beige|warm brown|cream winter|muted|natural|light|neutral|daily|large|oversized)\s+hand-held accessory\b/gi, "hand-held accessory")
+    .replace(/\b(?:structured|restrained|secondary|no-logo|leather|canvas-leather|canvas|travel|gym|soft|taupe|cream|black|slim|small|compact|practical|comfortable|woven|light tan|muted brown|grey-beige|warm brown|cream winter|muted|natural|light|neutral|daily|large|oversized)\s+bags?\b/gi, "hand-held accessory")
+    .replace(/\bbags?\b/gi, "hand-held accessory")
+    .replace(/\bhand-held accessory\s+strap\b/gi, "accessory detail")
+    .replace(/\bhand-held accessory\s+weight\b/gi, "accessory weight")
+    .replace(/\bhand-held accessory\s+plus\b/gi, "accessory plus")
+    .replace(/\bhand-held accessory\s+merging\b/gi, "accessory merging")
+    .replace(/\bhand-held accessory\s+competing\b/gi, "accessory competing")
+    .replace(/\bhand-held accessory\s+in every image\b/gi, "repeated hand-held accessory")
+    .replace(/\bno visible hand-held accessory(?:\s*,\s*no visible hand-held accessory)+/gi, "no visible hand-held accessory")
+    .replace(/\bno visible hand-held accessory\s+and\s+no visible hand-held accessory\b/gi, "no visible hand-held accessory")
+    .replace(/\bhand-held accessory\s+hand-held accessory\b/gi, "hand-held accessory")
+    .replace(/\s+,/g, ",")
+    .replace(/,\s*,+/g, ",")
+    .replace(/\s{2,}/g, " ")
+    .trim();
+}
+
+function removeMaleCoastalHeavyLanguage(text: string) {
+  if (!hasCoastalContext(text)) return text;
+
+  return text
+    .replace(/\blight wool blazer\b/gi, "light cotton-twill blazer")
+    .replace(/\blight wool\b/gi, "light cotton-twill")
+    .replace(/\bfine knit polo\b/gi, "mercerized-cotton polo")
+    .replace(/\bfine knit texture\b/gi, "silk-cotton texture")
+    .replace(/\bfine knit\b/gi, "silk-cotton")
+    .replace(/\bfine-gauge knitwear\b/gi, "silk-cotton layer")
+    .replace(/\bfine-gauge\b/gi, "silk-cotton")
+    .replace(/\bsoft beige trench\b/gi, "light cotton-twill overshirt")
+    .replace(/\bwool\b/gi, "cotton-twill")
+    .replace(/\bknitwear\b/gi, "woven layers");
 }
 
 function shouldReplaceWithMenswearLine(text: string, preference: TeamGarmentTypePreference) {
@@ -229,24 +303,34 @@ export function adaptOutfitLineForModelChoice(input: {
 
   const seed = `${input.generationNonce ?? 0}:${input.season}:${input.garmentTypePreference}:${input.outfitLine}`;
   if (shouldReplaceWithMenswearLine(input.outfitLine, input.garmentTypePreference)) {
-    return `${getSeasonalMenswearLine(input.season, seed)} ${getMenswearTailoringQualityLine(input.garmentTypePreference, input.season)}`;
+    if (hasCoastalContext(input.outfitLine)) {
+      return removeMaleBagLanguage(
+        `${getCoastalMenswearLine(input.season, seed)} ${getCoastalMenswearTailoringQualityLine()}`
+      );
+    }
+
+    return removeMaleBagLanguage(
+      `${getSeasonalMenswearLine(input.season, seed)} ${getMenswearTailoringQualityLine(input.garmentTypePreference, input.season)}`
+    );
   }
 
-  return `${applySeasonalMenswearCorrections(
+  return removeMaleCoastalHeavyLanguage(removeMaleBagLanguage(`${applySeasonalMenswearCorrections(
     replaceFemaleGarments(replaceFemalePronouns(input.outfitLine)),
     input.season
   )} ${getMenswearTailoringQualityLine(input.garmentTypePreference, input.season)}`
     .replace(/\s{2,}/g, " ")
-    .trim();
+    .trim()));
 }
 
 export function adaptFinalPromptForModelChoice(prompt: string, modelChoice: TeamModelChoice) {
   if (!isMaleModelChoice(modelChoice)) return prompt;
-  return replaceFemaleGarments(replaceFemalePronouns(prompt))
-    .replace(/\bfitted fine cotton tee\b/gi, "clean-cut fine cotton tee")
-    .replace(/\bfitted tee\b/gi, "clean-cut tee")
-    .replace(/\bcomputer-perfect man\b/gi, "computer-perfect person")
-    .replace(/\bprofessional fashion model face\b/gi, "professional campaign face")
-    .replace(/[ \t]{2,}/g, " ")
-    .trim();
+  return removeMaleCoastalHeavyLanguage(removeMaleBagLanguage(
+    replaceFemaleGarments(replaceFemalePronouns(prompt))
+      .replace(/\bfitted fine cotton tee\b/gi, "clean-cut fine cotton tee")
+      .replace(/\bfitted tee\b/gi, "clean-cut tee")
+      .replace(/\bcomputer-perfect man\b/gi, "computer-perfect person")
+      .replace(/\bprofessional fashion model face\b/gi, "professional campaign face")
+      .replace(/[ \t]{2,}/g, " ")
+      .trim()
+  ));
 }

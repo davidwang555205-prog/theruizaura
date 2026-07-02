@@ -27,7 +27,7 @@ export const chinaUrbanStreetProfiles: Record<ChinaCityProfile, ChinaUrbanStreet
   Chengdu: {
     city: "Chengdu",
     cityStreetLine:
-      "Use a believable Chengdu-like daily street with relaxed tree-lined sidewalks, low-key neighborhood entrances, soft greenery, community storefronts, and calm pace.",
+      "Use a believable Chengdu-like daily street with relaxed tree-lined sidewalks, understated neighborhood entrances, soft greenery, community storefronts, and calm pace.",
     boundaryPhrases: [
       "tourist landmarks",
       "internet-famous shop clutter",

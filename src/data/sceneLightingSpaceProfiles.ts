@@ -62,7 +62,7 @@ export const sceneLightingSpaceProfiles: Record<LightingSpaceType, LightingSpace
     lightingSpaceType: "studioLaunchLight",
     lightingSourceType: "soft directional launch-studio light",
     indoorOutdoorLightLine:
-      "Use a real indoor launch-studio lighting setup with one large diffused key light, soft directional falloff, controlled fill, clean contact shadows, accurate skin and material color, and clear sneaker structure. Keep the result photographic and tactile rather than glossy, flat, or CGI-rendered.",
+      "Use a real indoor launch-studio lighting setup with one large diffused main light, soft directional falloff, controlled fill, clean contact shadows, accurate skin and material color, and clear sneaker structure. Keep the result photographic and tactile rather than glossy, flat, or CGI-rendered.",
     lightingNegativeLine:
       "flat catalog flash, hard beauty light, blown white background, glossy showroom glare, colored nightclub light, synthetic CGI studio light, floating contact shadows",
     spaceSupportLine:

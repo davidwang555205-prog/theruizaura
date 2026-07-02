@@ -16,6 +16,24 @@ function wantsModernClarity(extra: string) {
   return /更清晰|现代清晰|清楚一点|clean modern|modern clarity|crisp|clear detail|autofocus|commercial clarity/i.test(extra);
 }
 
+function isPeopleImageType(imageType: TeamImageType) {
+  return imageType === "产品上脚图" || imageType === "对镜穿搭图" || imageType === "生活场景图";
+}
+
+function shouldUseUnifiedOutdoorReferenceTone(input: {
+  imageType: TeamImageType;
+  sceneKey: StandardSceneKey;
+  lightingSpaceType?: LightingSpaceType;
+}) {
+  if (!isPeopleImageType(input.imageType)) return false;
+  if (input.sceneKey === "studioLaunch" || input.lightingSpaceType === "studioLaunchLight") return false;
+  if (input.sceneKey === "gymInterior" || input.sceneKey === "gymCommute" || input.lightingSpaceType === "indoorGymLight") {
+    return false;
+  }
+
+  return true;
+}
+
 function chooseByCity(cityProfile: ChinaCityProfile | null): CameraLookName | null {
   if (cityProfile === "Shenzhen") return "Sony";
   if (cityProfile === "Shanghai" || cityProfile === "GenericChineseCity") return "Leica";
@@ -116,8 +134,9 @@ export function chooseCameraLookLine(input: {
   userExtraRequirement: string;
 }) {
   const cityProfile = input.cityProfile ?? input.city ?? null;
-  const userCamera = getUserCameraPreference(input.userExtraRequirement);
-  const camera = userCamera ?? chooseByLightingSpace({ ...input, cityProfile });
+  const camera = shouldUseUnifiedOutdoorReferenceTone(input)
+    ? "AuraOutdoorReference"
+    : getUserCameraPreference(input.userExtraRequirement) ?? chooseByLightingSpace({ ...input, cityProfile });
   const profile = cameraLookProfiles[camera];
 
   return {

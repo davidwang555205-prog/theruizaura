@@ -2,7 +2,7 @@ export const sneakerShapeLockCompact =
   "The THERUIZ AURA sneaker shape must stay accurate and structurally unchanged. Preserve the original low-cut German trainer silhouette, toe box shape, slim outsole thickness, side panel layout, tongue height, lace thickness, stitching lines, heel curve, material texture, color, and proportions. Do not redesign, simplify, stretch, compress, thicken, or reinterpret the shoe.";
 
 export const sneakerClippingControlCompact =
-  "Keep the sneaker clearly separated from the foot, ankle, sock, trouser hem, skirt edge, floor, and nearby props. No fabric, skin, shadow, or object should merge into the shoe. The sneaker collar, tongue, laces, toe box, outsole, heel, and side panels must remain readable and structurally clean.";
+  "Keep the sneaker clearly separated from the foot, ankle, sock, garment hem, floor, and nearby props. No fabric, skin, shadow, or object should merge into the shoe. The sneaker collar, tongue, laces, toe box, outsole, heel, and side panels must remain readable and structurally clean.";
 
 export const footInShoeAnatomyCompact =
   "The foot must sit naturally inside the sneaker, with believable ankle alignment, grounded heel placement, and correct foot scale. Avoid feet floating above the shoe, feet protruding through the upper, toes breaking through the toe box, collapsed sneaker collar, fused ankles, or shoes that look empty or oversized.";

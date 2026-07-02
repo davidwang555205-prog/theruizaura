@@ -1,4 +1,6 @@
-export type CameraLookName = "Leica" | "Hasselblad" | "Fujifilm" | "Sony";
+import { auraOutdoorReferenceToneLine, auraOutdoorReferenceToneNegativeLine } from "./photoToneProfiles";
+
+export type CameraLookName = "AuraOutdoorReference" | "Leica" | "Hasselblad" | "Fujifilm" | "Sony";
 
 export type CameraLookProfile = {
   cameraLookLine: string;
@@ -6,6 +8,10 @@ export type CameraLookProfile = {
 };
 
 export const cameraLookProfiles: Record<CameraLookName, CameraLookProfile> = {
+  AuraOutdoorReference: {
+    cameraLookLine: auraOutdoorReferenceToneLine,
+    cameraNegativeLine: auraOutdoorReferenceToneNegativeLine
+  },
   Leica: {
     cameraLookLine:
       "Use an observational street-photography capture: natural contrast, realistic city depth, restrained micro-shadows, believable skin tone, and quiet documentary timing without heavy grading.",

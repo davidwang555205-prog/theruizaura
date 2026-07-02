@@ -70,6 +70,7 @@ import {
   getModelContinuityNegativePhrases,
   getModelContinuityPriorityNegativePhrases
 } from "../data/modelContinuityProfiles";
+import { auraOutdoorReferenceCompactToneLine } from "../data/photoToneProfiles";
 
 export const TEAM_PROMPT_MODE: TeamPromptMode = "standard";
 
@@ -166,7 +167,7 @@ const shoeVisibilityLine =
   "Keep at least one sneaker fully visible from toe to heel, with the second clearly readable.";
 
 const shoeClippingLine =
-  "Keep clean separation between ankle, sock, trouser hem or skirt edge, shoe collar, tongue, laces, floor, and props; nothing should merge into the shoe.";
+  "Keep clean separation between ankle, sock, garment hem, shoe collar, tongue, laces, floor, and props; nothing should merge into the shoe.";
 
 const lacesLine =
   "Keep laces naturally tied, with readable loops, lace ends, eyelets, and tongue.";
@@ -428,7 +429,7 @@ const SCENE_VARIATION_LINES: Partial<Record<StandardSceneKey, string[]>> = {
     "Use a small flower-shop entrance as a soft daily cue, with flowers restrained and not decorative overload.",
     "Set the scene at a neighborhood florist corner with muted colors, real pavement, and one simple bouquet if needed.",
     "Use a flower-shop-adjacent sidewalk rather than a staged floral set, keeping the outfit mature and believable.",
-    "Place her walking past a low-key florist window with soft greenery and no romantic cliche."
+    "Place her walking past an understated florist window with soft greenery and no romantic cliche."
   ],
   gymCommute: [
     "Use a gym entrance or city-to-gym sidewalk with modern surfaces, subtle greenery, and a practical movement rhythm.",
@@ -962,7 +963,7 @@ function getSceneVariationLine(
   sceneKey: StandardSceneKey
 ) {
   const studioLaunchLines = [
-    "Use a near-empty warm-white seamless studio with no props, a soft-stone floor, one large diffused key light, gentle contact shadows, and uncluttered launch-ready framing.",
+    "Use a near-empty warm-white seamless studio with no props, a soft-stone floor, one large diffused main light, gentle contact shadows, and uncluttered launch-ready framing.",
     "Set the image against a clean cream studio cyclorama with no props, restrained side light, subtle tonal depth, and open floor space.",
     "Use a soft-grey-beige studio sweep with no props, generous negative space, accurate material color, and realistic floor contact.",
     "Use a plain tactile linen-toned studio backdrop with no props, diffused directional light, and a commercially readable new-launch composition."
@@ -2005,6 +2006,7 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
           .join(" ")
       : [
           studioLaunchAngleLine,
+          cameraSelection.camera === "AuraOutdoorReference" ? auraOutdoorReferenceCompactToneLine : "",
           photoRealityPatchLines.sceneLine,
           visualScenario.scenarioLine,
           scenePropsLine,
@@ -2121,6 +2123,7 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
           ? [bodyProportionLine]
           : [],
         outfitLine: [],
+        moodLine: cameraSelection.camera === "AuraOutdoorReference" ? [cameraSelection.cameraLookLine] : [],
         sceneLine: [
           studioLaunchAngleLine,
           photoRealityPatchLines.sceneLine,

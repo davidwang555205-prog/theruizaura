@@ -24,7 +24,7 @@ export const promptQualityPatches = {
   sneakerShapeProtection:
     "Strictly preserve the uploaded THERUIZ AURA sneaker reference: low-cut German trainer silhouette, rounded toe box, slim outsole, original panel structure, tongue shape, stitching, lace thickness, material transitions, color relationship and proportions. Do not redesign the shoe.",
   sneakerVisibility:
-    "Keep at least one sneaker fully visible from toe to heel, with the second sneaker clearly readable. Keep trouser hems, skirt hems and socks physically separated from the sneakers. The sneaker collar, tongue, tied laces and outsole must remain clear.",
+    "Keep at least one sneaker fully visible from toe to heel, with the second sneaker clearly readable. Keep garment hems and socks physically separated from the sneakers. The sneaker collar, tongue, tied laces and outsole must remain clear.",
   materialRule:
     "Only Aire uses lambskin lining. Other current THERUIZ AURA styles use pigskin lining unless manually specified.",
   bodyAndClippingProtection:
@@ -107,7 +107,7 @@ const photoRealityModeLines: Record<
 > = {
   premiumStudio: {
     sceneLine:
-      "Premium launch-studio polish: seamless background, soft directional key light, precise contact shadows, accurate product color, no lived-in clutter.",
+      "Premium launch-studio polish: seamless background, soft directional main light, precise contact shadows, accurate product color, no lived-in clutter.",
     moodLine:
       "The studio image should feel commercial-grade, quiet, tactile, and expensive, with realism shown through skin texture, fabric behavior, material accuracy, floor contact, and natural shadows rather than messy lifestyle details.",
     negativePhrases: [

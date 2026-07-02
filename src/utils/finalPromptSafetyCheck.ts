@@ -189,7 +189,7 @@ function ensureOnFootShoeFit(prompt: string, warnings: string[]) {
   warnings.push("Added on-foot shoe fit line.");
   return appendBeforeNegativeOrUserRequirement(
     prompt,
-    "Keep the foot seated inside the shoe; collar, tongue, tied laces, trouser or skirt hem, outsole, and floor contact stay separate and readable, with no clipping or fabric fusion."
+    "Keep the foot seated inside the shoe; collar, tongue, tied laces, garment hem, outsole, and floor contact stay separate and readable, with no clipping or fabric fusion."
   );
 }
 

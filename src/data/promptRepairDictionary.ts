@@ -23,13 +23,13 @@ export const promptRepairDictionary: Record<PromptRepairKey, PromptRepair> = {
   shoesBlockedRepair: {
     key: "shoesBlockedRepair",
     line:
-      "Keep at least one sneaker fully visible from toe to heel, with no bag, trouser hem, skirt edge, hand, object, shadow, or foreground element blocking the shoe.",
-    negativePhrases: ["bag blocking sneakers", "foreground object covering shoes", "skirt edge hiding sneakers"]
+      "Keep at least one sneaker fully visible from toe to heel, with no bag, garment hem, hand, object, shadow, or foreground element blocking the shoe.",
+    negativePhrases: ["bag blocking sneakers", "foreground object covering shoes", "garment hem hiding sneakers"]
   },
   shoeClippingRepair: {
     key: "shoeClippingRepair",
     line:
-      "Keep the foot seated inside the shoe; collar, tongue, tied laces, trouser or skirt hem, outsole, and floor contact stay separate and readable, with no clipping or fabric fusion.",
+      "Keep the foot seated inside the shoe; collar, tongue, tied laces, garment hem, outsole, and floor contact stay separate and readable, with no clipping or fabric fusion.",
     negativePhrases: ["shoe-foot clipping", "fabric fusion into sneakers", "hem entering sneaker collar"]
   },
   shoeDeformationRepair: {

@@ -243,7 +243,7 @@ The seated pose should feel like a real woman naturally checking her outfit befo
 Keep the posture balanced, relaxed, and believable.`;
 
 export const SHOE_EMPHASIS_SEATED_MIRROR_SELFIE = `Shoe emphasis in seated mirror selfie:
-In seated mirror selfies, the sneakers must remain a key visual element.
+In seated mirror selfies, the sneakers must remain a primary visual element.
 
 At least one sneaker must be fully visible from toe to heel.
 The second sneaker must remain clearly readable and not disappear behind furniture, trouser drape, bag, or shadow.

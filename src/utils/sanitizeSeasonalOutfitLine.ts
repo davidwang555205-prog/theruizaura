@@ -28,6 +28,7 @@ export function sanitizeSeasonalOutfitLine(line: string, season: TeamSeason | Se
     .replace(/\bquiet knit top\b/gi, "quiet silk-cotton top")
     .replace(/\bfine-knit top\b/gi, "fine silk-cotton top")
     .replace(/\bfine-knit\b/gi, "silk-cotton top")
+    .replace(/\bfine-gauge\s+(?:top|layer|knitwear|knit)\b/gi, "silk-cotton layer")
     .replace(/\bknit top\b/gi, "silk-cotton top")
     .replace(/\bfine knit\b/gi, "silk-cotton top")
     .replace(/\bknit tee\b/gi, "mercerized-cotton tee")

@@ -232,7 +232,7 @@ function getNegativePhrases(poseCategory: TeamHumanPoseCategory, hasShoe: boolea
       "socks merging into collar",
       "trouser hem swallowing shoes",
       "trousers entering sneaker collar",
-      "skirt edge clipping into shoes",
+      "garment hem clipping into shoes",
       "floating heels",
       "sinking soles",
       "warped outsole contact",
