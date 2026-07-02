@@ -294,6 +294,105 @@ const trouserPool: SeedDraft[] = [
     outfitLine:
       "Use a clean-cut white tee, taupe jogger-style trousers, and a light grey cardigan for a polished easy-movement outfit without sporty branding.",
     forbidden: baseForbidden
+  },
+  {
+    garmentType: "trousers",
+    outfitStyle: "polishedCommuter",
+    colorDirection: "softAccent",
+    season: ["spring", "summer"],
+    suitableShoes: allShoes,
+    imageTypes,
+    topCategory: "soft powder-blue silk-cotton shirt",
+    bottomCategory: "warm grey pleated trousers",
+    outerLayerCategory: "no outer layer",
+    bagCategory: "stone grey shoulder bag as secondary accessory",
+    accessoryCategory: ["thin leather belt"],
+    visualAnchor: "soft powder-blue shirt",
+    outfitLine:
+      "Style her in a soft powder-blue silk-cotton shirt, warm grey pleated trousers, and a stone grey shoulder bag as a secondary accessory for a polished one-shoe-many-outfits city look.",
+    forbidden: baseForbidden
+  },
+  {
+    garmentType: "trousers",
+    outfitStyle: "cleanMinimal",
+    colorDirection: "darkAnchor",
+    season: ["spring", "autumn", "winter"],
+    suitableShoes: allShoes,
+    imageTypes,
+    topCategory: "deep olive fine-knit polo",
+    bottomCategory: "ivory ankle-length trousers",
+    outerLayerCategory: "soft beige short jacket",
+    accessoryCategory: ["simple watch"],
+    visualAnchor: "deep olive fine-knit polo",
+    outfitLine:
+      "Use a deep olive fine-knit polo, ivory ankle-length trousers, and a soft beige short jacket for a restrained dark-anchor outfit that makes the sneakers feel versatile.",
+    forbidden: baseForbidden
+  },
+  {
+    garmentType: "trousers",
+    outfitStyle: "realDaily",
+    colorDirection: "neutralDaily",
+    season: ["spring", "autumn"],
+    suitableShoes: allShoes,
+    imageTypes,
+    topCategory: "warm stone blouse",
+    bottomCategory: "soft olive straight trousers",
+    outerLayerCategory: "cream cropped jacket",
+    bagCategory: "taupe crossbody bag as secondary accessory",
+    accessoryCategory: ["minimal earrings"],
+    visualAnchor: "soft olive trousers",
+    outfitLine:
+      "Pair a warm stone blouse with soft olive straight trousers, a cream cropped jacket, and a taupe crossbody bag as a secondary accessory for a calm daily outfit rotation.",
+    forbidden: baseForbidden
+  },
+  {
+    garmentType: "trousers",
+    outfitStyle: "bloggerLite",
+    colorDirection: "denimBased",
+    season: ["spring", "summer", "autumn"],
+    suitableShoes: allShoes,
+    imageTypes,
+    topCategory: "ivory compact knit vest",
+    bottomCategory: "washed black straight denim",
+    outerLayerCategory: "pale blue shirt",
+    accessoryCategory: ["clean low socks"],
+    visualAnchor: "washed black straight denim",
+    outfitLine:
+      "Use an ivory compact knit vest over a pale blue shirt with washed black straight denim for a mature denim-based variation that keeps the sneakers readable.",
+    forbidden: baseForbidden
+  },
+  {
+    garmentType: "trousers",
+    outfitStyle: "polishedCommuter",
+    colorDirection: "neutralDaily",
+    season: ["autumn", "winter"],
+    suitableShoes: allShoes,
+    imageTypes,
+    topCategory: "cream cashmere-blend crewneck",
+    bottomCategory: "taupe wool straight trousers",
+    outerLayerCategory: "warm grey short coat",
+    bagCategory: "dark coffee tote as secondary accessory",
+    accessoryCategory: ["low-saturation scarf"],
+    visualAnchor: "taupe wool straight trousers",
+    outfitLine:
+      "Style her in a cream cashmere-blend crewneck, taupe wool straight trousers, a warm grey short coat, and a dark coffee tote as a secondary accessory for refined cold-weather versatility.",
+    forbidden: baseForbidden
+  },
+  {
+    garmentType: "trousers",
+    outfitStyle: "relaxedWeekend",
+    colorDirection: "softAccent",
+    season: ["spring", "summer"],
+    suitableShoes: allShoes,
+    imageTypes,
+    topCategory: "pale sage cotton shirt",
+    bottomCategory: "cream barrel-leg trousers",
+    outerLayerCategory: "no outer layer",
+    accessoryCategory: ["understated sunglasses only outdoor"],
+    visualAnchor: "pale sage cotton shirt",
+    outfitLine:
+      "Use a pale sage cotton shirt and cream barrel-leg trousers for a relaxed low-saturation outfit that shows how the sneaker works beyond basic denim.",
+    forbidden: baseForbidden
   }
 ];
 
@@ -463,6 +562,72 @@ const skirtPool: SeedDraft[] = [
     outfitLine:
       "Use one muted sage fine-knit top as the only soft color accent with a taupe straight skirt, cream short coat, and muted brown handbag for mature, coordinated seasonal contrast.",
     forbidden: baseForbidden
+  },
+  {
+    garmentType: "skirt",
+    outfitStyle: "refinedFeminine",
+    colorDirection: "softAccent",
+    season: ["spring", "summer"],
+    suitableShoes: allShoes,
+    imageTypes,
+    topCategory: "mist blue cotton-poplin shirt",
+    bottomCategory: "warm grey wrap midi skirt",
+    outerLayerCategory: "no outer layer",
+    bagCategory: "cream small tote as secondary accessory",
+    accessoryCategory: ["thin leather belt"],
+    visualAnchor: "mist blue cotton-poplin shirt",
+    outfitLine:
+      "Pair a mist blue cotton-poplin shirt with a warm grey wrap midi skirt and a cream small tote as a secondary accessory for easy feminine styling with clear sneaker balance.",
+    forbidden: baseForbidden
+  },
+  {
+    garmentType: "skirt",
+    outfitStyle: "cleanMinimal",
+    colorDirection: "darkAnchor",
+    season: ["spring", "autumn", "winter"],
+    suitableShoes: allShoes,
+    imageTypes,
+    topCategory: "navy compact cardigan",
+    bottomCategory: "ivory straight midi skirt",
+    outerLayerCategory: "no outer layer",
+    accessoryCategory: ["simple watch"],
+    visualAnchor: "navy compact cardigan",
+    outfitLine:
+      "Use a navy compact cardigan and ivory straight midi skirt for a quiet dark-anchor skirt outfit that keeps the shoes part of a versatile wardrobe.",
+    forbidden: baseForbidden
+  },
+  {
+    garmentType: "skirt",
+    outfitStyle: "realDaily",
+    colorDirection: "denimBased",
+    season: ["spring", "summer", "autumn"],
+    suitableShoes: allShoes,
+    imageTypes,
+    topCategory: "soft beige sleeveless knit",
+    bottomCategory: "dark denim midi skirt",
+    outerLayerCategory: "light taupe shirt jacket",
+    accessoryCategory: ["minimal earrings"],
+    visualAnchor: "dark denim midi skirt",
+    outfitLine:
+      "Style her in a soft beige sleeveless knit, dark denim midi skirt, and light taupe shirt jacket for a grounded skirt-and-sneaker combination.",
+    forbidden: baseForbidden
+  },
+  {
+    garmentType: "skirt",
+    outfitStyle: "refinedFeminine",
+    colorDirection: "neutralDaily",
+    season: ["autumn", "winter"],
+    suitableShoes: allShoes,
+    imageTypes,
+    topCategory: "warm ivory ribbed knit",
+    bottomCategory: "soft brown wool-blend A-line skirt",
+    outerLayerCategory: "oatmeal short coat",
+    bagCategory: "taupe structured handbag as secondary accessory",
+    accessoryCategory: ["clean low socks"],
+    visualAnchor: "soft brown A-line skirt",
+    outfitLine:
+      "Use a warm ivory ribbed knit, soft brown wool-blend A-line skirt, oatmeal short coat, and taupe structured handbag as a secondary accessory for warm seasonal sneaker styling.",
+    forbidden: baseForbidden
   }
 ];
 
@@ -630,6 +795,71 @@ const shortsPool: SeedDraft[] = [
     outfitLine:
       "Use an oatmeal lightweight knit tee and stone grey Bermuda shorts for a calm summer look with no visible bag.",
     forbidden: baseForbidden
+  },
+  {
+    garmentType: "shorts",
+    outfitStyle: "relaxedWeekend",
+    colorDirection: "softAccent",
+    season: ["summer"],
+    suitableShoes: allShoes,
+    imageTypes,
+    topCategory: "pale blue short-sleeve shirt",
+    bottomCategory: "warm beige pleated shorts",
+    outerLayerCategory: "no outer layer",
+    bagCategory: "natural canvas tote as secondary accessory",
+    accessoryCategory: ["simple watch"],
+    visualAnchor: "pale blue short-sleeve shirt",
+    outfitLine:
+      "Style her in a pale blue short-sleeve shirt, warm beige pleated shorts, and a natural canvas tote as a secondary accessory for a breathable summer sneaker outfit.",
+    forbidden: baseForbidden
+  },
+  {
+    garmentType: "shorts",
+    outfitStyle: "cleanMinimal",
+    colorDirection: "darkAnchor",
+    season: ["summer"],
+    suitableShoes: allShoes,
+    imageTypes,
+    topCategory: "muted navy sleeveless knit",
+    bottomCategory: "ivory linen-blend Bermuda shorts",
+    outerLayerCategory: "no outer layer",
+    accessoryCategory: ["minimal earrings"],
+    visualAnchor: "muted navy sleeveless knit",
+    outfitLine:
+      "Pair a muted navy sleeveless knit with ivory linen-blend Bermuda shorts for restrained summer contrast that stays mature and shoe-readable.",
+    forbidden: baseForbidden
+  },
+  {
+    garmentType: "shorts",
+    outfitStyle: "bloggerLite",
+    colorDirection: "neutralDaily",
+    season: ["summer"],
+    suitableShoes: allShoes,
+    imageTypes,
+    topCategory: "sea-salt linen vest",
+    bottomCategory: "taupe tailored Bermuda shorts",
+    outerLayerCategory: "cream lightweight overshirt",
+    accessoryCategory: ["understated sunglasses only outdoor"],
+    visualAnchor: "taupe tailored Bermuda shorts",
+    outfitLine:
+      "Use a sea-salt linen vest, taupe tailored Bermuda shorts, and a cream lightweight overshirt for a polished summer option without casual cutoffs.",
+    forbidden: baseForbidden
+  },
+  {
+    garmentType: "shorts",
+    outfitStyle: "realDaily",
+    colorDirection: "softAccent",
+    season: ["summer"],
+    suitableShoes: allShoes,
+    imageTypes,
+    topCategory: "dusty apricot cotton shirt",
+    bottomCategory: "stone cotton-twill shorts",
+    outerLayerCategory: "no outer layer",
+    accessoryCategory: ["hair clip"],
+    visualAnchor: "dusty apricot cotton shirt",
+    outfitLine:
+      "Use a dusty apricot cotton shirt with stone cotton-twill shorts for a soft warm-weather accent that remains understated and easy to match with any THERUIZ AURA sneaker.",
+    forbidden: baseForbidden
   }
 ];
 
@@ -796,6 +1026,72 @@ const dressPool: SeedDraft[] = [
     outfitLine:
       "Choose a cream polo dress with a thin beige cardigan for a light mature one-piece look without sporty sweetness.",
     forbidden: baseForbidden
+  },
+  {
+    garmentType: "dress",
+    outfitStyle: "refinedFeminine",
+    colorDirection: "softAccent",
+    season: ["spring", "summer"],
+    suitableShoes: allShoes,
+    imageTypes,
+    topCategory: "pale blue cotton shirt dress",
+    bottomCategory: "pale blue cotton shirt dress",
+    outerLayerCategory: "no outer layer",
+    bagCategory: "cream tote as secondary accessory",
+    accessoryCategory: ["simple watch"],
+    visualAnchor: "pale blue cotton shirt dress",
+    outfitLine:
+      "Choose a pale blue cotton shirt dress with a cream tote as a secondary accessory for a fresh one-piece look that keeps the sneakers useful and not overly sweet.",
+    forbidden: baseForbidden
+  },
+  {
+    garmentType: "dress",
+    outfitStyle: "cleanMinimal",
+    colorDirection: "darkAnchor",
+    season: ["spring", "autumn", "winter"],
+    suitableShoes: allShoes,
+    imageTypes,
+    topCategory: "deep olive straight knit dress",
+    bottomCategory: "deep olive straight knit dress",
+    outerLayerCategory: "warm beige short jacket",
+    accessoryCategory: ["minimal earrings"],
+    visualAnchor: "deep olive straight knit dress",
+    outfitLine:
+      "Use a deep olive straight knit dress and warm beige short jacket for a controlled dark-anchor one-piece outfit with clear sneaker contrast.",
+    forbidden: baseForbidden
+  },
+  {
+    garmentType: "dress",
+    outfitStyle: "realDaily",
+    colorDirection: "neutralDaily",
+    season: ["autumn", "winter"],
+    suitableShoes: allShoes,
+    imageTypes,
+    topCategory: "oatmeal ribbed knit dress",
+    bottomCategory: "oatmeal ribbed knit dress",
+    outerLayerCategory: "charcoal cropped coat",
+    bagCategory: "muted brown shoulder bag as secondary accessory",
+    accessoryCategory: ["thin socks"],
+    visualAnchor: "charcoal cropped coat",
+    outfitLine:
+      "Style her in an oatmeal ribbed knit dress, charcoal cropped coat, and muted brown shoulder bag as a secondary accessory for quiet winter depth without hiding the shoes.",
+    forbidden: baseForbidden
+  },
+  {
+    garmentType: "dress",
+    outfitStyle: "refinedFeminine",
+    colorDirection: "neutralDaily",
+    season: ["spring", "summer", "autumn"],
+    suitableShoes: allShoes,
+    imageTypes,
+    topCategory: "stone cotton-poplin wrap dress",
+    bottomCategory: "stone cotton-poplin wrap dress",
+    outerLayerCategory: "light taupe cardigan",
+    accessoryCategory: ["thin leather belt"],
+    visualAnchor: "stone wrap dress",
+    outfitLine:
+      "Use a stone cotton-poplin wrap dress with a light taupe cardigan for soft feminine daily styling that still reads practical with sneakers.",
+    forbidden: baseForbidden
   }
 ];
 
@@ -820,16 +1116,16 @@ const activePool: SeedDraft[] = [
     garmentType: "lightActive",
     outfitStyle: "darkAnchor",
     colorDirection: "darkAnchor",
-    season: ["spring", "summer"],
+    season: ["spring", "autumn", "winter"],
     suitableShoes: allShoes,
     imageTypes: activeImageTypes,
     topCategory: "dark active top",
     bottomCategory: "straight active trousers",
-    outerLayerCategory: "no outer layer",
+    outerLayerCategory: "warm taupe zip layer",
     accessoryCategory: ["no visible accessory"],
     visualAnchor: "dark active top",
     outfitLine:
-      "Style her in a dark active top and straight active trousers for a restrained city-to-gym transition without sporty branding.",
+      "Style her in a dark active top, straight active trousers, and a warm taupe zip layer for a restrained city-to-gym transition without sporty branding.",
     forbidden: baseForbidden
   },
   {
@@ -852,16 +1148,16 @@ const activePool: SeedDraft[] = [
     garmentType: "lightActive",
     outfitStyle: "cleanMinimal",
     colorDirection: "darkAnchor",
-    season: ["spring", "summer", "autumn"],
+    season: ["spring", "autumn", "winter"],
     suitableShoes: allShoes,
     imageTypes: activeImageTypes,
     topCategory: "light grey zip jacket",
     bottomCategory: "charcoal active trousers",
-    outerLayerCategory: "ivory active top",
+    outerLayerCategory: "warm ivory active top",
     accessoryCategory: ["clean low socks"],
     visualAnchor: "charcoal active trousers",
     outfitLine:
-      "Use an ivory active top under a light grey zip jacket with charcoal active trousers for quiet movement-ready daily styling.",
+      "Use a warm ivory active top under a light grey zip jacket with charcoal active trousers for quiet movement-ready daily styling.",
     forbidden: baseForbidden
   },
   {
@@ -942,6 +1238,54 @@ const activePool: SeedDraft[] = [
     visualAnchor: "light active layer",
     outfitLine:
       "Use a clean knit tee, warm ivory active trousers, and a light active layer for soft active ease with THERUIZ AURA restraint.",
+    forbidden: baseForbidden
+  },
+  {
+    garmentType: "lightActive",
+    outfitStyle: "softActive",
+    colorDirection: "neutralDaily",
+    season: ["spring", "summer", "autumn"],
+    suitableShoes: allShoes,
+    imageTypes: activeImageTypes,
+    topCategory: "soft stone active polo",
+    bottomCategory: "warm grey straight active trousers",
+    outerLayerCategory: "no outer layer",
+    accessoryCategory: ["simple watch"],
+    visualAnchor: "warm grey straight active trousers",
+    outfitLine:
+      "Use a soft stone active polo and warm grey straight active trousers for refined movement styling that feels city-ready, not like a sports campaign.",
+    forbidden: baseForbidden
+  },
+  {
+    garmentType: "lightActive",
+    outfitStyle: "darkAnchor",
+    colorDirection: "darkAnchor",
+    season: ["spring", "summer", "autumn"],
+    suitableShoes: allShoes,
+    imageTypes: activeImageTypes,
+    topCategory: "deep navy clean active tee",
+    bottomCategory: "taupe active trousers",
+    outerLayerCategory: "cream lightweight zip layer",
+    accessoryCategory: ["clean low socks"],
+    visualAnchor: "deep navy clean active tee",
+    outfitLine:
+      "Style her in a deep navy clean active tee, taupe active trousers, and a cream lightweight zip layer for a dark-anchor active option with quiet polish.",
+    forbidden: baseForbidden
+  },
+  {
+    garmentType: "lightActive",
+    outfitStyle: "softActive",
+    colorDirection: "softAccent",
+    season: ["summer"],
+    suitableShoes: allShoes,
+    imageTypes: ["gymCommute"],
+    topCategory: "pale blue breathable tee",
+    bottomCategory: "stone active shorts",
+    outerLayerCategory: "no outer layer",
+    accessoryCategory: ["no visible accessory"],
+    visualAnchor: "pale blue breathable tee",
+    outfitLine:
+      "Use a pale blue breathable tee and stone active shorts only for a warm-weather movement context, keeping the styling restrained and shoe-readable.",
     forbidden: baseForbidden
   }
 ];

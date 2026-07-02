@@ -425,6 +425,135 @@ const standardOutfitLibrary: StandardOutfitEntry[] = [
       "Use a cream ribbed active tank, warm grey wide-leg lounge trousers, soft beige zip layer, and no-logo leather gym tote for quiet premium gym-transition styling that feels clean and refined rather than sporty.",
     bagCategory: "no-logo leather gym tote",
     isPremiumWardrobe: true
+  },
+  {
+    id: "std-versatile-powder-blue-shirt",
+    garmentType: "trousers",
+    outfitStyle: "polishedCommuter",
+    colorDirection: "softAccent",
+    topCategory: "soft powder-blue silk-cotton shirt",
+    bottomCategory: "warm grey pleated trousers",
+    visualAnchor: "soft powder-blue shirt",
+    seasons: ["春", "夏"],
+    sceneAffinities: ["commute", "cafeExterior", "lightSocial", "galleryExhibition", "studioLaunch"],
+    shoeAffinity: ["Cloud Dancer", "Sand Dollar", "Silver Romance", "Aire", "Delphinium Blue", "Lemon", "ALL"],
+    imageTypes: ["onFoot", "lifestyle", "mirror"],
+    compactLine:
+      "Style her in a soft powder-blue silk-cotton shirt, warm grey pleated trousers, refined flat-front tailoring, and restrained accessories for a versatile luxury-level daily look that shows the sneaker works beyond one basic pairing.",
+    accessoryCategory: ["thin leather belt"],
+    isPremiumWardrobe: true
+  },
+  {
+    id: "std-versatile-olive-polo",
+    garmentType: "trousers",
+    outfitStyle: "cleanMinimal",
+    colorDirection: "darkAnchor",
+    topCategory: "deep olive fine-knit polo",
+    bottomCategory: "ivory ankle-length trousers",
+    visualAnchor: "deep olive fine-knit polo",
+    seasons: ["春", "秋", "冬"],
+    sceneAffinities: ["commute", "bookstoreMagazine", "galleryExhibition", "mirrorCloset", "studioLaunch"],
+    shoeAffinity: ["Cloud Dancer", "Sand Dollar", "Cappuccino", "Maple Grove", "Oreo", "Panda", "ALL"],
+    imageTypes: ["onFoot", "lifestyle", "mirror"],
+    compactLine:
+      "Use a deep olive fine-knit polo, ivory ankle-length trousers, a soft beige short jacket, and precise understated tailoring for a mature dark-anchor styling option with clear sneaker balance.",
+    isPremiumWardrobe: true
+  },
+  {
+    id: "std-versatile-soft-olive-trousers",
+    garmentType: "trousers",
+    outfitStyle: "realDaily",
+    colorDirection: "neutralDaily",
+    topCategory: "warm stone blouse",
+    bottomCategory: "soft olive straight trousers",
+    visualAnchor: "soft olive straight trousers",
+    seasons: ["春", "秋"],
+    sceneAffinities: ["weekendCityWalk", "premiumErrands", "boutiqueStreet", "flowerShop", "lightSocial"],
+    shoeAffinity: ["Cloud Dancer", "Sand Dollar", "Lemon", "Maple Grove", "Cappuccino", "ALL"],
+    imageTypes: ["onFoot", "lifestyle", "mirror"],
+    compactLine:
+      "Pair a warm stone blouse with soft olive straight trousers and a cream cropped jacket for a calm real-life outfit rotation that keeps the sneaker readable and easy to style.",
+    isPremiumWardrobe: true
+  },
+  {
+    id: "std-versatile-mist-blue-skirt",
+    garmentType: "skirt",
+    outfitStyle: "refinedFeminine",
+    colorDirection: "softAccent",
+    topCategory: "mist blue cotton-poplin shirt",
+    bottomCategory: "warm grey wrap midi skirt",
+    visualAnchor: "mist blue cotton-poplin shirt",
+    seasons: ["春", "夏"],
+    sceneAffinities: ["cafeExterior", "flowerShop", "lightSocial", "galleryExhibition", "mirrorCloset"],
+    shoeAffinity: ["Cloud Dancer", "Sand Dollar", "Silver Romance", "Aire", "Delphinium Blue", "Lemon", "ALL"],
+    imageTypes: ["onFoot", "lifestyle", "mirror"],
+    compactLine:
+      "Pair a mist blue cotton-poplin shirt with a warm grey wrap midi skirt and clean accessory restraint for feminine daily styling that still feels practical with sneakers.",
+    isPremiumWardrobe: true
+  },
+  {
+    id: "std-versatile-dark-denim-skirt",
+    garmentType: "skirt",
+    outfitStyle: "realDaily",
+    colorDirection: "denimBased",
+    topCategory: "soft beige sleeveless knit",
+    bottomCategory: "dark denim midi skirt",
+    visualAnchor: "dark denim midi skirt",
+    seasons: ["春", "夏", "秋"],
+    sceneAffinities: ["weekendCityWalk", "bookstoreMagazine", "cafeExterior", "premiumErrands", "mirrorCloset"],
+    shoeAffinity: ["Cloud Dancer", "Sand Dollar", "Oreo", "Panda", "Delphinium Blue", "ALL"],
+    imageTypes: ["onFoot", "lifestyle", "mirror"],
+    compactLine:
+      "Style her in a soft beige sleeveless knit, dark denim midi skirt, and light taupe shirt jacket for a grounded skirt-and-sneaker combination with mature daily ease.",
+    isPremiumWardrobe: true
+  },
+  {
+    id: "std-versatile-tailored-bermuda",
+    garmentType: "shorts",
+    outfitStyle: "relaxedWeekend",
+    colorDirection: "softAccent",
+    topCategory: "pale blue short-sleeve shirt",
+    bottomCategory: "warm beige pleated shorts",
+    visualAnchor: "pale blue short-sleeve shirt",
+    seasons: ["夏"],
+    sceneAffinities: ["weekendCityWalk", "bakeryDessert", "premiumErrands", "cafeExterior", "mirrorCloset"],
+    shoeAffinity: ["Aire", "Cloud Dancer", "Sand Dollar", "Lemon", "Delphinium Blue", "ALL"],
+    imageTypes: ["onFoot", "lifestyle", "mirror"],
+    compactLine:
+      "Style her in a pale blue short-sleeve shirt, warm beige pleated shorts, and clean summer tailoring for a breathable sneaker outfit without casual cutoffs.",
+    isPremiumWardrobe: true
+  },
+  {
+    id: "std-versatile-pale-blue-dress",
+    garmentType: "dress",
+    outfitStyle: "refinedFeminine",
+    colorDirection: "softAccent",
+    topCategory: "pale blue cotton shirt dress",
+    bottomCategory: "pale blue cotton shirt dress",
+    visualAnchor: "pale blue cotton shirt dress",
+    seasons: ["春", "夏"],
+    sceneAffinities: ["cafeExterior", "lightSocial", "flowerShop", "mirrorCloset", "studioLaunch"],
+    shoeAffinity: ["Cloud Dancer", "Sand Dollar", "Silver Romance", "Aire", "Delphinium Blue", "Lemon", "ALL"],
+    imageTypes: ["onFoot", "lifestyle", "mirror"],
+    compactLine:
+      "Choose a pale blue cotton shirt dress with clean waist definition and restrained accessories for a fresh one-piece look that keeps the sneakers useful and not overly sweet.",
+    isPremiumWardrobe: true
+  },
+  {
+    id: "std-versatile-olive-knit-dress",
+    garmentType: "dress",
+    outfitStyle: "cleanMinimal",
+    colorDirection: "darkAnchor",
+    topCategory: "deep olive straight knit dress",
+    bottomCategory: "deep olive straight knit dress",
+    visualAnchor: "deep olive straight knit dress",
+    seasons: ["春", "秋", "冬"],
+    sceneAffinities: ["galleryExhibition", "bookstoreMagazine", "lightSocial", "mirrorCloset", "studioLaunch"],
+    shoeAffinity: ["Cloud Dancer", "Sand Dollar", "Cappuccino", "Maple Grove", "Oreo", "Panda", "ALL"],
+    imageTypes: ["onFoot", "lifestyle", "mirror"],
+    compactLine:
+      "Use a deep olive straight knit dress and warm beige short jacket for a controlled dark-anchor one-piece outfit with luxury-level fabric quality and clear sneaker contrast.",
+    isPremiumWardrobe: true
   }
 ];
 

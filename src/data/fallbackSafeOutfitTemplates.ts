@@ -360,5 +360,199 @@ export const fallbackSafeOutfitTemplates: SceneOutfitSeed[] = [
     accessoryCategory: ["no visible accessory"],
     visualAnchor: "navy clean-cut tee",
     outfitLine: "Use a navy clean-cut tee and dark active shorts only for a refined city-to-gym context."
+  }),
+  fallbackSeed({
+    id: "safe-trousers-009",
+    garmentType: "trousers",
+    outfitStyle: "polishedCommuter",
+    colorDirection: "softAccent",
+    topCategory: "soft powder-blue silk-cotton shirt",
+    bottomCategory: "warm grey pleated trousers",
+    season: ["spring", "summer"],
+    bagCategory: "stone grey shoulder bag as secondary accessory",
+    accessoryCategory: ["thin leather belt"],
+    visualAnchor: "soft powder-blue shirt",
+    outfitLine:
+      "Style her in a soft powder-blue silk-cotton shirt, warm grey pleated trousers, and a stone grey shoulder bag as a secondary accessory for a safe polished outfit rotation."
+  }),
+  fallbackSeed({
+    id: "safe-trousers-010",
+    garmentType: "trousers",
+    outfitStyle: "cleanMinimal",
+    colorDirection: "darkAnchor",
+    topCategory: "deep olive fine-knit polo",
+    bottomCategory: "ivory ankle-length trousers",
+    outerLayerCategory: "soft beige short jacket",
+    season: ["spring", "autumn", "winter"],
+    accessoryCategory: ["simple watch"],
+    visualAnchor: "deep olive fine-knit polo",
+    outfitLine:
+      "Use a deep olive fine-knit polo, ivory ankle-length trousers, and a soft beige short jacket for a safe dark-anchor outfit that keeps sneakers readable."
+  }),
+  fallbackSeed({
+    id: "safe-trousers-011",
+    garmentType: "trousers",
+    outfitStyle: "realDaily",
+    colorDirection: "neutralDaily",
+    topCategory: "warm stone blouse",
+    bottomCategory: "soft olive straight trousers",
+    outerLayerCategory: "cream cropped jacket",
+    season: ["spring", "autumn"],
+    bagCategory: "taupe crossbody bag as secondary accessory",
+    accessoryCategory: ["minimal earrings"],
+    visualAnchor: "soft olive trousers",
+    outfitLine:
+      "Pair a warm stone blouse with soft olive straight trousers, a cream cropped jacket, and a taupe crossbody bag as a secondary accessory for a safe daily variation."
+  }),
+  fallbackSeed({
+    id: "safe-trousers-012",
+    garmentType: "trousers",
+    outfitStyle: "bloggerLite",
+    colorDirection: "denimBased",
+    topCategory: "ivory compact knit vest",
+    bottomCategory: "washed black straight denim",
+    outerLayerCategory: "pale blue shirt",
+    season: ["spring", "summer", "autumn"],
+    accessoryCategory: ["clean low socks"],
+    visualAnchor: "washed black straight denim",
+    outfitLine:
+      "Use an ivory compact knit vest over a pale blue shirt with washed black straight denim for a safe mature denim-based sneaker outfit."
+  }),
+  fallbackSeed({
+    id: "safe-skirt-005",
+    garmentType: "skirt",
+    outfitStyle: "refinedFeminine",
+    colorDirection: "softAccent",
+    topCategory: "mist blue cotton-poplin shirt",
+    bottomCategory: "warm grey wrap midi skirt",
+    season: ["spring", "summer"],
+    bagCategory: "cream small tote as secondary accessory",
+    accessoryCategory: ["thin leather belt"],
+    visualAnchor: "mist blue cotton-poplin shirt",
+    outfitLine:
+      "Pair a mist blue cotton-poplin shirt with a warm grey wrap midi skirt and a cream small tote as a secondary accessory for a safe feminine sneaker look."
+  }),
+  fallbackSeed({
+    id: "safe-skirt-006",
+    garmentType: "skirt",
+    outfitStyle: "cleanMinimal",
+    colorDirection: "darkAnchor",
+    topCategory: "navy compact cardigan",
+    bottomCategory: "ivory straight midi skirt",
+    season: ["spring", "autumn", "winter"],
+    accessoryCategory: ["simple watch"],
+    visualAnchor: "navy compact cardigan",
+    outfitLine:
+      "Use a navy compact cardigan and ivory straight midi skirt for a safe dark-anchor skirt outfit with clear sneaker balance."
+  }),
+  fallbackSeed({
+    id: "safe-skirt-007",
+    garmentType: "skirt",
+    outfitStyle: "realDaily",
+    colorDirection: "denimBased",
+    topCategory: "soft beige sleeveless knit",
+    bottomCategory: "dark denim midi skirt",
+    outerLayerCategory: "light taupe shirt jacket",
+    season: ["spring", "summer", "autumn"],
+    accessoryCategory: ["minimal earrings"],
+    visualAnchor: "dark denim midi skirt",
+    outfitLine:
+      "Style her in a soft beige sleeveless knit, dark denim midi skirt, and light taupe shirt jacket for a safe skirt-and-sneaker variation."
+  }),
+  fallbackSeed({
+    id: "safe-shorts-008",
+    garmentType: "shorts",
+    outfitStyle: "relaxedWeekend",
+    colorDirection: "softAccent",
+    topCategory: "pale blue short-sleeve shirt",
+    bottomCategory: "warm beige pleated shorts",
+    season: ["summer"],
+    bagCategory: "natural canvas tote as secondary accessory",
+    accessoryCategory: ["simple watch"],
+    visualAnchor: "pale blue short-sleeve shirt",
+    outfitLine:
+      "Style her in a pale blue short-sleeve shirt, warm beige pleated shorts, and a natural canvas tote as a secondary accessory for safe summer sneaker styling."
+  }),
+  fallbackSeed({
+    id: "safe-shorts-009",
+    garmentType: "shorts",
+    outfitStyle: "cleanMinimal",
+    colorDirection: "darkAnchor",
+    topCategory: "muted navy sleeveless knit",
+    bottomCategory: "ivory linen-blend Bermuda shorts",
+    season: ["summer"],
+    accessoryCategory: ["minimal earrings"],
+    visualAnchor: "muted navy sleeveless knit",
+    outfitLine:
+      "Pair a muted navy sleeveless knit with ivory linen-blend Bermuda shorts for safe restrained summer contrast."
+  }),
+  fallbackSeed({
+    id: "safe-shorts-010",
+    garmentType: "shorts",
+    outfitStyle: "bloggerLite",
+    colorDirection: "neutralDaily",
+    topCategory: "sea-salt linen vest",
+    bottomCategory: "taupe tailored Bermuda shorts",
+    outerLayerCategory: "cream lightweight overshirt",
+    season: ["summer"],
+    accessoryCategory: ["understated sunglasses only outdoor"],
+    visualAnchor: "taupe tailored Bermuda shorts",
+    outfitLine:
+      "Use a sea-salt linen vest, taupe tailored Bermuda shorts, and a cream lightweight overshirt for a safe polished summer option without casual cutoffs."
+  }),
+  fallbackSeed({
+    id: "safe-dress-005",
+    garmentType: "dress",
+    outfitStyle: "refinedFeminine",
+    colorDirection: "softAccent",
+    topCategory: "pale blue cotton shirt dress",
+    bottomCategory: "pale blue cotton shirt dress",
+    season: ["spring", "summer"],
+    bagCategory: "cream tote as secondary accessory",
+    accessoryCategory: ["simple watch"],
+    visualAnchor: "pale blue cotton shirt dress",
+    outfitLine:
+      "Choose a pale blue cotton shirt dress with a cream tote as a secondary accessory for a safe fresh one-piece sneaker outfit."
+  }),
+  fallbackSeed({
+    id: "safe-dress-006",
+    garmentType: "dress",
+    outfitStyle: "cleanMinimal",
+    colorDirection: "darkAnchor",
+    topCategory: "deep olive straight knit dress",
+    bottomCategory: "deep olive straight knit dress",
+    outerLayerCategory: "warm beige short jacket",
+    season: ["spring", "autumn", "winter"],
+    accessoryCategory: ["minimal earrings"],
+    visualAnchor: "deep olive straight knit dress",
+    outfitLine:
+      "Use a deep olive straight knit dress and warm beige short jacket for a safe controlled dark-anchor one-piece outfit."
+  }),
+  fallbackSeed({
+    id: "safe-lightactive-005",
+    garmentType: "lightActive",
+    outfitStyle: "softActive",
+    colorDirection: "neutralDaily",
+    topCategory: "soft stone active polo",
+    bottomCategory: "warm grey straight active trousers",
+    season: ["spring", "summer", "autumn"],
+    accessoryCategory: ["simple watch"],
+    visualAnchor: "warm grey straight active trousers",
+    outfitLine:
+      "Use a soft stone active polo and warm grey straight active trousers for safe refined movement styling."
+  }),
+  fallbackSeed({
+    id: "safe-lightactive-006",
+    garmentType: "lightActive",
+    outfitStyle: "darkAnchor",
+    colorDirection: "darkAnchor",
+    topCategory: "deep navy clean active tee",
+    bottomCategory: "taupe active trousers",
+    outerLayerCategory: "cream lightweight zip layer",
+    season: ["spring", "summer", "autumn"],
+    accessoryCategory: ["clean low socks"],
+    visualAnchor: "deep navy clean active tee",
+    outfitLine:
+      "Style her in a deep navy clean active tee, taupe active trousers, and a cream lightweight zip layer for a safe dark-anchor active option."
   })
 ];
