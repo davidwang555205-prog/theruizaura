@@ -9,6 +9,7 @@ import type {
 import { generateTeamPrompt } from "./generatePrompt";
 
 export type SoftSeedingTopic = "通勤" | "接娃" | "周末" | "旅行" | "秋冬" | "女性日常";
+export type SoftSeedingMode = "今日自动" | "手动主题";
 
 export type SoftSeedingImagePlan = {
   name: string;
@@ -20,6 +21,9 @@ export type SoftSeedingImagePlan = {
 
 export type SoftSeedingContent = {
   topic: SoftSeedingTopic;
+  dateKey: string;
+  variantIndex: number;
+  variantLabel: string;
   titles: string[];
   body: string;
   images: SoftSeedingImagePlan[];
@@ -28,9 +32,11 @@ export type SoftSeedingContent = {
 };
 
 type SoftSeedingInput = {
-  topic: SoftSeedingTopic;
   baseParams: TeamPromptParams;
   imageCount?: 3 | 5;
+  mode?: SoftSeedingMode;
+  topic?: SoftSeedingTopic;
+  date?: Date;
 };
 
 type SoftSeedingImageDraft = {
@@ -44,20 +50,50 @@ type SoftSeedingImageDraft = {
   extraRequirement: string;
 };
 
-type TopicDraft = {
+type TopicCopyDraft = {
   titles: string[];
   body: string;
-  imageDrafts: SoftSeedingImageDraft[];
   tags: string[];
   note: string;
 };
 
 export const softSeedingTopicOptions: SoftSeedingTopic[] = ["通勤", "接娃", "周末", "旅行", "秋冬", "女性日常"];
+export const softSeedingModeOptions: SoftSeedingMode[] = ["今日自动", "手动主题"];
 
-const topicDrafts: Record<SoftSeedingTopic, TopicDraft> = {
-  通勤: {
-    titles: ["上班路上，鞋子不要太有负担", "早上出门，我越来越会选这种鞋", "通勤穿搭，舒服一点没什么不好"],
-    body: `早上出门的时候，其实没有那么多时间慢慢搭配。
+const MS_PER_DAY = 24 * 60 * 60 * 1000;
+
+function pad2(value: number) {
+  return String(value).padStart(2, "0");
+}
+
+export function getLocalDateKey(date = new Date()) {
+  return `${date.getFullYear()}-${pad2(date.getMonth() + 1)}-${pad2(date.getDate())}`;
+}
+
+function getDayNumber(date = new Date()) {
+  const localMidnight = new Date(date.getFullYear(), date.getMonth(), date.getDate()).getTime();
+  return Math.floor(localMidnight / MS_PER_DAY);
+}
+
+export function getDailySoftSeedingSelection(date = new Date()) {
+  const dayNumber = getDayNumber(date);
+  const topic = softSeedingTopicOptions[dayNumber % softSeedingTopicOptions.length];
+  const variantCount = topicCopyPools[topic].length;
+  const variantIndex = Math.floor(dayNumber / softSeedingTopicOptions.length) % variantCount;
+
+  return {
+    dateKey: getLocalDateKey(date),
+    topic,
+    variantIndex,
+    variantLabel: `第 ${variantIndex + 1} 版`
+  };
+}
+
+const topicCopyPools: Record<SoftSeedingTopic, TopicCopyDraft[]> = {
+  通勤: [
+    {
+      titles: ["上班路上，鞋子不要太有负担", "早上出门，我越来越会选这种鞋", "通勤穿搭，舒服一点没什么不好"],
+      body: `早上出门的时候，其实没有那么多时间慢慢搭配。
 
 衬衫要不要换，裤脚会不会压鞋，今天会不会走很多路。
 
@@ -74,64 +110,66 @@ const topicDrafts: Record<SoftSeedingTopic, TopicDraft> = {
 好看的鞋很多。
 
 愿意每天穿的，才会留在鞋柜里。`,
-    imageDrafts: [
-      {
-        name: "图1｜封面｜入户镜前",
-        purpose: "作为小红书封面，先建立真实顾客感和通勤状态。",
-        description: "早晨玄关镜前，白衬衫或燕麦针织配浅色直筒裤，鞋子完整露出。",
-        imageType: "对镜穿搭图",
-        scenePreference: "入户镜前",
-        garmentTypePreference: "裤装",
-        extraRequirement:
-          "Use a weekday morning entryway mirror selfie. Style a clean white shirt or oatmeal knit with warm beige straight-leg trousers, canvas tote, keys nearby, calm office commute mood, phone partly covering the face."
-      },
-      {
-        name: "图2｜通勤路上｜写字楼门口",
-        purpose: "把鞋放进真实工作日，不像广告摆拍。",
-        description: "写字楼门口自然走路，不看镜头，像同事随手拍。",
-        imageType: "生活场景图",
-        scenePreference: "写字楼门口",
-        garmentTypePreference: "裤装",
-        extraRequirement:
-          "Show a natural after-arrival commute moment outside a modern office entrance, walking with a tote and coffee, not looking at camera, shoes readable in the lower third."
-      },
-      {
-        name: "图3｜转场｜地铁 / 商场通道",
-        purpose: "体现一天里真实走动的路，不只适合坐办公室。",
-        description: "低饱和通道光线，托特包、咖啡杯作为日常道具。",
-        imageType: "生活场景图",
-        scenePreference: "地铁 / 商场通道",
-        garmentTypePreference: "裤装",
-        extraRequirement:
-          "Use a calm indoor transit corridor with warm neutral reflections, simple tote and takeaway coffee, candid walking posture, clear full shoe visibility, no crowded commute chaos."
-      },
-      {
-        name: "图4｜午休｜咖啡馆内",
-        purpose: "补一张坐姿细节图，给用户看鞋型和材质。",
-        description: "靠窗坐下，双脚自然交叠，突出鞋型和皮革质感。",
-        imageType: "生活场景图",
-        scenePreference: "咖啡馆内",
-        garmentTypePreference: "裤装",
-        extraRequirement:
-          "Seat the woman by a cafe window during a quiet lunch break, legs naturally crossed, shoe shape and material texture clearly readable, one magazine and coffee on the table."
-      },
-      {
-        name: "图5｜下班｜回家进门",
-        purpose: "用生活收尾，强化从早到晚都能穿。",
-        description: "傍晚回家进门，手里拿花或轻便晚餐，生活感强一点。",
-        imageType: "生活场景图",
-        scenePreference: "回家进门",
-        garmentTypePreference: "裤装",
-        extraRequirement:
-          "Use an early evening homecoming moment, placing tote and small flowers near the entryway, relaxed tired-but-calm expression, shoes still fully visible after a workday."
-      }
-    ],
-    tags: ["#THERUIZAURA", "#德训鞋", "#通勤穿搭", "#上班穿什么", "#舒适穿搭", "#轻熟风", "#一鞋多搭", "#QuietWarmLuxury"],
-    note: "这篇用“通勤少一点负担”做切口，重点不是夸鞋，而是让用户想到自己每天早上出门的真实状态。"
-  },
-  接娃: {
-    titles: ["下班去接娃，鞋子真的不能添乱", "从办公室到校门口，我会穿得轻松一点", "一双鞋，撑住一天的后半场"],
-    body: `一天里真正累的部分，很多时候不是上班。
+      tags: ["#THERUIZAURA", "#德训鞋", "#通勤穿搭", "#上班穿什么", "#舒适穿搭", "#轻熟风", "#一鞋多搭", "#QuietWarmLuxury"],
+      note: "这篇用“通勤少一点负担”做切口，重点不是夸鞋，而是让用户想到自己每天早上出门的真实状态。"
+    },
+    {
+      titles: ["通勤鞋，我现在只想选省心的", "每天都要穿的鞋，别太折腾人", "从早八到晚八，一双鞋要撑住很多事"],
+      body: `以前买鞋，很容易被第一眼吸引。
+
+颜色特别，设计特别，拍照也好看。
+
+但真正到了工作日早上，最后拿起来的，往往不是那些最特别的鞋。
+
+而是最省心的那双。
+
+它不需要我重新想一套衣服，也不会让我担心今天要走很多路。
+
+开会、见客户、下楼买咖啡、下班顺路去超市。
+
+这些很普通的场景，才是鞋子每天真正要面对的地方。
+
+所以我更在意一种安静的好穿。
+
+不抢衣服的注意力，也不让脚成为一天里的负担。
+
+穿搭可以简单。
+
+人也可以轻松一点。`,
+      tags: ["#THERUIZAURA", "#德训鞋穿搭", "#通勤鞋", "#办公室穿搭", "#舒适通勤", "#轻熟风", "#真实穿搭", "#QuietWarmLuxury"],
+      note: "这篇强调“省心”，适合针对每天早上搭配焦虑的用户。"
+    },
+    {
+      titles: ["成年人通勤，真的不想被鞋子消耗", "舒服不是偷懒，是把状态留给一天", "穿得体面，也可以不用那么累"],
+      body: `我现在越来越觉得，通勤穿搭不用太证明什么。
+
+不需要每一天都很亮眼，也不需要为了显得精致，让自己从早上就开始紧绷。
+
+一双鞋如果真的适合日常，它应该是安静的。
+
+早上出门不纠结。
+
+走到办公室不狼狈。
+
+下午站久一点，也不会一直提醒你脚很累。
+
+很多时候，体面不是穿得多正式。
+
+而是一天结束的时候，状态还在。
+
+鞋子也是一样。
+
+它可以干净、秀气、有质感。
+
+但最好不要成为负担。`,
+      tags: ["#THERUIZAURA", "#德训鞋", "#通勤日常", "#上班穿搭", "#轻熟穿搭", "#舒适鞋", "#质感生活", "#QuietWarmLuxury"],
+      note: "这篇更偏情绪价值，适合朋友圈和主理人语气。"
+    }
+  ],
+  接娃: [
+    {
+      titles: ["下班去接娃，鞋子真的不能添乱", "从办公室到校门口，我会穿得轻松一点", "一双鞋，撑住一天的后半场"],
+      body: `一天里真正累的部分，很多时候不是上班。
 
 是下班以后。
 
@@ -152,64 +190,68 @@ const topicDrafts: Record<SoftSeedingTopic, TopicDraft> = {
 有些舒服，不是软塌塌。
 
 是让人能从容地把一天过完。`,
-    imageDrafts: [
-      {
-        name: "图1｜封面｜下班出发",
-        purpose: "接住从工作到家庭的身份切换。",
-        description: "写字楼门口下班状态，人物拿托特包，鞋子在画面下方清晰露出。",
-        imageType: "生活场景图",
-        scenePreference: "写字楼门口",
-        garmentTypePreference: "裤装",
-        extraRequirement:
-          "Show a mature city woman leaving work in late afternoon, holding a tote or laptop bag, slightly tired but composed, refined office-to-family transition, shoes fully visible."
-      },
-      {
-        name: "图2｜等待｜社区步道",
-        purpose: "项目里先用社区步道替代校门口，画面更干净。",
-        description: "社区门口或步道等待，看手机或整理包，不刻意摆拍。",
-        imageType: "生活场景图",
-        scenePreference: "社区步道",
-        garmentTypePreference: "裤装",
-        extraRequirement:
-          "Use a quiet residential community walkway in early evening, standing naturally while checking phone or adjusting tote, subtle family-life context without staged parent-child portrait."
-      },
-      {
-        name: "图3｜回家路上｜公园慢走",
-        purpose: "表达接完孩子后的真实走动，不要亲子写真感。",
-        description: "孩子只出现局部背影或手部，重点保留成熟城市女性状态。",
-        imageType: "生活场景图",
-        scenePreference: "公园慢走",
-        garmentTypePreference: "裤装",
-        extraRequirement:
-          "Show a calm after-school walk near a small park, optional child only as partial hand or back view, the woman remains the focus, shoes readable and grounded."
-      },
-      {
-        name: "图4｜路上细节｜社区步道",
-        purpose: "补一张自然走路抓拍，增强真实性。",
-        description: "傍晚树影、浅色路面，自然走路抓拍。",
-        imageType: "生活场景图",
-        scenePreference: "社区步道",
-        garmentTypePreference: "裤装",
-        extraRequirement:
-          "Create a candid low-key walking shot with soft tree shadows, warm stone pavement, tote bag movement, full sneaker visibility, no obvious posing."
-      },
-      {
-        name: "图5｜收尾｜回家进门",
-        purpose: "让一天结束，强调鞋子没有成为负担。",
-        description: "放下托特包、钥匙和外套，一天结束的松弛感。",
-        imageType: "生活场景图",
-        scenePreference: "回家进门",
-        garmentTypePreference: "裤装",
-        extraRequirement:
-          "Use a home entryway moment after pickup, tote bag and keys placed down, relaxed end-of-day body language, shoes clear and still naturally worn."
-      }
-    ],
-    tags: ["#THERUIZAURA", "#德训鞋穿搭", "#接娃穿搭", "#下班后日常", "#妈妈也要舒服好看", "#舒适穿搭", "#城市女性", "#QuietWarmLuxury"],
-    note: "这篇抓的是30–45岁女性的身份切换：从工作到家庭，鞋子要体面，也要能走。"
-  },
-  周末: {
-    titles: ["周末最舒服的状态，是不用太用力", "出门买束花，也想穿得舒服一点", "有些鞋，适合很多个普通周末"],
-    body: `现在的周末，我反而不太喜欢安排得太满。
+      tags: ["#THERUIZAURA", "#德训鞋穿搭", "#接娃穿搭", "#下班后日常", "#妈妈也要舒服好看", "#舒适穿搭", "#城市女性", "#QuietWarmLuxury"],
+      note: "这篇抓的是30–45岁女性的身份切换：从工作到家庭，鞋子要体面，也要能走。"
+    },
+    {
+      titles: ["接娃路上，才知道鞋子舒不舒服", "不是去远方才需要好走的鞋", "下班后的路，才最考验一双鞋"],
+      body: `很多人以为，只有旅行才需要一双好走的鞋。
+
+其实不是。
+
+更真实的考验，往往在下班以后。
+
+从办公室出来，赶去接孩子，路上还要回几条消息，顺便买点东西。
+
+没有什么特别大的事情。
+
+但每一步都很具体。
+
+鞋子如果不好穿，人的耐心真的会少很多。
+
+所以我越来越喜欢那些看起来不夸张、穿起来又很稳定的鞋。
+
+配今天的衬衫和西裤不会奇怪。
+
+晚上换成针织外套，也还是自然。
+
+它不负责让你惊艳别人。
+
+它负责让你少一点狼狈。`,
+      tags: ["#THERUIZAURA", "#德训鞋", "#接娃日常", "#通勤到接娃", "#妈妈穿搭", "#舒适穿搭", "#真实生活", "#QuietWarmLuxury"],
+      note: "这篇把“接娃”当成舒适度验证场景，转化更自然。"
+    },
+    {
+      titles: ["妈妈也可以穿得舒服又体面", "一天的后半场，需要一双懂生活的鞋", "不是松懈，是留一点从容给自己"],
+      body: `有了孩子以后，很多出门都不是完整属于自己的。
+
+早上要快，下午要赶，晚上还要处理很多临时的小事。
+
+但我不太想因为这些，就把自己穿得很随便。
+
+舒服和体面，其实不是对立的。
+
+一双鞋如果鞋型干净，颜色温和，走路也不累，就能解决很多日常里的小尴尬。
+
+上班能穿。
+
+接娃能穿。
+
+周末带孩子去公园，也不会显得太正式。
+
+我现在很喜欢这种不需要解释太多的单品。
+
+安静一点。
+
+但真的有用。`,
+      tags: ["#THERUIZAURA", "#德训鞋穿搭", "#妈妈穿搭", "#接娃穿搭", "#轻熟风", "#城市女性", "#舒适鞋", "#QuietWarmLuxury"],
+      note: "这篇适合更成熟一点的客群，强调“妈妈也要保留自己”。"
+    }
+  ],
+  周末: [
+    {
+      titles: ["周末最舒服的状态，是不用太用力", "出门买束花，也想穿得舒服一点", "有些鞋，适合很多个普通周末"],
+      body: `现在的周末，我反而不太喜欢安排得太满。
 
 睡醒晚一点，出门买杯咖啡，顺路看看花，或者去附近超市慢慢逛一圈。
 
@@ -230,64 +272,68 @@ const topicDrafts: Record<SoftSeedingTopic, TopicDraft> = {
 真正常用的，不一定最特别。
 
 但它会在你每次出门前，很自然地被拿起来。`,
-    imageDrafts: [
-      {
-        name: "图1｜封面｜玄关出门",
-        purpose: "周末第一张要轻松，但还是有质感。",
-        description: "周末玄关出门，浅色针织或白衬衫配直筒裤，手拿钥匙。",
-        imageType: "对镜穿搭图",
-        scenePreference: "玄关出门",
-        garmentTypePreference: "裤装",
-        extraRequirement:
-          "Use a relaxed weekend entryway mirror outfit, ivory knit or white shirt, warm beige straight trousers, keys and canvas tote, face partly hidden by phone, calm not influencer-like."
-      },
-      {
-        name: "图2｜咖啡｜咖啡店门口",
-        purpose: "生活方式图，适合小红书滑动第二张。",
-        description: "人物拿外带咖啡自然走过，鞋子完整可见。",
-        imageType: "生活场景图",
-        scenePreference: "咖啡店门口",
-        garmentTypePreference: "裤装",
-        extraRequirement:
-          "Show a quiet neighborhood cafe exterior, woman walking naturally with takeaway coffee and tote, no tourist landmark, shoes sharp and readable."
-      },
-      {
-        name: "图3｜买花｜花店 / 买花",
-        purpose: "增加柔和生活感，不像单纯拍鞋。",
-        description: "低头挑花，鞋子自然进入画面，不要摆成广告。",
-        imageType: "生活场景图",
-        scenePreference: "花店 / 买花",
-        garmentTypePreference: "裤装",
-        extraRequirement:
-          "Show the woman quietly selecting white or pale pink flowers, looking at flowers not camera, restrained flower shop, sneakers visible without becoming a hard product shot."
-      },
-      {
-        name: "图4｜采购｜社区市集 / 精品买菜",
-        purpose: "让鞋进入真实日常，不只是咖啡花店。",
-        description: "推购物车或拿购物袋，低机位突出鞋型与真实生活感。",
-        imageType: "生活场景图",
-        scenePreference: "社区市集 / 精品买菜",
-        garmentTypePreference: "裤装",
-        extraRequirement:
-          "Use a refined neighborhood grocery or small market, woman holding a simple paper bag or pushing a cart, low-key real errand mood, clear shoe shape."
-      },
-      {
-        name: "图5｜休息｜窗边阅读角",
-        purpose: "收尾做安静场景，补品牌的 Quiet Warm Luxury。",
-        description: "坐下翻书，双脚自然交叠，整体安静温暖。",
-        imageType: "生活场景图",
-        scenePreference: "窗边阅读角",
-        garmentTypePreference: "裤装",
-        extraRequirement:
-          "Seat the woman near a soft window reading corner, book in hand, legs relaxed, sneakers readable, linen curtain and warm-neutral light, quiet private weekend mood."
-      }
-    ],
-    tags: ["#THERUIZAURA", "#德训鞋", "#周末穿搭", "#城市漫步", "#花店日常", "#舒适穿搭", "#轻熟穿搭", "#QuietWarmLuxury"],
-    note: "这篇适合朋友圈/小红书低压种草，把产品放进周末生活，而不是直接卖产品。"
-  },
-  旅行: {
-    titles: ["一双鞋值不值得留，旅行一次就知道", "旅行回来，我会重新整理鞋柜", "真正舒服的鞋，不是试穿五分钟决定的"],
-    body: `每次旅行回来，我都会对鞋柜有一点新的判断。
+      tags: ["#THERUIZAURA", "#德训鞋", "#周末穿搭", "#城市漫步", "#花店日常", "#舒适穿搭", "#轻熟穿搭", "#QuietWarmLuxury"],
+      note: "这篇适合朋友圈/小红书低压种草，把产品放进周末生活，而不是直接卖产品。"
+    },
+    {
+      titles: ["周末出门，我更喜欢这种轻一点的穿法", "不用精心打扮，也能干净好看", "普通周末，也需要一双舒服的鞋"],
+      body: `周末最好的状态，不一定是去了哪里。
+
+有时候就是下楼买杯咖啡，去超市补点东西，再慢慢走回家。
+
+这种时候，我不想穿得太正式。
+
+也不想像刚运动完一样。
+
+所以一双干净的德训鞋，反而很合适。
+
+它让整个人看起来轻一点。
+
+不抢衣服，也不拖累脚步。
+
+配白衬衫是清爽的。
+
+配针织衫是温和的。
+
+配牛仔裤又很自然。
+
+很多时候，周末真正需要的不是造型感。
+
+是舒服地把自己带出门。`,
+      tags: ["#THERUIZAURA", "#德训鞋穿搭", "#周末出门", "#城市日常", "#舒适穿搭", "#一鞋多搭", "#质感生活", "#QuietWarmLuxury"],
+      note: "这篇适合周末上午发布，强调轻松出门。"
+    },
+    {
+      titles: ["周末不想穿得太满", "一双鞋，把普通半天走得舒服一点", "好穿的鞋，会让人更愿意出门"],
+      body: `我以前以为，周末穿搭要有一点特别。
+
+后来发现，真正舒服的周末，反而是少一点用力。
+
+衣服简单一点。
+
+包轻一点。
+
+鞋子也别太抢。
+
+因为周末的路很零碎。
+
+买花、逛书店、吃个简单午饭，再顺路去趟超市。
+
+看起来都不远，但加起来也走了不少。
+
+一双鞋如果够百搭，也够好走，它会让这些小事变得轻松很多。
+
+不会因为鞋子，提前想回家。
+
+这就是我现在很在意的日常价值。`,
+      tags: ["#THERUIZAURA", "#德训鞋", "#周末日常", "#书店穿搭", "#花店日常", "#舒服比精致更重要", "#轻熟风", "#QuietWarmLuxury"],
+      note: "这篇用“零碎的周末路线”增强真实感。"
+    }
+  ],
+  旅行: [
+    {
+      titles: ["一双鞋值不值得留，旅行一次就知道", "旅行回来，我会重新整理鞋柜", "真正舒服的鞋，不是试穿五分钟决定的"],
+      body: `每次旅行回来，我都会对鞋柜有一点新的判断。
 
 有些鞋出发前觉得很好看，走了两天以后，就只想回酒店赶紧换下来。
 
@@ -310,64 +356,70 @@ const topicDrafts: Record<SoftSeedingTopic, TopicDraft> = {
 毕竟旅行会结束。
 
 生活还会继续。`,
-    imageDrafts: [
-      {
-        name: "图1｜封面｜酒店房间",
-        purpose: "旅行内容的主图，直接进入出发前状态。",
-        description: "酒店房间落地镜，行李箱半开，人物穿白衬衫和燕麦色裤装。",
-        imageType: "对镜穿搭图",
-        scenePreference: "酒店房间",
-        garmentTypePreference: "裤装",
-        extraRequirement:
-          "Use a calm boutique hotel room mirror selfie, half-open suitcase, canvas tote, travel hat, ivory shirt and oatmeal trousers, shoes fully visible, not influencer travel pose."
-      },
-      {
-        name: "图2｜出发｜周末轻旅行出发",
-        purpose: "项目里用轻旅行出发替代机场候机，保证类型合法。",
-        description: "行李箱在旁边，双鞋清晰可见，像出发前真实记录。",
-        imageType: "生活场景图",
-        scenePreference: "周末轻旅行出发",
-        garmentTypePreference: "裤装",
-        extraRequirement:
-          "Show a quiet travel departure moment with carry-on suitcase and tote, seated or standing naturally, both sneakers clearly visible, no airport branding or tourist check-in mood."
-      },
-      {
-        name: "图3｜漫步｜城市街角 / 安静街区",
-        purpose: "证明旅行不是只拍酒店，也能走很多路。",
-        description: "树荫、浅色石板路，人物自然走路。",
-        imageType: "生活场景图",
-        scenePreference: "城市街角 / 安静街区",
-        garmentTypePreference: "裤装",
-        extraRequirement:
-          "Use a quiet city walk during travel, light stone pavement, soft greenery, natural walking posture, no landmark, full sneaker visibility."
-      },
-      {
-        name: "图4｜门厅｜酒店门口 / 门厅",
-        purpose: "补一张体面、干净的旅行转场图。",
-        description: "准备出发，托特包、轻外套、鞋子完整露出。",
-        imageType: "生活场景图",
-        scenePreference: "酒店门口 / 门厅",
-        garmentTypePreference: "裤装",
-        extraRequirement:
-          "Show a quiet hotel lobby or doorway transition, woman adjusting tote or light trench, refined but understated, shoes readable from toe to heel."
-      },
-      {
-        name: "图5｜回家｜暑假外出后回家",
-        purpose: "文案收尾，表达旅行结束生活继续。",
-        description: "行李箱放下，弯腰整理鞋带，表达旅行结束。",
-        imageType: "生活场景图",
-        scenePreference: "暑假外出后回家",
-        garmentTypePreference: "裤装",
-        extraRequirement:
-          "Use a home entryway after travel, suitcase on the floor, woman loosely adjusting laces or placing tote down, tired but comfortable, shoes still clear."
-      }
-    ],
-    tags: ["#THERUIZAURA", "#德训鞋穿搭", "#旅行穿搭", "#机场穿搭", "#旅行好物", "#城市漫步", "#舒服比惊艳更重要", "#QuietWarmLuxury"],
-    note: "旅行是检验鞋子的强场景。文案里不要写“暴走神器”，用真实体验替代卖点堆砌。"
-  },
-  秋冬: {
-    titles: ["秋冬穿搭，鞋子颜色别太冷", "最近更喜欢温一点的鞋子", "秋冬的一双德训鞋，要干净，也要有温度"],
-    body: `天气一冷，衣柜里的颜色会慢慢变深。
+      tags: ["#THERUIZAURA", "#德训鞋穿搭", "#旅行穿搭", "#机场穿搭", "#旅行好物", "#城市漫步", "#舒服比惊艳更重要", "#QuietWarmLuxury"],
+      note: "旅行是检验鞋子的强场景。文案里不要写“暴走神器”，用真实体验替代卖点堆砌。"
+    },
+    {
+      titles: ["旅行最怕的，是鞋子选错", "出门几天，才知道哪双鞋真的靠谱", "真正适合旅行的鞋，回来以后还会继续穿"],
+      body: `旅行的时候，衣服可以少带几件。
+
+但鞋子真的不能选错。
+
+因为它不只是拍照的时候出现。
+
+它会陪你从酒店走到街边，从商场走到公园，从早上走到晚上。
+
+好不好看，只是第一层。
+
+更重要的是，走久了会不会累，会不会磨，会不会让不同衣服都还能搭得过去。
+
+我喜欢那种不用太担心的鞋。
+
+不是很强烈的旅行装备感。
+
+也不是只能拍照的漂亮鞋。
+
+它更像是日常里那双最熟悉的鞋，被你带去了别的城市。
+
+走了一圈回来，还是愿意继续穿。`,
+      tags: ["#THERUIZAURA", "#德训鞋", "#旅行穿搭", "#轻旅行", "#城市漫步", "#舒适鞋", "#一鞋多搭", "#QuietWarmLuxury"],
+      note: "这篇把旅行和日常连接起来，避免只做一次性旅行好物。"
+    },
+    {
+      titles: ["短途旅行，我只想带一双好搭的鞋", "行李箱里最该认真选的，是鞋", "走很多路的日子，鞋子要安静可靠"],
+      body: `短途旅行最麻烦的地方，是行李不能带太多。
+
+衣服可以做减法。
+
+鞋子更要慎重。
+
+因为一双不合适的鞋，会影响整趟行程的心情。
+
+早上出门很期待，下午就开始找地方坐下休息。
+
+这种体验太熟悉了。
+
+所以我现在会选更日常一点的鞋。
+
+颜色不要太跳。
+
+鞋型干净。
+
+能配裤装，也能配裙装。
+
+最重要的是，走很久也不会让人一直想着脚。
+
+旅行里的舒服，不是奢侈。
+
+是让你把注意力放回风景和身边的人。`,
+      tags: ["#THERUIZAURA", "#德训鞋穿搭", "#短途旅行", "#旅行好物", "#舒适穿搭", "#轻熟风", "#城市旅行", "#QuietWarmLuxury"],
+      note: "这篇适合节假日前发布，强调少带但要选对。"
+    }
+  ],
+  秋冬: [
+    {
+      titles: ["秋冬穿搭，鞋子颜色别太冷", "最近更喜欢温一点的鞋子", "秋冬的一双德训鞋，要干净，也要有温度"],
+      body: `天气一冷，衣柜里的颜色会慢慢变深。
 
 黑色外套、深灰裤子、咖色针织，穿起来很安全，但有时候也会显得人有点沉。
 
@@ -388,69 +440,64 @@ const topicDrafts: Record<SoftSeedingTopic, TopicDraft> = {
 让厚衣服不显笨。
 
 也让人看起来没那么疲惫。`,
-    imageDrafts: [
-      {
-        name: "图1｜封面｜入户镜前",
-        purpose: "秋冬封面要突出温度感和提亮作用。",
-        description: "燕麦针织、深灰直筒裤、浅色德训鞋。",
-        imageType: "对镜穿搭图",
-        scenePreference: "入户镜前",
-        garmentTypePreference: "裤装",
-        season: "秋",
-        extraRequirement:
-          "Use a warm autumn-winter entryway mirror outfit, oatmeal knit, warm grey straight trousers, soft beige coat nearby, shoes brightening the outfit without looking flashy."
-      },
-      {
-        name: "图2｜通勤｜商务区转角",
-        purpose: "用大衣/外套场景证明秋冬也不笨重。",
-        description: "咖色大衣通勤，鞋子提亮整身。",
-        imageType: "生活场景图",
-        scenePreference: "商务区转角",
-        garmentTypePreference: "裤装",
-        season: "秋",
-        extraRequirement:
-          "Show a muted autumn business-district corner with a camel or warm grey coat, trousers, tote, natural walking, sneakers making the outfit lighter."
-      },
-      {
-        name: "图3｜生活｜书店 / 杂志店门口",
-        purpose: "增加秋冬文化感，适合收藏。",
-        description: "围巾、托特包、暖色墙面，氛围安静。",
-        imageType: "生活场景图",
-        scenePreference: "书店 / 杂志店门口",
-        garmentTypePreference: "裤装",
-        season: "秋",
-        extraRequirement:
-          "Use a quiet bookstore or magazine shop exterior, warm wall, scarf and tote, mature relaxed expression, sneakers fully visible, no tourist street mood."
-      },
-      {
-        name: "图4｜材质｜材质工作台",
-        purpose: "补一张材质图，给秋冬配色和皮料背书。",
-        description: "麂皮、牛皮、鞋带、色卡放在暖石材上。",
-        imageType: "拍摄花絮 / 材质图",
-        scenePreference: "材质工作台",
-        garmentTypePreference: "自动匹配",
-        season: "秋",
-        extraRequirement:
-          "Create a tactile material table with suede samples, leather swatches, shoelaces, warm beige and soft grey color cards, product notes, no full model, quiet development mood."
-      },
-      {
-        name: "图5｜回家｜回家进门",
-        purpose: "用回家场景把秋冬内容落回日常。",
-        description: "脱下大衣，鞋子仍完整可见，有秋冬生活感。",
-        imageType: "生活场景图",
-        scenePreference: "回家进门",
-        garmentTypePreference: "裤装",
-        season: "秋",
-        extraRequirement:
-          "Use a calm autumn homecoming scene, coat being placed down, warm neutral hallway, visible sneakers, tactile shadows, restrained cozy mood."
-      }
-    ],
-    tags: ["#THERUIZAURA", "#德训鞋", "#秋冬穿搭", "#咖色穿搭", "#燕麦色穿搭", "#轻熟风", "#舒适穿搭", "#QuietWarmLuxury"],
-    note: "秋冬内容要多讲“温度感”和“提亮”，少讲潮流。客户买的是衣柜里的安全感。"
-  },
-  女性日常: {
-    titles: ["普通一天，也值得穿得舒服一点", "不赶潮流以后，我更会买鞋了", "让生活轻一点，从一双鞋开始"],
-    body: `有时候觉得，成年人的一天，真的被很多小事填满了。
+      tags: ["#THERUIZAURA", "#德训鞋", "#秋冬穿搭", "#咖色穿搭", "#燕麦色穿搭", "#轻熟风", "#舒适穿搭", "#QuietWarmLuxury"],
+      note: "秋冬内容要多讲“温度感”和“提亮”，少讲潮流。客户买的是衣柜里的安全感。"
+    },
+    {
+      titles: ["秋冬不一定要穿得很重", "厚衣服下面，需要一双轻一点的鞋", "咖色燕麦色，真的很适合秋冬德训鞋"],
+      body: `秋冬穿搭很容易变得沉。
+
+外套厚了，颜色深了，整个人也会显得没那么轻。
+
+所以我会特别在意鞋子的颜色。
+
+太白会突兀。
+
+太深又容易压住整身。
+
+刚刚好的奶油色、燕麦色、暖灰色，反而更耐看。
+
+它不会抢大衣的存在感。
+
+但会让整体多一点呼吸感。
+
+尤其是咖色、灰色、米色这些秋冬常穿的衣服，搭起来很顺。
+
+一双鞋不需要很强的季节感。
+
+但它要让秋冬的衣服，显得没那么笨重。`,
+      tags: ["#THERUIZAURA", "#德训鞋穿搭", "#秋冬德训鞋", "#燕麦色穿搭", "#咖色系穿搭", "#舒适穿搭", "#轻熟风", "#QuietWarmLuxury"],
+      note: "这篇强调秋冬配色逻辑，适合产品开发和种草同时使用。"
+    },
+    {
+      titles: ["秋冬鞋子，舒服和颜色都很重要", "一双暖色德训鞋，能救很多深色外套", "秋冬穿搭想松一点，可以从鞋开始"],
+      body: `秋冬最常见的穿搭，其实都差不多。
+
+针织、大衣、直筒裤、围巾。
+
+衣服没问题，但如果鞋子颜色太重，整身就容易显得钝。
+
+我喜欢在鞋子上留一点轻感。
+
+不是特别亮的白。
+
+而是温一点、柔一点的浅色。
+
+像奶油白、燕麦、暖灰。
+
+它们会让深色外套不那么压人，也让整个人看起来干净一点。
+
+秋冬不是一定要穿得很用力。
+
+很多时候，一双颜色对的鞋，就能让日常搭配舒服很多。`,
+      tags: ["#THERUIZAURA", "#德训鞋", "#秋冬鞋子", "#大衣穿搭", "#针织穿搭", "#舒适鞋", "#质感生活", "#QuietWarmLuxury"],
+      note: "这篇适合突出秋冬主推色，语气更像穿搭经验。"
+    }
+  ],
+  女性日常: [
+    {
+      titles: ["普通一天，也值得穿得舒服一点", "不赶潮流以后，我更会买鞋了", "让生活轻一点，从一双鞋开始"],
+      body: `有时候觉得，成年人的一天，真的被很多小事填满了。
 
 出门、开会、买东西、回消息、接电话、回家。
 
@@ -473,61 +520,111 @@ const topicDrafts: Record<SoftSeedingTopic, TopicDraft> = {
 而是更确定的选择。
 
 每天都会穿的东西，才最能安放生活。`,
-    imageDrafts: [
-      {
-        name: "图1｜封面｜入户镜前",
-        purpose: "最接近日常用户自拍，可作为长期内容主图。",
-        description: "真实入户镜前，人物准备出门，手机半遮脸，鞋子完整露出。",
-        imageType: "对镜穿搭图",
-        scenePreference: "入户镜前",
-        garmentTypePreference: "裤装",
-        extraRequirement:
-          "Use a real customer-like entryway mirror selfie, calm morning preparation, phone half covering the face, clean shirt and soft trousers, shoes fully visible."
-      },
-      {
-        name: "图2｜工作台｜工作台 / 桌边整理",
-        purpose: "让内容不只在外面拍，也有真实生活秩序。",
-        description: "笔记本、咖啡、托特包，人物坐姿自然，鞋子在下方出现。",
-        imageType: "生活场景图",
-        scenePreference: "工作台 / 桌边整理",
-        garmentTypePreference: "裤装",
-        extraRequirement:
-          "Show a quiet desk-side reset moment with notebook, coffee, tote bag, seated natural posture, sneakers visible under the table, mature daily order."
-      },
-      {
-        name: "图3｜外带｜楼下便利店 / 咖啡外带",
-        purpose: "做真实的楼下生活，不要太精致。",
-        description: "日常感强，像朋友随手记录。",
-        imageType: "生活场景图",
-        scenePreference: "楼下便利店 / 咖啡外带",
-        garmentTypePreference: "裤装",
-        extraRequirement:
-          "Use a downstairs takeaway coffee or convenience-store errand, candid friend-taken angle, mature relaxed woman, shoes clearly visible, no influencer check-in feel."
-      },
-      {
-        name: "图4｜慢走｜社区步道",
-        purpose: "补一张自然走动图，强调舒服和日常。",
-        description: "自然慢走，低饱和背景，鞋子清楚。",
-        imageType: "生活场景图",
-        scenePreference: "社区步道",
-        garmentTypePreference: "裤装",
-        extraRequirement:
-          "Create a soft neutral residential walkway slow-walk shot, calm posture, subtle greenery, full sneaker visibility, quiet ordinary day mood."
-      },
-      {
-        name: "图5｜静物｜材质工作台",
-        purpose: "最后补品牌质感，不让整组全是人物。",
-        description: "鞋子、白衬衫、钥匙、色卡和皮料，表达日常秩序。",
-        imageType: "产品静物图",
-        scenePreference: "材质工作台",
-        garmentTypePreference: "自动匹配",
-        extraRequirement:
-          "Create a refined product still life with the selected sneakers, white shirt fabric, keys, subtle color cards, leather swatches, warm stone surface, quiet daily order."
-      }
-    ],
-    tags: ["#THERUIZAURA", "#德训鞋穿搭", "#女性日常", "#真实穿搭", "#质感生活", "#舒适穿搭", "#一鞋多搭", "#QuietWarmLuxury"],
-    note: "这篇是品牌长期内容的底层表达：少一点选择焦虑，多一点确定感。"
-  }
+      tags: ["#THERUIZAURA", "#德训鞋穿搭", "#女性日常", "#真实穿搭", "#质感生活", "#舒适穿搭", "#一鞋多搭", "#QuietWarmLuxury"],
+      note: "这篇是品牌长期内容的底层表达：少一点选择焦虑，多一点确定感。"
+    },
+    {
+      titles: ["买鞋这件事，我现在越来越慢", "不是每一双鞋都要很特别", "真正常穿的鞋，通常都很安静"],
+      body: `我现在买东西变慢了。
+
+不太容易因为第一眼喜欢就立刻下单。
+
+尤其是鞋。
+
+因为鞋和衣服不一样。
+
+它不是只要好看就够了。
+
+它要陪你走路，要适应很多场合，也要经得起反复穿。
+
+所以我会更喜欢那些看起来不那么用力的款式。
+
+鞋型干净。
+
+颜色温和。
+
+搭衣服没有压力。
+
+穿了一整天，也不会让人一直想着它。
+
+有些东西的好，是慢慢出现的。
+
+不是第一眼惊艳，而是后来每次出门，都会自然地选择它。`,
+      tags: ["#THERUIZAURA", "#德训鞋", "#买鞋经验", "#真实穿搭", "#轻熟风", "#舒适穿搭", "#日常鞋", "#QuietWarmLuxury"],
+      note: "这篇适合主理人表达，讲消费观和长期主义。"
+    },
+    {
+      titles: ["生活已经够忙了，鞋子就别太复杂", "每天都会穿的鞋，才最值得认真选", "一双鞋，让普通日子轻一点"],
+      body: `生活里已经有太多事情需要判断了。
+
+今天穿什么，孩子几点下课，工作怎么安排，晚上吃什么。
+
+所以在一些小事上，我反而希望简单一点。
+
+鞋子就是其中一件。
+
+我不想每天为了它重新搭配。
+
+也不想走到一半才发现它不适合今天。
+
+一双好穿的德训鞋，最好的地方不是它多抢眼。
+
+而是它能自然地进入很多个普通日子。
+
+上班、买菜、喝咖啡、见朋友、接孩子。
+
+它都不突兀。
+
+这种省心，穿久了会越来越明显。`,
+      tags: ["#THERUIZAURA", "#德训鞋穿搭", "#女性日常", "#一鞋多搭", "#舒服穿搭", "#城市女性", "#质感生活", "#QuietWarmLuxury"],
+      note: "这篇用“减少判断成本”切入，适合成熟客群。"
+    }
+  ]
+};
+
+const topicImageDrafts: Record<SoftSeedingTopic, SoftSeedingImageDraft[]> = {
+  通勤: [
+    { name: "图1｜封面｜入户镜前", purpose: "作为小红书封面，先建立真实顾客感和通勤状态。", description: "早晨玄关镜前，白衬衫或燕麦针织配浅色直筒裤，鞋子完整露出。", imageType: "对镜穿搭图", scenePreference: "入户镜前", garmentTypePreference: "裤装", extraRequirement: "Use a weekday morning entryway mirror selfie. Style a clean white shirt or oatmeal knit with warm beige straight-leg trousers, canvas tote, keys nearby, calm office commute mood, phone partly covering the face." },
+    { name: "图2｜通勤路上｜写字楼门口", purpose: "把鞋放进真实工作日，不像广告摆拍。", description: "写字楼门口自然走路，不看镜头，像同事随手拍。", imageType: "生活场景图", scenePreference: "写字楼门口", garmentTypePreference: "裤装", extraRequirement: "Show a natural after-arrival commute moment outside a modern office entrance, walking with a tote and coffee, not looking at camera, shoes readable in the lower third." },
+    { name: "图3｜转场｜地铁 / 商场通道", purpose: "体现一天里真实走动的路，不只适合坐办公室。", description: "低饱和通道光线，托特包、咖啡杯作为日常道具。", imageType: "生活场景图", scenePreference: "地铁 / 商场通道", garmentTypePreference: "裤装", extraRequirement: "Use a calm indoor transit corridor with warm neutral reflections, simple tote and takeaway coffee, candid walking posture, clear full shoe visibility, no crowded commute chaos." },
+    { name: "图4｜午休｜咖啡馆内", purpose: "补一张坐姿细节图，给用户看鞋型和材质。", description: "靠窗坐下，双脚自然交叠，突出鞋型和皮革质感。", imageType: "生活场景图", scenePreference: "咖啡馆内", garmentTypePreference: "裤装", extraRequirement: "Seat the woman by a cafe window during a quiet lunch break, legs naturally crossed, shoe shape and material texture clearly readable, one magazine and coffee on the table." },
+    { name: "图5｜下班｜回家进门", purpose: "用生活收尾，强化从早到晚都能穿。", description: "傍晚回家进门，手里拿花或轻便晚餐，生活感强一点。", imageType: "生活场景图", scenePreference: "回家进门", garmentTypePreference: "裤装", extraRequirement: "Use an early evening homecoming moment, placing tote and small flowers near the entryway, relaxed tired-but-calm expression, shoes still fully visible after a workday." }
+  ],
+  接娃: [
+    { name: "图1｜封面｜下班出发", purpose: "接住从工作到家庭的身份切换。", description: "写字楼门口下班状态，人物拿托特包，鞋子在画面下方清晰露出。", imageType: "生活场景图", scenePreference: "写字楼门口", garmentTypePreference: "裤装", extraRequirement: "Show a mature city woman leaving work in late afternoon, holding a tote or laptop bag, slightly tired but composed, refined office-to-family transition, shoes fully visible." },
+    { name: "图2｜等待｜社区步道", purpose: "项目里先用社区步道替代校门口，画面更干净。", description: "社区门口或步道等待，看手机或整理包，不刻意摆拍。", imageType: "生活场景图", scenePreference: "社区步道", garmentTypePreference: "裤装", extraRequirement: "Use a quiet residential community walkway in early evening, standing naturally while checking phone or adjusting tote, subtle family-life context without staged parent-child portrait." },
+    { name: "图3｜回家路上｜公园慢走", purpose: "表达接完孩子后的真实走动，不要亲子写真感。", description: "孩子只出现局部背影或手部，重点保留成熟城市女性状态。", imageType: "生活场景图", scenePreference: "公园慢走", garmentTypePreference: "裤装", extraRequirement: "Show a calm after-school walk near a small park, optional child only as partial hand or back view, the woman remains the focus, shoes readable and grounded." },
+    { name: "图4｜路上细节｜社区步道", purpose: "补一张自然走路抓拍，增强真实性。", description: "傍晚树影、浅色路面，自然走路抓拍。", imageType: "生活场景图", scenePreference: "社区步道", garmentTypePreference: "裤装", extraRequirement: "Create a candid low-key walking shot with soft tree shadows, warm stone pavement, tote bag movement, full sneaker visibility, no obvious posing." },
+    { name: "图5｜收尾｜回家进门", purpose: "让一天结束，强调鞋子没有成为负担。", description: "放下托特包、钥匙和外套，一天结束的松弛感。", imageType: "生活场景图", scenePreference: "回家进门", garmentTypePreference: "裤装", extraRequirement: "Use a home entryway moment after pickup, tote bag and keys placed down, relaxed end-of-day body language, shoes clear and still naturally worn." }
+  ],
+  周末: [
+    { name: "图1｜封面｜玄关出门", purpose: "周末第一张要轻松，但还是有质感。", description: "周末玄关出门，浅色针织或白衬衫配直筒裤，手拿钥匙。", imageType: "对镜穿搭图", scenePreference: "玄关出门", garmentTypePreference: "裤装", extraRequirement: "Use a relaxed weekend entryway mirror outfit, ivory knit or white shirt, warm beige straight trousers, keys and canvas tote, face partly hidden by phone, calm not influencer-like." },
+    { name: "图2｜咖啡｜咖啡店门口", purpose: "生活方式图，适合小红书滑动第二张。", description: "人物拿外带咖啡自然走过，鞋子完整可见。", imageType: "生活场景图", scenePreference: "咖啡店门口", garmentTypePreference: "裤装", extraRequirement: "Show a quiet neighborhood cafe exterior, woman walking naturally with takeaway coffee and tote, no tourist landmark, shoes sharp and readable." },
+    { name: "图3｜买花｜花店 / 买花", purpose: "增加柔和生活感，不像单纯拍鞋。", description: "低头挑花，鞋子自然进入画面，不要摆成广告。", imageType: "生活场景图", scenePreference: "花店 / 买花", garmentTypePreference: "裤装", extraRequirement: "Show the woman quietly selecting white or pale pink flowers, looking at flowers not camera, restrained flower shop, sneakers visible without becoming a hard product shot." },
+    { name: "图4｜采购｜社区市集 / 精品买菜", purpose: "让鞋进入真实日常，不只是咖啡花店。", description: "推购物车或拿购物袋，低机位突出鞋型与真实生活感。", imageType: "生活场景图", scenePreference: "社区市集 / 精品买菜", garmentTypePreference: "裤装", extraRequirement: "Use a refined neighborhood grocery or small market, woman holding a simple paper bag or pushing a cart, low-key real errand mood, clear shoe shape." },
+    { name: "图5｜休息｜窗边阅读角", purpose: "收尾做安静场景，补品牌的 Quiet Warm Luxury。", description: "坐下翻书，双脚自然交叠，整体安静温暖。", imageType: "生活场景图", scenePreference: "窗边阅读角", garmentTypePreference: "裤装", extraRequirement: "Seat the woman near a soft window reading corner, book in hand, legs relaxed, sneakers readable, linen curtain and warm-neutral light, quiet private weekend mood." }
+  ],
+  旅行: [
+    { name: "图1｜封面｜酒店房间", purpose: "旅行内容的主图，直接进入出发前状态。", description: "酒店房间落地镜，行李箱半开，人物穿白衬衫和燕麦色裤装。", imageType: "对镜穿搭图", scenePreference: "酒店房间", garmentTypePreference: "裤装", extraRequirement: "Use a calm boutique hotel room mirror selfie, half-open suitcase, canvas tote, travel hat, ivory shirt and oatmeal trousers, shoes fully visible, not influencer travel pose." },
+    { name: "图2｜出发｜周末轻旅行出发", purpose: "项目里用轻旅行出发替代机场候机，保证类型合法。", description: "行李箱在旁边，双鞋清晰可见，像出发前真实记录。", imageType: "生活场景图", scenePreference: "周末轻旅行出发", garmentTypePreference: "裤装", extraRequirement: "Show a quiet travel departure moment with carry-on suitcase and tote, seated or standing naturally, both sneakers clearly visible, no airport branding or tourist check-in mood." },
+    { name: "图3｜漫步｜城市街角 / 安静街区", purpose: "证明旅行不是只拍酒店，也能走很多路。", description: "树荫、浅色石板路，人物自然走路。", imageType: "生活场景图", scenePreference: "城市街角 / 安静街区", garmentTypePreference: "裤装", extraRequirement: "Use a quiet city walk during travel, light stone pavement, soft greenery, natural walking posture, no landmark, full sneaker visibility." },
+    { name: "图4｜门厅｜酒店门口 / 门厅", purpose: "补一张体面、干净的旅行转场图。", description: "准备出发，托特包、轻外套、鞋子完整露出。", imageType: "生活场景图", scenePreference: "酒店门口 / 门厅", garmentTypePreference: "裤装", extraRequirement: "Show a quiet hotel lobby or doorway transition, woman adjusting tote or light trench, refined but understated, shoes readable from toe to heel." },
+    { name: "图5｜回家｜暑假外出后回家", purpose: "文案收尾，表达旅行结束生活继续。", description: "行李箱放下，弯腰整理鞋带，表达旅行结束。", imageType: "生活场景图", scenePreference: "暑假外出后回家", garmentTypePreference: "裤装", extraRequirement: "Use a home entryway after travel, suitcase on the floor, woman loosely adjusting laces or placing tote down, tired but comfortable, shoes still clear." }
+  ],
+  秋冬: [
+    { name: "图1｜封面｜入户镜前", purpose: "秋冬封面要突出温度感和提亮作用。", description: "燕麦针织、深灰直筒裤、浅色德训鞋。", imageType: "对镜穿搭图", scenePreference: "入户镜前", garmentTypePreference: "裤装", season: "秋", extraRequirement: "Use a warm autumn-winter entryway mirror outfit, oatmeal knit, warm grey straight trousers, soft beige coat nearby, shoes brightening the outfit without looking flashy." },
+    { name: "图2｜通勤｜商务区转角", purpose: "用大衣/外套场景证明秋冬也不笨重。", description: "咖色大衣通勤，鞋子提亮整身。", imageType: "生活场景图", scenePreference: "商务区转角", garmentTypePreference: "裤装", season: "秋", extraRequirement: "Show a muted autumn business-district corner with a camel or warm grey coat, trousers, tote, natural walking, sneakers making the outfit lighter." },
+    { name: "图3｜生活｜书店 / 杂志店门口", purpose: "增加秋冬文化感，适合收藏。", description: "围巾、托特包、暖色墙面，氛围安静。", imageType: "生活场景图", scenePreference: "书店 / 杂志店门口", garmentTypePreference: "裤装", season: "秋", extraRequirement: "Use a quiet bookstore or magazine shop exterior, warm wall, scarf and tote, mature relaxed expression, sneakers fully visible, no tourist street mood." },
+    { name: "图4｜材质｜材质工作台", purpose: "补一张材质图，给秋冬配色和皮料背书。", description: "麂皮、牛皮、鞋带、色卡放在暖石材上。", imageType: "拍摄花絮 / 材质图", scenePreference: "材质工作台", garmentTypePreference: "自动匹配", season: "秋", extraRequirement: "Create a tactile material table with suede samples, leather swatches, shoelaces, warm beige and soft grey color cards, product notes, no full model, quiet development mood." },
+    { name: "图5｜回家｜回家进门", purpose: "用回家场景把秋冬内容落回日常。", description: "脱下大衣，鞋子仍完整可见，有秋冬生活感。", imageType: "生活场景图", scenePreference: "回家进门", garmentTypePreference: "裤装", season: "秋", extraRequirement: "Use a calm autumn homecoming scene, coat being placed down, warm neutral hallway, visible sneakers, tactile shadows, restrained cozy mood." }
+  ],
+  女性日常: [
+    { name: "图1｜封面｜入户镜前", purpose: "最接近日常用户自拍，可作为长期内容主图。", description: "真实入户镜前，人物准备出门，手机半遮脸，鞋子完整露出。", imageType: "对镜穿搭图", scenePreference: "入户镜前", garmentTypePreference: "裤装", extraRequirement: "Use a real customer-like entryway mirror selfie, calm morning preparation, phone half covering the face, clean shirt and soft trousers, shoes fully visible." },
+    { name: "图2｜工作台｜工作台 / 桌边整理", purpose: "让内容不只在外面拍，也有真实生活秩序。", description: "笔记本、咖啡、托特包，人物坐姿自然，鞋子在下方出现。", imageType: "生活场景图", scenePreference: "工作台 / 桌边整理", garmentTypePreference: "裤装", extraRequirement: "Show a quiet desk-side reset moment with notebook, coffee, tote bag, seated natural posture, sneakers visible under the table, mature daily order." },
+    { name: "图3｜外带｜楼下便利店 / 咖啡外带", purpose: "做真实的楼下生活，不要太精致。", description: "日常感强，像朋友随手记录。", imageType: "生活场景图", scenePreference: "楼下便利店 / 咖啡外带", garmentTypePreference: "裤装", extraRequirement: "Use a downstairs takeaway coffee or convenience-store errand, candid friend-taken angle, mature relaxed woman, shoes clearly visible, no influencer check-in feel." },
+    { name: "图4｜慢走｜社区步道", purpose: "补一张自然走动图，强调舒服和日常。", description: "自然慢走，低饱和背景，鞋子清楚。", imageType: "生活场景图", scenePreference: "社区步道", garmentTypePreference: "裤装", extraRequirement: "Create a soft neutral residential walkway slow-walk shot, calm posture, subtle greenery, full sneaker visibility, quiet ordinary day mood." },
+    { name: "图5｜静物｜材质工作台", purpose: "最后补品牌质感，不让整组全是人物。", description: "鞋子、白衬衫、钥匙、色卡和皮料，表达日常秩序。", imageType: "产品静物图", scenePreference: "材质工作台", garmentTypePreference: "自动匹配", extraRequirement: "Create a refined product still life with the selected sneakers, white shirt fabric, keys, subtle color cards, leather swatches, warm stone surface, quiet daily order." }
+  ]
 };
 
 function resolveBaseSeason(baseSeason: TeamSeason, overrideSeason?: TeamSeason) {
@@ -568,16 +665,25 @@ function buildImagePlan(baseParams: TeamPromptParams, draft: SoftSeedingImageDra
 }
 
 export function generateSoftSeedingContent(input: SoftSeedingInput): SoftSeedingContent {
-  const draft = topicDrafts[input.topic];
+  const mode = input.mode ?? "今日自动";
+  const dailySelection = getDailySoftSeedingSelection(input.date);
+  const topic = mode === "今日自动" ? dailySelection.topic : input.topic ?? dailySelection.topic;
+  const copyPool = topicCopyPools[topic];
+  const dayNumber = getDayNumber(input.date);
+  const variantIndex = mode === "今日自动" ? dailySelection.variantIndex : dayNumber % copyPool.length;
+  const copy = copyPool[variantIndex];
   const imageCount = input.imageCount ?? 5;
 
   return {
-    topic: input.topic,
-    titles: draft.titles,
-    body: draft.body,
-    images: draft.imageDrafts.slice(0, imageCount).map((imageDraft, index) => buildImagePlan(input.baseParams, imageDraft, index)),
-    tags: draft.tags,
-    note: draft.note
+    topic,
+    dateKey: dailySelection.dateKey,
+    variantIndex,
+    variantLabel: `第 ${variantIndex + 1} 版`,
+    titles: copy.titles,
+    body: copy.body,
+    images: topicImageDrafts[topic].slice(0, imageCount).map((imageDraft, index) => buildImagePlan(input.baseParams, imageDraft, index)),
+    tags: copy.tags,
+    note: copy.note
   };
 }
 
@@ -588,7 +694,7 @@ export function getShoeDisplayName(shoe: TeamShoe, customShoe: string) {
 
 export function formatSoftSeedingContent(content: SoftSeedingContent) {
   return [
-    `# THERUIZ AURA 软种草｜${content.topic}`,
+    `# THERUIZ AURA 软种草｜${content.dateKey}｜${content.topic}｜${content.variantLabel}`,
     "",
     "## 标题",
     ...content.titles.map((title, index) => `${index + 1}. ${title}`),
