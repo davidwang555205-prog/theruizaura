@@ -11,6 +11,13 @@ import type {
   TeamStudioLaunchAnglePreference
 } from "./types";
 import { generateTeamPrompt } from "./utils/generatePrompt";
+import {
+  formatSoftSeedingContent,
+  generateSoftSeedingContent,
+  getShoeDisplayName,
+  softSeedingTopicOptions,
+  type SoftSeedingTopic
+} from "./utils/generateSoftSeedingContent";
 import { promptQualityPatchNotice } from "./data/promptPatches";
 import { getCompatibleSceneOptions, isSceneCompatibleWithImageType } from "./data/teamSceneOptions";
 import { TEAM_MODEL_OPTIONS } from "./data/teamModelProfiles";
@@ -75,8 +82,15 @@ const initialParams: TeamPromptParams = {
   generationNonce: 0
 };
 
+const initialGeneratedPrompt = generateTeamPrompt(initialParams).prompt;
+
 const inputClass =
   "w-full rounded-[18px] border border-aura-beige bg-white/75 px-4 py-3 text-sm text-aura-charcoal outline-none transition focus:border-aura-clay";
+const primaryButtonClass =
+  "rounded-[18px] bg-aura-charcoal px-5 py-3 text-sm font-medium text-aura-porcelain shadow-sm transition hover:bg-aura-muted";
+const clayButtonClass =
+  "rounded-[18px] bg-aura-clay px-5 py-3 text-sm font-medium text-white shadow-sm transition hover:bg-aura-charcoal";
+const cardClass = "rounded-[22px] bg-white/70 p-5 ring-1 ring-aura-beige/70";
 
 function updateField<K extends keyof TeamPromptParams>(
   params: TeamPromptParams,
@@ -88,9 +102,19 @@ function updateField<K extends keyof TeamPromptParams>(
 
 function App() {
   const [params, setParams] = useState<TeamPromptParams>(initialParams);
-  const [generatedPrompt, setGeneratedPrompt] = useState(() => generateTeamPrompt(initialParams).prompt);
+  const [generatedPrompt, setGeneratedPrompt] = useState(() => initialGeneratedPrompt);
   const [copyStatus, setCopyStatus] = useState("");
   const [hasPendingChanges, setHasPendingChanges] = useState(false);
+  const [softTopic, setSoftTopic] = useState<SoftSeedingTopic>("通勤");
+  const [softImageCount, setSoftImageCount] = useState<3 | 5>(5);
+  const [softContent, setSoftContent] = useState(() =>
+    generateSoftSeedingContent({
+      topic: "通勤",
+      baseParams: initialParams,
+      imageCount: 5
+    })
+  );
+  const [softCopyStatus, setSoftCopyStatus] = useState("");
   const sceneOptions = getCompatibleSceneOptions(params.imageType);
   const showsModelChoice = peopleImageTypes.includes(params.imageType);
 
@@ -98,6 +122,7 @@ function App() {
     setParams((current) => updater(current));
     setHasPendingChanges(true);
     setCopyStatus("");
+    setSoftCopyStatus("");
   };
 
   const handleGenerate = () => {
@@ -112,9 +137,44 @@ function App() {
     setHasPendingChanges(false);
   };
 
+  const syncPromptParams = () => {
+    if (!hasPendingChanges) return params;
+
+    const syncedParams: TeamPromptParams = {
+      ...params,
+      generationNonce: params.generationNonce + 1
+    };
+    setParams(syncedParams);
+    setGeneratedPrompt(generateTeamPrompt(syncedParams).prompt);
+    setHasPendingChanges(false);
+    return syncedParams;
+  };
+
   const handleCopy = async () => {
     await navigator.clipboard.writeText(generatedPrompt);
     setCopyStatus("已复制提示词。");
+  };
+
+  const handleGenerateSoftContent = () => {
+    const syncedParams = syncPromptParams();
+    setSoftContent(
+      generateSoftSeedingContent({
+        topic: softTopic,
+        baseParams: syncedParams,
+        imageCount: softImageCount
+      })
+    );
+    setSoftCopyStatus("");
+  };
+
+  const handleCopySoftContent = async () => {
+    await navigator.clipboard.writeText(formatSoftSeedingContent(softContent));
+    setSoftCopyStatus("已复制软种草全文。");
+  };
+
+  const handleCopyImagePrompt = async (prompt: string, name: string) => {
+    await navigator.clipboard.writeText(prompt);
+    setSoftCopyStatus(`已复制 ${name} 的 Image 2.0 提示词。`);
   };
 
   return (
@@ -373,15 +433,11 @@ function App() {
 
               {hasPendingChanges && (
                 <p className="rounded-[16px] bg-aura-cream px-4 py-3 text-sm leading-6 text-aura-muted ring-1 ring-aura-beige/70">
-                  参数已更改，请点击“生成提示词”刷新右侧结果。
+                  参数已更改，请点击“生成提示词”刷新右侧结果，或直接生成软种草内容自动同步。
                 </p>
               )}
 
-              <button
-                type="button"
-                onClick={handleGenerate}
-                className="w-full rounded-[18px] bg-aura-charcoal px-5 py-3 text-sm font-medium text-aura-porcelain shadow-sm transition hover:bg-aura-muted"
-              >
+              <button type="button" onClick={handleGenerate} className={`w-full ${primaryButtonClass}`}>
                 {hasPendingChanges ? "重新生成提示词" : "生成提示词"}
               </button>
             </div>
@@ -393,11 +449,7 @@ function App() {
                 <h2 className="text-xl font-semibold text-aura-charcoal">最终英文提示词</h2>
                 <p className="mt-2 text-sm leading-6 text-aura-muted">Standard 版本，可直接复制使用。</p>
               </div>
-              <button
-                type="button"
-                onClick={handleCopy}
-                className="rounded-[18px] bg-aura-clay px-5 py-3 text-sm font-medium text-white shadow-sm transition hover:bg-aura-charcoal"
-              >
+              <button type="button" onClick={handleCopy} className={clayButtonClass}>
                 一键复制
               </button>
             </div>
@@ -416,6 +468,139 @@ function App() {
               生成产品上脚图、对镜穿搭图、生活场景图、产品静物图时，请务必上传对应鞋款参考图，否则 AI 容易改变鞋型与颜色。
             </p>
           </aside>
+        </section>
+
+        <section className="rounded-[28px] bg-aura-porcelain/95 p-6 shadow-aura ring-1 ring-aura-beige/70">
+          <div className="mb-6 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+            <div className="max-w-2xl">
+              <p className="text-xs uppercase tracking-[0.28em] text-aura-muted">soft seeding copy + prompt plans</p>
+              <h2 className="mt-2 text-2xl font-semibold text-aura-charcoal">每日软种草内容</h2>
+              <p className="mt-2 text-sm leading-6 text-aura-muted">
+                生成一篇真人感软种草，同时为每张配图调用当前项目的 Prompt Builder 规则，输出独立 Image 2.0 提示词。
+              </p>
+            </div>
+
+            <div className="grid w-full gap-3 sm:grid-cols-[1fr_0.7fr_auto_auto] lg:w-auto">
+              <label className="block space-y-2">
+                <span className="text-sm font-medium text-aura-charcoal">内容主题</span>
+                <select
+                  className={inputClass}
+                  value={softTopic}
+                  onChange={(event) => {
+                    setSoftTopic(event.target.value as SoftSeedingTopic);
+                    setSoftCopyStatus("");
+                  }}
+                >
+                  {softSeedingTopicOptions.map((option) => (
+                    <option key={option} value={option}>
+                      {option}
+                    </option>
+                  ))}
+                </select>
+              </label>
+
+              <label className="block space-y-2">
+                <span className="text-sm font-medium text-aura-charcoal">配图数量</span>
+                <select
+                  className={inputClass}
+                  value={softImageCount}
+                  onChange={(event) => {
+                    setSoftImageCount(Number(event.target.value) as 3 | 5);
+                    setSoftCopyStatus("");
+                  }}
+                >
+                  <option value={3}>3 张</option>
+                  <option value={5}>5 张</option>
+                </select>
+              </label>
+
+              <button type="button" onClick={handleGenerateSoftContent} className={`self-end ${primaryButtonClass}`}>
+                生成软种草
+              </button>
+
+              <button type="button" onClick={handleCopySoftContent} className={`self-end ${clayButtonClass}`}>
+                复制全文
+              </button>
+            </div>
+          </div>
+
+          <div className="grid gap-6 lg:grid-cols-[0.9fr_1.1fr]">
+            <div className="space-y-5">
+              <div className={cardClass}>
+                <h3 className="text-base font-semibold text-aura-charcoal">标题 3 个</h3>
+                <ol className="mt-3 list-decimal space-y-2 pl-5 text-sm leading-6 text-aura-charcoal">
+                  {softContent.titles.map((title) => (
+                    <li key={title}>{title}</li>
+                  ))}
+                </ol>
+              </div>
+
+              <div className={cardClass}>
+                <h3 className="text-base font-semibold text-aura-charcoal">正文</h3>
+                <div className="mt-3 whitespace-pre-wrap text-sm leading-7 text-aura-charcoal">{softContent.body}</div>
+              </div>
+
+              <div className={cardClass}>
+                <h3 className="text-base font-semibold text-aura-charcoal">标签</h3>
+                <p className="mt-3 text-sm leading-7 text-aura-charcoal">{softContent.tags.join(" ")}</p>
+              </div>
+
+              <p className="rounded-[18px] bg-aura-cream px-4 py-3 text-sm leading-6 text-aura-muted ring-1 ring-aura-beige/70">
+                {softContent.note}
+              </p>
+            </div>
+
+            <div className="space-y-5">
+              <div className={cardClass}>
+                <h3 className="text-base font-semibold text-aura-charcoal">配图卡片</h3>
+                <p className="mt-2 text-sm leading-6 text-aura-muted">
+                  每张卡片都单独调用 generateTeamPrompt，并继承当前鞋款与季节。人物连续性从第二张开始默认延续上一组人物。
+                </p>
+              </div>
+
+              {softContent.images.map((image) => (
+                <article key={image.name} className="rounded-[22px] bg-white/70 p-5 ring-1 ring-aura-beige/70">
+                  <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                    <div>
+                      <h3 className="text-base font-semibold text-aura-charcoal">{image.name}</h3>
+                      <p className="mt-2 text-sm leading-6 text-aura-muted">{image.purpose}</p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => handleCopyImagePrompt(image.prompt, image.name)}
+                      className="rounded-[16px] bg-aura-clay px-4 py-2 text-xs font-medium text-white transition hover:bg-aura-charcoal"
+                    >
+                      复制这张 Prompt
+                    </button>
+                  </div>
+
+                  <p className="mt-4 rounded-[18px] bg-aura-cream px-4 py-3 text-sm leading-6 text-aura-charcoal ring-1 ring-aura-beige/70">
+                    {image.description}
+                  </p>
+
+                  <div className="mt-4 grid gap-2 text-xs leading-5 text-aura-muted sm:grid-cols-2">
+                    <span>图片类型：{image.params.imageType}</span>
+                    <span>场景：{image.params.scenePreference}</span>
+                    <span>季节：{image.params.season}</span>
+                    <span>服装：{image.params.garmentTypePreference}</span>
+                    <span>鞋款：{getShoeDisplayName(image.params.shoe, image.params.customShoe)}</span>
+                    <span>人物：{image.params.modelContinuity}</span>
+                  </div>
+
+                  <details className="mt-4 rounded-[18px] bg-white/75 p-4 ring-1 ring-aura-beige/70">
+                    <summary className="cursor-pointer text-sm font-medium text-aura-charcoal">
+                      查看完整 Image 2.0 提示词
+                    </summary>
+                    <div className="aura-scrollbar mt-4 max-h-[360px] whitespace-pre-wrap text-sm leading-7 text-aura-charcoal lg:overflow-y-auto">
+                      {image.prompt}
+                    </div>
+                  </details>
+                </article>
+              ))}
+
+              {softCopyStatus && <p className="text-sm text-aura-muted">{softCopyStatus}</p>}
+            </div>
+          </div>
         </section>
       </div>
     </main>
