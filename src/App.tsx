@@ -16,8 +16,11 @@ import {
   generateSoftSeedingContent,
   getDailySoftSeedingSelection,
   getShoeDisplayName,
+  getSoftSeedingInventory,
+  softSeedingDailySlotOptions,
   softSeedingModeOptions,
   softSeedingTopicOptions,
+  type SoftSeedingDailySlot,
   type SoftSeedingMode,
   type SoftSeedingTopic
 } from "./utils/generateSoftSeedingContent";
@@ -50,16 +53,7 @@ const shoeOptions: TeamShoe[] = [
 ];
 
 const seasonOptions: TeamSeason[] = ["春", "夏", "秋", "冬"];
-
-const garmentTypeOptions: TeamGarmentTypePreference[] = [
-  "自动匹配",
-  "裤装",
-  "裙装",
-  "短裤",
-  "连衣裙",
-  "轻运动"
-];
-
+const garmentTypeOptions: TeamGarmentTypePreference[] = ["自动匹配", "裤装", "裙装", "短裤", "连衣裙", "轻运动"];
 const studioLaunchAngleOptions: TeamStudioLaunchAnglePreference[] = [
   "自动匹配",
   "全身棚拍角度",
@@ -67,9 +61,9 @@ const studioLaunchAngleOptions: TeamStudioLaunchAnglePreference[] = [
   "鞋子上脚特写角度",
   "3/4侧前方上脚角度"
 ];
-
 const peopleImageTypes: TeamImageType[] = ["产品上脚图", "对镜穿搭图", "生活场景图"];
-const initialDailySelection = getDailySoftSeedingSelection();
+const initialDailySelection = getDailySoftSeedingSelection(new Date(), 1);
+const softInventory = getSoftSeedingInventory();
 
 const initialParams: TeamPromptParams = {
   imageType: "产品上脚图",
@@ -89,18 +83,14 @@ const initialParams: TeamPromptParams = {
 const initialGeneratedPrompt = generateTeamPrompt(initialParams).prompt;
 
 const inputClass =
-  "w-full rounded-[18px] border border-aura-beige bg-white/75 px-4 py-3 text-sm text-aura-charcoal outline-none transition focus:border-aura-clay";
+  "w-full rounded-[18px] border border-aura-beige bg-white/75 px-4 py-3 text-sm text-aura-charcoal outline-none transition focus:border-aura-clay disabled:cursor-not-allowed disabled:bg-aura-cream disabled:text-aura-muted";
 const primaryButtonClass =
   "rounded-[18px] bg-aura-charcoal px-5 py-3 text-sm font-medium text-aura-porcelain shadow-sm transition hover:bg-aura-muted";
 const clayButtonClass =
   "rounded-[18px] bg-aura-clay px-5 py-3 text-sm font-medium text-white shadow-sm transition hover:bg-aura-charcoal";
 const cardClass = "rounded-[22px] bg-white/70 p-5 ring-1 ring-aura-beige/70";
 
-function updateField<K extends keyof TeamPromptParams>(
-  params: TeamPromptParams,
-  key: K,
-  value: TeamPromptParams[K]
-) {
+function updateField<K extends keyof TeamPromptParams>(params: TeamPromptParams, key: K, value: TeamPromptParams[K]) {
   return { ...params, [key]: value };
 }
 
@@ -110,16 +100,14 @@ function App() {
   const [copyStatus, setCopyStatus] = useState("");
   const [hasPendingChanges, setHasPendingChanges] = useState(false);
   const [softMode, setSoftMode] = useState<SoftSeedingMode>("今日自动");
+  const [softDailySlot, setSoftDailySlot] = useState<SoftSeedingDailySlot>(1);
   const [softTopic, setSoftTopic] = useState<SoftSeedingTopic>(initialDailySelection.topic);
   const [softImageCount, setSoftImageCount] = useState<3 | 5>(5);
   const [softContent, setSoftContent] = useState(() =>
-    generateSoftSeedingContent({
-      baseParams: initialParams,
-      imageCount: 5,
-      mode: "今日自动"
-    })
+    generateSoftSeedingContent({ baseParams: initialParams, imageCount: 5, mode: "今日自动", dailySlot: 1 })
   );
   const [softCopyStatus, setSoftCopyStatus] = useState("");
+
   const sceneOptions = getCompatibleSceneOptions(params.imageType);
   const showsModelChoice = peopleImageTypes.includes(params.imageType);
 
@@ -131,11 +119,7 @@ function App() {
   };
 
   const handleGenerate = () => {
-    const nextParams: TeamPromptParams = {
-      ...params,
-      generationNonce: params.generationNonce + 1
-    };
-
+    const nextParams = { ...params, generationNonce: params.generationNonce + 1 };
     setParams(nextParams);
     setGeneratedPrompt(generateTeamPrompt(nextParams).prompt);
     setCopyStatus("");
@@ -144,11 +128,7 @@ function App() {
 
   const syncPromptParams = () => {
     if (!hasPendingChanges) return params;
-
-    const syncedParams: TeamPromptParams = {
-      ...params,
-      generationNonce: params.generationNonce + 1
-    };
+    const syncedParams = { ...params, generationNonce: params.generationNonce + 1 };
     setParams(syncedParams);
     setGeneratedPrompt(generateTeamPrompt(syncedParams).prompt);
     setHasPendingChanges(false);
@@ -166,14 +146,12 @@ function App() {
       baseParams: syncedParams,
       imageCount: softImageCount,
       mode: softMode,
-      topic: softTopic
+      topic: softTopic,
+      dailySlot: softDailySlot
     });
     setSoftContent(nextContent);
     setSoftCopyStatus("");
-
-    if (softMode === "今日自动") {
-      setSoftTopic(nextContent.topic);
-    }
+    if (softMode === "今日自动") setSoftTopic(nextContent.topic);
   };
 
   const handleCopySoftContent = async () => {
@@ -245,9 +223,7 @@ function App() {
                       className={inputClass}
                       value={params.modelChoice}
                       onChange={(event) =>
-                        updateParams((current) =>
-                          updateField(current, "modelChoice", event.target.value as TeamModelChoice)
-                        )
+                        updateParams((current) => updateField(current, "modelChoice", event.target.value as TeamModelChoice))
                       }
                     >
                       {TEAM_MODEL_OPTIONS.map((option) => (
@@ -290,9 +266,7 @@ function App() {
                 <select
                   className={inputClass}
                   value={params.shoe}
-                  onChange={(event) =>
-                    updateParams((current) => updateField(current, "shoe", event.target.value as TeamShoe))
-                  }
+                  onChange={(event) => updateParams((current) => updateField(current, "shoe", event.target.value as TeamShoe))}
                 >
                   {shoeOptions.map((option) => (
                     <option key={option} value={option}>
@@ -308,9 +282,7 @@ function App() {
                   <input
                     className={inputClass}
                     value={params.customShoe}
-                    onChange={(event) =>
-                      updateParams((current) => updateField(current, "customShoe", event.target.value))
-                    }
+                    onChange={(event) => updateParams((current) => updateField(current, "customShoe", event.target.value))}
                     placeholder="例如：Warm Grey 低饱和暖灰"
                   />
                 </label>
@@ -327,9 +299,7 @@ function App() {
                 <select
                   className={inputClass}
                   value={params.season}
-                  onChange={(event) =>
-                    updateParams((current) => updateField(current, "season", event.target.value as TeamSeason))
-                  }
+                  onChange={(event) => updateParams((current) => updateField(current, "season", event.target.value as TeamSeason))}
                 >
                   {seasonOptions.map((option) => (
                     <option key={option} value={option}>
@@ -346,11 +316,7 @@ function App() {
                   value={params.garmentTypePreference}
                   onChange={(event) =>
                     updateParams((current) =>
-                      updateField(
-                        current,
-                        "garmentTypePreference",
-                        event.target.value as TeamGarmentTypePreference
-                      )
+                      updateField(current, "garmentTypePreference", event.target.value as TeamGarmentTypePreference)
                     )
                   }
                 >
@@ -363,9 +329,7 @@ function App() {
               </label>
 
               <details className="rounded-[20px] bg-white/55 px-4 py-3 ring-1 ring-aura-beige/70">
-                <summary className="cursor-pointer text-sm font-medium text-aura-charcoal">
-                  高级选项：手动指定场景
-                </summary>
+                <summary className="cursor-pointer text-sm font-medium text-aura-charcoal">高级选项：手动指定场景</summary>
                 <label className="mt-4 block space-y-2">
                   <span className="text-sm font-medium text-aura-charcoal">场景偏好</span>
                   <select
@@ -404,11 +368,7 @@ function App() {
                       value={params.studioLaunchAnglePreference}
                       onChange={(event) =>
                         updateParams((current) =>
-                          updateField(
-                            current,
-                            "studioLaunchAnglePreference",
-                            event.target.value as TeamStudioLaunchAnglePreference
-                          )
+                          updateField(current, "studioLaunchAnglePreference", event.target.value as TeamStudioLaunchAnglePreference)
                         )
                       }
                     >
@@ -430,9 +390,7 @@ function App() {
                 <textarea
                   className={`${inputClass} min-h-28`}
                   value={params.extraRequirement}
-                  onChange={(event) =>
-                    updateParams((current) => updateField(current, "extraRequirement", event.target.value))
-                  }
+                  onChange={(event) => updateParams((current) => updateField(current, "extraRequirement", event.target.value))}
                   placeholder="例如：Use a soft cream cardigan and cropped straight-leg denim."
                 />
                 <span className="block text-xs leading-5 text-aura-muted">
@@ -482,14 +440,14 @@ function App() {
         <section className="rounded-[28px] bg-aura-porcelain/95 p-6 shadow-aura ring-1 ring-aura-beige/70">
           <div className="mb-6 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
             <div className="max-w-2xl">
-              <p className="text-xs uppercase tracking-[0.28em] text-aura-muted">daily soft seeding copy + prompt plans</p>
+              <p className="text-xs uppercase tracking-[0.28em] text-aura-muted">yearly soft seeding copy + prompt plans</p>
               <h2 className="mt-2 text-2xl font-semibold text-aura-charcoal">每日软种草内容</h2>
               <p className="mt-2 text-sm leading-6 text-aura-muted">
-                默认按当天日期自动轮换主题和文案版本；也可以切到手动主题。每张配图都会调用现有 Prompt Builder 输出独立 Image 2.0 提示词。
+                默认按当天日期自动轮换主题和文案组合；每天可生成第 1 篇 / 第 2 篇。当前组合池共 {softInventory.total.toLocaleString()} 条，按每天 2 篇计算，约 {softInventory.daysWithoutRepeatAtTwoPosts.toLocaleString()} 天不重复。
               </p>
             </div>
 
-            <div className="grid w-full gap-3 sm:grid-cols-[0.9fr_1fr_0.7fr_auto_auto] lg:w-auto">
+            <div className="grid w-full gap-3 sm:grid-cols-[0.9fr_0.7fr_1fr_0.7fr_auto_auto] lg:w-auto">
               <label className="block space-y-2">
                 <span className="text-sm font-medium text-aura-charcoal">生成模式</span>
                 <select
@@ -497,17 +455,36 @@ function App() {
                   value={softMode}
                   onChange={(event) => {
                     const nextMode = event.target.value as SoftSeedingMode;
-                    const dailySelection = getDailySoftSeedingSelection();
+                    const dailySelection = getDailySoftSeedingSelection(new Date(), softDailySlot);
                     setSoftMode(nextMode);
-                    if (nextMode === "今日自动") {
-                      setSoftTopic(dailySelection.topic);
-                    }
+                    if (nextMode === "今日自动") setSoftTopic(dailySelection.topic);
                     setSoftCopyStatus("");
                   }}
                 >
                   {softSeedingModeOptions.map((option) => (
                     <option key={option} value={option}>
                       {option}
+                    </option>
+                  ))}
+                </select>
+              </label>
+
+              <label className="block space-y-2">
+                <span className="text-sm font-medium text-aura-charcoal">今日篇序</span>
+                <select
+                  className={inputClass}
+                  value={softDailySlot}
+                  onChange={(event) => {
+                    const nextSlot = Number(event.target.value) as SoftSeedingDailySlot;
+                    const dailySelection = getDailySoftSeedingSelection(new Date(), nextSlot);
+                    setSoftDailySlot(nextSlot);
+                    if (softMode === "今日自动") setSoftTopic(dailySelection.topic);
+                    setSoftCopyStatus("");
+                  }}
+                >
+                  {softSeedingDailySlotOptions.map((option) => (
+                    <option key={option} value={option}>
+                      第 {option} 篇
                     </option>
                   ))}
                 </select>
@@ -558,8 +535,8 @@ function App() {
           </div>
 
           <p className="mb-6 rounded-[18px] bg-aura-cream px-4 py-3 text-sm leading-6 text-aura-muted ring-1 ring-aura-beige/70">
-            今日内容：{softContent.dateKey} · {softContent.topic} · {softContent.variantLabel}
-            {softMode === "今日自动" ? "。每天打开页面会按日期自动轮换。" : "。当前为手动主题，文案版本仍按当天日期轮换。"}
+            今日内容：{softContent.dateKey} · 第 {softContent.dailySlot} 篇 · {softContent.topic} · {softContent.variantLabel}
+            {softMode === "今日自动" ? "。每天打开页面会按日期和篇序自动轮换。" : "。当前为手动主题，文案组合仍按日期和篇序轮换。"}
           </p>
 
           <div className="grid gap-6 lg:grid-cols-[0.9fr_1.1fr]">
