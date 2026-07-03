@@ -89,6 +89,9 @@ const primaryButtonClass =
 const clayButtonClass =
   "rounded-[18px] bg-aura-clay px-5 py-3 text-sm font-medium text-white shadow-sm transition hover:bg-aura-charcoal";
 const cardClass = "rounded-[22px] bg-white/70 p-5 ring-1 ring-aura-beige/70";
+const softControlPanelClass = "rounded-[24px] bg-white/65 p-4 ring-1 ring-aura-beige/70";
+const softStatusPillClass =
+  "rounded-full bg-aura-cream px-3 py-1 text-xs font-medium text-aura-muted ring-1 ring-aura-beige/70";
 
 function updateField<K extends keyof TeamPromptParams>(params: TeamPromptParams, key: K, value: TeamPromptParams[K]) {
   return { ...params, [key]: value };
@@ -438,106 +441,121 @@ function App() {
         </section>
 
         <section className="rounded-[28px] bg-aura-porcelain/95 p-6 shadow-aura ring-1 ring-aura-beige/70">
-          <div className="mb-6 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-            <div className="max-w-2xl">
-              <p className="text-xs uppercase tracking-[0.28em] text-aura-muted">yearly soft seeding copy + prompt plans</p>
-              <h2 className="mt-2 text-2xl font-semibold text-aura-charcoal">每日软种草内容</h2>
-              <p className="mt-2 text-sm leading-6 text-aura-muted">
-                默认按当天日期自动轮换主题和文案组合；每天可生成第 1 篇 / 第 2 篇。当前组合池共 {softInventory.total.toLocaleString()} 条，按每天 2 篇计算，约 {softInventory.daysWithoutRepeatAtTwoPosts.toLocaleString()} 天不重复。
+          <div className="mb-6 space-y-5">
+            <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
+              <div className="max-w-2xl">
+                <p className="text-xs uppercase tracking-[0.28em] text-aura-muted">
+                  yearly soft seeding copy + prompt plans
+                </p>
+                <h2 className="mt-2 text-2xl font-semibold text-aura-charcoal">每日软种草内容</h2>
+                <p className="mt-2 text-sm leading-6 text-aura-muted">
+                  自动生成标题、正文、标签和配图提示词。当前组合池共 {softInventory.total.toLocaleString()} 条，按每天 2 篇计算，约 {softInventory.daysWithoutRepeatAtTwoPosts.toLocaleString()} 天不重复。
+                </p>
+              </div>
+
+              <div className="flex flex-wrap gap-2">
+                <span className={softStatusPillClass}>{softContent.dateKey}</span>
+                <span className={softStatusPillClass}>第 {softContent.dailySlot} 篇</span>
+                <span className={softStatusPillClass}>{softContent.topic}</span>
+                <span className={softStatusPillClass}>{softContent.variantLabel}</span>
+              </div>
+            </div>
+
+            <div className={softControlPanelClass}>
+              <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-[0.9fr_0.7fr_1fr_0.7fr_auto] xl:items-end">
+                <label className="block space-y-2">
+                  <span className="text-sm font-medium text-aura-charcoal">生成模式</span>
+                  <select
+                    className={inputClass}
+                    value={softMode}
+                    onChange={(event) => {
+                      const nextMode = event.target.value as SoftSeedingMode;
+                      const dailySelection = getDailySoftSeedingSelection(new Date(), softDailySlot);
+                      setSoftMode(nextMode);
+                      if (nextMode === "今日自动") setSoftTopic(dailySelection.topic);
+                      setSoftCopyStatus("");
+                    }}
+                  >
+                    {softSeedingModeOptions.map((option) => (
+                      <option key={option} value={option}>
+                        {option}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+
+                <label className="block space-y-2">
+                  <span className="text-sm font-medium text-aura-charcoal">今日篇序</span>
+                  <select
+                    className={inputClass}
+                    value={softDailySlot}
+                    onChange={(event) => {
+                      const nextSlot = Number(event.target.value) as SoftSeedingDailySlot;
+                      const dailySelection = getDailySoftSeedingSelection(new Date(), nextSlot);
+                      setSoftDailySlot(nextSlot);
+                      if (softMode === "今日自动") setSoftTopic(dailySelection.topic);
+                      setSoftCopyStatus("");
+                    }}
+                  >
+                    {softSeedingDailySlotOptions.map((option) => (
+                      <option key={option} value={option}>
+                        第 {option} 篇
+                      </option>
+                    ))}
+                  </select>
+                </label>
+
+                <label className="block space-y-2">
+                  <span className="text-sm font-medium text-aura-charcoal">内容主题</span>
+                  <select
+                    className={`${inputClass} disabled:cursor-not-allowed disabled:bg-aura-cream/70 disabled:text-aura-muted`}
+                    value={softTopic}
+                    disabled={softMode === "今日自动"}
+                    onChange={(event) => {
+                      setSoftTopic(event.target.value as SoftSeedingTopic);
+                      setSoftCopyStatus("");
+                    }}
+                  >
+                    {softSeedingTopicOptions.map((option) => (
+                      <option key={option} value={option}>
+                        {option}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+
+                <label className="block space-y-2">
+                  <span className="text-sm font-medium text-aura-charcoal">配图数量</span>
+                  <select
+                    className={inputClass}
+                    value={softImageCount}
+                    onChange={(event) => {
+                      setSoftImageCount(Number(event.target.value) as 3 | 5);
+                      setSoftCopyStatus("");
+                    }}
+                  >
+                    <option value={3}>3 张</option>
+                    <option value={5}>5 张</option>
+                  </select>
+                </label>
+
+                <div className="grid gap-3 sm:grid-cols-2 xl:min-w-[220px] xl:grid-cols-1">
+                  <button type="button" onClick={handleGenerateSoftContent} className={primaryButtonClass}>
+                    生成软种草
+                  </button>
+                  <button type="button" onClick={handleCopySoftContent} className={clayButtonClass}>
+                    复制全文
+                  </button>
+                </div>
+              </div>
+
+              <p className="mt-4 text-xs leading-5 text-aura-muted">
+                {softMode === "今日自动"
+                  ? "今日自动会按日期和篇序轮换主题与文案版本。"
+                  : "手动主题会固定主题，文案版本仍按日期和篇序轮换。"}
               </p>
             </div>
-
-            <div className="grid w-full gap-3 sm:grid-cols-[0.9fr_0.7fr_1fr_0.7fr_auto_auto] lg:w-auto">
-              <label className="block space-y-2">
-                <span className="text-sm font-medium text-aura-charcoal">生成模式</span>
-                <select
-                  className={inputClass}
-                  value={softMode}
-                  onChange={(event) => {
-                    const nextMode = event.target.value as SoftSeedingMode;
-                    const dailySelection = getDailySoftSeedingSelection(new Date(), softDailySlot);
-                    setSoftMode(nextMode);
-                    if (nextMode === "今日自动") setSoftTopic(dailySelection.topic);
-                    setSoftCopyStatus("");
-                  }}
-                >
-                  {softSeedingModeOptions.map((option) => (
-                    <option key={option} value={option}>
-                      {option}
-                    </option>
-                  ))}
-                </select>
-              </label>
-
-              <label className="block space-y-2">
-                <span className="text-sm font-medium text-aura-charcoal">今日篇序</span>
-                <select
-                  className={inputClass}
-                  value={softDailySlot}
-                  onChange={(event) => {
-                    const nextSlot = Number(event.target.value) as SoftSeedingDailySlot;
-                    const dailySelection = getDailySoftSeedingSelection(new Date(), nextSlot);
-                    setSoftDailySlot(nextSlot);
-                    if (softMode === "今日自动") setSoftTopic(dailySelection.topic);
-                    setSoftCopyStatus("");
-                  }}
-                >
-                  {softSeedingDailySlotOptions.map((option) => (
-                    <option key={option} value={option}>
-                      第 {option} 篇
-                    </option>
-                  ))}
-                </select>
-              </label>
-
-              <label className="block space-y-2">
-                <span className="text-sm font-medium text-aura-charcoal">内容主题</span>
-                <select
-                  className={inputClass}
-                  value={softTopic}
-                  disabled={softMode === "今日自动"}
-                  onChange={(event) => {
-                    setSoftTopic(event.target.value as SoftSeedingTopic);
-                    setSoftCopyStatus("");
-                  }}
-                >
-                  {softSeedingTopicOptions.map((option) => (
-                    <option key={option} value={option}>
-                      {option}
-                    </option>
-                  ))}
-                </select>
-              </label>
-
-              <label className="block space-y-2">
-                <span className="text-sm font-medium text-aura-charcoal">配图数量</span>
-                <select
-                  className={inputClass}
-                  value={softImageCount}
-                  onChange={(event) => {
-                    setSoftImageCount(Number(event.target.value) as 3 | 5);
-                    setSoftCopyStatus("");
-                  }}
-                >
-                  <option value={3}>3 张</option>
-                  <option value={5}>5 张</option>
-                </select>
-              </label>
-
-              <button type="button" onClick={handleGenerateSoftContent} className={`self-end ${primaryButtonClass}`}>
-                生成软种草
-              </button>
-
-              <button type="button" onClick={handleCopySoftContent} className={`self-end ${clayButtonClass}`}>
-                复制全文
-              </button>
-            </div>
           </div>
-
-          <p className="mb-6 rounded-[18px] bg-aura-cream px-4 py-3 text-sm leading-6 text-aura-muted ring-1 ring-aura-beige/70">
-            今日内容：{softContent.dateKey} · 第 {softContent.dailySlot} 篇 · {softContent.topic} · {softContent.variantLabel}
-            {softMode === "今日自动" ? "。每天打开页面会按日期和篇序自动轮换。" : "。当前为手动主题，文案组合仍按日期和篇序轮换。"}
-          </p>
 
           <div className="grid gap-6 lg:grid-cols-[0.9fr_1.1fr]">
             <div className="space-y-5">
@@ -583,7 +601,7 @@ function App() {
                     <button
                       type="button"
                       onClick={() => handleCopyImagePrompt(image.prompt, image.name)}
-                      className="rounded-[16px] bg-aura-clay px-4 py-2 text-xs font-medium text-white transition hover:bg-aura-charcoal"
+                      className="shrink-0 rounded-[16px] bg-aura-clay px-4 py-2 text-xs font-medium text-white transition hover:bg-aura-charcoal"
                     >
                       复制这张 Prompt
                     </button>
@@ -593,13 +611,15 @@ function App() {
                     {image.description}
                   </p>
 
-                  <div className="mt-4 grid gap-2 text-xs leading-5 text-aura-muted sm:grid-cols-2">
-                    <span>图片类型：{image.params.imageType}</span>
-                    <span>场景：{image.params.scenePreference}</span>
-                    <span>季节：{image.params.season}</span>
-                    <span>服装：{image.params.garmentTypePreference}</span>
-                    <span>鞋款：{getShoeDisplayName(image.params.shoe, image.params.customShoe)}</span>
-                    <span>人物：{image.params.modelContinuity}</span>
+                  <div className="mt-4 flex flex-wrap gap-2 text-xs leading-5 text-aura-muted">
+                    <span className={softStatusPillClass}>{image.params.imageType}</span>
+                    <span className={softStatusPillClass}>{image.params.scenePreference}</span>
+                    <span className={softStatusPillClass}>{image.params.season}</span>
+                    <span className={softStatusPillClass}>{image.params.garmentTypePreference}</span>
+                    <span className={softStatusPillClass}>
+                      {getShoeDisplayName(image.params.shoe, image.params.customShoe)}
+                    </span>
+                    <span className={softStatusPillClass}>{image.params.modelContinuity}</span>
                   </div>
 
                   <details className="mt-4 rounded-[18px] bg-white/75 p-4 ring-1 ring-aura-beige/70">
