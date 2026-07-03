@@ -252,6 +252,9 @@ function removeMaleCoastalHeavyLanguage(text: string) {
   return text
     .replace(/\blight wool blazer\b/gi, "light cotton-twill blazer")
     .replace(/\blight wool\b/gi, "light cotton-twill")
+    .replace(/\bcashmere-blend knit\b/gi, "silk-cotton layer")
+    .replace(/\bcashmere-blend\b/gi, "silk-cotton")
+    .replace(/\bcashmere\b/gi, "silk-cotton")
     .replace(/\bfine knit polo\b/gi, "mercerized-cotton polo")
     .replace(/\bfine knit texture\b/gi, "silk-cotton texture")
     .replace(/\bfine knit\b/gi, "silk-cotton")

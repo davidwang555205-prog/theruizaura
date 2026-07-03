@@ -35,7 +35,7 @@ export const strengthTrainingBoundaryCompact =
   "If a light strength-training mood appears, keep it elegant and restrained: light dumbbells, calm machine-side moments, training pauses, or preparation/post-workout transitions are allowed, but avoid hardcore lifting, sweaty exertion, bodybuilding energy, or aggressive gym culture.";
 
 export const darkActiveOutfitBalanceCompact =
-  "Allow darker activewear pieces such as black, charcoal, navy, or dark coffee tops, shorts, or trousers to make the gym styling feel more real and less AI-clean, but balance them with light or neutral elements so the overall image stays refined, breathable, and aligned with THERUIZ AURA.";
+  "Allow darker activewear pieces such as black, charcoal, navy, or dark brown tops, shorts, or trousers to make the gym styling feel more real and less AI-clean, but balance them with light or neutral elements so the overall image stays refined, breathable, and aligned with THERUIZ AURA.";
 
 export const lightStrengthActionCompact =
   "If the gym scene includes strength-related action, keep it subtle and refined: show calm movement-oriented moments such as holding a light dumbbell, pausing near a machine, walking through the strength area, or resting between light sets. Avoid intense exertion or hardcore lifting visuals.";
@@ -95,7 +95,7 @@ const gymInteriorExpandedLines: ActiveOutfitLine[] = [
     season: ["夏", "春"],
     suitableShoes: ["Cappuccino 卡布奇诺", "Maple Grove 枫林", "Sand Dollar 沙钱白"],
     compactLine:
-      "Use a dark coffee fitted short-sleeve top, ivory clean athletic shorts, and a taupe tote for a refined summer indoor workout look.",
+      "Use a dark brown fitted short-sleeve top, ivory clean athletic shorts, and a taupe tote for a refined summer indoor workout look.",
     forbidden:
       "Avoid neon activewear, fluorescent gymwear, compression-brand styling, bodybuilder outfit, insufficiently layered activewear, tailored knee-length active shorts, and cheap matching sports sets."
   },
@@ -165,7 +165,7 @@ const gymInteriorExpandedLines: ActiveOutfitLine[] = [
     season: ["春", "夏", "秋", "冬"],
     suitableShoes: ["Cappuccino 卡布奇诺", "Maple Grove 枫林", "Oreo 奥利奥", "Panda 熊猫"],
     compactLine:
-      "Style her in a dark coffee sleeveless active top, soft grey active trousers, and a black clean tote for a quiet luxury gym outfit.",
+      "Style her in a dark brown sleeveless active top, soft grey active trousers, and a black clean tote for a quiet luxury gym outfit.",
     forbidden:
       "Avoid neon activewear, fluorescent gymwear, compression-brand styling, bodybuilder outfit, insufficiently layered activewear, tailored knee-length active shorts, and cheap matching sports sets."
   },
@@ -486,7 +486,7 @@ function scorePremiumGymOutfit(line: ActiveOutfitLine, input: ActiveOutfitInput,
   if ((input.shoe === "Oreo 奥利奥" || input.shoe === "Panda 熊猫") && /black|charcoal|graphite|deep|contrast|strength/.test(lineText)) score += 10;
   if (input.shoe === "Delphinium Blue 飞燕草蓝" && /navy|pale grey|soft grey|cream|studio/.test(lineText)) score += 7;
   if (input.shoe === "Silver Romance 银色浪漫" && /mirror|grey|black|departure|structured/.test(lineText)) score += 5;
-  if ((input.shoe === "Cappuccino 卡布奇诺" || input.shoe === "Maple Grove 枫林") && /dark coffee|taupe|charcoal|training-break|soft grey/.test(lineText)) score += 8;
+  if ((input.shoe === "Cappuccino 卡布奇诺" || input.shoe === "Maple Grove 枫林") && /dark brown|taupe|charcoal|training-break|soft grey/.test(lineText)) score += 8;
   if (input.shoe === "Lemon 柠檬" && /cream|olive|beige|ivory|pale|shorts/.test(lineText)) score += 8;
 
   USER_ITEM_KEYWORDS.concat(["shorts", "tee", "t-shirt", "tank", "短裤", "短袖", "深色", "黑色"]).forEach((keyword) => {

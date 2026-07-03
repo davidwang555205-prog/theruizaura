@@ -631,13 +631,13 @@ export const perSceneOutfitLibrary: Record<string, OutfitEntry[]> = {
       imageTypes: ["gym", "lifestyle"],
       colorMood: ["dark coffee", "ivory", "taupe"],
       styleTags: ["warm active", "premium gym", "summer movement"],
-      topCategory: "dark coffee fitted short-sleeve top",
+      topCategory: "dark brown fitted short-sleeve top",
       bottomCategory: "ivory clean athletic shorts",
       outerLayerCategory: "no outer layer",
       bagCategory: "taupe movement tote",
       accessoryCategory: ["water bottle"],
       compactLine:
-        "Use a dark coffee fitted short-sleeve top, ivory clean athletic shorts, and a taupe tote for a refined summer indoor workout look.",
+        "Use a dark brown fitted short-sleeve top, ivory clean athletic shorts, and a taupe tote for a refined summer indoor workout look.",
       forbidden: ["body-focused activewear", "impractical short active shorts", "cheap sports set"]
     },
     {
