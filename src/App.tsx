@@ -403,7 +403,7 @@ function App() {
 
               {hasPendingChanges && (
                 <p className="rounded-[16px] bg-aura-cream px-4 py-3 text-sm leading-6 text-aura-muted ring-1 ring-aura-beige/70">
-                  参数已更改，请点击“生成提示词”刷新右侧结果，或直接生成软种草内容自动同步。
+                  参数已更改，请点击“生成提示词”刷新右侧结果，或直接生成小红书内容自动同步。
                 </p>
               )}
 
@@ -447,7 +447,7 @@ function App() {
                 <p className="text-xs uppercase tracking-[0.28em] text-aura-muted">
                   yearly soft seeding copy + prompt plans
                 </p>
-                <h2 className="mt-2 text-2xl font-semibold text-aura-charcoal">每日软种草内容</h2>
+                <h2 className="mt-2 text-2xl font-semibold text-aura-charcoal">每日小红书内容</h2>
                 <p className="mt-2 text-sm leading-6 text-aura-muted">
                   自动生成标题、正文、标签和配图提示词。当前组合池共 {softInventory.total.toLocaleString()} 条，按每天 2 篇计算，约 {softInventory.daysWithoutRepeatAtTwoPosts.toLocaleString()} 天不重复。
                 </p>
@@ -541,7 +541,7 @@ function App() {
 
                 <div className="grid gap-3 sm:grid-cols-2 xl:min-w-[220px] xl:grid-cols-1">
                   <button type="button" onClick={handleGenerateSoftContent} className={primaryButtonClass}>
-                    生成软种草
+                    生成小红书内容
                   </button>
                   <button type="button" onClick={handleCopySoftContent} className={clayButtonClass}>
                     复制全部生图 Prompt

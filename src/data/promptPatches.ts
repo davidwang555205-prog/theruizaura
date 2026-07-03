@@ -26,7 +26,7 @@ export const promptQualityPatches = {
   sneakerVisibility:
     "Keep at least one sneaker fully visible from toe to heel, with the second sneaker clearly readable. Keep garment hems and socks physically separated from the sneakers. The sneaker collar, tongue, tied laces and outsole must remain clear.",
   materialRule:
-    "Only Aire uses lambskin lining. Other current THERUIZ AURA styles use pigskin lining unless manually specified.",
+    "All current THERUIZ AURA styles use pigskin lining unless manually specified. Keep lining details accurate and secondary to the selected image type.",
   bodyAndClippingProtection:
     "Keep body scale, leg length, hand size, foot scale and shoe-to-leg relationship realistic. No fabric melting into shoes, no fused legs, no distorted feet, no extra toes, no over-stretched legs, no plastic skin, no mannequin-like stiffness.",
   seasonalOutfitMatch:
@@ -46,10 +46,10 @@ const compactPatchLines = {
     "Preserve the uploaded low-cut German trainer shape, rounded toe box, slim outsole, panels, tongue, stitching, laces, color, material transitions, and proportions; do not redesign it.",
   sneakerVisibility:
     "Keep at least one sneaker fully visible, the second readable, outsole grounded, and keep fabric, socks, collar, tongue, tied laces, and floor contact physically separated.",
-  aireMaterialRule:
-    "For Aire, use lambskin lining only when lining is visible or relevant; keep material details accurate and secondary to the selected image type.",
+  pigskinMaterialRule:
+    "Use pigskin lining for current THERUIZ AURA styles when lining is visible or relevant; keep material details accurate and secondary to the selected image type.",
   standardMaterialRule:
-    "Use the selected THERUIZ AURA style's correct lining and material construction when visible; do not invent lambskin lining for non-Aire styles.",
+    "Use pigskin lining for current THERUIZ AURA styles when lining is visible or relevant; keep material details accurate and do not invent a different lining.",
   materialDetailRule:
     "For material or behind-the-scenes images, show only relevant material details, samples, swatches, laces, stitching, notes, or partial product details; do not turn the image into a direct full-shoe product shot unless explicitly requested.",
   bodyAndClippingProtection:
@@ -186,8 +186,7 @@ function getMaterialRuleLine(input: { imageType: TeamImageType; hasShoe: boolean
   }
 
   if (!input.hasShoe && !materialDetailImage) return "";
-  if (input.shoe === "Aire 微风") return compactPatchLines.aireMaterialRule;
-  return compactPatchLines.standardMaterialRule;
+  return compactPatchLines.pigskinMaterialRule;
 }
 
 export function getPromptQualityPatchLines(input: {
