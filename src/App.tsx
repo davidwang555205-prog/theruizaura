@@ -14,8 +14,11 @@ import { generateTeamPrompt } from "./utils/generatePrompt";
 import {
   formatSoftSeedingContent,
   generateSoftSeedingContent,
+  getDailySoftSeedingSelection,
   getShoeDisplayName,
+  softSeedingModeOptions,
   softSeedingTopicOptions,
+  type SoftSeedingMode,
   type SoftSeedingTopic
 } from "./utils/generateSoftSeedingContent";
 import { promptQualityPatchNotice } from "./data/promptPatches";
@@ -66,6 +69,7 @@ const studioLaunchAngleOptions: TeamStudioLaunchAnglePreference[] = [
 ];
 
 const peopleImageTypes: TeamImageType[] = ["产品上脚图", "对镜穿搭图", "生活场景图"];
+const initialDailySelection = getDailySoftSeedingSelection();
 
 const initialParams: TeamPromptParams = {
   imageType: "产品上脚图",
@@ -105,13 +109,14 @@ function App() {
   const [generatedPrompt, setGeneratedPrompt] = useState(() => initialGeneratedPrompt);
   const [copyStatus, setCopyStatus] = useState("");
   const [hasPendingChanges, setHasPendingChanges] = useState(false);
-  const [softTopic, setSoftTopic] = useState<SoftSeedingTopic>("通勤");
+  const [softMode, setSoftMode] = useState<SoftSeedingMode>("今日自动");
+  const [softTopic, setSoftTopic] = useState<SoftSeedingTopic>(initialDailySelection.topic);
   const [softImageCount, setSoftImageCount] = useState<3 | 5>(5);
   const [softContent, setSoftContent] = useState(() =>
     generateSoftSeedingContent({
-      topic: "通勤",
       baseParams: initialParams,
-      imageCount: 5
+      imageCount: 5,
+      mode: "今日自动"
     })
   );
   const [softCopyStatus, setSoftCopyStatus] = useState("");
@@ -157,14 +162,18 @@ function App() {
 
   const handleGenerateSoftContent = () => {
     const syncedParams = syncPromptParams();
-    setSoftContent(
-      generateSoftSeedingContent({
-        topic: softTopic,
-        baseParams: syncedParams,
-        imageCount: softImageCount
-      })
-    );
+    const nextContent = generateSoftSeedingContent({
+      baseParams: syncedParams,
+      imageCount: softImageCount,
+      mode: softMode,
+      topic: softTopic
+    });
+    setSoftContent(nextContent);
     setSoftCopyStatus("");
+
+    if (softMode === "今日自动") {
+      setSoftTopic(nextContent.topic);
+    }
   };
 
   const handleCopySoftContent = async () => {
@@ -473,19 +482,43 @@ function App() {
         <section className="rounded-[28px] bg-aura-porcelain/95 p-6 shadow-aura ring-1 ring-aura-beige/70">
           <div className="mb-6 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
             <div className="max-w-2xl">
-              <p className="text-xs uppercase tracking-[0.28em] text-aura-muted">soft seeding copy + prompt plans</p>
+              <p className="text-xs uppercase tracking-[0.28em] text-aura-muted">daily soft seeding copy + prompt plans</p>
               <h2 className="mt-2 text-2xl font-semibold text-aura-charcoal">每日软种草内容</h2>
               <p className="mt-2 text-sm leading-6 text-aura-muted">
-                生成一篇真人感软种草，同时为每张配图调用当前项目的 Prompt Builder 规则，输出独立 Image 2.0 提示词。
+                默认按当天日期自动轮换主题和文案版本；也可以切到手动主题。每张配图都会调用现有 Prompt Builder 输出独立 Image 2.0 提示词。
               </p>
             </div>
 
-            <div className="grid w-full gap-3 sm:grid-cols-[1fr_0.7fr_auto_auto] lg:w-auto">
+            <div className="grid w-full gap-3 sm:grid-cols-[0.9fr_1fr_0.7fr_auto_auto] lg:w-auto">
+              <label className="block space-y-2">
+                <span className="text-sm font-medium text-aura-charcoal">生成模式</span>
+                <select
+                  className={inputClass}
+                  value={softMode}
+                  onChange={(event) => {
+                    const nextMode = event.target.value as SoftSeedingMode;
+                    const dailySelection = getDailySoftSeedingSelection();
+                    setSoftMode(nextMode);
+                    if (nextMode === "今日自动") {
+                      setSoftTopic(dailySelection.topic);
+                    }
+                    setSoftCopyStatus("");
+                  }}
+                >
+                  {softSeedingModeOptions.map((option) => (
+                    <option key={option} value={option}>
+                      {option}
+                    </option>
+                  ))}
+                </select>
+              </label>
+
               <label className="block space-y-2">
                 <span className="text-sm font-medium text-aura-charcoal">内容主题</span>
                 <select
                   className={inputClass}
                   value={softTopic}
+                  disabled={softMode === "今日自动"}
                   onChange={(event) => {
                     setSoftTopic(event.target.value as SoftSeedingTopic);
                     setSoftCopyStatus("");
@@ -523,6 +556,11 @@ function App() {
               </button>
             </div>
           </div>
+
+          <p className="mb-6 rounded-[18px] bg-aura-cream px-4 py-3 text-sm leading-6 text-aura-muted ring-1 ring-aura-beige/70">
+            今日内容：{softContent.dateKey} · {softContent.topic} · {softContent.variantLabel}
+            {softMode === "今日自动" ? "。每天打开页面会按日期自动轮换。" : "。当前为手动主题，文案版本仍按当天日期轮换。"}
+          </p>
 
           <div className="grid gap-6 lg:grid-cols-[0.9fr_1.1fr]">
             <div className="space-y-5">
