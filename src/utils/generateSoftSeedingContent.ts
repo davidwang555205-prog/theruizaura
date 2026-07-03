@@ -617,3 +617,9 @@ export function formatSoftSeedingContent(content: SoftSeedingContent) {
     content.note
   ].join("\n");
 }
+
+export function formatSoftSeedingImagePrompts(content: SoftSeedingContent) {
+  return content.images
+    .map((image, index) => [`Image ${index + 1}:`, image.prompt.trim()].join("\n"))
+    .join("\n\n");
+}

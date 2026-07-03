@@ -12,7 +12,7 @@ import type {
 } from "./types";
 import { generateTeamPrompt } from "./utils/generatePrompt";
 import {
-  formatSoftSeedingContent,
+  formatSoftSeedingImagePrompts,
   generateSoftSeedingContent,
   getDailySoftSeedingSelection,
   getShoeDisplayName,
@@ -158,8 +158,8 @@ function App() {
   };
 
   const handleCopySoftContent = async () => {
-    await navigator.clipboard.writeText(formatSoftSeedingContent(softContent));
-    setSoftCopyStatus("已复制软种草全文。");
+    await navigator.clipboard.writeText(formatSoftSeedingImagePrompts(softContent));
+    setSoftCopyStatus("已复制全部生图 Prompt。");
   };
 
   const handleCopyImagePrompt = async (prompt: string, name: string) => {
@@ -544,7 +544,7 @@ function App() {
                     生成软种草
                   </button>
                   <button type="button" onClick={handleCopySoftContent} className={clayButtonClass}>
-                    复制全文
+                    复制全部生图 Prompt
                   </button>
                 </div>
               </div>
