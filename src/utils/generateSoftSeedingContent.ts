@@ -48,6 +48,7 @@ type SoftSeedingInput = {
   topic?: SoftSeedingTopic;
   dailySlot?: SoftSeedingDailySlot;
   date?: Date;
+  variantOffset?: number;
 };
 
 type SoftSeedingImageDraft = {
@@ -233,10 +234,10 @@ const topicCopyKits: Record<SoftSeedingTopic, TopicCopyKit> = {
       "人物状态要松弛、干净、成熟，像真实顾客而不是硬广模特。"
     ],
     xiaohongshuAngles: [
-      "小红书语气要像真实穿搭笔记：先说一个生活痛点，再给出这双鞋为什么省心，不要像广告口播。",
-      "内容要有可收藏价值：让用户知道这双鞋适合哪一天、哪套衣服、哪种出门节奏。",
-      "表达重点放在代入感：她看完应该觉得这不是品牌在卖鞋，而是有人把日常穿法拍给她参考。",
-      "少用夸张形容，多用具体细节：出门前、走路、坐下、回家后，鞋子都自然成立。"
+      "如果今天只是去上班、买咖啡、顺路见朋友，我会希望鞋子安静一点，但不要把整个人穿得很随便。",
+      "这类鞋最打动我的地方，不是第一眼多特别，而是很多普通早晨都能直接套进衣服里。",
+      "我会把它当成衣柜里的连接项：衬衫、牛仔、针织、托特包，都能被它接得更自然。",
+      "对我来说，真正有用的种草，是看完之后能立刻想到自己明天可以怎么穿。"
     ],
     closings: [
       "这类内容的重点不是喊卖点，而是让人觉得：这双鞋我也会穿。",
@@ -282,10 +283,10 @@ const topicCopyKits: Record<SoftSeedingTopic, TopicCopyKit> = {
       "工作台画面适合讲色彩、皮料、鞋带和开发笔记，不适合硬讲销量。"
     ],
     xiaohongshuAngles: [
-      "小红书幕后内容要像一条有用的过程记录：讲清一个选择，而不是堆满流程。",
-      "文案可以带一点主观判断，但要落在皮料、鞋带、色卡、样鞋调整这些看得见的细节上。",
-      "不要把幕后写成品牌自夸，要让用户感到这双鞋的质感来自反复取舍。",
-      "适合用“为什么这样选”的结构，让过程变成信任感，而不是冰冷说明。"
+      "有些选择看起来很小，比如鞋带粗细、色卡深浅、皮料触感，但最后都会影响它是不是耐看。",
+      "我更想把这些细节摊开给你看：不是证明我们做了多少事，而是让你知道它为什么会长成现在这样。",
+      "开发台面不需要很满，几块皮料、几张色卡、一双样鞋，就能看出一双鞋的性格。",
+      "如果一个细节反复调整，通常是因为它会影响日常穿着里的那一点舒服和体面。"
     ],
     closings: [
       "这些幕后内容的价值，是让用户知道一双日常鞋并不是随便做出来的。",
@@ -331,10 +332,10 @@ const topicCopyKits: Record<SoftSeedingTopic, TopicCopyKit> = {
       "画面要温暖、低饱和、有触感，不要变成浓重复古或咖啡色堆叠。"
     ],
     xiaohongshuAngles: [
-      "小红书配色内容要有“可参考”的判断：为什么这个颜色适合秋冬，为什么不会显沉。",
-      "用衣柜语言解释色彩，不要只说高级；要说它如何搭大衣、针织、牛仔和暖灰裤装。",
-      "可以像配色笔记一样写，但语气要轻，避免变成设计课或色彩理论。",
-      "让用户看完能保存一条秋冬配色思路，而不是只记住一个色名。"
+      "秋冬我最怕鞋子颜色太冷，配大衣和针织会有一点生硬，所以更偏向暖一点、灰一点的浅色。",
+      "咖啡棕、燕麦、暖米色不是为了做氛围感，而是真的比较容易放进秋冬衣柜。",
+      "如果整身衣服已经有重量，鞋子就需要留一点轻感，让比例不要沉到脚下。",
+      "这组颜色更适合配针织、牛仔、大衣和暖灰裤装，不抢，但会让整套看起来顺。"
     ],
     closings: [
       "秋冬高级感，很多时候来自颜色分寸。",
@@ -380,10 +381,10 @@ const topicCopyKits: Record<SoftSeedingTopic, TopicCopyKit> = {
       "每张图都要让鞋子和穿着关系清楚，而不是只拍上半身氛围。"
     ],
     xiaohongshuAngles: [
-      "穿搭解决方案要有明确问题：今天要上班、见人、走路、旅行，鞋子怎样帮她少纠结。",
-      "文案要像真实搭配建议，不要像公式；给出一套能直接照着穿的参考。",
-      "适合强调一鞋多搭，但每次只解决一个具体场景，不要一次讲太多。",
-      "用“如果你也有这个场景”的语气，让内容更像笔记而不是导购页。"
+      "我会先想今天要去哪里：上班、喝咖啡、见朋友还是短途出门，再决定这双鞋放在哪套衣服里。",
+      "如果一双鞋能同时搭裤装、裙装和连衣裙，它对我来说就不是百搭口号，而是真的省时间。",
+      "早上最怕的是衣服都没错，但鞋子一上脚整套比例不顺；所以鞋型干净很重要。",
+      "这类内容最好不是教科书，而是给你一个明天能直接照着试的穿法。"
     ],
     closings: [
       "穿搭解决方案的价值，是让用户少纠结一点。",
@@ -429,10 +430,10 @@ const topicCopyKits: Record<SoftSeedingTopic, TopicCopyKit> = {
       "非产品氛围图可以弱化产品，用材料和纸品建立品牌触感。"
     ],
     xiaohongshuAngles: [
-      "材质工艺内容要像“用户能看懂的小知识”，不要使用过度专业或夸张承诺。",
-      "每条笔记最好只讲一个细节：鞋头、鞋底、鞋带、走线、内里或材质过渡。",
-      "表达要把细节和穿着感连接起来，让用户知道这个工艺为什么影响日常体验。",
-      "保持客观克制，不要把材质写成玄学；看得见、摸得到、穿得到才有说服力。"
+      "我会先看鞋头、鞋底线条和鞋带位置，这些地方决定它上脚后会不会显笨。",
+      "材质不用讲得太玄，摸得到的纹理、看得清的走线、自然的光泽，已经能说明很多。",
+      "当前鞋款默认使用猪皮内里；如果画面拍到内里，就要保持真实，不要把材质写得很花。",
+      "一个细节如果能让鞋子更好搭、更耐看、更不容易显廉价，就值得单独拿出来讲。"
     ],
     closings: [
       "材质内容的目标，是建立信任，而不是制造距离。",
@@ -478,10 +479,10 @@ const topicCopyKits: Record<SoftSeedingTopic, TopicCopyKit> = {
       "产品露出应该更弱、更自然，像生活审美的一部分。"
     ],
     xiaohongshuAngles: [
-      "品牌审美观点要像一条温和的价值判断：为什么我们选择克制、低饱和和真实生活。",
-      "少说宏大口号，多说她的一天、她的衣柜、她的桌面和她的城市。",
-      "观点内容可以弱化产品，但不能离开 THERUIZ AURA 的温感静奢和成熟都市女性语境。",
-      "语气要有审美立场，但不要高高在上；像朋友分享一个长期坚持的选择。"
+      "我理解的高级感，不是把画面拍得很冷，而是让人觉得这个东西真的能放进生活里。",
+      "THERUIZ AURA 的画面不需要很大声，安静一点、温一点，反而更接近我们想象里的日常体面。",
+      "她的衣柜、桌面、书、城市街角，比单独摆出来的产品更能说明品牌审美。",
+      "我们想要的是一种不用解释太多的干净感：舒服，但不是随便；女性化，但不甜。"
     ],
     closings: [
       "品牌审美最终要让用户相信：这不是随便一双鞋。",
@@ -516,7 +517,7 @@ const topicCopyKits: Record<SoftSeedingTopic, TopicCopyKit> = {
     ],
     observations: [
       "棚内静物负责把鞋拍清楚，镜前穿搭负责给搭配参考，生活场景负责证明它能日常穿。",
-      "活动内容要避免过度促销语，更适合用上新节奏、试穿感和真实使用场景建立行动感。",
+      "比起一上来催促下单，先把上新节奏、试穿感和真实使用场景讲清楚，会更容易让人判断。",
       "鞋子必须是清楚的，但画面不能像传统电商详情页那么僵。",
       "从材质细节、完整上脚到城市生活，用户需要连续的判断依据。"
     ],
@@ -527,10 +528,10 @@ const topicCopyKits: Record<SoftSeedingTopic, TopicCopyKit> = {
       "所有图都要低饱和、真实比例、鞋型准确，避免夸张广告感。"
     ],
     xiaohongshuAngles: [
-      "上新转化内容要有清楚行动感，但不能硬卖；重点是让用户快速判断适不适合自己。",
-      "文案适合用“这次上新主要看什么”的结构：鞋型、颜色、上脚比例、可搭场景。",
-      "不要堆促销词，更多给试穿依据和购买前判断，降低用户决策成本。",
-      "活动感要轻：可以提醒上新节奏，但仍然保持 THERUIZ AURA 的安静和克制。"
+      "如果是上新，我最想先看清三件事：鞋型准不准、颜色好不好搭、上脚比例顺不顺。",
+      "比起催促下单，我更愿意把它放进真实穿法里，让你判断它是不是适合自己的衣柜。",
+      "一组上新图最好有静物、上脚、生活场景和一点幕后，这样用户不用只靠想象做决定。",
+      "活动信息可以轻一点，产品信息要清楚一点；这样才不会破坏 THERUIZ AURA 的气质。"
     ],
     closings: [
       "好的上新内容，是让用户更快判断这双鞋适不适合自己。",
@@ -597,19 +598,19 @@ const topicImageDrafts: Record<SoftSeedingTopic, SoftSeedingImageDraft[]> = {
 
 const topicImageGuides: Record<SoftSeedingTopic, string> = {
   生活场景软种草:
-    "Xiaohongshu content cue: make the image feel like a useful real-life outfit note, candid, saveable, and easy to imagine wearing; avoid hard-sell framing, staged influencer energy, or commercial poster mood.",
+    "Use concrete Xiaohongshu-style lifestyle cues: a real outfit record, candid daily rhythm, clear shoe visibility, wearable styling, subtle personal-object context, and a scene that feels easy to save as an outfit reference.",
   产品开发幕后:
-    "Xiaohongshu content cue: show a believable small-brand development process with tactile decisions, useful detail, quiet order, and real working traces; avoid factory feeling, corporate brochure mood, or decorative fake process.",
+    "Use concrete behind-the-scenes cues: hands arranging material cards, selected swatches, laces, sample notes, tidy working surface, visible product decisions, and restrained small-brand process realism.",
   秋冬配色实验室:
-    "Xiaohongshu content cue: make the image work as a saveable autumn-winter color reference with coffee brown, oatmeal, warm beige, muted grey, color chips, swatches, and wardrobe logic; avoid heavy retro styling or random moodboard clutter.",
+    "Use concrete color-lab cues: coffee brown leather, oatmeal suede, warm beige cards, muted grey chips, autumn wardrobe layers, soft material contrast, and a saveable palette-board feeling without clutter.",
   穿搭解决方案:
-    "Xiaohongshu content cue: make the image answer a practical styling question with clear outfit proportions, clear sneaker relationship, and an easy-to-copy daily look; avoid formulaic fashion tutorial feeling or over-styled posing.",
+    "Use concrete styling-solution cues: before-leaving outfit check, clear clothing category, readable layering, trouser/skirt/dress relationship with sneakers, and one practical daily scenario.",
   材质工艺认知:
-    "Xiaohongshu content cue: make the image support user-friendly material education through one clear detail at a time, such as toe shape, outsole, stitching, laces, lining, leather texture, or panel transition; avoid technical catalog mood or exaggerated claims.",
+    "Use concrete material-learning cues: one precise detail at a time, such as toe shape, outsole edge, stitching route, lace thickness, pigskin lining when relevant, leather texture, panel transition, and clean product readability.",
   品牌审美观点:
-    "Xiaohongshu content cue: make the image express THERUIZ AURA's aesthetic point of view through her day, wardrobe, desk, city, and quiet choices; product exposure should be subtle, atmospheric, and never hard-selling.",
+    "Use concrete aesthetic-point cues: her wardrobe, desk, book, gallery, quiet city corner, low-saturation personal objects, subtle product presence, and warm negative space.",
   上新活动转化:
-    "Xiaohongshu content cue: keep launch content soft but action-oriented, with readable product shape, color, on-foot proportion, and styling reason; avoid loud promotion, discount-poster feeling, or forced urgency."
+    "Use concrete soft-launch cues: clean product readability, one on-foot styling proof, one material proof, one lifestyle proof, clear color and shape, and a calm reason to consider the new arrival."
 };
 
 function resolveBaseSeason(baseSeason: TeamSeason, overrideSeason?: TeamSeason) {
@@ -735,7 +736,9 @@ export function generateSoftSeedingContent(input: SoftSeedingInput): SoftSeeding
   const topic = mode === "今日自动" ? dailySelection.topic : input.topic ?? dailySelection.topic;
   const variantCount = getTopicVariantCount(topic);
   const manualPostIndex = getDayNumber(input.date) * DAILY_POST_COUNT + (dailySlot - 1);
-  const variantIndex = mode === "今日自动" ? dailySelection.variantIndex : manualPostIndex % variantCount;
+  const variantOffset = Math.max(0, Math.floor(input.variantOffset ?? 0));
+  const baseVariantIndex = mode === "今日自动" ? dailySelection.variantIndex : manualPostIndex % variantCount;
+  const variantIndex = (baseVariantIndex + variantOffset) % variantCount;
   const copy = buildCopyFromKit(topic, variantIndex);
   const imageCount = input.imageCount ?? 5;
 

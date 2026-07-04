@@ -106,6 +106,7 @@ function App() {
   const [softDailySlot, setSoftDailySlot] = useState<SoftSeedingDailySlot>(1);
   const [softTopic, setSoftTopic] = useState<SoftSeedingTopic>(initialDailySelection.topic);
   const [softImageCount, setSoftImageCount] = useState<3 | 5>(5);
+  const [softGenerationNonce, setSoftGenerationNonce] = useState(0);
   const [softContent, setSoftContent] = useState(() =>
     generateSoftSeedingContent({ baseParams: initialParams, imageCount: 5, mode: "今日自动", dailySlot: 1 })
   );
@@ -145,12 +146,15 @@ function App() {
 
   const handleGenerateSoftContent = () => {
     const syncedParams = syncPromptParams();
+    const nextSoftGenerationNonce = softGenerationNonce + 1;
+    setSoftGenerationNonce(nextSoftGenerationNonce);
     const nextContent = generateSoftSeedingContent({
       baseParams: syncedParams,
       imageCount: softImageCount,
       mode: softMode,
       topic: softTopic,
-      dailySlot: softDailySlot
+      dailySlot: softDailySlot,
+      variantOffset: nextSoftGenerationNonce
     });
     setSoftContent(nextContent);
     setSoftCopyStatus("");
