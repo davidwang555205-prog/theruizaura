@@ -68,6 +68,7 @@ type TopicCopyKit = {
   openings: string[];
   observations: string[];
   scenes: string[];
+  xiaohongshuAngles: string[];
   closings: string[];
   tags: string[];
   note: string;
@@ -114,7 +115,13 @@ function resolveDailySlot(slot?: SoftSeedingDailySlot): SoftSeedingDailySlot {
 
 function getTopicVariantCount(topic: SoftSeedingTopic) {
   const kit = topicCopyKits[topic];
-  return kit.openings.length * kit.observations.length * kit.scenes.length * kit.closings.length;
+  return (
+    kit.openings.length *
+    kit.observations.length *
+    kit.scenes.length *
+    kit.xiaohongshuAngles.length *
+    kit.closings.length
+  );
 }
 
 export function getSoftSeedingInventory() {
@@ -158,8 +165,17 @@ function buildCopyFromKit(topic: SoftSeedingTopic, variantIndex: number): TopicC
   const openingIndex = variantIndex % kit.openings.length;
   const observationIndex = Math.floor(variantIndex / kit.openings.length) % kit.observations.length;
   const sceneIndex = Math.floor(variantIndex / (kit.openings.length * kit.observations.length)) % kit.scenes.length;
+  const angleIndex =
+    Math.floor(variantIndex / (kit.openings.length * kit.observations.length * kit.scenes.length)) %
+    kit.xiaohongshuAngles.length;
   const closingIndex =
-    Math.floor(variantIndex / (kit.openings.length * kit.observations.length * kit.scenes.length)) % kit.closings.length;
+    Math.floor(
+      variantIndex /
+        (kit.openings.length *
+          kit.observations.length *
+          kit.scenes.length *
+          kit.xiaohongshuAngles.length)
+    ) % kit.closings.length;
 
   const titles = [
     pick(kit.titleLeads, openingIndex + sceneIndex),
@@ -173,6 +189,7 @@ function buildCopyFromKit(topic: SoftSeedingTopic, variantIndex: number): TopicC
       pick(kit.openings, openingIndex),
       pick(kit.observations, observationIndex),
       pick(kit.scenes, sceneIndex),
+      pick(kit.xiaohongshuAngles, angleIndex),
       pick(kit.closings, closingIndex)
     ].join("\n\n"),
     tags: kit.tags,
@@ -214,6 +231,12 @@ const topicCopyKits: Record<SoftSeedingTopic, TopicCopyKit> = {
       "画面应该有低饱和城市日常感，有一点生活痕迹，但不杂乱。",
       "鞋子不是孤立的商品，而是白衬衫、牛仔、托特包和一天节奏里的连接点。",
       "人物状态要松弛、干净、成熟，像真实顾客而不是硬广模特。"
+    ],
+    xiaohongshuAngles: [
+      "小红书语气要像真实穿搭笔记：先说一个生活痛点，再给出这双鞋为什么省心，不要像广告口播。",
+      "内容要有可收藏价值：让用户知道这双鞋适合哪一天、哪套衣服、哪种出门节奏。",
+      "表达重点放在代入感：她看完应该觉得这不是品牌在卖鞋，而是有人把日常穿法拍给她参考。",
+      "少用夸张形容，多用具体细节：出门前、走路、坐下、回家后，鞋子都自然成立。"
     ],
     closings: [
       "这类内容的重点不是喊卖点，而是让人觉得：这双鞋我也会穿。",
@@ -258,6 +281,12 @@ const topicCopyKits: Record<SoftSeedingTopic, TopicCopyKit> = {
       "产品静物需要让鞋型和材质被看清，同时保持 THERUIZ AURA 的温暖克制。",
       "工作台画面适合讲色彩、皮料、鞋带和开发笔记，不适合硬讲销量。"
     ],
+    xiaohongshuAngles: [
+      "小红书幕后内容要像一条有用的过程记录：讲清一个选择，而不是堆满流程。",
+      "文案可以带一点主观判断，但要落在皮料、鞋带、色卡、样鞋调整这些看得见的细节上。",
+      "不要把幕后写成品牌自夸，要让用户感到这双鞋的质感来自反复取舍。",
+      "适合用“为什么这样选”的结构，让过程变成信任感，而不是冰冷说明。"
+    ],
     closings: [
       "这些幕后内容的价值，是让用户知道一双日常鞋并不是随便做出来的。",
       "真实不等于粗糙，克制也不等于没有内容。",
@@ -300,6 +329,12 @@ const topicCopyKits: Record<SoftSeedingTopic, TopicCopyKit> = {
       "棚内静物适合看清鞋型、材质过渡和色彩关系。",
       "衣帽间和安静街角可以把色彩放回真实穿搭里。",
       "画面要温暖、低饱和、有触感，不要变成浓重复古或咖啡色堆叠。"
+    ],
+    xiaohongshuAngles: [
+      "小红书配色内容要有“可参考”的判断：为什么这个颜色适合秋冬，为什么不会显沉。",
+      "用衣柜语言解释色彩，不要只说高级；要说它如何搭大衣、针织、牛仔和暖灰裤装。",
+      "可以像配色笔记一样写，但语气要轻，避免变成设计课或色彩理论。",
+      "让用户看完能保存一条秋冬配色思路，而不是只记住一个色名。"
     ],
     closings: [
       "秋冬高级感，很多时候来自颜色分寸。",
@@ -344,6 +379,12 @@ const topicCopyKits: Record<SoftSeedingTopic, TopicCopyKit> = {
       "衣帽间画面适合讲一鞋多搭，但不要像服装搭配教程。",
       "每张图都要让鞋子和穿着关系清楚，而不是只拍上半身氛围。"
     ],
+    xiaohongshuAngles: [
+      "穿搭解决方案要有明确问题：今天要上班、见人、走路、旅行，鞋子怎样帮她少纠结。",
+      "文案要像真实搭配建议，不要像公式；给出一套能直接照着穿的参考。",
+      "适合强调一鞋多搭，但每次只解决一个具体场景，不要一次讲太多。",
+      "用“如果你也有这个场景”的语气，让内容更像笔记而不是导购页。"
+    ],
     closings: [
       "穿搭解决方案的价值，是让用户少纠结一点。",
       "百搭不是没有风格，而是让很多场景都变自然。",
@@ -386,6 +427,12 @@ const topicCopyKits: Record<SoftSeedingTopic, TopicCopyKit> = {
       "棚内静物适合看清鞋型、缝线和材质转换，不需要复杂道具。",
       "拍摄花絮可以出现手部整理鞋带或检查细节，但不要像工厂质检。",
       "非产品氛围图可以弱化产品，用材料和纸品建立品牌触感。"
+    ],
+    xiaohongshuAngles: [
+      "材质工艺内容要像“用户能看懂的小知识”，不要使用过度专业或夸张承诺。",
+      "每条笔记最好只讲一个细节：鞋头、鞋底、鞋带、走线、内里或材质过渡。",
+      "表达要把细节和穿着感连接起来，让用户知道这个工艺为什么影响日常体验。",
+      "保持客观克制，不要把材质写成玄学；看得见、摸得到、穿得到才有说服力。"
     ],
     closings: [
       "材质内容的目标，是建立信任，而不是制造距离。",
@@ -430,6 +477,12 @@ const topicCopyKits: Record<SoftSeedingTopic, TopicCopyKit> = {
       "城市街角和安静街区能让观点落地到真实生活。",
       "产品露出应该更弱、更自然，像生活审美的一部分。"
     ],
+    xiaohongshuAngles: [
+      "品牌审美观点要像一条温和的价值判断：为什么我们选择克制、低饱和和真实生活。",
+      "少说宏大口号，多说她的一天、她的衣柜、她的桌面和她的城市。",
+      "观点内容可以弱化产品，但不能离开 THERUIZ AURA 的温感静奢和成熟都市女性语境。",
+      "语气要有审美立场，但不要高高在上；像朋友分享一个长期坚持的选择。"
+    ],
     closings: [
       "品牌审美最终要让用户相信：这不是随便一双鞋。",
       "高级感不需要很用力，稳定的审美反而更重要。",
@@ -472,6 +525,12 @@ const topicCopyKits: Record<SoftSeedingTopic, TopicCopyKit> = {
       "入户镜前和写字楼门口适合补充上脚与穿搭比例。",
       "城市街角可以呈现真实外出状态，拍摄花絮则增加品牌可信度。",
       "所有图都要低饱和、真实比例、鞋型准确，避免夸张广告感。"
+    ],
+    xiaohongshuAngles: [
+      "上新转化内容要有清楚行动感，但不能硬卖；重点是让用户快速判断适不适合自己。",
+      "文案适合用“这次上新主要看什么”的结构：鞋型、颜色、上脚比例、可搭场景。",
+      "不要堆促销词，更多给试穿依据和购买前判断，降低用户决策成本。",
+      "活动感要轻：可以提醒上新节奏，但仍然保持 THERUIZ AURA 的安静和克制。"
     ],
     closings: [
       "好的上新内容，是让用户更快判断这双鞋适不适合自己。",
@@ -534,6 +593,23 @@ const topicImageDrafts: Record<SoftSeedingTopic, SoftSeedingImageDraft[]> = {
     { name: "图4｜生活｜安静街区", purpose: "补充非硬广生活场景。", description: "城市街角轻松停留，低饱和真实街景。", imageType: "生活场景图", scenePreference: "城市街角 / 安静街区", garmentTypePreference: "裙装", extraRequirement: "Use a quiet real city corner as a lifestyle launch support image, mature refined styling, subtle movement, and clear shoe visibility without sales-poster energy." },
     { name: "图5｜幕后｜拍摄花絮", purpose: "上新收尾，增加可信过程。", description: "拍摄现场局部，整理鞋带或造型桌。", imageType: "拍摄花絮 / 材质图", scenePreference: "拍摄花絮", garmentTypePreference: "自动匹配", extraRequirement: "Show a calm launch shooting behind-the-scenes detail with styling table, shot list, hands arranging laces or product angle, minimal equipment cues, and quiet premium order." }
   ]
+};
+
+const topicImageGuides: Record<SoftSeedingTopic, string> = {
+  生活场景软种草:
+    "Xiaohongshu content cue: make the image feel like a useful real-life outfit note, candid, saveable, and easy to imagine wearing; avoid hard-sell framing, staged influencer energy, or commercial poster mood.",
+  产品开发幕后:
+    "Xiaohongshu content cue: show a believable small-brand development process with tactile decisions, useful detail, quiet order, and real working traces; avoid factory feeling, corporate brochure mood, or decorative fake process.",
+  秋冬配色实验室:
+    "Xiaohongshu content cue: make the image work as a saveable autumn-winter color reference with coffee brown, oatmeal, warm beige, muted grey, color chips, swatches, and wardrobe logic; avoid heavy retro styling or random moodboard clutter.",
+  穿搭解决方案:
+    "Xiaohongshu content cue: make the image answer a practical styling question with clear outfit proportions, clear sneaker relationship, and an easy-to-copy daily look; avoid formulaic fashion tutorial feeling or over-styled posing.",
+  材质工艺认知:
+    "Xiaohongshu content cue: make the image support user-friendly material education through one clear detail at a time, such as toe shape, outsole, stitching, laces, lining, leather texture, or panel transition; avoid technical catalog mood or exaggerated claims.",
+  品牌审美观点:
+    "Xiaohongshu content cue: make the image express THERUIZ AURA's aesthetic point of view through her day, wardrobe, desk, city, and quiet choices; product exposure should be subtle, atmospheric, and never hard-selling.",
+  上新活动转化:
+    "Xiaohongshu content cue: keep launch content soft but action-oriented, with readable product shape, color, on-foot proportion, and styling reason; avoid loud promotion, discount-poster feeling, or forced urgency."
 };
 
 function resolveBaseSeason(baseSeason: TeamSeason, overrideSeason?: TeamSeason) {
@@ -601,10 +677,13 @@ function sanitizeSoftSeedingExtraRequirementForGarment(
 function getSoftSeedingExtraRequirement(
   baseParams: TeamPromptParams,
   draft: SoftSeedingImageDraft,
-  garmentTypePreference: TeamGarmentTypePreference
+  garmentTypePreference: TeamGarmentTypePreference,
+  topic: SoftSeedingTopic
 ) {
+  const themeGuide = topicImageGuides[topic];
+
   if (baseParams.garmentTypePreference === "自动匹配" || !shouldInheritBaseGarmentType(draft.imageType)) {
-    return draft.extraRequirement;
+    return [draft.extraRequirement, themeGuide].filter(Boolean).join(" ");
   }
 
   const sanitizedRequirement = sanitizeSoftSeedingExtraRequirementForGarment(
@@ -614,10 +693,15 @@ function getSoftSeedingExtraRequirement(
   const manualControlLine =
     garmentTypePreference === "自动匹配" ? "" : garmentTypeControlLines[garmentTypePreference];
 
-  return [sanitizedRequirement, manualControlLine].filter(Boolean).join(" ");
+  return [sanitizedRequirement, manualControlLine, themeGuide].filter(Boolean).join(" ");
 }
 
-function buildImagePlan(baseParams: TeamPromptParams, draft: SoftSeedingImageDraft, index: number): SoftSeedingImagePlan {
+function buildImagePlan(
+  baseParams: TeamPromptParams,
+  draft: SoftSeedingImageDraft,
+  index: number,
+  topic: SoftSeedingTopic
+): SoftSeedingImagePlan {
   const shoeFields = resolveBaseShoe(baseParams);
   const garmentTypePreference = resolveSoftSeedingGarmentType(baseParams, draft);
   const params: TeamPromptParams = {
@@ -631,7 +715,7 @@ function buildImagePlan(baseParams: TeamPromptParams, draft: SoftSeedingImageDra
     modelContinuity: index === 0 ? "新人物" : "延续上一组人物",
     studioLaunchAnglePreference: "自动匹配",
     stillLifeStyle: "与主视觉统一",
-    extraRequirement: getSoftSeedingExtraRequirement(baseParams, draft, garmentTypePreference),
+    extraRequirement: getSoftSeedingExtraRequirement(baseParams, draft, garmentTypePreference, topic),
     generationNonce: baseParams.generationNonce + index + 1
   };
 
@@ -664,7 +748,9 @@ export function generateSoftSeedingContent(input: SoftSeedingInput): SoftSeeding
     variantLabel: `第 ${variantIndex + 1} / ${variantCount} 版`,
     titles: copy.titles,
     body: copy.body,
-    images: topicImageDrafts[topic].slice(0, imageCount).map((imageDraft, index) => buildImagePlan(input.baseParams, imageDraft, index)),
+    images: topicImageDrafts[topic]
+      .slice(0, imageCount)
+      .map((imageDraft, index) => buildImagePlan(input.baseParams, imageDraft, index, topic)),
     tags: copy.tags,
     note: copy.note
   };
