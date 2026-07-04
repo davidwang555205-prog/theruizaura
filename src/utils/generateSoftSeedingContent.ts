@@ -644,6 +644,38 @@ const garmentTypeReplacementText: Record<Exclude<TeamGarmentTypePreference, "自
   轻运动: "refined light activewear"
 };
 
+const garmentTypeSpecificTerms: Record<Exclude<TeamGarmentTypePreference, "自动匹配">, {
+  hem: string;
+  category: string;
+  relationship: string;
+}> = {
+  裤装: {
+    hem: "clean trouser break",
+    category: "refined trousers or denim",
+    relationship: "trouser-and-sneaker relationship"
+  },
+  裙装: {
+    hem: "clean skirt hem",
+    category: "a refined skirt",
+    relationship: "skirt-and-sneaker relationship"
+  },
+  短裤: {
+    hem: "clean tailored-shorts hem",
+    category: "refined tailored shorts",
+    relationship: "shorts-and-sneaker relationship"
+  },
+  连衣裙: {
+    hem: "clean dress hem",
+    category: "a refined one-piece dress",
+    relationship: "dress-and-sneaker relationship"
+  },
+  轻运动: {
+    hem: "clean activewear hem",
+    category: "refined light activewear",
+    relationship: "activewear-and-sneaker relationship"
+  }
+};
+
 const garmentTypeControlLines: Record<Exclude<TeamGarmentTypePreference, "自动匹配">, string> = {
   裤装:
     "Manual clothing type from the interface: use refined trousers or denim as the primary clothing category, with clear sneaker visibility.",
@@ -664,15 +696,37 @@ function sanitizeSoftSeedingExtraRequirementForGarment(
   if (garmentTypePreference === "自动匹配" || garmentTypePreference === "裤装") return extraRequirement;
 
   const replacement = garmentTypeReplacementText[garmentTypePreference];
-
-  return extraRequirement
+  const specificTerms = garmentTypeSpecificTerms[garmentTypePreference];
+  let sanitized = extraRequirement
+    .replace(/\btrouser(?:s)?[- ](?:and[- ])?sneaker relationship\b/gi, specificTerms.relationship)
+    .replace(/\btrouser\/skirt\/dress relationship\b/gi, specificTerms.relationship)
+    .replace(/\btrouser break\b/gi, specificTerms.hem)
+    .replace(/\bclean trouser break\b/gi, specificTerms.hem)
+    .replace(/\bskirt-based styling option\b/gi, `${specificTerms.category} styling option`)
+    .replace(/\bdress-based styling option\b/gi, `${specificTerms.category} styling option`)
+    .replace(/\bshorts-based styling option\b/gi, `${specificTerms.category} styling option`)
     .replace(
       /\b(?:warm beige|oatmeal|warm grey|cream|ivory|light|dark|charcoal|taupe|soft|straight-leg|straight|wide-leg|tailored|relaxed|wool|linen|cotton|structured|pale|stone|beige)\s+(?:straight-leg\s+)?(?:trousers|pants|denim|jeans)\b/gi,
       replacement
     )
-    .replace(/\b(?:straight-leg\s+)?(?:trousers|pants|denim|jeans)\b/gi, replacement)
-    .replace(/\s{2,}/g, " ")
-    .trim();
+    .replace(/\b(?:straight-leg\s+)?(?:trousers|pants|denim|jeans)\b/gi, replacement);
+
+  if (garmentTypePreference !== "短裤") {
+    sanitized = sanitized.replace(/\b(?:refined\s+)?(?:Bermuda shorts|tailored shorts)\b/gi, replacement);
+  }
+
+  if (garmentTypePreference !== "裙装") {
+    sanitized = sanitized.replace(/\b(?:a\s+)?refined skirt\b/gi, replacement).replace(/\bskirt\b/gi, replacement);
+  }
+
+  if (garmentTypePreference !== "连衣裙") {
+    sanitized = sanitized
+      .replace(/\b(?:a\s+)?refined one-piece dress\b/gi, replacement)
+      .replace(/\bone-piece dress\b/gi, replacement)
+      .replace(/\bdress\b/gi, replacement);
+  }
+
+  return sanitized.replace(/\s{2,}/g, " ").trim();
 }
 
 function getSoftSeedingExtraRequirement(
@@ -687,14 +741,11 @@ function getSoftSeedingExtraRequirement(
     return [draft.extraRequirement, themeGuide].filter(Boolean).join(" ");
   }
 
-  const sanitizedRequirement = sanitizeSoftSeedingExtraRequirementForGarment(
-    draft.extraRequirement,
-    garmentTypePreference
-  );
   const manualControlLine =
     garmentTypePreference === "自动匹配" ? "" : garmentTypeControlLines[garmentTypePreference];
+  const combinedRequirement = [draft.extraRequirement, manualControlLine, themeGuide].filter(Boolean).join(" ");
 
-  return [sanitizedRequirement, manualControlLine, themeGuide].filter(Boolean).join(" ");
+  return sanitizeSoftSeedingExtraRequirementForGarment(combinedRequirement, garmentTypePreference);
 }
 
 function buildImagePlan(

@@ -1510,6 +1510,33 @@ function getGarmentTypeLockLine(
   return GARMENT_TYPE_LOCK_LINES[preference];
 }
 
+function getManualGarmentSeasonLayerLine(preference: TeamGarmentTypePreference, season: TeamSeason) {
+  if (preference === "自动匹配") return "";
+
+  const seasonalTexture: Record<TeamSeason, string> = {
+    春: "mild spring fabric weight and light layering",
+    夏: "breathable summer fabric and light construction",
+    秋: "soft autumn texture and controlled layering",
+    冬: "believable winter-weight fabric and clean warm layering"
+  };
+  const texture = seasonalTexture[season];
+
+  if (preference === "裤装") {
+    return `Use ${texture} around refined trousers or denim, keeping the sneaker relationship clear.`;
+  }
+  if (preference === "裙装") {
+    return `Use ${texture} around a refined skirt, keeping the skirt hem and sneaker relationship clear.`;
+  }
+  if (preference === "短裤") {
+    return `Use ${texture} around refined tailored shorts or Bermuda shorts, keeping the shorts hem and sneaker relationship clear.`;
+  }
+  if (preference === "连衣裙") {
+    return `Use ${texture} around a refined one-piece dress, keeping the dress hem and sneaker relationship clear.`;
+  }
+
+  return `Use ${texture} around refined light activewear, keeping the sneaker relationship clear and premium.`;
+}
+
 function getCompactPoseBodyLine(poseCategory: TeamHumanPoseCategory) {
   if (poseCategory === "mirror") {
     return "Keep mirror body proportions natural: no stretched legs, oversized phone, warped feet, or cropped shoes.";
@@ -1963,7 +1990,9 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
         (params.season === "秋" || params.season === "冬") &&
         !isGymSceneKey(sceneKey) &&
         resolvedScene !== "海边度假"
-          ? europeanSeasonContext?.outfitLayerLine ?? seasonCityVisualContext.outfitLayerLine
+          ? effectiveGarmentTypePreference === "自动匹配"
+            ? europeanSeasonContext?.outfitLayerLine ?? seasonCityVisualContext.outfitLayerLine
+            : getManualGarmentSeasonLayerLine(effectiveGarmentTypePreference, params.season)
           : "",
         accessorySelection.accessoryLine,
         humanRealism.clothingWornLine
