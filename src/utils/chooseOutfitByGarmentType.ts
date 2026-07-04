@@ -496,7 +496,7 @@ const standardOutfitLibrary: StandardOutfitEntry[] = [
     garmentType: "skirt",
     outfitStyle: "realDaily",
     colorDirection: "denimBased",
-    topCategory: "soft beige sleeveless knit",
+    topCategory: "soft beige mercerized-cotton sleeveless top",
     bottomCategory: "dark denim midi skirt",
     visualAnchor: "dark denim midi skirt",
     seasons: ["春", "夏", "秋"],
@@ -504,7 +504,7 @@ const standardOutfitLibrary: StandardOutfitEntry[] = [
     shoeAffinity: ["Cloud Dancer", "Sand Dollar", "Oreo", "Panda", "Delphinium Blue", "ALL"],
     imageTypes: ["onFoot", "lifestyle", "mirror"],
     compactLine:
-      "Style her in a soft beige sleeveless knit, dark denim midi skirt, and light taupe shirt jacket for a grounded skirt-and-sneaker combination with mature daily ease.",
+      "Style her in a soft beige mercerized-cotton sleeveless top and dark denim midi skirt for a grounded skirt-and-sneaker combination with mature daily ease.",
     isPremiumWardrobe: true
   },
   {

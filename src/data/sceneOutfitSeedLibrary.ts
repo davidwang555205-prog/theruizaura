@@ -603,13 +603,13 @@ const skirtPool: SeedDraft[] = [
     season: ["spring", "summer", "autumn"],
     suitableShoes: allShoes,
     imageTypes,
-    topCategory: "soft beige sleeveless knit",
+    topCategory: "soft beige mercerized-cotton sleeveless top",
     bottomCategory: "dark denim midi skirt",
-    outerLayerCategory: "light taupe shirt jacket",
+    outerLayerCategory: "no outer layer",
     accessoryCategory: ["minimal earrings"],
     visualAnchor: "dark denim midi skirt",
     outfitLine:
-      "Style her in a soft beige sleeveless knit, dark denim midi skirt, and light taupe shirt jacket for a grounded skirt-and-sneaker combination.",
+      "Style her in a soft beige mercerized-cotton sleeveless top and dark denim midi skirt for a grounded skirt-and-sneaker combination.",
     forbidden: baseForbidden
   },
   {
@@ -820,13 +820,13 @@ const shortsPool: SeedDraft[] = [
     season: ["summer"],
     suitableShoes: allShoes,
     imageTypes,
-    topCategory: "muted navy sleeveless knit",
+    topCategory: "muted navy mercerized-cotton sleeveless top",
     bottomCategory: "ivory linen-blend Bermuda shorts",
     outerLayerCategory: "no outer layer",
     accessoryCategory: ["minimal earrings"],
-    visualAnchor: "muted navy sleeveless knit",
+    visualAnchor: "muted navy mercerized-cotton sleeveless top",
     outfitLine:
-      "Pair a muted navy sleeveless knit with ivory linen-blend Bermuda shorts for restrained summer contrast that stays mature and shoe-readable.",
+      "Pair a muted navy mercerized-cotton sleeveless top with ivory linen-blend Bermuda shorts for restrained summer contrast that stays mature and shoe-readable.",
     forbidden: baseForbidden
   },
   {

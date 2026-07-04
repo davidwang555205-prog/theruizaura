@@ -450,14 +450,14 @@ export const fallbackSafeOutfitTemplates: SceneOutfitSeed[] = [
     garmentType: "skirt",
     outfitStyle: "realDaily",
     colorDirection: "denimBased",
-    topCategory: "soft beige sleeveless knit",
+    topCategory: "soft beige mercerized-cotton sleeveless top",
     bottomCategory: "dark denim midi skirt",
-    outerLayerCategory: "light taupe shirt jacket",
+    outerLayerCategory: "no outer layer",
     season: ["spring", "summer", "autumn"],
     accessoryCategory: ["minimal earrings"],
     visualAnchor: "dark denim midi skirt",
     outfitLine:
-      "Style her in a soft beige sleeveless knit, dark denim midi skirt, and light taupe shirt jacket for a safe skirt-and-sneaker variation."
+      "Style her in a soft beige mercerized-cotton sleeveless top and dark denim midi skirt for a safe skirt-and-sneaker variation."
   }),
   fallbackSeed({
     id: "safe-shorts-008",
@@ -478,13 +478,13 @@ export const fallbackSafeOutfitTemplates: SceneOutfitSeed[] = [
     garmentType: "shorts",
     outfitStyle: "cleanMinimal",
     colorDirection: "darkAnchor",
-    topCategory: "muted navy sleeveless knit",
+    topCategory: "muted navy mercerized-cotton sleeveless top",
     bottomCategory: "ivory linen-blend Bermuda shorts",
     season: ["summer"],
     accessoryCategory: ["minimal earrings"],
-    visualAnchor: "muted navy sleeveless knit",
+    visualAnchor: "muted navy mercerized-cotton sleeveless top",
     outfitLine:
-      "Pair a muted navy sleeveless knit with ivory linen-blend Bermuda shorts for safe restrained summer contrast."
+      "Pair a muted navy mercerized-cotton sleeveless top with ivory linen-blend Bermuda shorts for safe restrained summer contrast."
   }),
   fallbackSeed({
     id: "safe-shorts-010",

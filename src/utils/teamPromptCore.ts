@@ -619,15 +619,15 @@ const STUDIO_LAUNCH_OUTFIT_BOUNDARY_LINE =
 
 const STUDIO_LAUNCH_ON_FOOT_ANGLE_LINES = [
   "Use a premium controlled launch-studio full-figure angle with a stable 35-50mm perspective, clean floor contact, full styling proportions, and both sneakers clearly readable.",
-  "Use a premium controlled lower-third studio styling angle from the jacket hem or trouser line down to the sneakers, keeping trouser break, shoe collar, laces, outsole, and floor contact clear.",
-  "Use a premium controlled medium-close sneaker-on-foot studio detail angle from the lower leg and trouser hem to the floor, keeping the shoes readable but not foreground-enlarged.",
-  "Use a premium controlled 3/4 front-side on-foot studio angle that shows toe shape, side panels, slim outsole line, lace area, trouser hem separation, and natural shoe-ground contact."
+  "Use a premium controlled lower-third studio styling angle from the garment hem or leg line down to the sneakers, keeping garment edge, shoe collar, laces, outsole, and floor contact clear.",
+  "Use a premium controlled medium-close sneaker-on-foot studio detail angle from the leg line and garment edge to the floor, keeping the shoes readable but not foreground-enlarged.",
+  "Use a premium controlled 3/4 front-side on-foot studio angle that shows toe shape, side panels, slim outsole line, lace area, garment hem separation, and natural shoe-ground contact."
 ];
 
 const STUDIO_LAUNCH_MIRROR_ANGLE_LINES = [
   "Use a premium controlled launch-studio full-length mirror angle with stable reflection, natural phone grip, readable full styling proportions, and both sneakers clearly reflected.",
-  "Use a premium controlled lower-third mirror composition inside the launch studio, cropping from jacket hem or trouser line down to the sneakers while keeping the phone out of the look and shoe area.",
-  "Use a premium controlled medium-close mirror sneaker-on-foot detail angle with trouser break, shoe collar, laces, outsole, and floor contact clear, without enlarging the sneakers.",
+  "Use a premium controlled lower-third mirror composition inside the launch studio, cropping from garment hem or leg line down to the sneakers while keeping the phone out of the look and shoe area.",
+  "Use a premium controlled medium-close mirror sneaker-on-foot detail angle with garment edge, shoe collar, laces, outsole, and floor contact clear, without enlarging the sneakers.",
   "Use a premium controlled 3/4 mirror look angle that keeps the reflection straight, the legs natural, and the sneakers readable without mirror enlargement or distortion."
 ];
 
@@ -1752,7 +1752,8 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
   const effectiveImageTemplateNegativeLine = usesSummerLifestylePeopleSupport
     ? "tourism advertisement, staged family portrait, theme-park campaign, resort campaign, cropped shoes, props covering shoes, unstable ground hiding footwear"
     : imageTypeTemplate.templateNegativeLine;
-  const perSceneOutfitSelection = shouldUsePeopleStyling(params.imageType)
+  const perSceneOutfitSelection = shouldUsePeopleStyling(params.imageType) &&
+    effectiveGarmentTypePreference === "自动匹配"
     ? choosePerSceneOutfitLine({
         scenePreference: resolvedScene,
         season: params.season,

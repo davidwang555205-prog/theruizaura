@@ -52,6 +52,16 @@ function getMenswearTailoringQualityLine(preference: TeamGarmentTypePreference, 
   if (preference === "轻运动") {
     return "Keep the men's active styling premium and precise: clean seams, refined technical fabric, balanced fit, calm layering, and no gym-influencer or sports-campaign feeling.";
   }
+  if (preference === "短裤") {
+    const seasonalFabrics: Record<TeamSeason, string> = {
+      春: "crisp cotton, silk-cotton, light wool, soft suede, or fine knit texture",
+      夏: "linen-cotton, silk-cotton, breathable cotton, mercerized cotton, or thin canvas texture",
+      秋: "fine wool, brushed cotton, soft suede, cashmere-blend knit, or warm cotton twill texture",
+      冬: "wool, brushed cotton, compact knit, structured twill, or soft suede texture"
+    };
+
+    return `Keep the menswear luxury-level but quiet: precise shoulder line, clean collar, refined fabric drape, clean shorts hem, premium seams and buttons, and tactile ${seasonalFabrics[season]}.`;
+  }
 
   const seasonalFabrics: Record<TeamSeason, string> = {
     春: "crisp cotton, silk-cotton, light wool, soft suede, or fine knit texture",
@@ -94,13 +104,21 @@ function getCoastalMenswearLine(season: TeamSeason, seed = "") {
   return pickLine(lines[season], seed);
 }
 
-function getCoastalMenswearTailoringQualityLine() {
+function getCoastalMenswearTailoringQualityLine(preference: TeamGarmentTypePreference) {
+  if (preference === "短裤") {
+    return "Keep the coastal menswear luxury-level but light: precise shoulder line, clean collar, refined fabric drape, clean shorts hem, premium seams and buttons, and tactile cotton-poplin, linen-cotton, silk-cotton, brushed cotton, cotton twill, or soft suede-touch texture.";
+  }
+
   return "Keep the coastal menswear luxury-level but light: precise shoulder line, clean collar, refined fabric drape, natural trouser break, premium seams and buttons, and tactile cotton-poplin, linen-cotton, silk-cotton, brushed cotton, cotton twill, or soft suede-touch texture.";
 }
 
 function getMenswearEquivalentLine(preference: TeamGarmentTypePreference, season: TeamSeason, seed = "") {
   if (preference === "裤装") {
-    return `Use refined men's business-casual trousers: tailored wool trousers, straight denim, relaxed linen trousers, or clean city chinos with a shirt, cotton polo, overshirt, blazer, trench, or coat. ${getMenswearTailoringQualityLine(preference, season)}`;
+    const layerDirection =
+      season === "夏"
+        ? "a clean shirt, cotton polo, short-sleeve shirt, or light overshirt"
+        : "a shirt, cotton polo, overshirt, blazer, trench, or coat";
+    return `Use refined men's business-casual trousers: tailored wool trousers, straight denim, relaxed linen trousers, or clean city chinos with ${layerDirection}. ${getMenswearTailoringQualityLine(preference, season)}`;
   }
   if (preference === "短裤") {
     return `Use refined men's knee-length tailored shorts or cotton-linen Bermuda shorts with a clean shirt, cotton polo, or light overshirt; avoid denim shorts, beachwear, or sporty shorts outside active scenes. ${getMenswearTailoringQualityLine(preference, season)}`;
@@ -125,8 +143,13 @@ export function getMenswearGarmentTypeLockLine(
 ) {
   if (!isMaleModelChoice(modelChoice) || preference === "自动匹配") return "";
 
+  const trousersDirection =
+    season === "夏"
+      ? "refined men's summer trousers, relaxed linen trousers, straight denim, city chinos, clean shirt, cotton polo, short-sleeve shirt, or light overshirt"
+      : "refined men's trousers, straight denim, city chinos, shirt, cotton polo, blazer, trench, or coat";
+
   const direction: Record<Exclude<TeamGarmentTypePreference, "自动匹配">, string> = {
-    裤装: "refined men's trousers, straight denim, city chinos, shirt, cotton polo, blazer, trench, or coat",
+    裤装: trousersDirection,
     短裤: "refined men's knee-length tailored shorts or cotton-linen Bermuda shorts with a clean shirt, cotton polo, or light overshirt",
     裙装: "menswear with soft drape: relaxed tailored trousers or wide-leg trousers with clear sneaker visibility",
     连衣裙: "coordinated menswear set: clean shirt-and-trouser or overshirt-and-trouser styling",
@@ -148,8 +171,8 @@ function replaceFemalePronouns(text: string) {
     .replace(/\bkeep her\b/g, "keep him")
     .replace(/\bShow her\b/g, "Show him")
     .replace(/\bshow her\b/g, "show him")
-    .replace(/\bLet her\b/g, "Let his")
-    .replace(/\blet her\b/g, "let his")
+    .replace(/\bLet her\b/g, "Let him")
+    .replace(/\blet her\b/g, "let him")
     .replace(/\bUse her\b/g, "Use his")
     .replace(/\buse her\b/g, "use his")
     .replace(/\bher\b(?=\s+(?:in|with|near|by|beside|at|walking|pausing|standing|sitting|holding|checking|adjusting|opening|wearing|moving|looking|touching))/gi, "him")
@@ -308,7 +331,7 @@ export function adaptOutfitLineForModelChoice(input: {
   if (shouldReplaceWithMenswearLine(input.outfitLine, input.garmentTypePreference)) {
     if (hasCoastalContext(input.outfitLine)) {
       return removeMaleBagLanguage(
-        `${getCoastalMenswearLine(input.season, seed)} ${getCoastalMenswearTailoringQualityLine()}`
+        `${getCoastalMenswearLine(input.season, seed)} ${getCoastalMenswearTailoringQualityLine(input.garmentTypePreference)}`
       );
     }
 

@@ -35,6 +35,8 @@ export function sanitizeSeasonalOutfitLine(line: string, season: TeamSeason | Se
     .replace(/\bknit polo\b/gi, "cotton polo")
     .replace(/\bpolo knit\b/gi, "cotton polo")
     .replace(/\bsleeveless knit top\b/gi, "sleeveless mercerized-cotton top")
+    .replace(/\bsleeveless knit\b/gi, "mercerized-cotton sleeveless top")
+    .replace(/\bshirt jacket\b/gi, "linen overshirt")
     .replace(/\bsoft cardigan\b/gi, "light cotton overshirt")
     .replace(/\blight cardigan\b/gi, "light cotton overshirt")
     .replace(/\bthin cardigan\b/gi, "thin cotton overshirt")
