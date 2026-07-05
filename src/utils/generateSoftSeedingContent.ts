@@ -108,6 +108,9 @@ export const softSeedingDailySlotOptions: SoftSeedingDailySlot[] = [1, 2];
 const MS_PER_DAY = 24 * 60 * 60 * 1000;
 const DAILY_POST_COUNT = 2;
 const SOFT_SEEDING_VARIANTS_PER_TOPIC = 200;
+const SOFT_SEEDING_VARIANT_COUNT_BY_TOPIC: Partial<Record<SoftSeedingTopic, number>> = {
+  生活场景软种草: 1000
+};
 
 function pad2(value: number) {
   return String(value).padStart(2, "0");
@@ -127,7 +130,7 @@ function resolveDailySlot(slot?: SoftSeedingDailySlot): SoftSeedingDailySlot {
 }
 
 function getTopicVariantCount(topic: SoftSeedingTopic) {
-  return SOFT_SEEDING_VARIANTS_PER_TOPIC;
+  return SOFT_SEEDING_VARIANT_COUNT_BY_TOPIC[topic] ?? SOFT_SEEDING_VARIANTS_PER_TOPIC;
 }
 
 export function getSoftSeedingInventory() {
@@ -166,22 +169,22 @@ function pick<T>(items: T[], index: number) {
   return items[index % items.length];
 }
 
-function normalizeSoftVariantIndex(variantIndex: number) {
-  return ((variantIndex % SOFT_SEEDING_VARIANTS_PER_TOPIC) + SOFT_SEEDING_VARIANTS_PER_TOPIC) %
-    SOFT_SEEDING_VARIANTS_PER_TOPIC;
+function normalizeSoftVariantIndex(variantIndex: number, variantCount = SOFT_SEEDING_VARIANTS_PER_TOPIC) {
+  return ((variantIndex % variantCount) + variantCount) % variantCount;
 }
 
-function pickVariant<T>(items: T[], variantIndex: number, salt: number) {
-  const normalized = normalizeSoftVariantIndex(variantIndex);
+function pickVariant<T>(items: T[], variantIndex: number, salt: number, variantCount = SOFT_SEEDING_VARIANTS_PER_TOPIC) {
+  const normalized = normalizeSoftVariantIndex(variantIndex, variantCount);
   const mixedIndex = normalized * salt + Math.floor(normalized / (salt + 1));
   return pick(items, mixedIndex);
 }
 
-function buildCopyFromKit(topic: SoftSeedingTopic, variantIndex: number): TopicCopyDraft {
+function buildCopyFromKit(topic: SoftSeedingTopic, variantIndex: number, imageCount = 5): TopicCopyDraft {
   const kit = getExpandedCopyKit(topic);
   const titles = buildReaderFacingTitles(topic, variantIndex);
 
-  const body = buildReaderFacingBody(topic, variantIndex);
+  const selectedImageDrafts = topicImageDrafts[topic].slice(0, imageCount);
+  const body = buildReaderFacingBody(topic, variantIndex, selectedImageDrafts);
 
   return {
     titles,
@@ -193,7 +196,7 @@ function buildCopyFromKit(topic: SoftSeedingTopic, variantIndex: number): TopicC
 
 function buildReaderFacingTitles(topic: SoftSeedingTopic, variantIndex: number) {
   const titles = readerTitleKits[topic];
-  const normalized = normalizeSoftVariantIndex(variantIndex);
+  const normalized = normalizeSoftVariantIndex(variantIndex, getTopicVariantCount(topic));
   const firstIndex = normalized % titles.length;
   const secondPool = titles.filter((_, index) => index !== firstIndex);
   const secondIndex = Math.floor(normalized / titles.length) % secondPool.length;
@@ -224,26 +227,155 @@ function getExpandedCopyKit(topic: SoftSeedingTopic): TopicCopyKit {
   };
 }
 
-function buildReaderFacingBody(topic: SoftSeedingTopic, variantIndex: number) {
+function joinBodyLines(...lines: string[]) {
+  return lines.filter(Boolean).join("\n");
+}
+
+function buildReaderFacingBody(topic: SoftSeedingTopic, variantIndex: number, selectedImageDrafts: SoftSeedingImageDraft[]) {
   const kit = readerBodyKits[topic];
-  const normalized = normalizeSoftVariantIndex(variantIndex);
-  const opener = pickVariant(kit.openers, normalized, 3);
-  const observation = pickVariant(kit.observations, normalized, 5);
-  const sceneNote = pickVariant(kit.sceneNotes, normalized, 7);
-  const smallDetail = pickVariant(kit.smallDetails, normalized, 11);
-  const personalAngle = pickVariant(kit.personalAngles, normalized, 13);
-  const closing = pickVariant(kit.closings, normalized, 17);
+  const variantCount = getTopicVariantCount(topic);
+  const normalized = normalizeSoftVariantIndex(variantIndex, variantCount);
+  const opener = pickVariant(kit.openers, normalized, 3, variantCount);
+  const observation = pickVariant(kit.observations, normalized, 5, variantCount);
+  const sceneNote =
+    topic === "生活场景软种草"
+      ? buildLifestyleSceneAlignmentNote(selectedImageDrafts, normalized)
+      : pickVariant(kit.sceneNotes, normalized, 7, variantCount);
+  const smallDetail = pickVariant(kit.smallDetails, normalized, 11, variantCount);
+  const personalAngle = pickVariant(kit.personalAngles, normalized, 13, variantCount);
+  const closing = pickVariant(kit.closings, normalized, 17, variantCount);
+  const lifestyleMicroLine = getLifestyleBuyerFeedbackMicroLine(topic, normalized, selectedImageDrafts);
   const variants = [
-    [opener, `${smallDetail}\n${observation}`, sceneNote, `${personalAngle}\n${closing}`],
-    [`${opener}\n${smallDetail}`, `${sceneNote}\n${observation}`, closing],
-    [opener, observation, `${smallDetail}\n${personalAngle}`, sceneNote, closing],
-    [`${opener}\n${observation}`, `${smallDetail}\n${closing}`],
-    [opener, `${sceneNote}\n${smallDetail}`, `${personalAngle}\n${closing}`],
-    [`${opener}\n${smallDetail}`, `${personalAngle}\n${sceneNote}`, closing],
-    [opener, sceneNote, `${smallDetail}\n${observation}`, closing]
+    [opener, joinBodyLines(smallDetail, observation), sceneNote, joinBodyLines(personalAngle, lifestyleMicroLine, closing)],
+    [joinBodyLines(opener, smallDetail), joinBodyLines(sceneNote, observation), joinBodyLines(lifestyleMicroLine, closing)],
+    [opener, observation, joinBodyLines(smallDetail, personalAngle), sceneNote, joinBodyLines(lifestyleMicroLine, closing)],
+    [joinBodyLines(opener, observation), joinBodyLines(smallDetail, lifestyleMicroLine, closing)],
+    [opener, joinBodyLines(sceneNote, smallDetail), joinBodyLines(personalAngle, lifestyleMicroLine, closing)],
+    [joinBodyLines(opener, smallDetail), joinBodyLines(personalAngle, sceneNote), joinBodyLines(lifestyleMicroLine, closing)],
+    [opener, sceneNote, joinBodyLines(smallDetail, observation), joinBodyLines(lifestyleMicroLine, closing)]
   ];
 
   return reduceRepeatedBodyIdeas(variants[variantIndex % variants.length].map(softenBodyText).join("\n\n"));
+}
+
+const lifestyleBuyerFeedbackSubjects = [
+  "我最想确认的是鞋子在普通步子里会不会显大",
+  "我会看它和自己的白衬衫牛仔能不能顺起来",
+  "我会看坐下时鞋头和鞋带还清不清楚",
+  "我会看裤脚、裙摆或连衣裙下缘和鞋子的关系",
+  "我会看这双鞋有没有把整个人的比例压住",
+  "我会看它是不是只在精修图里好看",
+  "我会看鞋底线条在真实路面上会不会显厚",
+  "我会看它能不能接住一件普通针织或外套",
+  "我会看它在包、咖啡和纸袋旁边会不会太抢",
+  "我会看它从早到晚是不是还保持干净体面"
+];
+
+const lifestyleBuyerFeedbackMoments = [
+  "如果是入户镜前准备出门",
+  "如果是写字楼门口停一下",
+  "如果是咖啡店门口等咖啡",
+  "如果是在书店门口停留几分钟",
+  "如果是酒店房间镜前整理好行李",
+  "如果是工作日从门口走出来",
+  "如果是午后坐在咖啡店外",
+  "如果是下班后在写字楼外停一下",
+  "如果是出门前朋友顺手帮拍",
+  "如果是短途旅行准备出门"
+];
+
+const lifestyleBuyerFeedbackMomentByScene: Partial<Record<TeamScenePreference, string[]>> = {
+  入户镜前: ["如果是入户镜前准备出门", "如果是出门前朋友顺手帮拍"],
+  写字楼门口: ["如果是写字楼门口停一下", "如果是下班后在写字楼外停一下"],
+  咖啡店门口: ["如果是咖啡店门口等咖啡", "如果是午后坐在咖啡店外"],
+  "书店 / 杂志店门口": ["如果是在书店门口停留几分钟", "如果是从书店门口慢慢走出来"],
+  酒店房间: ["如果是酒店房间镜前整理好行李", "如果是短途旅行准备出门"]
+};
+
+const lifestyleBuyerFeedbackProofs = [
+  "这种画面比一句好穿更有说服力",
+  "它更像真实穿过之后的判断",
+  "我会更容易想象自己穿它出门",
+  "鞋子和衣服的关系也更容易看清",
+  "这类反馈比单独静物更接近购买前的犹豫",
+  "参考价值会比很满的广告图高很多",
+  "日常感会自然出来，不需要额外解释",
+  "能看清脚下状态，心里就会踏实一点",
+  "它会更像一个真实客户留下来的穿着记录",
+  "那种不费劲的体面感会更明显"
+];
+
+function getLifestyleBuyerFeedbackMicroLine(
+  topic: SoftSeedingTopic,
+  normalizedVariantIndex: number,
+  selectedImageDrafts: SoftSeedingImageDraft[]
+) {
+  if (topic !== "生活场景软种草") return "";
+
+  const subject = lifestyleBuyerFeedbackSubjects[normalizedVariantIndex % lifestyleBuyerFeedbackSubjects.length];
+  const matchedMoments = selectedImageDrafts.flatMap(
+    (draft) => lifestyleBuyerFeedbackMomentByScene[draft.scenePreference] ?? []
+  );
+  const momentPool = matchedMoments.length ? matchedMoments : lifestyleBuyerFeedbackMoments;
+  const moment = momentPool[Math.floor(normalizedVariantIndex / lifestyleBuyerFeedbackSubjects.length) % momentPool.length];
+  const proof =
+    lifestyleBuyerFeedbackProofs[
+      Math.floor(
+        normalizedVariantIndex / (lifestyleBuyerFeedbackSubjects.length * lifestyleBuyerFeedbackMoments.length)
+      ) % lifestyleBuyerFeedbackProofs.length
+    ];
+
+  return `${subject}；${moment}，${proof}。`;
+}
+
+const lifestyleSceneCopyNotes: Partial<Record<TeamScenePreference, string[]>> = {
+  入户镜前: [
+    "入户镜前那张用来看完整比例和鞋子露出",
+    "入户镜前那张更像真实出门前的试穿记录",
+    "入户镜前那张要看清鞋子和衣服是不是顺"
+  ],
+  写字楼门口: [
+    "写字楼门口那张看它能不能进入工作日",
+    "写字楼门口那张用来看通勤时会不会太用力",
+    "写字楼门口那张要有一点下班后的真实状态"
+  ],
+  咖啡店门口: [
+    "咖啡店门口那张看停下来时鞋子还清不清楚",
+    "咖啡店门口那张用来看周末或午后的松弛感",
+    "咖啡店门口那张要像朋友顺手拍到的日常停留"
+  ],
+  "书店 / 杂志店门口": [
+    "书店门口那张看它和安静日常是否顺",
+    "书店门口那张会让日常里多一点审美选择感",
+    "书店门口那张要轻一点，别像摆拍打卡"
+  ],
+  酒店房间: [
+    "酒店房间那张看它能不能省行李、接住短途出门",
+    "酒店房间那张用来看出差或旅行里的秩序感",
+    "酒店房间那张要像真实整理完准备出门前的记录"
+  ]
+};
+
+function buildLifestyleSceneAlignmentNote(selectedImageDrafts: SoftSeedingImageDraft[], normalizedVariantIndex: number) {
+  const notes = selectedImageDrafts
+    .map((draft, index) => {
+      const sceneNotes = lifestyleSceneCopyNotes[draft.scenePreference] ?? [
+        `${draft.description}这一张用来补充真实日常参考`
+      ];
+
+      return sceneNotes[(normalizedVariantIndex + index) % sceneNotes.length];
+    })
+    .filter(Boolean);
+
+  if (!notes.length) {
+    return "这组图要围绕真实买家秀反馈来拍，场景、鞋子露出和穿着状态要彼此对得上。";
+  }
+
+  const noteCount = Math.min(notes.length, selectedImageDrafts.length >= 5 ? 3 : 2);
+  const startIndex = normalizedVariantIndex % notes.length;
+  const selectedNotes = Array.from({ length: noteCount }, (_, index) => notes[(startIndex + index) % notes.length]);
+
+  return `这组图里，${selectedNotes.join("；")}。`;
 }
 
 function softenTitle(title: string) {
@@ -311,7 +443,21 @@ const readerTitleKits: Record<SoftSeedingTopic, ReaderTitleKit> = {
     "这双鞋放进日常里更好看",
     "不用特别会搭，也能体面出门",
     "咖啡店门口这套有点顺",
-    "鞋子不抢戏，但很加分"
+    "鞋子不抢戏，但很加分",
+    "走了一下午，鞋型还挺干净",
+    "买家秀里这种图最有参考感",
+    "上班穿到晚上也没乱掉",
+    "不是精修大片，但很像真实穿着",
+    "这双鞋比我想象中好搭",
+    "周末出门随便一套也能接住",
+    "镜前看不明显，走出去反而顺",
+    "买花那天穿它刚好",
+    "咖啡店坐下也能看清鞋子",
+    "普通牛仔配它就够了",
+    "这类真实反馈我会认真看",
+    "不显脚大这一点很重要",
+    "出差带这一双就够省心",
+    "走路那张比静物更种草"
   ],
   产品开发幕后: [
     "桌面上这几个细节挺关键",
@@ -390,40 +536,66 @@ const readerTitleKits: Record<SoftSeedingTopic, ReaderTitleKit> = {
 const readerBodyKits: Record<SoftSeedingTopic, ReaderBodyKit> = {
   生活场景软种草: {
     openers: [
-      "我现在越来越喜欢那种不太用力的上脚图。",
-      "我会停下来看一眼的图，通常不是很满的商品照。",
-      "一双日常鞋好不好穿，其实放进普通一天里最容易看出来。",
-      "如果一张图能让我想到明天怎么穿，它就已经有用。"
+      "这种买家秀我会多看两眼，因为不像刻意拍出来的。",
+      "我更相信真实穿了一天之后的反馈。",
+      "如果只是精修静物，我其实很难判断它适不适合我。",
+      "这类上脚图最有用的地方，是能看出它在日常里顺不顺。",
+      "买鞋之前，我会先看它和普通衣服放在一起的样子。",
+      "比起很会拍的大片，我更想看一张真实出门照。",
+      "这种反馈不用写得很夸张，照片里状态自然就够了。",
+      "我会认真看那种下班后、咖啡店门口、路边随手拍的上脚图。"
     ],
     observations: [
-      "它不需要把整个人变得很特别，只要让白衬衫、牛仔、针织和托特包之间更顺一点。",
+      "白衬衫、牛仔、针织和托特包这些很普通的衣服，反而最能看出鞋子好不好搭。",
       "我会先看鞋子在走路、停下、坐下时还清不清楚，比例顺不顺。",
-      "很多舒服感不是靠文字说出来的，而是看她出门时有没有那种松弛的秩序感。",
-      "鞋子安静一点没关系，但不能弱到看不出它怎么接住整套穿着。"
+      "如果走了一下午，裤脚和鞋子还是干净的，这种反馈比夸它好看更有用。",
+      "鞋子安静一点没关系，但不能弱到看不出它怎么接住整套穿着。",
+      "买家秀最重要的是别把脚拍得很大，也别把鞋子裁掉。",
+      "看起来舒服但不随便，这点对日常鞋来说很重要。",
+      "如果只是站着好看，参考价值会少很多；走路和坐下的状态也要顺。",
+      "我会注意鞋头会不会显笨、鞋底会不会太厚、整个人比例会不会被压住。"
     ],
     sceneNotes: [
       "咖啡店门口、写字楼外面、书店门口这种普通地方，反而比大场景更有代入感。",
       "有一点街道痕迹、有一点生活节奏，照片会比过度干净的背景更可信。",
       "她可能只是等咖啡、顺路买花，或者从门口走出来，鞋子在这些瞬间出现得最自然。",
-      "一杯咖啡、一本书、一个包就够了，道具太多会把日常感冲淡。"
+      "一杯咖啡、一本书、一个包就够了，道具太多会把日常感冲淡。",
+      "下班后在写字楼门口停一下，这种图比刻意摆拍更像真实反馈。",
+      "周末去买花、逛书店、顺路喝咖啡，鞋子能自然出现就很好。",
+      "旅行酒店镜前那种图也有用，因为能看出一双鞋能不能省行李。",
+      "如果是在社区步道或安静街角，背景有一点生活痕迹会更像买家秀。"
     ],
     smallDetails: [
       "袖口卷起来一点、包放在椅子旁边，这种小地方会让图更像真的出门。",
       "鞋子不用占满画面，能在脚下清楚露出来就够了。",
       "路边有一点树影、杯子放在桌角，照片会松很多。",
-      "我会留意她站住那一秒的状态，而不是刻意摆出来的姿势。"
+      "我会留意她站住那一秒的状态，而不是刻意摆出来的姿势。",
+      "裤脚刚好落在鞋面上方时，整套会干净很多。",
+      "如果坐下时还能看清鞋头和鞋带，这张图就很有参考感。",
+      "托特包、纸袋、花束都可以很轻，别把画面堆满。",
+      "鞋子最好至少有一只完整露出来，不然买家秀的参考价值会掉很多。",
+      "真实反馈里可以有一点阴影和路面纹理，不需要干净得像棚拍。",
+      "手自然拿杯子或扶包就好，不需要摆很用力的姿势。"
     ],
     personalAngles: [
       "我会把它当成衣柜里的连接项，而不是某一套造型的亮点。",
-      "看完如果能想到自己的三件衣服，这篇就比单纯好看更有参考意义。",
+      "看完如果能想到自己的三件衣服，这篇就比单纯好看更有可抄的地方。",
       "轻熟日常最怕用力过度，干净、舒服、体面其实已经很难得。",
-      "它最好像一个早上不用纠结的答案，不需要每次出门都重新搭。"
+      "它最好像一个早上不用纠结的答案，不需要每次出门都重新搭。",
+      "如果能从上班穿到晚饭，还不显得狼狈，我会觉得很加分。",
+      "对我来说，买家秀不是越精致越好，而是越能看出真实使用状态越好。",
+      "一双鞋能不能长期穿，很多时候看这种普通照片就能大概判断。",
+      "我会更相信那种没有强滤镜、没有大姿势、但鞋子和衣服都看得清的图。"
     ],
     closings: [
       "这种种草轻一点就好，让看到的人自己判断它能不能进自己的生活。",
       "能被自然穿出门，比单独说好穿更有用。",
       "如果一双鞋能让早晨少纠结一点，就值得被认真记录。",
-      "我希望它留下的是一种干净的日常感，而不是广告感。"
+      "我希望它留下的是一种干净的日常感，而不是广告感。",
+      "买家秀不用太完美，真实、清楚、比例顺就够了。",
+      "这种图如果能让我少试几套衣服，就已经很有用。",
+      "看完不会立刻被推着买，但会慢慢记住它。",
+      "对日常鞋来说，这种不费劲的好穿感反而最重要。"
     ]
   },
   产品开发幕后: {
@@ -1444,7 +1616,7 @@ const topicImageDrafts: Record<SoftSeedingTopic, SoftSeedingImageDraft[]> = {
 
 const topicImageGuides: Record<SoftSeedingTopic, string> = {
   生活场景软种草:
-    "Use concrete Xiaohongshu-style lifestyle cues: a real outfit record, candid daily rhythm, clear shoe visibility, wearable styling, subtle personal-object context, and a scene that feels easy to save as an outfit reference.",
+    "Use concrete Xiaohongshu buyer-show feedback cues: real customer try-on feeling, candid daily rhythm, clear sneaker visibility, wearable styling, subtle personal-object context, and a scene that feels like a believable user outfit note rather than brand advertising.",
   产品开发幕后:
     "Use concrete behind-the-scenes cues: hands arranging material cards, selected swatches, laces, sample notes, tidy working surface, visible product decisions, and restrained small-brand process realism.",
   秋冬配色实验室:
@@ -1461,11 +1633,16 @@ const topicImageGuides: Record<SoftSeedingTopic, string> = {
 
 const topicVariantVisualCues: Record<SoftSeedingTopic, string[]> = {
   生活场景软种草: [
-    "Visual content angle: make it feel like a saved real-life outfit note from an ordinary day, with one small daily object and clear sneaker readability.",
-    "Visual content angle: focus on a quiet before-leaving or cafe-side pause, with relaxed posture, natural city rhythm, and no advertising performance.",
-    "Visual content angle: show the sneaker as part of her real daily route, not as a staged product insert.",
-    "Visual content angle: keep the scene simple, with believable street texture, soft fabric movement, and an outfit that feels easy to copy.",
-    "Visual content angle: use a friend-taken-photo feeling while keeping THERUIZ AURA proportions, shoe visibility, and low-saturation styling controlled."
+    "Visual content angle: make it feel like a real customer buyer-show outfit note from an ordinary day, with one small daily object and clear sneaker readability.",
+    "Visual content angle: focus on an after-work or cafe-side pause, relaxed posture, natural city rhythm, and no advertising performance.",
+    "Visual content angle: show the sneaker as part of her real commute, coffee stop, bookstore visit, flower errand, or weekend route, not as a staged product insert.",
+    "Visual content angle: keep the scene simple, with believable street texture, soft fabric movement, and an outfit that feels easy for a customer to copy.",
+    "Visual content angle: use a friend-taken buyer-show photo feeling while keeping THERUIZ AURA proportions, shoe visibility, and low-saturation styling controlled.",
+    "Visual content angle: show a real try-on feedback moment where the shoes remain readable while walking, standing, or sitting naturally.",
+    "Visual content angle: emphasize that the shoes still look clean and proportionate after a normal day, without perfect campaign styling.",
+    "Visual content angle: make the image feel like a saved Xiaohongshu customer review photo, not a brand campaign, not a showroom pose.",
+    "Visual content angle: keep at least one sneaker fully visible in a casual real-life composition, with believable trousers, skirt, or dress relationship.",
+    "Visual content angle: show a practical buyer-show scene where the outfit answers how the shoes work with normal clothes."
   ],
   产品开发幕后: [
     "Visual content angle: show a quiet product-development decision, such as comparing laces, leather pieces, color cards, or a sample note.",
@@ -1511,8 +1688,27 @@ const topicVariantVisualCues: Record<SoftSeedingTopic, string[]> = {
   ]
 };
 
+const lifestyleBuyerFeedbackAlignmentCues = [
+  "Copy-image alignment: respect this image card's selected scene and image type while matching the body copy's real customer buyer-show feeling.",
+  "Copy-image alignment: the image should support the same buyer question as the copy: whether the sneakers look clean, comfortable, easy to style, and wearable in ordinary life.",
+  "Copy-image alignment: keep the visual low-pressure and useful, with readable shoe proportion, natural posture, and no hard-selling mood.",
+  "Copy-image alignment: make this card feel like one part of the same customer try-on note, not a separate brand campaign.",
+  "Copy-image alignment: keep the scene, styling, and shoe visibility consistent with this card's purpose and the copy's daily-wear feedback point.",
+  "Copy-image alignment: emphasize readable on-foot proof, normal clothing, visible trouser, skirt, or dress relationship, and believable walking, standing, or sitting posture.",
+  "Copy-image alignment: the visual should support buyer-show feedback about daily usability, not just show a pretty lifestyle background.",
+  "Copy-image alignment: use only ordinary tasteful objects that fit this image card, such as coffee, book, tote, flowers, paper bag, street shadow, office entrance, or quiet hotel mirror.",
+  "Copy-image alignment: keep this image and the body copy centered on one buyer feedback point, not multiple unrelated selling points.",
+  "Copy-image alignment: make the image feel saveable as a real user try-on reference for Xiaohongshu while staying loyal to this card's scene."
+];
+
 function getSoftSeedingVariantVisualCue(topic: SoftSeedingTopic, variantIndex: number) {
-  return pickVariant(topicVariantVisualCues[topic], variantIndex, 23);
+  return pickVariant(topicVariantVisualCues[topic], variantIndex, 23, getTopicVariantCount(topic));
+}
+
+function getSoftSeedingCopyVisualAlignmentCue(topic: SoftSeedingTopic, variantIndex: number) {
+  if (topic !== "生活场景软种草") return "";
+
+  return pickVariant(lifestyleBuyerFeedbackAlignmentCues, variantIndex, 29, getTopicVariantCount(topic));
 }
 
 function resolveBaseSeason(baseSeason: TeamSeason, overrideSeason?: TeamSeason) {
@@ -1640,14 +1836,15 @@ function getSoftSeedingExtraRequirement(
 ) {
   const themeGuide = topicImageGuides[topic];
   const variantVisualCue = getSoftSeedingVariantVisualCue(topic, variantIndex);
+  const copyVisualAlignmentCue = getSoftSeedingCopyVisualAlignmentCue(topic, variantIndex);
 
   if (baseParams.garmentTypePreference === "自动匹配" || !shouldInheritBaseGarmentType(draft.imageType)) {
-    return [draft.extraRequirement, themeGuide, variantVisualCue].filter(Boolean).join(" ");
+    return [draft.extraRequirement, themeGuide, variantVisualCue, copyVisualAlignmentCue].filter(Boolean).join(" ");
   }
 
   const manualControlLine =
     garmentTypePreference === "自动匹配" ? "" : garmentTypeControlLines[garmentTypePreference];
-  const combinedRequirement = [draft.extraRequirement, manualControlLine, themeGuide, variantVisualCue]
+  const combinedRequirement = [draft.extraRequirement, manualControlLine, themeGuide, variantVisualCue, copyVisualAlignmentCue]
     .filter(Boolean)
     .join(" ");
 
@@ -1697,8 +1894,8 @@ export function generateSoftSeedingContent(input: SoftSeedingInput): SoftSeeding
   const variantOffset = Math.max(0, Math.floor(input.variantOffset ?? 0));
   const baseVariantIndex = mode === "今日自动" ? dailySelection.variantIndex : manualPostIndex % variantCount;
   const variantIndex = (baseVariantIndex + variantOffset) % variantCount;
-  const copy = buildCopyFromKit(topic, variantIndex);
   const imageCount = input.imageCount ?? 5;
+  const copy = buildCopyFromKit(topic, variantIndex, imageCount);
 
   return {
     topic,
