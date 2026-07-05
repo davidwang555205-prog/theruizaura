@@ -197,13 +197,16 @@ function buildCopyFromKit(topic: SoftSeedingTopic, variantIndex: number, imageCo
 function buildReaderFacingTitles(topic: SoftSeedingTopic, variantIndex: number) {
   const titles = readerTitleKits[topic];
   const normalized = normalizeSoftVariantIndex(variantIndex, getTopicVariantCount(topic));
-  const firstIndex = normalized % titles.length;
+  const permutationCount = titles.length * (titles.length - 1) * Math.max(1, titles.length - 2);
+  const rank = (normalized * 37 + 11) % permutationCount;
+  const firstIndex = rank % titles.length;
   const secondPool = titles.filter((_, index) => index !== firstIndex);
-  const secondIndex = Math.floor(normalized / titles.length) % secondPool.length;
-  const thirdPool = secondPool.filter((_, index) => index !== secondIndex);
-  const thirdIndex = Math.floor(normalized / (titles.length * secondPool.length)) % thirdPool.length;
+  const secondOrdinal = Math.floor(rank / titles.length) % secondPool.length;
+  const secondTitle = secondPool[secondOrdinal];
+  const thirdPool = secondPool.filter((title) => title !== secondTitle);
+  const thirdOrdinal = Math.floor(rank / (titles.length * secondPool.length)) % thirdPool.length;
 
-  return [titles[firstIndex], secondPool[secondIndex], thirdPool[thirdIndex]].map(softenTitle);
+  return [titles[firstIndex], secondTitle, thirdPool[thirdOrdinal]].map(softenTitle);
 }
 
 function mergeCopyLines(base: string[], extra?: string[]) {
@@ -231,44 +234,250 @@ function joinBodyLines(...lines: string[]) {
   return lines.filter(Boolean).join("\n");
 }
 
+function formatBodyParagraphs(lines: string[]) {
+  const seen = new Set<string>();
+  return lines
+    .map((line) => line.replace(/\s+/g, " ").trim())
+    .filter(Boolean)
+    .filter((line) => {
+      if (seen.has(line)) return false;
+      seen.add(line);
+      return true;
+    })
+    .join("\n\n");
+}
+
 function buildReaderFacingBody(topic: SoftSeedingTopic, variantIndex: number, selectedImageDrafts: SoftSeedingImageDraft[]) {
   const kit = readerBodyKits[topic];
   const variantCount = getTopicVariantCount(topic);
   const normalized = normalizeSoftVariantIndex(variantIndex, variantCount);
+
+  if (topic === "生活场景软种草") {
+    return buildLifestyleBuyerShowBody(kit, normalized, selectedImageDrafts);
+  }
+
   const opener = pickVariant(kit.openers, normalized, 3, variantCount);
   const observation = pickVariant(kit.observations, normalized, 5, variantCount);
-  const sceneNote =
-    topic === "生活场景软种草"
-      ? buildLifestyleSceneAlignmentNote(selectedImageDrafts, normalized)
-      : pickVariant(kit.sceneNotes, normalized, 7, variantCount);
+  const sceneNote = pickVariant(kit.sceneNotes, normalized, 7, variantCount);
   const smallDetail = pickVariant(kit.smallDetails, normalized, 11, variantCount);
   const personalAngle = pickVariant(kit.personalAngles, normalized, 13, variantCount);
   const closing = pickVariant(kit.closings, normalized, 17, variantCount);
-  const lifestyleMicroLine = getLifestyleBuyerFeedbackMicroLine(topic, normalized, selectedImageDrafts);
   const variants = [
-    [opener, joinBodyLines(smallDetail, observation), sceneNote, joinBodyLines(personalAngle, lifestyleMicroLine, closing)],
-    [joinBodyLines(opener, smallDetail), joinBodyLines(sceneNote, observation), joinBodyLines(lifestyleMicroLine, closing)],
-    [opener, observation, joinBodyLines(smallDetail, personalAngle), sceneNote, joinBodyLines(lifestyleMicroLine, closing)],
-    [joinBodyLines(opener, observation), joinBodyLines(smallDetail, lifestyleMicroLine, closing)],
-    [opener, joinBodyLines(sceneNote, smallDetail), joinBodyLines(personalAngle, lifestyleMicroLine, closing)],
-    [joinBodyLines(opener, smallDetail), joinBodyLines(personalAngle, sceneNote), joinBodyLines(lifestyleMicroLine, closing)],
-    [opener, sceneNote, joinBodyLines(smallDetail, observation), joinBodyLines(lifestyleMicroLine, closing)]
+    [opener, joinBodyLines(smallDetail, observation), sceneNote, joinBodyLines(personalAngle, closing)],
+    [joinBodyLines(opener, smallDetail), joinBodyLines(sceneNote, observation), closing],
+    [opener, observation, joinBodyLines(smallDetail, personalAngle), sceneNote, closing],
+    [joinBodyLines(opener, observation), joinBodyLines(smallDetail, closing)],
+    [opener, joinBodyLines(sceneNote, smallDetail), joinBodyLines(personalAngle, closing)],
+    [joinBodyLines(opener, smallDetail), joinBodyLines(personalAngle, sceneNote), closing],
+    [opener, sceneNote, joinBodyLines(smallDetail, observation), closing]
   ];
 
   return reduceRepeatedBodyIdeas(variants[variantIndex % variants.length].map(softenBodyText).join("\n\n"));
 }
 
+function buildLifestyleBuyerShowBody(
+  kit: ReaderBodyKit,
+  normalizedVariantIndex: number,
+  selectedImageDrafts: SoftSeedingImageDraft[]
+) {
+  const opener = pickVariant(kit.openers, normalizedVariantIndex, 3, getTopicVariantCount("生活场景软种草"));
+  const observation = pickVariant(kit.observations, normalizedVariantIndex, 5, getTopicVariantCount("生活场景软种草"));
+  const smallDetail = pickVariant(kit.smallDetails, normalizedVariantIndex, 11, getTopicVariantCount("生活场景软种草"));
+  const personalAngle = pickVariant(kit.personalAngles, normalizedVariantIndex, 13, getTopicVariantCount("生活场景软种草"));
+  const closing = pickVariant(kit.closings, normalizedVariantIndex, 17, getTopicVariantCount("生活场景软种草"));
+  const sceneMoment = getLifestyleSceneMoment(selectedImageDrafts, normalizedVariantIndex, 0);
+  const secondSceneMoment = getLifestyleSceneMoment(selectedImageDrafts, normalizedVariantIndex, 1);
+  const buyerDetail = getLifestyleBuyerFeedbackMicroLine("生活场景软种草", normalizedVariantIndex, selectedImageDrafts);
+  const casualStart = lifestyleCasualStarts[normalizedVariantIndex % lifestyleCasualStarts.length];
+  const livedInDetail = lifestyleLivedInDetails[normalizedVariantIndex % lifestyleLivedInDetails.length];
+  const wearingResult =
+    lifestyleWearingResults[
+      Math.floor(normalizedVariantIndex / lifestyleLivedInDetails.length) % lifestyleWearingResults.length
+    ];
+  const caveat =
+    lifestyleBuyerShowCaveats[
+      Math.floor(normalizedVariantIndex / (lifestyleLivedInDetails.length * lifestyleWearingResults.length)) %
+        lifestyleBuyerShowCaveats.length
+    ];
+  const quietClosing =
+    lifestyleQuietClosings[
+      Math.floor(
+        normalizedVariantIndex /
+          (lifestyleLivedInDetails.length * lifestyleWearingResults.length * lifestyleBuyerShowCaveats.length)
+      ) % lifestyleQuietClosings.length
+    ];
+  const bodyStyles = [
+    [
+      casualStart,
+      sceneMoment,
+      `${livedInDetail} ${wearingResult}`,
+      `${buyerDetail}`,
+      quietClosing
+    ],
+    [
+      `${caveat}`,
+      sceneMoment,
+      `${smallDetail}`,
+      `${wearingResult} ${personalAngle}`
+    ],
+    [
+      casualStart,
+      `${sceneMoment}`,
+      `${secondSceneMoment}`,
+      `${buyerDetail}`,
+      `${wearingResult}`
+    ],
+    [
+      `${opener}`,
+      `${sceneMoment}`,
+      `${livedInDetail}`,
+      `${smallDetail}`,
+      `${buyerDetail}`,
+      `${quietClosing}`
+    ],
+    [
+      `${caveat}`,
+      `${sceneMoment}`,
+      `${observation}`,
+      `${buyerDetail}`,
+      `${closing}`
+    ],
+    [
+      casualStart,
+      `${sceneMoment}`,
+      `${wearingResult}`,
+      `${personalAngle}`,
+      `${quietClosing}`
+    ],
+    [
+      `${opener}`,
+      `${buyerDetail}`,
+      `${secondSceneMoment}`,
+      `${wearingResult}`,
+      `${caveat}`
+    ],
+    [
+      casualStart,
+      `${sceneMoment}`,
+      `${smallDetail}`,
+      `${buyerDetail}`,
+      `${quietClosing}`
+    ]
+  ];
+
+  return reduceRepeatedBodyIdeas(formatBodyParagraphs(bodyStyles[normalizedVariantIndex % bodyStyles.length].map(softenBodyText)));
+}
+
+const lifestyleCasualStarts = [
+  "今天没怎么想搭配，顺手拿了常穿的衣服就出门。",
+  "这张不是特意拍的，反而比较能看出真实上脚状态。",
+  "早上赶时间的时候，我会更愿意穿这种不需要重新想的鞋。",
+  "不是那种第一眼很亮的款，但放进日常里会慢慢顺眼。",
+  "我买日常鞋，最怕好看但只能站着拍。",
+  "这双更像是普通一天里会被反复拿出来的鞋。",
+  "没有刻意凹造型，就是想看它和自己的衣服能不能搭上。",
+  "如果只看棚拍，我很难判断它到底好不好穿出门。"
+];
+
+const lifestyleSceneMoments: Partial<Record<TeamScenePreference, string[]>> = {
+  入户镜前: [
+    "出门前在入户镜前看了一眼，主要是确认鞋子和今天这身顺不顺。",
+    "早上没想太久，镜前试了一下，鞋子没有把整套穿着打断。",
+    "入户镜这张很普通，但能看清比例，反而比精修图有用。"
+  ],
+  写字楼门口: [
+    "到写字楼门口停下来时，鞋子还是干净的，没有那种赶着营业的感觉。",
+    "工作日穿它比较省心，走到办公室门口也不会显得太随便。",
+    "下班后在楼下拍了一张，整个人状态没有被鞋子拖住。"
+  ],
+  咖啡店门口: [
+    "等咖啡那几分钟随手拍了一张，鞋子和牛仔放在一起还挺自然。",
+    "坐在咖啡店外面时还能看清鞋头和鞋带，这一点比我想象中重要。",
+    "咖啡店门口这张没有特别摆，但鞋子在脚下是顺的。"
+  ],
+  "书店 / 杂志店门口": [
+    "书店门口停了一下，鞋子没有抢掉整套衣服的安静感。",
+    "拿着书站在门口那张，能看出它不是只适合通勤。",
+    "这种书店门口的随手照，比单独拍鞋更能看出日常感。"
+  ],
+  酒店房间: [
+    "短途出门带它会比较省行李，酒店镜前看也能接住日常衣服。",
+    "酒店房间那张像出门前顺手拍的，不像特意准备的大片。",
+    "整理好行李之后看一眼鞋子，能不能一双穿几天就很清楚。"
+  ]
+};
+
+const lifestyleLivedInDetails = [
+  "照片没必要修得很满，路面有一点阴影、衣服有一点褶皱，反而更像真实穿着。",
+  "我会留意鞋子有没有被拍得过大，也会看脚下接触地面的状态自不自然。",
+  "这种图最好不要太会摆，站住那一秒的自然状态就够了。",
+  "如果裤脚、裙摆或连衣裙下缘和鞋子之间是清楚的，整套就会干净很多。",
+  "包、咖啡、书这些东西轻轻出现就好，别把画面堆成道具照。",
+  "鞋子不用占满画面，但至少要看得清鞋头、鞋带和整体轮廓。",
+  "我反而喜欢一点真实街道感，不需要干净得像棚拍背景。",
+  "手放得自然一点，比刻意凹姿势更像真实买家秀。"
+];
+
+const lifestyleWearingResults = [
+  "走了一段路之后，鞋型还能保持住，这点会让我安心一点。",
+  "它不是特别抢眼的鞋，但和日常衣服放在一起很顺。",
+  "看起来舒服，但不会让整套穿着变得随便。",
+  "鞋底没有显得很厚，脚也没有被拍得很大。",
+  "这种安静的存在感，反而适合每天都要出门的人。",
+  "如果一双鞋能从早上接到傍晚，我会觉得比一句好看更有用。",
+  "它更像衣柜里的连接项，不是只为了某一套造型存在。",
+  "这种不费劲的体面感，才是我会反复穿的原因。"
+];
+
+const lifestyleBuyerShowCaveats = [
+  "先说缺点：它不是那种第一眼很抓人的鞋，所以要放进真实穿着里看。",
+  "我不太相信只拍得很漂亮的静物，还是要看上脚之后会不会显笨。",
+  "如果你喜欢很强存在感的鞋，它可能不是那个方向。",
+  "这类鞋最怕拍成精致但没生活感，所以我更想看普通出门状态。",
+  "我买日常鞋会比较在意比例，照片里脚一显大就会直接劝退。",
+  "没有夸张亮点反而是它的优点，搭衣服的时候不用重新想一遍。",
+  "它适不适合自己，最好看这种不太用力的出门照。",
+  "我会把它当成一双能省心出门的鞋，而不是专门为了拍照准备的鞋。"
+];
+
+const lifestyleQuietClosings = [
+  "这种鞋不用把话说满，穿进普通一天里就能看出来。",
+  "对我来说，它不是用来制造惊艳的，是让出门这件事简单一点。",
+  "如果一张随手拍都能看顺，我会更愿意相信它。",
+  "这种不费劲的干净感，比很会拍更打动我。",
+  "我会把它归到那种不需要想太多、但穿上不会出错的鞋。",
+  "看完不会马上被推着买，但会默默记住这双鞋。",
+  "日常鞋能做到舒服、干净、比例顺，其实已经很难得。",
+  "它最好的地方，是没有强行证明自己很好看。"
+];
+
+function getLifestyleSceneMoment(
+  selectedImageDrafts: SoftSeedingImageDraft[],
+  normalizedVariantIndex: number,
+  offset: number
+) {
+  const scenePool = selectedImageDrafts
+    .map((draft) => lifestyleSceneMoments[draft.scenePreference] ?? [])
+    .filter((moments) => moments.length > 0);
+
+  if (!scenePool.length) return "这张图最好像真实出门时顺手留下的记录。";
+
+  const sceneIndex = (normalizedVariantIndex + offset) % scenePool.length;
+  const momentPool = scenePool[sceneIndex];
+  return momentPool[Math.floor(normalizedVariantIndex / (offset + 1 || 1)) % momentPool.length];
+}
+
 const lifestyleBuyerFeedbackSubjects = [
-  "我最想确认的是鞋子在普通步子里会不会显大",
-  "我会看它和自己的白衬衫牛仔能不能顺起来",
-  "我会看坐下时鞋头和鞋带还清不清楚",
-  "我会看裤脚、裙摆或连衣裙下缘和鞋子的关系",
-  "我会看这双鞋有没有把整个人的比例压住",
-  "我会看它是不是只在精修图里好看",
-  "我会看鞋底线条在真实路面上会不会显厚",
-  "我会看它能不能接住一件普通针织或外套",
-  "我会看它在包、咖啡和纸袋旁边会不会太抢",
-  "我会看它从早到晚是不是还保持干净体面"
+  "普通步子里脚下比例顺不顺，一张随手拍就能看出来",
+  "白衬衫和牛仔都能接住，才算真的省心",
+  "坐下时鞋头和鞋带还清楚，参考感会强很多",
+  "裤脚、裙摆或连衣裙下缘留得干净，整套就不会乱",
+  "脚下没有把整个人比例压住，日常穿才会舒服",
+  "离开精修静物之后还顺眼，才更接近真实穿着",
+  "鞋底线条在真实路面上不显厚，脚下会轻很多",
+  "普通针织或外套都能搭上，衣柜里就更容易反复穿",
+  "包、咖啡和纸袋旁边都不抢，说明它是真的日常",
+  "从早到晚还能保持干净体面，这点比亮眼更重要"
 ];
 
 const lifestyleBuyerFeedbackMoments = [
@@ -326,56 +535,6 @@ function getLifestyleBuyerFeedbackMicroLine(
     ];
 
   return `${subject}；${moment}，${proof}。`;
-}
-
-const lifestyleSceneCopyNotes: Partial<Record<TeamScenePreference, string[]>> = {
-  入户镜前: [
-    "入户镜前那张用来看完整比例和鞋子露出",
-    "入户镜前那张更像真实出门前的试穿记录",
-    "入户镜前那张要看清鞋子和衣服是不是顺"
-  ],
-  写字楼门口: [
-    "写字楼门口那张看它能不能进入工作日",
-    "写字楼门口那张用来看通勤时会不会太用力",
-    "写字楼门口那张要有一点下班后的真实状态"
-  ],
-  咖啡店门口: [
-    "咖啡店门口那张看停下来时鞋子还清不清楚",
-    "咖啡店门口那张用来看周末或午后的松弛感",
-    "咖啡店门口那张要像朋友顺手拍到的日常停留"
-  ],
-  "书店 / 杂志店门口": [
-    "书店门口那张看它和安静日常是否顺",
-    "书店门口那张会让日常里多一点审美选择感",
-    "书店门口那张要轻一点，别像摆拍打卡"
-  ],
-  酒店房间: [
-    "酒店房间那张看它能不能省行李、接住短途出门",
-    "酒店房间那张用来看出差或旅行里的秩序感",
-    "酒店房间那张要像真实整理完准备出门前的记录"
-  ]
-};
-
-function buildLifestyleSceneAlignmentNote(selectedImageDrafts: SoftSeedingImageDraft[], normalizedVariantIndex: number) {
-  const notes = selectedImageDrafts
-    .map((draft, index) => {
-      const sceneNotes = lifestyleSceneCopyNotes[draft.scenePreference] ?? [
-        `${draft.description}这一张用来补充真实日常参考`
-      ];
-
-      return sceneNotes[(normalizedVariantIndex + index) % sceneNotes.length];
-    })
-    .filter(Boolean);
-
-  if (!notes.length) {
-    return "这组图要围绕真实买家秀反馈来拍，场景、鞋子露出和穿着状态要彼此对得上。";
-  }
-
-  const noteCount = Math.min(notes.length, selectedImageDrafts.length >= 5 ? 3 : 2);
-  const startIndex = normalizedVariantIndex % notes.length;
-  const selectedNotes = Array.from({ length: noteCount }, (_, index) => notes[(startIndex + index) % notes.length]);
-
-  return `这组图里，${selectedNotes.join("；")}。`;
 }
 
 function softenTitle(title: string) {
@@ -547,13 +706,13 @@ const readerBodyKits: Record<SoftSeedingTopic, ReaderBodyKit> = {
     ],
     observations: [
       "白衬衫、牛仔、针织和托特包这些很普通的衣服，反而最能看出鞋子好不好搭。",
-      "我会先看鞋子在走路、停下、坐下时还清不清楚，比例顺不顺。",
+      "走路、停下、坐下时鞋子还清楚，比例才算真的顺。",
       "如果走了一下午，裤脚和鞋子还是干净的，这种反馈比夸它好看更有用。",
       "鞋子安静一点没关系，但不能弱到看不出它怎么接住整套穿着。",
       "买家秀最重要的是别把脚拍得很大，也别把鞋子裁掉。",
       "看起来舒服但不随便，这点对日常鞋来说很重要。",
       "如果只是站着好看，参考价值会少很多；走路和坐下的状态也要顺。",
-      "我会注意鞋头会不会显笨、鞋底会不会太厚、整个人比例会不会被压住。"
+      "鞋头不显笨、鞋底不显厚，整个人比例才不会被压住。"
     ],
     sceneNotes: [
       "咖啡店门口、写字楼外面、书店门口这种普通地方，反而比大场景更有代入感。",
@@ -570,7 +729,7 @@ const readerBodyKits: Record<SoftSeedingTopic, ReaderBodyKit> = {
       "鞋子不用占满画面，能在脚下清楚露出来就够了。",
       "路边有一点树影、杯子放在桌角，照片会松很多。",
       "我会留意她站住那一秒的状态，而不是刻意摆出来的姿势。",
-      "裤脚刚好落在鞋面上方时，整套会干净很多。",
+      "衣服下缘和鞋子之间留一点干净空隙，整套会轻很多。",
       "如果坐下时还能看清鞋头和鞋带，这张图就很有参考感。",
       "托特包、纸袋、花束都可以很轻，别把画面堆满。",
       "鞋子最好至少有一只完整露出来，不然买家秀的参考价值会掉很多。",
