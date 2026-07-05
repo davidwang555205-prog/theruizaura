@@ -86,9 +86,12 @@ type ReaderBodyKit = {
   openers: string[];
   observations: string[];
   sceneNotes: string[];
+  smallDetails: string[];
   personalAngles: string[];
   closings: string[];
 };
+
+type ReaderTitleKit = string[];
 
 export const softSeedingTopicOptions: SoftSeedingTopic[] = [
   "生活场景软种草",
@@ -123,14 +126,7 @@ function resolveDailySlot(slot?: SoftSeedingDailySlot): SoftSeedingDailySlot {
 }
 
 function getTopicVariantCount(topic: SoftSeedingTopic) {
-  const kit = getExpandedCopyKit(topic);
-  return (
-    kit.openings.length *
-    kit.observations.length *
-    kit.scenes.length *
-    kit.xiaohongshuAngles.length *
-    kit.closings.length
-  );
+  return getReaderBodyVariantCount(topic) * readerTitleKits[topic].length;
 }
 
 export function getSoftSeedingInventory() {
@@ -171,26 +167,7 @@ function pick<T>(items: T[], index: number) {
 
 function buildCopyFromKit(topic: SoftSeedingTopic, variantIndex: number): TopicCopyDraft {
   const kit = getExpandedCopyKit(topic);
-  const openingIndex = variantIndex % kit.openings.length;
-  const observationIndex = Math.floor(variantIndex / kit.openings.length) % kit.observations.length;
-  const sceneIndex = Math.floor(variantIndex / (kit.openings.length * kit.observations.length)) % kit.scenes.length;
-  const angleIndex =
-    Math.floor(variantIndex / (kit.openings.length * kit.observations.length * kit.scenes.length)) %
-    kit.xiaohongshuAngles.length;
-  const closingIndex =
-    Math.floor(
-      variantIndex /
-        (kit.openings.length *
-          kit.observations.length *
-          kit.scenes.length *
-          kit.xiaohongshuAngles.length)
-    ) % kit.closings.length;
-
-  const titles = [
-    pick(kit.titleLeads, openingIndex + sceneIndex),
-    pick(kit.titleSeconds, observationIndex + closingIndex),
-    pick(kit.titleThirds, variantIndex + openingIndex + observationIndex)
-  ].map(softenTitle);
+  const titles = buildReaderFacingTitles(topic, variantIndex);
 
   const body = buildReaderFacingBody(topic, variantIndex);
 
@@ -200,6 +177,27 @@ function buildCopyFromKit(topic: SoftSeedingTopic, variantIndex: number): TopicC
     tags: kit.tags,
     note: kit.note
   };
+}
+
+function getReaderBodyVariantCount(topic: SoftSeedingTopic) {
+  const kit = readerBodyKits[topic];
+  return (
+    kit.openers.length *
+    kit.observations.length *
+    kit.sceneNotes.length *
+    kit.smallDetails.length *
+    kit.personalAngles.length *
+    kit.closings.length
+  );
+}
+
+function buildReaderFacingTitles(topic: SoftSeedingTopic, variantIndex: number) {
+  const titles = readerTitleKits[topic];
+  const firstIndex = variantIndex % titles.length;
+  const secondIndex = Math.floor(variantIndex / titles.length + 3) % titles.length;
+  const thirdIndex = Math.floor(variantIndex / (titles.length * 2) + 6) % titles.length;
+
+  return [pick(titles, firstIndex), pick(titles, secondIndex), pick(titles, thirdIndex)].map(softenTitle);
 }
 
 function mergeCopyLines(base: string[], extra?: string[]) {
@@ -231,23 +229,36 @@ function buildReaderFacingBody(topic: SoftSeedingTopic, variantIndex: number) {
     kit.sceneNotes,
     Math.floor(variantIndex / (kit.openers.length * kit.observations.length))
   );
+  const smallDetail = pick(
+    kit.smallDetails,
+    Math.floor(variantIndex / (kit.openers.length * kit.observations.length * kit.sceneNotes.length))
+  );
   const personalAngle = pick(
     kit.personalAngles,
-    Math.floor(variantIndex / (kit.openers.length * kit.observations.length * kit.sceneNotes.length))
+    Math.floor(
+      variantIndex /
+        (kit.openers.length * kit.observations.length * kit.sceneNotes.length * kit.smallDetails.length)
+    )
   );
   const closing = pick(
     kit.closings,
     Math.floor(
       variantIndex /
-        (kit.openers.length * kit.observations.length * kit.sceneNotes.length * kit.personalAngles.length)
+        (kit.openers.length *
+          kit.observations.length *
+          kit.sceneNotes.length *
+          kit.smallDetails.length *
+          kit.personalAngles.length)
     )
   );
   const variants = [
-    [opener, observation, sceneNote, personalAngle, closing],
-    [opener, `${sceneNote}\n${observation}`, personalAngle, closing],
-    [opener, observation, `${personalAngle}\n${sceneNote}`, closing],
-    [opener, `${observation}\n${personalAngle}`, sceneNote, closing],
-    [opener, sceneNote, observation, closing]
+    [opener, `${smallDetail}\n${observation}`, sceneNote, `${personalAngle}\n${closing}`],
+    [`${opener}\n${smallDetail}`, `${sceneNote}\n${observation}`, closing],
+    [opener, observation, `${smallDetail}\n${personalAngle}`, sceneNote, closing],
+    [`${opener}\n${observation}`, `${smallDetail}\n${closing}`],
+    [opener, `${sceneNote}\n${smallDetail}`, `${personalAngle}\n${closing}`],
+    [`${opener}\n${smallDetail}`, `${personalAngle}\n${sceneNote}`, closing],
+    [opener, sceneNote, `${smallDetail}\n${observation}`, closing]
   ];
 
   return reduceRepeatedBodyIdeas(variants[variantIndex % variants.length].map(softenBodyText).join("\n\n"));
@@ -265,8 +276,16 @@ function softenTitle(title: string) {
 function softenBodyText(text: string) {
   return text
     .replace(/内容价值/g, "参考意义")
+    .replace(/参考意义/g, "可抄的地方")
     .replace(/购买理由/g, "判断理由")
-    .replace(/转化内容/g, "上新内容")
+    .replace(/转化内容/g, "上新笔记")
+    .replace(/上新内容/g, "上新笔记")
+    .replace(/穿搭内容/g, "这类穿搭")
+    .replace(/审美内容/g, "这类笔记")
+    .replace(/工艺内容/g, "工艺笔记")
+    .replace(/材质内容/g, "材质笔记")
+    .replace(/幕后内容/g, "幕后这部分")
+    .replace(/品牌可信度/g, "可信一点")
     .replace(/转化/g, "上新")
     .replace(/硬广/g, "广告感")
     .replace(/用户/g, "大家")
@@ -278,6 +297,10 @@ function softenBodyText(text: string) {
     .replace(/穿搭解决方案的价值，是让大家少纠结一点。/g, "对我来说，它最好能让早上少纠结一点。")
     .replace(/品牌审美最终要让大家相信：这不是随便一双鞋。/g, "看久一点，会知道它不是随便一双日常鞋。")
     .replace(/好的上新内容，是让大家更快判断这双鞋适不适合自己。/g, "好的上新笔记，是让人更快判断它适不适合自己。")
+    .replace(/真正会让我停下来看的，通常不是很满的商品照。/g, "我会停下来看一眼的图，通常不是很满的商品照。")
+    .replace(/真正会让我停下来看的/g, "我会停下来看一眼的图")
+    .replace(/真正的/g, "")
+    .replace(/判断会/g, "心里会")
     .replace(
       /当前鞋款默认使用猪皮内里；如果画面拍到内里，就要保持真实，不要把材质写得很花。/g,
       "如果画面拍到内里，材质表达要保持真实，不要写得很花。"
@@ -295,11 +318,98 @@ function reduceRepeatedBodyIdeas(body: string) {
   return body;
 }
 
+const readerTitleKits: Record<SoftSeedingTopic, ReaderTitleKit> = {
+  生活场景软种草: [
+    "今天这双鞋，赢在不费劲",
+    "不是很抓马，但真的好穿",
+    "出门前随手拍的一套",
+    "这种日常上脚图我会存",
+    "鞋子安静一点，整套反而顺了",
+    "普通一天也能穿得干净",
+    "这双鞋放进日常里更好看",
+    "不用特别会搭，也能体面出门",
+    "咖啡店门口这套有点顺",
+    "鞋子不抢戏，但很加分"
+  ],
+  产品开发幕后: [
+    "桌面上这几个细节挺关键",
+    "样鞋阶段最容易看出取舍",
+    "这不是摆拍工作台",
+    "鞋带和色卡真的不是随便选",
+    "一双鞋变耐看，靠这些小地方",
+    "幕后不用很满，真实一点就够",
+    "今天只看几个小细节",
+    "比起讲故事，我更想看取舍",
+    "工作台上有一点真实痕迹",
+    "少一点装饰，反而更像它"
+  ],
+  秋冬配色实验室: [
+    "秋冬鞋色别选太重",
+    "咖色要灰一点才耐看",
+    "燕麦色放进衣柜里看更准",
+    "这组颜色不是第一眼抢的那种",
+    "厚衣服下面，鞋子要轻一点",
+    "秋冬配色我更看温度",
+    "咖啡棕别拍得太浓",
+    "低饱和不是没颜色",
+    "这几个秋冬色可以慢慢看",
+    "鞋色顺了，整套就没那么沉"
+  ],
+  穿搭解决方案: [
+    "明天不知道穿什么，可以从鞋开始",
+    "这套不是惊艳，但很省心",
+    "一鞋多搭别拍成公式",
+    "早上少纠结的一点办法",
+    "裤装裙装都要看上脚比例",
+    "鞋子稳了，整套就顺了",
+    "通勤和周末都能接住才算好搭",
+    "这双鞋更像衣柜里的连接项",
+    "不是穿搭教程，是明天能用",
+    "比例顺，比多一个亮点更重要"
+  ],
+  材质工艺认知: [
+    "别只看颜色，先看鞋头",
+    "鞋带位置一乱就很明显",
+    "质感不是靠滤镜撑出来的",
+    "近看也要成立，才是真的细节",
+    "这几个地方决定鞋子显不显笨",
+    "材质图别拍成说明书",
+    "我会先看鞋底线条",
+    "鞋型准，比形容词有用",
+    "好不好穿，有些细节会先露出来",
+    "材质要真实，不要太亮"
+  ],
+  品牌审美观点: [
+    "高级感别拍冷了",
+    "我更相信能放进生活里的画面",
+    "安静不是空，克制也不是没内容",
+    "她的衣柜比口号更有说服力",
+    "日常能用，才是真的好看",
+    "别把品牌感拍成距离感",
+    "温感静奢应该是能穿出门的",
+    "好看的画面不一定要很满",
+    "这不是一张工作台能讲完的审美",
+    "干净但要有人的温度"
+  ],
+  上新活动转化: [
+    "上新先别急着催人买",
+    "我会先看鞋型和上脚比例",
+    "新品图清楚一点就够了",
+    "这组上新图要帮人做判断",
+    "先看能不能进衣柜",
+    "静物看鞋型，上脚看比例",
+    "活动信息轻一点，产品拍准一点",
+    "这双鞋值不值得试，先看这些",
+    "上新别太吵，东西要清楚",
+    "看完能判断，比写满更重要"
+  ]
+};
+
 const readerBodyKits: Record<SoftSeedingTopic, ReaderBodyKit> = {
   生活场景软种草: {
     openers: [
       "我现在越来越喜欢那种不太用力的上脚图。",
-      "真正会让我停下来看的，通常不是很满的商品照。",
+      "我会停下来看一眼的图，通常不是很满的商品照。",
       "一双日常鞋好不好穿，其实放进普通一天里最容易看出来。",
       "如果一张图能让我想到明天怎么穿，它就已经有用。"
     ],
@@ -315,6 +425,12 @@ const readerBodyKits: Record<SoftSeedingTopic, ReaderBodyKit> = {
       "她可能只是等咖啡、顺路买花，或者从门口走出来，鞋子在这些瞬间出现得最自然。",
       "一杯咖啡、一本书、一个包就够了，道具太多会把日常感冲淡。"
     ],
+    smallDetails: [
+      "袖口卷起来一点、包放在椅子旁边，这种小地方会让图更像真的出门。",
+      "鞋子不用占满画面，能在脚下清楚露出来就够了。",
+      "路边有一点树影、杯子放在桌角，照片会松很多。",
+      "我会留意她站住那一秒的状态，而不是刻意摆出来的姿势。"
+    ],
     personalAngles: [
       "我会把它当成衣柜里的连接项，而不是某一套造型的亮点。",
       "看完如果能想到自己的三件衣服，这篇就比单纯好看更有参考意义。",
@@ -323,7 +439,7 @@ const readerBodyKits: Record<SoftSeedingTopic, ReaderBodyKit> = {
     ],
     closings: [
       "这种种草轻一点就好，让看到的人自己判断它能不能进自己的生活。",
-      "能被自然穿出门，比一句卖点更有说服力。",
+      "能被自然穿出门，比单独说好穿更有用。",
       "如果一双鞋能让早晨少纠结一点，就值得被认真记录。",
       "我希望它留下的是一种干净的日常感，而不是广告感。"
     ]
@@ -344,12 +460,18 @@ const readerBodyKits: Record<SoftSeedingTopic, ReaderBodyKit> = {
     sceneNotes: [
       "我更愿意看到有秩序的工作台，而不是堆满材料的热闹感。",
       "手部整理鞋带或比对色卡的瞬间，会比整齐铺开的材料更像真实开发。",
-      "棚拍边缘、造型桌和样鞋局部留一点就够了，主角仍然是这些细节本身。",
+      "棚拍边缘、造型桌和样鞋局部留一点就够了，别让设备和背景抢走细节。",
       "如果桌面太像展览，反而少了小品牌真实做产品的感觉。"
+    ],
+    smallDetails: [
+      "色卡边角有一点翻起、皮料不是完全压平，这种真实感比摆满道具更好。",
+      "一根鞋带、一小块皮料和半张手写纸，其实已经够讲清楚很多东西。",
+      "如果手在整理样鞋，动作要像真的顺手做事，不要像摆给镜头看。",
+      "桌面干净一点，但别干净到像新开的样板间。"
     ],
     personalAngles: [
       "这些内容不是为了显得专业，而是让人知道它为什么会长成现在这样。",
-      "我会更相信能看见取舍的产品，而不是只靠氛围包装出来的产品。",
+      "看得见取舍，我会更放心一点，不像单纯靠氛围包装出来的东西。",
       "少一个颜色、少一个装饰，有时反而更接近日常耐看。",
       "细节讲轻一点，看到的人反而更容易相信。"
     ],
@@ -378,6 +500,12 @@ const readerBodyKits: Record<SoftSeedingTopic, ReaderBodyKit> = {
       "咖啡棕皮料、燕麦麂皮和暖米色色卡放在一起时，留白比堆满更重要。",
       "衣帽间和安静街角能看出这个颜色是不是真的能进入日常。",
       "我不想把秋冬拍得太浓，轻一点的暖意会更像 THERUIZ AURA。"
+    ],
+    smallDetails: [
+      "一块燕麦色针织压在色卡旁边，比单独说秋冬感更直观。",
+      "咖色如果旁边没有奶油白过渡，很容易看起来重。",
+      "我会把牛仔、浅灰外套和鞋色放在一起看，顺不顺一眼就知道。",
+      "秋冬图里留一点浅色边缘，整套会透气很多。"
     ],
     personalAngles: [
       "我最在意的是：它能不能配我已经有的针织和外套。",
@@ -411,11 +539,17 @@ const readerBodyKits: Record<SoftSeedingTopic, ReaderBodyKit> = {
       "每张图最好只解决一个问题：鞋子怎么露、裙摆怎么落、裤脚怎么停。",
       "如果一套穿着只能站着好看，出门参考价值就会少很多。"
     ],
+    smallDetails: [
+      "我会看坐下时裙摆和鞋子还顺不顺，也会看走路时鞋子会不会显大。",
+      "包不用太抢，衣服的线条和鞋子的比例清楚就够了。",
+      "镜前那张最好能看到全身，街边那张最好能看到真实步子。",
+      "如果裤脚刚好停在鞋面上方，整套会干净很多。"
+    ],
     personalAngles: [
       "我会把它当成衣柜里的连接项，而不是某一套穿搭的装饰。",
       "如果看完能想到三套自己的衣服，这篇就比单纯好看更有用。",
       "省心，是成熟日常里很重要的审美。",
-      "好搭不是没有特点，而是不会打断整个人的状态。"
+      "好搭不是没有特点，是穿上之后不会打断整个人的状态。"
     ],
     closings: [
       "穿搭内容最后还是要回到：明天能不能用。",
@@ -442,6 +576,12 @@ const readerBodyKits: Record<SoftSeedingTopic, ReaderBodyKit> = {
       "材质桌面可以有手部整理动作，但不要把细节拍成冰冷的说明书。",
       "棚内静物留少一点道具，鞋型、缝线和材质转换会更清楚。",
       "自然光下的纹理和轻微阴影，比过亮的塑料感更可信。"
+    ],
+    smallDetails: [
+      "鞋带如果太假，整张图会立刻变得不真实。",
+      "皮面有一点自然纹理，比完全磨平的高光更耐看。",
+      "鞋头弧度、鞋底边线和走线位置最好都能看清楚。",
+      "我不太相信那种亮到像塑料的材质图。"
     ],
     personalAngles: [
       "我会先看鞋头、鞋底线条和鞋带位置，这些地方最容易露怯。",
@@ -475,6 +615,12 @@ const readerBodyKits: Record<SoftSeedingTopic, ReaderBodyKit> = {
       "城市街角要有真实生活痕迹，不要像空的样板街。",
       "桌面和衣柜留在画面里时，要像她的生活，不只是品牌流程。"
     ],
+    smallDetails: [
+      "一本翻开的书、一件搭在椅背上的外套，会比刻意摆满高级道具更自然。",
+      "窗边的光不用太完美，有一点阴影反而更像真实下午。",
+      "如果只有材料和工作台，品牌世界会太像内部记录。",
+      "她的城市、衣柜和桌面一起出现，审美才不会悬在空中。"
+    ],
     personalAngles: [
       "如果一个东西能进入衣柜、桌面和城市路线，它就比纯静物更有说服力。",
       "安静不是空，克制也不是少内容，而是每个东西都刚好。",
@@ -504,8 +650,14 @@ const readerBodyKits: Record<SoftSeedingTopic, ReaderBodyKit> = {
     sceneNotes: [
       "棚拍看清鞋型和材质，入户镜前看穿搭比例，写字楼门口看它能不能进入工作日。",
       "城市街角和咖啡店门口能让新品从“上新”回到真实穿着。",
-      "拍摄花絮补一点品牌可信度就够了，不要抢走新品本身。",
+      "拍摄花絮点到为止，别抢走新品本身。",
       "每张图最好回答一个问题，不要重复同一种角度。"
+    ],
+    smallDetails: [
+      "第一张把鞋型拍准，后面就别一直重复同一个角度了。",
+      "镜前图看比例，走路图看鞋子会不会自然，材质图看细节。",
+      "活动信息可以放轻一点，画面先把颜色和上脚讲清楚。",
+      "如果图里每一张都很用力，反而会不像 THERUIZ AURA。"
     ],
     personalAngles: [
       "我会按顺序看：先看鞋型，再看颜色，再看上脚，再看能不能配我的衣服。",
