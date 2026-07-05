@@ -107,6 +107,7 @@ export const softSeedingDailySlotOptions: SoftSeedingDailySlot[] = [1, 2];
 
 const MS_PER_DAY = 24 * 60 * 60 * 1000;
 const DAILY_POST_COUNT = 2;
+const SOFT_SEEDING_VARIANTS_PER_TOPIC = 200;
 
 function pad2(value: number) {
   return String(value).padStart(2, "0");
@@ -126,7 +127,7 @@ function resolveDailySlot(slot?: SoftSeedingDailySlot): SoftSeedingDailySlot {
 }
 
 function getTopicVariantCount(topic: SoftSeedingTopic) {
-  return getReaderBodyVariantCount(topic) * readerTitleKits[topic].length;
+  return SOFT_SEEDING_VARIANTS_PER_TOPIC;
 }
 
 export function getSoftSeedingInventory() {
@@ -165,6 +166,17 @@ function pick<T>(items: T[], index: number) {
   return items[index % items.length];
 }
 
+function normalizeSoftVariantIndex(variantIndex: number) {
+  return ((variantIndex % SOFT_SEEDING_VARIANTS_PER_TOPIC) + SOFT_SEEDING_VARIANTS_PER_TOPIC) %
+    SOFT_SEEDING_VARIANTS_PER_TOPIC;
+}
+
+function pickVariant<T>(items: T[], variantIndex: number, salt: number) {
+  const normalized = normalizeSoftVariantIndex(variantIndex);
+  const mixedIndex = normalized * salt + Math.floor(normalized / (salt + 1));
+  return pick(items, mixedIndex);
+}
+
 function buildCopyFromKit(topic: SoftSeedingTopic, variantIndex: number): TopicCopyDraft {
   const kit = getExpandedCopyKit(topic);
   const titles = buildReaderFacingTitles(topic, variantIndex);
@@ -179,25 +191,16 @@ function buildCopyFromKit(topic: SoftSeedingTopic, variantIndex: number): TopicC
   };
 }
 
-function getReaderBodyVariantCount(topic: SoftSeedingTopic) {
-  const kit = readerBodyKits[topic];
-  return (
-    kit.openers.length *
-    kit.observations.length *
-    kit.sceneNotes.length *
-    kit.smallDetails.length *
-    kit.personalAngles.length *
-    kit.closings.length
-  );
-}
-
 function buildReaderFacingTitles(topic: SoftSeedingTopic, variantIndex: number) {
   const titles = readerTitleKits[topic];
-  const firstIndex = variantIndex % titles.length;
-  const secondIndex = Math.floor(variantIndex / titles.length + 3) % titles.length;
-  const thirdIndex = Math.floor(variantIndex / (titles.length * 2) + 6) % titles.length;
+  const normalized = normalizeSoftVariantIndex(variantIndex);
+  const firstIndex = normalized % titles.length;
+  const secondPool = titles.filter((_, index) => index !== firstIndex);
+  const secondIndex = Math.floor(normalized / titles.length) % secondPool.length;
+  const thirdPool = secondPool.filter((_, index) => index !== secondIndex);
+  const thirdIndex = Math.floor(normalized / (titles.length * secondPool.length)) % thirdPool.length;
 
-  return [pick(titles, firstIndex), pick(titles, secondIndex), pick(titles, thirdIndex)].map(softenTitle);
+  return [titles[firstIndex], secondPool[secondIndex], thirdPool[thirdIndex]].map(softenTitle);
 }
 
 function mergeCopyLines(base: string[], extra?: string[]) {
@@ -223,34 +226,13 @@ function getExpandedCopyKit(topic: SoftSeedingTopic): TopicCopyKit {
 
 function buildReaderFacingBody(topic: SoftSeedingTopic, variantIndex: number) {
   const kit = readerBodyKits[topic];
-  const opener = pick(kit.openers, variantIndex);
-  const observation = pick(kit.observations, Math.floor(variantIndex / kit.openers.length));
-  const sceneNote = pick(
-    kit.sceneNotes,
-    Math.floor(variantIndex / (kit.openers.length * kit.observations.length))
-  );
-  const smallDetail = pick(
-    kit.smallDetails,
-    Math.floor(variantIndex / (kit.openers.length * kit.observations.length * kit.sceneNotes.length))
-  );
-  const personalAngle = pick(
-    kit.personalAngles,
-    Math.floor(
-      variantIndex /
-        (kit.openers.length * kit.observations.length * kit.sceneNotes.length * kit.smallDetails.length)
-    )
-  );
-  const closing = pick(
-    kit.closings,
-    Math.floor(
-      variantIndex /
-        (kit.openers.length *
-          kit.observations.length *
-          kit.sceneNotes.length *
-          kit.smallDetails.length *
-          kit.personalAngles.length)
-    )
-  );
+  const normalized = normalizeSoftVariantIndex(variantIndex);
+  const opener = pickVariant(kit.openers, normalized, 3);
+  const observation = pickVariant(kit.observations, normalized, 5);
+  const sceneNote = pickVariant(kit.sceneNotes, normalized, 7);
+  const smallDetail = pickVariant(kit.smallDetails, normalized, 11);
+  const personalAngle = pickVariant(kit.personalAngles, normalized, 13);
+  const closing = pickVariant(kit.closings, normalized, 17);
   const variants = [
     [opener, `${smallDetail}\n${observation}`, sceneNote, `${personalAngle}\n${closing}`],
     [`${opener}\n${smallDetail}`, `${sceneNote}\n${observation}`, closing],
@@ -1477,6 +1459,62 @@ const topicImageGuides: Record<SoftSeedingTopic, string> = {
     "Use concrete soft-launch cues: clean product readability, one on-foot styling proof, one material proof, one lifestyle proof, clear color and shape, and a calm reason to consider the new arrival."
 };
 
+const topicVariantVisualCues: Record<SoftSeedingTopic, string[]> = {
+  生活场景软种草: [
+    "Visual content angle: make it feel like a saved real-life outfit note from an ordinary day, with one small daily object and clear sneaker readability.",
+    "Visual content angle: focus on a quiet before-leaving or cafe-side pause, with relaxed posture, natural city rhythm, and no advertising performance.",
+    "Visual content angle: show the sneaker as part of her real daily route, not as a staged product insert.",
+    "Visual content angle: keep the scene simple, with believable street texture, soft fabric movement, and an outfit that feels easy to copy.",
+    "Visual content angle: use a friend-taken-photo feeling while keeping THERUIZ AURA proportions, shoe visibility, and low-saturation styling controlled."
+  ],
+  产品开发幕后: [
+    "Visual content angle: show a quiet product-development decision, such as comparing laces, leather pieces, color cards, or a sample note.",
+    "Visual content angle: keep the working surface real but ordered, with only a few meaningful materials and no decorative clutter.",
+    "Visual content angle: make the behind-the-scenes moment feel small-brand, tactile, and trustworthy, not like a factory report.",
+    "Visual content angle: let hands, swatches, and sample details imply the process without turning the image into a technical manual.",
+    "Visual content angle: keep the product or material detail close enough to understand the decision, with warm daylight and calm negative space."
+  ],
+  秋冬配色实验室: [
+    "Visual content angle: connect muted autumn-winter colors with real wardrobe pieces, not only isolated color cards.",
+    "Visual content angle: use oatmeal, warm beige, coffee brown, warm grey, and denim references with enough cream-white breathing space.",
+    "Visual content angle: make the palette look wearable in a mature closet, with the sneaker color accurate and not over-warmed.",
+    "Visual content angle: show one clear color relationship, such as knitwear with denim, coat fabric with suede, or color chips with leather.",
+    "Visual content angle: keep the seasonal mood soft, tactile, and light rather than heavy retro or overly brown."
+  ],
+  穿搭解决方案: [
+    "Visual content angle: solve one styling question clearly, such as trouser length, skirt balance, dress proportion, or daily commute usability.",
+    "Visual content angle: make the styling easy to copy tomorrow morning, with readable clothing structure and clear sneaker relationship.",
+    "Visual content angle: show one practical scene where the outfit still works while standing, walking, or sitting naturally.",
+    "Visual content angle: keep the clothing category selected by the interface visually dominant and consistent with the prompt.",
+    "Visual content angle: avoid tutorial-like posing; make the image feel like a useful outfit reference from real life."
+  ],
+  材质工艺认知: [
+    "Visual content angle: teach through one visible detail, such as toe curve, outsole edge, lace route, stitching, or material transition.",
+    "Visual content angle: keep the texture honest, with matte surface, natural grain, precise panel structure, and no glossy fake material.",
+    "Visual content angle: use a close but not distorted material view, so the sneaker shape stays readable.",
+    "Visual content angle: if lining is relevant or visible, use pigskin lining for current THERUIZ AURA styles and do not invent lambskin lining.",
+    "Visual content angle: make the craft detail easy to understand without turning the image into a sterile product specification."
+  ],
+  品牌审美观点: [
+    "Visual content angle: show her lifestyle world, such as wardrobe, desk, book, gallery, street corner, or window light, with weak product pressure.",
+    "Visual content angle: make the brand feeling come from life order, light, fabric, and restraint, not from large logos or product pushing.",
+    "Visual content angle: keep the product subtle if present, like something already living inside her routine.",
+    "Visual content angle: avoid an internal brand-process mood unless the selected scene is a material table; the image should feel like her life.",
+    "Visual content angle: use calm negative space and real human warmth, so quiet luxury does not become cold emptiness."
+  ],
+  上新活动转化: [
+    "Visual content angle: answer one launch question at a time: shoe shape, color, on-foot proportion, material detail, or daily usability.",
+    "Visual content angle: keep the launch image clear and useful without urgent sales energy or loud campaign styling.",
+    "Visual content angle: make product readability strong, then connect it to a real on-foot or lifestyle proof.",
+    "Visual content angle: use clean sequencing logic across the image set: still life, on-foot, outfit, material, and quiet lifestyle support.",
+    "Visual content angle: keep the new-arrival mood calm, accurate, and easy to judge rather than promotional."
+  ]
+};
+
+function getSoftSeedingVariantVisualCue(topic: SoftSeedingTopic, variantIndex: number) {
+  return pickVariant(topicVariantVisualCues[topic], variantIndex, 23);
+}
+
 function resolveBaseSeason(baseSeason: TeamSeason, overrideSeason?: TeamSeason) {
   return overrideSeason ?? baseSeason;
 }
@@ -1597,17 +1635,21 @@ function getSoftSeedingExtraRequirement(
   baseParams: TeamPromptParams,
   draft: SoftSeedingImageDraft,
   garmentTypePreference: TeamGarmentTypePreference,
-  topic: SoftSeedingTopic
+  topic: SoftSeedingTopic,
+  variantIndex: number
 ) {
   const themeGuide = topicImageGuides[topic];
+  const variantVisualCue = getSoftSeedingVariantVisualCue(topic, variantIndex);
 
   if (baseParams.garmentTypePreference === "自动匹配" || !shouldInheritBaseGarmentType(draft.imageType)) {
-    return [draft.extraRequirement, themeGuide].filter(Boolean).join(" ");
+    return [draft.extraRequirement, themeGuide, variantVisualCue].filter(Boolean).join(" ");
   }
 
   const manualControlLine =
     garmentTypePreference === "自动匹配" ? "" : garmentTypeControlLines[garmentTypePreference];
-  const combinedRequirement = [draft.extraRequirement, manualControlLine, themeGuide].filter(Boolean).join(" ");
+  const combinedRequirement = [draft.extraRequirement, manualControlLine, themeGuide, variantVisualCue]
+    .filter(Boolean)
+    .join(" ");
 
   return sanitizeSoftSeedingExtraRequirementForGarment(combinedRequirement, garmentTypePreference);
 }
@@ -1616,7 +1658,8 @@ function buildImagePlan(
   baseParams: TeamPromptParams,
   draft: SoftSeedingImageDraft,
   index: number,
-  topic: SoftSeedingTopic
+  topic: SoftSeedingTopic,
+  variantIndex: number
 ): SoftSeedingImagePlan {
   const shoeFields = resolveBaseShoe(baseParams);
   const garmentTypePreference = resolveSoftSeedingGarmentType(baseParams, draft);
@@ -1631,8 +1674,8 @@ function buildImagePlan(
     modelContinuity: index === 0 ? "新人物" : "延续上一组人物",
     studioLaunchAnglePreference: "自动匹配",
     stillLifeStyle: "与主视觉统一",
-    extraRequirement: getSoftSeedingExtraRequirement(baseParams, draft, garmentTypePreference, topic),
-    generationNonce: baseParams.generationNonce + index + 1
+    extraRequirement: getSoftSeedingExtraRequirement(baseParams, draft, garmentTypePreference, topic, variantIndex),
+    generationNonce: baseParams.generationNonce + variantIndex + index + 1
   };
 
   return {
@@ -1668,7 +1711,7 @@ export function generateSoftSeedingContent(input: SoftSeedingInput): SoftSeeding
     body: copy.body,
     images: topicImageDrafts[topic]
       .slice(0, imageCount)
-      .map((imageDraft, index) => buildImagePlan(input.baseParams, imageDraft, index, topic)),
+      .map((imageDraft, index) => buildImagePlan(input.baseParams, imageDraft, index, topic, variantIndex)),
     tags: copy.tags,
     note: copy.note
   };
