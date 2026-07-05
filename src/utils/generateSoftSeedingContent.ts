@@ -82,6 +82,14 @@ type TopicCopyDraft = {
   note: string;
 };
 
+type ReaderBodyKit = {
+  openers: string[];
+  observations: string[];
+  sceneNotes: string[];
+  personalAngles: string[];
+  closings: string[];
+};
+
 export const softSeedingTopicOptions: SoftSeedingTopic[] = [
   "生活场景软种草",
   "产品开发幕后",
@@ -184,17 +192,7 @@ function buildCopyFromKit(topic: SoftSeedingTopic, variantIndex: number): TopicC
     pick(kit.titleThirds, variantIndex + openingIndex + observationIndex)
   ].map(softenTitle);
 
-  const body = buildNaturalBody(
-    topic,
-    {
-      opening: pick(kit.openings, openingIndex),
-      observation: pick(kit.observations, observationIndex),
-      scene: pick(kit.scenes, sceneIndex),
-      angle: pick(kit.xiaohongshuAngles, angleIndex),
-      closing: pick(kit.closings, closingIndex)
-    },
-    variantIndex
-  );
+  const body = buildReaderFacingBody(topic, variantIndex);
 
   return {
     titles,
@@ -225,6 +223,36 @@ function getExpandedCopyKit(topic: SoftSeedingTopic): TopicCopyKit {
   };
 }
 
+function buildReaderFacingBody(topic: SoftSeedingTopic, variantIndex: number) {
+  const kit = readerBodyKits[topic];
+  const opener = pick(kit.openers, variantIndex);
+  const observation = pick(kit.observations, Math.floor(variantIndex / kit.openers.length));
+  const sceneNote = pick(
+    kit.sceneNotes,
+    Math.floor(variantIndex / (kit.openers.length * kit.observations.length))
+  );
+  const personalAngle = pick(
+    kit.personalAngles,
+    Math.floor(variantIndex / (kit.openers.length * kit.observations.length * kit.sceneNotes.length))
+  );
+  const closing = pick(
+    kit.closings,
+    Math.floor(
+      variantIndex /
+        (kit.openers.length * kit.observations.length * kit.sceneNotes.length * kit.personalAngles.length)
+    )
+  );
+  const variants = [
+    [opener, observation, sceneNote, personalAngle, closing],
+    [opener, `${sceneNote}\n${observation}`, personalAngle, closing],
+    [opener, observation, `${personalAngle}\n${sceneNote}`, closing],
+    [opener, `${observation}\n${personalAngle}`, sceneNote, closing],
+    [opener, sceneNote, observation, closing]
+  ];
+
+  return reduceRepeatedBodyIdeas(variants[variantIndex % variants.length].map(softenBodyText).join("\n\n"));
+}
+
 function softenTitle(title: string) {
   return title
     .replace(/转化/g, "上新")
@@ -244,72 +272,17 @@ function softenBodyText(text: string) {
     .replace(/用户/g, "大家")
     .replace(/品牌审美观点/g, "品牌审美")
     .replace(/内容线索/g, "画面线索")
+    .replace(/这类内容的重点不是喊卖点，而是让人觉得：这双鞋我也会穿。/g, "我希望看完之后只是很自然地觉得：这双鞋我也会穿。")
+    .replace(/THERUIZ AURA 的软种草，应该温和但有记忆点。/g, "这种记忆点最好轻一点，像日常里慢慢留下来的。")
+    .replace(/材质内容的目标，是建立信任，而不是制造距离。/g, "材质讲得越清楚，距离感反而越少。")
+    .replace(/穿搭解决方案的价值，是让大家少纠结一点。/g, "对我来说，它最好能让早上少纠结一点。")
+    .replace(/品牌审美最终要让大家相信：这不是随便一双鞋。/g, "看久一点，会知道它不是随便一双日常鞋。")
+    .replace(/好的上新内容，是让大家更快判断这双鞋适不适合自己。/g, "好的上新笔记，是让人更快判断它适不适合自己。")
     .replace(
       /当前鞋款默认使用猪皮内里；如果画面拍到内里，就要保持真实，不要把材质写得很花。/g,
       "如果画面拍到内里，材质表达要保持真实，不要写得很花。"
     )
     .trim();
-}
-
-function buildNaturalBody(
-  topic: SoftSeedingTopic,
-  pieces: {
-    opening: string;
-    observation: string;
-    scene: string;
-    angle: string;
-    closing: string;
-  },
-  variantIndex: number
-) {
-  const topicOpeners: Record<SoftSeedingTopic, string[]> = {
-    生活场景软种草: [
-      "这篇想写得像一条真实出门记录，不像卖点整理。",
-      "先从一个很小的日常场景说起。",
-      "这组图的重点不是把鞋拍得很满，而是让它像真的会被穿出门。"
-    ],
-    产品开发幕后: [
-      "这篇幕后不想写成流程汇报。",
-      "今天只挑几个看得懂的小细节讲。",
-      "开发内容最好有一点真实桌面感，而不是把工作讲得很复杂。"
-    ],
-    秋冬配色实验室: [
-      "秋冬颜色我会先看它够不够温和。",
-      "这篇不想做色彩科普，更像一次衣柜里的配色记录。",
-      "有些颜色第一眼不抢，但放进秋冬衣服里会很顺。"
-    ],
-    穿搭解决方案: [
-      "这篇更像给明天早上准备的一套参考。",
-      "不想把穿搭讲成公式，只想解决出门前那几分钟的纠结。",
-      "我会先看它能不能接住真实场景，而不是只看单张图好不好看。"
-    ],
-    材质工艺认知: [
-      "材质这件事，写得太专业反而不好看懂。",
-      "这篇只讲几个肉眼能看到的细节。",
-      "我更想把质感拍清楚，而不是把术语堆满。"
-    ],
-    品牌审美观点: [
-      "这篇想聊的不是风格口号，而是为什么画面要这样克制。",
-      "有些高级感不需要冷，也不需要很满。",
-      "品牌审美如果只剩漂亮，就很容易没有生活感。"
-    ],
-    上新活动转化: [
-      "上新这件事，不一定要写得很急。",
-      "我会先把下单前真正会看的东西放清楚。",
-      "这篇更像一组上新前的试穿记录，不想写成促销文。"
-    ]
-  };
-
-  const opener = pick(topicOpeners[topic], variantIndex);
-  const variants = [
-    [`${opener}\n${pieces.opening}`, pieces.observation, pieces.scene, pieces.angle, pieces.closing],
-    [`${opener}\n${pieces.observation}`, `${pieces.scene}\n${pieces.angle}`, pieces.closing],
-    [pieces.opening, `${pieces.observation}\n${pieces.scene}`, pieces.angle, pieces.closing],
-    [`${opener}\n${pieces.scene}`, pieces.opening, `${pieces.observation}\n${pieces.angle}`, pieces.closing],
-    [pieces.opening, pieces.angle, pieces.scene, pieces.closing]
-  ];
-
-  return reduceRepeatedBodyIdeas(variants[variantIndex % variants.length].map(softenBodyText).join("\n\n"));
 }
 
 function reduceRepeatedBodyIdeas(body: string) {
@@ -321,6 +294,233 @@ function reduceRepeatedBodyIdeas(body: string) {
 
   return body;
 }
+
+const readerBodyKits: Record<SoftSeedingTopic, ReaderBodyKit> = {
+  生活场景软种草: {
+    openers: [
+      "我现在越来越喜欢那种不太用力的上脚图。",
+      "真正会让我停下来看的，通常不是很满的商品照。",
+      "一双日常鞋好不好穿，其实放进普通一天里最容易看出来。",
+      "如果一张图能让我想到明天怎么穿，它就已经有用。"
+    ],
+    observations: [
+      "它不需要把整个人变得很特别，只要让白衬衫、牛仔、针织和托特包之间更顺一点。",
+      "我会先看鞋子在走路、停下、坐下时还清不清楚，比例顺不顺。",
+      "很多舒服感不是靠文字说出来的，而是看她出门时有没有那种松弛的秩序感。",
+      "鞋子安静一点没关系，但不能弱到看不出它怎么接住整套穿着。"
+    ],
+    sceneNotes: [
+      "咖啡店门口、写字楼外面、书店门口这种普通地方，反而比大场景更有代入感。",
+      "有一点街道痕迹、有一点生活节奏，照片会比过度干净的背景更可信。",
+      "她可能只是等咖啡、顺路买花，或者从门口走出来，鞋子在这些瞬间出现得最自然。",
+      "一杯咖啡、一本书、一个包就够了，道具太多会把日常感冲淡。"
+    ],
+    personalAngles: [
+      "我会把它当成衣柜里的连接项，而不是某一套造型的亮点。",
+      "看完如果能想到自己的三件衣服，这篇就比单纯好看更有参考意义。",
+      "轻熟日常最怕用力过度，干净、舒服、体面其实已经很难得。",
+      "它最好像一个早上不用纠结的答案，不需要每次出门都重新搭。"
+    ],
+    closings: [
+      "这种种草轻一点就好，让看到的人自己判断它能不能进自己的生活。",
+      "能被自然穿出门，比一句卖点更有说服力。",
+      "如果一双鞋能让早晨少纠结一点，就值得被认真记录。",
+      "我希望它留下的是一种干净的日常感，而不是广告感。"
+    ]
+  },
+  产品开发幕后: {
+    openers: [
+      "幕后内容我不想写成一份工作记录。",
+      "有些取舍放在桌面上看，反而比解释很多更清楚。",
+      "一双鞋最后看起来干净，通常是因为前面删掉了很多不必要的东西。",
+      "我更喜欢能看见判断过程的幕后，而不是把桌面摆成展览。"
+    ],
+    observations: [
+      "鞋带粗细、色卡深浅、皮料触感这些小地方，最后都会影响它是不是耐看。",
+      "开发台面不用很满，几块皮料、一双样鞋、几张色卡就能看出性格。",
+      "真实工作痕迹可以保留一点，但每个物件都要有理由。",
+      "越是克制的产品，越能从比例、颜色和材质里看出取舍。"
+    ],
+    sceneNotes: [
+      "我更愿意看到有秩序的工作台，而不是堆满材料的热闹感。",
+      "手部整理鞋带或比对色卡的瞬间，会比整齐铺开的材料更像真实开发。",
+      "棚拍边缘、造型桌和样鞋局部留一点就够了，主角仍然是这些细节本身。",
+      "如果桌面太像展览，反而少了小品牌真实做产品的感觉。"
+    ],
+    personalAngles: [
+      "这些内容不是为了显得专业，而是让人知道它为什么会长成现在这样。",
+      "我会更相信能看见取舍的产品，而不是只靠氛围包装出来的产品。",
+      "少一个颜色、少一个装饰，有时反而更接近日常耐看。",
+      "细节讲轻一点，看到的人反而更容易相信。"
+    ],
+    closings: [
+      "幕后感最好是安静的，有真实，也有秩序。",
+      "有些细节不用大声说，但值得被看见。",
+      "把过程拍得克制一点，产品反而更有质感。",
+      "这种信任慢慢建立就好，不需要写得很满。"
+    ]
+  },
+  秋冬配色实验室: {
+    openers: [
+      "秋冬我会先看鞋色有没有温度。",
+      "咖色、燕麦色、暖米色这些颜色，看起来安静，但很考验分寸。",
+      "秋冬鞋色不是越深越稳，有时太重反而会把整个人压住。",
+      "我会把颜色放回衣柜里看，而不是只看单独静物。"
+    ],
+    observations: [
+      "针织、牛仔、大衣和暖灰色裤装放在一起时，鞋子要能接住它们之间的过渡。",
+      "咖色如果太红会显老，燕麦色如果太黄会显脏，灰度和温度都要刚好。",
+      "一双秋冬鞋如果能让厚衣服轻一点，它的实穿价值会很高。",
+      "低饱和不是没有颜色，而是让颜色更容易进入成熟衣柜。"
+    ],
+    sceneNotes: [
+      "色卡旁边放一点针织、牛仔和浅色外套，会比单独摆材料更有真实参照。",
+      "咖啡棕皮料、燕麦麂皮和暖米色色卡放在一起时，留白比堆满更重要。",
+      "衣帽间和安静街角能看出这个颜色是不是真的能进入日常。",
+      "我不想把秋冬拍得太浓，轻一点的暖意会更像 THERUIZ AURA。"
+    ],
+    personalAngles: [
+      "我最在意的是：它能不能配我已经有的针织和外套。",
+      "如果整身已经有重量，鞋子就要留一点呼吸感。",
+      "这些颜色不是为了做氛围，而是为了减少秋冬穿搭里的生硬。",
+      "看久了还顺眼的颜色，往往比第一眼很特别的颜色更耐穿。"
+    ],
+    closings: [
+      "秋冬配色的好看，很多时候在分寸里。",
+      "能放进衣柜的颜色，才是真的耐看。",
+      "温感静奢不是暖色堆叠，而是刚刚好的灰度。",
+      "这种记忆点不用大声推，颜色自己会慢慢留下来。"
+    ]
+  },
+  穿搭解决方案: {
+    openers: [
+      "我现在做穿搭参考，会先想这套能不能真的出门。",
+      "不想费脑的时候，鞋子先选稳定的。",
+      "一鞋多搭如果只是换几套衣服，其实参考意义不大。",
+      "早上最浪费时间的，往往是鞋子和衣服之间不顺。"
+    ],
+    observations: [
+      "裤装要看裤脚和鞋子的关系，裙装要看鞋子会不会显笨，连衣裙要看整体比例。",
+      "白衬衫、牛仔、针织和轻外套都能接住，鞋子才算真正省心。",
+      "如果一双鞋只能搭一种风格，它就不算真的好用。",
+      "比例顺了，整套穿着会自然很多，也不会显得刻意。"
+    ],
+    sceneNotes: [
+      "入户镜前能看完整搭配，写字楼门口能看通勤，咖啡馆里能看松弛感。",
+      "朋友午餐、酒店房间和城市街角这些地方，能让穿搭从图片回到真实生活。",
+      "每张图最好只解决一个问题：鞋子怎么露、裙摆怎么落、裤脚怎么停。",
+      "如果一套穿着只能站着好看，出门参考价值就会少很多。"
+    ],
+    personalAngles: [
+      "我会把它当成衣柜里的连接项，而不是某一套穿搭的装饰。",
+      "如果看完能想到三套自己的衣服，这篇就比单纯好看更有用。",
+      "省心，是成熟日常里很重要的审美。",
+      "好搭不是没有特点，而是不会打断整个人的状态。"
+    ],
+    closings: [
+      "穿搭内容最后还是要回到：明天能不能用。",
+      "一双鞋能稳定住比例，就已经解决了很多问题。",
+      "这类笔记适合收藏，不需要写得很用力。",
+      "对我来说，它最好能让早上少纠结一点。"
+    ]
+  },
+  材质工艺认知: {
+    openers: [
+      "材质这件事，写得太专业反而不好看懂。",
+      "我看鞋子质感，会先看它有没有被拍得太假。",
+      "一双鞋上脚显不显笨，很多时候不是颜色决定的。",
+      "比起说它高级，我更想看鞋头、鞋带和鞋底线条准不准。"
+    ],
+    observations: [
+      "鞋头弧度、鞋底厚度、鞋带粗细和走线位置，都会影响上脚后的真实观感。",
+      "材质不用讲得太玄，摸得到的纹理、看得清的边缘和自然的光泽已经能说明很多。",
+      "如果鞋带路线、鞋舌位置或材质过渡不自然，画面会立刻有 AI 感。",
+      "当前鞋款统一按猪皮内里处理；如果拍到内里，材质表达要真实，不要写得很花。"
+    ],
+    sceneNotes: [
+      "近一点看鞋头、鞋带和走线，很多质感其实都藏在这些小地方。",
+      "材质桌面可以有手部整理动作，但不要把细节拍成冰冷的说明书。",
+      "棚内静物留少一点道具，鞋型、缝线和材质转换会更清楚。",
+      "自然光下的纹理和轻微阴影，比过亮的塑料感更可信。"
+    ],
+    personalAngles: [
+      "我会先看鞋头、鞋底线条和鞋带位置，这些地方最容易露怯。",
+      "材质讲得越清楚，距离感反而越少。",
+      "如果细节能让鞋子更好搭、更耐看，就值得单独拿出来讲。",
+      "工艺内容最好让人知道怎么判断，而不是只觉得品牌很会说。"
+    ],
+    closings: [
+      "材质笔记写轻一点，反而更可信。",
+      "真正的质感，经得起近看。",
+      "细节拍准，比形容词更有用。",
+      "把鞋子拍真实，本身就是一种品牌能力。"
+    ]
+  },
+  品牌审美观点: {
+    openers: [
+      "比起风格口号，我更在意它能不能落进生活里。",
+      "高级感如果只剩冷，就很难让人真的想穿。",
+      "我不太喜欢那种一眼很贵、但完全不像生活的画面。",
+      "品牌感不是把 Logo 放大，而是每个选择都稳定。"
+    ],
+    observations: [
+      "奶油白和米灰只是底色，真正重要的是人物状态、生活秩序和画面的温度。",
+      "她的衣柜、桌面、书、城市街角，比单独摆出来的产品更能说明审美。",
+      "产品露出弱一点时，反而更能看出品牌是不是有自己的世界。",
+      "舒服但不随便，女性化但不甜，这个分寸比强风格更难。"
+    ],
+    sceneNotes: [
+      "窗边阅读、美术馆、书店门口和衣帽间，都能让审美看起来更像真实发生的生活。",
+      "我希望画面里有她的一天，而不是只有品牌自己的工作台。",
+      "城市街角要有真实生活痕迹，不要像空的样板街。",
+      "桌面和衣柜留在画面里时，要像她的生活，不只是品牌流程。"
+    ],
+    personalAngles: [
+      "如果一个东西能进入衣柜、桌面和城市路线，它就比纯静物更有说服力。",
+      "安静不是空，克制也不是少内容，而是每个东西都刚好。",
+      "真正的品牌审美，是看多几张图之后仍然觉得统一。",
+      "我想看的不是品牌告诉我它很高级，而是它有没有一套稳定的生活判断。"
+    ],
+    closings: [
+      "审美内容不要写满，留一点空间更像 THERUIZ AURA。",
+      "干净、真实、温和，比强烈风格更耐看。",
+      "如果画面能让人想到自己的生活，它就不是空泛的高级。",
+      "我理解的温感静奢，是能被日常使用的。"
+    ]
+  },
+  上新活动转化: {
+    openers: [
+      "上新这件事，不一定要写得很急。",
+      "上新内容如果一上来就催人下单，我会有点想划走。",
+      "我更想先看清楚：鞋型准不准，颜色好不好搭，上脚比例顺不顺。",
+      "新品图可以直接一点，但语气不需要写得很满。"
+    ],
+    observations: [
+      "如果只有静物，看不到比例；如果只有氛围，又看不清产品。",
+      "第一张可以把鞋拍清楚，后面一定要回到真实上脚和真实生活。",
+      "活动信息越克制，产品本身越要拍准确。",
+      "一组图里有静物、上脚、生活场景和一点幕后，判断会完整很多。"
+    ],
+    sceneNotes: [
+      "棚拍看清鞋型和材质，入户镜前看穿搭比例，写字楼门口看它能不能进入工作日。",
+      "城市街角和咖啡店门口能让新品从“上新”回到真实穿着。",
+      "拍摄花絮补一点品牌可信度就够了，不要抢走新品本身。",
+      "每张图最好回答一个问题，不要重复同一种角度。"
+    ],
+    personalAngles: [
+      "我会按顺序看：先看鞋型，再看颜色，再看上脚，再看能不能配我的衣服。",
+      "比起催促下单，我更想知道它适不适合自己的衣柜。",
+      "好的上新笔记，是让人更快判断它适不适合自己。",
+      "一张真实走路的图，往往比很多精修静物更有用。"
+    ],
+    closings: [
+      "产品拍准，穿法拍自然，就已经很够。",
+      "不用把话说满，看到的人会自己判断。",
+      "温和一点的上新，反而更符合 THERUIZ AURA。",
+      "上新笔记的重点，是让人少一点不确定。"
+    ]
+  }
+};
 
 const topicCopyKits: Record<SoftSeedingTopic, TopicCopyKit> = {
   生活场景软种草: {
