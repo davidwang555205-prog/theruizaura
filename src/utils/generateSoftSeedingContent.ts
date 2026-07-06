@@ -280,261 +280,351 @@ function buildLifestyleBuyerShowBody(
   normalizedVariantIndex: number,
   selectedImageDrafts: SoftSeedingImageDraft[]
 ) {
-  const opener = pickVariant(kit.openers, normalizedVariantIndex, 3, getTopicVariantCount("生活场景软种草"));
-  const observation = pickVariant(kit.observations, normalizedVariantIndex, 5, getTopicVariantCount("生活场景软种草"));
-  const smallDetail = pickVariant(kit.smallDetails, normalizedVariantIndex, 11, getTopicVariantCount("生活场景软种草"));
-  const personalAngle = pickVariant(kit.personalAngles, normalizedVariantIndex, 13, getTopicVariantCount("生活场景软种草"));
-  const closing = pickVariant(kit.closings, normalizedVariantIndex, 17, getTopicVariantCount("生活场景软种草"));
-  const sceneMoment = getLifestyleSceneMoment(selectedImageDrafts, normalizedVariantIndex, 0);
-  const secondSceneMoment = getLifestyleSceneMoment(selectedImageDrafts, normalizedVariantIndex, 1);
-  const buyerDetail = getLifestyleBuyerFeedbackMicroLine("生活场景软种草", normalizedVariantIndex, selectedImageDrafts);
-  const casualStart = lifestyleCasualStarts[normalizedVariantIndex % lifestyleCasualStarts.length];
-  const livedInDetail = lifestyleLivedInDetails[normalizedVariantIndex % lifestyleLivedInDetails.length];
-  const wearingResult =
-    lifestyleWearingResults[
-      Math.floor(normalizedVariantIndex / lifestyleLivedInDetails.length) % lifestyleWearingResults.length
-    ];
-  const caveat =
-    lifestyleBuyerShowCaveats[
-      Math.floor(normalizedVariantIndex / (lifestyleLivedInDetails.length * lifestyleWearingResults.length)) %
-        lifestyleBuyerShowCaveats.length
-    ];
-  const quietClosing =
-    lifestyleQuietClosings[
-      Math.floor(
-        normalizedVariantIndex /
-          (lifestyleLivedInDetails.length * lifestyleWearingResults.length * lifestyleBuyerShowCaveats.length)
-      ) % lifestyleQuietClosings.length
-    ];
-  const bodyStyles = [
-    [
-      casualStart,
-      sceneMoment,
-      `${livedInDetail} ${wearingResult}`,
-      `${buyerDetail}`,
-      quietClosing
-    ],
-    [
-      `${caveat}`,
-      sceneMoment,
-      `${smallDetail}`,
-      `${wearingResult} ${personalAngle}`
-    ],
-    [
-      casualStart,
-      `${sceneMoment}`,
-      `${secondSceneMoment}`,
-      `${buyerDetail}`,
-      `${wearingResult}`
-    ],
-    [
-      `${opener}`,
-      `${sceneMoment}`,
-      `${livedInDetail}`,
-      `${smallDetail}`,
-      `${buyerDetail}`,
-      `${quietClosing}`
-    ],
-    [
-      `${caveat}`,
-      `${sceneMoment}`,
-      `${observation}`,
-      `${buyerDetail}`,
-      `${closing}`
-    ],
-    [
-      casualStart,
-      `${sceneMoment}`,
-      `${wearingResult}`,
-      `${personalAngle}`,
-      `${quietClosing}`
-    ],
-    [
-      `${opener}`,
-      `${buyerDetail}`,
-      `${secondSceneMoment}`,
-      `${wearingResult}`,
-      `${caveat}`
-    ],
-    [
-      casualStart,
-      `${sceneMoment}`,
-      `${smallDetail}`,
-      `${buyerDetail}`,
-      `${quietClosing}`
-    ]
-  ];
+  const primaryDraft = getPrimaryLifestyleDraft(selectedImageDrafts, normalizedVariantIndex);
+  const primaryScene = primaryDraft?.scenePreference ?? "入户镜前";
+  const fallbackStart = pickVariant(kit.openers, normalizedVariantIndex, 3, getTopicVariantCount("生活场景软种草"));
 
-  return reduceRepeatedBodyIdeas(formatBodyParagraphs(bodyStyles[normalizedVariantIndex % bodyStyles.length].map(softenBodyText)));
+  return reduceRepeatedBodyIdeas(buildLifestyleNaturalNote(primaryScene, normalizedVariantIndex, fallbackStart));
 }
 
-const lifestyleCasualStarts = [
-  "今天没怎么想搭配，顺手拿了常穿的衣服就出门。",
-  "这张不是特意拍的，反而比较能看出真实上脚状态。",
-  "早上赶时间的时候，我会更愿意穿这种不需要重新想的鞋。",
-  "不是那种第一眼很亮的款，但放进日常里会慢慢顺眼。",
-  "我买日常鞋，最怕好看但只能站着拍。",
-  "这双更像是普通一天里会被反复拿出来的鞋。",
-  "没有刻意凹造型，就是想看它和自己的衣服能不能搭上。",
-  "如果只看棚拍，我很难判断它到底好不好穿出门。"
-];
+function getPrimaryLifestyleDraft(selectedImageDrafts: SoftSeedingImageDraft[], normalizedVariantIndex: number) {
+  if (!selectedImageDrafts.length) return undefined;
+  return selectedImageDrafts[normalizedVariantIndex % selectedImageDrafts.length];
+}
 
-const lifestyleSceneMoments: Partial<Record<TeamScenePreference, string[]>> = {
-  入户镜前: [
-    "出门前在入户镜前看了一眼，主要是确认鞋子和今天这身顺不顺。",
-    "早上没想太久，镜前试了一下，鞋子没有把整套穿着打断。",
-    "入户镜这张很普通，但能看清比例，反而比精修图有用。"
+type LifestyleNaturalNoteKit = {
+  starts: string[];
+  sceneMoments: string[];
+  shoeFeelings: string[];
+  realDetails: string[];
+  closings: string[];
+};
+
+const defaultLifestyleNaturalNoteKit: LifestyleNaturalNoteKit = {
+  starts: [
+    "今天就是普通出门，没有特意想穿得很完整。",
+    "这张更像朋友随手拍的，不是提前准备好的图。",
+    "我看日常鞋，还是更相信这种不太用力的照片。",
+    "早上拿衣服的时候没想太多，只想穿得干净一点。",
+    "这种鞋我不会只看静物，还是要放到真实一天里看。",
+    "比起很会摆的图，我更想看它在普通场景里顺不顺。"
   ],
-  写字楼门口: [
-    "到写字楼门口停下来时，鞋子还是干净的，没有那种赶着营业的感觉。",
-    "工作日穿它比较省心，走到办公室门口也不会显得太随便。",
-    "下班后在楼下拍了一张，整个人状态没有被鞋子拖住。"
+  sceneMoments: [
+    "走出去以后发现脚下没有突兀，整套衣服也没有被鞋子打断。",
+    "停下来拍一张，鞋头、鞋带和衣服下缘都还看得清楚。",
+    "照片里有一点真实光影和衣服褶皱，反而更像我会穿出去的状态。",
+    "没有很强的造型感，但人看起来是干净、舒服、能出门的。",
+    "走路和停住的时候都不显笨，这点对日常鞋挺重要。",
+    "它没有抢掉整套衣服，但脚下存在感是够的。"
   ],
-  咖啡店门口: [
-    "等咖啡那几分钟随手拍了一张，鞋子和牛仔放在一起还挺自然。",
-    "坐在咖啡店外面时还能看清鞋头和鞋带，这一点比我想象中重要。",
-    "咖啡店门口这张没有特别摆，但鞋子在脚下是顺的。"
+  shoeFeelings: [
+    "鞋底看着不厚，脚也没有被拍得很大。",
+    "鞋型在真实路面上还是轻的，不会把比例往下压。",
+    "它和牛仔、衬衫、针织这类常穿单品都能接上。",
+    "脚下线条比较安静，不需要靠很夸张的搭配撑起来。",
+    "鞋子不是第一眼很抓人的那种，但越放进日常越顺。",
+    "这种干净的鞋型，反而更容易被我反复拿出来。"
   ],
-  "书店 / 杂志店门口": [
-    "书店门口停了一下，鞋子没有抢掉整套衣服的安静感。",
-    "拿着书站在门口那张，能看出它不是只适合通勤。",
-    "这种书店门口的随手照，比单独拍鞋更能看出日常感。"
+  realDetails: [
+    "画面不用修得太满，地面阴影和布料纹理留一点会更真实。",
+    "包和咖啡只是被带到一点，像真的出门时顺手放在身边。",
+    "手和站姿都很放松，像朋友按下快门前的那一秒。",
+    "镜头没有贴得太近，整个人和鞋子的关系反而看得清。",
+    "街边或室内背景带着一点生活痕迹，可信感会更强。",
+    "衣服有一点自然垂坠感，鞋子看起来也更像真的穿在脚上。"
   ],
-  酒店房间: [
-    "短途出门带它会比较省行李，酒店镜前看也能接住日常衣服。",
-    "酒店房间那张像出门前顺手拍的，不像特意准备的大片。",
-    "整理好行李之后看一眼鞋子，能不能一双穿几天就很清楚。"
+  closings: [
+    "这种不费劲的干净感，会让我愿意把它留下来。",
+    "不用把优点讲得很满，放进日常里就能看出来。",
+    "对我来说，它更像能陪我走完一天的鞋。",
+    "看完不会觉得被推着买，但会默默记住它。",
+    "一双日常鞋能做到舒服、顺眼、比例不乱，就已经很加分。",
+    "它最好的地方，是没有强行证明自己很好看。"
   ]
 };
 
-const lifestyleLivedInDetails = [
-  "照片没必要修得很满，路面有一点阴影、衣服有一点褶皱，反而更像真实穿着。",
-  "我会留意鞋子有没有被拍得过大，也会看脚下接触地面的状态自不自然。",
-  "这种图最好不要太会摆，站住那一秒的自然状态就够了。",
-  "如果裤脚、裙摆或连衣裙下缘和鞋子之间是清楚的，整套就会干净很多。",
-  "包、咖啡、书这些东西轻轻出现就好，别把画面堆成道具照。",
-  "鞋子不用占满画面，但至少要看得清鞋头、鞋带和整体轮廓。",
-  "我反而喜欢一点真实街道感，不需要干净得像棚拍背景。",
-  "手放得自然一点，比刻意凹姿势更像真实买家秀。"
-];
-
-const lifestyleWearingResults = [
-  "走了一段路之后，鞋型还能保持住，这点会让我安心一点。",
-  "它不是特别抢眼的鞋，但和日常衣服放在一起很顺。",
-  "看起来舒服，但不会让整套穿着变得随便。",
-  "鞋底没有显得很厚，脚也没有被拍得很大。",
-  "这种安静的存在感，反而适合每天都要出门的人。",
-  "如果一双鞋能从早上接到傍晚，我会觉得比一句好看更有用。",
-  "它更像衣柜里的连接项，不是只为了某一套造型存在。",
-  "这种不费劲的体面感，才是我会反复穿的原因。"
-];
-
-const lifestyleBuyerShowCaveats = [
-  "先说缺点：它不是那种第一眼很抓人的鞋，所以要放进真实穿着里看。",
-  "我不太相信只拍得很漂亮的静物，还是要看上脚之后会不会显笨。",
-  "如果你喜欢很强存在感的鞋，它可能不是那个方向。",
-  "这类鞋最怕拍成精致但没生活感，所以我更想看普通出门状态。",
-  "我买日常鞋会比较在意比例，照片里脚一显大就会直接劝退。",
-  "没有夸张亮点反而是它的优点，搭衣服的时候不用重新想一遍。",
-  "它适不适合自己，最好看这种不太用力的出门照。",
-  "我会把它当成一双能省心出门的鞋，而不是专门为了拍照准备的鞋。"
-];
-
-const lifestyleQuietClosings = [
-  "这种鞋不用把话说满，穿进普通一天里就能看出来。",
-  "对我来说，它不是用来制造惊艳的，是让出门这件事简单一点。",
-  "如果一张随手拍都能看顺，我会更愿意相信它。",
-  "这种不费劲的干净感，比很会拍更打动我。",
-  "我会把它归到那种不需要想太多、但穿上不会出错的鞋。",
-  "看完不会马上被推着买，但会默默记住这双鞋。",
-  "日常鞋能做到舒服、干净、比例顺，其实已经很难得。",
-  "它最好的地方，是没有强行证明自己很好看。"
-];
-
-function getLifestyleSceneMoment(
-  selectedImageDrafts: SoftSeedingImageDraft[],
-  normalizedVariantIndex: number,
-  offset: number
-) {
-  const scenePool = selectedImageDrafts
-    .map((draft) => lifestyleSceneMoments[draft.scenePreference] ?? [])
-    .filter((moments) => moments.length > 0);
-
-  if (!scenePool.length) return "这张图最好像真实出门时顺手留下的记录。";
-
-  const sceneIndex = (normalizedVariantIndex + offset) % scenePool.length;
-  const momentPool = scenePool[sceneIndex];
-  return momentPool[Math.floor(normalizedVariantIndex / (offset + 1 || 1)) % momentPool.length];
-}
-
-const lifestyleBuyerFeedbackSubjects = [
-  "普通步子里脚下比例顺不顺，一张随手拍就能看出来",
-  "白衬衫和牛仔都能接住，才算真的省心",
-  "坐下时鞋头和鞋带还清楚，参考感会强很多",
-  "裤脚、裙摆或连衣裙下缘留得干净，整套就不会乱",
-  "脚下没有把整个人比例压住，日常穿才会舒服",
-  "离开精修静物之后还顺眼，才更接近真实穿着",
-  "鞋底线条在真实路面上不显厚，脚下会轻很多",
-  "普通针织或外套都能搭上，衣柜里就更容易反复穿",
-  "包、咖啡和纸袋旁边都不抢，说明它是真的日常",
-  "从早到晚还能保持干净体面，这点比亮眼更重要"
-];
-
-const lifestyleBuyerFeedbackMoments = [
-  "如果是入户镜前准备出门",
-  "如果是写字楼门口停一下",
-  "如果是咖啡店门口等咖啡",
-  "如果是在书店门口停留几分钟",
-  "如果是酒店房间镜前整理好行李",
-  "如果是工作日从门口走出来",
-  "如果是午后坐在咖啡店外",
-  "如果是下班后在写字楼外停一下",
-  "如果是出门前朋友顺手帮拍",
-  "如果是短途旅行准备出门"
-];
-
-const lifestyleBuyerFeedbackMomentByScene: Partial<Record<TeamScenePreference, string[]>> = {
-  入户镜前: ["如果是入户镜前准备出门", "如果是出门前朋友顺手帮拍"],
-  写字楼门口: ["如果是写字楼门口停一下", "如果是下班后在写字楼外停一下"],
-  咖啡店门口: ["如果是咖啡店门口等咖啡", "如果是午后坐在咖啡店外"],
-  "书店 / 杂志店门口": ["如果是在书店门口停留几分钟", "如果是从书店门口慢慢走出来"],
-  酒店房间: ["如果是酒店房间镜前整理好行李", "如果是短途旅行准备出门"]
+const lifestyleNaturalNoteKits: Partial<Record<TeamScenePreference, LifestyleNaturalNoteKit>> = {
+  入户镜前: {
+    starts: [
+      "今天出门前只在镜子前看了一眼，没有特意搭很久。",
+      "早上赶时间，拿了最常穿的衣服和这双鞋试了一下。",
+      "镜前这类图我会认真看，因为比例骗不了人。",
+      "出门前随手拍了一张，脸被手机挡住也没关系。",
+      "这套没有什么复杂搭配，就是想看鞋子能不能接住日常衣服。",
+      "我喜欢看这种镜前图，真实一点比精修图更有参考感。"
+    ],
+    sceneMoments: [
+      "镜子里能看清鞋子和衣服下缘的关系，脚下没有突然跳出来。",
+      "手机挡住脸之后，注意力反而回到穿着本身和鞋子比例上。",
+      "站直和稍微放松一点都能看顺，出门前会安心很多。",
+      "鞋子没有把整套衣服打断，普通上衣和裤装也能接得住。",
+      "这种入户镜前的状态很真实，像准备出门前最后确认一下。",
+      "不用摆得很满，鞋子完整露出来，整套顺就够了。"
+    ],
+    shoeFeelings: [
+      "鞋底没有显得厚，脚下比例也没有被镜子拉大。",
+      "鞋头和鞋带都清楚，和裤装或裙装下缘之间是干净的。",
+      "它不是很抢眼，但能让出门前那一身看起来更完整。",
+      "脚下很安静，不会让镜前图变成只看鞋的广告感。",
+      "这种鞋放在入户镜里更像真实会穿出门的样子。",
+      "鞋型保持得很轻，整个人看起来也没有被压住。"
+    ],
+    realDetails: [
+      "镜子、地面和衣服褶皱不用太完美，真实一点反而耐看。",
+      "包只是顺手放在旁边，没有抢掉鞋子和穿着关系。",
+      "肩膀和手放松一点，画面会更像真实出门前的记录。",
+      "裤脚或裙摆和鞋子之间留得清楚，脚下看起来更干净。",
+      "镜头没有贴得太近，完整比例比局部精致更重要。",
+      "光线柔的时候，比很亮的试衣间效果更舒服。"
+    ],
+    closings: [
+      "我会存这种图，因为它真的能帮我判断要不要穿出门。",
+      "这种不需要重新想搭配的鞋，才是早上最省心的。",
+      "看起来不费劲，但整个人是干净的，这点很重要。",
+      "它不是让人惊艳的鞋，是让出门变简单的鞋。",
+      "如果镜前随手拍都顺，我会更相信它。",
+      "这种安静的好搭感，比很会摆拍更打动我。"
+    ]
+  },
+  写字楼门口: {
+    starts: [
+      "工作日穿鞋，我最怕走到公司门口就显得随便。",
+      "这张是在写字楼门口停了一下，状态比我想象中自然。",
+      "通勤鞋对我来说不用很亮眼，但一定不能拖累整个人。",
+      "早上出门到公司楼下，才最能看出一双鞋是不是真的日常。",
+      "我会更相信这种上班路上的照片，不是只站在棚里拍。",
+      "工作日想穿得轻松一点，但也不能像随便出门。"
+    ],
+    sceneMoments: [
+      "走到门口的时候鞋子还是干净的，衣服也没有被脚下带乱。",
+      "楼下自然光和真实路面会把鞋底厚度看得很清楚。",
+      "小步走的时候鞋型没有变笨，整个人看起来还是利落的。",
+      "停在门口等人的那一秒，比刻意摆拍更像真实通勤。",
+      "写字楼门口没有太多道具，干净的站姿就能看出状态。",
+      "鞋子在工作日场景里不抢，也不显得太休闲。"
+    ],
+    shoeFeelings: [
+      "鞋底线条比较薄，配通勤衣服不会显得重。",
+      "脚下比例没有被拍大，走路时也能保持清楚轮廓。",
+      "它和白衬衫、直筒裤、轻外套放在一起都很顺。",
+      "鞋头不尖也不笨，通勤穿会更安心。",
+      "这种干净鞋型能把通勤穿着放松一点，但不变随便。",
+      "从早上穿到工作日中段，脚下还是体面的。"
+    ],
+    realDetails: [
+      "路面阴影、玻璃反光和一点街道纵深保留着，会更像真实上班路。",
+      "手里有咖啡或文件袋时，状态更像真实上班路。",
+      "背景不靠奢华感，真实的楼下入口反而更可信。",
+      "步子不大，鞋子和地面的接触看起来更自然。",
+      "衣服有一点自然褶皱没关系，太平整反而像广告图。",
+      "她不是一直盯着镜头，更像刚停下来被朋友拍到。"
+    ],
+    closings: [
+      "这种能从早上接到下班的鞋，对我来说比第一眼惊艳更实用。",
+      "工作日能穿得舒服但不随便，就已经很够了。",
+      "我会把它归到那种不需要想太多、但不会出错的鞋。",
+      "通勤场景里能成立，日常参考价值就很高。",
+      "它不是为了抢镜，是为了让整个人看起来更顺。",
+      "这种干净又不端着的状态，才像我会真的穿出门。"
+    ]
+  },
+  咖啡店门口: {
+    starts: [
+      "周末去买咖啡，最适合看一双鞋是不是真的好搭。",
+      "今天没怎么想穿搭，就是常穿的上衣、牛仔和一双干净的鞋。",
+      "咖啡店门口这类照片，我反而会看得很认真。",
+      "等咖啡那几分钟随手拍了一张，比特意摆拍更自然。",
+      "周末出门不想穿得太用力，但也不想看起来没收拾。",
+      "这种街边停留的场景，很容易看出鞋子会不会显脚大。"
+    ],
+    sceneMoments: [
+      "坐下或站着等的时候，鞋头和鞋带都还能看清。",
+      "咖啡杯和桌椅只是轻轻带到，画面没有变成道具照。",
+      "人放松一点，鞋子和牛仔的关系反而更清楚。",
+      "街边光线有一点阴影，整套看起来更像真实周末。",
+      "鞋子没有抢掉咖啡店门口那种轻松感，脚下也不乱。",
+      "停在那里聊天或等人时，脚下比例还是顺的。"
+    ],
+    shoeFeelings: [
+      "鞋底没有显得厚，脚也没有被拍得很大。",
+      "它和牛仔、衬衫这种基础单品放在一起很自然。",
+      "鞋型安静，但不会在画面里消失。",
+      "坐下时还能看清鞋子轮廓，这点挺加分。",
+      "这种鞋不需要把周末穿得很精致，简单一点就能成立。",
+      "脚下轻一点，整套周末穿着会更舒服。"
+    ],
+    realDetails: [
+      "椅子、桌脚和地面都带着真实街边质感，不像棚搭出来的背景。",
+      "衣服有一点坐下后的褶皱，会比完全平整更像日常。",
+      "包放在旁边时没有挡住鞋子，脚下还是清楚的。",
+      "光线和阴影都比较柔，整张图没有强卖感。",
+      "手自然搭着杯子或椅背，像聊天中被随手拍到。",
+      "背景里有一点真实街道感，会比空背景更有代入。"
+    ],
+    closings: [
+      "这种周末随手照能看顺，我会觉得它是真的好搭。",
+      "它没有让人很用力地注意鞋，但脚下就是干净的。",
+      "对我来说，能接住周末普通衣服就很有用。",
+      "这种不夸张的松弛感，比刻意拍得高级更容易种草。",
+      "如果坐下和走路都顺，我会更愿意把它放进日常鞋柜。",
+      "周末鞋不用太会表现，舒服、干净、比例顺就够了。"
+    ]
+  },
+  "书店 / 杂志店门口": {
+    starts: [
+      "去书店的时候，我不太想穿得很用力。",
+      "书店门口这种安静场景，很适合看鞋子会不会抢戏。",
+      "今天只是顺路进去翻杂志，穿得越简单越舒服。",
+      "这张不是为了打卡拍的，反而更像真实出门状态。",
+      "我喜欢这种有点安静的街边照片，能看出整套的气质。",
+      "书店门口的图不用很满，鞋子和衣服顺就好。"
+    ],
+    sceneMoments: [
+      "拿着书站一下，鞋子没有把画面的安静感打断。",
+      "门口的光和墙面都很轻，整个人看起来也不紧绷。",
+      "鞋子在书店门口不抢，但能把整套衣服接住。",
+      "停下来翻书或等朋友的时候，脚下还是清楚的。",
+      "这种慢一点的场景里，鞋子不能太强，也不能太没存在感。",
+      "没有刻意摆姿势，反而更像她真的会这样出门。"
+    ],
+    shoeFeelings: [
+      "鞋型很干净，和书、包、浅色衣服放在一起是顺的。",
+      "脚下没有变重，整套安静感还能保住。",
+      "鞋底线条比较轻，不会把书店场景拍成运动感。",
+      "它和裙装或裤装都能接上，不会突然跳出来。",
+      "鞋子存在感刚好，能看见，但不吵。",
+      "这种不抢的鞋，反而适合长时间放在衣柜里。"
+    ],
+    realDetails: [
+      "书和杂志只被带到一点，没有堆成布景。",
+      "背景店面看起来真实，没有很假的大字招牌。",
+      "衣服和头发有一点自然状态，会比完美摆拍更舒服。",
+      "书袋或裙摆没有挡住鞋子，一只鞋的轮廓也能看清。",
+      "画面留白多，像真实逛书店时慢下来的一刻。",
+      "手上只是拿着一本书，状态很轻。"
+    ],
+    closings: [
+      "这种安静日常里还能成立，说明它不是只能通勤穿。",
+      "它没有破坏整个人的干净感，这点让我很有好感。",
+      "不是很抓眼，但越看越像会反复穿的鞋。",
+      "这种鞋放在普通周末里，反而更容易被记住。",
+      "书店门口都能看顺，日常感就很稳。",
+      "它不需要制造亮点，能把一身衣服接顺就很好。"
+    ]
+  },
+  酒店房间: {
+    starts: [
+      "短途出门时，我会特别在意鞋子能不能少带一双。",
+      "酒店房间镜前这类图很实用，能看出鞋子到底好不好搭。",
+      "出差或旅行时，鞋子最好别让穿衣服变复杂。",
+      "整理好行李准备出门时，最能看出一双鞋是不是省心。",
+      "我不太喜欢很游客感的旅行穿搭，干净舒服就够了。",
+      "酒店里随手拍一张，比单独说百搭更有说服力。"
+    ],
+    sceneMoments: [
+      "镜子里能看清鞋子和行李里那几件衣服是不是接得上。",
+      "房间光线比较干净，鞋型和整个人比例会更容易判断。",
+      "坐在床边或站在镜前，鞋子都没有被行李和衣服挡住。",
+      "这个场景不豪华也没关系，整齐、安静、能出门就好。",
+      "行李角落只露出一点，重点还是她准备出门的状态。",
+      "短途旅行的衣服有限，鞋子能不能多搭几套会很明显。"
+    ],
+    shoeFeelings: [
+      "它能接住基础衣服，出门不用再为鞋子重新想一套。",
+      "鞋底看起来轻，旅行场景里不会显得笨重。",
+      "鞋子完整露出来，才看得出它是不是真的适合带出门。",
+      "它不是很强的旅行单品，更像能自然跟着走几天的鞋。",
+      "脚下比例顺，镜前整理行李那一刻就会安心很多。",
+      "这种低调鞋型，在酒店房间里看也不会像临时凑的。"
+    ],
+    realDetails: [
+      "行李打开一点点，状态还是整齐的。",
+      "床边、衣架和窗光保持干净，画面会更有秩序感。",
+      "脸被手机挡住也不影响判断，鞋子和衣服比例是清楚的。",
+      "酒店没有被拍成浮夸打卡照，安静一点更像真实出门前。",
+      "衣服放得比较整齐，鞋子会更像整个行程里的稳定项。",
+      "背景带一点生活痕迹，但没有乱到分散注意力。"
+    ],
+    closings: [
+      "这种能陪我从白天走到晚上的鞋，旅行时会更想带。",
+      "它不是为了拍旅行大片，是为了让出门少一点纠结。",
+      "如果酒店镜前都看顺，我会觉得它真的能省行李。",
+      "这种稳定的好搭感，对短途出门很重要。",
+      "一双鞋能接住几套衣服，比单独好看更有用。",
+      "它最像那种被默默放进行李箱的日常鞋。"
+    ]
+  }
 };
 
-const lifestyleBuyerFeedbackProofs = [
-  "这种画面比一句好穿更有说服力",
-  "它更像真实穿过之后的判断",
-  "我会更容易想象自己穿它出门",
-  "鞋子和衣服的关系也更容易看清",
-  "这类反馈比单独静物更接近购买前的犹豫",
-  "参考价值会比很满的广告图高很多",
-  "日常感会自然出来，不需要额外解释",
-  "能看清脚下状态，心里就会踏实一点",
-  "它会更像一个真实客户留下来的穿着记录",
-  "那种不费劲的体面感会更明显"
+const lifestyleNaturalSceneFallbacks: Partial<Record<TeamScenePreference, keyof typeof lifestyleNaturalNoteKits>> = {
+  通勤上班: "写字楼门口",
+  商务区转角: "写字楼门口",
+  停车后步行去办公室: "写字楼门口",
+  "楼下便利店 / 咖啡外带": "咖啡店门口",
+  咖啡馆内: "咖啡店门口",
+  朋友午餐: "咖啡店门口",
+  美术馆: "书店 / 杂志店门口",
+  "花店 / 买花": "咖啡店门口",
+  "城市街角 / 安静街区": "书店 / 杂志店门口",
+  "衣帽间 / 更衣角": "入户镜前",
+  居家衣帽间: "入户镜前",
+  旅行酒店: "酒店房间",
+  酒店走廊: "酒店房间",
+  "酒店门口 / 门厅": "酒店房间"
+};
+
+const lifestyleNaturalTinyNotes = [
+  "我会喜欢这种有一点真实痕迹的照片。",
+  "这种图不用很满，留一点呼吸感更舒服。",
+  "看到这种状态，会更容易想到自己早上直接穿它出门。",
+  "它不是一眼很热闹的鞋，胜在耐看。",
+  "对日常鞋来说，脚下不乱已经很重要。",
+  "这类上脚图会让我愿意继续看下一张。",
+  "整套没有很用力的完成感，反而更像真实一天。",
+  "这种鞋适合和常穿衣服慢慢磨合。",
+  "它的存在感很轻，但不是没存在感。",
+  "我会把它归到省心但不敷衍的那一类。"
 ];
 
-function getLifestyleBuyerFeedbackMicroLine(
-  topic: SoftSeedingTopic,
+function pickLifestyleLine(lines: string[], normalizedVariantIndex: number, salt: number) {
+  return lines[Math.floor(normalizedVariantIndex / salt) % lines.length];
+}
+
+function getLifestyleNaturalNoteKit(scenePreference: TeamScenePreference) {
+  const directKit = lifestyleNaturalNoteKits[scenePreference];
+  if (directKit) return directKit;
+
+  const fallbackScene = lifestyleNaturalSceneFallbacks[scenePreference];
+  return fallbackScene ? lifestyleNaturalNoteKits[fallbackScene] ?? defaultLifestyleNaturalNoteKit : defaultLifestyleNaturalNoteKit;
+}
+
+function buildLifestyleNaturalNote(
+  scenePreference: TeamScenePreference,
   normalizedVariantIndex: number,
-  selectedImageDrafts: SoftSeedingImageDraft[]
+  fallbackStart: string
 ) {
-  if (topic !== "生活场景软种草") return "";
+  const kit = getLifestyleNaturalNoteKit(scenePreference);
+  const start = pickLifestyleLine(kit.starts, normalizedVariantIndex, 1) || fallbackStart;
+  const moment = pickLifestyleLine(kit.sceneMoments, normalizedVariantIndex, 7);
+  const shoeFeeling = pickLifestyleLine(kit.shoeFeelings, normalizedVariantIndex, 11);
+  const realDetail = pickLifestyleLine(kit.realDetails, normalizedVariantIndex, 13);
+  const closing = pickLifestyleLine(kit.closings, normalizedVariantIndex, 17);
+  const tinyNote = pickLifestyleLine(lifestyleNaturalTinyNotes, normalizedVariantIndex, 19);
+  const templateIndex = normalizedVariantIndex % 10;
+  const templates = [
+    [start, `${moment}${shoeFeeling}`, `${realDetail}${closing}`, tinyNote],
+    [`${start}${moment}`, `${shoeFeeling}${realDetail}`, `${closing}${tinyNote}`],
+    [start, moment, `${shoeFeeling}${closing}`, tinyNote],
+    [`${start}${shoeFeeling}`, realDetail, `${closing}${tinyNote}`],
+    [start, `${moment}${realDetail}`, `${shoeFeeling}${closing}`, tinyNote],
+    [`${start}${realDetail}`, shoeFeeling, `${closing}${tinyNote}`],
+    [moment, `${shoeFeeling}${realDetail}`, closing, tinyNote],
+    [start, `${moment}${shoeFeeling}${realDetail}`, `${closing}${tinyNote}`],
+    [`${start}${moment}`, shoeFeeling, `${realDetail}${closing}`, tinyNote],
+    [start, `${moment}${shoeFeeling}`, `${closing}${tinyNote}`]
+  ];
 
-  const subject = lifestyleBuyerFeedbackSubjects[normalizedVariantIndex % lifestyleBuyerFeedbackSubjects.length];
-  const matchedMoments = selectedImageDrafts.flatMap(
-    (draft) => lifestyleBuyerFeedbackMomentByScene[draft.scenePreference] ?? []
-  );
-  const momentPool = matchedMoments.length ? matchedMoments : lifestyleBuyerFeedbackMoments;
-  const moment = momentPool[Math.floor(normalizedVariantIndex / lifestyleBuyerFeedbackSubjects.length) % momentPool.length];
-  const proof =
-    lifestyleBuyerFeedbackProofs[
-      Math.floor(
-        normalizedVariantIndex / (lifestyleBuyerFeedbackSubjects.length * lifestyleBuyerFeedbackMoments.length)
-      ) % lifestyleBuyerFeedbackProofs.length
-    ];
-
-  return `${subject}；${moment}，${proof}。`;
+  return formatBodyParagraphs(templates[templateIndex].map(softenBodyText));
 }
 
 function softenTitle(title: string) {
