@@ -58,6 +58,10 @@ type SoftSeedingImageDraft = {
   garmentTypePreference: TeamGarmentTypePreference;
   season?: TeamSeason;
   extraRequirement: string;
+  id?: string;
+  tags?: string[];
+  composition?: string;
+  weight?: number;
 };
 
 type TopicCopyKit = {
@@ -455,7 +459,157 @@ const storyDrivenCopyTemplates: Record<SoftSeedingTopic, StoryDrivenTemplate[]> 
   ]
 };
 
+type StylingSolutionSceneTemplate = {
+  titles: [string, string, string];
+  body: (context: StylingSolutionSceneContext) => string;
+};
+
+type StylingSolutionSceneContext = StoryDrivenContext & {
+  hasLowerBody: boolean;
+  hasTrouserBreak: boolean;
+  hasSeated: boolean;
+  hasStillLife: boolean;
+  hasMirror: boolean;
+  hasWalking: boolean;
+};
+
+function hasDraftTag(selectedImageDrafts: SoftSeedingImageDraft[], tag: string) {
+  return selectedImageDrafts.some((draft) => draft.tags?.includes(tag));
+}
+
+function hasDraftComposition(selectedImageDrafts: SoftSeedingImageDraft[], composition: string) {
+  return selectedImageDrafts.some((draft) => draft.composition === composition);
+}
+
+function getStylingSolutionSceneContext(selectedImageDrafts: SoftSeedingImageDraft[]): StylingSolutionSceneContext {
+  return {
+    ...getStoryContext(selectedImageDrafts),
+    hasLowerBody: hasDraftComposition(selectedImageDrafts, "lowerBody") || hasDraftTag(selectedImageDrafts, "lowerBody"),
+    hasTrouserBreak: hasDraftTag(selectedImageDrafts, "trouserBreak"),
+    hasSeated: hasDraftComposition(selectedImageDrafts, "seated") || hasDraftTag(selectedImageDrafts, "seated"),
+    hasStillLife: hasDraftComposition(selectedImageDrafts, "stillLife") || hasDraftTag(selectedImageDrafts, "stillLife"),
+    hasMirror: hasDraftComposition(selectedImageDrafts, "mirror") || hasDraftTag(selectedImageDrafts, "mirror"),
+    hasWalking: hasDraftComposition(selectedImageDrafts, "walking") || hasDraftTag(selectedImageDrafts, "walking")
+  };
+}
+
+const stylingSolutionSceneTemplates: StylingSolutionSceneTemplate[] = [
+  {
+    titles: ["早上先低头看一眼鞋", "裤脚和鞋子顺了，出门会省心", "这张不是自拍，但很有用"],
+    body: ({ hasMirror }) =>
+      formatBodyParagraphs([
+        "早上换好裤子以后，我没有急着照镜子。",
+        "先低头看了一眼脚下。裤脚刚好落在鞋面附近，没有把鞋舌压住，鞋头也没有被衬得很笨。",
+        "这种小地方，站远了看全身反而不一定看得出来。尤其是直筒裤、牛仔裤这类常穿的裤子，裤脚和鞋子的关系一不顺，整套都会显得拖。",
+        hasMirror ? "完整穿搭参考可以留到后面看，但第一眼我会先确认脚下这块是不是干净。" : "所以我现在做穿搭参考，会更想保留这种低头看的照片。",
+        "不露脸，也不完整，但很有用。它能直接告诉你：这双鞋明天早上能不能接住衣柜里的那条裤子。"
+      ])
+  },
+  {
+    titles: ["通勤鞋先看脚下那一块", "门口停一下，就知道顺不顺", "普通裤子配它会不会拖"],
+    body: ({ hasWalking }) =>
+      formatBodyParagraphs([
+        "今天出门前其实没怎么想搭配。",
+        "白衬衫、直筒裤，包里塞了电脑。站在门口的时候，顺手低头看了一眼。",
+        "裤脚刚好落在鞋面附近，没有把鞋头压住，鞋带也还是清楚的。",
+        hasWalking
+          ? "后来走到写字楼门口，小步往前的时候也没有显得笨，鞋底边缘和地面接触得很自然。"
+          : "这种地方平时不太会注意，但真的决定一套衣服顺不顺。",
+        "尤其是通勤鞋，如果鞋底太厚，或者鞋头显笨，走到写字楼门口就会觉得整个人往下坠一点。脚下这块如果干净，哪怕上半身穿得很普通，也不会乱。"
+      ])
+  },
+  {
+    titles: ["真正决定比例的，常常是裤脚", "全身照之前，我会先看这里", "鞋头有没有被压住很关键"],
+    body: ({ hasTrouserBreak }) =>
+      formatBodyParagraphs([
+        "以前我看鞋子，会先看完整穿搭。",
+        "后来发现，真正决定一套衣服顺不顺的，很多时候是脚下那一小块。",
+        "裤脚落得太低，鞋头会被压住；鞋底如果太厚，整个人就容易往下沉。尤其是早上赶时间的时候，根本没有那么多精力重新搭一遍。",
+        hasTrouserBreak
+          ? "所以裤脚压鞋这张我会留着看。它不用漂亮，只要能看清裤脚停在哪里、鞋舌有没有被盖住。"
+          : "所以这种局部比例照片反而很有参考感。",
+        "能看清鞋头、鞋带、鞋底边缘，也能看清裤脚停在哪里。它不负责好看得很完整，只负责告诉你，这双鞋和日常裤装能不能接上。"
+      ])
+  },
+  {
+    titles: ["坐下来以后，鞋子会不会显笨", "咖啡馆里这张更接近日常", "坐姿也顺，才是真的好搭"],
+    body: ({ hasSeated }) =>
+      formatBodyParagraphs([
+        "坐下来以后，鞋子好不好搭会更明显。",
+        "站着的时候裤脚是顺的，不代表坐下以后也顺。有些鞋一坐下就显得很大，鞋头和鞋带全挤在一起，看起来会有点累赘。",
+        hasSeated
+          ? "在咖啡馆靠窗的位置坐下，包放在椅子边，低头刚好能看到鞋头那一块。比例还是轻的，没有被裤脚压得很闷。"
+          : "所以我会留一张坐姿图。",
+        "鞋头要清楚，鞋带要自然，裤脚不要乱堆在鞋面上。它不一定是最漂亮的一张，但对买鞋很有用。",
+        "日常鞋最后看的不是某一个角度多惊艳，而是走路、坐下、出门、停下来，都能不能保持干净。"
+      ])
+  },
+  {
+    titles: ["一鞋多搭，不一定要拍很多套", "把鞋和衣服放近一点看", "省心的鞋，要先看衣柜能不能接住"],
+    body: ({ hasStillLife }) =>
+      formatBodyParagraphs([
+        "一鞋多搭这件事，不一定要拍很多套完整穿搭。",
+        hasStillLife
+          ? "有时候把鞋子、折好的裤子和白衬衫放在同一块浅色台面上看，反而更直接。颜色能不能接上，材质会不会打架，一眼就知道。"
+          : "有时候把鞋子和裤子放近一点看，反而更直接。",
+        "裤子的颜色、裤脚的长度、鞋面的干净程度，这些小地方会决定它是不是能进衣柜。如果每次都要为了它重新想一身衣服，那它其实就不够省心。",
+        "我更喜欢这种低头视角。没有完整脸，也没有很强的姿势，但能看出真实比例。",
+        "对日常鞋来说，这比一张很会摆的照片更有说服力。"
+      ])
+  },
+  {
+    titles: ["出门前那几秒最真实", "鞋裤关系不顺，早上会很明显", "门边光线里看一眼就够"],
+    body: () =>
+      formatBodyParagraphs([
+        "早上站在门口那几秒，其实很能看出一双鞋合不合适。",
+        "包已经拎起来了，门边的光落在地面上，裤脚落下来刚好碰到鞋面。这个时候不会再为了拍照重新整理衣服，所以看到的状态反而真实。",
+        "鞋头不能被裤脚压没，鞋带也不能乱成一团。鞋底边缘如果太厚，整个人会马上显得笨一点。",
+        "我会更相信这种出门前的照片。",
+        "它没有很完整，但它能告诉你：这双鞋是不是真的能跟着你过一个普通工作日。"
+      ])
+  },
+  {
+    titles: ["周末坐下，也要看鞋头", "咖啡馆里更能看出日常感", "站着顺，不代表坐下也顺"],
+    body: () =>
+      formatBodyParagraphs([
+        "周末穿鞋，和上班那种判断又不太一样。",
+        "坐下来以后，裤脚会自然堆一点，鞋头、鞋带、鞋面还清不清楚，这时候就特别明显。",
+        "在咖啡馆靠窗的位置坐下，低头刚好能看到鞋头那一块。比例还是轻的，没有被裤脚压得很闷。",
+        "我觉得这种状态挺重要。",
+        "因为很多鞋站着看没问题，一坐下就显得很重。日常会反复穿的鞋，最后不是看某个角度多惊艳，而是走路、坐下、出门、停下来，都能不能维持一种干净的感觉。"
+      ])
+  },
+  {
+    titles: ["旅行里，鞋子要少一点存在感", "酒店出门前最能判断一双鞋", "行李箱旁边看鞋，反而真实"],
+    body: () =>
+      formatBodyParagraphs([
+        "旅行里对鞋子的要求会更直接一点。",
+        "在酒店换好衣服准备出门的时候，行李箱还摊在门边，裤脚落下来刚好碰到鞋面。那一下其实最能判断一双鞋适不适合带出来。",
+        "它不能太抢，也不能太累，最好是你不用再专门为它重新想一套衣服。",
+        "照片里它不是最先跳出来的，但真的走出去以后，会发现整天都没怎么想起它。",
+        "对一双日常鞋来说，这反而是很高的评价。"
+      ])
+  }
+];
+
+function buildStylingSolutionSceneCopy(variantIndex: number, selectedImageDrafts: SoftSeedingImageDraft[]): TopicCopyDraft {
+  const normalized = normalizeSoftVariantIndex(variantIndex, getTopicVariantCount("穿搭解决方案"));
+  const template = stylingSolutionSceneTemplates[normalized % stylingSolutionSceneTemplates.length];
+  const context = getStylingSolutionSceneContext(selectedImageDrafts);
+
+  return {
+    titles: template.titles.map(softenTitle),
+    body: reduceRepeatedBodyIdeas(softenBodyText(template.body(context))),
+    tags: topicCopyKits["穿搭解决方案"].tags,
+    note: storyDrivenNotes["穿搭解决方案"]
+  };
+}
+
 function buildStoryDrivenCopy(topic: SoftSeedingTopic, variantIndex: number, selectedImageDrafts: SoftSeedingImageDraft[]) {
+  if (topic === "穿搭解决方案") {
+    return buildStylingSolutionSceneCopy(variantIndex, selectedImageDrafts);
+  }
+
   const templates = storyDrivenCopyTemplates[topic];
   const normalized = normalizeSoftVariantIndex(variantIndex, getTopicVariantCount(topic));
   const template = templates[normalized % templates.length];
@@ -2109,11 +2263,146 @@ const topicImageDrafts: Record<SoftSeedingTopic, SoftSeedingImageDraft[]> = {
     { name: "图5｜桌边｜配色笔记", purpose: "作为图文尾图，讲配色逻辑。", description: "色卡、笔记、皮料样，像真实开发记录。", imageType: "拍摄花絮 / 材质图", scenePreference: "工作台 / 桌边整理", garmentTypePreference: "自动匹配", season: "秋", extraRequirement: "Create a refined color-study desk with muted autumn chips, handwritten development notes, leather and suede samples, and warm daylight. Avoid decorative moodboard clutter." }
   ],
   穿搭解决方案: [
-    { name: "图1｜通勤｜上脚比例", purpose: "先解决工作日鞋子会不会显笨。", description: "写字楼门口或通勤路上，小步幅自然上脚。", imageType: "产品上脚图", scenePreference: "写字楼门口", garmentTypePreference: "裤装", extraRequirement: "Generate a refined on-foot commute styling solution with a safe small walking step, clean trouser break, realistic shoe scale, and strong product readability." },
-    { name: "图2｜午间｜咖啡馆内", purpose: "展示半商务和休闲之间的穿搭状态。", description: "咖啡馆内坐姿或站姿，衣着有参考价值。", imageType: "生活场景图", scenePreference: "咖啡馆内", garmentTypePreference: "裤装", extraRequirement: "Use a quiet cafe interior lunch moment, polished but relaxed styling, natural hand placement, and sneakers clearly visible without making the scene look staged." },
-    { name: "图3｜城市｜朋友午餐", purpose: "补充真实社交场景里的穿着判断。", description: "朋友午餐前后，轻商务但不正式。", imageType: "生活场景图", scenePreference: "朋友午餐", garmentTypePreference: "裙装", extraRequirement: "Show a refined friend-lunch outfit solution with mature skirt styling, relaxed social posture, warm neutral city atmosphere, and the sneakers naturally supporting the outfit." },
-    { name: "图4｜产品｜搭配静物", purpose: "把鞋和可搭配衣物放在一起看。", description: "克制静物，鞋款、衣物材质和色彩关系清楚。", imageType: "产品静物图", scenePreference: "棚内上新拍摄", garmentTypePreference: "自动匹配", extraRequirement: "Create a restrained styling still life with the sneaker, folded refined clothing layers, muted color relationship, and accurate shoe shape. Keep props minimal and useful." },
-    { name: "图5｜出行｜酒店房间", purpose: "验证短途出门时一鞋多搭是否成立。", description: "酒店房间出门前，衣物和鞋子关系清楚。", imageType: "生活场景图", scenePreference: "酒店房间", garmentTypePreference: "连衣裙", extraRequirement: "Create a calm hotel-room getting-ready lifestyle scene with a refined one-piece dress, subtle travel context, tidy suitcase corner, and sneakers clearly supporting the outfit without mirror-selfie framing." }
+    {
+      id: "styling-shoe-trouser-downward",
+      name: "图｜鞋裤关系｜低头视角",
+      purpose: "解决早上出门前裤脚和鞋子是否接顺的问题。",
+      description: "玄关或门口低头视角，局部构图，重点看裤脚、鞋头、鞋带和鞋底边缘。",
+      imageType: "产品上脚图",
+      scenePreference: "入户镜前",
+      garmentTypePreference: "裤装",
+      tags: ["proof", "lowerBody", "trouser", "stylingSolution"],
+      composition: "lowerBody",
+      weight: 5,
+      extraRequirement:
+        "Create a downward-looking outfit detail photo before leaving home, focused on the shoe-and-trouser relationship. Use a warm grey stone or light wood entryway floor, one foot slightly forward, natural trouser hem resting near the sneaker without covering the shoe structure. Keep toe box, laces, tongue, panel lines, and outsole edge clearly readable. No mirror selfie, no phone in mirror, no face needed, not a full-body mirror shot. Practical outfit reference, not influencer posing."
+    },
+    {
+      id: "styling-lower-body-proportion",
+      name: "图｜比例判断｜下半身",
+      purpose: "从腰部或膝盖以下判断裤装 / 裙装和鞋子的比例。",
+      description: "只看局部比例，不强调脸和完整人像，重点是鞋子是否显笨、鞋底是否显厚。",
+      imageType: "产品上脚图",
+      scenePreference: "写字楼门口",
+      garmentTypePreference: "裤装",
+      tags: ["proof", "lowerBody", "proportion"],
+      composition: "lowerBody",
+      weight: 4,
+      extraRequirement:
+        "Create a cropped outfit reference from waist or knee down, focused on clean proportion between garment hem and sneakers. Keep the sneakers fully readable, avoid exaggerated legs, avoid full-body fashion pose, and make the image feel like a practical styling check."
+    },
+    {
+      id: "styling-commute-small-step",
+      name: "图｜通勤｜小步走",
+      purpose: "判断真实走路时鞋型、裤脚和地面接触是否自然。",
+      description: "写字楼门口或通勤路上，小步幅自然走路，鞋子完整清楚。",
+      imageType: "产品上脚图",
+      scenePreference: "写字楼门口",
+      garmentTypePreference: "裤装",
+      tags: ["proof", "walking", "commute"],
+      composition: "walking",
+      weight: 4,
+      extraRequirement:
+        "Generate a refined on-foot commute styling solution with a safe small walking step, clean trouser break, realistic shoe scale, natural floor contact, and strong product readability. Avoid campaign walking pose or runway energy."
+    },
+    {
+      id: "styling-seated-toe-lace",
+      name: "图｜坐下｜鞋头鞋带",
+      purpose: "看坐下时鞋头、鞋带、裤脚是否仍然清楚。",
+      description: "咖啡馆或办公室坐下时的脚部状态，鞋头、鞋带、裤脚关系可读。",
+      imageType: "生活场景图",
+      scenePreference: "咖啡馆内",
+      garmentTypePreference: "裤装",
+      tags: ["proof", "seated", "detail"],
+      composition: "seated",
+      weight: 3,
+      extraRequirement:
+        "Use a quiet seated outfit detail in a cafe or office corner, focused on toe box, laces, trouser hem, and sneaker readability while sitting. Keep posture natural, no exaggerated leg pose, no hard-selling product insert."
+    },
+    {
+      id: "styling-entryway-floor",
+      name: "图｜出门前｜门口地面",
+      purpose: "呈现真实出门前的鞋裤判断，不对镜，不露脸。",
+      description: "门边光线、地面、包或外套的一角，重点是出门前鞋子和裤脚是否顺。",
+      imageType: "产品上脚图",
+      scenePreference: "入户镜前",
+      garmentTypePreference: "裤装",
+      tags: ["proof", "entryway", "lowerBody"],
+      composition: "lowerBody",
+      weight: 4,
+      extraRequirement:
+        "Create a real before-leaving-home entryway floor shot, cropped to shoes, trouser hem, door-side light, and a small daily object such as a tote edge or folded coat edge. No mirror selfie, no phone in mirror, no face needed. Keep both sneakers readable and the trouser hem from hiding the shoe structure."
+    },
+    {
+      id: "styling-trouser-break-detail",
+      name: "图｜裤脚｜压鞋判断",
+      purpose: "专门解决裤脚是否压住鞋型的问题。",
+      description: "裤脚自然落在鞋面附近，重点判断裤脚有没有压住鞋头、鞋舌和鞋带。",
+      imageType: "产品上脚图",
+      scenePreference: "写字楼门口",
+      garmentTypePreference: "裤装",
+      tags: ["proof", "lowerBody", "trouserBreak", "detail"],
+      composition: "lowerBody",
+      weight: 5,
+      extraRequirement:
+        "Create a practical trouser-break and sneaker detail photo. The trouser hem should rest naturally near the sneaker but must not cover the toe box, tongue, laces, or panel structure. Show realistic floor contact, accurate sneaker scale, and a useful styling-solution angle rather than a lifestyle pose."
+    },
+    {
+      id: "styling-skirt-sneaker-balance",
+      name: "图｜裙装｜鞋子平衡",
+      purpose: "判断裙装搭配时鞋子会不会显笨。",
+      description: "中裙或半裙下摆与德训鞋的关系，重点看鞋型是否轻、比例是否顺。",
+      imageType: "产品上脚图",
+      scenePreference: "朋友午餐",
+      garmentTypePreference: "裙装",
+      tags: ["proof", "lowerBody", "skirt"],
+      composition: "lowerBody",
+      weight: 3,
+      extraRequirement:
+        "Show a refined skirt-and-sneaker cropped styling reference, focused on skirt hem, ankle proportion, and clean sneaker readability. Avoid cute-girl styling, exaggerated legs, or influencer pose. Keep the look mature, quiet, and useful."
+    },
+    {
+      id: "styling-dress-sneaker-hem",
+      name: "图｜连衣裙｜下摆和鞋",
+      purpose: "判断连衣裙下摆和德训鞋是否接得顺。",
+      description: "连衣裙下摆、腿部自然比例、鞋子完整清楚。",
+      imageType: "产品上脚图",
+      scenePreference: "酒店房间",
+      garmentTypePreference: "连衣裙",
+      tags: ["proof", "lowerBody", "dress"],
+      composition: "lowerBody",
+      weight: 3,
+      extraRequirement:
+        "Create a refined one-piece dress and sneaker cropped outfit reference, focused on dress hem, natural leg proportion, and full sneaker readability. Keep it practical and wearable, not a fashion editorial pose."
+    },
+    {
+      id: "styling-commute-still-life",
+      name: "图｜搭配静物｜通勤衣物",
+      purpose: "把白衬衫、裤子、包和鞋子放在一起看，形成穿搭方案感。",
+      description: "克制静物，鞋款、衣物材质和色彩关系清楚，不做杂乱 moodboard。",
+      imageType: "产品静物图",
+      scenePreference: "棚内上新拍摄",
+      garmentTypePreference: "自动匹配",
+      tags: ["proof", "stillLife", "styling"],
+      composition: "stillLife",
+      weight: 2,
+      extraRequirement:
+        "Create a restrained styling still life with the sneaker, folded refined trousers or denim, white shirt, tote edge, and muted color relationship. Keep it practical, clean, and useful as an outfit solution, not a decorative moodboard."
+    },
+    {
+      id: "styling-mirror-reference",
+      name: "图｜完整穿搭｜对镜参考",
+      purpose: "提供完整穿搭参考，但它只是候选图，不是必选图。",
+      description: "完整穿搭记录，鞋子完整露出，但不要每组都出现。",
+      imageType: "对镜穿搭图",
+      scenePreference: "入户镜前",
+      garmentTypePreference: "裤装",
+      tags: ["proof", "mirror", "hero"],
+      composition: "mirror",
+      weight: 1,
+      extraRequirement:
+        "Use a clean entryway mirror outfit reference only as a supporting styling card. Face may be softly hidden by the phone, but keep the sneakers fully readable. Do not make this feel like the default first image of every set."
+    }
   ],
   材质工艺认知: [
     { name: "图1｜结构｜材质工作台", purpose: "讲鞋型与材质细节。", description: "鞋头、鞋带、走线、皮料样同框。", imageType: "拍摄花絮 / 材质图", scenePreference: "材质工作台", garmentTypePreference: "自动匹配", extraRequirement: "Show a precise material table with toe shape reference, shoelaces, stitching samples, leather or suede swatches, and product notes. Use pigskin lining if lining is visible or relevant; do not invent a different lining." },
@@ -2190,7 +2479,125 @@ const topicImageOrders: Record<SoftSeedingTopic, number[][]> = {
   ]
 };
 
+function findDraftById(drafts: SoftSeedingImageDraft[], id: string) {
+  return drafts.find((draft) => draft.id === id);
+}
+
+function pickDraftById(drafts: SoftSeedingImageDraft[], ids: string[], index: number) {
+  for (let offset = 0; offset < ids.length; offset += 1) {
+    const draft = findDraftById(drafts, ids[(index + offset) % ids.length]);
+    if (draft) return draft;
+  }
+
+  return drafts[0];
+}
+
+function pushUniqueDraft(target: SoftSeedingImageDraft[], draft: SoftSeedingImageDraft | undefined) {
+  if (!draft) return;
+  const key = draft.id ?? draft.name;
+  if (target.some((item) => (item.id ?? item.name) === key)) return;
+  target.push(draft);
+}
+
+function orderStylingSolutionDrafts(selected: SoftSeedingImageDraft[], variantIndex: number) {
+  const normalized = normalizeSoftVariantIndex(variantIndex, getTopicVariantCount("穿搭解决方案"));
+  const orderPatterns =
+    selected.length === 3
+      ? [
+          [0, 1, 2],
+          [1, 0, 2],
+          [0, 2, 1],
+          [2, 0, 1],
+          [1, 2, 0]
+        ]
+      : [
+          [0, 1, 2, 3, 4],
+          [1, 0, 2, 4, 3],
+          [2, 0, 1, 3, 4],
+          [0, 2, 3, 1, 4],
+          [3, 0, 1, 2, 4],
+          [1, 3, 0, 4, 2],
+          [0, 4, 1, 2, 3]
+        ];
+  const pattern = orderPatterns[normalized % orderPatterns.length];
+  const ordered = pattern.map((index) => selected[index]).filter(Boolean);
+
+  if (ordered[0]?.composition === "mirror") {
+    const nonMirrorIndex = ordered.findIndex((draft) => draft.composition !== "mirror");
+    if (nonMirrorIndex > 0) {
+      const first = ordered[0];
+      ordered[0] = ordered[nonMirrorIndex];
+      ordered[nonMirrorIndex] = first;
+    }
+  }
+
+  return ordered;
+}
+
+function selectStylingSolutionImageDrafts(variantIndex: number, imageCount: 3 | 5) {
+  const drafts = topicImageDrafts["穿搭解决方案"];
+  const normalized = normalizeSoftVariantIndex(variantIndex, getTopicVariantCount("穿搭解决方案"));
+  const selected: SoftSeedingImageDraft[] = [];
+  const lowerBodyIds = [
+    "styling-shoe-trouser-downward",
+    "styling-lower-body-proportion",
+    "styling-trouser-break-detail"
+  ];
+  const movementIds = ["styling-commute-small-step", "styling-entryway-floor"];
+  const thirdCardIds = [
+    "styling-seated-toe-lace",
+    "styling-skirt-sneaker-balance",
+    "styling-dress-sneaker-hem",
+    "styling-commute-still-life",
+    "styling-seated-toe-lace",
+    "styling-skirt-sneaker-balance",
+    "styling-dress-sneaker-hem",
+    "styling-commute-still-life",
+    "styling-mirror-reference"
+  ];
+
+  pushUniqueDraft(selected, pickDraftById(drafts, lowerBodyIds, normalized + Math.floor(normalized / 3)));
+  pushUniqueDraft(selected, pickDraftById(drafts, movementIds, normalized * 3 + 1));
+  pushUniqueDraft(selected, pickDraftById(drafts, thirdCardIds, normalized * 5 + Math.floor(normalized / 2)));
+
+  if (imageCount === 5) {
+    const requiredDetailIds = [
+      "styling-seated-toe-lace",
+      "styling-skirt-sneaker-balance",
+      "styling-dress-sneaker-hem",
+      "styling-commute-still-life"
+    ];
+    const extraIds = [
+      "styling-shoe-trouser-downward",
+      "styling-lower-body-proportion",
+      "styling-trouser-break-detail",
+      "styling-commute-small-step",
+      "styling-entryway-floor",
+      "styling-seated-toe-lace",
+      "styling-skirt-sneaker-balance",
+      "styling-dress-sneaker-hem",
+      "styling-commute-still-life",
+      "styling-mirror-reference"
+    ];
+
+    pushUniqueDraft(selected, pickDraftById(drafts, requiredDetailIds, normalized * 7 + 2));
+
+    for (let offset = 0; selected.length < 5 && offset < extraIds.length * 2; offset += 1) {
+      const candidate = pickDraftById(drafts, extraIds, normalized * 11 + offset);
+      const hasMirror = selected.some((draft) => draft.composition === "mirror");
+      if (candidate?.composition === "mirror" && (hasMirror || normalized % 4 !== 0)) continue;
+      pushUniqueDraft(selected, candidate);
+    }
+  }
+
+  return orderStylingSolutionDrafts(selected.slice(0, imageCount), variantIndex);
+}
+
 function selectSoftSeedingImageDrafts(topic: SoftSeedingTopic, variantIndex: number, imageCount: 3 | 5) {
+  if (topic === "穿搭解决方案") {
+    return selectStylingSolutionImageDrafts(variantIndex, imageCount);
+  }
+
   const drafts = topicImageDrafts[topic];
   const orders = topicImageOrders[topic];
   const order = orders[normalizeSoftVariantIndex(variantIndex, getTopicVariantCount(topic)) % orders.length];
@@ -2206,7 +2613,7 @@ const topicImageGuides: Record<SoftSeedingTopic, string> = {
   秋冬配色实验室:
     "Use concrete color-lab cues: coffee brown leather, oatmeal suede, warm beige cards, muted grey chips, autumn wardrobe layers, soft material contrast, and a saveable palette-board feeling without clutter.",
   穿搭解决方案:
-    "Use concrete styling-solution cues: before-leaving outfit check, clear clothing category, readable layering, trouser/skirt/dress relationship with sneakers, and one practical daily scenario.",
+    "Use concrete styling-solution cues: before-leaving outfit check, downward-looking shoe-and-trouser relationship, cropped waist-or-knee-down outfit reference, readable sneaker scale, trouser/skirt/dress hem relationship, and one practical daily scenario. Do not default to mirror selfie.",
   材质工艺认知:
     "Use concrete material-learning cues: one precise detail at a time, such as toe shape, outsole edge, stitching route, lace thickness, pigskin lining when relevant, leather texture, panel transition, and clean product readability.",
   品牌审美观点:
@@ -2243,11 +2650,16 @@ const topicVariantVisualCues: Record<SoftSeedingTopic, string[]> = {
     "Visual content angle: keep the seasonal mood soft, tactile, and light rather than heavy retro or overly brown."
   ],
   穿搭解决方案: [
-    "Visual content angle: solve one styling question clearly, such as trouser length, skirt balance, dress proportion, or daily commute usability.",
-    "Visual content angle: make the styling easy to copy tomorrow morning, with readable clothing structure and clear sneaker relationship.",
-    "Visual content angle: show one practical scene where the outfit still works while standing, walking, or sitting naturally.",
-    "Visual content angle: keep the clothing category selected by the interface visually dominant and consistent with the prompt.",
-    "Visual content angle: avoid tutorial-like posing; make the image feel like a useful outfit reference from real life."
+    "Visual content angle: use a downward-looking outfit detail that clearly shows shoe-and-trouser relationship, natural trouser hem near the sneaker, one foot slightly forward, and real floor contact.",
+    "Visual content angle: create a cropped waist-or-knee-down outfit reference with toe box, laces, tongue, outsole edge, and garment hem clearly readable. No face needed.",
+    "Visual content angle: use a morning entryway floor shot with warm grey stone floor or light wood floor, door-side light, tote edge, folded coat edge, and no mirror selfie.",
+    "Visual content angle: show a practical trouser-break check where the trouser hem must not cover the sneaker structure, toe box, tongue, laces, or panel lines.",
+    "Visual content angle: use a cafe seated shoe detail with trouser hem, toe box, laces, and sneaker scale readable while sitting naturally.",
+    "Visual content angle: use a safe small walking step near an office entrance, with realistic shoe scale, clean floor contact, and no campaign walking pose.",
+    "Visual content angle: use a restrained outfit still life only when useful: sneaker, folded refined trousers or denim, white shirt, tote edge, and muted color relationship.",
+    "Visual content angle: if a mirror card appears, keep it supporting rather than default; no phone blocking the styling, no beauty selfie, and never fixed as the first image.",
+    "Visual content angle: make this a useful outfit reference, not influencer posing, not a fashion tutorial, not a full-body campaign shot.",
+    "Visual content angle: for hotel-room leaving moments, include suitcase edge, clean sneaker proportion, and calm travel order without mirror-selfie framing."
   ],
   材质工艺认知: [
     "Visual content angle: teach through one visible detail, such as toe curve, outsole edge, lace route, stitching, or material transition.",
