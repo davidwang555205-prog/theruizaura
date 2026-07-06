@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState, type ChangeEvent } from "react";
 import type {
   TeamGarmentTypePreference,
   TeamImageType,
@@ -86,9 +86,23 @@ const cardClass = "rounded-[22px] bg-white/70 p-5 ring-1 ring-aura-beige/70";
 const softControlPanelClass = "rounded-[24px] bg-white/65 p-4 ring-1 ring-aura-beige/70";
 const softStatusPillClass =
   "rounded-full bg-aura-cream px-3 py-1 text-xs font-medium text-aura-muted ring-1 ring-aura-beige/70";
+const imageToolButtonClass =
+  "rounded-[16px] bg-white/80 px-4 py-2 text-xs font-medium text-aura-charcoal ring-1 ring-aura-beige/80 transition hover:bg-aura-cream disabled:cursor-not-allowed disabled:opacity-45";
+
+type ReferenceImage = {
+  id: string;
+  name: string;
+  size: number;
+  url: string;
+};
 
 function updateField<K extends keyof TeamPromptParams>(params: TeamPromptParams, key: K, value: TeamPromptParams[K]) {
   return { ...params, [key]: value };
+}
+
+function formatFileSize(size: number) {
+  if (size < 1024 * 1024) return `${Math.max(1, Math.round(size / 1024))} KB`;
+  return `${(size / 1024 / 1024).toFixed(1)} MB`;
 }
 
 function App() {
@@ -103,6 +117,20 @@ function App() {
     generateSoftSeedingContent({ baseParams: initialParams, imageCount: 5, topic: softSeedingTopicOptions[0] })
   );
   const [softCopyStatus, setSoftCopyStatus] = useState("");
+  const [referenceImages, setReferenceImages] = useState<ReferenceImage[]>([]);
+  const referenceImagesRef = useRef<ReferenceImage[]>([]);
+  const [imageGenerationStatus, setImageGenerationStatus] = useState("");
+  const [generatedImageUrl] = useState("");
+
+  useEffect(() => {
+    referenceImagesRef.current = referenceImages;
+  }, [referenceImages]);
+
+  useEffect(() => {
+    return () => {
+      referenceImagesRef.current.forEach((image) => URL.revokeObjectURL(image.url));
+    };
+  }, []);
 
   const sceneOptions = getCompatibleSceneOptions(params.imageType);
   const showsModelChoice = peopleImageTypes.includes(params.imageType);
@@ -158,6 +186,56 @@ function App() {
   const handleCopyImagePrompt = async (prompt: string, name: string) => {
     await navigator.clipboard.writeText(prompt);
     setSoftCopyStatus(`已复制 ${name} 的 Image 2.0 提示词。`);
+  };
+
+  const handleReferenceImagesUpload = (event: ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(event.target.files ?? []);
+    if (files.length === 0) return;
+
+    const availableSlots = Math.max(0, 9 - referenceImages.length);
+    const selectedFiles = files.slice(0, availableSlots);
+    const skippedCount = files.length - selectedFiles.length;
+
+    const nextImages = selectedFiles.map((file) => ({
+      id: `${file.name}-${file.lastModified}-${crypto.randomUUID()}`,
+      name: file.name,
+      size: file.size,
+      url: URL.createObjectURL(file)
+    }));
+
+    setReferenceImages((current) => [...current, ...nextImages]);
+    setImageGenerationStatus(
+      skippedCount > 0
+        ? `已添加 ${nextImages.length} 张参考图，最多保留 9 张。`
+        : `已添加 ${nextImages.length} 张参考图。`
+    );
+    event.target.value = "";
+  };
+
+  const handleRemoveReferenceImage = (id: string) => {
+    setReferenceImages((current) => {
+      const imageToRemove = current.find((image) => image.id === id);
+      if (imageToRemove) URL.revokeObjectURL(imageToRemove.url);
+      return current.filter((image) => image.id !== id);
+    });
+    setImageGenerationStatus("");
+  };
+
+  const handleGenerateImagePlaceholder = () => {
+    if (referenceImages.length === 0) {
+      setImageGenerationStatus("请先上传 1–9 张鞋子参考图，再点击生成图片。");
+      return;
+    }
+
+    setImageGenerationStatus(
+      `已准备好 ${referenceImages.length} 张参考图和当前英文提示词。图片生成接口尚未接入，后续会在这里显示生成结果。`
+    );
+  };
+
+  const handleDownloadGeneratedImage = () => {
+    if (!generatedImageUrl) {
+      setImageGenerationStatus("暂无可下载图片。接入图片生成模型后，生成结果会在这里下载。");
+    }
   };
 
   return (
@@ -430,6 +508,72 @@ function App() {
             <p className="mt-5 rounded-[18px] bg-aura-cream px-4 py-3 text-sm leading-6 text-aura-muted ring-1 ring-aura-beige/70">
               生成产品上脚图、对镜穿搭图、生活场景图、产品静物图时，请务必上传对应鞋款参考图，否则 AI 容易改变鞋型与颜色。
             </p>
+
+            <section className="mt-5 rounded-[22px] bg-white/65 p-5 ring-1 ring-aura-beige/70">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                <div>
+                  <h3 className="text-base font-semibold text-aura-charcoal">图片生成预留区</h3>
+                  <p className="mt-2 text-sm leading-6 text-aura-muted">
+                    可先上传 1–9 张鞋子参考图。当前只做本地预览，后期接入图片生成模型后会用这些图片和当前提示词生成结果。
+                  </p>
+                </div>
+                <span className="shrink-0 rounded-full bg-aura-cream px-3 py-1 text-xs font-medium text-aura-muted ring-1 ring-aura-beige/70">
+                  {referenceImages.length}/9
+                </span>
+              </div>
+
+              <div className="mt-4 flex flex-wrap gap-3">
+                <label className={imageToolButtonClass}>
+                  上传参考图
+                  <input
+                    className="sr-only"
+                    type="file"
+                    accept="image/png,image/jpeg,image/webp"
+                    multiple
+                    onChange={handleReferenceImagesUpload}
+                  />
+                </label>
+                <button type="button" onClick={handleGenerateImagePlaceholder} className={primaryButtonClass}>
+                  生成图片
+                </button>
+                {generatedImageUrl ? (
+                  <a href={generatedImageUrl} download="theruiz-aura-generated-image.png" className={imageToolButtonClass}>
+                    下载图片
+                  </a>
+                ) : (
+                  <button type="button" onClick={handleDownloadGeneratedImage} className={imageToolButtonClass}>
+                    下载图片
+                  </button>
+                )}
+              </div>
+
+              {referenceImages.length > 0 && (
+                <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3">
+                  {referenceImages.map((image) => (
+                    <div key={image.id} className="overflow-hidden rounded-[18px] bg-aura-cream ring-1 ring-aura-beige/70">
+                      <img src={image.url} alt={image.name} className="aspect-square w-full object-cover" />
+                      <div className="space-y-2 p-3">
+                        <p className="truncate text-xs font-medium text-aura-charcoal">{image.name}</p>
+                        <div className="flex items-center justify-between gap-2">
+                          <span className="text-xs text-aura-muted">{formatFileSize(image.size)}</span>
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveReferenceImage(image.id)}
+                            className="text-xs font-medium text-aura-muted underline decoration-aura-beige underline-offset-4 transition hover:text-aura-charcoal"
+                          >
+                            删除
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              <div className="mt-4 rounded-[18px] bg-aura-cream px-4 py-3 text-sm leading-6 text-aura-muted ring-1 ring-aura-beige/70">
+                {imageGenerationStatus || "接口未接入前不会向外发送图片。接入后建议通过本地后端保存 API Key，再返回生成图片用于下载。"}
+              </div>
+            </section>
           </aside>
         </section>
 
