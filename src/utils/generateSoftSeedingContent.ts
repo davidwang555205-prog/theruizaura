@@ -16,7 +16,6 @@ export type SoftSeedingTopic =
   | "材质工艺认知"
   | "品牌审美观点"
   | "上新活动转化";
-export type SoftSeedingMode = "今日自动" | "手动主题";
 export type SoftSeedingDailySlot = 1 | 2;
 
 export type SoftSeedingImagePlan = {
@@ -44,7 +43,6 @@ export type SoftSeedingContent = {
 type SoftSeedingInput = {
   baseParams: TeamPromptParams;
   imageCount?: 3 | 5;
-  mode?: SoftSeedingMode;
   topic?: SoftSeedingTopic;
   dailySlot?: SoftSeedingDailySlot;
   date?: Date;
@@ -102,7 +100,6 @@ export const softSeedingTopicOptions: SoftSeedingTopic[] = [
   "品牌审美观点",
   "上新活动转化"
 ];
-export const softSeedingModeOptions: SoftSeedingMode[] = ["今日自动", "手动主题"];
 export const softSeedingDailySlotOptions: SoftSeedingDailySlot[] = [1, 2];
 
 const MS_PER_DAY = 24 * 60 * 60 * 1000;
@@ -179,18 +176,296 @@ function pickVariant<T>(items: T[], variantIndex: number, salt: number, variantC
   return pick(items, mixedIndex);
 }
 
-function buildCopyFromKit(topic: SoftSeedingTopic, variantIndex: number, imageCount = 5): TopicCopyDraft {
-  const kit = getExpandedCopyKit(topic);
-  const titles = buildReaderFacingTitles(topic, variantIndex);
+function buildCopyFromKit(topic: SoftSeedingTopic, variantIndex: number, selectedImageDrafts: SoftSeedingImageDraft[]): TopicCopyDraft {
+  return buildStoryDrivenCopy(topic, variantIndex, selectedImageDrafts);
+}
 
-  const selectedImageDrafts = topicImageDrafts[topic].slice(0, imageCount);
-  const body = buildReaderFacingBody(topic, variantIndex, selectedImageDrafts);
+type StoryDrivenContext = {
+  firstScene: string;
+  secondScene: string;
+  thirdScene: string;
+  sceneList: string;
+};
+
+type StoryDrivenTemplate = {
+  titles: [string, string, string];
+  body: (context: StoryDrivenContext) => string;
+};
+
+function getReaderSceneName(draft: SoftSeedingImageDraft | undefined) {
+  if (!draft) return "日常场景";
+  const cardLabel = draft.name.split("｜").pop()?.trim();
+  const cardLabelOverrides: Record<string, string> = {
+    上脚比例: "通勤上脚",
+    搭配静物: "搭配静物",
+    棚内细节: "棚内细节",
+    材质局部: "材质局部",
+    棚内静物: "棚内静物",
+    棚内上新: "棚内上新",
+    配色笔记: "配色笔记"
+  };
+  if (cardLabel && cardLabelOverrides[cardLabel]) return cardLabelOverrides[cardLabel];
+  if (cardLabel && !cardLabel.startsWith("图")) return cardLabel;
+
+  const sceneNames: Partial<Record<TeamScenePreference, string>> = {
+    入户镜前: "入户镜前",
+    写字楼门口: "写字楼门口",
+    咖啡店门口: "咖啡店门口",
+    咖啡馆内: "咖啡馆内",
+    朋友午餐: "朋友午餐",
+    "书店 / 杂志店门口": "书店门口",
+    "花店 / 买花": "花店门口",
+    "城市街角 / 安静街区": "安静街区",
+    酒店房间: "酒店房间",
+    材质工作台: "材质工作台",
+    拍摄花絮: "拍摄现场",
+    棚内上新拍摄: "棚内上新",
+    "工作台 / 桌边整理": "桌边整理",
+    "衣帽间 / 更衣角": "更衣角",
+    美术馆: "美术馆",
+    产品静物图: "产品静物图"
+  } as Partial<Record<TeamScenePreference | TeamImageType, string>>;
+
+  return sceneNames[draft.scenePreference] ?? draft.scenePreference;
+}
+
+function getStoryContext(selectedImageDrafts: SoftSeedingImageDraft[]): StoryDrivenContext {
+  const sceneNames = selectedImageDrafts.map(getReaderSceneName);
+  return {
+    firstScene: sceneNames[0] ?? "日常场景",
+    secondScene: sceneNames[1] ?? sceneNames[0] ?? "日常场景",
+    thirdScene: sceneNames[2] ?? sceneNames[1] ?? sceneNames[0] ?? "日常场景",
+    sceneList: sceneNames.slice(0, 3).join("、")
+  };
+}
+
+const storyDrivenNotes: Record<SoftSeedingTopic, string> = {
+  生活场景软种草: "像真实客户随手记录的一天，正文和配图都围绕同一个穿着感受展开。",
+  产品开发幕后: "用少量真实过程讲清楚取舍，不写成品牌说明书。",
+  秋冬配色实验室: "把色卡、材质和衣柜放在同一条线里，避免空泛讲配色。",
+  穿搭解决方案: "用真实外出、停留和上脚场景解决一个穿搭问题，不默认对镜自拍。",
+  材质工艺认知: "用一个可见细节讲材料和结构，不堆参数。",
+  品牌审美观点: "从她的生活秩序和审美选择切入，弱化直接销售。",
+  上新活动转化: "先让人看清新品，再给到真实穿着判断，不用催促式语气。"
+};
+
+const storyDrivenCopyTemplates: Record<SoftSeedingTopic, StoryDrivenTemplate[]> = {
+  生活场景软种草: [
+    {
+      titles: ["今天这双鞋，赢在不费劲", "普通一天也能穿得干净", "这类上脚图我会认真看"],
+      body: ({ firstScene, secondScene }) =>
+        formatBodyParagraphs([
+          `今天这组更像真实出门记录，不是为了把鞋拍得很满。${firstScene}那一刻最直观，衣服没有重新设计过，鞋子也没有突然跳出来。`,
+          `到${secondScene}时，脚下比例还是顺的。鞋底不显厚，鞋头和鞋带也能看清，整个人没有被拍得很用力。`,
+          "我会被这种图种草，是因为它让我想到自己早上随手穿衣服的状态。不需要很会搭，只要干净、舒服、走出去不狼狈，就够了。"
+        ])
+    },
+    {
+      titles: ["不是精修大片，但很像真实穿着", "这双鞋放进日常里更顺", "买家秀里这种图最有参考感"],
+      body: ({ firstScene, thirdScene }) =>
+        formatBodyParagraphs([
+          `比起只看静物，我更想看它在${firstScene}的状态。照片有一点真实光影和衣服褶皱，反而能判断它是不是日常会穿的鞋。`,
+          `${thirdScene}这张会更像补充判断：鞋子没有抢掉整套衣服，也不是看不见。它只是把常穿的衣服接顺了。`,
+          "这种鞋不用把话说满。能和普通衣服自然放在一起，脚下不乱，整个人看起来体面，就已经很有说服力。"
+        ])
+    },
+    {
+      titles: ["一双鞋能不能常穿，看这种照片", "出门前不用想太多的那种鞋", "鞋子安静一点，整套反而顺了"],
+      body: ({ firstScene, secondScene }) =>
+        formatBodyParagraphs([
+          `在${firstScene}，我会先看比例：鞋子有没有把脚拍大，衣服下缘和鞋子之间是不是干净。`,
+          `到${secondScene}，我会看状态：走路、停下、坐一会儿的时候，鞋型是不是还轻，整个人是不是还松弛。`,
+          "如果这两点都顺，它就不是只适合拍照的鞋。它更像衣柜里会被反复拿出来的那一双。"
+        ])
+    }
+  ],
+  产品开发幕后: [
+    {
+      titles: ["样鞋桌上这些小地方，挺关键", "不是讲故事，是看取舍", "一双鞋变耐看，靠这些细节"],
+      body: ({ firstScene, secondScene }) =>
+        formatBodyParagraphs([
+          `${firstScene}这组我想少讲一点漂亮话，多放一些真实取舍。鞋带粗细、皮料边缘、色卡放在一起看，才知道这双鞋最后为什么会是现在的样子。`,
+          `${secondScene}不是为了制造忙碌感。桌面干净一点，手部动作慢一点，反而能看清楚哪些地方真的被反复确认过。`,
+          "小品牌的幕后不需要拍得很热闹。把材质、结构和颜色讲清楚，比堆很多情绪更能让人放心。"
+        ])
+    },
+    {
+      titles: ["开发过程里，我更想看真实细节", "这些不是装饰，是产品判断", "工作台上能看出一双鞋的性格"],
+      body: ({ firstScene, thirdScene }) =>
+        formatBodyParagraphs([
+          `我会把${firstScene}拍得克制一点。几块皮料、几张色卡、一条鞋带，就能讲清楚很多事。`,
+          `到${thirdScene}时，产品结构会更清楚。不是为了卖弄工艺，而是让人知道鞋型、走线和材质关系都没有被随便处理。`,
+          "这种过程记录最好安静，但不能空。看到真实开发痕迹，才会觉得这不是临时拼出来的一双鞋。"
+        ])
+    },
+    {
+      titles: ["今天只看开发里的几个小判断", "鞋带和色卡真的不是随便选", "幕后越克制，越能看清产品"],
+      body: ({ sceneList }) =>
+        formatBodyParagraphs([
+          `这次想把${sceneList}连在一起看：先看材料，再看产品，再看现场里人的手怎么整理细节。`,
+          "我不太想把幕后拍成热闹花絮。真正有用的是那些很小的判断，比如颜色是不是太甜、鞋底是不是太重、鞋带会不会破坏整双鞋的安静感。",
+          "这些东西说出来不复杂，但会决定一双鞋是不是耐看。"
+        ])
+    }
+  ],
+  秋冬配色实验室: [
+    {
+      titles: ["秋冬鞋色别选太重", "咖色要灰一点才耐看", "这组颜色更像衣柜里会留下的"],
+      body: ({ firstScene, secondScene }) =>
+        formatBodyParagraphs([
+          `在${firstScene}放在一起看，会发现秋冬颜色不能只追求暖。咖色、燕麦、暖米色都要留一点灰度，才不会显得厚和旧。`,
+          `到了${secondScene}，颜色会回到真实鞋型里。单看色卡很容易觉得都好看，上到鞋面和鞋底关系里，轻重感才会出来。`,
+          "我更喜欢这种不抢的秋冬色。它不会让整套衣服变暗，配针织、牛仔、大衣都还有空气感。"
+        ])
+    },
+    {
+      titles: ["燕麦色放进衣柜里看更准", "秋冬配色要有温度，也要轻", "不是越咖越高级"],
+      body: ({ firstScene, thirdScene }) =>
+        formatBodyParagraphs([
+          `这次不是做一张漂亮色卡图，而是想看颜色放进${firstScene}和${thirdScene}以后还顺不顺。`,
+          "秋冬最容易一不小心变重，所以鞋子颜色要有温度，但不能压住脚下。咖色要柔，米色要干净，灰色也要带一点暖。",
+          "如果一双鞋能接住厚一点的衣服，又不把整个人变沉，它才真的适合秋冬。"
+        ])
+    },
+    {
+      titles: ["低饱和秋冬，重点是轻一点", "这组配色不是第一眼抢的", "鞋色和衣柜要放在一起看"],
+      body: ({ sceneList }) =>
+        formatBodyParagraphs([
+          `我会把${sceneList}放在同一组里看，因为配色不是单独存在的。它要跟衣柜里的针织、外套、牛仔一起成立。`,
+          "太亮会跳，太深会重，太甜又不适合 THERUIZ AURA。真正耐看的秋冬色，是看上去温和，但不会显旧。",
+          "这种颜色不是为了制造惊艳，而是让早上出门少一点纠结。"
+        ])
+    }
+  ],
+  穿搭解决方案: [
+    {
+      titles: ["这双鞋怎么接住一天里的不同场景", "真实场景里更能看清搭配", "裤装和裙装都要看真实状态"],
+      body: ({ firstScene, secondScene, thirdScene }) =>
+        formatBodyParagraphs([
+          `这次把搭配放到真实外出状态里看。从${firstScene}、${secondScene}到${thirdScene}，重点不是摆出一套标准答案，而是看鞋子能不能接住不同状态。`,
+          "穿搭解决方案不是告诉你必须怎么穿，而是帮你少踩雷：鞋底不能显笨，衣服下缘不能压住鞋，整个人要干净但不紧绷。",
+          "如果一双鞋能从上班、午餐到周末停留都接得住，它就更像一双真的能买回去穿的鞋。"
+        ])
+    },
+    {
+      titles: ["早上少纠结的一鞋多搭", "一双鞋能不能百搭，要放进路上看", "这种搭配参考比自拍更实用"],
+      body: ({ firstScene, secondScene }) =>
+        formatBodyParagraphs([
+          `在${firstScene}先看清楚鞋和衣服的比例，到了${secondScene}再看它能不能自然走进一天。`,
+          "我会避免把穿搭拍得太像教程。真实一点的场景更能看出它适不适合普通衣柜：白衬衫、牛仔、轻外套、裙装，都不能被鞋子打断。",
+          "好搭不是每一套都惊艳，而是大多数早上都不出错。"
+        ])
+    },
+    {
+      titles: ["一双鞋解决的不是造型，是省心", "通勤到周末都能接住，才叫好搭", "穿搭参考要能真的出门"],
+      body: ({ sceneList }) =>
+        formatBodyParagraphs([
+          `我会用${sceneList}来判断一双鞋的搭配能力。不同场景里的光线、步子和衣服状态都不一样，只有都顺，才算真的好搭。`,
+          "这类内容不需要摆出很多姿势。鞋子完整可见，衣服结构清楚，人看起来像真的要出门，就已经很有参考价值。",
+          "对我来说，它解决的是早上少想五分钟，而不是多买一套衣服。"
+        ])
+    }
+  ],
+  材质工艺认知: [
+    {
+      titles: ["材质要靠近看，但不能拍假", "鞋型准不准，细节会说话", "这几个地方我会认真看"],
+      body: ({ firstScene, secondScene }) =>
+        formatBodyParagraphs([
+          `在${firstScene}，我会先看材质，不是看它有多亮，而是看皮面、走线和鞋带有没有真实触感。`,
+          `${secondScene}再把鞋型放清楚。鞋头、鞋舌、鞋底线条都要稳，不然材质拍得再漂亮也没用。`,
+          "工艺内容最好只讲一个重点。讲得少一点，细节反而更容易被看见。"
+        ])
+    },
+    {
+      titles: ["别把材质拍成塑料感", "一双鞋的干净感藏在边缘里", "鞋带、走线、皮料都要真实"],
+      body: ({ sceneList }) =>
+        formatBodyParagraphs([
+          `这组会从${sceneList}慢慢看过去。不是为了把参数讲满，而是让人知道这双鞋的材料和结构是经得起近看的。`,
+          "我会特别在意鞋带有没有乱、走线有没有浮、皮面是不是过度发亮。真实材质不需要很夸张，摸得到的感觉更重要。",
+          "看到这些细节稳，才会相信上脚图里的干净感不是靠修出来的。"
+        ])
+    },
+    {
+      titles: ["材质认知，不要写成参数表", "细节拍清楚，比形容词有用", "这双鞋要看近处的秩序感"],
+      body: ({ firstScene, thirdScene }) =>
+        formatBodyParagraphs([
+          `${firstScene}适合把皮料、鞋带和色卡放在一起，${thirdScene}适合看产品本身的完整结构。`,
+          "我不想把材质写成很硬的说明。真正有用的是让人看见：哪里柔，哪里利落，哪里需要保持克制。",
+          "这种细节内容安静一点就好，越像真实桌面，越容易建立信任。"
+        ])
+    }
+  ],
+  品牌审美观点: [
+    {
+      titles: ["高级感不是把生活拍空", "THERUIZ AURA 想留住的是这种秩序", "她的一天，比产品说明更重要"],
+      body: ({ firstScene, secondScene }) =>
+        formatBodyParagraphs([
+          `${firstScene}和${secondScene}放在一起，会更接近 THERUIZ AURA 想要的生活感：不是展示很多东西，而是每样东西都刚好。`,
+          "我理解的温感静奢，不是冷冰冰的极简，也不是很用力的贵气。它更像一个人把衣柜、桌面、出门路线都整理得舒服。",
+          "鞋子可以出现，也可以不出现。重点是让人感觉这是一种真实审美选择，不是品牌硬塞进来的画面。"
+        ])
+    },
+    {
+      titles: ["她的衣柜、桌面和城市", "不是卖货图，也不是空氛围", "品牌审美要落到生活里"],
+      body: ({ sceneList }) =>
+        formatBodyParagraphs([
+          `我会用${sceneList}去讲品牌审美，因为这些地方比一句“高级”更具体。`,
+          "一件衣服怎么挂，一本书放在哪里，窗边光线是不是太冷，都会影响整体气质。好的品牌感应该从这些小地方慢慢出来。",
+          "如果画面看完只剩产品，那就太直了；如果完全没有生活秩序，又会太空。中间那个分寸，才是 THERUIZ AURA。"
+        ])
+    },
+    {
+      titles: ["安静一点，但不要没有人味", "品牌观点可以很轻", "生活里的审美，比口号更耐看"],
+      body: ({ firstScene, thirdScene }) =>
+        formatBodyParagraphs([
+          `从${firstScene}到${thirdScene}，这组内容会更像她真实生活里的审美片段，而不是单纯的产品展示。`,
+          "我希望它有一点人的痕迹：杯子、书、衣服褶皱、走过的街角。不是凌乱，而是让人相信这个空间真的被使用过。",
+          "这种内容不急着说服谁。它只需要让人看完觉得，原来舒服和体面可以同时存在。"
+        ])
+    }
+  ],
+  上新活动转化: [
+    {
+      titles: ["上新不用喊得很大声", "先看清鞋，再判断适不适合", "这组图适合慢慢看新品"],
+      body: ({ firstScene, secondScene, thirdScene }) =>
+        formatBodyParagraphs([
+          `这组会从${firstScene}、${secondScene}到${thirdScene}慢慢展开：既要看清新品，也要看到它放进真实穿着之后的状态。`,
+          "我会希望上新内容直接一点，但不要急。鞋型、颜色、材质和穿着状态都清楚了，用户自然会判断适不适合自己。",
+          "这种上新不靠很重的促销语气。它更像把一双鞋认真放到你面前，让你慢慢看。"
+        ])
+    },
+    {
+      titles: ["新品图最重要的是可判断", "上新内容别只制造期待", "清楚、真实、安静地上新"],
+      body: ({ sceneList }) =>
+        formatBodyParagraphs([
+          `这次上新我会把${sceneList}串起来。先有产品可读性，再有穿着证明，最后补一点材质或生活氛围。`,
+          "如果只拍得很漂亮，但看不清鞋型和上脚比例，用户还是会犹豫。清楚本身就是一种转化力。",
+          "THERUIZ AURA 的上新可以温和，但不能模糊。该看清的地方看清，该留白的地方留白。"
+        ])
+    },
+    {
+      titles: ["新品要让人少一点不确定", "一组图讲清楚鞋型、颜色和穿着", "不催促，也能让人想试"],
+      body: ({ firstScene, secondScene }) =>
+        formatBodyParagraphs([
+          `${firstScene}给第一眼的产品判断，${secondScene}给真实穿着判断。这两件事讲清楚，比堆很多卖点更有用。`,
+          "我会看鞋底厚不厚、鞋头圆不圆、颜色会不会难搭，也会看它放进日常衣服里是不是自然。",
+          "如果这些都稳，上新内容就不用很吵。看的人会自己知道要不要继续了解。"
+        ])
+    }
+  ]
+};
+
+function buildStoryDrivenCopy(topic: SoftSeedingTopic, variantIndex: number, selectedImageDrafts: SoftSeedingImageDraft[]) {
+  const templates = storyDrivenCopyTemplates[topic];
+  const normalized = normalizeSoftVariantIndex(variantIndex, getTopicVariantCount(topic));
+  const template = templates[normalized % templates.length];
+  const context = getStoryContext(selectedImageDrafts);
 
   return {
-    titles,
-    body,
-    tags: kit.tags,
-    note: kit.note
+    titles: template.titles.map(softenTitle),
+    body: reduceRepeatedBodyIdeas(softenBodyText(template.body(context))),
+    tags: topicCopyKits[topic].tags,
+    note: storyDrivenNotes[topic]
   };
 }
 
@@ -1834,11 +2109,11 @@ const topicImageDrafts: Record<SoftSeedingTopic, SoftSeedingImageDraft[]> = {
     { name: "图5｜桌边｜配色笔记", purpose: "作为图文尾图，讲配色逻辑。", description: "色卡、笔记、皮料样，像真实开发记录。", imageType: "拍摄花絮 / 材质图", scenePreference: "工作台 / 桌边整理", garmentTypePreference: "自动匹配", season: "秋", extraRequirement: "Create a refined color-study desk with muted autumn chips, handwritten development notes, leather and suede samples, and warm daylight. Avoid decorative moodboard clutter." }
   ],
   穿搭解决方案: [
-    { name: "图1｜封面｜入户镜前", purpose: "直接给用户完整穿搭参考。", description: "入户镜前完整比例，鞋子清楚。", imageType: "对镜穿搭图", scenePreference: "入户镜前", garmentTypePreference: "裤装", extraRequirement: "Create a clean entryway mirror outfit solution. The full figure and sneakers should be readable, styling easy to reference, with a mature understated daily look." },
-    { name: "图2｜衣柜｜居家衣帽间", purpose: "讲一鞋多搭的选择过程。", description: "衣柜边准备出门，衣物层次清楚。", imageType: "对镜穿搭图", scenePreference: "居家衣帽间", garmentTypePreference: "裙装", extraRequirement: "Use a quiet wardrobe mirror moment showing a refined skirt-based styling option with clear sneaker relationship, soft neutral layers, and no influencer selfie energy." },
-    { name: "图3｜通勤｜上脚图", purpose: "证明搭配可以真实走路。", description: "通勤上脚，小步幅自然行走。", imageType: "产品上脚图", scenePreference: "通勤上班", garmentTypePreference: "裤装", extraRequirement: "Generate a refined on-foot commute solution with safe small walking step, clean trouser break, realistic shoe scale, and strong product readability." },
-    { name: "图4｜午间｜咖啡馆内", purpose: "展示轻松半商务场景。", description: "咖啡馆内坐姿或站姿，衣着有参考价值。", imageType: "生活场景图", scenePreference: "咖啡馆内", garmentTypePreference: "裤装", extraRequirement: "Use a quiet cafe interior lunch moment, polished but relaxed styling, natural hand placement, and sneakers clearly visible without making the scene look staged." },
-    { name: "图5｜旅行｜酒店房间", purpose: "补充出差/短途旅行穿搭方案。", description: "酒店房间镜前记录，行李整齐。", imageType: "对镜穿搭图", scenePreference: "酒店房间", garmentTypePreference: "连衣裙", extraRequirement: "Create a hotel-room mirror styling solution with a refined one-piece dress, subtle travel context, tidy suitcase corner, and sneakers clearly supporting the outfit." }
+    { name: "图1｜通勤｜上脚比例", purpose: "先解决工作日鞋子会不会显笨。", description: "写字楼门口或通勤路上，小步幅自然上脚。", imageType: "产品上脚图", scenePreference: "写字楼门口", garmentTypePreference: "裤装", extraRequirement: "Generate a refined on-foot commute styling solution with a safe small walking step, clean trouser break, realistic shoe scale, and strong product readability." },
+    { name: "图2｜午间｜咖啡馆内", purpose: "展示半商务和休闲之间的穿搭状态。", description: "咖啡馆内坐姿或站姿，衣着有参考价值。", imageType: "生活场景图", scenePreference: "咖啡馆内", garmentTypePreference: "裤装", extraRequirement: "Use a quiet cafe interior lunch moment, polished but relaxed styling, natural hand placement, and sneakers clearly visible without making the scene look staged." },
+    { name: "图3｜城市｜朋友午餐", purpose: "补充真实社交场景里的穿着判断。", description: "朋友午餐前后，轻商务但不正式。", imageType: "生活场景图", scenePreference: "朋友午餐", garmentTypePreference: "裙装", extraRequirement: "Show a refined friend-lunch outfit solution with mature skirt styling, relaxed social posture, warm neutral city atmosphere, and the sneakers naturally supporting the outfit." },
+    { name: "图4｜产品｜搭配静物", purpose: "把鞋和可搭配衣物放在一起看。", description: "克制静物，鞋款、衣物材质和色彩关系清楚。", imageType: "产品静物图", scenePreference: "棚内上新拍摄", garmentTypePreference: "自动匹配", extraRequirement: "Create a restrained styling still life with the sneaker, folded refined clothing layers, muted color relationship, and accurate shoe shape. Keep props minimal and useful." },
+    { name: "图5｜出行｜酒店房间", purpose: "验证短途出门时一鞋多搭是否成立。", description: "酒店房间出门前，衣物和鞋子关系清楚。", imageType: "生活场景图", scenePreference: "酒店房间", garmentTypePreference: "连衣裙", extraRequirement: "Create a calm hotel-room getting-ready lifestyle scene with a refined one-piece dress, subtle travel context, tidy suitcase corner, and sneakers clearly supporting the outfit without mirror-selfie framing." }
   ],
   材质工艺认知: [
     { name: "图1｜结构｜材质工作台", purpose: "讲鞋型与材质细节。", description: "鞋头、鞋带、走线、皮料样同框。", imageType: "拍摄花絮 / 材质图", scenePreference: "材质工作台", garmentTypePreference: "自动匹配", extraRequirement: "Show a precise material table with toe shape reference, shoelaces, stitching samples, leather or suede swatches, and product notes. Use pigskin lining if lining is visible or relevant; do not invent a different lining." },
@@ -1862,6 +2137,66 @@ const topicImageDrafts: Record<SoftSeedingTopic, SoftSeedingImageDraft[]> = {
     { name: "图5｜幕后｜拍摄花絮", purpose: "上新收尾，增加可信过程。", description: "拍摄现场局部，整理鞋带或造型桌。", imageType: "拍摄花絮 / 材质图", scenePreference: "拍摄花絮", garmentTypePreference: "自动匹配", extraRequirement: "Show a calm launch shooting behind-the-scenes detail with styling table, shot list, hands arranging laces or product angle, minimal equipment cues, and quiet premium order." }
   ]
 };
+
+const topicImageOrders: Record<SoftSeedingTopic, number[][]> = {
+  生活场景软种草: [
+    [1, 0, 2, 3, 4],
+    [0, 2, 1, 4, 3],
+    [2, 3, 0, 1, 4],
+    [4, 0, 1, 2, 3],
+    [3, 2, 1, 0, 4]
+  ],
+  产品开发幕后: [
+    [0, 2, 1, 4, 3],
+    [1, 0, 4, 2, 3],
+    [2, 0, 1, 3, 4],
+    [4, 0, 2, 1, 3],
+    [3, 0, 1, 4, 2]
+  ],
+  秋冬配色实验室: [
+    [0, 2, 3, 1, 4],
+    [3, 0, 1, 2, 4],
+    [2, 0, 4, 1, 3],
+    [1, 0, 3, 2, 4],
+    [4, 0, 2, 3, 1]
+  ],
+  穿搭解决方案: [
+    [0, 1, 2, 4, 3],
+    [1, 0, 3, 2, 4],
+    [2, 0, 1, 3, 4],
+    [4, 0, 1, 2, 3],
+    [3, 0, 2, 1, 4]
+  ],
+  材质工艺认知: [
+    [0, 1, 2, 4, 3],
+    [1, 0, 4, 2, 3],
+    [4, 0, 1, 3, 2],
+    [2, 0, 4, 1, 3],
+    [3, 0, 1, 4, 2]
+  ],
+  品牌审美观点: [
+    [0, 2, 1, 3, 4],
+    [1, 0, 3, 2, 4],
+    [3, 0, 2, 1, 4],
+    [2, 0, 1, 4, 3],
+    [4, 0, 2, 3, 1]
+  ],
+  上新活动转化: [
+    [0, 1, 2, 3, 4],
+    [1, 0, 3, 2, 4],
+    [2, 0, 1, 4, 3],
+    [3, 0, 2, 1, 4],
+    [4, 0, 1, 2, 3]
+  ]
+};
+
+function selectSoftSeedingImageDrafts(topic: SoftSeedingTopic, variantIndex: number, imageCount: 3 | 5) {
+  const drafts = topicImageDrafts[topic];
+  const orders = topicImageOrders[topic];
+  const order = orders[normalizeSoftVariantIndex(variantIndex, getTopicVariantCount(topic)) % orders.length];
+
+  return order.map((index) => drafts[index]).filter(Boolean).slice(0, imageCount);
+}
 
 const topicImageGuides: Record<SoftSeedingTopic, string> = {
   生活场景软种草:
@@ -2134,30 +2469,28 @@ function buildImagePlan(
 }
 
 export function generateSoftSeedingContent(input: SoftSeedingInput): SoftSeedingContent {
-  const mode = input.mode ?? "今日自动";
-  const dailySlot = resolveDailySlot(input.dailySlot);
-  const dailySelection = getDailySoftSeedingSelection(input.date, dailySlot);
-  const topic = mode === "今日自动" ? dailySelection.topic : input.topic ?? dailySelection.topic;
+  const date = input.date ?? new Date();
+  const dateKey = getLocalDateKey(date);
+  const topic = input.topic ?? softSeedingTopicOptions[0];
   const variantCount = getTopicVariantCount(topic);
-  const manualPostIndex = getDayNumber(input.date) * DAILY_POST_COUNT + (dailySlot - 1);
+  const topicIndex = Math.max(0, softSeedingTopicOptions.indexOf(topic));
+  const basePostIndex = getDayNumber(date) * softSeedingTopicOptions.length + topicIndex;
   const variantOffset = Math.max(0, Math.floor(input.variantOffset ?? 0));
-  const baseVariantIndex = mode === "今日自动" ? dailySelection.variantIndex : manualPostIndex % variantCount;
-  const variantIndex = (baseVariantIndex + variantOffset) % variantCount;
+  const variantIndex = (basePostIndex + variantOffset) % variantCount;
   const imageCount = input.imageCount ?? 5;
-  const copy = buildCopyFromKit(topic, variantIndex, imageCount);
+  const selectedImageDrafts = selectSoftSeedingImageDrafts(topic, variantIndex, imageCount);
+  const copy = buildCopyFromKit(topic, variantIndex, selectedImageDrafts);
 
   return {
     topic,
-    dateKey: dailySelection.dateKey,
-    dailySlot,
+    dateKey,
+    dailySlot: 1,
     variantIndex,
     variantCount,
     variantLabel: `第 ${variantIndex + 1} / ${variantCount} 版`,
     titles: copy.titles,
     body: copy.body,
-    images: topicImageDrafts[topic]
-      .slice(0, imageCount)
-      .map((imageDraft, index) => buildImagePlan(input.baseParams, imageDraft, index, topic, variantIndex)),
+    images: selectedImageDrafts.map((imageDraft, index) => buildImagePlan(input.baseParams, imageDraft, index, topic, variantIndex)),
     tags: copy.tags,
     note: copy.note
   };
@@ -2170,7 +2503,7 @@ export function getShoeDisplayName(shoe: TeamShoe, customShoe: string) {
 
 export function formatSoftSeedingContent(content: SoftSeedingContent) {
   return [
-    `# THERUIZ AURA 小红书内容｜${content.dateKey}｜第 ${content.dailySlot} 篇｜${content.topic}｜${content.variantLabel}`,
+    `# THERUIZ AURA 小红书内容｜${content.dateKey}｜${content.topic}｜${content.variantLabel}`,
     "",
     "## 标题",
     ...content.titles.map((title, index) => `${index + 1}. ${title}`),
