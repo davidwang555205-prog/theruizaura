@@ -2264,6 +2264,20 @@ const topicImageDrafts: Record<SoftSeedingTopic, SoftSeedingImageDraft[]> = {
   ],
   穿搭解决方案: [
     {
+      id: "styling-full-figure-reference",
+      name: "图｜完整穿搭｜全身参考",
+      purpose: "先建立同一套穿搭方案的完整人物、比例、环境和鞋子参考。",
+      description: "真实城市日常里的全身人物照片，鞋子完整清楚，后续图片都延续这套穿搭。",
+      imageType: "生活场景图",
+      scenePreference: "写字楼门口",
+      garmentTypePreference: "裤装",
+      tags: ["proof", "fullFigure", "sameOutfit", "stylingSolution"],
+      composition: "fullFigure",
+      weight: 6,
+      extraRequirement:
+        "Create a full-figure real daily styling reference photo in the selected scene. Show the same refined customer from head-to-toe or near head-to-toe, with the complete clothing combination and both sneakers clearly readable. The pose should be natural and usable as the first reference image for this styling-solution set, not a campaign pose, not a stiff lookbook image, and not an influencer full-figure shot."
+    },
+    {
       id: "styling-shoe-trouser-downward",
       name: "图｜鞋裤关系｜低头视角",
       purpose: "解决早上出门前裤脚和鞋子是否接顺的问题。",
@@ -2522,6 +2536,12 @@ function orderStylingSolutionDrafts(selected: SoftSeedingImageDraft[], variantIn
   const pattern = orderPatterns[normalized % orderPatterns.length];
   const ordered = pattern.map((index) => selected[index]).filter(Boolean);
 
+  const fullFigureIndex = ordered.findIndex((draft) => draft.composition === "fullFigure");
+  if (fullFigureIndex > 0) {
+    const [fullFigure] = ordered.splice(fullFigureIndex, 1);
+    ordered.unshift(fullFigure);
+  }
+
   if (ordered[0]?.composition === "mirror") {
     const nonMirrorIndex = ordered.findIndex((draft) => draft.composition !== "mirror");
     if (nonMirrorIndex > 0) {
@@ -2538,6 +2558,7 @@ function selectStylingSolutionImageDrafts(variantIndex: number, imageCount: 3 | 
   const drafts = topicImageDrafts["穿搭解决方案"];
   const normalized = normalizeSoftVariantIndex(variantIndex, getTopicVariantCount("穿搭解决方案"));
   const selected: SoftSeedingImageDraft[] = [];
+  const fullFigureIds = ["styling-full-figure-reference"];
   const lowerBodyIds = [
     "styling-shoe-trouser-downward",
     "styling-lower-body-proportion",
@@ -2546,25 +2567,19 @@ function selectStylingSolutionImageDrafts(variantIndex: number, imageCount: 3 | 
   const movementIds = ["styling-commute-small-step", "styling-entryway-floor"];
   const thirdCardIds = [
     "styling-seated-toe-lace",
-    "styling-skirt-sneaker-balance",
-    "styling-dress-sneaker-hem",
     "styling-commute-still-life",
     "styling-seated-toe-lace",
-    "styling-skirt-sneaker-balance",
-    "styling-dress-sneaker-hem",
     "styling-commute-still-life",
     "styling-mirror-reference"
   ];
 
+  pushUniqueDraft(selected, pickDraftById(drafts, fullFigureIds, normalized));
   pushUniqueDraft(selected, pickDraftById(drafts, lowerBodyIds, normalized + Math.floor(normalized / 3)));
   pushUniqueDraft(selected, pickDraftById(drafts, movementIds, normalized * 3 + 1));
-  pushUniqueDraft(selected, pickDraftById(drafts, thirdCardIds, normalized * 5 + Math.floor(normalized / 2)));
 
   if (imageCount === 5) {
     const requiredDetailIds = [
       "styling-seated-toe-lace",
-      "styling-skirt-sneaker-balance",
-      "styling-dress-sneaker-hem",
       "styling-commute-still-life"
     ];
     const extraIds = [
@@ -2574,8 +2589,6 @@ function selectStylingSolutionImageDrafts(variantIndex: number, imageCount: 3 | 
       "styling-commute-small-step",
       "styling-entryway-floor",
       "styling-seated-toe-lace",
-      "styling-skirt-sneaker-balance",
-      "styling-dress-sneaker-hem",
       "styling-commute-still-life",
       "styling-mirror-reference"
     ];
@@ -2588,6 +2601,8 @@ function selectStylingSolutionImageDrafts(variantIndex: number, imageCount: 3 | 
       if (candidate?.composition === "mirror" && (hasMirror || normalized % 4 !== 0)) continue;
       pushUniqueDraft(selected, candidate);
     }
+  } else {
+    pushUniqueDraft(selected, pickDraftById(drafts, thirdCardIds, normalized * 5 + Math.floor(normalized / 2)));
   }
 
   return orderStylingSolutionDrafts(selected.slice(0, imageCount), variantIndex);
@@ -2823,6 +2838,23 @@ function sanitizeSoftSeedingExtraRequirementForGarment(
   return sanitized.replace(/\s{2,}/g, " ").trim();
 }
 
+const stylingSolutionSetContinuityLine =
+  "Styling-solution set continuity: treat this image as part of one single styling plan. Keep the exact same clothing combination across all cards: same top, same bottom garment category, same outer layer if present, same bag if present, same accessories if present, same color palette, same garment hem length, same wearing proportions, and the same THERUIZ AURA sneaker. Only the scene angle, camera distance, pose, and detail focus may change.";
+
+const stylingSolutionFaceContinuityLine =
+  "If more than one card shows the face, keep the exact same person across the set: same face, same age impression, same hairstyle, same hair color, same makeup or grooming, same facial structure, same body silhouette, and the same quiet daily temperament. Generate the full-figure reference first and use it as the person and styling reference for the following image cards.";
+
+function getStylingSolutionContinuityLines(topic: SoftSeedingTopic, draft: SoftSeedingImageDraft) {
+  if (topic !== "穿搭解决方案") return "";
+
+  return [
+    stylingSolutionSetContinuityLine,
+    shouldInheritBaseGarmentType(draft.imageType) ? stylingSolutionFaceContinuityLine : ""
+  ]
+    .filter(Boolean)
+    .join(" ");
+}
+
 function getSoftSeedingExtraRequirement(
   baseParams: TeamPromptParams,
   draft: SoftSeedingImageDraft,
@@ -2833,14 +2865,24 @@ function getSoftSeedingExtraRequirement(
   const themeGuide = topicImageGuides[topic];
   const variantVisualCue = getSoftSeedingVariantVisualCue(topic, variantIndex);
   const copyVisualAlignmentCue = getSoftSeedingCopyVisualAlignmentCue(topic, variantIndex);
+  const stylingSolutionContinuityLine = getStylingSolutionContinuityLines(topic, draft);
 
   if (baseParams.garmentTypePreference === "自动匹配" || !shouldInheritBaseGarmentType(draft.imageType)) {
-    return [draft.extraRequirement, themeGuide, variantVisualCue, copyVisualAlignmentCue].filter(Boolean).join(" ");
+    return [draft.extraRequirement, themeGuide, variantVisualCue, copyVisualAlignmentCue, stylingSolutionContinuityLine]
+      .filter(Boolean)
+      .join(" ");
   }
 
   const manualControlLine =
     garmentTypePreference === "自动匹配" ? "" : garmentTypeControlLines[garmentTypePreference];
-  const combinedRequirement = [draft.extraRequirement, manualControlLine, themeGuide, variantVisualCue, copyVisualAlignmentCue]
+  const combinedRequirement = [
+    draft.extraRequirement,
+    manualControlLine,
+    themeGuide,
+    variantVisualCue,
+    copyVisualAlignmentCue,
+    stylingSolutionContinuityLine
+  ]
     .filter(Boolean)
     .join(" ");
 
