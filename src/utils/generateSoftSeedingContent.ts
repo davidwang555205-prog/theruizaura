@@ -2863,7 +2863,7 @@ function buildImagePlan(
     scenePreference: draft.scenePreference,
     garmentTypePreference,
     season: resolveBaseSeason(baseParams.season, draft.season),
-    modelChoice: "30–45岁客户画像模特",
+    modelChoice: baseParams.modelChoice,
     modelContinuity: index === 0 ? "新人物" : "延续上一组人物",
     studioLaunchAnglePreference: "自动匹配",
     stillLifeStyle: "与主视觉统一",
