@@ -1753,7 +1753,7 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
     ? "tourism advertisement, staged family portrait, theme-park campaign, resort campaign, cropped shoes, props covering shoes, unstable ground hiding footwear"
     : imageTypeTemplate.templateNegativeLine;
   const perSceneOutfitSelection = shouldUsePeopleStyling(params.imageType) &&
-    effectiveGarmentTypePreference === "自动匹配"
+    (effectiveGarmentTypePreference === "自动匹配" || resolvedScene === "海边度假")
     ? choosePerSceneOutfitLine({
         scenePreference: resolvedScene,
         season: params.season,

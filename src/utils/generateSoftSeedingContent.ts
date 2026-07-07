@@ -2657,7 +2657,7 @@ const topicVariantVisualCues: Record<SoftSeedingTopic, string[]> = {
     "Visual content angle: use a cafe seated shoe detail with trouser hem, toe box, laces, and sneaker scale readable while sitting naturally.",
     "Visual content angle: use a safe small walking step near an office entrance, with realistic shoe scale, clean floor contact, and no campaign walking pose.",
     "Visual content angle: use a restrained outfit still life only when useful: sneaker, folded refined trousers or denim, white shirt, tote edge, and muted color relationship.",
-    "Visual content angle: if a mirror card appears, keep it supporting rather than default; no phone blocking the styling, no beauty selfie, and never fixed as the first image.",
+    "Visual content angle: if a mirror card appears, keep it supporting rather than default; no phone blocking the styling, no face-centered posed record, and never fixed as the first image.",
     "Visual content angle: make this a useful outfit reference, not influencer posing, not a fashion tutorial, not a full-body campaign shot.",
     "Visual content angle: for hotel-room leaving moments, include suitcase edge, clean sneaker proportion, and calm travel order without mirror-selfie framing."
   ],

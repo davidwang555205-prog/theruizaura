@@ -161,8 +161,8 @@ const summerSceneOutfitConfigs: Record<SummerLifestyleScene, SummerSceneOutfitCo
 const seasideSeasonLayerLines: Record<TeamSeason, string> = {
   春: "Use a light cotton-twill overshirt only if the sea breeze needs one, keeping the outfit airy and mild.",
   夏: "Keep the outfit airy, breathable, and sunlit with linen blend, cotton poplin, and washed cotton; an outer layer is optional.",
-  秋: "Interpret autumn as a mild coastal day and use a lightweight cotton-twill shirt jacket or compact woven overshirt instead of cold-city layering.",
-  冬: "Interpret winter as a mild sunny coastal day and use a clean wind-resistant woven jacket over cotton-poplin layers, keeping the outfit light rather than bulky."
+  秋: "Interpret autumn as a mild coastal day and use a lightweight cotton-twill shirt jacket or compact woven overshirt with a coastal, airy silhouette.",
+  冬: "Interpret winter as a mild sunny coastal day and use a clean wind-resistant woven jacket over cotton-poplin layers, keeping the outfit light with a crisp compact silhouette."
 };
 
 type SeasideOutfitVariant = {
@@ -581,7 +581,13 @@ function isSummerLifestyleScene(scene: string): scene is SummerLifestyleScene {
 function chooseSummerLifestyleOutfit(input: ChoosePerSceneOutfitInput): ChoosePerSceneOutfitResult | null {
   const scene = String(input.scenePreference);
   if (!isSummerLifestyleScene(scene)) return null;
-  if (input.imageType !== "产品上脚图" && input.imageType !== "生活场景图") return null;
+  if (
+    input.imageType !== "产品上脚图" &&
+    input.imageType !== "生活场景图" &&
+    !(scene === "海边度假" && input.imageType === "对镜穿搭图")
+  ) {
+    return null;
+  }
   if (scene !== "海边度假" && normalizePerSceneSeason(input.season) !== "summer") return null;
   if (hasUserSpecifiedClothingRequirement(input.userExtraRequirement)) return null;
 
