@@ -181,7 +181,12 @@ function pickVariant<T>(items: T[], variantIndex: number, salt: number, variantC
 }
 
 function buildCopyFromKit(topic: SoftSeedingTopic, variantIndex: number, selectedImageDrafts: SoftSeedingImageDraft[]): TopicCopyDraft {
-  return buildStoryDrivenCopy(topic, variantIndex, selectedImageDrafts);
+  return {
+    titles: buildReaderFacingTitles(topic, variantIndex),
+    body: humanizeSoftSeedingBody(buildReaderFacingBody(topic, variantIndex, selectedImageDrafts)),
+    tags: topicCopyKits[topic].tags,
+    note: storyDrivenNotes[topic]
+  };
 }
 
 type StoryDrivenContext = {
@@ -677,7 +682,11 @@ function formatBodyParagraphs(lines: string[]) {
 }
 
 function normalizeBodyParagraph(line: string) {
-  return line.replace(/\s+/g, " ").replace(/。{2,}/g, "。").trim();
+  return line
+    .replace(/\s+/g, " ")
+    .replace(/([。！？；：])\s+(?=[\u4e00-\u9fff])/g, "$1")
+    .replace(/。{2,}/g, "。")
+    .trim();
 }
 
 function buildReaderFacingBody(topic: SoftSeedingTopic, variantIndex: number, selectedImageDrafts: SoftSeedingImageDraft[]) {
@@ -1079,6 +1088,7 @@ const titleHumanizerReplacements: Array<[RegExp, string]> = [
   [/不是越咖越高级/g, "咖色别做得太重"],
   [/一双鞋解决的不是造型，是省心/g, "好搭这件事，最后是省心"],
   [/高级感不是把生活拍空/g, "高级感别拍成空房间"],
+  [/她的衣柜比口号更有说服力/g, "她的衣柜比口号更可信"],
   [/不是卖货图，也不是空氛围/g, "生活感要留一点"],
   [/这张不是自拍，但很有用/g, "这张图很有用"],
   [/不是穿搭教程，是明天能用/g, "明天能照着穿"],
@@ -1116,6 +1126,11 @@ const bodyHumanizerReplacements: Array<[RegExp, string]> = [
   [/好搭不是每一套都惊艳，而是/g, "好搭不需要每一套都惊艳，关键是"],
   [/不是某一个角度多惊艳，而是/g, "不看某一个角度多惊艳，更看"],
   [/买家秀不是越精致越好，而是越能看出/g, "买家秀不用特别精致，能看出"],
+  [/低饱和不是没有颜色，而是让颜色更容易进入成熟衣柜。/g, "低饱和不是没颜色，是更容易放进成熟衣柜。"],
+  [/温感静奢不是暖色堆叠，而是刚刚好的灰度。/g, "温感静奢更像刚刚好的灰度，暖一点，但不堆满。"],
+  [/品牌感不是把 Logo 放大，而是每个选择都稳定。/g, "品牌感不靠放大 Logo，靠每个选择都稳定。"],
+  [/我想看的不是品牌告诉我它很高级，而是它有没有一套稳定的生活判断。/g, "我想看的不是一句高级感，是它有没有一套稳定的生活判断。"],
+  [/安静不是空，克制也不是少内容，而是每个东西都刚好。/g, "安静要有内容，克制也要有细节，每个东西刚好就够。"],
   [/如果这两点都顺，它就不是只适合拍照的鞋。/g, "这两点都顺，它就不只适合拍照。"],
   [/这种鞋不用把话说满。/g, "这种鞋不用说太满。"],
   [/这种过程记录最好安静，但不能空。/g, "过程记录可以安静，但不能空。"],
@@ -1132,9 +1147,13 @@ const bodyHumanizerReplacements: Array<[RegExp, string]> = [
   [/品牌感应该/g, "品牌感会"],
   [/最重要的是/g, "先看"],
   [/真正有用的是/g, "有用的是"],
+  [/真正重要的是/g, "更重要的是"],
   [/真正耐看的/g, "耐看的"],
+  [/真正省心/g, "够省心"],
   [/真正会/g, "会"],
   [/真正的/g, ""],
+  [/真正/g, ""],
+  [/可抄的地方/g, "参考感"],
   [/参考价值/g, "参考感"],
   [/说服力/g, "可信感"],
   [/消费决策/g, "下单前的判断"],
@@ -1155,7 +1174,7 @@ function softenTitle(title: string) {
 function softenBodyText(text: string) {
   return text
     .replace(/内容价值/g, "参考意义")
-    .replace(/参考意义/g, "可抄的地方")
+    .replace(/参考意义/g, "参考感")
     .replace(/购买理由/g, "判断理由")
     .replace(/转化内容/g, "上新笔记")
     .replace(/上新内容/g, "上新笔记")
