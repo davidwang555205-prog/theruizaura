@@ -599,7 +599,7 @@ function buildStylingSolutionSceneCopy(variantIndex: number, selectedImageDrafts
 
   return {
     titles: template.titles.map(softenTitle),
-    body: reduceRepeatedBodyIdeas(softenBodyText(template.body(context))),
+    body: humanizeSoftSeedingBody(template.body(context)),
     tags: topicCopyKits["穿搭解决方案"].tags,
     note: storyDrivenNotes["穿搭解决方案"]
   };
@@ -617,7 +617,7 @@ function buildStoryDrivenCopy(topic: SoftSeedingTopic, variantIndex: number, sel
 
   return {
     titles: template.titles.map(softenTitle),
-    body: reduceRepeatedBodyIdeas(softenBodyText(template.body(context))),
+    body: humanizeSoftSeedingBody(template.body(context)),
     tags: topicCopyKits[topic].tags,
     note: storyDrivenNotes[topic]
   };
@@ -666,7 +666,7 @@ function joinBodyLines(...lines: string[]) {
 function formatBodyParagraphs(lines: string[]) {
   const seen = new Set<string>();
   return lines
-    .map((line) => line.replace(/\s+/g, " ").trim())
+    .map(normalizeBodyParagraph)
     .filter(Boolean)
     .filter((line) => {
       if (seen.has(line)) return false;
@@ -674,6 +674,10 @@ function formatBodyParagraphs(lines: string[]) {
       return true;
     })
     .join("\n\n");
+}
+
+function normalizeBodyParagraph(line: string) {
+  return line.replace(/\s+/g, " ").replace(/。{2,}/g, "。").trim();
 }
 
 function buildReaderFacingBody(topic: SoftSeedingTopic, variantIndex: number, selectedImageDrafts: SoftSeedingImageDraft[]) {
@@ -1056,13 +1060,96 @@ function buildLifestyleNaturalNote(
   return formatBodyParagraphs(templates[templateIndex].map(softenBodyText));
 }
 
+const titleHumanizerReplacements: Array<[RegExp, string]> = [
+  [/今天这双鞋，赢在不费劲/g, "今天出门没多想"],
+  [/不是很抓马，但真的好穿/g, "不抓眼，但挺顺脚"],
+  [/这种日常上脚图我会存/g, "这种日常上脚图我会多看一眼"],
+  [/普通一天也能穿得干净/g, "普通工作日也能穿得顺"],
+  [/这双鞋放进日常里更好看/g, "放进日常里反而更好看"],
+  [/不用特别会搭，也能体面出门/g, "不用很会搭，也能体面出门"],
+  [/走了一下午，鞋型还挺干净/g, "走了一下午，鞋型还是干净的"],
+  [/这类上脚图我会认真看/g, "这种上脚图我会多停一下"],
+  [/不是精修大片，但很像真实穿着/g, "不像大片，反而有参考"],
+  [/买家秀里这种图最有参考感/g, "买家秀我更想看这种"],
+  [/一双鞋能不能常穿，看这种照片/g, "会不会常穿，看这种照片"],
+  [/不是讲故事，是看取舍/g, "少讲一点故事，多看细节"],
+  [/这些不是装饰，是产品判断/g, "这些小东西都算产品判断"],
+  [/鞋带和色卡真的不是随便选/g, "鞋带和色卡都要慢慢选"],
+  [/工作台上能看出一双鞋的性格/g, "工作台上能看出很多取舍"],
+  [/不是越咖越高级/g, "咖色别做得太重"],
+  [/一双鞋解决的不是造型，是省心/g, "好搭这件事，最后是省心"],
+  [/高级感不是把生活拍空/g, "高级感别拍成空房间"],
+  [/不是卖货图，也不是空氛围/g, "生活感要留一点"],
+  [/这张不是自拍，但很有用/g, "这张图很有用"],
+  [/不是穿搭教程，是明天能用/g, "明天能照着穿"],
+  [/不是摆拍，是可以代入的日常/g, "像可以代入的日常"],
+  [/不是网红感，而是日常里的审美判断/g, "日常里的审美判断"],
+  [/不是特别会穿，也能穿得干净/g, "不费力，也能穿得干净"],
+  [/产品开发幕后，不只是一张工作台/g, "产品开发幕后，看工作台之外"],
+  [/不是越深越高级，而是比例和温度要对/g, "颜色深浅，关键看比例和温度"],
+  [/上新不用喊得很大声/g, "上新可以安静一点"],
+  [/内容逻辑/g, "内容思路"],
+  [/品牌审美观点/g, "品牌审美"],
+  [/购买判断/g, "下单前判断"],
+  [/转化/g, "上新"]
+];
+
+const bodyHumanizerReplacements: Array<[RegExp, string]> = [
+  [/不是为了把鞋拍得很满/g, "不需要把鞋拍得很满"],
+  [/不是为了制造忙碌感/g, "不用拍出很忙的样子"],
+  [/不是为了卖弄工艺，而是让人知道/g, "少讲工艺词，直接让人看到"],
+  [/不是做一张漂亮色卡图，而是想看/g, "不只看一张漂亮色卡图，还是要看"],
+  [/不是看它有多亮，而是看/g, "我不太看亮不亮，更看"],
+  [/不是单独存在的/g, "不能单独看"],
+  [/不是告诉你必须怎么穿，而是帮你少踩雷/g, "它要帮你少踩雷，不是规定你必须怎么穿"],
+  [/重点不是摆出一套标准答案，而是看鞋子能不能接住不同状态/g, "我更想看鞋子能不能接住不同状态"],
+  [/不是为了抢镜，是为了让/g, "不用抢镜，只要让"],
+  [/不是展示很多东西，而是每样东西都刚好/g, "东西不用多，每样放得刚好就行"],
+  [/不是冷冰冰的极简，也不是很用力的贵气/g, "它不该冷，也不该端着"],
+  [/不是品牌硬塞进来的画面/g, "不该像品牌硬塞进来的画面"],
+  [/不是凌乱，而是让人相信/g, "不需要凌乱，只要让人相信"],
+  [/不是为了把参数讲满，而是让人知道/g, "不用把参数讲满，能让人看见"],
+  [/不是为了拍旅行大片，是为了让/g, "不用拍成旅行大片，只要让"],
+  [/不是为了显得专业，而是/g, "不用显得专业，"],
+  [/不是为了做氛围，而是为了/g, "不是只做氛围，也要"],
+  [/不是一眼很热闹的鞋/g, "不是第一眼很热闹的鞋"],
+  [/好搭不是每一套都惊艳，而是/g, "好搭不需要每一套都惊艳，关键是"],
+  [/不是某一个角度多惊艳，而是/g, "不看某一个角度多惊艳，更看"],
+  [/买家秀不是越精致越好，而是越能看出/g, "买家秀不用特别精致，能看出"],
+  [/如果这两点都顺，它就不是只适合拍照的鞋。/g, "这两点都顺，它就不只适合拍照。"],
+  [/这种鞋不用把话说满。/g, "这种鞋不用说太满。"],
+  [/这种过程记录最好安静，但不能空。/g, "过程记录可以安静，但不能空。"],
+  [/这种内容不急着说服谁。/g, "这种内容不用急着说服谁。"],
+  [/这种上新不靠很重的促销语气。/g, "上新不用靠很重的促销语气。"],
+  [/它能直接告诉你：/g, "它能说明："],
+  [/这类内容不需要/g, "这种内容不用"],
+  [/这类画面/g, "这种画面"],
+  [/这种画面要/g, "这种画面需要"],
+  [/我会被这种图种草，是因为/g, "我会多看一眼这种图，是因为"],
+  [/我会希望/g, "我希望"],
+  [/我会特别在意/g, "我比较在意"],
+  [/我更喜欢/g, "我会更偏向"],
+  [/品牌感应该/g, "品牌感会"],
+  [/最重要的是/g, "先看"],
+  [/真正有用的是/g, "有用的是"],
+  [/真正耐看的/g, "耐看的"],
+  [/真正会/g, "会"],
+  [/真正的/g, ""],
+  [/参考价值/g, "参考感"],
+  [/说服力/g, "可信感"],
+  [/消费决策/g, "下单前的判断"],
+  [/商品表达/g, "商品画面"],
+  [/商业表达/g, "商业感"],
+  [/很强的/g, "太重的"],
+  [/非常/g, "很"]
+];
+
+function applyTextReplacements(text: string, replacements: Array<[RegExp, string]>) {
+  return replacements.reduce((current, [pattern, replacement]) => current.replace(pattern, replacement), text);
+}
+
 function softenTitle(title: string) {
-  return title
-    .replace(/转化/g, "上新")
-    .replace(/内容逻辑/g, "内容思路")
-    .replace(/品牌审美观点/g, "品牌审美")
-    .replace(/购买判断/g, "下单前判断")
-    .trim();
+  return applyTextReplacements(title, titleHumanizerReplacements).replace(/\s+/g, " ").trim();
 }
 
 function softenBodyText(text: string) {
@@ -1098,6 +1185,36 @@ function softenBodyText(text: string) {
       "如果画面拍到内里，材质表达要保持真实，不要写得很花。"
     )
     .trim();
+}
+
+function humanizeSoftSeedingBody(text: string) {
+  const softened = softenBodyText(text);
+  const paragraphs = softened
+    .split(/\n{2,}/)
+    .map((paragraph) => applyTextReplacements(paragraph, bodyHumanizerReplacements))
+    .map(normalizeBodyParagraph)
+    .filter(Boolean);
+
+  return reduceRepeatedBodyIdeas(compactOverShortParagraphs(paragraphs).join("\n\n"));
+}
+
+function compactOverShortParagraphs(paragraphs: string[]) {
+  const compacted = paragraphs.reduce<string[]>((output, paragraph) => {
+    const previous = output[output.length - 1];
+    if (previous && paragraph.length <= 18 && previous.length <= 80) {
+      output[output.length - 1] = `${previous}${paragraph}`;
+      return output;
+    }
+    output.push(paragraph);
+    return output;
+  }, []);
+
+  if (compacted.length > 1 && compacted[0].length <= 28 && compacted[1].length <= 44) {
+    const [first, second, ...rest] = compacted;
+    return [`${first}${second}`, ...rest];
+  }
+
+  return compacted;
 }
 
 function reduceRepeatedBodyIdeas(body: string) {
