@@ -277,6 +277,8 @@ export type TeamPromptParams = {
   generationNonce: number;
   seriesImageCount?: number;
   seriesImageIndex?: number;
+  studioLaunchShotIndex?: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7;
+  studioSetNonce?: number;
   lockedOutfitLine?: string;
   forceGeneratedOutfitSelection?: boolean;
   forceNoHandheldObject?: boolean;

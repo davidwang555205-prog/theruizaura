@@ -13,7 +13,7 @@ import {
 } from "../data/lifestyleSoftSeedingScenePool";
 import { generateTeamPrompt } from "./generatePrompt";
 
-export type SoftSeedingTopic =
+type SoftSeedingCopyTopic =
   | "生活场景软种草"
   | "产品开发幕后"
   | "秋冬配色实验室"
@@ -21,6 +21,8 @@ export type SoftSeedingTopic =
   | "材质工艺认知"
   | "品牌审美观点"
   | "上新活动转化";
+export type SoftSeedingTopic = SoftSeedingCopyTopic | "棚内上新拍摄";
+export type SoftSeedingImageCount = 3 | 5 | 8;
 export type SoftSeedingDailySlot = 1 | 2;
 
 export type SoftSeedingImagePlan = {
@@ -47,7 +49,7 @@ export type SoftSeedingContent = {
 
 type SoftSeedingInput = {
   baseParams: TeamPromptParams;
-  imageCount?: 3 | 5;
+  imageCount?: SoftSeedingImageCount;
   topic?: SoftSeedingTopic;
   dailySlot?: SoftSeedingDailySlot;
   date?: Date;
@@ -70,6 +72,7 @@ type SoftSeedingImageDraft = {
   family?: LifestyleSoftSceneFamily;
   supportedSeasons?: TeamSeason[];
   handheldPolicy?: LifestyleSoftHandheldPolicy;
+  studioLaunchShotIndex?: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7;
 };
 
 type TopicCopyKit = {
@@ -110,7 +113,8 @@ export const softSeedingTopicOptions: SoftSeedingTopic[] = [
   "穿搭解决方案",
   "材质工艺认知",
   "品牌审美观点",
-  "上新活动转化"
+  "上新活动转化",
+  "棚内上新拍摄"
 ];
 export const softSeedingDailySlotOptions: SoftSeedingDailySlot[] = [1, 2];
 
@@ -140,6 +144,10 @@ function resolveDailySlot(slot?: SoftSeedingDailySlot): SoftSeedingDailySlot {
 
 function getTopicVariantCount(topic: SoftSeedingTopic) {
   return SOFT_SEEDING_VARIANT_COUNT_BY_TOPIC[topic] ?? SOFT_SEEDING_VARIANTS_PER_TOPIC;
+}
+
+function getCopyTopic(topic: SoftSeedingTopic): SoftSeedingCopyTopic {
+  return topic === "棚内上新拍摄" ? "上新活动转化" : topic;
 }
 
 export function getSoftSeedingInventory() {
@@ -189,11 +197,12 @@ function pickVariant<T>(items: T[], variantIndex: number, salt: number, variantC
 }
 
 function buildCopyFromKit(topic: SoftSeedingTopic, variantIndex: number, selectedImageDrafts: SoftSeedingImageDraft[]): TopicCopyDraft {
+  const copyTopic = getCopyTopic(topic);
   return {
-    titles: buildReaderFacingTitles(topic, variantIndex),
-    body: humanizeSoftSeedingBody(buildReaderFacingBody(topic, variantIndex, selectedImageDrafts)),
-    tags: topicCopyKits[topic].tags,
-    note: storyDrivenNotes[topic]
+    titles: buildReaderFacingTitles(copyTopic, variantIndex),
+    body: humanizeSoftSeedingBody(buildReaderFacingBody(copyTopic, variantIndex, selectedImageDrafts)),
+    tags: topicCopyKits[copyTopic].tags,
+    note: storyDrivenNotes[copyTopic]
   };
 }
 
@@ -256,7 +265,7 @@ function getStoryContext(selectedImageDrafts: SoftSeedingImageDraft[]): StoryDri
   };
 }
 
-const storyDrivenNotes: Record<SoftSeedingTopic, string> = {
+const storyDrivenNotes: Record<SoftSeedingCopyTopic, string> = {
   生活场景软种草: "像真实客户随手记录的一天，正文和配图都围绕同一个穿着感受展开。",
   产品开发幕后: "用少量真实过程讲清楚取舍，不写成品牌说明书。",
   秋冬配色实验室: "把色卡、材质和衣柜放在同一条线里，避免空泛讲配色。",
@@ -266,7 +275,7 @@ const storyDrivenNotes: Record<SoftSeedingTopic, string> = {
   上新活动转化: "先让人看清新品，再给到真实穿着判断，不用催促式语气。"
 };
 
-const storyDrivenCopyTemplates: Record<SoftSeedingTopic, StoryDrivenTemplate[]> = {
+const storyDrivenCopyTemplates: Record<SoftSeedingCopyTopic, StoryDrivenTemplate[]> = {
   生活场景软种草: [
     {
       titles: ["今天这双鞋，赢在不费劲", "普通一天也能穿得干净", "这类上脚图我会认真看"],
@@ -619,11 +628,12 @@ function buildStylingSolutionSceneCopy(variantIndex: number, selectedImageDrafts
 }
 
 function buildStoryDrivenCopy(topic: SoftSeedingTopic, variantIndex: number, selectedImageDrafts: SoftSeedingImageDraft[]) {
-  if (topic === "穿搭解决方案") {
+  const copyTopic = getCopyTopic(topic);
+  if (copyTopic === "穿搭解决方案") {
     return buildStylingSolutionSceneCopy(variantIndex, selectedImageDrafts);
   }
 
-  const templates = storyDrivenCopyTemplates[topic];
+  const templates = storyDrivenCopyTemplates[copyTopic];
   const normalized = normalizeSoftVariantIndex(variantIndex, getTopicVariantCount(topic));
   const template = templates[normalized % templates.length];
   const context = getStoryContext(selectedImageDrafts);
@@ -631,12 +641,12 @@ function buildStoryDrivenCopy(topic: SoftSeedingTopic, variantIndex: number, sel
   return {
     titles: template.titles.map(softenTitle),
     body: humanizeSoftSeedingBody(template.body(context)),
-    tags: topicCopyKits[topic].tags,
-    note: storyDrivenNotes[topic]
+    tags: topicCopyKits[copyTopic].tags,
+    note: storyDrivenNotes[copyTopic]
   };
 }
 
-function buildReaderFacingTitles(topic: SoftSeedingTopic, variantIndex: number) {
+function buildReaderFacingTitles(topic: SoftSeedingCopyTopic, variantIndex: number) {
   const titles = readerTitleKits[topic];
   const normalized = normalizeSoftVariantIndex(variantIndex, getTopicVariantCount(topic));
   const permutationCount = titles.length * (titles.length - 1) * Math.max(1, titles.length - 2);
@@ -655,7 +665,7 @@ function mergeCopyLines(base: string[], extra?: string[]) {
   return [...base, ...(extra ?? [])];
 }
 
-function getExpandedCopyKit(topic: SoftSeedingTopic): TopicCopyKit {
+function getExpandedCopyKit(topic: SoftSeedingCopyTopic): TopicCopyKit {
   const base = topicCopyKits[topic];
   const extra = topicCopyKitEnhancements[topic] ?? {};
 
@@ -697,7 +707,7 @@ function normalizeBodyParagraph(line: string) {
     .trim();
 }
 
-function buildReaderFacingBody(topic: SoftSeedingTopic, variantIndex: number, selectedImageDrafts: SoftSeedingImageDraft[]) {
+function buildReaderFacingBody(topic: SoftSeedingCopyTopic, variantIndex: number, selectedImageDrafts: SoftSeedingImageDraft[]) {
   const kit = readerBodyKits[topic];
   const variantCount = getTopicVariantCount(topic);
   const normalized = normalizeSoftVariantIndex(variantIndex, variantCount);
@@ -1315,7 +1325,7 @@ function reduceRepeatedBodyIdeas(body: string) {
   return body;
 }
 
-const readerTitleKits: Record<SoftSeedingTopic, ReaderTitleKit> = {
+const readerTitleKits: Record<SoftSeedingCopyTopic, ReaderTitleKit> = {
   生活场景软种草: [
     "今天这双鞋，赢在不费劲",
     "不是很抓马，但真的好穿",
@@ -1416,7 +1426,7 @@ const readerTitleKits: Record<SoftSeedingTopic, ReaderTitleKit> = {
   ]
 };
 
-const readerBodyKits: Record<SoftSeedingTopic, ReaderBodyKit> = {
+const readerBodyKits: Record<SoftSeedingCopyTopic, ReaderBodyKit> = {
   生活场景软种草: {
     openers: [
       "这种买家秀我会多看两眼，因为不像刻意拍出来的。",
@@ -1711,7 +1721,7 @@ const readerBodyKits: Record<SoftSeedingTopic, ReaderBodyKit> = {
   }
 };
 
-const topicCopyKits: Record<SoftSeedingTopic, TopicCopyKit> = {
+const topicCopyKits: Record<SoftSeedingCopyTopic, TopicCopyKit> = {
   生活场景软种草: {
     titleLeads: [
       "真实的一天，鞋子要自然出现",
@@ -2637,6 +2647,16 @@ const topicImageDrafts: Record<SoftSeedingTopic, SoftSeedingImageDraft[]> = {
     { name: "图3｜通勤｜写字楼门口", purpose: "证明新品可以进入工作日。", description: "写字楼门口自然走路，产品清楚。", imageType: "产品上脚图", scenePreference: "写字楼门口", garmentTypePreference: "裤装", extraRequirement: "Generate a refined on-foot launch image outside an office entrance, small natural step, realistic shoe scale, clean trouser break, and strong product readability." },
     { name: "图4｜生活｜安静街区", purpose: "补充非硬广生活场景。", description: "城市街角轻松停留，低饱和真实街景。", imageType: "生活场景图", scenePreference: "城市街角 / 安静街区", garmentTypePreference: "裙装", extraRequirement: "Use a quiet real city corner as a lifestyle launch support image, mature refined styling, subtle movement, and clear shoe visibility without sales-poster energy." },
     { name: "图5｜幕后｜拍摄花絮", purpose: "上新收尾，增加可信过程。", description: "拍摄现场局部，整理鞋带或造型桌。", imageType: "拍摄花絮 / 材质图", scenePreference: "拍摄花絮", garmentTypePreference: "自动匹配", extraRequirement: "Show a calm launch shooting behind-the-scenes detail with styling table, shot list, hands arranging laces or product angle, minimal equipment cues, and quiet premium order." }
+  ],
+  棚内上新拍摄: [
+    { id: "studio-launch-full-front", name: "图1｜棚拍人物｜全身正面", purpose: "建立整组人物、穿搭、鞋款和棚景基准。", description: "同一人物全身正面，完整穿搭和双脚鞋款清楚。", imageType: "产品上脚图", scenePreference: "棚内上新拍摄", garmentTypePreference: "自动匹配", studioLaunchShotIndex: 0, extraRequirement: "Create the first person-only studio launch reference. Show the same model head-to-toe in a relaxed front stance. Keep the face alive and attentive, the complete outfit readable, both sneakers visible, both hands empty, and the studio free of lifestyle props." },
+    { id: "studio-launch-full-three-quarter", name: "图2｜棚拍人物｜全身前侧", purpose: "补充全身三分之四角度，保留完整人物与穿搭。", description: "同一人物全身前侧，轻微重心变化，双鞋仍清楚。", imageType: "产品上脚图", scenePreference: "棚内上新拍摄", garmentTypePreference: "自动匹配", studioLaunchShotIndex: 1, extraRequirement: "Continue the exact same person, outfit, sneakers, and studio in a full-body 3/4 front pose. Use a subtle weight shift and a responsive natural expression. Keep both hands empty and avoid campaign drama." },
+    { id: "studio-launch-full-side", name: "图3｜棚拍人物｜全身侧面", purpose: "从侧面看人物比例、鞋侧结构与鞋底线。", description: "同一人物全身侧面，脚步稳定，鞋侧结构可读。", imageType: "产品上脚图", scenePreference: "棚内上新拍摄", garmentTypePreference: "自动匹配", studioLaunchShotIndex: 2, extraRequirement: "Continue the exact same person, outfit, sneakers, and studio in a clean full-body side-oriented stance. Keep natural posture, empty hands, accurate foot placement, and a subtly engaged face rather than a blank model stare." },
+    { id: "studio-launch-full-turn-back", name: "图4｜棚拍人物｜回身角度", purpose: "增加克制的回身变化，不改变人物和穿搭。", description: "同一人物后侧三分之四轻回身，至少一只鞋完整清楚。", imageType: "产品上脚图", scenePreference: "棚内上新拍摄", garmentTypePreference: "自动匹配", studioLaunchShotIndex: 3, extraRequirement: "Continue the exact same person, outfit, sneakers, and studio in a restrained rear 3/4 body turn. Keep the movement compact, both hands empty, facial response natural if visible, feet grounded, and the sneaker shape unobstructed." },
+    { id: "studio-launch-lower-front", name: "图5｜棚拍人物｜下半身正面", purpose: "检查衣摆、腿部和鞋子的正面比例。", description: "同一人物腰部或大腿以上裁切至地面，双鞋正面可读。", imageType: "产品上脚图", scenePreference: "棚内上新拍摄", garmentTypePreference: "自动匹配", studioLaunchShotIndex: 4, extraRequirement: "Continue the exact same outfit and person reference in a waist-or-upper-thigh-to-floor front crop. Keep both hands outside the frame or naturally empty, preserve the same studio, and show garment hem, toe box, laces, outsole, and ground contact clearly." },
+    { id: "studio-launch-lower-three-quarter", name: "图6｜棚拍人物｜下半身前侧", purpose: "检查衣摆、脚踝和鞋侧结构关系。", description: "同一人物下半身前侧，一脚微前但不放大鞋子。", imageType: "产品上脚图", scenePreference: "棚内上新拍摄", garmentTypePreference: "自动匹配", studioLaunchShotIndex: 5, extraRequirement: "Continue the exact same outfit, sneakers, person, and studio in a waist-to-floor 3/4 front-side crop. Use only a small foot offset, keep realistic scale and clean floor contact, and do not add any handheld object or prop." },
+    { id: "studio-launch-on-foot-front", name: "图7｜棚拍人物｜上脚正面特写", purpose: "清楚呈现鞋头、鞋带和双脚正面结构。", description: "同一人物中小腿以下正面特写，双鞋不变形、不裁切。", imageType: "产品上脚图", scenePreference: "棚内上新拍摄", garmentTypePreference: "自动匹配", studioLaunchShotIndex: 6, extraRequirement: "Continue the exact same person, outfit, sneakers, and studio in a controlled on-foot front detail. Keep accurate left-right structure, toe shape, laces, ankle alignment, and floor contact. No hands, no props, no wide-angle enlargement." },
+    { id: "studio-launch-on-foot-three-quarter", name: "图8｜棚拍人物｜上脚前侧特写", purpose: "补充鞋头曲线、侧片与鞋底线的前侧信息。", description: "同一人物中小腿以下前侧特写，鞋型和接地自然。", imageType: "产品上脚图", scenePreference: "棚内上新拍摄", garmentTypePreference: "自动匹配", studioLaunchShotIndex: 7, extraRequirement: "Continue the exact same person, outfit, sneakers, and studio in a controlled on-foot 3/4 front-side detail. Show toe curve, side panels, lace area, slim outsole line, and natural ground contact without cropping, distortion, hands, or props." }
   ]
 };
 
@@ -2689,6 +2709,9 @@ const topicImageOrders: Record<SoftSeedingTopic, number[][]> = {
     [2, 0, 1, 4, 3],
     [3, 0, 2, 1, 4],
     [4, 0, 1, 2, 3]
+  ],
+  棚内上新拍摄: [
+    [0, 1, 2, 3, 4, 5, 6, 7]
   ]
 };
 
@@ -2753,7 +2776,7 @@ function orderStylingSolutionDrafts(selected: SoftSeedingImageDraft[], variantIn
   return ordered;
 }
 
-function selectStylingSolutionImageDrafts(variantIndex: number, imageCount: 3 | 5) {
+function selectStylingSolutionImageDrafts(variantIndex: number, imageCount: SoftSeedingImageCount) {
   const drafts = topicImageDrafts["穿搭解决方案"];
   const normalized = normalizeSoftVariantIndex(variantIndex, getTopicVariantCount("穿搭解决方案"));
   const selected: SoftSeedingImageDraft[] = [];
@@ -2850,7 +2873,7 @@ function countPriorLifestyleFamilyOccurrences(
 
 function selectLifestyleSoftSeedingImageDrafts(
   variantIndex: number,
-  imageCount: 3 | 5,
+  imageCount: SoftSeedingImageCount,
   season: TeamSeason
 ) {
   const patterns = imageCount === 3 ? lifestyleThreeImageFamilyPatterns : lifestyleFiveImageFamilyPatterns;
@@ -2881,7 +2904,7 @@ function selectLifestyleSoftSeedingImageDrafts(
 function selectSoftSeedingImageDrafts(
   topic: SoftSeedingTopic,
   variantIndex: number,
-  imageCount: 3 | 5,
+  imageCount: SoftSeedingImageCount,
   season: TeamSeason
 ) {
   if (topic === "生活场景软种草") {
@@ -2913,7 +2936,9 @@ const topicImageGuides: Record<SoftSeedingTopic, string> = {
   品牌审美观点:
     "Use concrete aesthetic-point cues: her wardrobe, desk, book, gallery, quiet city corner, low-saturation personal objects, subtle product presence, and warm negative space.",
   上新活动转化:
-    "Use concrete soft-launch cues: clean product readability, one on-foot styling proof, one material proof, one lifestyle proof, clear color and shape, and a calm reason to consider the new arrival."
+    "Use concrete soft-launch cues: clean product readability, one on-foot styling proof, one material proof, one lifestyle proof, clear color and shape, and a calm reason to consider the new arrival.",
+  棚内上新拍摄:
+    "Person-only studio launch rule: every card must show the same real person wearing the same complete outfit and the same THERUIZ AURA sneakers inside one unchanged professional launch studio. No still life, mirror, street, home, cafe, hotel, atmosphere, behind-the-scenes, product-only frame, or lifestyle location."
 };
 
 const topicVariantVisualCues: Record<SoftSeedingTopic, string[]> = {
@@ -2975,6 +3000,12 @@ const topicVariantVisualCues: Record<SoftSeedingTopic, string[]> = {
     "Visual content angle: make product readability strong, then connect it to a real on-foot or lifestyle proof.",
     "Visual content angle: use clean sequencing logic across the image set: still life, on-foot, outfit, material, and quiet lifestyle support.",
     "Visual content angle: keep the new-arrival mood calm, accurate, and easy to judge rather than promotional."
+  ],
+  棚内上新拍摄: [
+    "Visual content angle: build one coherent person-only studio launch series with a full-body front reference first, then controlled full-body, waist-to-floor, and on-foot angle changes.",
+    "Visual content angle: keep the exact same model identity, hairstyle, makeup, outfit, sneakers, seamless background, floor, light direction, fill ratio, white balance, and color grade across all eight cards.",
+    "Visual content angle: every image must remain a real person wearing the product in the selected launch studio; never replace a card with still life, mirror, street, lifestyle, atmosphere, or behind-the-scenes content.",
+    "Visual content angle: vary only camera framing, body orientation, compact pose, gaze, and subtle expression while both hands stay empty and no prop enters the frame."
   ]
 };
 
@@ -3132,6 +3163,10 @@ const lifestyleEmptyHandsContinuityLine =
 const lifestyleMirrorPhoneContinuityLine =
   "Mirror-card handheld rule: use the same simple no-logo phone as the only handheld object, with a natural grip and no second prop in either hand.";
 
+function getStudioLaunchSetContinuityLine(imageCount: SoftSeedingImageCount) {
+  return `${imageCount}-shot person-only studio continuity: treat all cards as one continuous launch shoot. Keep the exact same real person, facial identity, age impression, hairstyle, hair color, makeup, body silhouette, complete outfit, garment layers, colors, materials, hem lengths, wearable accessories, and THERUIZ AURA sneakers. Keep the exact same seamless backdrop, floor material, light direction, key-light softness, fill ratio, contact-shadow character, white balance, exposure, and color grade. Only the specified shot framing, body orientation, compact pose, gaze, and subtle expression may change. Both hands must stay empty. Never generate a still life, product-only frame, mirror image, street, home, cafe, hotel, atmosphere image, behind-the-scenes image, prop-led image, or any non-studio location.`;
+}
+
 const stylingSolutionExpressionBeats = [
   "If the face is visible, capture a brief friendly in-between response with focused catchlights, relaxed eyelids, and a faint asymmetric smile, not a posed portrait expression.",
   "If the face is visible, let the eyes focus naturally on the next movement or nearby point, with relaxed lips and no vacant fashion-model stare.",
@@ -3154,7 +3189,7 @@ function getStylingSolutionContinuityLines(topic: SoftSeedingTopic, draft: SoftS
 function getLifestyleSoftSeedingContinuityLines(
   topic: SoftSeedingTopic,
   draft: SoftSeedingImageDraft,
-  imageCount: 3 | 5
+  imageCount: SoftSeedingImageCount
 ) {
   if (topic !== "生活场景软种草") return "";
 
@@ -3172,15 +3207,22 @@ function getSoftSeedingExtraRequirement(
   draft: SoftSeedingImageDraft,
   garmentTypePreference: TeamGarmentTypePreference,
   topic: SoftSeedingTopic,
-  variantIndex: number
+  variantIndex: number,
+  imageCount: SoftSeedingImageCount
 ) {
   const themeGuide = topicImageGuides[topic];
   const variantVisualCue = getSoftSeedingVariantVisualCue(topic, variantIndex);
   const copyVisualAlignmentCue = getSoftSeedingCopyVisualAlignmentCue(topic, variantIndex);
   const stylingSolutionContinuityLine = getStylingSolutionContinuityLines(topic, draft);
+  const studioShotControlLine =
+    topic === "棚内上新拍摄" && typeof draft.studioLaunchShotIndex === "number"
+      ? `Studio launch series shot ${draft.studioLaunchShotIndex + 1} of ${imageCount}: follow this card's specified person framing exactly.`
+      : "";
+  const studioContinuityLine =
+    topic === "棚内上新拍摄" ? getStudioLaunchSetContinuityLine(imageCount) : "";
 
   if (baseParams.garmentTypePreference === "自动匹配" || !shouldInheritBaseGarmentType(draft.imageType)) {
-    return [draft.extraRequirement, themeGuide, variantVisualCue, copyVisualAlignmentCue, stylingSolutionContinuityLine]
+    return [draft.extraRequirement, studioShotControlLine, themeGuide, variantVisualCue, copyVisualAlignmentCue, stylingSolutionContinuityLine, studioContinuityLine]
       .filter(Boolean)
       .join(" ");
   }
@@ -3189,11 +3231,13 @@ function getSoftSeedingExtraRequirement(
     garmentTypePreference === "自动匹配" ? "" : garmentTypeControlLines[garmentTypePreference];
   const combinedRequirement = [
     draft.extraRequirement,
+    studioShotControlLine,
     manualControlLine,
     themeGuide,
     variantVisualCue,
     copyVisualAlignmentCue,
-    stylingSolutionContinuityLine
+    stylingSolutionContinuityLine,
+    studioContinuityLine
   ]
     .filter(Boolean)
     .join(" ");
@@ -3207,7 +3251,7 @@ function buildImagePlan(
   index: number,
   topic: SoftSeedingTopic,
   variantIndex: number,
-  imageCount: 3 | 5,
+  imageCount: SoftSeedingImageCount,
   lockedOutfitLine = ""
 ): SoftSeedingImagePlan {
   const shoeFields = resolveBaseShoe(baseParams);
@@ -3225,17 +3269,22 @@ function buildImagePlan(
     studioLaunchAnglePreference: "自动匹配",
     stillLifeStyle: "与主视觉统一",
     extraRequirement: [
-      getSoftSeedingExtraRequirement(baseParams, draft, garmentTypePreference, topic, variantIndex),
+      getSoftSeedingExtraRequirement(baseParams, draft, garmentTypePreference, topic, variantIndex, imageCount),
       lifestyleContinuityLine,
       topic === "穿搭解决方案" ? stylingSolutionExpressionBeats[index % stylingSolutionExpressionBeats.length] : ""
     ].filter(Boolean).join(" "),
     generationNonce: baseParams.generationNonce + variantIndex + index + 1,
     seriesImageCount: imageCount,
     seriesImageIndex: index,
+    studioLaunchShotIndex: draft.studioLaunchShotIndex,
+    studioSetNonce:
+      topic === "棚内上新拍摄" ? baseParams.generationNonce + variantIndex + 1 : undefined,
     lockedOutfitLine: shouldInheritBaseGarmentType(draft.imageType) ? lockedOutfitLine : "",
-    forceGeneratedOutfitSelection: topic === "穿搭解决方案" || topic === "生活场景软种草",
+    forceGeneratedOutfitSelection:
+      topic === "穿搭解决方案" || topic === "生活场景软种草" || topic === "棚内上新拍摄",
     forceNoHandheldObject:
-      topic === "生活场景软种草" && imageCount > 1 && draft.handheldPolicy !== "phoneOnly"
+      topic === "棚内上新拍摄" ||
+      (topic === "生活场景软种草" && imageCount > 1 && draft.handheldPolicy !== "phoneOnly")
   };
 
   const output = generateTeamPrompt(params);
@@ -3254,14 +3303,14 @@ function buildSoftSeedingImagePlans(
   drafts: SoftSeedingImageDraft[],
   topic: SoftSeedingTopic,
   variantIndex: number,
-  imageCount: 3 | 5
+  imageCount: SoftSeedingImageCount
 ) {
   let sharedOutfitLine = "";
 
   return drafts.map((draft, index) => {
     const plan = buildImagePlan(baseParams, draft, index, topic, variantIndex, imageCount, sharedOutfitLine);
     if (
-      (topic === "穿搭解决方案" || topic === "生活场景软种草") &&
+      (topic === "穿搭解决方案" || topic === "生活场景软种草" || topic === "棚内上新拍摄") &&
       !sharedOutfitLine &&
       shouldInheritBaseGarmentType(draft.imageType)
     ) {
@@ -3269,6 +3318,14 @@ function buildSoftSeedingImagePlans(
     }
     return plan;
   });
+}
+
+function normalizeSoftSeedingImageCount(
+  topic: SoftSeedingTopic,
+  requestedCount: SoftSeedingImageCount
+): SoftSeedingImageCount {
+  if (topic === "棚内上新拍摄") return requestedCount;
+  return requestedCount === 8 ? 5 : requestedCount;
 }
 
 export function generateSoftSeedingContent(input: SoftSeedingInput): SoftSeedingContent {
@@ -3280,7 +3337,8 @@ export function generateSoftSeedingContent(input: SoftSeedingInput): SoftSeeding
   const basePostIndex = getDayNumber(date) * softSeedingTopicOptions.length + topicIndex;
   const variantOffset = Math.max(0, Math.floor(input.variantOffset ?? 0));
   const variantIndex = (basePostIndex + variantOffset) % variantCount;
-  const imageCount = input.imageCount ?? 5;
+  const requestedImageCount = input.imageCount ?? (topic === "棚内上新拍摄" ? 8 : 5);
+  const imageCount = normalizeSoftSeedingImageCount(topic, requestedImageCount);
   const selectedImageDrafts = selectSoftSeedingImageDrafts(topic, variantIndex, imageCount, input.baseParams.season);
   const copy = buildCopyFromKit(topic, variantIndex, selectedImageDrafts);
 

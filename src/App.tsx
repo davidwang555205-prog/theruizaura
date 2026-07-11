@@ -17,6 +17,7 @@ import {
   getShoeDisplayName,
   getSoftSeedingInventory,
   softSeedingTopicOptions,
+  type SoftSeedingImageCount,
   type SoftSeedingTopic
 } from "./utils/generateSoftSeedingContent";
 import { promptQualityPatchNotice } from "./data/promptPatches";
@@ -111,7 +112,7 @@ function App() {
   const [copyStatus, setCopyStatus] = useState("");
   const [hasPendingChanges, setHasPendingChanges] = useState(false);
   const [softTopic, setSoftTopic] = useState<SoftSeedingTopic>(softSeedingTopicOptions[0]);
-  const [softImageCount, setSoftImageCount] = useState<3 | 5>(5);
+  const [softImageCount, setSoftImageCount] = useState<SoftSeedingImageCount>(5);
   const [softGenerationNonce, setSoftGenerationNonce] = useState(0);
   const [softContent, setSoftContent] = useState(() =>
     generateSoftSeedingContent({ baseParams: initialParams, imageCount: 5, topic: softSeedingTopicOptions[0] })
@@ -609,7 +610,11 @@ function App() {
                     className={inputClass}
                     value={softTopic}
                     onChange={(event) => {
-                      setSoftTopic(event.target.value as SoftSeedingTopic);
+                      const nextTopic = event.target.value as SoftSeedingTopic;
+                      setSoftTopic(nextTopic);
+                      if (nextTopic !== "棚内上新拍摄" && softImageCount === 8) {
+                        setSoftImageCount(5);
+                      }
                       setSoftCopyStatus("");
                     }}
                   >
@@ -627,12 +632,13 @@ function App() {
                     className={inputClass}
                     value={softImageCount}
                     onChange={(event) => {
-                      setSoftImageCount(Number(event.target.value) as 3 | 5);
+                      setSoftImageCount(Number(event.target.value) as SoftSeedingImageCount);
                       setSoftCopyStatus("");
                     }}
                   >
                     <option value={3}>3 张</option>
                     <option value={5}>5 张</option>
+                    {softTopic === "棚内上新拍摄" && <option value={8}>8 张</option>}
                   </select>
                 </label>
 

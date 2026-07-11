@@ -637,6 +637,17 @@ const STUDIO_LAUNCH_ON_FOOT_ANGLE_LINES = [
   "Use a premium controlled 3/4 front-side on-foot studio angle that shows toe shape, side panels, slim outsole line, lace area, garment hem separation, and natural shoe-ground contact."
 ];
 
+const STUDIO_LAUNCH_SERIES_SHOT_LINES = [
+  "Studio launch series shot 1 of 8 — full-body front reference: frame the same person head-to-toe from a straight-on eye-level viewpoint, with a relaxed balanced stance, complete outfit proportions, both sneakers fully readable, and enough clean space around the figure. This is the identity, outfit, shoe, and studio reference for shots 2–8.",
+  "Studio launch series shot 2 of 8 — full-body 3/4 front: keep the full figure in frame and turn the body about 30 degrees toward camera, with a subtle weight shift, relaxed arms, both sneakers readable, and no overlap that hides the shoe shape.",
+  "Studio launch series shot 3 of 8 — full-body side profile: show the same full figure in a clean side-oriented stance with the head returning slightly toward the light, arms relaxed, feet separated naturally, and the side panel and outsole line of the sneakers clearly readable.",
+  "Studio launch series shot 4 of 8 — full-body slight turn-back: photograph a restrained over-shoulder body turn from a rear 3/4 direction while keeping the face naturally visible if included, the complete outfit readable, both feet grounded, and at least one sneaker fully unobstructed.",
+  "Studio launch series shot 5 of 8 — waist-to-floor straight front: crop from the waist or upper thigh to the floor, keep both legs natural and parallel with a small weight shift, and make garment hem, shoe collar, toe box, laces, outsole, and ground contact easy to judge.",
+  "Studio launch series shot 6 of 8 — waist-to-floor 3/4 front-side: crop from the waist or upper thigh to the floor, place one foot only slightly forward, preserve realistic scale, and show the relationship between garment hem, ankle, toe shape, side panels, laces, and outsole without foreground enlargement.",
+  "Studio launch series shot 7 of 8 — on-foot front detail: use a controlled close framing from mid-calf or garment edge to the floor, with both sneakers facing mostly forward, accurate left-right structure, natural ankle alignment, clean laces, and no wide-angle enlargement.",
+  "Studio launch series shot 8 of 8 — on-foot 3/4 detail: use a controlled close 3/4 front-side framing from mid-calf or garment edge to the floor, showing toe curve, side panels, lace area, slim outsole line, and natural shoe-ground contact without cropping or distorting the sneakers."
+];
+
 const STUDIO_LAUNCH_MIRROR_ANGLE_LINES = [
   "Use a premium controlled launch-studio full-length mirror angle with stable reflection, natural phone grip, readable full styling proportions, and both sneakers clearly reflected.",
   "Use a premium controlled lower-third mirror composition inside the launch studio, cropping from garment hem or leg line down to the sneakers while keeping the phone out of the look and shoe area.",
@@ -1012,12 +1023,24 @@ function getSceneVariationLine(
 
   if (!lines?.length) return "";
 
-  const nonce = Math.max(0, params.generationNonce ?? 0);
+  const nonce = Math.max(
+    0,
+    resolvedScene === "棚内上新拍摄"
+      ? params.studioSetNonce ?? params.generationNonce ?? 0
+      : params.generationNonce ?? 0
+  );
   return lines[nonce % lines.length];
 }
 
 function getStudioLaunchAngleLine(params: TeamPromptParams, resolvedScene: Exclude<TeamScenePreference, "自动匹配">, hasShoe: boolean) {
   if (resolvedScene !== "棚内上新拍摄" || !hasShoe || !shouldUsePeopleStyling(params.imageType)) return "";
+
+  if (typeof params.studioLaunchShotIndex === "number") {
+    const line = STUDIO_LAUNCH_SERIES_SHOT_LINES[params.studioLaunchShotIndex];
+    return params.seriesImageCount
+      ? line.replace("of 8", `of ${params.seriesImageCount}`)
+      : line;
+  }
 
   const lines = params.imageType === "对镜穿搭图" ? STUDIO_LAUNCH_MIRROR_ANGLE_LINES : STUDIO_LAUNCH_ON_FOOT_ANGLE_LINES;
   const selectedIndex =
@@ -1714,7 +1737,10 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
     lightingSpaceType: seasonCityVisualContext.lightingSpaceType,
     cityProfile: selectedCity,
     timeOfDay: seasonCityVisualContext.timeOfDay,
-    generationNonce: params.generationNonce
+    generationNonce:
+      resolvedScene === "棚内上新拍摄"
+        ? params.studioSetNonce ?? params.generationNonce
+        : params.generationNonce
   });
   const studioLaunchAngleLine = getStudioLaunchAngleLine(params, resolvedScene, hasShoe);
   const summerLifestyleLightLine =
@@ -2040,8 +2066,19 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
         .filter(Boolean)
         .join(" ")
     : "";
+  const usesStudioLaunchDetailShot =
+    resolvedScene === "棚内上新拍摄" &&
+    typeof params.studioLaunchShotIndex === "number" &&
+    params.studioLaunchShotIndex >= 4;
   const actionStructuredLine = shouldUsePeopleStyling(params.imageType)
-    ? [
+    ? usesStudioLaunchDetailShot
+      ? [
+          "For this cropped studio launch shot, follow the specified leg and foot placement only; keep hands outside the frame and do not introduce a hand action or handheld object.",
+          humanRealism.bodyWeightLine
+        ]
+          .filter(Boolean)
+          .join(" ")
+      : [
         actionSelection.line,
         getHandheldSafeActionContextLine({
           params,
