@@ -9,6 +9,7 @@ export type SinglePrimaryHandheldObjectInput = {
   selectedOutfitLine: string;
   selectedAccessoryLine?: string;
   garmentTypePreference: TeamGarmentTypePreference;
+  forceNoHandheldObject?: boolean;
 };
 
 export type SinglePrimaryHandheldObjectOutput = {
@@ -146,7 +147,10 @@ export function chooseSinglePrimaryHandheldObject(
   let primary: PrimaryHandheldObject | "" = "";
   let fallbackReason = "";
 
-  if (input.imageType === "对镜穿搭图") {
+  if (input.forceNoHandheldObject) {
+    primary = "";
+    fallbackReason = "The multi-image lifestyle set keeps hands empty for handheld-object continuity.";
+  } else if (input.imageType === "对镜穿搭图") {
     primary = "phone";
     fallbackReason = "Mirror outfit images use the phone as the only primary handheld object.";
   } else if (userObjects.length === 1) {
@@ -160,7 +164,11 @@ export function chooseSinglePrimaryHandheldObject(
     fallbackReason = "Selected one default handheld object by scene.";
   }
 
-  const removed = primary ? allDetected.filter((object) => object !== primary) : allDetected;
+  const removed = input.forceNoHandheldObject
+    ? []
+    : primary
+      ? allDetected.filter((object) => object !== primary)
+      : allDetected;
   const accessoryOnlyObjects = getAccessoryOnlyObjects(primary, allDetected);
   const handheldObjectLine = primary
     ? `Use only one primary handheld object: ${primary}. Do not add any second hand-held prop.`

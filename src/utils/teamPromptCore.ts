@@ -1889,7 +1889,8 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
     selectedOutfitLine: preAccessoryOutfitLine,
     timeOfDay: seasonCityVisualContext.timeOfDay,
     userExtraRequirement: params.extraRequirement,
-    generationNonce: params.generationNonce
+    generationNonce: params.generationNonce,
+    forceNoHandheldObject: params.forceNoHandheldObject
   });
   const poseCategory = mapActionPoseToHumanCategory({
     params,
@@ -1903,7 +1904,8 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
     userExtraRequirement: params.extraRequirement,
     selectedOutfitLine: preAccessoryOutfitLine,
     selectedAccessoryLine: preAccessoryOutfitLine,
-    garmentTypePreference: effectiveGarmentTypePreference
+    garmentTypePreference: effectiveGarmentTypePreference,
+    forceNoHandheldObject: params.forceNoHandheldObject
   });
   const accessorySelection = chooseSceneAccessoryLine({
     sceneKey,

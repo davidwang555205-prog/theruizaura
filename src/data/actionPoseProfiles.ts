@@ -8,6 +8,7 @@ export type ActionPoseInput = {
   timeOfDay: string;
   userExtraRequirement: string;
   generationNonce?: number;
+  forceNoHandheldObject?: boolean;
 };
 
 export type ActionPoseOutput = {
@@ -265,6 +266,39 @@ function chooseSceneAction(input: ActionPoseInput, poseType: TeamPoseType) {
   }
   if (input.imageType === "对镜穿搭图") {
     return pick(mirrorPosePool, input, 47);
+  }
+  if (input.forceNoHandheldObject) {
+    if (poseType === "walking") {
+      return pick(
+        [
+          "Walk with a short natural stride and relaxed empty hands moving with a subtle arm swing, keeping both sneakers readable.",
+          "Move through the selected setting with naturally empty hands, a compact step, relaxed shoulders, and grounded footwear.",
+          "Finish a small step with both hands empty and relaxed near the body, preserving clear shoe-floor contact."
+        ],
+        input,
+        49
+      );
+    }
+    if (poseType === "seated") {
+      return pick(
+        [
+          "Sit naturally with both hands empty and resting lightly near the thighs or chair edge, keeping the sneakers unobstructed.",
+          "Use a relaxed seated pause with empty hands, natural knee placement, and at least one sneaker fully visible.",
+          "Sit in a quiet in-between moment with both hands empty and relaxed, grounded feet, and no prop entering the pose."
+        ],
+        input,
+        51
+      );
+    }
+    return pick(
+      [
+        "Stand with both hands naturally empty, one hand lightly settling a sleeve or outer-layer edge and the other relaxed by the side.",
+        "Pause with relaxed empty hands, a soft weight shift, natural shoulder balance, and clearly grounded sneakers.",
+        "Use a candid standing moment with both hands empty and asymmetrically relaxed near the body, without any prop-led gesture."
+      ],
+      input,
+      52
+    );
   }
   const sceneActionLine = sceneActionLines[input.scenePreference];
   if (sceneActionLine) {

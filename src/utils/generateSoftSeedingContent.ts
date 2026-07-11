@@ -6,6 +6,11 @@ import type {
   TeamSeason,
   TeamShoe
 } from "../types";
+import {
+  lifestyleSoftSeedingScenePool,
+  type LifestyleSoftHandheldPolicy,
+  type LifestyleSoftSceneFamily
+} from "../data/lifestyleSoftSeedingScenePool";
 import { generateTeamPrompt } from "./generatePrompt";
 
 export type SoftSeedingTopic =
@@ -62,6 +67,9 @@ type SoftSeedingImageDraft = {
   tags?: string[];
   composition?: string;
   weight?: number;
+  family?: LifestyleSoftSceneFamily;
+  supportedSeasons?: TeamSeason[];
+  handheldPolicy?: LifestyleSoftHandheldPolicy;
 };
 
 type TopicCopyKit = {
@@ -1003,16 +1011,8 @@ const lifestyleNaturalSceneFallbacks: Partial<Record<TeamScenePreference, keyof 
   商务区转角: "写字楼门口",
   停车后步行去办公室: "写字楼门口",
   "楼下便利店 / 咖啡外带": "咖啡店门口",
-  咖啡馆内: "咖啡店门口",
-  朋友午餐: "咖啡店门口",
-  美术馆: "书店 / 杂志店门口",
-  "花店 / 买花": "咖啡店门口",
-  "城市街角 / 安静街区": "书店 / 杂志店门口",
   "衣帽间 / 更衣角": "入户镜前",
   居家衣帽间: "入户镜前",
-  旅行酒店: "酒店房间",
-  酒店走廊: "酒店房间",
-  "酒店门口 / 门厅": "酒店房间"
 };
 
 const lifestyleNaturalTinyNotes = [
@@ -2446,13 +2446,7 @@ const topicCopyKitEnhancements = {
 } satisfies Partial<Record<SoftSeedingTopic, Partial<TopicCopyKit>>>;
 
 const topicImageDrafts: Record<SoftSeedingTopic, SoftSeedingImageDraft[]> = {
-  生活场景软种草: [
-    { name: "图1｜封面｜入户镜前", purpose: "建立真实顾客感和完整穿搭代入。", description: "入户镜前自然记录，鞋子完整清楚。", imageType: "对镜穿搭图", scenePreference: "入户镜前", garmentTypePreference: "裤装", extraRequirement: "Use a real entryway mirror outfit record before leaving home. Keep the face softly hidden by the phone, the styling clean and wearable, and both sneakers clearly readable." },
-    { name: "图2｜工作日｜写字楼门口", purpose: "把产品放进成熟都市女性的工作日。", description: "写字楼门口自然走路，像朋友随手拍。", imageType: "生活场景图", scenePreference: "写字楼门口", garmentTypePreference: "裤装", extraRequirement: "Show a refined office entrance moment with a quiet daily city rhythm, natural walking posture, a simple tote or coffee, and clear sneaker visibility without campaign posing." },
-    { name: "图3｜周末｜咖啡店门口", purpose: "增加小红书生活方式代入。", description: "咖啡店门口轻松停留，低饱和真实街景。", imageType: "生活场景图", scenePreference: "咖啡店门口", garmentTypePreference: "裤装", extraRequirement: "Use a restrained cafe exterior in a real city street, natural daylight, low-saturation styling, and a candid customer-like moment with readable shoes." },
-    { name: "图4｜生活｜书店门口", purpose: "让内容更安静，有审美选择感。", description: "书店或杂志店门口，轻松不营业。", imageType: "生活场景图", scenePreference: "书店 / 杂志店门口", garmentTypePreference: "裤装", extraRequirement: "Place her near a quiet bookstore or magazine shop exterior, carrying a book or tote, calm side gaze or soft casual eye contact, with the sneakers naturally part of the daily styling." },
-    { name: "图5｜旅行｜酒店房间", purpose: "补充短途旅行与出门前场景。", description: "酒店房间镜前或床边，秩序感强。", imageType: "对镜穿搭图", scenePreference: "酒店房间", garmentTypePreference: "裤装", extraRequirement: "Use a calm hotel room mirror outfit record with a tidy suitcase corner and warm neutral light. Keep the mood organized, quiet, and refined, not tourist-like or influencer-like." }
-  ],
+  生活场景软种草: lifestyleSoftSeedingScenePool,
   产品开发幕后: [
     { name: "图1｜材质｜工作台", purpose: "呈现真实开发触感。", description: "皮料、鞋带、色卡和产品笔记克制摆放。", imageType: "拍摄花絮 / 材质图", scenePreference: "材质工作台", garmentTypePreference: "自动匹配", extraRequirement: "Create a tactile material development table with leather swatches, suede samples, shoelaces, neutral color cards, care brush, and product notes on warm stone or linen. Keep it real, restrained, and organized." },
     { name: "图2｜现场｜拍摄花絮", purpose: "让品牌过程可信但不杂乱。", description: "灯架边缘、造型桌、手部整理细节。", imageType: "拍摄花絮 / 材质图", scenePreference: "拍摄花絮", garmentTypePreference: "自动匹配", extraRequirement: "Show a quiet behind-the-scenes styling moment with a light stand edge, camera monitor, paper shot list, wardrobe pieces, and hands arranging product details. Avoid chaotic studio clutter." },
@@ -2813,7 +2807,87 @@ function selectStylingSolutionImageDrafts(variantIndex: number, imageCount: 3 | 
   return orderStylingSolutionDrafts(selected.slice(0, imageCount), variantIndex);
 }
 
-function selectSoftSeedingImageDrafts(topic: SoftSeedingTopic, variantIndex: number, imageCount: 3 | 5) {
+const lifestyleThreeImageFamilyPatterns: LifestyleSoftSceneFamily[][] = [
+  ["departure", "commute", "social"],
+  ["commute", "culture", "community"],
+  ["departure", "social", "travel"],
+  ["commute", "community", "travel"],
+  ["departure", "culture", "social"],
+  ["social", "culture", "community"]
+];
+
+const lifestyleFiveImageFamilyPatterns: LifestyleSoftSceneFamily[][] = [
+  ["departure", "commute", "social", "culture", "community"],
+  ["commute", "departure", "culture", "community", "travel"],
+  ["social", "commute", "departure", "culture", "travel"],
+  ["departure", "social", "culture", "travel", "community"],
+  ["commute", "social", "community", "departure", "travel"],
+  ["culture", "commute", "social", "community", "travel"]
+];
+
+function pickRotatingLifestyleDraft(
+  candidates: SoftSeedingImageDraft[],
+  familyOccurrenceIndex: number,
+  familyIndex: number
+) {
+  const stableCandidates = [...candidates].sort((a, b) => (a.id ?? a.name).localeCompare(b.id ?? b.name));
+  if (!stableCandidates.length) return undefined;
+  const index = Math.abs(familyOccurrenceIndex + familyIndex) % stableCandidates.length;
+  return stableCandidates[index];
+}
+
+function countPriorLifestyleFamilyOccurrences(
+  patterns: LifestyleSoftSceneFamily[][],
+  normalizedVariantIndex: number,
+  family: LifestyleSoftSceneFamily
+) {
+  let count = 0;
+  for (let index = 0; index < normalizedVariantIndex; index += 1) {
+    if (patterns[index % patterns.length].includes(family)) count += 1;
+  }
+  return count;
+}
+
+function selectLifestyleSoftSeedingImageDrafts(
+  variantIndex: number,
+  imageCount: 3 | 5,
+  season: TeamSeason
+) {
+  const patterns = imageCount === 3 ? lifestyleThreeImageFamilyPatterns : lifestyleFiveImageFamilyPatterns;
+  const normalized = normalizeSoftVariantIndex(variantIndex, getTopicVariantCount("生活场景软种草"));
+  const familyPattern = patterns[normalized % patterns.length];
+  const selected: SoftSeedingImageDraft[] = [];
+
+  familyPattern.forEach((family, familyIndex) => {
+    const alreadyHasMirror = selected.some((draft) => draft.imageType === "对镜穿搭图");
+    let candidates = topicImageDrafts["生活场景软种草"].filter(
+      (draft) => draft.family === family && (!draft.supportedSeasons || draft.supportedSeasons.includes(season))
+    );
+
+    if (alreadyHasMirror) {
+      candidates = candidates.filter((draft) => draft.imageType !== "对镜穿搭图");
+    }
+
+    const familyOccurrenceIndex = countPriorLifestyleFamilyOccurrences(patterns, normalized, family);
+    const selectedDraft = pickRotatingLifestyleDraft(candidates, familyOccurrenceIndex, familyIndex);
+    if (selectedDraft && !selected.some((draft) => draft.id === selectedDraft.id)) {
+      selected.push(selectedDraft);
+    }
+  });
+
+  return selected.slice(0, imageCount);
+}
+
+function selectSoftSeedingImageDrafts(
+  topic: SoftSeedingTopic,
+  variantIndex: number,
+  imageCount: 3 | 5,
+  season: TeamSeason
+) {
+  if (topic === "生活场景软种草") {
+    return selectLifestyleSoftSeedingImageDrafts(variantIndex, imageCount, season);
+  }
+
   if (topic === "穿搭解决方案") {
     return selectStylingSolutionImageDrafts(variantIndex, imageCount);
   }
@@ -3049,6 +3123,15 @@ const stylingSolutionSetContinuityLine =
 const stylingSolutionFaceContinuityLine =
   "If more than one card shows the face, keep the exact same person across the set: same face, same age impression, same hairstyle, same hair color, same makeup or grooming, same facial structure, same body silhouette, and the same quiet daily temperament. Generate the full-figure reference first and use it as the person and styling reference for the following image cards.";
 
+const lifestyleSoftSeedingSetContinuityLine =
+  "Lifestyle buyer-show set continuity: treat all cards as one coherent buyer-show series in the same real contemporary Chinese city or its restrained short-trip context. Keep the exact same person, outfit, shoe, hairstyle, makeup, color palette, and overall styling across the set. Only the location moment, pose, framing, gaze, and camera distance may change.";
+
+const lifestyleEmptyHandsContinuityLine =
+  "Multi-image handheld continuity: keep both hands naturally empty in this card. Scene objects may remain placed in the environment, but do not put coffee, books, flowers, shopping bags, luggage, umbrellas, bottles, or other props in either hand.";
+
+const lifestyleMirrorPhoneContinuityLine =
+  "Mirror-card handheld rule: use the same simple no-logo phone as the only handheld object, with a natural grip and no second prop in either hand.";
+
 const stylingSolutionExpressionBeats = [
   "If the face is visible, capture a brief friendly in-between response with focused catchlights, relaxed eyelids, and a faint asymmetric smile, not a posed portrait expression.",
   "If the face is visible, let the eyes focus naturally on the next movement or nearby point, with relaxed lips and no vacant fashion-model stare.",
@@ -3066,6 +3149,22 @@ function getStylingSolutionContinuityLines(topic: SoftSeedingTopic, draft: SoftS
   ]
     .filter(Boolean)
     .join(" ");
+}
+
+function getLifestyleSoftSeedingContinuityLines(
+  topic: SoftSeedingTopic,
+  draft: SoftSeedingImageDraft,
+  imageCount: 3 | 5
+) {
+  if (topic !== "生活场景软种草") return "";
+
+  const handheldLine = draft.handheldPolicy === "phoneOnly"
+    ? lifestyleMirrorPhoneContinuityLine
+    : imageCount > 1
+      ? lifestyleEmptyHandsContinuityLine
+      : "";
+
+  return [lifestyleSoftSeedingSetContinuityLine, handheldLine].filter(Boolean).join(" ");
 }
 
 function getSoftSeedingExtraRequirement(
@@ -3113,6 +3212,7 @@ function buildImagePlan(
 ): SoftSeedingImagePlan {
   const shoeFields = resolveBaseShoe(baseParams);
   const garmentTypePreference = resolveSoftSeedingGarmentType(baseParams, draft);
+  const lifestyleContinuityLine = getLifestyleSoftSeedingContinuityLines(topic, draft, imageCount);
   const params: TeamPromptParams = {
     ...baseParams,
     ...shoeFields,
@@ -3126,13 +3226,16 @@ function buildImagePlan(
     stillLifeStyle: "与主视觉统一",
     extraRequirement: [
       getSoftSeedingExtraRequirement(baseParams, draft, garmentTypePreference, topic, variantIndex),
+      lifestyleContinuityLine,
       topic === "穿搭解决方案" ? stylingSolutionExpressionBeats[index % stylingSolutionExpressionBeats.length] : ""
     ].filter(Boolean).join(" "),
     generationNonce: baseParams.generationNonce + variantIndex + index + 1,
     seriesImageCount: imageCount,
     seriesImageIndex: index,
     lockedOutfitLine: shouldInheritBaseGarmentType(draft.imageType) ? lockedOutfitLine : "",
-    forceGeneratedOutfitSelection: topic === "穿搭解决方案"
+    forceGeneratedOutfitSelection: topic === "穿搭解决方案" || topic === "生活场景软种草",
+    forceNoHandheldObject:
+      topic === "生活场景软种草" && imageCount > 1 && draft.handheldPolicy !== "phoneOnly"
   };
 
   const output = generateTeamPrompt(params);
@@ -3157,7 +3260,11 @@ function buildSoftSeedingImagePlans(
 
   return drafts.map((draft, index) => {
     const plan = buildImagePlan(baseParams, draft, index, topic, variantIndex, imageCount, sharedOutfitLine);
-    if (topic === "穿搭解决方案" && !sharedOutfitLine && shouldInheritBaseGarmentType(draft.imageType)) {
+    if (
+      (topic === "穿搭解决方案" || topic === "生活场景软种草") &&
+      !sharedOutfitLine &&
+      shouldInheritBaseGarmentType(draft.imageType)
+    ) {
       sharedOutfitLine = generateTeamPrompt(plan.params).selectedOutfitLine;
     }
     return plan;
@@ -3174,7 +3281,7 @@ export function generateSoftSeedingContent(input: SoftSeedingInput): SoftSeeding
   const variantOffset = Math.max(0, Math.floor(input.variantOffset ?? 0));
   const variantIndex = (basePostIndex + variantOffset) % variantCount;
   const imageCount = input.imageCount ?? 5;
-  const selectedImageDrafts = selectSoftSeedingImageDrafts(topic, variantIndex, imageCount);
+  const selectedImageDrafts = selectSoftSeedingImageDrafts(topic, variantIndex, imageCount, input.baseParams.season);
   const copy = buildCopyFromKit(topic, variantIndex, selectedImageDrafts);
 
   return {

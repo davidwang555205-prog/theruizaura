@@ -279,6 +279,7 @@ export type TeamPromptParams = {
   seriesImageIndex?: number;
   lockedOutfitLine?: string;
   forceGeneratedOutfitSelection?: boolean;
+  forceNoHandheldObject?: boolean;
 };
 
 export type TeamPromptOutput = {
