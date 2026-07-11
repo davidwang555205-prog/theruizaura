@@ -7,7 +7,9 @@
     "dev": "vite",
     "build": "vite build",
     "typecheck": "tsc --noEmit",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "api:server": "node server/api-server.mjs",
+    "api:test": "node server/openai-image-test.mjs"
   },
   "dependencies": {
     "@vitejs/plugin-react": "^5.2.0",
@@ -22,5 +24,8 @@
   "devDependencies": {
     "@types/react": "^19.2.15",
     "@types/react-dom": "^19.2.3"
+  },
+  "engines": {
+    "node": ">=20"
   }
 }
