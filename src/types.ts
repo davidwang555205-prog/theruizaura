@@ -275,10 +275,15 @@ export type TeamPromptParams = {
   stillLifeStyle: TeamStillLifeStyle;
   extraRequirement: string;
   generationNonce: number;
+  seriesImageCount?: number;
+  seriesImageIndex?: number;
+  lockedOutfitLine?: string;
+  forceGeneratedOutfitSelection?: boolean;
 };
 
 export type TeamPromptOutput = {
   prompt: string;
   hasShoe: boolean;
   sceneText: string;
+  selectedOutfitLine: string;
 };

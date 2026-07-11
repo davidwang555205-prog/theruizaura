@@ -3049,6 +3049,14 @@ const stylingSolutionSetContinuityLine =
 const stylingSolutionFaceContinuityLine =
   "If more than one card shows the face, keep the exact same person across the set: same face, same age impression, same hairstyle, same hair color, same makeup or grooming, same facial structure, same body silhouette, and the same quiet daily temperament. Generate the full-figure reference first and use it as the person and styling reference for the following image cards.";
 
+const stylingSolutionExpressionBeats = [
+  "If the face is visible, capture a brief friendly in-between response with focused catchlights, relaxed eyelids, and a faint asymmetric smile, not a posed portrait expression.",
+  "If the face is visible, let the eyes focus naturally on the next movement or nearby point, with relaxed lips and no vacant fashion-model stare.",
+  "If the face is visible, use a purposeful downward glance toward the garment or sneakers, with facial muscles responding naturally to the small task.",
+  "If the face is visible, show a subtle reaction to one real scene detail, with a tiny brow response and an unforced mouth shape.",
+  "If the face is visible, capture a fleeting relaxed look after the action, such as a soft exhale or incidental half-turn, different from the other cards."
+];
+
 function getStylingSolutionContinuityLines(topic: SoftSeedingTopic, draft: SoftSeedingImageDraft) {
   if (topic !== "穿搭解决方案") return "";
 
@@ -3099,7 +3107,9 @@ function buildImagePlan(
   draft: SoftSeedingImageDraft,
   index: number,
   topic: SoftSeedingTopic,
-  variantIndex: number
+  variantIndex: number,
+  imageCount: 3 | 5,
+  lockedOutfitLine = ""
 ): SoftSeedingImagePlan {
   const shoeFields = resolveBaseShoe(baseParams);
   const garmentTypePreference = resolveSoftSeedingGarmentType(baseParams, draft);
@@ -3114,17 +3124,44 @@ function buildImagePlan(
     modelContinuity: index === 0 ? "新人物" : "延续上一组人物",
     studioLaunchAnglePreference: "自动匹配",
     stillLifeStyle: "与主视觉统一",
-    extraRequirement: getSoftSeedingExtraRequirement(baseParams, draft, garmentTypePreference, topic, variantIndex),
-    generationNonce: baseParams.generationNonce + variantIndex + index + 1
+    extraRequirement: [
+      getSoftSeedingExtraRequirement(baseParams, draft, garmentTypePreference, topic, variantIndex),
+      topic === "穿搭解决方案" ? stylingSolutionExpressionBeats[index % stylingSolutionExpressionBeats.length] : ""
+    ].filter(Boolean).join(" "),
+    generationNonce: baseParams.generationNonce + variantIndex + index + 1,
+    seriesImageCount: imageCount,
+    seriesImageIndex: index,
+    lockedOutfitLine: shouldInheritBaseGarmentType(draft.imageType) ? lockedOutfitLine : "",
+    forceGeneratedOutfitSelection: topic === "穿搭解决方案"
   };
+
+  const output = generateTeamPrompt(params);
 
   return {
     name: draft.name,
     purpose: draft.purpose,
     description: draft.description,
     params,
-    prompt: generateTeamPrompt(params).prompt
+    prompt: output.prompt
   };
+}
+
+function buildSoftSeedingImagePlans(
+  baseParams: TeamPromptParams,
+  drafts: SoftSeedingImageDraft[],
+  topic: SoftSeedingTopic,
+  variantIndex: number,
+  imageCount: 3 | 5
+) {
+  let sharedOutfitLine = "";
+
+  return drafts.map((draft, index) => {
+    const plan = buildImagePlan(baseParams, draft, index, topic, variantIndex, imageCount, sharedOutfitLine);
+    if (topic === "穿搭解决方案" && !sharedOutfitLine && shouldInheritBaseGarmentType(draft.imageType)) {
+      sharedOutfitLine = generateTeamPrompt(plan.params).selectedOutfitLine;
+    }
+    return plan;
+  });
 }
 
 export function generateSoftSeedingContent(input: SoftSeedingInput): SoftSeedingContent {
@@ -3149,7 +3186,7 @@ export function generateSoftSeedingContent(input: SoftSeedingInput): SoftSeeding
     variantLabel: `第 ${variantIndex + 1} / ${variantCount} 版`,
     titles: copy.titles,
     body: copy.body,
-    images: selectedImageDrafts.map((imageDraft, index) => buildImagePlan(input.baseParams, imageDraft, index, topic, variantIndex)),
+    images: buildSoftSeedingImagePlans(input.baseParams, selectedImageDrafts, topic, variantIndex, imageCount),
     tags: copy.tags,
     note: copy.note
   };

@@ -113,6 +113,19 @@ const customerFeelingLine =
 const humanRealismLine =
   "Keep one candid in-between expression with slight facial asymmetry, relaxed mouth, natural catchlights, soft shoulder-neck tension, grounded weight, and believable hand pressure.";
 
+const multiImageExpressionSequenceLines = [
+  "Expression beat for this image: a brief friendly response to the nearby camera, with a faint asymmetric smile and focused, alive eyes rather than a posed portrait face.",
+  "Expression beat for this image: focus naturally on the walking direction or next small action, with relaxed eyelids, softly parted or resting lips, and no vacant stare.",
+  "Expression beat for this image: glance purposefully toward the garment edge or sneakers while making a small adjustment, so the facial muscles respond to a real task.",
+  "Expression beat for this image: react subtly to one scene object or nearby point, with natural eye focus, a tiny brow response, and an unforced mouth shape.",
+  "Expression beat for this image: use a fleeting relaxed look after the action, such as a soft exhale or incidental half-turn, avoiding the same expression used in the other images."
+];
+
+function getMultiImageExpressionSequenceLine(params: TeamPromptParams) {
+  if (!params.seriesImageCount || params.seriesImageCount < 2 || typeof params.seriesImageIndex !== "number") return "";
+  return multiImageExpressionSequenceLines[params.seriesImageIndex % multiImageExpressionSequenceLines.length];
+}
+
 const actionLine =
   "Use one simple daily action: slow walk, coffee, tote, flowers, book, or storefront pause.";
 
@@ -1646,9 +1659,20 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
       ]
     : [];
   const effectiveGarmentTypePreference = getEffectiveGarmentTypePreference(params, sceneKey);
-  const imageCountIntent = detectImageCountOrSeriesIntent(params.extraRequirement, params.imageType);
+  const imageCountIntent = params.seriesImageCount && params.seriesImageCount > 2
+    ? "multiImageSet"
+    : params.seriesImageCount === 2
+      ? "twoImageSet"
+      : detectImageCountOrSeriesIntent(params.extraRequirement, params.imageType);
+  const hasLockedOutfit = Boolean(params.lockedOutfitLine?.trim());
+  const userClothingRequirementText = params.extraRequirement.replace(
+    /Manual clothing type from the interface:[^.]*clear sneaker visibility\./gi,
+    ""
+  );
   const userSpecifiedClothing =
-    sceneKey === "gymInterior" ? false : hasUserSpecifiedClothingRequirement(params.extraRequirement);
+    sceneKey === "gymInterior" || params.forceGeneratedOutfitSelection
+      ? false
+      : hasUserSpecifiedClothingRequirement(userClothingRequirementText);
   const selectedEuropeanStreet = selectEuropeanStreetProfileForScene({
     imageType: params.imageType,
     sceneKey,
@@ -1752,7 +1776,7 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
   const effectiveImageTemplateNegativeLine = usesSummerLifestylePeopleSupport
     ? "tourism advertisement, staged family portrait, theme-park campaign, resort campaign, cropped shoes, props covering shoes, unstable ground hiding footwear"
     : imageTypeTemplate.templateNegativeLine;
-  const perSceneOutfitSelection = shouldUsePeopleStyling(params.imageType) &&
+  const perSceneOutfitSelection = !hasLockedOutfit && shouldUsePeopleStyling(params.imageType) &&
     (effectiveGarmentTypePreference === "自动匹配" || resolvedScene === "海边度假")
     ? choosePerSceneOutfitLine({
         scenePreference: resolvedScene,
@@ -1766,7 +1790,7 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
       })
     : null;
   const hasLockedPerSceneOutfit = Boolean(perSceneOutfitSelection?.selectedPerSceneOutfitLine);
-  const outfitSelection = hasLockedPerSceneOutfit
+  const outfitSelection = hasLockedOutfit || hasLockedPerSceneOutfit
     ? { outfitLine: "", stylingRealismLine: "", selectedOutfit: null }
     : chooseOutfitByGarmentType({
         imageType: params.imageType,
@@ -1779,7 +1803,7 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
         generationNonce: params.generationNonce
   });
   const premiumWardrobeSelection =
-    shouldUsePeopleStyling(params.imageType) &&
+    !hasLockedOutfit && shouldUsePeopleStyling(params.imageType) &&
     sceneKey !== "gymInterior" &&
     !userSpecifiedClothing &&
     !hasLockedPerSceneOutfit &&
@@ -1837,7 +1861,11 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
     hasShoe
   });
   const baseOutfitLine =
-    selectedStandardOutfit?.outfitLine ?? perSceneOutfitSelection?.selectedPerSceneOutfitLine ?? outfitSelection.outfitLine;
+    hasLockedOutfit
+      ? params.lockedOutfitLine!.trim()
+      : selectedStandardOutfit?.outfitLine ??
+        perSceneOutfitSelection?.selectedPerSceneOutfitLine ??
+        outfitSelection.outfitLine;
   const baseStylingRealismLine =
     selectedStandardOutfit?.stylingRealismLine ??
     perSceneOutfitSelection?.selectedStylingRealismLine ??
@@ -1909,12 +1937,14 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
     userExtraRequirement: params.extraRequirement,
     promptMode: TEAM_PROMPT_MODE
   });
-  const normalizedBaseOutfitLine = normalizeAccessoryInOutfitLine({
-    outfitLine: baseOutfitLine,
-    accessoryStrategy: accessorySelection.accessoryStrategy,
-    selectedBagAccessory: accessorySelection.selectedBagAccessory,
-    selectedPrimaryHandheldObject: primaryHandheldSelection.primaryHandheldObject
-  });
+  const normalizedBaseOutfitLine = hasLockedOutfit
+    ? baseOutfitLine
+    : normalizeAccessoryInOutfitLine({
+        outfitLine: baseOutfitLine,
+        accessoryStrategy: accessorySelection.accessoryStrategy,
+        selectedBagAccessory: accessorySelection.selectedBagAccessory,
+        selectedPrimaryHandheldObject: primaryHandheldSelection.primaryHandheldObject
+      });
   const saturatedGarmentBoundaryLine = /only soft color accent|only muted color accent/i.test(normalizedBaseOutfitLine)
     ? "Use exactly one muted low-saturation garment as a soft color anchor; keep every other garment, bag, accessory, backdrop, and styling detail neutral, restrained, and easy to coordinate."
     : "";
@@ -1934,7 +1964,7 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
         generationNonce: params.generationNonce
       })
     : rawOutfitLine;
-  const outfitLine = sanitizeSeasonalOutfitLine(adaptedOutfitLine, params.season);
+  const outfitLine = sanitizeSeasonalOutfitLine(adaptedOutfitLine, params.season).replace(/,\s*;/g, ";");
   const handheldSelection = chooseHandheldObjectLines({
     imageType: params.imageType,
     scenePreference: resolvedScene,
@@ -1971,8 +2001,13 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
         getModelContinuityLine(params.modelContinuity, params.modelChoice),
         getModelLine(params),
         getTeamModelConsistencyLine(params.modelChoice, imageCountIntent),
-        gazeSelection.line,
+        [gazeSelection.line, humanRealism.expressionGazeLine].filter(Boolean).join(" "),
         humanRealismLine,
+        humanRealism.livedInCoreLine,
+        humanRealism.realHumanDetailLine,
+        gazeSelection.mode === "phoneHiddenFace" || gazeSelection.mode === "noFaceNeeded"
+          ? ""
+          : getMultiImageExpressionSequenceLine(params),
         getCompactPoseBodyLine(poseCategory),
         humanRealism.multiImageConsistencyLine
       ]
@@ -1995,7 +2030,9 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
             ? europeanSeasonContext?.outfitLayerLine ?? seasonCityVisualContext.outfitLayerLine
             : getManualGarmentSeasonLayerLine(effectiveGarmentTypePreference, params.season)
           : "",
-        accessorySelection.accessoryLine,
+        hasLockedOutfit
+          ? "Shared outfit lock: reproduce the exact garments, layers, bag, wearable accessories, colors, materials, hem lengths, and wearing proportions stated above; do not substitute or add any styling item."
+          : accessorySelection.accessoryLine,
         humanRealism.clothingWornLine
       ]
         .filter(Boolean)
@@ -2150,7 +2187,13 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
           sneakerProtection.clippingLine
         ].filter(Boolean),
         modelLine: shouldUsePeopleStyling(params.imageType)
-          ? [bodyProportionLine]
+          ? [
+              bodyProportionLine,
+              humanRealism.expressionGazeLine,
+              gazeSelection.mode === "phoneHiddenFace" || gazeSelection.mode === "noFaceNeeded"
+                ? ""
+                : getMultiImageExpressionSequenceLine(params)
+            ].filter(Boolean)
           : [],
         outfitLine: [],
         moodLine: cameraSelection.camera === "AuraOutdoorReference" ? [cameraSelection.cameraLookLine] : [],
@@ -2268,6 +2311,7 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
   return {
     prompt,
     hasShoe,
-    sceneText: placeLine
+    sceneText: placeLine,
+    selectedOutfitLine: outfitLine
   };
 }
