@@ -1,5 +1,6 @@
 import type { ProductAdapterInput } from "../types";
 import type { GarmentProductContext, GarmentProductSpec } from "./garmentProductTypes";
+import { buildGarmentDecorativeGuard, buildGarmentMaterialGuard, buildGarmentNegativeRules, getGarmentVisibilityGuard } from "./garmentAccuracyGuards";
 
 const categoryNames: Record<GarmentProductSpec["category"], string> = {
   dress: "dress",
@@ -68,27 +69,27 @@ export function buildGarmentAccuracyLines(context: GarmentProductContext, input:
   return [
     "Preserve the exact uploaded garment category, silhouette, overall proportions, shoulder structure, neckline, sleeve construction, sleeve length, waistline, garment length, hemline, closure, panel boundaries, seams, darts, pleats, buttons, pockets, and all visible construction details; do not redesign, simplify, add, remove, shorten, lengthen, tighten, or loosen the primary garment.",
     "Preserve the uploaded garment's exact fabric identity, surface texture, color relationship, pattern scale and placement, transparency, drape, embroidery, lace, beadwork, and visible key details; do not substitute materials, recolor the garment, invent decoration, or generate fake labels and logos.",
-    spec.keyDetails?.length
-      ? `Mandatory garment details to retain: ${spec.keyDetails.join(", ")}.`
-      : ""
+    spec.keyDetails?.length ? `Mandatory garment details to retain: ${spec.keyDetails.join(", ")}.` : "",
+    buildGarmentMaterialGuard(spec),
+    buildGarmentDecorativeGuard(spec),
+    `Preserve the exact garment ease, body-to-garment spacing, shoulder fit, waist or bodice fit, sleeve volume, leg volume where relevant, garment length, and overall product-to-body proportion shown in the uploaded references.`
   ].filter(Boolean);
 }
 
-export function buildGarmentVisibilityLines(input: ProductAdapterInput) {
+export function buildGarmentVisibilityLines(context: GarmentProductContext, input: ProductAdapterInput) {
   if (!input.productPresent) return [];
+  const guard = getGarmentVisibilityGuard(context.garment.category, input.shotKind, context.garment);
   if (input.imageType === "拍摄花絮 / 材质图") {
     return [
-      "Show only the garment construction, fabric, trim, or key detail needed for the material story, keeping the referenced detail unobstructed and structurally accurate."
+      `Show only the garment construction, fabric, trim, or key detail needed for the material story, keeping ${guard.priorityStructures.slice(0, 4).join(", ")} unobstructed and structurally accurate.`
     ];
   }
   if (input.imageType === "产品静物图") {
     return [
-      "Keep the complete primary garment readable at a truthful scale, with its silhouette, edges, closures, hemline, and key details unobstructed."
+      `Keep the complete primary garment readable at a truthful scale, with ${guard.priorityStructures.slice(0, 5).join(", ")} unobstructed.`
     ];
   }
-  return [
-    "Keep the primary garment clearly readable on the model: preserve its full silhouette and the relevant neckline, shoulders, sleeves, waistline, closure, pockets, hemline, pattern, and key details without pose, hair, hands, bags, or supporting layers hiding its design."
-  ];
+  return [`Keep the primary garment clearly readable on the model: preserve ${guard.priorityStructures.join(", ")} without pose, hair, hands, bags, or supporting layers hiding the design.`, ...guard.obstructionRules, ...guard.poseRestrictions];
 }
 
 export function buildGarmentClippingLines(input: ProductAdapterInput) {
@@ -133,9 +134,9 @@ export function buildGarmentCompositionLines(input: ProductAdapterInput) {
   ];
 }
 
-export function buildGarmentNegativePhrases(input: ProductAdapterInput) {
+export function buildGarmentNegativePhrases(context: GarmentProductContext, input: ProductAdapterInput) {
   if (!input.productPresent) return [];
-  return [
+  const base = [
     "different garment",
     "garment redesign",
     "changed silhouette",
@@ -160,6 +161,7 @@ export function buildGarmentNegativePhrases(input: ProductAdapterInput) {
     "fused garment layers",
     "garment hidden by hair, hands, bag, or supporting layers"
   ];
+  return [...base, ...buildGarmentNegativeRules(input, context.garment.category, context.garment)];
 }
 
 export function buildGarmentStylingBoundaryLines(context: GarmentProductContext, input: ProductAdapterInput) {

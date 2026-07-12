@@ -1531,7 +1531,8 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
     productPresent, scenePreference: resolvedScene, sceneKey, season: params.season,
     userSpecifiedStyling: false, studioLaunchAnglePreference: params.studioLaunchAnglePreference,
     studioLaunchShotIndex: params.studioLaunchShotIndex, seriesImageCount: params.seriesImageCount,
-    generationNonce: params.generationNonce
+    generationNonce: params.generationNonce,
+    shotKind: params.garmentShotKind
   };
   const productNegativePhrases = productAdapter.buildNegativePhrases(productAdapterInput);
   const footPlacementPatchLine = shouldUsePeopleStyling(params.imageType)

@@ -254,6 +254,7 @@ export type TeamPromptParams = {
   productContext?: ProductContext;
   garmentSeriesContext?: import("./modules/product/garment/garmentProductTypes").GarmentSeriesContext;
   garmentReferenceRoles?: string[];
+  garmentShotKind?: string;
   season: TeamSeason;
   scenePreference: TeamScenePreference;
   garmentTypePreference: TeamGarmentTypePreference;

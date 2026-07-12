@@ -30,6 +30,7 @@ export type ProductAdapterInput = ProductPresenceInput & {
   studioLaunchShotIndex?: number;
   seriesImageCount?: number;
   generationNonce: number;
+  shotKind?: string;
 };
 
 export type StylingRole =

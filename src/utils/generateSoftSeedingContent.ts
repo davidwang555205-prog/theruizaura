@@ -3331,6 +3331,7 @@ function buildImagePlan(
     ...baseParams,
     ...shoeFields,
     garmentSeriesContext,
+    garmentShotKind: garmentShotPlan?.shotKind,
     imageType: draft.imageType,
     scenePreference: draft.scenePreference,
     garmentTypePreference,

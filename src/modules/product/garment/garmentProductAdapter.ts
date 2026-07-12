@@ -45,7 +45,7 @@ export function createGarmentProductAdapter(context: GarmentProductContext): Pro
     },
 
     buildVisibilityLines(input) {
-      return buildGarmentVisibilityLines(input);
+      return buildGarmentVisibilityLines(context, input);
     },
 
     buildClippingLines(input) {
@@ -72,13 +72,14 @@ export function createGarmentProductAdapter(context: GarmentProductContext): Pro
     buildActionSafetyLines(input) {
       return input.productPresent
         ? [
-            "Keep the model's body, hands, hair, pose, and supporting accessories from hiding, pulling, penetrating, or redesigning the primary garment."
+            "Keep the model's body, hands, hair, pose, and supporting accessories from hiding, pulling, penetrating, or redesigning the primary garment.",
+            "Keep hands away from closures, waistlines, pockets, lapels, bodices, lace, embroidery, and other priority structures; omit or reposition bags and props when they obstruct the shot purpose."
           ]
         : [];
     },
 
     buildNegativePhrases(input) {
-      return buildGarmentNegativePhrases(input);
+      return buildGarmentNegativePhrases(context, input);
     },
 
     buildStylingBoundaryLines(input) {
