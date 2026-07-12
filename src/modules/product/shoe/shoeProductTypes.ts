@@ -62,6 +62,12 @@ export type BalletFlatSubtype = "classic" | "maryJane" | "squareToe" | "pointed"
 export type BalletFlatToeShape = "round" | "almond" | "square" | "pointed" | "other";
 export type BalletFlatOrnament = "none" | "bow" | "knot" | "buckle" | "flower" | "metalDetail" | "other";
 export type BalletFlatStrap = "none" | "maryJane" | "doubleStrap" | "ankleStrap" | "elasticStrap" | "other";
+export type SandalSubtype = "slide" | "ankleStrap" | "slingback" | "tBar" | "toePost" | "strappy" | "platform" | "heeled" | "other";
+export type SandalToeType = "openToe" | "peepToe" | "closedToe" | "other";
+export type SandalHeelType = "flat" | "kitten" | "block" | "stiletto" | "wedge" | "platform" | "other";
+export type MuleSubtype = "closedToeFlat" | "closedToeHeeled" | "openToeFlat" | "openToeHeeled" | "platform" | "loaferMule" | "other";
+export type MuleToeType = "closedToe" | "openToe" | "peepToe" | "other";
+export type MuleHeelType = "flat" | "kitten" | "block" | "stiletto" | "wedge" | "platform" | "other";
 
 export type ShoeReferenceRequirements = {
   minCount: number;
@@ -143,6 +149,8 @@ export type BootShoeSpec = BaseShoeSpec & {
 
 export type LoaferShoeSpec = BaseShoeSpec & { category: "loafer"; productName: string; subtype: LoaferSubtype; toeShape: LoaferToeShape; upperConstruction: LoaferUpperConstruction; apronShape?: string; apronSeam?: string; vampHeight?: string; instepPanelShape?: string; saddleShape?: string; pennySlotShape?: string; ornament: LoaferOrnament; hardwareShape?: string; hardwareFinish?: string; tasselCount?: string; fringeShape?: string; toplineShape?: string; toplineDepth?: string; sideCut?: string; heelCounterHeight?: string; heelType?: string; heelHeight: string; outsoleThickness?: string; outsoleProfile?: string; weltEdge?: string; treadProfile?: string; finish?: string; seamStructure?: string; decorativeDetails?: string; logoLettering?: string };
 export type BalletFlatShoeSpec = BaseShoeSpec & { category: "balletFlat"; productName: string; subtype: BalletFlatSubtype; toeShape: BalletFlatToeShape; vampCoverage: string; vampShape?: string; toplineShape: string; toplineDepth?: string; sideCut?: string; bindingType?: string; bindingWidth?: string; elasticEdge?: string; ornament: BalletFlatOrnament; bowShape?: string; bowSize?: string; ornamentPlacement?: string; strapType: BalletFlatStrap; strapPlacement?: string; buckleShape?: string; heelCounterHeight?: string; heelLift: string; outsoleThickness: string; outsoleFlex?: string; finish?: string; seamStructure?: string; decorativeDetails?: string; logoLettering?: string };
+export type SandalShoeSpec = BaseShoeSpec & { category:"sandal"; productName:string; subtype:SandalSubtype; toeType:SandalToeType; toeOpeningShape?:string; forefootStrapCount?:string; forefootStrapWidth?:string; forefootStrapPlacement?:string; vampStrapShape?:string; instepStrap?:string; ankleStrap?:string; ankleStrapHeight?:string; heelStrap?:string; slingbackShape?:string; tBarShape?:string; toePostShape?:string; buckleCount?:string; bucklePosition?:string; hardwareShape?:string; hardwareFinish?:string; footbedShape?:string; heelCup?:string; heelType:SandalHeelType; heelHeight:string; heelPlacement?:string; outsoleThickness?:string; platformHeight?:string; outsoleProfile?:string; treadProfile?:string; finish?:string; decorativeDetails?:string; logoLettering?:string };
+export type MuleShoeSpec = BaseShoeSpec & { category:"mule"; productName:string; subtype:MuleSubtype; toeType:MuleToeType; toeShape?:string; toeOpeningShape?:string; vampCoverage:string; vampShape?:string; throatShape?:string; toplineShape?:string; sideCut?:string; backlessEdgeShape?:string; footInsertionDepth?:string; heelExposure?:string; heelOverhangRelation?:string; strapType?:string; strapPlacement?:string; ornamentType?:string; ornamentPlacement?:string; hardwareShape?:string; heelType:MuleHeelType; heelHeight:string; heelPlacement?:string; outsoleThickness?:string; platformHeight?:string; outsoleProfile?:string; treadProfile?:string; finish?:string; decorativeDetails?:string; logoLettering?:string };
 
 export type GermanTrainerSpec = BaseShoeSpec & {
   category: "germanTrainer";
@@ -191,6 +199,8 @@ export type ShoeProductContext = {
   bootSpec?: BootShoeSpec;
   loaferSpec?: LoaferShoeSpec;
   balletFlatSpec?: BalletFlatShoeSpec;
+  sandalSpec?: SandalShoeSpec;
+  muleSpec?: MuleShoeSpec;
 };
 
 export function resolveShoeCategory(context: ShoeProductContext): ShoeCategory {

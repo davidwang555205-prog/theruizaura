@@ -10,6 +10,8 @@ const pumpAdapter = readFileSync("src/modules/product/shoe/pumpAdapter.ts", "utf
 const bootAdapter = readFileSync("src/modules/product/shoe/bootAdapter.ts", "utf8");
 const loaferAdapter = readFileSync("src/modules/product/shoe/loaferAdapter.ts", "utf8");
 const balletFlatAdapter = readFileSync("src/modules/product/shoe/balletFlatAdapter.ts", "utf8");
+const sandalAdapter = readFileSync("src/modules/product/shoe/sandalAdapter.ts", "utf8");
+const muleAdapter = readFileSync("src/modules/product/shoe/muleAdapter.ts", "utf8");
 const softSeeding = readFileSync("src/utils/generateSoftSeedingContent.ts", "utf8");
 const required = [
   ["Black Mirror UI name", app.includes("APP_NAME") && html.includes("Black Mirror")],
@@ -31,6 +33,11 @@ const required = [
   ["Ballet-flat adapter active", shoeRegistry.includes("balletFlat: balletFlatAdapter") && balletFlatAdapter.includes('status: "active"')],
   ["Ballet-flat native guards", balletFlatAdapter.includes("shallow vamp") && balletFlatAdapter.includes("binding") && balletFlatAdapter.includes("heel lift")],
   ["Flat adapter plans and isolation", softSeeding.includes("getFlatStudioDrafts") && !loaferAdapter.includes("balletFlatAdapter") && !balletFlatAdapter.includes("loaferAdapter")],
+  ["Sandal adapter active", shoeRegistry.includes("sandal: sandalAdapter") && sandalAdapter.includes('status: "active"')],
+  ["Sandal strap and toe guards", sandalAdapter.includes("toe opening") && sandalAdapter.includes("strap") && sandalAdapter.includes("footbed")],
+  ["Mule adapter active", shoeRegistry.includes("mule: muleAdapter") && muleAdapter.includes('status: "active"')],
+  ["Mule backless guards", muleAdapter.includes("backless edge") && muleAdapter.includes("insertion depth") && muleAdapter.includes("heel exposure")],
+  ["Open-shoe plans and isolation", softSeeding.includes("getOpenShoeStudioDrafts") && !sandalAdapter.includes("muleAdapter") && !muleAdapter.includes("sandalAdapter")],
   ["Planned shoe categories are blocked", shoeRegistry.includes('status: "planned"') && shoeRegistry.includes("does not yet support")],
   ["Release script", packageJson.scripts["verify:release"] === "node scripts/verify-black-mirror-release.mjs"],
   ["No API integration", !app.includes("fetch(")]

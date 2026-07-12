@@ -5,6 +5,8 @@ import { pumpAdapter } from "./pumpAdapter";
 import { bootAdapter } from "./bootAdapter";
 import { loaferAdapter } from "./loaferAdapter";
 import { balletFlatAdapter } from "./balletFlatAdapter";
+import { sandalAdapter } from "./sandalAdapter";
+import { muleAdapter } from "./muleAdapter";
 import {
   SHOE_CATEGORY_LABELS,
   type ShoeAccuracyGuardSet,
@@ -86,8 +88,8 @@ export const shoeCategoryRegistry: Record<ShoeCategory, ShoeCategoryAdapter> = {
   boot: bootAdapter,
   loafer: loaferAdapter,
   balletFlat: balletFlatAdapter,
-  sandal: createPlannedAdapter("sandal"),
-  mule: createPlannedAdapter("mule"),
+  sandal: sandalAdapter,
+  mule: muleAdapter,
   other: createPlannedAdapter("other")
 };
 

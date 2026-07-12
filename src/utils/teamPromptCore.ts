@@ -1543,6 +1543,12 @@ function adaptFlatPromptVocabulary(prompt: string, category?: "loafer" | "ballet
     .replace(/forefoot flex/gi, "natural flat-shoe movement");
 }
 
+function adaptOpenShoePromptVocabulary(prompt: string, category?: "sandal" | "mule") {
+  if (!category) return prompt;
+  const sandal = category === "sandal";
+  return prompt.replace(/both sneakers?|sneakers?|German trainer/gi, sandal ? "sandals" : "mules").replace(/pumps?|closed-toe pump|boots?|boot shaft/gi, sandal ? "sandal" : "mule").replace(/low-cut silhouette/gi, sandal ? "sandal silhouette" : "backless mule silhouette").replace(/toe box/gi, "toe opening").replace(/shoelaces?|laces?|tongue|eyelets?/gi, sandal ? "strap detail" : "vamp and backless-edge detail").replace(/slim outsole/gi, "outsole").replace(/trainer panels?|sneaker panels?/gi, sandal ? "strap layout" : "vamp structure");
+}
+
 export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
   const productContext = resolveProductContext(params);
   const productAdapter = getProductAdapter(productContext);
@@ -2294,9 +2300,10 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
     bootAwarePrompt,
     productContext.mode === "shoe" && (productContext.category === "loafer" || productContext.category === "balletFlat") ? productContext.category : undefined
   );
+  const openAwarePrompt = adaptOpenShoePromptVocabulary(flatAwarePrompt, productContext.mode === "shoe" && (productContext.category === "sandal" || productContext.category === "mule") ? productContext.category : undefined);
 
   return {
-    prompt: flatAwarePrompt,
+    prompt: openAwarePrompt,
     hasShoe,
     hasProduct: productPresent,
     productMode: productAdapter.mode,
