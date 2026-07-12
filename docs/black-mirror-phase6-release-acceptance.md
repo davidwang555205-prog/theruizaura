@@ -38,7 +38,7 @@ The browser checklist covers shoe single/5/8, garment single/3/5/8, reference va
 
 ## Release decision
 
-`READY_WITH_KNOWN_LIMITATIONS` for prompt-only local use. Non-blocking limitations: no automated browser suite, bundle-size warning, local references lost after refresh, no exact Logo/text guarantee, and no API/backend/image generation.
+`BLOCKED` until the second-pass browser click sequence is manually verified. Automated checks remain passing; non-blocking limitations include no automated browser suite, bundle-size warning, local references lost after refresh, no exact Logo/text guarantee, and no API/backend/image generation.
 
 ## Final state
 
