@@ -15,6 +15,9 @@ import type { GarmentProductCategory, GarmentProductSpec } from "./modules/produ
 import type { BalletFlatOrnament, BalletFlatShoeSpec, BalletFlatStrap, BalletFlatSubtype, BalletFlatToeShape, BootClosureType, BootHeelType, BootShaftStructure, BootShoeSpec, BootSubtype, BootToeShape, LoaferOrnament, LoaferShoeSpec, LoaferSubtype, LoaferToeShape, LoaferUpperConstruction, MuleHeelType, MuleShoeSpec, MuleSubtype, MuleToeType, SandalHeelType, SandalShoeSpec, SandalSubtype, SandalToeType, PumpBackType, PumpHeelType, PumpShoeSpec, PumpStrapType, PumpToeShape, ShoeCategory, ShoeReferenceRole } from "./modules/product/shoe/shoeProductTypes";
 import { GarmentReferenceUploader, hasValidGarmentReferences, type GarmentReference } from "./components/GarmentReferenceUploader";
 import { generateTeamPrompt } from "./utils/generatePrompt";
+import { buildCurrentSinglePrompt, type CurrentSinglePrompt } from "./utils/generateCurrentSinglePrompt";
+import { getShoeCategoryAdapter } from "./modules/product/shoe/shoeCategoryRegistry";
+import { validateShoeReferenceRoles } from "./modules/product/shoe/shoeReferenceValidation";
 import {
   formatSoftSeedingImagePrompts,
   generateSoftSeedingContent,
@@ -105,7 +108,8 @@ type ReferenceImage = {
   role: ShoeReferenceRole;
 };
 type ShoeDraft = Pick<TeamPromptParams, "shoe" | "customShoe">;
-type SinglePromptResult = { mode: ProductMode; sourceFingerprint: string; prompt: string };
+type SinglePromptResult = CurrentSinglePrompt & { sourceFingerprint: string; inputRevision: number; generatedAt: number };
+type SinglePromptTrace = { lastAction: string; upperHandlerInvoked: boolean; currentMode: string; currentCategory: string; resolvedProductKey: string; referenceCount: number; referenceRoles: string[]; preflightOk: boolean | null; preflightReason: string; adapterCategory: string; builderCalled: boolean; builderResultType: string; builderPromptLength: number; stateWriteCalled: boolean; stateWritePromptLength: number; renderedStatePromptLength: number; revisionWritten: number | null; currentRevision: number | null; categoryWritten: string; visibilityPredicate: boolean; stalePredicate: boolean; error: string };
 
 function updateField<K extends keyof TeamPromptParams>(params: TeamPromptParams, key: K, value: TeamPromptParams[K]) {
   return { ...params, [key]: value };
@@ -154,8 +158,9 @@ function App() {
   const [garment, setGarment] = useState<GarmentProductSpec>({ category: "dress", name: "", color: "", fabric: "", silhouette: "" });
   const [generatedProductFingerprint, setGeneratedProductFingerprint] = useState("");
   const lastGarmentFingerprint = useRef(createGarmentProductFingerprint(garment, []));
-  const [singlePromptResult, setSinglePromptResult] = useState<SinglePromptResult | null>({ mode: "shoe", sourceFingerprint: "", prompt: initialGeneratedPrompt });
+  const [singlePromptResult, setSinglePromptResult] = useState<SinglePromptResult | null>({ mode: "shoe", category: "germanTrainer", productKey: "initial", sourceFingerprint: "", inputRevision: 0, generatedAt: Date.now(), prompt: initialGeneratedPrompt });
   const [copyStatus, setCopyStatus] = useState("");
+  const [singlePromptTrace, setSinglePromptTrace] = useState<SinglePromptTrace>({ lastAction: "idle", upperHandlerInvoked: false, currentMode: "shoe", currentCategory: "germanTrainer", resolvedProductKey: "", referenceCount: 0, referenceRoles: [], preflightOk: null, preflightReason: "", adapterCategory: "", builderCalled: false, builderResultType: "", builderPromptLength: 0, stateWriteCalled: false, stateWritePromptLength: 0, renderedStatePromptLength: 0, revisionWritten: null, currentRevision: 0, categoryWritten: "", visibilityPredicate: false, stalePredicate: false, error: "" });
   const [hasPendingChanges, setHasPendingChanges] = useState(false);
   const [softTopic, setSoftTopic] = useState<SoftSeedingTopic>(softSeedingTopicOptions[0]);
   const [softImageCount, setSoftImageCount] = useState<SoftSeedingImageCount>(5);
@@ -232,13 +237,20 @@ function App() {
     setSoftCopyStatus("");
   };
 
-  const handleGenerate = () => {
+  const handleGenerateCurrentSinglePrompt = () => {
+    setSinglePromptTrace((trace) => ({ ...trace, lastAction: "A/B click received", upperHandlerInvoked: true, currentMode: productMode, currentCategory: shoeCategory, referenceCount: referenceImages.length, referenceRoles: referenceImages.map((image) => image.role), currentRevision: params.generationNonce, error: "" }));
     if (productMode === "garment" && !hasValidGarmentReferences(garmentReferences)) { setImageGenerationStatus("服装模式需要至少4张参考图，并且必须包含正面完整图。"); return; }
     if (productMode === "shoe" && shoeCategory === "pump") {
       const missingPumpFields = [pumpSpec.productName, pumpSpec.color, pumpSpec.upperMaterial, pumpSpec.heelHeight, (pumpSpec.keyDetails ?? []).join("")].some((value) => !value?.trim());
       if (missingPumpFields) { setImageGenerationStatus("高跟单鞋需要填写鞋款名称、主颜色、鞋面材质、鞋跟高度和关键细节。"); return; }
       if (referenceImages.length < 4) { setImageGenerationStatus("高跟单鞋需要至少 4 张参考图，并且必须包含完整侧面参考图。"); return; }
       if (referenceImages.filter((image) => image.role === "primary").length !== 1 || !referenceImages.some((image) => image.role === "side")) { setImageGenerationStatus("高跟单鞋参考图必须标记 1 张主图和至少 1 张完整侧面图。"); return; }
+    }
+    if (productMode === "shoe" && shoeCategory !== "germanTrainer") {
+      const requirements = getShoeCategoryAdapter(shoeCategory).getReferenceRequirements();
+      const roleValidation = validateShoeReferenceRoles(shoeCategory, referenceImages, requirements.minCount, requirements.requiredRoles);
+      if (!roleValidation.ok) { setSinglePromptTrace((trace) => ({ ...trace, lastAction: "E preflight blocked", preflightOk: false, preflightReason: roleValidation.reason })); setImageGenerationStatus(roleValidation.reason); return; }
+      setSinglePromptTrace((trace) => ({ ...trace, lastAction: "E/F preflight passed; adapter resolved", preflightOk: true, adapterCategory: shoeCategory }));
     }
     if (productMode === "shoe" && shoeCategory === "boot") {
       const missingBootFields = [bootSpec.productName, bootSpec.color, bootSpec.upperMaterial, bootSpec.shaftHeight, bootSpec.heelHeight, (bootSpec.keyDetails ?? []).join("")].some((value) => !value?.trim());
@@ -259,34 +271,56 @@ function App() {
     }
     const nextParams = paramsForProduct({ ...params, generationNonce: params.generationNonce + 1 });
     setParams(nextParams);
-    const prompt = generateTeamPrompt(nextParams).prompt;
+    let builtPrompt: CurrentSinglePrompt;
+    try {
+      builtPrompt = buildCurrentSinglePrompt(nextParams);
+    } catch (error) {
+      setSinglePromptTrace((trace) => ({ ...trace, lastAction: "G builder error", error: error instanceof Error ? error.message : "unknown generation error" }));
+      setImageGenerationStatus(error instanceof Error ? error.message : "当前品类单张提示词生成失败，请检查输入。" );
+      return;
+    }
     const sourceFingerprint = productMode === "garment" ? createGarmentProductFingerprint(garment, garmentReferences) : "";
-    setSinglePromptResult({ mode: productMode, sourceFingerprint, prompt });
+    setSinglePromptTrace((trace) => ({ ...trace, lastAction: "H/I state write", builderCalled: true, builderResultType: typeof builtPrompt.prompt, builderPromptLength: builtPrompt.prompt.length, stateWriteCalled: true, stateWritePromptLength: builtPrompt.prompt.length, resolvedProductKey: builtPrompt.productKey, revisionWritten: nextParams.generationNonce, categoryWritten: builtPrompt.category ?? "garment" }));
+    setSinglePromptResult({ ...builtPrompt, sourceFingerprint, inputRevision: nextParams.generationNonce, generatedAt: Date.now() });
     setGeneratedProductFingerprint(sourceFingerprint);
     setCopyStatus("");
+    setImageGenerationStatus("");
     setHasPendingChanges(false);
   };
 
-  const syncPromptParams = () => {
+  const syncPromptParams = (updateSinglePrompt = true) => {
     if (!hasPendingChanges) return params;
     const syncedParams = paramsForProduct({ ...params, generationNonce: params.generationNonce + 1 });
     setParams(syncedParams);
-    const prompt = generateTeamPrompt(syncedParams).prompt;
+    if (!updateSinglePrompt) {
+      setHasPendingChanges(false);
+      return syncedParams;
+    }
+    const builtPrompt = buildCurrentSinglePrompt(syncedParams);
     const sourceFingerprint = productMode === "garment" ? createGarmentProductFingerprint(garment, garmentReferences) : "";
-    setSinglePromptResult({ mode: productMode, sourceFingerprint, prompt });
+    setSinglePromptResult({ ...builtPrompt, sourceFingerprint, inputRevision: syncedParams.generationNonce, generatedAt: Date.now() });
     setGeneratedProductFingerprint(sourceFingerprint);
     setHasPendingChanges(false);
     return syncedParams;
   };
 
   const handleCopy = async () => {
-    if (!singlePromptResult?.prompt) return;
+    if (!isCurrentSinglePromptVisible) return;
+    if (!singlePromptResult) return;
     await navigator.clipboard.writeText(singlePromptResult.prompt);
     setCopyStatus("已复制提示词。");
   };
 
+  const isCurrentSinglePromptVisible = Boolean(
+    singlePromptResult?.prompt.trim() &&
+    singlePromptResult?.mode === productMode &&
+    !hasPendingChanges &&
+    (productMode !== "shoe" || singlePromptResult?.category === shoeCategory) &&
+    singlePromptResult?.inputRevision === params.generationNonce
+  );
+
   const handleGenerateSoftContent = () => {
-    const syncedParams = syncPromptParams();
+    const syncedParams = syncPromptParams(false);
     const nextSoftGenerationNonce = softGenerationNonce + 1;
     setSoftGenerationNonce(nextSoftGenerationNonce);
     const nextContent = generateSoftSeedingContent({
@@ -429,6 +463,17 @@ function App() {
           ))}
         </div>
       )}
+
+      {productMode === "shoe" && shoeCategory !== "germanTrainer" && (() => {
+        const requirements = getShoeCategoryAdapter(shoeCategory).getReferenceRequirements();
+        const validation = validateShoeReferenceRoles(shoeCategory, referenceImages, requirements.minCount, requirements.requiredRoles);
+        const requiredLabel = requirements.requiredRoles.filter((role) => role !== "primary").join("、");
+        return <div className="mt-4 rounded-[18px] bg-white/70 px-4 py-3 text-xs leading-5 text-aura-muted ring-1 ring-aura-beige/70">
+          <div>已上传：{referenceImages.length} · 主参考图：{validation.primaryCount}</div>
+          <div>{validation.ok ? "缺少角色：无" : `缺少：${validation.missingRoles.length ? validation.missingRoles.join("、") : validation.reason}`}</div>
+          <div className="mt-1">当前要求：{requiredLabel || "无"}，最少 {requirements.minCount} 张</div>
+        </div>;
+      })()}
 
       <div className="mt-4 rounded-[18px] bg-aura-cream px-4 py-3 text-sm leading-6 text-aura-muted ring-1 ring-aura-beige/70">
         {imageGenerationStatus || "接口未接入前不会向外发送图片。接入后建议通过本地后端保存 API Key，再返回生成图片用于下载。"}
@@ -778,7 +823,7 @@ function App() {
                 </p>
               )}
 
-              <button type="button" onClick={handleGenerate} className={`w-full ${primaryButtonClass}`}>
+              <button type="button" onClick={handleGenerateCurrentSinglePrompt} className={`w-full ${primaryButtonClass}`}>
                 {hasPendingChanges ? "重新生成提示词" : "生成提示词"}
               </button>
             </div>
@@ -790,7 +835,7 @@ function App() {
                 <h2 className="text-xl font-semibold text-aura-charcoal">最终英文提示词</h2>
                 <p className="mt-2 text-sm leading-6 text-aura-muted">Standard 版本，可直接复制使用。</p>
               </div>
-              <button type="button" onClick={handleCopy} disabled={!singlePromptResult?.prompt} className={clayButtonClass}>
+              <button type="button" onClick={handleCopy} disabled={!isCurrentSinglePromptVisible} className={clayButtonClass}>
                 一键复制
               </button>
             </div>
@@ -798,8 +843,10 @@ function App() {
             {productMode === "garment" ? <div className="mb-5 rounded-[22px] bg-aura-cream p-5 text-sm leading-6 text-aura-muted ring-1 ring-aura-beige/70">服装参考图仅在当前浏览器本地预览。网站不会发送图片，也不会直接生成或下载图片；请复制 Prompt 后，将同一组参考图手动上传至 Image 2.0。</div> : imageGenerationPanel}
 
             <div className="aura-scrollbar min-h-[430px] whitespace-pre-wrap rounded-[22px] border border-aura-beige bg-white/75 p-5 text-sm leading-7 text-aura-charcoal shadow-inner lg:max-h-[610px] lg:overflow-y-auto">
-              {singlePromptResult?.prompt ?? "请先点击“生成单张 Prompt”。"}
+              {isCurrentSinglePromptVisible ? singlePromptResult?.prompt : hasPendingChanges ? "参数已变更，请重新生成当前单张 Prompt。" : "请先点击“生成单张 Prompt”。"}
             </div>
+
+            {window.location.hostname === "localhost" && <details className="mt-4 rounded-[18px] bg-aura-cream p-4 text-xs text-aura-muted ring-1 ring-aura-beige/70"><summary>Single Prompt diagnostic trace</summary><pre className="mt-3 whitespace-pre-wrap">{JSON.stringify({ ...singlePromptTrace, renderedStatePromptLength: singlePromptResult?.prompt.length ?? 0, visibilityPredicate: isCurrentSinglePromptVisible, stalePredicate: Boolean(singlePromptResult && !isCurrentSinglePromptVisible) }, null, 2)}</pre></details>}
 
             {copyStatus && <p className="mt-3 text-sm text-aura-muted">{copyStatus}</p>}
 

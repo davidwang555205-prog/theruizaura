@@ -13,8 +13,11 @@ const balletFlatAdapter = readFileSync("src/modules/product/shoe/balletFlatAdapt
 const sandalAdapter = readFileSync("src/modules/product/shoe/sandalAdapter.ts", "utf8");
 const muleAdapter = readFileSync("src/modules/product/shoe/muleAdapter.ts", "utf8");
 const softSeeding = readFileSync("src/utils/generateSoftSeedingContent.ts", "utf8");
+const acceptanceMatrix = readFileSync("src/data/phase8AcceptanceMatrix.ts", "utf8");
+const singlePromptRoute = readFileSync("src/utils/generateCurrentSinglePrompt.ts", "utf8");
+const referenceValidation = readFileSync("src/modules/product/shoe/shoeReferenceValidation.ts", "utf8");
 const required = [
-  ["Black Mirror UI name", app.includes("APP_NAME") && html.includes("Black Mirror")],
+  ["1. App identity", app.includes("APP_NAME") && html.includes("Black Mirror")],
   ["Garment adapter", app.includes("productMode")],
   ["Garment shot plans", readFileSync("src/modules/product/garment/garmentShotPlans.ts", "utf8").includes("getGarmentShotPlan")],
   ["Garment accuracy guards", readFileSync("src/modules/product/garment/garmentAccuracyGuards.ts", "utf8").includes("getGarmentVisibilityGuard")],
@@ -38,7 +41,25 @@ const required = [
   ["Mule adapter active", shoeRegistry.includes("mule: muleAdapter") && muleAdapter.includes('status: "active"')],
   ["Mule backless guards", muleAdapter.includes("backless edge") && muleAdapter.includes("insertion depth") && muleAdapter.includes("heel exposure")],
   ["Open-shoe plans and isolation", softSeeding.includes("getOpenShoeStudioDrafts") && !sandalAdapter.includes("muleAdapter") && !muleAdapter.includes("sandalAdapter")],
-  ["Planned shoe categories are blocked", shoeRegistry.includes('status: "planned"') && shoeRegistry.includes("does not yet support")],
+  ["2. Product mode isolation", app.includes('option value="shoe"') && app.includes('option value="garment"')],
+  ["3. Planned shoe categories are blocked", shoeRegistry.includes('status: "planned"') && shoeRegistry.includes("does not yet support")],
+  ["4. Unified acceptance matrix", acceptanceMatrix.includes("phase8AcceptanceMatrix") && acceptanceMatrix.includes("garment-single") && acceptanceMatrix.includes("germanTrainer") && acceptanceMatrix.includes("mule")],
+  ["5. Reference role routing", shoeTypes.includes('"fullSide"') && app.includes("完整侧面")],
+  ["6. Stale output handling", app.includes("setSinglePromptResult(null)") && app.includes("setHasPendingChanges(true)" )],
+  ["7. Result and copy flow", app.includes("formatSoftSeedingImagePrompts") && app.includes("handleCopy")],
+  ["7a. Current single prompt adapter route", singlePromptRoute.includes("buildCurrentSinglePrompt") && singlePromptRoute.includes("getShoeCategoryAdapter") && app.includes("buildCurrentSinglePrompt(nextParams)")],
+  ["7b. Single prompt metadata", singlePromptRoute.includes("category?: ShoeCategory") && singlePromptRoute.includes("productKey: string") && app.includes("inputRevision: number")],
+  ["7c. All active shoe categories share single route", ["germanTrainer", "pump", "boot", "loafer", "balletFlat", "sandal", "mule"].every((category) => shoeRegistry.includes(`${category}:`) && singlePromptRoute.includes("getShoeCategoryAdapter"))],
+  ["7d. Visible single-generation blocker", app.includes("setImageGenerationStatus") && app.includes("builtPrompt = buildCurrentSinglePrompt(nextParams)") && app.includes("catch (error)" )],
+  ["7e. Current category result metadata", app.includes("category: \"germanTrainer\"") && app.includes("inputRevision: nextParams.generationNonce")],
+  ["7f. Canonical reference-role validation", referenceValidation.includes("normalizeShoeReferenceRole") && referenceValidation.includes("completeSide") && app.includes("validateShoeReferenceRoles")],
+  ["7g. Visible reference-role summary", app.includes("已上传：") && app.includes("主参考图：") && app.includes("缺少角色：无")],
+  ["7h. Content does not own single visibility", app.includes("syncPromptParams(false)") && app.includes("const syncPromptParams = (updateSinglePrompt = true)")],
+  ["7i. Upper button owns authoritative single state", app.includes("onClick={handleGenerateCurrentSinglePrompt}") && app.includes("const isCurrentSinglePromptVisible") && app.includes("generatedAt: Date.now()")],
+  ["7j. In-page single trace", app.includes("SinglePromptTrace") && app.includes("Single Prompt diagnostic trace") && app.includes("stateWritePromptLength")],
+  ["8. Explicit blocked states", app.includes("规划中") && softSeeding.includes("不会回退")],
+  ["9. Performance chunk strategy", readFileSync("vite.config.ts", "utf8").includes("manualChunks")],
+  ["10. No persistent verification server", !readFileSync("scripts/verify-black-mirror-release.mjs", "utf8").includes("execSync(\"npm run dev\")")],
   ["Release script", packageJson.scripts["verify:release"] === "node scripts/verify-black-mirror-release.mjs"],
   ["No API integration", !app.includes("fetch(")]
 ];
