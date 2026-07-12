@@ -208,6 +208,45 @@ function buildCopyFromKit(topic: SoftSeedingTopic, variantIndex: number, selecte
   };
 }
 
+const garmentCategoryNames: Record<string, string> = { dress: "连衣裙", top: "上衣", shirt: "衬衫", knitwear: "针织衫", tshirt: "T恤", trousers: "裤装", skirt: "半裙", coat: "大衣", jacket: "夹克", suit: "西装", set: "套装", activewear: "轻运动服", bridal: "婚纱", eveningGown: "礼服", other: "服装" };
+const garmentTopicIntents: Record<string, string> = {
+  "生活场景软种草": "把服装放回真实日常，观察版型、比例、面料和穿着状态如何自然进入生活。",
+  "产品开发幕后": "记录面料、颜色、纸样、试穿和结构取舍，让设计判断有迹可循。",
+  "秋冬配色实验室": "讨论现有服装颜色在秋冬光线、材质和层次中的搭配关系，不改变产品原色。",
+  "穿搭解决方案": "用不同辅助搭配展示同一件服装在工作、周末、社交和出行中的适配方式。",
+  "材质工艺认知": "从表面、厚度、垂坠、缝线和关键结构理解服装的真实质感。",
+  "品牌审美观点": "表达克制、耐穿、重视比例与材质真实的衣橱审美。",
+  "上新活动转化": "用清楚的轮廓、细节、场景和搭配信息帮助用户判断是否适合自己。",
+  "棚内上新拍摄": "用统一棚拍方向讲清服装轮廓、结构、材质、比例和穿着效果。"
+};
+
+function buildGarmentCopy(topic: SoftSeedingTopic, variantIndex: number, drafts: SoftSeedingImageDraft[], baseParams: TeamPromptParams): TopicCopyDraft {
+  const garment = baseParams.productContext?.mode === "garment" ? baseParams.productContext.garment : undefined;
+  const category = garmentCategoryNames[garment?.category ?? "other"];
+  const name = garment?.name?.trim() || category;
+  const focus = garment?.keyDetails?.length ? garment.keyDetails.slice(0, 2).join("、") : "轮廓、比例与面料";
+  const sceneNames = drafts.map((draft) => draft.scenePreference).filter((scene) => scene !== "自动匹配").slice(0, 3).join("、");
+  const titleSeeds = [
+    `${name}放进真实日常里，先看比例和状态`,
+    `这组${category}，把${focus}拍得更清楚`,
+    `${name}的上新记录：从结构到穿着感`
+  ];
+  const body = `${garmentTopicIntents[topic] ?? "围绕服装本身，记录真实穿着和细节。"}\n\n这次看的是${name}，重点放在${focus}。${sceneNames ? `画面从${sceneNames}展开，` : ""}不把主服装换成另一件，也不靠夸张形容词替代产品信息。\n\n同一组保持同一件服装、同一位模特和统一视觉方向；只有场景、角度和辅助搭配按主题需要变化。`;
+  const tags = Array.from(new Set([`#${category}`, `#${topic}`, "#真实穿着", "#衣橱搭配", garment?.fabric ? `#${garment.fabric}` : "#面料细节", garment?.color ? `#${garment.color}` : "#低饱和穿搭"])).filter(Boolean);
+  return { titles: titleSeeds.map((title, index) => `${title}${(variantIndex + index) % 2 ? "｜真实参考" : ""}`), body, tags, note: `服装主题：${garmentTopicIntents[topic] ?? "围绕产品结构和真实使用场景展开。"}` };
+}
+
+export function validateGarmentCopy(content: SoftSeedingContent) {
+  const shoePrimary = /上脚|脚感|鞋型|鞋头|鞋底|鞋带|鞋舌|磨合|暴走|德训鞋|sneaker as the main product|toe box|outsole|laces|tongue/i;
+  const warnings = [
+    ...(content.titles.some((title) => shoePrimary.test(title)) ? ["标题包含鞋履主产品词"] : []),
+    ...(shoePrimary.test(content.body) ? ["正文包含鞋履主产品词"] : []),
+    ...(new Set(content.tags).size !== content.tags.length ? ["标签存在重复"] : []),
+    ...(new Set(content.images.map((image) => image.name)).size !== content.images.length ? ["图片计划名称重复"] : [])
+  ];
+  return { valid: warnings.length === 0, warnings };
+}
+
 type StoryDrivenContext = {
   firstScene: string;
   secondScene: string;
@@ -3323,8 +3362,8 @@ function buildImagePlan(
   const output = generateTeamPrompt(params);
 
   return {
-    name: draft.name,
-    purpose: draft.purpose,
+    name: garmentShotPlan ? garmentShotPlan.name : draft.name,
+    purpose: garmentShotPlan ? garmentShotPlan.purpose : draft.purpose,
     description: draft.description,
     params,
     prompt: output.prompt
@@ -3374,7 +3413,9 @@ export function generateSoftSeedingContent(input: SoftSeedingInput): SoftSeeding
   const requestedImageCount = input.imageCount ?? (topic === "棚内上新拍摄" ? 8 : 5);
   const imageCount = normalizeSoftSeedingImageCount(topic, requestedImageCount);
   const selectedImageDrafts = selectSoftSeedingImageDrafts(topic, variantIndex, imageCount, input.baseParams.season);
-  const copy = buildCopyFromKit(topic, variantIndex, selectedImageDrafts);
+  const copy = input.baseParams.productContext?.mode === "garment"
+    ? buildGarmentCopy(topic, variantIndex, selectedImageDrafts, input.baseParams)
+    : buildCopyFromKit(topic, variantIndex, selectedImageDrafts);
 
   return {
     topic,
@@ -3411,7 +3452,9 @@ export function formatSoftSeedingContent(content: SoftSeedingContent) {
       `### ${index + 1}. ${image.name}`,
       `配图建议：${image.description}`,
       `用途：${image.purpose}`,
-      `参数：${image.params.imageType} / ${image.params.scenePreference} / ${image.params.season} / ${image.params.garmentTypePreference} / ${getShoeDisplayName(image.params.shoe, image.params.customShoe)}`,
+      image.params.productContext?.mode === "garment"
+        ? `参数：${image.params.imageType} / ${image.params.scenePreference} / ${image.params.season}`
+        : `参数：${image.params.imageType} / ${image.params.scenePreference} / ${image.params.season} / ${image.params.garmentTypePreference} / ${getShoeDisplayName(image.params.shoe, image.params.customShoe)}`,
       "",
       image.prompt,
       ""
