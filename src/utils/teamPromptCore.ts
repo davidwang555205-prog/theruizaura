@@ -1492,6 +1492,25 @@ function getTimeLine(params: TeamPromptParams, sceneKey: StandardSceneKey) {
   return `Natural daily light with believable brightness, soft shadows, and ${TEAM_SEASON_LIGHT[params.season]}.`;
 }
 
+function adaptPumpPromptVocabulary(prompt: string, isPump: boolean) {
+  if (!isPump) return prompt;
+  return prompt
+    .replace(/both sneakers?/gi, "both pumps")
+    .replace(/sneakers?/gi, "pumps")
+    .replace(/German trainer/gi, "closed-toe pump")
+    .replace(/running-shoe/gi, "unreferenced footwear")
+    .replace(/toe box/gi, "toe shape")
+    .replace(/shoe collar/gi, "pump topline")
+    .replace(/shoelaces?|laces?/gi, "vamp and topline")
+    .replace(/tongue/gi, "topline")
+    .replace(/eyelets?/gi, "side-cut detail")
+    .replace(/slim outsole/gi, "outsole and heel relationship")
+    .replace(/trainer panels?|sneaker panels?/gi, "pump side-cut structure")
+    .replace(/forefoot flex/gi, "foot-to-pump contact")
+    .replace(/THERUIZ AURA pumps?/gi, "the same pump")
+    .replace(/never use sneaker, trainer, tongue, lace, or eyelet language/gi, "never use trainer construction language");
+}
+
 export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
   const productContext = resolveProductContext(params);
   const productAdapter = getProductAdapter(productContext);
@@ -2231,9 +2250,13 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
   const prompt = productAdapter.mode === "garment"
     ? sanitizeGarmentPrompt(cleanFinalPrompt(modelAdjustedPrompt))
     : cleanFinalPrompt(modelAdjustedPrompt);
+  const categoryAwarePrompt = adaptPumpPromptVocabulary(
+    prompt,
+    productContext.mode === "shoe" && productContext.category === "pump"
+  );
 
   return {
-    prompt,
+    prompt: categoryAwarePrompt,
     hasShoe,
     hasProduct: productPresent,
     productMode: productAdapter.mode,

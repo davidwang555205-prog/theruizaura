@@ -1,6 +1,7 @@
 import type { ProductPromptAdapter } from "../productAdapter";
 import type { ProductAdapterInput, ProductPresenceInput } from "../types";
 import { germanTrainerAdapter } from "./germanTrainerAdapter";
+import { pumpAdapter } from "./pumpAdapter";
 import {
   SHOE_CATEGORY_LABELS,
   type ShoeAccuracyGuardSet,
@@ -78,7 +79,7 @@ function createPlannedAdapter(category: Exclude<ShoeCategory, "germanTrainer">):
 
 export const shoeCategoryRegistry: Record<ShoeCategory, ShoeCategoryAdapter> = {
   germanTrainer: germanTrainerAdapter,
-  pump: createPlannedAdapter("pump"),
+  pump: pumpAdapter,
   boot: createPlannedAdapter("boot"),
   loafer: createPlannedAdapter("loafer"),
   balletFlat: createPlannedAdapter("balletFlat"),

@@ -42,6 +42,11 @@ export type ShoeReferenceRole =
   | "material"
   | "detail";
 
+export type PumpToeShape = "pointed" | "almond" | "round" | "square" | "other";
+export type PumpHeelType = "stiletto" | "kitten" | "block" | "cone" | "sculptural" | "other";
+export type PumpBackType = "closedBack" | "slingback";
+export type PumpStrapType = "none" | "ankleStrap" | "instepStrap" | "maryJane" | "other";
+
 export type ShoeReferenceRequirements = {
   minCount: number;
   maxCount: number;
@@ -64,6 +69,31 @@ export type BaseShoeSpec = {
   keyDetails?: string[];
 };
 
+export type PumpShoeSpec = BaseShoeSpec & {
+  category: "pump";
+  productName: string;
+  brandName?: string;
+  toeShape: PumpToeShape;
+  heelType: PumpHeelType;
+  heelHeight: string;
+  vampShape?: string;
+  vampCoverage?: string;
+  toplineShape?: string;
+  sideCut?: string;
+  backType: PumpBackType;
+  heelCounterHeight?: string;
+  strapType: PumpStrapType;
+  strapPlacement?: string;
+  archCurve?: string;
+  heelThickness?: string;
+  heelPlacement?: string;
+  heelAngle?: string;
+  outsoleThickness?: string;
+  platformHeight?: string;
+  finish?: string;
+  decorativeDetails?: string;
+};
+
 export type GermanTrainerSpec = BaseShoeSpec & {
   category: "germanTrainer";
   silhouette?: string;
@@ -75,7 +105,7 @@ export type GermanTrainerSpec = BaseShoeSpec & {
 };
 
 export type ShoeFieldDefinition = {
-  key: keyof BaseShoeSpec;
+  key: string;
   label: string;
   type: "text" | "select" | "textarea";
   required?: boolean;
@@ -107,6 +137,7 @@ export type ShoeProductContext = {
   customShoe: string;
   /** Omitted only by legacy German-trainer callers. New category-aware callers must set it. */
   category?: ShoeCategory;
+  pumpSpec?: PumpShoeSpec;
 };
 
 export function resolveShoeCategory(context: ShoeProductContext): ShoeCategory {
@@ -119,7 +150,7 @@ export function toBaseShoeSpec(context: ShoeProductContext): BaseShoeSpec {
   const category = resolveShoeCategory(context);
   return {
     category,
-    brandName: "THERUIZ AURA",
+    brandName: category === "germanTrainer" ? "THERUIZ AURA" : undefined,
     productName: context.shoe === "自定义" ? context.customShoe.trim() || "selected shoe" : context.shoe,
     keyDetails: category === "germanTrainer"
       ? ["low-cut silhouette", "rounded toe box", "slim outsole", "panels", "tongue", "laces"]

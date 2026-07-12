@@ -12,6 +12,7 @@ import type {
 } from "./types";
 import type { ProductMode } from "./modules/product/types";
 import type { GarmentProductCategory, GarmentProductSpec } from "./modules/product/garment/garmentProductTypes";
+import type { PumpBackType, PumpHeelType, PumpShoeSpec, PumpStrapType, PumpToeShape, ShoeCategory, ShoeReferenceRole } from "./modules/product/shoe/shoeProductTypes";
 import { GarmentReferenceUploader, hasValidGarmentReferences, type GarmentReference } from "./components/GarmentReferenceUploader";
 import { generateTeamPrompt } from "./utils/generatePrompt";
 import {
@@ -101,6 +102,7 @@ type ReferenceImage = {
   name: string;
   size: number;
   url: string;
+  role: ShoeReferenceRole;
 };
 type ShoeDraft = Pick<TeamPromptParams, "shoe" | "customShoe">;
 type SinglePromptResult = { mode: ProductMode; sourceFingerprint: string; prompt: string };
@@ -141,6 +143,8 @@ function App() {
   const [params, setParams] = useState<TeamPromptParams>(initialParams);
   const [productMode, setProductMode] = useState<ProductMode>("shoe");
   const [shoeDraft, setShoeDraft] = useState<ShoeDraft>({ shoe: initialParams.shoe, customShoe: initialParams.customShoe });
+  const [shoeCategory, setShoeCategory] = useState<ShoeCategory>("germanTrainer");
+  const [pumpSpec, setPumpSpec] = useState<PumpShoeSpec>({ category: "pump", productName: "", color: "", upperMaterial: "", toeShape: "almond", heelType: "kitten", heelHeight: "按参考图保持", backType: "closedBack", strapType: "none", keyDetails: [] });
   const [garmentReferences, setGarmentReferences] = useState<GarmentReference[]>([]);
   const [garment, setGarment] = useState<GarmentProductSpec>({ category: "dress", name: "", color: "", fabric: "", silhouette: "" });
   const [generatedProductFingerprint, setGeneratedProductFingerprint] = useState("");
@@ -179,6 +183,13 @@ function App() {
   }, [garment, garmentReferences, productMode, generatedProductFingerprint]);
 
   useEffect(() => {
+    if (productMode !== "shoe" || shoeCategory !== "pump") return;
+    setHasPendingChanges(true);
+    setSinglePromptResult(null);
+    setCopyStatus("");
+  }, [pumpSpec, shoeCategory, productMode]);
+
+  useEffect(() => {
     return () => {
       referenceImagesRef.current.forEach((image) => URL.revokeObjectURL(image.url));
     };
@@ -190,7 +201,7 @@ function App() {
   const showsModelChoice = peopleImageTypes.includes(params.imageType);
   const paramsForProduct = (value: TeamPromptParams): TeamPromptParams => productMode === "garment"
     ? { ...value, productContext: { mode: "garment", garment }, garmentReferenceRoles: garmentReferences.map((reference) => reference.role) }
-    : { ...value, productContext: undefined };
+    : { ...value, productContext: { mode: "shoe", shoe: shoeDraft.shoe, customShoe: shoeDraft.customShoe, category: shoeCategory, pumpSpec: shoeCategory === "pump" ? pumpSpec : undefined } };
 
   const updateParams = (updater: (current: TeamPromptParams) => TeamPromptParams) => {
     setParams((current) => updater(current));
@@ -201,6 +212,12 @@ function App() {
 
   const handleGenerate = () => {
     if (productMode === "garment" && !hasValidGarmentReferences(garmentReferences)) { setImageGenerationStatus("服装模式需要至少4张参考图，并且必须包含正面完整图。"); return; }
+    if (productMode === "shoe" && shoeCategory === "pump") {
+      const missingPumpFields = [pumpSpec.productName, pumpSpec.color, pumpSpec.upperMaterial, pumpSpec.heelHeight, (pumpSpec.keyDetails ?? []).join("")].some((value) => !value?.trim());
+      if (missingPumpFields) { setImageGenerationStatus("高跟单鞋需要填写鞋款名称、主颜色、鞋面材质、鞋跟高度和关键细节。"); return; }
+      if (referenceImages.length < 4) { setImageGenerationStatus("高跟单鞋需要至少 4 张参考图，并且必须包含完整侧面参考图。"); return; }
+      if (referenceImages.filter((image) => image.role === "primary").length !== 1 || !referenceImages.some((image) => image.role === "side")) { setImageGenerationStatus("高跟单鞋参考图必须标记 1 张主图和至少 1 张完整侧面图。"); return; }
+    }
     const nextParams = paramsForProduct({ ...params, generationNonce: params.generationNonce + 1 });
     setParams(nextParams);
     const prompt = generateTeamPrompt(nextParams).prompt;
@@ -257,21 +274,24 @@ function App() {
     const files = Array.from(event.target.files ?? []);
     if (files.length === 0) return;
 
-    const availableSlots = Math.max(0, 9 - referenceImages.length);
+    const maxReferenceCount = productMode === "shoe" && shoeCategory === "pump" ? 6 : 9;
+    const availableSlots = Math.max(0, maxReferenceCount - referenceImages.length);
     const selectedFiles = files.slice(0, availableSlots);
     const skippedCount = files.length - selectedFiles.length;
 
-    const nextImages = selectedFiles.map((file) => ({
+    const roleOrder: ShoeReferenceRole[] = ["primary", "side", "front", "rear", "detail", "material"];
+    const nextImages = selectedFiles.map((file, index) => ({
       id: `${file.name}-${file.lastModified}-${crypto.randomUUID()}`,
       name: file.name,
       size: file.size,
-      url: URL.createObjectURL(file)
+      url: URL.createObjectURL(file),
+      role: roleOrder[Math.min(roleOrder.length - 1, referenceImages.length + index)]
     }));
 
     setReferenceImages((current) => [...current, ...nextImages]);
     setImageGenerationStatus(
       skippedCount > 0
-        ? `已添加 ${nextImages.length} 张参考图，最多保留 9 张。`
+        ? `已添加 ${nextImages.length} 张参考图，当前品类最多保留 ${maxReferenceCount} 张。`
         : `已添加 ${nextImages.length} 张参考图。`
     );
     event.target.value = "";
@@ -289,6 +309,11 @@ function App() {
   const handleGenerateImagePlaceholder = () => {
     if (referenceImages.length === 0) {
       setImageGenerationStatus("请先上传 1–9 张鞋子参考图，再点击生成图片。");
+      return;
+    }
+
+    if (productMode === "shoe" && shoeCategory === "pump" && referenceImages.length < 4) {
+      setImageGenerationStatus("高跟单鞋需要至少 4 张参考图，且应包含完整侧面参考图。");
       return;
     }
 
@@ -348,7 +373,8 @@ function App() {
             <div key={image.id} className="overflow-hidden rounded-[18px] bg-aura-cream ring-1 ring-aura-beige/70">
               <img src={image.url} alt={image.name} className="aspect-square w-full object-cover" />
               <div className="space-y-2 p-3">
-                <p className="truncate text-xs font-medium text-aura-charcoal">{image.name}</p>
+                  <p className="truncate text-xs font-medium text-aura-charcoal">{image.name}</p>
+                {productMode === "shoe" && shoeCategory === "pump" && <select className="w-full rounded-lg border border-aura-beige bg-white px-2 py-1 text-xs" value={image.role} onChange={(event) => { const role = event.target.value as ShoeReferenceRole; setReferenceImages((current) => current.map((item) => item.id === image.id ? { ...item, role } : item)); setHasPendingChanges(true); }}><option value="primary">主图</option><option value="side">完整侧面</option><option value="front">正面</option><option value="rear">后面</option><option value="top">俯视</option><option value="outsole">外底</option><option value="detail">后跟 / 细节</option><option value="material">材质</option></select>}
                 <div className="flex items-center justify-between gap-2">
                   <span className="text-xs text-aura-muted">{formatFileSize(image.size)}</span>
                   <button
@@ -480,6 +506,47 @@ function App() {
                   </label>
                 </>
               )}
+
+              {productMode === "shoe" && <label className="block space-y-2">
+                <span className="text-sm font-medium text-aura-charcoal">鞋履品类</span>
+                <select
+                  className={inputClass}
+                  value={shoeCategory}
+                  onChange={(event) => { const category = event.target.value as ShoeCategory; setShoeCategory(category); setSinglePromptResult(null); setGeneratedProductFingerprint(""); updateParams((current) => ({ ...current, productContext: { mode: "shoe", shoe: shoeDraft.shoe, customShoe: shoeDraft.customShoe, category, pumpSpec: category === "pump" ? pumpSpec : undefined } })); }}
+                >
+                  <option value="germanTrainer">德训鞋 / 低帮运动休闲鞋</option>
+                  <option value="pump">高跟单鞋</option>
+                  <option value="boot" disabled>靴子（规划中）</option>
+                  <option value="loafer" disabled>乐福鞋（规划中）</option>
+                  <option value="balletFlat" disabled>芭蕾鞋 / 平底鞋（规划中）</option>
+                  <option value="sandal" disabled>凉鞋（规划中）</option>
+                  <option value="mule" disabled>穆勒鞋（规划中）</option>
+                  <option value="other" disabled>其他鞋型（规划中）</option>
+                </select>
+                <span className="block text-xs leading-5 text-aura-muted">当前已支持德训鞋与高跟单鞋；其他鞋型保持规划状态，不会回退到已支持品类。</span>
+              </label>}
+
+              {productMode === "shoe" && shoeCategory === "pump" && <div className="space-y-3 rounded-[20px] bg-aura-cream/70 p-4 ring-1 ring-aura-beige/70">
+                <div>
+                  <p className="text-sm font-medium text-aura-charcoal">高跟单鞋规格</p>
+                  <p className="mt-1 text-xs leading-5 text-aura-muted">未知结构请填写“按参考图保持”，不自动补写品牌、鞋跟高度或材质成分。</p>
+                </div>
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <input className={inputClass} placeholder="鞋款名称（必填）" value={pumpSpec.productName} onChange={(event) => setPumpSpec((current) => ({ ...current, productName: event.target.value }))} />
+                  <input className={inputClass} placeholder="品牌（可选）" value={pumpSpec.brandName ?? ""} onChange={(event) => setPumpSpec((current) => ({ ...current, brandName: event.target.value }))} />
+                  <input className={inputClass} placeholder="主颜色（必填）" value={pumpSpec.color ?? ""} onChange={(event) => setPumpSpec((current) => ({ ...current, color: event.target.value }))} />
+                  <input className={inputClass} placeholder="鞋面材质 / 材质外观（必填）" value={pumpSpec.upperMaterial ?? ""} onChange={(event) => setPumpSpec((current) => ({ ...current, upperMaterial: event.target.value }))} />
+                  <select className={inputClass} value={pumpSpec.toeShape} onChange={(event) => setPumpSpec((current) => ({ ...current, toeShape: event.target.value as PumpToeShape }))}><option value="pointed">尖头</option><option value="almond">杏仁头</option><option value="round">圆头</option><option value="square">方头</option><option value="other">按参考图保持</option></select>
+                  <select className={inputClass} value={pumpSpec.heelType} onChange={(event) => setPumpSpec((current) => ({ ...current, heelType: event.target.value as PumpHeelType }))}><option value="stiletto">细跟</option><option value="kitten">猫跟</option><option value="block">粗跟</option><option value="cone">锥形跟</option><option value="sculptural">造型跟</option><option value="other">按参考图保持</option></select>
+                  <input className={inputClass} placeholder="鞋跟高度（必填）" value={pumpSpec.heelHeight} onChange={(event) => setPumpSpec((current) => ({ ...current, heelHeight: event.target.value }))} />
+                  <select className={inputClass} value={pumpSpec.backType} onChange={(event) => setPumpSpec((current) => ({ ...current, backType: event.target.value as PumpBackType }))}><option value="closedBack">包跟</option><option value="slingback">后空 / Slingback</option></select>
+                  <select className={inputClass} value={pumpSpec.strapType} onChange={(event) => setPumpSpec((current) => ({ ...current, strapType: event.target.value as PumpStrapType }))}><option value="none">无绑带</option><option value="ankleStrap">踝带</option><option value="instepStrap">鞋面带</option><option value="maryJane">玛丽珍带</option><option value="other">按参考图保持</option></select>
+                  <input className={inputClass} placeholder="鞋跟厚度 / 位置 / 角度（可选）" value={[pumpSpec.heelThickness, pumpSpec.heelPlacement, pumpSpec.heelAngle].filter(Boolean).join(" / ")} onChange={(event) => setPumpSpec((current) => ({ ...current, heelThickness: event.target.value, heelPlacement: event.target.value, heelAngle: event.target.value }))} />
+                  <input className={inputClass} placeholder="鞋口 / 鞋面 / 侧帮细节（可选）" value={[pumpSpec.vampShape, pumpSpec.toplineShape, pumpSpec.sideCut].filter(Boolean).join(" / ")} onChange={(event) => setPumpSpec((current) => ({ ...current, vampShape: event.target.value, toplineShape: event.target.value, sideCut: event.target.value }))} />
+                  <input className={inputClass} placeholder="关键细节（必填）" value={(pumpSpec.keyDetails ?? []).join("、")} onChange={(event) => setPumpSpec((current) => ({ ...current, keyDetails: event.target.value.split(/[、,，]/).map((item) => item.trim()).filter(Boolean) }))} />
+                </div>
+                <p className="text-xs leading-5 text-aura-muted">高跟单鞋至少上传 4 张参考图，建议按主图、完整侧面、正面、后跟 / 细节顺序上传；完整侧面用于确认鞋跟高度、位置、足弓曲线和侧帮结构。</p>
+              </div>}
 
               {productMode === "shoe" && <label className="block space-y-2">
                 <span className="text-sm font-medium text-aura-charcoal">鞋款</span>

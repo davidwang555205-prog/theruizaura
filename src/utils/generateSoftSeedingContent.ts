@@ -10,6 +10,7 @@ import type { GarmentSeriesContext } from "../modules/product/garment/garmentPro
 import { getGarmentShotPlan } from "../modules/product/garment/garmentShotPlans";
 import { getShoeCategoryAdapter } from "../modules/product/shoe/shoeCategoryRegistry";
 import { SHOE_CATEGORY_LABELS } from "../modules/product/shoe/shoeProductTypes";
+import { resolveShoeCategory, type ShoeCategory } from "../modules/product/shoe/shoeProductTypes";
 import { resolveProductContext } from "../modules/product/resolveProductContext";
 import {
   lifestyleSoftSeedingScenePool,
@@ -50,6 +51,7 @@ export type SoftSeedingContent = {
   body: string;
   images: SoftSeedingImagePlan[];
   shoeSeriesDiversityValidation?: ShoeSeriesDiversityValidation;
+  pumpCopyValidation?: { valid: boolean; warnings: string[] };
   tags: string[];
   note: string;
 };
@@ -231,6 +233,41 @@ function buildCopyFromKit(topic: SoftSeedingTopic, variantIndex: number, selecte
     tags: topicCopyKits[copyTopic].tags,
     note: storyDrivenNotes[copyTopic]
   };
+}
+
+function buildPumpCopy(topic: SoftSeedingTopic, variantIndex: number, selectedImageDrafts: SoftSeedingImageDraft[], baseParams: TeamPromptParams): TopicCopyDraft {
+  const pump = baseParams.productContext?.mode === "shoe" ? baseParams.productContext.pumpSpec : undefined;
+  const name = pump?.productName?.trim() || "这双高跟单鞋";
+  const toe = pump?.toeShape && pump.toeShape !== "other" ? pump.toeShape : "鞋头形状";
+  const heel = pump?.heelType && pump.heelType !== "other" ? pump.heelType : "鞋跟类型";
+  const scenes = selectedImageDrafts.map((draft) => getReaderSceneName(draft)).slice(0, 3).join("、");
+  const topicNotes: Record<SoftSeedingTopic, string> = {
+    "生活场景软种草": `把${name}放回工作日和轻社交场景，重点看鞋头、鞋面线条、鞋跟比例和走动时的接地。`,
+    "产品开发幕后": `记录${name}在鞋头、鞋口、鞋跟位置和材质选择上的取舍，只写能从参考图或用户资料确认的内容。`,
+    "秋冬配色实验室": `保持${name}的原色和鞋跟结构不变，观察它与秋冬裤装、裙装、袜装和光线的关系。`,
+    "穿搭解决方案": `保持同一双${name}不变，用裤装、裙装、连衣裙和西装解决不同工作与社交场景的比例问题。`,
+    "材质工艺认知": `从${name}的鞋头边缘、鞋面覆盖、鞋口、侧帮、鞋跟包边和表面光泽理解材质与工艺。`,
+    "品牌审美观点": `从${name}的鞋头几何、鞋跟比例和衣橱关系表达克制的高跟单鞋审美。`,
+    "上新活动转化": `把${name}的${toe}、${heel}和已知鞋跟高度讲清楚，帮助用户判断适合的工作、通勤和社交场景。`,
+    "棚内上新拍摄": `用八张棚拍分别证明${name}的鞋头、鞋面、鞋口、侧帮、后跟、鞋跟结构、材质和上脚比例。`
+  };
+  const titles = [
+    `${name}，先看鞋头和鞋跟比例`,
+    `把${name}放进真实一天里看`,
+    `${name}的上新记录：结构比形容词重要`
+  ].map((title, index) => `${title}${(variantIndex + index) % 2 ? "｜真实参考" : ""}`);
+  const body = `${topicNotes[topic]}\n\n${scenes ? `这组从${scenes}展开，` : "这组从真实场景展开，"}同一双鞋、同一位模特和统一视觉方向保持不变，只改变镜头任务、动作和构图。\n\n文案只使用用户提供的产品事实，不延伸未确认的功能判断。`;
+  return { titles, body, tags: ["#高跟单鞋", `#${topic}`, "#鞋型细节", "#真实穿着"], note: topicNotes[topic] };
+}
+
+function validatePumpCopy(content: SoftSeedingContent) {
+  const forbidden = /德训鞋|sneaker|trainer|鞋舌|鞋带|laces?|tongue|eyelets?|running-shoe|全天舒适|不磨脚|防滑|无痛|人体工学|矫形/i;
+  const warnings = [
+    ...(content.titles.some((title) => forbidden.test(title)) ? ["标题包含高跟单鞋不适用词"] : []),
+    ...(forbidden.test(content.body) ? ["正文包含高跟单鞋不适用词或未经证实承诺"] : []),
+    ...(new Set(content.images.map((image) => image.name)).size !== content.images.length ? ["图片计划名称重复"] : [])
+  ];
+  return { valid: warnings.length === 0, warnings };
 }
 
 const garmentCategoryNames: Record<string, string> = { dress: "连衣裙", top: "上衣", shirt: "衬衫", knitwear: "针织衫", tshirt: "T恤", trousers: "裤装", skirt: "半裙", coat: "大衣", jacket: "夹克", suit: "西装", set: "套装", activewear: "轻运动服", bridal: "婚纱", eveningGown: "礼服", other: "服装" };
@@ -2987,6 +3024,43 @@ const shoeLifestyleFiveImageShotPlans: ShoeLifestyleShotPlan[] = [
   }
 ];
 
+const pumpLifestyleThreeImageShotPlans: ShoeLifestyleShotPlan[] = [
+  { id: "pump-lifestyle-departure", purpose: "full-look departure hero", actionFamily: "departure-standing", poseType: "standing", framing: "a full-body or environmental front-side three-quarter frame", bodyOrientation: "balanced standing near an entryway, mirror, lobby, or office departure point", action: "prepare to leave with a calm weight shift and both pumps grounded; keep the toe, vamp, topline, and heel readable", gaze: "toward the doorway or a nearby scene detail", expression: "alive, attentive, and relaxed with a faint natural micro-smile", propRule: "Keep both hands empty or place any bag beside the subject; never cover the pumps.", stylingVariation: "Use ankle-length trousers, a midi skirt, a knee-length skirt, a refined dress, or tailored suit styling that leaves at least one pump fully visible.", forceNoHandheldObject: true },
+  { id: "pump-lifestyle-side-step", purpose: "side-profile movement proof", actionFamily: "controlled-small-step", poseType: "walking", framing: "a wider side or side-three-quarter composition with room around the feet", bodyOrientation: "a short controlled step through a corridor, parking-to-office path, or quiet city edge", action: "take one small natural step; show heel-to-ground contact, arch curve, pitch, and realistic ankle alignment without a runway stride", gaze: "toward the movement destination", expression: "focused and responsive rather than blank or posed", propRule: "No handheld prop; keep the floor visible around both heel contact points.", stylingVariation: "Keep the same pump and model while changing only the supporting layer or trouser/skirt relationship.", forceNoHandheldObject: true },
+  { id: "pump-lifestyle-pause", purpose: "pause / seated social proof", actionFamily: "pause-or-seated", poseType: "seated", framing: "a lower three-quarter or medium crop with one full pump readable", bodyOrientation: "a restrained seated pause or standing wait near a counter, cafe, hotel, or office threshold", action: "settle naturally after the small movement; keep the closed toe, topline, side cut, heel, and foot-to-shoe contact visible", gaze: "toward a nearby table edge, display, or companion", expression: "a soft observant look with a natural half-smile, distinct from the first two cards", propRule: "Place any bag or object in the environment, not across the shoe area.", stylingVariation: "Use a different framing and calm social styling while preserving the same pump geometry and wardrobe family.", forceNoHandheldObject: true }
+];
+
+const pumpLifestyleFiveImageShotPlans: ShoeLifestyleShotPlan[] = [
+  ...pumpLifestyleThreeImageShotPlans,
+  { id: "pump-lifestyle-arrival", purpose: "office or cultural arrival", actionFamily: "arrival-browse", poseType: "standing", framing: "an environmental three-quarter arrival frame with negative space", bodyOrientation: "a side-oriented doorway, gallery, bookstore, or office-lobby pause", action: "arrive and stop with realistic heel support; keep the heel counter and side cut unobstructed", gaze: "toward the destination", expression: "quietly observant with a subtle brow response", propRule: "No handheld item unless it is placed away from the foot area.", stylingVariation: "Allow one restrained accessory or layer change while keeping the same pump.", forceNoHandheldObject: true },
+  { id: "pump-lifestyle-heel-proof", purpose: "natural-context heel and material proof", actionFamily: "lower-detail-pause", poseType: "seated", framing: "a closer lower three-quarter or waist-to-floor proof frame", bodyOrientation: "a grounded offset stance or seated lower-leg angle", action: "show heel thickness, heel placement, outsole relationship, toe shape, and material response without enlarging or distorting the shoe", gaze: "downward briefly toward the outfit or softly off camera", expression: "relaxed after-action expression with a small exhale", propRule: "No prop is required; keep any environmental object outside the shoe silhouette.", stylingVariation: "Use a distinct lower-body crop and hem relationship while preserving exact product identity.", forceNoHandheldObject: true }
+];
+
+const pumpStudioShotDrafts: SoftSeedingImageDraft[] = [
+  ["全身前侧主视觉", "建立同一人物、穿搭和高跟单鞋基准。", "同一人物全身前侧，鞋头、鞋面、鞋跟和接地清楚。", "Show the same model head-to-toe in a calm pump studio hero. Keep the closed-toe pump fully readable from toe to heel, with toe shape, vamp, topline, side cut, heel, and ground contact clear."],
+  ["完整侧面", "确认鞋跟高度、位置、足弓曲线和鞋身侧线。", "干净完整侧面，展示鞋跟与外底关系。", "Use a full side profile of the same pump and model. Show heel height, heel placement, heel angle, arch curve, pitch, outsole thickness, and believable foot contact."],
+  ["正面鞋头", "确认鞋头形状、宽度、鞋口和左右对称。", "正面构图，鞋头和鞋口开口可判断。", "Use a controlled front view showing toe shape, toe width, vamp coverage, topline opening, left-right symmetry, and natural ankle alignment."],
+  ["后侧三分之四", "确认后跟包覆与鞋跟连接；无后跟参考时不臆造背面。", "后侧三分之四，不补写不可见结构。", "Use a rear or rear three-quarter pump view only to the extent supported by uploaded rear references. Do not invent unseen rear construction; show the heel counter and heel-to-body connection."],
+  ["鞋跟结构细节", "确认鞋跟类型、厚度、曲线、位置和接地点。", "鞋跟局部特写，保持真实比例。", "Create a restrained heel-geometry detail showing heel type, thickness, curve, placement, connection to outsole, and contact point. No floating, bent, detached, or shifted heel."],
+  ["鞋面鞋口侧帮", "确认鞋面覆盖、鞋口曲线、侧帮开口和绑带。", "鞋头至侧帮的材质结构特写。", "Create a controlled vamp, topline, side-cut, and strap detail. Preserve exact opening curves, edge finishing, and any referenced strap; do not add or remove construction."],
+  ["材质与边缘工艺", "确认皮面、绒面、缎面或漆面表现与包边细节。", "材质、包边、缝线和装饰细节清楚。", "Show material texture, sheen, piping, seam, lining edge, heel wrapping, and decorative detail only when visible in the references. Do not invent composition."],
+  ["控制上脚 / 成对证明", "用克制上脚或成对构图证明比例与穿着接触。", "最后一张保留鞋型、鞋跟和接地的整体证明。", "Use a restrained worn standing view or matched-pair studio composition. Keep the same pump geometry, natural foot insertion, left-right scale, heel contact, and no exaggerated pose."]
+].map(([label, purpose, description, extraRequirement], index) => ({
+  name: `图${index + 1}｜棚拍｜${label}`,
+  purpose,
+  description,
+  imageType: index === 6 ? "产品静物图" as TeamImageType : "产品上脚图" as TeamImageType,
+  scenePreference: "棚内上新拍摄" as TeamScenePreference,
+  garmentTypePreference: "自动匹配" as TeamGarmentTypePreference,
+  studioLaunchShotIndex: index as 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7,
+  extraRequirement
+}));
+
+function getPumpLifestyleShotPlan(imageCount: SoftSeedingImageCount, imageIndex: number) {
+  const plans = imageCount === 3 ? pumpLifestyleThreeImageShotPlans : pumpLifestyleFiveImageShotPlans;
+  return plans[imageIndex] ?? plans[plans.length - 1];
+}
+
 function getShoeLifestyleShotPlan(imageCount: SoftSeedingImageCount, imageIndex: number) {
   const plans = imageCount === 3 ? shoeLifestyleThreeImageShotPlans : shoeLifestyleFiveImageShotPlans;
   return plans[imageIndex] ?? plans[plans.length - 1];
@@ -3079,10 +3153,16 @@ function selectSoftSeedingImageDrafts(
   topic: SoftSeedingTopic,
   variantIndex: number,
   imageCount: SoftSeedingImageCount,
-  season: TeamSeason
+  season: TeamSeason,
+  shoeCategory?: ShoeCategory
 ) {
+  const isPump = shoeCategory === "pump";
   if (topic === "生活场景软种草") {
     return selectLifestyleSoftSeedingImageDrafts(variantIndex, imageCount, season);
+  }
+
+  if (isPump && topic === "棚内上新拍摄") {
+    return pumpStudioShotDrafts.slice(0, imageCount);
   }
 
   if (topic === "穿搭解决方案") {
@@ -3093,7 +3173,22 @@ function selectSoftSeedingImageDrafts(
   const orders = topicImageOrders[topic];
   const order = orders[normalizeSoftVariantIndex(variantIndex, getTopicVariantCount(topic)) % orders.length];
 
-  return order.map((index) => drafts[index]).filter(Boolean).slice(0, imageCount);
+  return order.map((index) => drafts[index]).filter(Boolean).slice(0, imageCount).map((draft) => isPump ? adaptDraftForPump(draft) : draft);
+}
+
+function adaptDraftForPump(draft: SoftSeedingImageDraft): SoftSeedingImageDraft {
+  const replace = (value: string) => value
+    .replace(/German trainer|THERUIZ AURA sneaker|sneakers?|running-shoe/gi, "closed-toe pump")
+    .replace(/shoelaces?|laces?|tongue|eyelets?|panel transitions?|panel structure/gi, "vamp, topline, heel, and side-cut structure")
+    .replace(/toe box/gi, "toe shape")
+    .replace(/slim outsole/gi, "outsole and heel relationship");
+  return {
+    ...draft,
+    name: replace(draft.name),
+    purpose: replace(draft.purpose),
+    description: replace(draft.description),
+    extraRequirement: `${replace(draft.extraRequirement)} Keep the exact closed-toe pump reference, heel geometry, toe shape, vamp, topline, side cut, and grounded contact; do not add sneaker construction.`
+  };
 }
 
 const topicImageGuides: Record<SoftSeedingTopic, string> = {
@@ -3114,6 +3209,20 @@ const topicImageGuides: Record<SoftSeedingTopic, string> = {
   棚内上新拍摄:
     "Person-only studio launch rule: every card must show the same real person wearing the same complete outfit and the same THERUIZ AURA sneakers inside one unchanged professional launch studio. No still life, mirror, street, home, cafe, hotel, atmosphere, behind-the-scenes, product-only frame, or lifestyle location."
 };
+
+function getPumpTopicGuide(topic: SoftSeedingTopic) {
+  const guides: Record<SoftSeedingTopic, string> = {
+    "生活场景软种草": "Pump category rule: keep the same closed-toe pump in every card. Emphasize toe shape, vamp, topline, heel height, arch, and grounded foot contact through restrained work or social movement; avoid athletic-footwear construction vocabulary.",
+    "产品开发幕后": "Pump category rule: show heel-height selection, toe-shape adjustment, vamp/topline decisions, heel placement, fitting, material, and finish only when visible; do not invent factory process or sneaker construction.",
+    "秋冬配色实验室": "Pump category rule: keep the exact product color and heel geometry unchanged while showing seasonal hosiery, trouser, skirt, or dress coordination and real material light response.",
+    "穿搭解决方案": "Pump category rule: keep one exact closed-toe pump and vary only tailored trousers, skirt, dress, suit, scene, pose, and framing; keep at least one pump fully visible from toe to heel.",
+    "材质工艺认知": "Pump category rule: focus on toe edge, vamp, topline, side cut, heel wrapping, material texture, sheen, lining edge, seam, and decorative detail; never request lace or tongue detail.",
+    "品牌审美观点": "Pump category rule: express restraint, heel proportion, toe geometry, wardrobe harmony, and quiet refinement without exaggerated glamour or unsupported comfort claims.",
+    "上新活动转化": "Pump category rule: explain product name, toe shape, heel type and height, suitable work or social occasions, and outfit compatibility using only supplied facts; no fake scarcity or comfort guarantees.",
+    "棚内上新拍摄": "Pump studio rule: use the dedicated eight-shot pump plan. Keep the same person, same closed-toe pump, same outfit, same studio, and prove toe, vamp, topline, side, rear, heel, material, and grounded worn proportion without sneaker construction."
+  };
+  return guides[topic];
+}
 
 const topicVariantVisualCues: Record<SoftSeedingTopic, string[]> = {
   生活场景软种草: [
@@ -3404,10 +3513,22 @@ function getSoftSeedingExtraRequirement(
       ? `Studio launch series shot ${draft.studioLaunchShotIndex + 1} of ${imageCount}: follow this card's specified person framing exactly.`
       : "";
   const studioContinuityLine =
-    topic === "棚内上新拍摄" ? getStudioLaunchSetContinuityLine(imageCount) : "";
+    topic === "棚内上新拍摄"
+      ? baseParams.productContext?.mode === "shoe" && resolveShoeCategory(baseParams.productContext) === "pump"
+        ? `Pump studio continuity for ${imageCount} shots: keep the same person, same closed-toe pump, same outfit, same studio, same light, same color grade, and exact toe, vamp, topline, side cut, heel, and outsole geometry. Change only the specified framing and restrained pose.`
+        : getStudioLaunchSetContinuityLine(imageCount)
+      : "";
+  const pumpCategoryGuide = baseParams.productContext?.mode === "shoe" && resolveShoeCategory(baseParams.productContext) === "pump"
+    ? getPumpTopicGuide(topic)
+    : "";
+  const effectiveThemeGuide = pumpCategoryGuide || themeGuide;
+  const isPump = Boolean(pumpCategoryGuide);
+  const draftRequirement = isPump ? adaptDraftForPump(draft).extraRequirement : draft.extraRequirement;
+  const effectiveVariantVisualCue = isPump ? "Pump visual angle: keep the exact closed-toe pump, toe geometry, vamp, topline, heel, and grounded contact readable in a restrained real-life composition." : variantVisualCue;
+  const effectiveCopyVisualAlignmentCue = isPump ? "Pump copy alignment: describe only supplied toe, heel, material, styling, and scene facts; do not use sneaker terminology or unsupported comfort claims." : copyVisualAlignmentCue;
 
   if (baseParams.garmentTypePreference === "自动匹配" || !shouldInheritBaseGarmentType(draft.imageType)) {
-    return [draft.extraRequirement, studioShotControlLine, themeGuide, variantVisualCue, copyVisualAlignmentCue, stylingSolutionContinuityLine, studioContinuityLine]
+    return [draftRequirement, studioShotControlLine, effectiveThemeGuide, effectiveVariantVisualCue, effectiveCopyVisualAlignmentCue, stylingSolutionContinuityLine, studioContinuityLine]
       .filter(Boolean)
       .join(" ");
   }
@@ -3415,12 +3536,12 @@ function getSoftSeedingExtraRequirement(
   const manualControlLine =
     garmentTypePreference === "自动匹配" ? "" : garmentTypeControlLines[garmentTypePreference];
   const combinedRequirement = [
-    draft.extraRequirement,
+    draftRequirement,
     studioShotControlLine,
     manualControlLine,
-    themeGuide,
-    variantVisualCue,
-    copyVisualAlignmentCue,
+    effectiveThemeGuide,
+    effectiveVariantVisualCue,
+    effectiveCopyVisualAlignmentCue,
     stylingSolutionContinuityLine,
     studioContinuityLine
   ]
@@ -3472,7 +3593,9 @@ function buildImagePlan(
     : undefined;
   const shoeLifestyleShotPlan =
     baseParams.productContext?.mode !== "garment" && topic === "生活场景软种草" && imageCount > 1
-      ? getShoeLifestyleShotPlan(imageCount, index)
+      ? (baseParams.productContext?.mode === "shoe" && resolveShoeCategory(baseParams.productContext) === "pump"
+        ? getPumpLifestyleShotPlan(imageCount, index)
+        : getShoeLifestyleShotPlan(imageCount, index))
       : undefined;
   const lifestyleContinuityLine = getLifestyleSoftSeedingContinuityLines(
     baseParams,
@@ -3609,15 +3732,25 @@ export function generateSoftSeedingContent(input: SoftSeedingInput): SoftSeeding
     throw new Error(`Shoe category ${shoeCategoryAdapter.category} does not support ${imageCount}-image plans.`);
   }
 
-  const selectedImageDrafts = selectSoftSeedingImageDrafts(topic, variantIndex, imageCount, input.baseParams.season);
+  const selectedImageDrafts = selectSoftSeedingImageDrafts(
+    topic,
+    variantIndex,
+    imageCount,
+    input.baseParams.season,
+    shoeCategoryAdapter?.category
+  );
+  const isPump = shoeCategoryAdapter?.category === "pump";
   const copy = input.baseParams.productContext?.mode === "garment"
     ? buildGarmentCopy(topic, variantIndex, selectedImageDrafts, input.baseParams)
+    : isPump
+      ? buildPumpCopy(topic, variantIndex, selectedImageDrafts, input.baseParams)
     : buildCopyFromKit(topic, variantIndex, selectedImageDrafts);
   const images = buildSoftSeedingImagePlans(input.baseParams, selectedImageDrafts, topic, variantIndex, imageCount);
   const shoeSeriesDiversityValidation =
     input.baseParams.productContext?.mode !== "garment" && topic === "生活场景软种草" && imageCount > 1
       ? validateShoeLifestyleSeriesDiversity(images)
       : undefined;
+  const pumpCopyValidation = isPump ? validatePumpCopy({ topic, dateKey, dailySlot: 1, variantIndex, variantCount, variantLabel: "", titles: copy.titles, body: copy.body, images, tags: copy.tags, note: copy.note }) : undefined;
 
   return {
     topic,
@@ -3630,6 +3763,7 @@ export function generateSoftSeedingContent(input: SoftSeedingInput): SoftSeeding
     body: copy.body,
     images,
     shoeSeriesDiversityValidation,
+    pumpCopyValidation,
     tags: copy.tags,
     note: copy.note
   };
