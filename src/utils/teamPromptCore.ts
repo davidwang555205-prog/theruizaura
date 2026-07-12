@@ -1500,6 +1500,7 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
     extraRequirement: params.extraRequirement
   });
   const hasShoe = productAdapter.mode === "shoe" && productPresent;
+  const hasGermanTrainer = productContext.mode === "shoe" && productContext.category === "germanTrainer";
   const usesNonProductAtmosphere = isNonProductAtmosphereImage(params.imageType);
   const resolvedScene = resolveTeamScenePreference(params);
   const usesSummerLifestylePeopleSupport = shouldUseSummerLifestylePeopleSupport(params, resolvedScene);
@@ -1591,7 +1592,7 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
   const europeanSeasonContext = isEuropeanStreet ? getEuropeanSeasonContext(params.season) : null;
   const promptQualityPatchLines = getPromptQualityPatchLines({
     imageType: params.imageType,
-    hasShoe,
+    hasShoe: hasShoe && hasGermanTrainer,
     productMode: productAdapter.mode,
     shoe: params.shoe,
     includeCityRealism: hasStreetRealism || isEuropeanStreet,
@@ -2175,6 +2176,7 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
     season: params.season,
     cityProfile: usesSummerLifestylePeopleSupport || usesNonProductAtmosphere ? null : selectedCity,
     selectedShoe: params.shoe,
+    shoeCategory: productContext.mode === "shoe" ? productContext.category : undefined,
     lightingSpaceType: validationLightingSpaceType,
     selectedOutfit: selectedStandardOutfit?.selectedOutfit ?? perSceneOutfitSelection ?? outfitSelection.selectedOutfit,
     selectedAccessory: accessorySelection.selectedBagAccessory,
@@ -2197,6 +2199,7 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
     season: params.season,
     cityProfile: usesSummerLifestylePeopleSupport || usesNonProductAtmosphere ? null : selectedCity,
     selectedShoe: params.shoe,
+    shoeCategory: productContext.mode === "shoe" ? productContext.category : undefined,
     lightingSpaceType: validationLightingSpaceType,
     selectedOutfit: selectedStandardOutfit?.selectedOutfit ?? perSceneOutfitSelection ?? outfitSelection.selectedOutfit,
     selectedAccessory: accessorySelection.selectedBagAccessory,

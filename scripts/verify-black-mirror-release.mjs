@@ -3,11 +3,17 @@ import { readFileSync } from "node:fs";
 const app = readFileSync("src/App.tsx", "utf8");
 const html = readFileSync("index.html", "utf8");
 const packageJson = JSON.parse(readFileSync("package.json", "utf8"));
+const shoeTypes = readFileSync("src/modules/product/shoe/shoeProductTypes.ts", "utf8");
+const shoeRegistry = readFileSync("src/modules/product/shoe/shoeCategoryRegistry.ts", "utf8");
+const shoeAdapter = readFileSync("src/modules/product/shoe/shoeProductAdapter.ts", "utf8");
 const required = [
   ["Black Mirror UI name", app.includes("APP_NAME") && html.includes("Black Mirror")],
   ["Garment adapter", app.includes("productMode")],
   ["Garment shot plans", readFileSync("src/modules/product/garment/garmentShotPlans.ts", "utf8").includes("getGarmentShotPlan")],
   ["Garment accuracy guards", readFileSync("src/modules/product/garment/garmentAccuracyGuards.ts", "utf8").includes("getGarmentVisibilityGuard")],
+  ["Shoe category model", shoeTypes.includes('"germanTrainer"') && shoeTypes.includes('"pump"') && shoeTypes.includes('"boot"')],
+  ["German trainer adapter", shoeRegistry.includes("germanTrainer: germanTrainerAdapter") && shoeAdapter.includes("getShoeCategoryAdapter")],
+  ["Planned shoe categories are blocked", shoeRegistry.includes('status: "planned"') && shoeRegistry.includes("does not yet support")],
   ["Release script", packageJson.scripts["verify:release"] === "node scripts/verify-black-mirror-release.mjs"],
   ["No API integration", !app.includes("fetch(")]
 ];

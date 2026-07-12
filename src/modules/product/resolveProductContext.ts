@@ -1,5 +1,5 @@
 import type { ProductContext } from "./types";
-import type { TeamShoe } from "./shoe/shoeProductTypes";
+import { resolveShoeCategory, type ShoeProductContext, type TeamShoe } from "./shoe/shoeProductTypes";
 
 export type ProductContextSource = {
   productContext?: ProductContext;
@@ -13,9 +13,11 @@ export type ProductContextSource = {
  * continue to resolve to shoe mode until the garment UI is introduced.
  */
 export function resolveProductContext(source: ProductContextSource): ProductContext {
-  return source.productContext ?? {
-    mode: "shoe",
-    shoe: source.shoe,
-    customShoe: source.customShoe
-  };
+  if (source.productContext?.mode === "garment") return source.productContext;
+
+  const shoeContext: ShoeProductContext = source.productContext?.mode === "shoe"
+    ? source.productContext
+    : { mode: "shoe", shoe: source.shoe, customShoe: source.customShoe };
+
+  return { ...shoeContext, category: resolveShoeCategory(shoeContext) };
 }

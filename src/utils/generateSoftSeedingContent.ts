@@ -8,6 +8,9 @@ import type {
 } from "../types";
 import type { GarmentSeriesContext } from "../modules/product/garment/garmentProductTypes";
 import { getGarmentShotPlan } from "../modules/product/garment/garmentShotPlans";
+import { getShoeCategoryAdapter } from "../modules/product/shoe/shoeCategoryRegistry";
+import { SHOE_CATEGORY_LABELS } from "../modules/product/shoe/shoeProductTypes";
+import { resolveProductContext } from "../modules/product/resolveProductContext";
 import {
   lifestyleSoftSeedingScenePool,
   type LifestyleSoftHandheldPolicy,
@@ -3580,6 +3583,32 @@ export function generateSoftSeedingContent(input: SoftSeedingInput): SoftSeeding
   const variantIndex = (basePostIndex + variantOffset) % variantCount;
   const requestedImageCount = input.imageCount ?? (topic === "棚内上新拍摄" ? 8 : 5);
   const imageCount = normalizeSoftSeedingImageCount(topic, requestedImageCount);
+  const resolvedProductContext = resolveProductContext(input.baseParams);
+  const shoeCategoryAdapter = resolvedProductContext.mode === "shoe"
+    ? getShoeCategoryAdapter(resolvedProductContext.category!)
+    : undefined;
+
+  if (shoeCategoryAdapter && shoeCategoryAdapter.status !== "active") {
+    const categoryLabel = SHOE_CATEGORY_LABELS[shoeCategoryAdapter.category];
+    return {
+      topic,
+      dateKey,
+      dailySlot: 1,
+      variantIndex,
+      variantCount,
+      variantLabel: `第 ${variantIndex + 1} / ${variantCount} 版`,
+      titles: [`${categoryLabel}即将支持`],
+      body: `当前 Black Mirror 仅可正式生成德训鞋 / 低帮运动休闲鞋 Prompt。${categoryLabel}不会回退为德训鞋 Prompt。`,
+      images: [],
+      tags: ["#BlackMirror"],
+      note: "该鞋型将在后续阶段提供独立的参考图、结构保护、镜头计划与内容逻辑。"
+    };
+  }
+
+  if (shoeCategoryAdapter && !shoeCategoryAdapter.getShotPlanProfile().supportedImageCounts.includes(imageCount as 1 | 3 | 5 | 8)) {
+    throw new Error(`Shoe category ${shoeCategoryAdapter.category} does not support ${imageCount}-image plans.`);
+  }
+
   const selectedImageDrafts = selectSoftSeedingImageDrafts(topic, variantIndex, imageCount, input.baseParams.season);
   const copy = input.baseParams.productContext?.mode === "garment"
     ? buildGarmentCopy(topic, variantIndex, selectedImageDrafts, input.baseParams)

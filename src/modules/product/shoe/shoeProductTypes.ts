@@ -11,8 +11,118 @@ export type TeamShoe =
   | "Panda 熊猫"
   | "自定义";
 
+export type ShoeCategory =
+  | "germanTrainer"
+  | "pump"
+  | "boot"
+  | "loafer"
+  | "balletFlat"
+  | "sandal"
+  | "mule"
+  | "other";
+
+export const SHOE_CATEGORY_LABELS: Record<ShoeCategory, string> = {
+  germanTrainer: "德训鞋 / 低帮运动休闲鞋",
+  pump: "高跟单鞋",
+  boot: "靴子",
+  loafer: "乐福鞋",
+  balletFlat: "芭蕾鞋 / 平底鞋",
+  sandal: "凉鞋",
+  mule: "穆勒鞋",
+  other: "其他鞋型"
+};
+
+export type ShoeReferenceRole =
+  | "primary"
+  | "front"
+  | "side"
+  | "rear"
+  | "top"
+  | "outsole"
+  | "material"
+  | "detail";
+
+export type ShoeReferenceRequirements = {
+  minCount: number;
+  maxCount: number;
+  requiredRoles: ShoeReferenceRole[];
+  recommendedRoles: ShoeReferenceRole[];
+};
+
+export type BaseShoeSpec = {
+  category: ShoeCategory;
+  brandName?: string;
+  productName: string;
+  color?: string;
+  upperMaterial?: string;
+  liningMaterial?: string;
+  outsoleMaterial?: string;
+  toeShape?: string;
+  closureType?: string;
+  heelType?: string;
+  heelHeight?: string;
+  keyDetails?: string[];
+};
+
+export type GermanTrainerSpec = BaseShoeSpec & {
+  category: "germanTrainer";
+  silhouette?: string;
+  outsoleThickness?: string;
+  panelStructure?: string;
+  laceStructure?: string;
+  tongueStructure?: string;
+  heelPatch?: string;
+};
+
+export type ShoeFieldDefinition = {
+  key: keyof BaseShoeSpec;
+  label: string;
+  type: "text" | "select" | "textarea";
+  required?: boolean;
+  helpText?: string;
+};
+
+export type ShoeShotPlanProfile = {
+  supportedImageCounts: Array<1 | 3 | 5 | 8>;
+  supportsLifestyleSeries: boolean;
+  supportsStudioSeries: boolean;
+};
+
+export type ShoeAccuracyGuardSet = {
+  structurePriorities: string[];
+  requiresGroundedContact: boolean;
+  requiresReferenceAccuracy: boolean;
+};
+
+export type ShoeContentProfile = {
+  productNouns: string[];
+  structurePriorities: string[];
+  lifestyleBenefits: string[];
+  forbiddenPrimaryTerms: string[];
+};
+
 export type ShoeProductContext = {
   mode: "shoe";
   shoe: TeamShoe;
   customShoe: string;
+  /** Omitted only by legacy German-trainer callers. New category-aware callers must set it. */
+  category?: ShoeCategory;
 };
+
+export function resolveShoeCategory(context: ShoeProductContext): ShoeCategory {
+  if (context.category) return context.category;
+  if (context.shoe !== "自定义" || !context.customShoe.trim()) return "germanTrainer";
+  return "other";
+}
+
+export function toBaseShoeSpec(context: ShoeProductContext): BaseShoeSpec {
+  const category = resolveShoeCategory(context);
+  return {
+    category,
+    brandName: "THERUIZ AURA",
+    productName: context.shoe === "自定义" ? context.customShoe.trim() || "selected shoe" : context.shoe,
+    keyDetails: category === "germanTrainer"
+      ? ["low-cut silhouette", "rounded toe box", "slim outsole", "panels", "tongue", "laces"]
+      : []
+  };
+}

@@ -3,6 +3,7 @@ import type { StandardSceneKey } from "../data/outfitDiversityRules";
 import { promptRepairDictionary, type PromptRepairKey } from "../data/promptRepairDictionary";
 import type { LightingSpaceType } from "../data/sceneLightingSpaceProfiles";
 import type { TeamImageType, TeamSeason, TeamShoe } from "../types";
+import type { ShoeCategory } from "../modules/product/shoe/shoeProductTypes";
 import type { StructuredPromptParts } from "./buildStructuredPrompt";
 
 export type PromptPreflightInput = {
@@ -12,6 +13,7 @@ export type PromptPreflightInput = {
   season: TeamSeason;
   cityProfile: ChinaCityProfile | null;
   selectedShoe: TeamShoe | string;
+  shoeCategory?: ShoeCategory;
   lightingSpaceType: LightingSpaceType;
   selectedOutfit?: unknown;
   selectedAccessory?: string | null;
@@ -207,7 +209,7 @@ export function promptPreflightCheck(input: PromptPreflightInput): PromptPreflig
     ) {
       repair("shoeClippingRepair", "On-foot clipping protection line was missing.");
     }
-    if (!/low-cut German trainer|slim outsole|rounded toe box/i.test(text)) {
+    if (input.shoeCategory === "germanTrainer" && !/low-cut German trainer|slim outsole|rounded toe box/i.test(text)) {
       repair("shoeDeformationRepair", "Shoe shape protection needed reinforcement.");
     }
   }
