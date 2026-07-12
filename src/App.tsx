@@ -28,6 +28,7 @@ import { getCompatibleSceneOptions, isSceneCompatibleWithImageType } from "./dat
 import { getCompatibleGarmentScenes, isGarmentSceneCompatible } from "./modules/product/garment/garmentSceneCompatibility";
 import { TEAM_MODEL_OPTIONS } from "./data/teamModelProfiles";
 import { TEAM_MODEL_CONTINUITY_OPTIONS } from "./data/modelContinuityProfiles";
+import { APP_NAME } from "./constants/app";
 
 const imageTypeOptions: TeamImageType[] = [
   "产品上脚图",
@@ -329,7 +330,7 @@ function App() {
         <header className="max-w-3xl space-y-3">
           <p className="text-xs uppercase tracking-[0.28em] text-aura-muted">Standard accurate team mode</p>
           <h1 className="text-3xl font-semibold tracking-tight text-aura-charcoal sm:text-4xl">
-            THERUIZ AURA Prompt Builder
+            {APP_NAME} Prompt Builder
           </h1>
           <p className="text-base leading-7 text-aura-muted">
             团队日常使用的极简 Standard 英文提示词工具。后台自动匹配真实城市街景、相机质感、多样穿搭和鞋型保护。

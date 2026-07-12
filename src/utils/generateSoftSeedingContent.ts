@@ -3440,7 +3440,7 @@ export function getShoeDisplayName(shoe: TeamShoe, customShoe: string) {
 
 export function formatSoftSeedingContent(content: SoftSeedingContent) {
   return [
-    `# THERUIZ AURA 小红书内容｜${content.dateKey}｜${content.topic}｜${content.variantLabel}`,
+    `# Black Mirror 内容｜${content.dateKey}｜${content.topic}｜${content.variantLabel}`,
     "",
     "## 标题",
     ...content.titles.map((title, index) => `${index + 1}. ${title}`),

@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "verify:release": "node scripts/verify-black-mirror-release.mjs",
     "typecheck": "tsc --noEmit",
     "preview": "vite preview"
   },

@@ -1,6 +1,19 @@
-# THERUIZ AURA Prompt Builder
+# Black Mirror
 
-THERUIZ AURA Prompt Builder 用于生成结构化生图提示词，帮助团队稳定输出符合 THERUIZ AURA 视觉系统的本地 prompt。
+Black Mirror 是一个 prompt-only 的本地工具，用于生成结构化英文 Image 2.0 提示词。鞋履模式中的 THERUIZ AURA 仍是品牌名；服装模式用于上传服装参考图、规划场景并复制 Prompt。
+
+## 本地开发
+
+```bash
+npm install
+npm run dev
+```
+
+验证命令：`npm run typecheck`、`npm run build`、`npm run verify:release`。
+
+本项目不接入 Image 2.0 API、图片生成 API、后端或远程图片上传。参考图只在当前浏览器会话中本地预览。
+
+更多架构与验收记录见 `docs/` 下的 Phase 1–6 文档。
 
 ## 前台字段
 
