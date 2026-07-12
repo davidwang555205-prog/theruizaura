@@ -1,4 +1,5 @@
 import type { TeamImageType, TeamShoe } from "../types";
+import type { ProductMode } from "../modules/product/types";
 
 export type PhotoRealityMode =
   | "premiumStudio"
@@ -192,6 +193,7 @@ function getMaterialRuleLine(input: { imageType: TeamImageType; hasShoe: boolean
 export function getPromptQualityPatchLines(input: {
   imageType: TeamImageType;
   hasShoe: boolean;
+  productMode?: ProductMode;
   shoe?: TeamShoe;
   includeCityRealism?: boolean;
   streetRegion?: "china" | "europe";
@@ -201,13 +203,13 @@ export function getPromptQualityPatchLines(input: {
 
   return {
     productLines: [
-      input.hasShoe ? compactPatchLines.sneakerShapeProtection : "",
+      input.hasShoe && input.productMode !== "garment" ? compactPatchLines.sneakerShapeProtection : "",
       getMaterialRuleLine(input)
     ].filter(Boolean),
     modelLines: [peopleImage ? compactPatchLines.bodyAndClippingProtection : ""].filter(Boolean),
     outfitLines: [peopleImage ? compactPatchLines.seasonalOutfitMatch : ""].filter(Boolean),
     sceneLines: [
-      input.hasShoe && input.imageType !== "拍摄花絮 / 材质图" && input.imageType !== "非产品氛围图"
+      input.hasShoe && input.productMode !== "garment" && input.imageType !== "拍摄花絮 / 材质图" && input.imageType !== "非产品氛围图"
         ? compactPatchLines.sneakerVisibility
         : "",
       input.includeCityRealism

@@ -1,5 +1,8 @@
 import type { TeamImageType, TeamShoe } from "../types";
-import { getShoeSpecificAccuracyLine } from "../data/shoeSpecificAccuracyProfiles";
+import {
+  chooseShoeProtectionLines,
+  type ShoeProtectionLines
+} from "../modules/product/shoe/shoeProtectionRules";
 
 export type SneakerProtectionInput = {
   imageType: TeamImageType;
@@ -9,112 +12,9 @@ export type SneakerProtectionInput = {
   hasShoe: boolean;
 };
 
-export type SneakerProtectionLines = {
-  productLine: string;
-  accuracyLine: string;
-  shoeSpecificAccuracyLine: string;
-  visibilityLine: string;
-  clippingLine: string;
-  lacesLine: string;
-  sceneControlLine: string;
-};
+export type SneakerProtectionLines = ShoeProtectionLines;
 
-const nonProductShoeAccuracyLine =
-  "If the THERUIZ AURA sneaker appears in this non-product atmosphere image, keep it subtle and secondary. Preserve its real color, material texture, and recognizable shape, but do not turn the image into a direct product shot.";
-
-const materialDetailShoeAccuracyLine =
-  "If a THERUIZ AURA sneaker sample, shoe part, shoelace, material panel, or partial product detail appears, keep it secondary to the material story. Preserve the uploaded reference color, material texture, panel boundary, stitching, lace thickness, and recognizable trainer structure when visible, but do not turn the image into a full-shoe product shot.";
-
-const uploadedSneakerAccuracyLine =
-  "Use uploaded sneaker reference as strict source: low-cut German trainer silhouette, rounded toe box, slim outsole, panels, tongue, stitching, material, color, and proportions.";
-
-const selectedSneakerAccuracyLine =
-  "Preserve the selected THERUIZ AURA German trainer: low-cut silhouette, rounded toe box, slim outsole, panels, tongue, stitching, material, color, and proportions.";
-
-const shoeVisibilityLine =
-  "Keep at least one sneaker fully visible from toe to heel, with the second clearly readable and grounded.";
-
-const shoeClippingLine =
-  "Keep the foot seated inside the shoe; ankle, sock, garment hem, collar, tongue, tied laces, outsole, floor, and props stay separate and readable; no clipping or fabric fusion.";
-
-const lacesLine = "Keep laces naturally tied, with readable loops, lace ends, eyelets, and tongue.";
-
-const onFootMaterialResponseLine =
-  "When worn, allow only subtle forefoot upper flex, gentle collar compression, settled laces, and grounded contact shadow; never let the foot, pose, or fabric reshape the toe box, panels, outsole, or silhouette.";
-
-function isWornPeopleImage(imageType: TeamImageType) {
-  return imageType === "产品上脚图" || imageType === "对镜穿搭图" || imageType === "生活场景图";
-}
-
+/** Legacy wrapper kept for callers outside the product adapter layer. */
 export function chooseSneakerProtectionLines(input: SneakerProtectionInput): SneakerProtectionLines {
-  if (!input.hasShoe) {
-    return {
-      productLine: "",
-      accuracyLine: "",
-      shoeSpecificAccuracyLine: "",
-      visibilityLine: "",
-      clippingLine: "",
-      lacesLine: "",
-      sceneControlLine: ""
-    };
-  }
-
-  if (input.imageType === "非产品氛围图") {
-    return {
-      productLine: nonProductShoeAccuracyLine,
-      accuracyLine: nonProductShoeAccuracyLine,
-      shoeSpecificAccuracyLine: "",
-      visibilityLine:
-        "The shoe may appear only as a subtle partial object or background detail, not as the main product subject; do not force full on-foot display.",
-      clippingLine: "",
-      lacesLine: "",
-      sceneControlLine:
-        "The shoe may appear only as a subtle partial object or background detail, not as the main product subject; do not force full on-foot display."
-    };
-  }
-
-  if (input.imageType === "拍摄花絮 / 材质图") {
-    return {
-      productLine: materialDetailShoeAccuracyLine,
-      accuracyLine: materialDetailShoeAccuracyLine,
-      shoeSpecificAccuracyLine: "",
-      visibilityLine:
-        "Show only the relevant sneaker sample, shoelace, panel, material transition, or partial product detail needed for the material story; do not force a complete pair or full on-foot display.",
-      clippingLine: "",
-      lacesLine: "",
-      sceneControlLine:
-        "Keep product details readable but secondary to swatches, notes, tools, texture, and behind-the-scenes development context."
-    };
-  }
-
-  const accuracyLine =
-    input.shoe === "自定义" && !input.customShoe.trim() ? selectedSneakerAccuracyLine : uploadedSneakerAccuracyLine;
-  const shoeSpecificAccuracyLine = getShoeSpecificAccuracyLine(input.shoe, true);
-  const productLine = [
-    `THERUIZ AURA ${input.shoeDisplayName} German trainer as the main product reference.`,
-    accuracyLine,
-    isWornPeopleImage(input.imageType) ? onFootMaterialResponseLine : "",
-    shoeVisibilityLine,
-    lacesLine
-  ]
-    .filter(Boolean)
-    .join(" ");
-  const sceneControlLine = [
-    shoeVisibilityLine,
-    shoeClippingLine,
-    lacesLine,
-    isWornPeopleImage(input.imageType) ? onFootMaterialResponseLine : ""
-  ]
-    .filter(Boolean)
-    .join(" ");
-
-  return {
-    productLine,
-    accuracyLine,
-    shoeSpecificAccuracyLine,
-    visibilityLine: shoeVisibilityLine,
-    clippingLine: shoeClippingLine,
-    lacesLine,
-    sceneControlLine
-  };
+  return chooseShoeProtectionLines(input);
 }

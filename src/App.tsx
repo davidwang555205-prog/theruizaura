@@ -10,6 +10,9 @@ import type {
   TeamShoe,
   TeamStudioLaunchAnglePreference
 } from "./types";
+import type { ProductMode } from "./modules/product/types";
+import type { GarmentProductCategory, GarmentProductSpec } from "./modules/product/garment/garmentProductTypes";
+import { GarmentReferenceUploader, hasValidGarmentReferences, type GarmentReference } from "./components/GarmentReferenceUploader";
 import { generateTeamPrompt } from "./utils/generatePrompt";
 import {
   formatSoftSeedingImagePrompts,
@@ -22,6 +25,7 @@ import {
 } from "./utils/generateSoftSeedingContent";
 import { promptQualityPatchNotice } from "./data/promptPatches";
 import { getCompatibleSceneOptions, isSceneCompatibleWithImageType } from "./data/teamSceneOptions";
+import { getCompatibleGarmentScenes, isGarmentSceneCompatible } from "./modules/product/garment/garmentSceneCompatibility";
 import { TEAM_MODEL_OPTIONS } from "./data/teamModelProfiles";
 import { TEAM_MODEL_CONTINUITY_OPTIONS } from "./data/modelContinuityProfiles";
 
@@ -58,6 +62,7 @@ const studioLaunchAngleOptions: TeamStudioLaunchAnglePreference[] = [
   "3/4侧前方上脚角度"
 ];
 const peopleImageTypes: TeamImageType[] = ["产品上脚图", "对镜穿搭图", "生活场景图"];
+const garmentImageLabels: Record<TeamImageType, string> = { "产品上脚图": "模特穿着图", "对镜穿搭图": "对镜试穿图", "生活场景图": "生活街拍图", "非产品氛围图": "品牌氛围图", "拍摄花絮 / 材质图": "服装细节 / 拍摄花絮", "产品静物图": "服装平铺 / 静物图" };
 const softInventory = getSoftSeedingInventory();
 
 const initialParams: TeamPromptParams = {
@@ -96,6 +101,7 @@ type ReferenceImage = {
   size: number;
   url: string;
 };
+type ShoeDraft = Pick<TeamPromptParams, "shoe" | "customShoe">;
 
 function updateField<K extends keyof TeamPromptParams>(params: TeamPromptParams, key: K, value: TeamPromptParams[K]) {
   return { ...params, [key]: value };
@@ -108,6 +114,10 @@ function formatFileSize(size: number) {
 
 function App() {
   const [params, setParams] = useState<TeamPromptParams>(initialParams);
+  const [productMode, setProductMode] = useState<ProductMode>("shoe");
+  const [shoeDraft, setShoeDraft] = useState<ShoeDraft>({ shoe: initialParams.shoe, customShoe: initialParams.customShoe });
+  const [garmentReferences, setGarmentReferences] = useState<GarmentReference[]>([]);
+  const [garment, setGarment] = useState<GarmentProductSpec>({ category: "dress", name: "", color: "", fabric: "", silhouette: "" });
   const [generatedPrompt, setGeneratedPrompt] = useState(() => initialGeneratedPrompt);
   const [copyStatus, setCopyStatus] = useState("");
   const [hasPendingChanges, setHasPendingChanges] = useState(false);
@@ -133,8 +143,13 @@ function App() {
     };
   }, []);
 
-  const sceneOptions = getCompatibleSceneOptions(params.imageType);
+  const sceneOptions = productMode === "garment"
+    ? ["自动匹配", ...getCompatibleGarmentScenes({ category: garment.category, season: params.season, imageType: params.imageType })]
+    : getCompatibleSceneOptions(params.imageType);
   const showsModelChoice = peopleImageTypes.includes(params.imageType);
+  const paramsForProduct = (value: TeamPromptParams): TeamPromptParams => productMode === "garment"
+    ? { ...value, productContext: { mode: "garment", garment } }
+    : { ...value, productContext: undefined };
 
   const updateParams = (updater: (current: TeamPromptParams) => TeamPromptParams) => {
     setParams((current) => updater(current));
@@ -144,7 +159,8 @@ function App() {
   };
 
   const handleGenerate = () => {
-    const nextParams = { ...params, generationNonce: params.generationNonce + 1 };
+    if (productMode === "garment" && !hasValidGarmentReferences(garmentReferences)) { setImageGenerationStatus("服装模式需要至少4张参考图，并且必须包含正面完整图。"); return; }
+    const nextParams = paramsForProduct({ ...params, generationNonce: params.generationNonce + 1 });
     setParams(nextParams);
     setGeneratedPrompt(generateTeamPrompt(nextParams).prompt);
     setCopyStatus("");
@@ -153,7 +169,7 @@ function App() {
 
   const syncPromptParams = () => {
     if (!hasPendingChanges) return params;
-    const syncedParams = { ...params, generationNonce: params.generationNonce + 1 };
+    const syncedParams = paramsForProduct({ ...params, generationNonce: params.generationNonce + 1 });
     setParams(syncedParams);
     setGeneratedPrompt(generateTeamPrompt(syncedParams).prompt);
     setHasPendingChanges(false);
@@ -331,6 +347,17 @@ function App() {
 
             <div className="space-y-5">
               <label className="block space-y-2">
+                <span className="text-sm font-medium text-aura-charcoal">产品模式</span>
+                <select className={inputClass} value={productMode} onChange={(event) => { const next = event.target.value as ProductMode; setProductMode(next); setParams((current) => ({ ...current, shoe: shoeDraft.shoe, customShoe: shoeDraft.customShoe })); setHasPendingChanges(true); }}>
+                  <option value="shoe">鞋履模式</option><option value="garment">服装模式</option>
+                </select>
+              </label>
+              {productMode === "garment" && <>
+                <GarmentReferenceUploader value={garmentReferences} onChange={(next) => { setGarmentReferences(next); setHasPendingChanges(true); }} />
+                <label className="block space-y-2"><span className="text-sm font-medium">服装品类</span><select className={inputClass} value={garment.category} onChange={(event) => { const category = event.target.value as GarmentProductCategory; setGarment((current) => ({ ...current, category })); if (params.scenePreference !== "自动匹配" && !isGarmentSceneCompatible({ category, season: params.season, imageType: params.imageType, scene: params.scenePreference })) updateParams((current) => ({ ...current, scenePreference: "自动匹配" })); }}>{[["dress","连衣裙"],["top","上衣"],["shirt","衬衫"],["knitwear","针织衫"],["tshirt","T恤"],["trousers","裤装"],["skirt","半裙"],["coat","大衣"],["jacket","夹克／外套"],["suit","西装"],["set","套装"],["activewear","轻运动服"],["bridal","婚纱"],["eveningGown","礼服"],["other","其他"]].map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select></label>
+                <div className="grid gap-3 sm:grid-cols-2"><input className={inputClass} placeholder="服装名称（可选）" value={garment.name} onChange={(event) => setGarment((current) => ({ ...current, name: event.target.value }))} /><input className={inputClass} placeholder="主颜色（可选）" value={garment.color} onChange={(event) => setGarment((current) => ({ ...current, color: event.target.value }))} /><input className={inputClass} placeholder="面料（可选）" value={garment.fabric} onChange={(event) => setGarment((current) => ({ ...current, fabric: event.target.value }))} /><input className={inputClass} placeholder="版型（可选）" value={garment.silhouette} onChange={(event) => setGarment((current) => ({ ...current, silhouette: event.target.value }))} /></div>
+              </>}
+              <label className="block space-y-2">
                 <span className="text-sm font-medium text-aura-charcoal">图片类型</span>
                 <select
                   className={inputClass}
@@ -340,7 +367,9 @@ function App() {
                     updateParams((current) => ({
                       ...current,
                       imageType,
-                      scenePreference: isSceneCompatibleWithImageType(imageType, current.scenePreference)
+                      scenePreference: productMode === "garment"
+                        ? (current.scenePreference === "自动匹配" || isGarmentSceneCompatible({ category: garment.category, season: current.season, imageType, scene: current.scenePreference }) ? current.scenePreference : "自动匹配")
+                        : isSceneCompatibleWithImageType(imageType, current.scenePreference)
                         ? current.scenePreference
                         : "自动匹配",
                       studioLaunchAnglePreference:
@@ -352,7 +381,7 @@ function App() {
                 >
                   {imageTypeOptions.map((option) => (
                     <option key={option} value={option}>
-                      {option}
+                      {productMode === "garment" ? garmentImageLabels[option] : option}
                     </option>
                   ))}
                 </select>
@@ -404,12 +433,12 @@ function App() {
                 </>
               )}
 
-              <label className="block space-y-2">
+              {productMode === "shoe" && <label className="block space-y-2">
                 <span className="text-sm font-medium text-aura-charcoal">鞋款</span>
                 <select
                   className={inputClass}
                   value={params.shoe}
-                  onChange={(event) => updateParams((current) => updateField(current, "shoe", event.target.value as TeamShoe))}
+                  onChange={(event) => { const shoe = event.target.value as TeamShoe; setShoeDraft((current) => ({ ...current, shoe })); updateParams((current) => updateField(current, "shoe", shoe)); }}
                 >
                   {shoeOptions.map((option) => (
                     <option key={option} value={option}>
@@ -417,15 +446,15 @@ function App() {
                     </option>
                   ))}
                 </select>
-              </label>
+              </label>}
 
-              {params.shoe === "自定义" && (
+              {productMode === "shoe" && params.shoe === "自定义" && (
                 <label className="block space-y-2">
                   <span className="text-sm font-medium text-aura-charcoal">自定义鞋款名称</span>
                   <input
                     className={inputClass}
                     value={params.customShoe}
-                    onChange={(event) => updateParams((current) => updateField(current, "customShoe", event.target.value))}
+                    onChange={(event) => { const customShoe = event.target.value; setShoeDraft((current) => ({ ...current, customShoe })); updateParams((current) => updateField(current, "customShoe", customShoe)); }}
                     placeholder="例如：Warm Grey 低饱和暖灰"
                   />
                 </label>
@@ -442,7 +471,7 @@ function App() {
                 <select
                   className={inputClass}
                   value={params.season}
-                  onChange={(event) => updateParams((current) => updateField(current, "season", event.target.value as TeamSeason))}
+                  onChange={(event) => { const season = event.target.value as TeamSeason; updateParams((current) => ({ ...current, season, scenePreference: productMode === "garment" && current.scenePreference !== "自动匹配" && !isGarmentSceneCompatible({ category: garment.category, season, imageType: current.imageType, scene: current.scenePreference }) ? "自动匹配" : current.scenePreference })); }}
                 >
                   {seasonOptions.map((option) => (
                     <option key={option} value={option}>
@@ -564,7 +593,7 @@ function App() {
               </button>
             </div>
 
-            {imageGenerationPanel}
+            {productMode === "garment" ? <div className="mb-5 rounded-[22px] bg-aura-cream p-5 text-sm leading-6 text-aura-muted ring-1 ring-aura-beige/70">服装参考图仅在当前浏览器本地预览。网站不会发送图片，也不会直接生成或下载图片；请复制 Prompt 后，将同一组参考图手动上传至 Image 2.0。</div> : imageGenerationPanel}
 
             <div className="aura-scrollbar min-h-[430px] whitespace-pre-wrap rounded-[22px] border border-aura-beige bg-white/75 p-5 text-sm leading-7 text-aura-charcoal shadow-inner lg:max-h-[610px] lg:overflow-y-auto">
               {generatedPrompt}

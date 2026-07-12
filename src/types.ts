@@ -151,26 +151,9 @@ export type TemplateItem = {
   createdAt?: string;
 };
 
-export type TeamImageType =
-  | "产品上脚图"
-  | "对镜穿搭图"
-  | "生活场景图"
-  | "非产品氛围图"
-  | "拍摄花絮 / 材质图"
-  | "产品静物图";
+export type TeamImageType = ProductImageType;
 
-export type TeamShoe =
-  | "Cloud Dancer 云舞者"
-  | "Sand Dollar 沙钱白"
-  | "Cappuccino 卡布奇诺"
-  | "Silver Romance 银色浪漫"
-  | "Aire 微风"
-  | "Delphinium Blue 飞燕草蓝"
-  | "Lemon 柠檬"
-  | "Maple Grove 枫林"
-  | "Oreo 奥利奥"
-  | "Panda 熊猫"
-  | "自定义";
+export type TeamShoe = ProductTeamShoe;
 
 export type TeamSeason = "春" | "夏" | "秋" | "冬";
 
@@ -268,6 +251,7 @@ export type TeamPromptParams = {
   modelContinuity: TeamModelContinuity;
   shoe: TeamShoe;
   customShoe: string;
+  productContext?: ProductContext;
   season: TeamSeason;
   scenePreference: TeamScenePreference;
   garmentTypePreference: TeamGarmentTypePreference;
@@ -287,6 +271,11 @@ export type TeamPromptParams = {
 export type TeamPromptOutput = {
   prompt: string;
   hasShoe: boolean;
+  hasProduct: boolean;
+  productMode: ProductMode;
+  productDisplayName: string;
   sceneText: string;
   selectedOutfitLine: string;
 };
+import type { ProductContext, ProductImageType, ProductMode } from "./modules/product/types";
+import type { TeamShoe as ProductTeamShoe } from "./modules/product/shoe/shoeProductTypes";

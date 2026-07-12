@@ -1,6 +1,7 @@
 import type { LightingSpaceType } from "../data/sceneLightingSpaceProfiles";
 import type { StandardSceneKey } from "../data/outfitDiversityRules";
 import type { TeamImageType } from "../types";
+import type { ProductMode } from "../modules/product/types";
 
 export type PromptTemplateKind =
   | "onFootOutdoor"
@@ -25,6 +26,7 @@ export function buildPromptTemplateByImageType(input: {
   imageType: TeamImageType;
   sceneKey: StandardSceneKey;
   lightingSpaceType: LightingSpaceType;
+  productMode?: ProductMode;
 }) {
   if (input.imageType === "产品静物图" || input.sceneKey === "stillLife") {
     return {

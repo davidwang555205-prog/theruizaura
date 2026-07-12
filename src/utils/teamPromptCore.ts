@@ -15,6 +15,8 @@ import { getManualGarmentType, type StandardSceneKey } from "../data/outfitDiver
 import { hasUserSpecifiedClothingRequirement } from "./outfitLibraryFilters";
 import { buildStructuredPrompt } from "./buildStructuredPrompt";
 import { buildPromptTemplateByImageType } from "./buildPromptTemplateByImageType";
+import { getProductAdapter, resolveProductContext, type ProductAdapterInput } from "../modules/product";
+import { sanitizeGarmentPrompt } from "../modules/product/garment/garmentPromptSanitizer";
 import { chooseActionLine } from "./chooseActionLine";
 import { chooseCameraLookLine } from "./chooseCameraLookLine";
 import { chooseChinaUrbanStreetLine } from "./chooseChinaUrbanStreetLine";
@@ -862,26 +864,6 @@ function shouldUseStreetRealismLine(
   );
 }
 
-function teamExtraMentionsShoe(extraRequirement: string) {
-  const text = extraRequirement.toLowerCase();
-  return TEAM_SHOE_KEYWORDS.some((keyword) => text.includes(keyword.toLowerCase()));
-}
-
-function resolveTeamHasShoe(params: TeamPromptParams) {
-  if (isNonProductAtmosphereImage(params.imageType)) return false;
-
-  if (
-    params.imageType === "产品上脚图" ||
-    params.imageType === "对镜穿搭图" ||
-    params.imageType === "生活场景图" ||
-    params.imageType === "产品静物图"
-  ) {
-    return true;
-  }
-
-  return teamExtraMentionsShoe(params.extraRequirement);
-}
-
 const NON_PRODUCT_AUTO_SCENES: Exclude<TeamScenePreference, "自动匹配">[] = [
   "窗边阅读",
   "周末轻采购",
@@ -1032,56 +1014,6 @@ function getSceneVariationLine(
   return lines[nonce % lines.length];
 }
 
-function getStudioLaunchAngleLine(params: TeamPromptParams, resolvedScene: Exclude<TeamScenePreference, "自动匹配">, hasShoe: boolean) {
-  if (resolvedScene !== "棚内上新拍摄" || !hasShoe || !shouldUsePeopleStyling(params.imageType)) return "";
-
-  if (typeof params.studioLaunchShotIndex === "number") {
-    const line = STUDIO_LAUNCH_SERIES_SHOT_LINES[params.studioLaunchShotIndex];
-    return params.seriesImageCount
-      ? line.replace("of 8", `of ${params.seriesImageCount}`)
-      : line;
-  }
-
-  const lines = params.imageType === "对镜穿搭图" ? STUDIO_LAUNCH_MIRROR_ANGLE_LINES : STUDIO_LAUNCH_ON_FOOT_ANGLE_LINES;
-  const selectedIndex =
-    params.studioLaunchAnglePreference === "全身棚拍角度"
-      ? 0
-      : params.studioLaunchAnglePreference === "下半身1/3角度"
-        ? 1
-        : params.studioLaunchAnglePreference === "鞋子上脚特写角度"
-          ? 2
-          : params.studioLaunchAnglePreference === "3/4侧前方上脚角度"
-            ? 3
-            : null;
-
-  if (selectedIndex !== null) return lines[selectedIndex];
-
-  const nonce = Math.max(0, params.generationNonce ?? 0);
-  return lines[nonce % lines.length];
-}
-
-function getImageTypeLine(params: TeamPromptParams, sceneKey: StandardSceneKey) {
-  if (params.imageType === "产品上脚图") {
-    return "Generate a refined on-foot lifestyle image with a safe standing pose or small natural walking step. The sneakers must be complete, clear, structurally accurate, and separate from trouser hems.";
-  }
-  if (params.imageType === "对镜穿搭图") {
-    return "Generate a refined mirror outfit image with the face hidden by the phone or naturally cropped. Use a 3/4 or full-body mirror composition with clear sneakers, natural proportions, believable phone-hand structure, and clear trouser-shoe relationship.";
-  }
-  if (sceneKey === "gymInterior" || sceneKey === "gymCommute") {
-    return "Generate a refined premium-gym active-lifestyle image for THERUIZ AURA, focused on light movement, polished daily transition, and comfort rather than a sportswear campaign.";
-  }
-  if (params.imageType === "生活场景图") {
-    return "Generate a believable lifestyle image of a refined urban woman wearing THERUIZ AURA sneakers in real daily movement.";
-  }
-  if (params.imageType === "产品静物图") {
-    return "Generate premium still-life product photography with the selected THERUIZ AURA sneaker as the main subject; keep material, laces, tongue, outsole, and product scale clearly readable.";
-  }
-  if (params.imageType === "拍摄花絮 / 材质图") {
-    return "Generate a refined behind-the-scenes or material storytelling image with leather swatches, suede samples, shoelaces, color cards, care brush, product notes, shooting table, or hands arranging materials.";
-  }
-  return "Generate a non-product atmospheric THERUIZ AURA image. The product does not need to be the main subject; express quiet order, warm restraint, daily elegance, calm negative space, and refined lifestyle atmosphere.";
-}
-
 function getModelLine(params: TeamPromptParams) {
   if (!shouldUsePeopleStyling(params.imageType)) return "";
   return getTeamModelLine(params.modelChoice);
@@ -1208,50 +1140,6 @@ function getSceneRealismLine(input: {
   return "Use a believable real daily space with natural depth, grounded floor contact, soft light, practical object placement, restrained props, and no staged showroom-set feeling.";
 }
 
-function getSneakerAccuracyLine(params: TeamPromptParams, hasShoe: boolean) {
-  if (!hasShoe) return "";
-  if (params.imageType === "非产品氛围图") return nonProductShoeAccuracyLine;
-  if (params.shoe === "自定义" && !params.customShoe.trim()) return selectedSneakerAccuracyLine;
-  return uploadedSneakerAccuracyLine;
-}
-
-function getShoeVisibilityLine(params: TeamPromptParams, hasShoe: boolean) {
-  if (!hasShoe) return "";
-  if (params.imageType === "非产品氛围图") {
-    return "The shoe may appear only as a subtle partial object or background detail, not as the main product subject; do not force full on-foot display.";
-  }
-  if (params.imageType === "拍摄花絮 / 材质图") {
-    return "If the sneaker appears in the material or behind-the-scenes image, keep the relevant shoe part readable while allowing materials and working details to remain important.";
-  }
-  return shoeVisibilityLine;
-}
-
-function getShoeClippingLine(params: TeamPromptParams, hasShoe: boolean) {
-  if (!hasShoe || params.imageType === "非产品氛围图") return "";
-  return shoeClippingLine;
-}
-
-function getLacesLine(params: TeamPromptParams, hasShoe: boolean) {
-  if (!hasShoe || params.imageType === "非产品氛围图") return "";
-  return lacesLine;
-}
-
-function getShoeStyleLine(params: TeamPromptParams, hasShoe: boolean) {
-  if (!hasShoe) return "";
-  if (params.imageType === "非产品氛围图") return "";
-  return getSeasonAwareShoeStyleLine(params);
-}
-
-function getSeasideShoeStyleLine(params: TeamPromptParams) {
-  if (params.shoe === "Cappuccino 卡布奇诺") {
-    return "Use the warm coffee suede as a quiet accent with cream, soft stone, pale khaki, and breathable woven layers for a light refined coastal look.";
-  }
-  if (params.shoe === "Maple Grove 枫林") {
-    return "Use the muted maple tone as a warm accent with cream, pale khaki, soft beige, and breathable woven layers for a light refined coastal look.";
-  }
-  return getSeasonAwareShoeStyleLine(params);
-}
-
 function getPhotoRealityMode(
   params: TeamPromptParams,
   resolvedScene: Exclude<TeamScenePreference, "自动匹配">,
@@ -1267,7 +1155,8 @@ function getPhotoRealityMode(
 
 function getNegativeLine(input: {
   params: TeamPromptParams;
-  hasShoe: boolean;
+  hasProduct: boolean;
+  productNegativePhrases: string[];
   cityBoundaryPhrases: string[];
   sceneKey: StandardSceneKey;
   hasStreetScene?: boolean;
@@ -1300,19 +1189,14 @@ function getNegativeLine(input: {
       ]
     : isStillLifeImage || isMaterialImage
     ? [
-        "sneaker deformation",
-        "chunky or running-shoe sole",
-        "cropped shoes",
-        "hidden shoe structure",
-        "melted laces",
-        "unreadable footwear",
+        ...input.productNegativePhrases,
         "props covering shoes",
         "floating objects",
         "unreal product scale",
         "CGI product render feeling",
         "glossy artificial material"
       ]
-    : input.hasShoe
+    : input.hasProduct
       ? [
           ...getModelContinuityPriorityNegativePhrases(input.params.modelContinuity, input.params.modelChoice),
           ...getTeamModelPriorityNegativePhrases(input.params.modelChoice),
@@ -1328,12 +1212,7 @@ function getNegativeLine(input: {
           "loud status branding",
           "messy background",
           "plastic skin",
-          "sneaker deformation",
-          "chunky or running-shoe sole",
-          "shoe clipping",
-          "cropped shoes",
-          "melted laces",
-          "unreadable footwear"
+          ...input.productNegativePhrases
         ]
       : [
           "generic stock photography",
@@ -1613,26 +1492,14 @@ function getTimeLine(params: TeamPromptParams, sceneKey: StandardSceneKey) {
   return `Natural daily light with believable brightness, soft shadows, and ${TEAM_SEASON_LIGHT[params.season]}.`;
 }
 
-function getShoeDisplayName(params: TeamPromptParams) {
-  return params.shoe === "自定义" ? params.customShoe.trim() || "selected THERUIZ AURA" : TEAM_SHOE_ENGLISH_NAMES[params.shoe];
-}
-
-function getProductLine(params: TeamPromptParams, hasShoe: boolean) {
-  if (!hasShoe) return "";
-  if (params.imageType === "非产品氛围图") return nonProductShoeAccuracyLine;
-
-  return [
-    `THERUIZ AURA ${getShoeDisplayName(params)} German trainer as the main product reference.`,
-    getSneakerAccuracyLine(params, hasShoe),
-    getShoeVisibilityLine(params, hasShoe),
-    getLacesLine(params, hasShoe)
-  ]
-    .filter(Boolean)
-    .join(" ");
-}
-
 export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
-  const hasShoe = resolveTeamHasShoe(params);
+  const productContext = resolveProductContext(params);
+  const productAdapter = getProductAdapter(productContext);
+  const productPresent = productAdapter.isProductPresent({
+    imageType: params.imageType,
+    extraRequirement: params.extraRequirement
+  });
+  const hasShoe = productAdapter.mode === "shoe" && productPresent;
   const usesNonProductAtmosphere = isNonProductAtmosphereImage(params.imageType);
   const resolvedScene = resolveTeamScenePreference(params);
   const usesSummerLifestylePeopleSupport = shouldUseSummerLifestylePeopleSupport(params, resolvedScene);
@@ -1658,10 +1525,17 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
   const summerLifestyleShoeSafetyLine = usesSummerLifestylePeopleSupport
     ? summerLifestyleShoeVisibilityLine
     : "";
-  const footPlacementPatchLine = shouldUsePeopleStyling(params.imageType) && hasShoe
-    ? footPlacementSafetyLine
-    : "";
   const sceneKey = resolveSceneKey(params, resolvedScene);
+  const productAdapterInput: ProductAdapterInput = {
+    imageType: params.imageType, extraRequirement: params.extraRequirement,
+    productPresent, scenePreference: resolvedScene, sceneKey, season: params.season,
+    userSpecifiedStyling: false, studioLaunchAnglePreference: params.studioLaunchAnglePreference,
+    studioLaunchShotIndex: params.studioLaunchShotIndex, seriesImageCount: params.seriesImageCount,
+    generationNonce: params.generationNonce
+  };
+  const productNegativePhrases = productAdapter.buildNegativePhrases(productAdapterInput);
+  const footPlacementPatchLine = shouldUsePeopleStyling(params.imageType)
+    ? productAdapter.buildActionSafetyLines(productAdapterInput).join(" ") : "";
   const photoRealityMode = getPhotoRealityMode(params, resolvedScene, sceneKey);
   const photoRealityPatchLines = getPhotoRealityPatchLines(photoRealityMode);
   const streetRealismPatchLine = shouldUseStreetRealismLine(params, resolvedScene) ? streetRealismLine : "";
@@ -1717,6 +1591,7 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
   const promptQualityPatchLines = getPromptQualityPatchLines({
     imageType: params.imageType,
     hasShoe,
+    productMode: productAdapter.mode,
     shoe: params.shoe,
     includeCityRealism: hasStreetRealism || isEuropeanStreet,
     streetRegion: isEuropeanStreet ? "europe" : "china"
@@ -1728,7 +1603,7 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
     imageType: params.imageType,
     scenePreference: resolvedScene,
     userExtraRequirement: params.extraRequirement,
-    selectedShoe: getShoeDisplayName(params)
+    selectedShoe: productAdapter.getDisplayName()
   });
   const visualScenario = buildVisualScenario({
     imageType: params.imageType,
@@ -1742,7 +1617,7 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
         ? params.studioSetNonce ?? params.generationNonce
         : params.generationNonce
   });
-  const studioLaunchAngleLine = getStudioLaunchAngleLine(params, resolvedScene, hasShoe);
+  const studioLaunchAngleLine = productAdapter.buildCompositionLines(productAdapterInput).join(" ");
   const summerLifestyleLightLine =
     usesSummerLifestylePeopleSupport && summerLifestyleScene
       ? SUMMER_LIFESTYLE_LIGHT_LINES[summerLifestyleScene]
@@ -1794,7 +1669,8 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
   const imageTypeTemplate = buildPromptTemplateByImageType({
     imageType: params.imageType,
     sceneKey,
-    lightingSpaceType: seasonCityVisualContext.lightingSpaceType
+    lightingSpaceType: seasonCityVisualContext.lightingSpaceType,
+    productMode: productAdapter.mode
   });
   const effectiveImageTemplateSceneLine = usesSummerLifestylePeopleSupport
     ? "Use a real warm-season lifestyle template with natural outdoor or travel-space depth, one simple daily action, readable full figure and sneakers, and no tourism-advertising composition."
@@ -1816,7 +1692,9 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
       })
     : null;
   const hasLockedPerSceneOutfit = Boolean(perSceneOutfitSelection?.selectedPerSceneOutfitLine);
-  const outfitSelection = hasLockedOutfit || hasLockedPerSceneOutfit
+  const outfitSelection = productAdapter.mode === "garment"
+    ? { outfitLine: "", stylingRealismLine: "", selectedOutfit: null }
+    : hasLockedOutfit || hasLockedPerSceneOutfit
     ? { outfitLine: "", stylingRealismLine: "", selectedOutfit: null }
     : chooseOutfitByGarmentType({
         imageType: params.imageType,
@@ -1828,7 +1706,8 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
         userSpecifiedClothing,
         generationNonce: params.generationNonce
   });
-  const premiumWardrobeSelection =
+  const premiumWardrobeSelection = productAdapter.mode === "garment" ? null :
+    (
     !hasLockedOutfit && shouldUsePeopleStyling(params.imageType) &&
     sceneKey !== "gymInterior" &&
     !userSpecifiedClothing &&
@@ -1846,7 +1725,7 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
           generationNonce: params.generationNonce,
           preferPremiumWardrobe: true
         })
-      : null;
+      : null);
   const selectedPremiumWardrobe =
     premiumWardrobeSelection?.selectedOutfit?.isPremiumWardrobe ? premiumWardrobeSelection : null;
   const requestedManualGarmentType = getManualGarmentType(effectiveGarmentTypePreference);
@@ -1871,21 +1750,13 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
   )
     .filter(Boolean)
     .join(" ");
-  const shoeStyleLine =
-    sceneKey === "gymInterior" && hasShoe
-      ? "Style the selected THERUIZ AURA sneaker only with refined fitness-related clothing, keeping the look active, clean, and gym-appropriate."
-      : userSpecifiedClothing
-        ? ""
-        : resolvedScene === "海边度假" && hasShoe
-          ? getSeasideShoeStyleLine(params)
-          : getShoeStyleLine(params, hasShoe);
-  const sneakerProtection = chooseSneakerProtectionLines({
-    imageType: params.imageType,
-    shoe: params.shoe,
-    shoeDisplayName: getShoeDisplayName(params),
-    customShoe: params.customShoe,
-    hasShoe
-  });
+  productAdapterInput.userSpecifiedStyling = userSpecifiedClothing;
+  const productLine = productAdapter.buildProductLine(productAdapterInput);
+  const productAccuracyLines = productAdapter.buildAccuracyLines(productAdapterInput);
+  const productClippingLines = productAdapter.buildClippingLines(productAdapterInput);
+  const productSceneControlLine = productAdapter.buildSceneControlLines(productAdapterInput).join(" ");
+  const productImageTypeLine = productAdapter.buildImageTypeLines(productAdapterInput).join(" ");
+  const productStylingLine = productAdapter.buildStylingBoundaryLines(productAdapterInput).join(" ");
   const baseOutfitLine =
     hasLockedOutfit
       ? params.lockedOutfitLine!.trim()
@@ -1896,7 +1767,7 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
     selectedStandardOutfit?.stylingRealismLine ??
     perSceneOutfitSelection?.selectedStylingRealismLine ??
     outfitSelection.stylingRealismLine;
-  const preAccessoryOutfitLine = [baseOutfitLine, shoeStyleLine].filter(Boolean).join(" ");
+  const preAccessoryOutfitLine = [baseOutfitLine, productStylingLine].filter(Boolean).join(" ");
   const gazeSelection = chooseGazeLine({
     imageType: params.imageType,
     scenePreference: resolvedScene,
@@ -1979,7 +1850,7 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
   const rawOutfitLine = [
     resolvedScene === "棚内上新拍摄" ? STUDIO_LAUNCH_OUTFIT_BOUNDARY_LINE : "",
     normalizedBaseOutfitLine,
-    shoeStyleLine
+    productStylingLine
   ]
     .filter(Boolean)
     .join(" ");
@@ -2023,7 +1894,6 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
     sceneKey,
     hasCityStreetLine: Boolean(cityStreetPlaceLine) && !usesSummerLifestylePeopleSupport && !usesNonProductAtmosphere
   });
-  const sneakerSceneControlLine = sneakerProtection.sceneControlLine;
   const modelStructuredLine = shouldUsePeopleStyling(params.imageType)
     ? [
         getModelContinuityLine(params.modelContinuity, params.modelChoice),
@@ -2120,7 +1990,7 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
           footPlacementPatchLine,
           ...nonProductAtmosphereLines.slice(0, 3),
           nonProductSummerLifestyleWorldLine,
-          getImageTypeLine(params, sceneKey),
+          productImageTypeLine,
           effectiveImageTemplateSceneLine,
           streetRealismPatchLine,
           sceneRealismLine,
@@ -2131,7 +2001,7 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
           shouldUsePeopleStyling(params.imageType) ? accessoryShoeVisibilityRuleLine : "",
           handheldSelection.simplicityLine,
           humanRealism.onFootSneakerLines,
-          sneakerSceneControlLine
+          productSceneControlLine
         ]
           .filter(Boolean)
           .join(" ");
@@ -2161,7 +2031,8 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
   );
   const baseNegativeLine = getNegativeLine({
     params,
-    hasShoe,
+    hasProduct: productPresent,
+    productNegativePhrases,
     cityBoundaryPhrases: usesSummerLifestylePeopleSupport
       ? []
       : selectedEuropeanStreet?.boundaryPhrases ?? (usesNonProductAtmosphere ? [] : cityProfile?.boundaryPhrases ?? []),
@@ -2178,7 +2049,7 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
       ...(usesNonProductAtmosphere ? [] : handheldSelection.negativePhrases),
       ...(usesNonProductAtmosphere ? [] : extractAvoidPhrases(accessorySelection.accessoryNegativeLine)),
       ...(usesNonProductAtmosphere ? [] : extractAvoidPhrases(actionSelection.negative)),
-      ...(shouldUsePeopleStyling(params.imageType) ? extractAvoidPhrases(`Avoid ${footPlacementNegativeLine}.`) : []),
+      ...(shouldUsePeopleStyling(params.imageType) ? extractAvoidPhrases(`Avoid ${productNegativePhrases.join(", ")}.`) : []),
       ...extractAvoidPhrases(`Avoid ${effectiveImageTemplateNegativeLine}.`),
       ...extractAvoidPhrases(cameraSelection.cameraNegativeLine),
       ...(usesNonProductAtmosphere ? [] : extractAvoidPhrases(`Avoid ${gazeSelection.negative}.`)),
@@ -2203,7 +2074,7 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
   const basePromptParts = {
     timeLine: effectiveSeasonalLightLine,
     placeLine,
-    productLine: sneakerProtection.productLine,
+    productLine,
     modelLine: modelStructuredLine,
     outfitLine: outfitStructuredLine,
     sceneLine: sceneStructuredLine,
@@ -2222,8 +2093,8 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
         placeLine: [effectiveLightingSpaceSupportLine],
         productLine: [
           ...promptQualityPatchLines.productLines,
-          sneakerProtection.shoeSpecificAccuracyLine,
-          sneakerProtection.clippingLine
+          ...productAccuracyLines,
+          ...productClippingLines
         ].filter(Boolean),
         modelLine: shouldUsePeopleStyling(params.imageType)
           ? [
@@ -2244,7 +2115,7 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
           scenePropsLine,
           summerLifestyleShoeSafetyLine,
           footPlacementPatchLine,
-          shouldUsePeopleStyling(params.imageType) && !sneakerSceneControlLine ? accessoryShoeVisibilityRuleLine : ""
+          shouldUsePeopleStyling(params.imageType) && !productSceneControlLine ? accessoryShoeVisibilityRuleLine : ""
         ].filter(Boolean),
         actionLine: shouldUsePeopleStyling(params.imageType)
           ? [
@@ -2259,7 +2130,7 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
           effectiveImageTemplateNegativeLine,
           ...extractAvoidPhrases(summerLifestyleSceneNegativeLine),
           ...extractAvoidPhrases(indoorSocialSceneNegativeLine),
-          ...(shouldUsePeopleStyling(params.imageType) ? extractAvoidPhrases(`Avoid ${footPlacementNegativeLine}.`) : []),
+          ...(shouldUsePeopleStyling(params.imageType) ? extractAvoidPhrases(`Avoid ${productNegativePhrases.join(", ")}.`) : []),
           cameraSelection.cameraNegativeLine,
           ...promptQualityPatchLines.negativePhrases,
           ...photoRealityPatchLines.negativePhrases,
@@ -2345,11 +2216,16 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
   const modelAdjustedPrompt = shouldUsePeopleStyling(params.imageType)
     ? adaptFinalPromptForModelChoice(safetyCheckedPrompt.prompt, params.modelChoice)
     : safetyCheckedPrompt.prompt;
-  const prompt = cleanFinalPrompt(modelAdjustedPrompt);
+  const prompt = productAdapter.mode === "garment"
+    ? sanitizeGarmentPrompt(cleanFinalPrompt(modelAdjustedPrompt))
+    : cleanFinalPrompt(modelAdjustedPrompt);
 
   return {
     prompt,
     hasShoe,
+    hasProduct: productPresent,
+    productMode: productAdapter.mode,
+    productDisplayName: productAdapter.getDisplayName(),
     sceneText: placeLine,
     selectedOutfitLine: outfitLine
   };
