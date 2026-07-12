@@ -47,3 +47,11 @@ export type GarmentProductContext = {
   mode: "garment";
   garment: GarmentProductSpec;
 };
+
+export type GarmentSeriesContext = {
+  productLockLine: string;
+  modelLockLine: string;
+  stylingLockLine: string;
+  visualLockLine: string;
+  lockSupportingStyling: boolean;
+};

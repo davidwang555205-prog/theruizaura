@@ -6,6 +6,7 @@ import type {
   TeamSeason,
   TeamShoe
 } from "../types";
+import type { GarmentSeriesContext } from "../modules/product/garment/garmentProductTypes";
 import {
   lifestyleSoftSeedingScenePool,
   type LifestyleSoftHandheldPolicy,
@@ -3245,6 +3246,22 @@ function getSoftSeedingExtraRequirement(
   return sanitizeSoftSeedingExtraRequirementForGarment(combinedRequirement, garmentTypePreference);
 }
 
+function createGarmentSeriesContext(baseParams: TeamPromptParams, topic: SoftSeedingTopic): GarmentSeriesContext | undefined {
+  const context = baseParams.productContext;
+  if (!context || context.mode !== "garment") return undefined;
+  const garment = context.garment;
+  const details = [garment.category, garment.name, garment.color, garment.fabric, garment.silhouette, garment.neckline, garment.sleeveType, garment.sleeveLength, garment.waistline, garment.garmentLength ?? garment.hemLength, garment.closure, garment.pattern, garment.drape, garment.transparency, garment.keyDetails?.join(", ")].filter(Boolean).join("; ");
+  return {
+    productLockLine: `Garment series product lock: use the exact same uploaded ${details || "garment"} in every image. Preserve category, color, material, silhouette, proportions, construction, length, recognizable details, and natural fit; do not redesign, recolor, replace, shorten, lengthen, or invent unseen construction.`,
+    modelLockLine: `Garment series model lock: use the exact same model, face, age impression, hair, hairstyle, makeup, body proportions, and general presence across the entire ${topic} image series. Only gaze, expression intensity, pose, action, and crop may vary.`,
+    stylingLockLine: topic === "穿搭解决方案"
+      ? "Garment series styling policy: the uploaded garment remains exactly unchanged in every image; only supporting styling may vary, and supporting items must never replace, cover, recolor, or compete with the primary garment."
+      : "Garment series styling lock: keep the exact same supporting styling, layers, accessories, color palette, and wearing proportions across every image; only scene, pose, framing, and action may vary.",
+    visualLockLine: "Garment series visual-direction lock: keep one coherent refined real-camera look, warm-neutral low-saturation color family, natural material response, quiet premium realism, and consistent model treatment across all images; allow only scene-appropriate light variation.",
+    lockSupportingStyling: topic !== "穿搭解决方案"
+  };
+}
+
 function buildImagePlan(
   baseParams: TeamPromptParams,
   draft: SoftSeedingImageDraft,
@@ -3252,7 +3269,8 @@ function buildImagePlan(
   topic: SoftSeedingTopic,
   variantIndex: number,
   imageCount: SoftSeedingImageCount,
-  lockedOutfitLine = ""
+  lockedOutfitLine = "",
+  garmentSeriesContext?: GarmentSeriesContext
 ): SoftSeedingImagePlan {
   const shoeFields = resolveBaseShoe(baseParams);
   const garmentTypePreference = resolveSoftSeedingGarmentType(baseParams, draft);
@@ -3260,6 +3278,7 @@ function buildImagePlan(
   const params: TeamPromptParams = {
     ...baseParams,
     ...shoeFields,
+    garmentSeriesContext,
     imageType: draft.imageType,
     scenePreference: draft.scenePreference,
     garmentTypePreference,
@@ -3306,9 +3325,10 @@ function buildSoftSeedingImagePlans(
   imageCount: SoftSeedingImageCount
 ) {
   let sharedOutfitLine = "";
+  const garmentSeriesContext = createGarmentSeriesContext(baseParams, topic);
 
   return drafts.map((draft, index) => {
-    const plan = buildImagePlan(baseParams, draft, index, topic, variantIndex, imageCount, sharedOutfitLine);
+    const plan = buildImagePlan(baseParams, draft, index, topic, variantIndex, imageCount, sharedOutfitLine, garmentSeriesContext);
     if (
       (topic === "穿搭解决方案" || topic === "生活场景软种草" || topic === "棚内上新拍摄") &&
       !sharedOutfitLine &&

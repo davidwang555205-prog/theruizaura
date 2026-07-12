@@ -1751,7 +1751,8 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
     .filter(Boolean)
     .join(" ");
   productAdapterInput.userSpecifiedStyling = userSpecifiedClothing;
-  const productLine = productAdapter.buildProductLine(productAdapterInput);
+  const seriesContext = productAdapter.mode === "garment" ? params.garmentSeriesContext : undefined;
+  const productLine = [productAdapter.buildProductLine(productAdapterInput), seriesContext?.productLockLine].filter(Boolean).join(" ");
   const productAccuracyLines = productAdapter.buildAccuracyLines(productAdapterInput);
   const productClippingLines = productAdapter.buildClippingLines(productAdapterInput);
   const productSceneControlLine = productAdapter.buildSceneControlLines(productAdapterInput).join(" ");
@@ -1899,6 +1900,7 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
         getModelContinuityLine(params.modelContinuity, params.modelChoice),
         getModelLine(params),
         getTeamModelConsistencyLine(params.modelChoice, imageCountIntent),
+        seriesContext?.modelLockLine ?? "",
         [gazeSelection.line, humanRealism.expressionGazeLine].filter(Boolean).join(" "),
         humanRealismLine,
         humanRealism.livedInCoreLine,
@@ -1931,7 +1933,8 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
         hasLockedOutfit
           ? "Shared outfit lock: reproduce the exact garments, layers, bag, wearable accessories, colors, materials, hem lengths, and wearing proportions stated above; do not substitute or add any styling item."
           : accessorySelection.accessoryLine,
-        humanRealism.clothingWornLine
+        humanRealism.clothingWornLine,
+        seriesContext?.stylingLockLine ?? ""
       ]
         .filter(Boolean)
         .join(" ")
@@ -2007,6 +2010,7 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
           .join(" ");
   const moodStructuredLine = [
     brandMoodLine,
+    seriesContext?.visualLockLine ?? "",
     photoRealityPatchLines.moodLine,
     isNonProductAtmosphereImage(params.imageType) ? nonProductAtmosphereMoodLine : "",
     ...promptQualityPatchLines.moodLines,
