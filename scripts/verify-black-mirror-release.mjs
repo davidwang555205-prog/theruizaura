@@ -8,6 +8,8 @@ const shoeRegistry = readFileSync("src/modules/product/shoe/shoeCategoryRegistry
 const shoeAdapter = readFileSync("src/modules/product/shoe/shoeProductAdapter.ts", "utf8");
 const pumpAdapter = readFileSync("src/modules/product/shoe/pumpAdapter.ts", "utf8");
 const bootAdapter = readFileSync("src/modules/product/shoe/bootAdapter.ts", "utf8");
+const loaferAdapter = readFileSync("src/modules/product/shoe/loaferAdapter.ts", "utf8");
+const balletFlatAdapter = readFileSync("src/modules/product/shoe/balletFlatAdapter.ts", "utf8");
 const softSeeding = readFileSync("src/utils/generateSoftSeedingContent.ts", "utf8");
 const required = [
   ["Black Mirror UI name", app.includes("APP_NAME") && html.includes("Black Mirror")],
@@ -24,6 +26,11 @@ const required = [
   ["Boot shaft and leg guards", bootAdapter.includes("shaft height") && bootAdapter.includes("calf fit") && bootAdapter.includes("leg or boot intersection")],
   ["Boot shot plans and content", softSeeding.includes("bootStudioShotDrafts") && softSeeding.includes("bootLifestyleThreeImageShotPlans")],
   ["Boot planned-category isolation", bootAdapter.includes("subtype") && !bootAdapter.includes("pumpAdapter")],
+  ["Loafer adapter active", shoeRegistry.includes("loafer: loaferAdapter") && loaferAdapter.includes('status: "active"')],
+  ["Loafer native guards", loaferAdapter.includes("apron") && loaferAdapter.includes("ornament") && loaferAdapter.includes("welt")],
+  ["Ballet-flat adapter active", shoeRegistry.includes("balletFlat: balletFlatAdapter") && balletFlatAdapter.includes('status: "active"')],
+  ["Ballet-flat native guards", balletFlatAdapter.includes("shallow vamp") && balletFlatAdapter.includes("binding") && balletFlatAdapter.includes("heel lift")],
+  ["Flat adapter plans and isolation", softSeeding.includes("getFlatStudioDrafts") && !loaferAdapter.includes("balletFlatAdapter") && !balletFlatAdapter.includes("loaferAdapter")],
   ["Planned shoe categories are blocked", shoeRegistry.includes('status: "planned"') && shoeRegistry.includes("does not yet support")],
   ["Release script", packageJson.scripts["verify:release"] === "node scripts/verify-black-mirror-release.mjs"],
   ["No API integration", !app.includes("fetch(")]

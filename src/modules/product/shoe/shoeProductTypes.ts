@@ -54,6 +54,14 @@ export type BootToeShape = "pointed" | "almond" | "round" | "square" | "other";
 export type BootHeelType = "flat" | "lowBlock" | "block" | "stiletto" | "wedge" | "western" | "platform" | "other";
 export type BootClosureType = "zipper" | "pullOn" | "elasticGore" | "laceUp" | "buckle" | "mixed" | "other";
 export type BootShaftStructure = "structured" | "semiStructured" | "soft" | "sockLike" | "other";
+export type LoaferSubtype = "penny" | "horsebit" | "tassel" | "driving" | "lugSole" | "heeled" | "other";
+export type LoaferToeShape = "round" | "almond" | "square" | "pointed" | "other";
+export type LoaferUpperConstruction = "apron" | "plainVamp" | "moccasin" | "other";
+export type LoaferOrnament = "none" | "pennySaddle" | "horsebit" | "tassel" | "fringe" | "chain" | "buckle" | "other";
+export type BalletFlatSubtype = "classic" | "maryJane" | "squareToe" | "pointed" | "softGlove" | "elasticated" | "other";
+export type BalletFlatToeShape = "round" | "almond" | "square" | "pointed" | "other";
+export type BalletFlatOrnament = "none" | "bow" | "knot" | "buckle" | "flower" | "metalDetail" | "other";
+export type BalletFlatStrap = "none" | "maryJane" | "doubleStrap" | "ankleStrap" | "elasticStrap" | "other";
 
 export type ShoeReferenceRequirements = {
   minCount: number;
@@ -133,6 +141,9 @@ export type BootShoeSpec = BaseShoeSpec & {
   logoLettering?: string;
 };
 
+export type LoaferShoeSpec = BaseShoeSpec & { category: "loafer"; productName: string; subtype: LoaferSubtype; toeShape: LoaferToeShape; upperConstruction: LoaferUpperConstruction; apronShape?: string; apronSeam?: string; vampHeight?: string; instepPanelShape?: string; saddleShape?: string; pennySlotShape?: string; ornament: LoaferOrnament; hardwareShape?: string; hardwareFinish?: string; tasselCount?: string; fringeShape?: string; toplineShape?: string; toplineDepth?: string; sideCut?: string; heelCounterHeight?: string; heelType?: string; heelHeight: string; outsoleThickness?: string; outsoleProfile?: string; weltEdge?: string; treadProfile?: string; finish?: string; seamStructure?: string; decorativeDetails?: string; logoLettering?: string };
+export type BalletFlatShoeSpec = BaseShoeSpec & { category: "balletFlat"; productName: string; subtype: BalletFlatSubtype; toeShape: BalletFlatToeShape; vampCoverage: string; vampShape?: string; toplineShape: string; toplineDepth?: string; sideCut?: string; bindingType?: string; bindingWidth?: string; elasticEdge?: string; ornament: BalletFlatOrnament; bowShape?: string; bowSize?: string; ornamentPlacement?: string; strapType: BalletFlatStrap; strapPlacement?: string; buckleShape?: string; heelCounterHeight?: string; heelLift: string; outsoleThickness: string; outsoleFlex?: string; finish?: string; seamStructure?: string; decorativeDetails?: string; logoLettering?: string };
+
 export type GermanTrainerSpec = BaseShoeSpec & {
   category: "germanTrainer";
   silhouette?: string;
@@ -178,6 +189,8 @@ export type ShoeProductContext = {
   category?: ShoeCategory;
   pumpSpec?: PumpShoeSpec;
   bootSpec?: BootShoeSpec;
+  loaferSpec?: LoaferShoeSpec;
+  balletFlatSpec?: BalletFlatShoeSpec;
 };
 
 export function resolveShoeCategory(context: ShoeProductContext): ShoeCategory {

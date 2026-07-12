@@ -53,6 +53,7 @@ export type SoftSeedingContent = {
   shoeSeriesDiversityValidation?: ShoeSeriesDiversityValidation;
   pumpCopyValidation?: { valid: boolean; warnings: string[] };
   bootCopyValidation?: { valid: boolean; warnings: string[] };
+  flatCopyValidation?: { valid: boolean; warnings: string[] };
   tags: string[];
   note: string;
 };
@@ -292,6 +293,21 @@ function validateBootCopy(content: SoftSeedingContent) {
     ...(new Set(content.images.map((image) => image.name)).size !== content.images.length ? ["图片计划名称重复"] : [])
   ];
   return { valid: warnings.length === 0, warnings };
+}
+
+function buildFlatCopy(topic: SoftSeedingTopic, variantIndex: number, selectedImageDrafts: SoftSeedingImageDraft[], baseParams: TeamPromptParams, category: "loafer" | "balletFlat"): TopicCopyDraft {
+  const spec = baseParams.productContext?.mode === "shoe" ? category === "loafer" ? baseParams.productContext.loaferSpec : baseParams.productContext.balletFlatSpec : undefined;
+  const name = spec?.productName?.trim() || (category === "loafer" ? "这双乐福鞋" : "这双芭蕾鞋");
+  const focus = category === "loafer" ? "鞋头、Apron、鞋面装饰、鞋口和外底" : "鞋头、浅口鞋面、鞋口包边、蝴蝶结或绑带和薄底";
+  const scenes = selectedImageDrafts.map(getReaderSceneName).slice(0,3).join("、");
+  const intent = category === "loafer" ? `把${name}放进聪明休闲、通勤和周末场景，观察${focus}。` : `把${name}放进日常通勤和周末场景，观察${focus}。`;
+  return { titles:[`${name}，先看${focus.split("、").slice(0,2).join("和")}`, `把${name}放进真实一天里`, `${name}的上新记录：结构比形容词重要`].map((t,i)=>`${t}${(variantIndex+i)%2?"｜真实参考":""}`), body:`${intent}\n\n${scenes?`这组从${scenes}展开，`:"这组从真实场景展开，"}同一双鞋、同一位模特和统一方向保持不变，只改变镜头任务、动作和构图。\n\n文案只使用用户提供的产品事实，不延伸未确认的功能判断。`, tags:[category === "loafer" ? "#乐福鞋" : "#芭蕾鞋", `#${topic}`, "#真实穿着"], note:intent };
+}
+
+function validateFlatCopy(content: SoftSeedingContent, category: "loafer" | "balletFlat") {
+  const forbidden = category === "loafer" ? /德训鞋|sneaker|trainer|pump as the main|boot shaft|芭蕾鞋|全天舒适|不磨脚|防滑|防水/i : /德训鞋|sneaker|trainer|pump as the main|boot shaft|乐福鞋|apron|horsebit|tassel|全天舒适|不磨脚|防滑|防水/i;
+  const warnings=[...(content.titles.some(t=>forbidden.test(t))?["标题包含跨品类词"]:[]),...(forbidden.test(content.body)?["正文包含跨品类词或未经证实承诺"]:[]),...(new Set(content.images.map(i=>i.name)).size!==content.images.length?["图片计划名称重复"]:[])];
+  return {valid:warnings.length===0,warnings};
 }
 
 const garmentCategoryNames: Record<string, string> = { dress: "连衣裙", top: "上衣", shirt: "衬衫", knitwear: "针织衫", tshirt: "T恤", trousers: "裤装", skirt: "半裙", coat: "大衣", jacket: "夹克", suit: "西装", set: "套装", activewear: "轻运动服", bridal: "婚纱", eveningGown: "礼服", other: "服装" };
@@ -3104,6 +3120,23 @@ function getPumpLifestyleShotPlan(imageCount: SoftSeedingImageCount, imageIndex:
 }
 function getBootLifestyleShotPlan(imageCount: SoftSeedingImageCount, imageIndex: number) { const plans = imageCount === 3 ? bootLifestyleThreeImageShotPlans : bootLifestyleFiveImageShotPlans; return plans[imageIndex] ?? plans[plans.length - 1]; }
 
+function getFlatLifestyleShotPlan(category: "loafer" | "balletFlat", imageCount: SoftSeedingImageCount, imageIndex: number): ShoeLifestyleShotPlan {
+  const noun = category === "loafer" ? "loafer" : "ballet flat";
+  const plans: ShoeLifestyleShotPlan[] = [
+    { id: `${category}-lifestyle-hero`, purpose: "full-look everyday hero", actionFamily: "departure-standing", poseType: "standing", framing: "a full-body or environmental front-side three-quarter frame", bodyOrientation: "balanced standing near an entryway, mirror, office, bookstore, or cafe", action: `stand naturally with one complete ${noun} visible from toe to heel`, gaze: "toward a nearby scene detail", expression: "alive and naturally relaxed", propRule: "Keep props beside the subject, never over the shoes.", stylingVariation: category === "loafer" ? "Use smart-casual trousers, skirt, suit, or dress while keeping apron and ornament visible." : "Use cropped trousers, midi skirt, dress, or relaxed tailoring while keeping shallow opening and binding visible.", forceNoHandheldObject: true },
+    { id: `${category}-lifestyle-step`, purpose: "controlled small-step movement", actionFamily: "controlled-small-step", poseType: "walking", framing: "a side or side-three-quarter composition", bodyOrientation: "a short step through a corridor, office route, quiet street, or gallery approach", action: `take one small natural step; keep ${category === "loafer" ? "apron, topline, heel, and outsole" : "toe, shallow vamp, topline, heel, and thin outsole"} readable`, gaze: "toward the destination", expression: "focused and responsive", propRule: "No handheld object; keep ground contact clear.", stylingVariation: "Keep the same product and model while changing only compatible hem or layer treatment.", forceNoHandheldObject: true },
+    { id: `${category}-lifestyle-pause`, purpose: "pause or seated detail proof", actionFamily: "pause-or-seated", poseType: "seated", framing: "a lower three-quarter or medium crop with one complete shoe readable", bodyOrientation: "a restrained pause near a cafe, bookstore, office, or gallery", action: `settle naturally without hiding the ${category === "loafer" ? "apron, saddle, ornament, or vamp" : "opening, binding, bow, strap, or material"}`, gaze: "toward a nearby detail", expression: "soft observant look with a faint micro-smile", propRule: "Place objects away from the lower body.", stylingVariation: "Vary framing and scene while preserving exact product identity.", forceNoHandheldObject: true }
+  ];
+  if (imageCount === 5) plans.push({ id: `${category}-lifestyle-arrival`, purpose: "work or culture arrival", actionFamily: "arrival-browse", poseType: "standing", framing: "an environmental three-quarter arrival frame", bodyOrientation: "a doorway, shelf, gallery, or office-lobby pause", action: `arrive and stop with the ${noun} fully grounded`, gaze: "toward the destination", expression: "quietly observant", propRule: "Keep props outside the shoe silhouette.", stylingVariation: "Change one supporting layer only.", forceNoHandheldObject: true }, { id: `${category}-lifestyle-detail`, purpose: "natural material and opening proof", actionFamily: "lower-detail-pause", poseType: "seated", framing: "a closer lower three-quarter proof frame", bodyOrientation: "a grounded offset stance or seated lower-leg angle", action: `show ${category === "loafer" ? "apron, ornament, welt, and material" : "vamp, topline, binding, ornament, and thin outsole"} without distortion`, gaze: "downward briefly or softly off camera", expression: "relaxed after-action expression", propRule: "No prop required.", stylingVariation: "Use a distinct crop while preserving the same product.", forceNoHandheldObject: true });
+  return plans[imageIndex] ?? plans[plans.length - 1];
+}
+
+function getFlatStudioDrafts(category: "loafer" | "balletFlat"): SoftSeedingImageDraft[] {
+  const noun = category === "loafer" ? "loafer" : "ballet flat";
+  const labels = category === "loafer" ? ["全身前侧完整主视觉","完整侧面","正面 / 鞋头与Apron","后侧三分之四","Apron与鞋面","Saddle / Horsebit / Tassel装饰","鞋跟 / Welt / 外底","控制上脚 / 成对证明"] : ["全身前侧完整主视觉","完整侧面","正面 / 鞋头与鞋口","后侧三分之四","浅口鞋面与Topline","包边 / 蝴蝶结 / 绑带装饰","鞋跟抬高与薄底","控制上脚 / 成对证明"];
+  return labels.map((label,index)=>({ name:`图${index+1}｜棚拍｜${label}`, purpose:`证明${noun}的${label}结构。`, description:`同一${noun}的专属棚拍镜头。`, imageType:(index===6?"产品静物图":"产品上脚图") as TeamImageType, scenePreference:"棚内上新拍摄" as TeamScenePreference, garmentTypePreference:"自动匹配" as TeamGarmentTypePreference, studioLaunchShotIndex:index as 0|1|2|3|4|5|6|7, extraRequirement:`Show the same ${noun} in a clean studio. Preserve category-native toe, opening, ${category === "loafer" ? "apron, saddle, ornament, welt, heel, outsole" : "shallow vamp, topline, binding, bow or strap, heel lift, thin outsole"}, and grounded contact. Do not substitute another footwear category.`}));
+}
+
 function getShoeLifestyleShotPlan(imageCount: SoftSeedingImageCount, imageIndex: number) {
   const plans = imageCount === 3 ? shoeLifestyleThreeImageShotPlans : shoeLifestyleFiveImageShotPlans;
   return plans[imageIndex] ?? plans[plans.length - 1];
@@ -3210,6 +3243,9 @@ function selectSoftSeedingImageDrafts(
   if (shoeCategory === "boot" && topic === "棚内上新拍摄") {
     return bootStudioShotDrafts.slice(0, imageCount);
   }
+  if ((shoeCategory === "loafer" || shoeCategory === "balletFlat") && topic === "棚内上新拍摄") {
+    return getFlatStudioDrafts(shoeCategory).slice(0, imageCount);
+  }
 
   if (topic === "穿搭解决方案") {
     return selectStylingSolutionImageDrafts(variantIndex, imageCount);
@@ -3219,7 +3255,7 @@ function selectSoftSeedingImageDrafts(
   const orders = topicImageOrders[topic];
   const order = orders[normalizeSoftVariantIndex(variantIndex, getTopicVariantCount(topic)) % orders.length];
 
-  return order.map((index) => drafts[index]).filter(Boolean).slice(0, imageCount).map((draft) => isPump ? adaptDraftForPump(draft) : shoeCategory === "boot" ? adaptDraftForBoot(draft) : draft);
+  return order.map((index) => drafts[index]).filter(Boolean).slice(0, imageCount).map((draft) => isPump ? adaptDraftForPump(draft) : shoeCategory === "boot" ? adaptDraftForBoot(draft) : shoeCategory === "loafer" || shoeCategory === "balletFlat" ? adaptDraftForFlat(draft, shoeCategory) : draft);
 }
 
 function adaptDraftForPump(draft: SoftSeedingImageDraft): SoftSeedingImageDraft {
@@ -3240,6 +3276,12 @@ function adaptDraftForPump(draft: SoftSeedingImageDraft): SoftSeedingImageDraft 
 function adaptDraftForBoot(draft: SoftSeedingImageDraft): SoftSeedingImageDraft {
   const replace = (value: string) => value.replace(/German trainer|THERUIZ AURA sneaker|sneakers?|pump|running-shoe/gi, "boot").replace(/shoelaces?|laces?|tongue|eyelets?|panel transitions?/gi, "closure, shaft, and seam structure").replace(/toe box/gi, "toe shape").replace(/slim outsole/gi, "outsole and tread");
   return { ...draft, name: replace(draft.name), purpose: replace(draft.purpose), description: replace(draft.description), extraRequirement: `${replace(draft.extraRequirement)} Keep the exact boot subtype, shaft height, opening, closure, heel, outsole, and leg contact; do not change the shaft or invent unseen construction.` };
+}
+
+function adaptDraftForFlat(draft: SoftSeedingImageDraft, category: "loafer" | "balletFlat"): SoftSeedingImageDraft {
+  const noun = category === "loafer" ? "loafer" : "ballet flat";
+  const replace = (value: string) => value.replace(/German trainer|THERUIZ AURA sneaker|sneakers?|pump|boot|running-shoe/gi, noun).replace(/shoelaces?|laces?|tongue|eyelets?/gi, category === "loafer" ? "apron, saddle, and ornament structure" : "binding, topline, and ornament structure").replace(/toe box/gi, "toe shape").replace(/slim outsole/gi, category === "loafer" ? "welt and outsole" : "thin outsole");
+  return { ...draft, name: replace(draft.name), purpose: replace(draft.purpose), description: replace(draft.description), extraRequirement: `${replace(draft.extraRequirement)} Keep the exact ${noun} category, opening, material, and grounded foot contact; do not substitute another footwear category.` };
 }
 
 const topicImageGuides: Record<SoftSeedingTopic, string> = {
@@ -3286,6 +3328,13 @@ function getBootTopicGuide(topic: SoftSeedingTopic) {
     "上新活动转化": "Boot category rule: explain subtype, toe, shaft height, fit, closure, heel, and suitable occasions using supplied facts only; do not promise waterproofing, warmth, or grip.",
     "棚内上新拍摄": "Boot studio rule: use the dedicated eight-shot boot plan to prove complete hero, side, front, rear-aware, shaft, closure, heel/outsole/tread, and worn/pair proportion."
   };
+  return guides[topic];
+}
+
+function getFlatTopicGuide(topic: SoftSeedingTopic, category: "loafer" | "balletFlat") {
+  const loafer = category === "loafer";
+  const focus = loafer ? "apron, vamp, saddle or ornament, topline, heel, welt, and outsole" : "shallow vamp, topline, binding, bow or strap, heel lift, and thin outsole";
+  const guides: Record<SoftSeedingTopic,string> = { "生活场景软种草": `Keep the same ${loafer ? "loafer" : "ballet flat"} through smart-casual or everyday transitions; prove ${focus} in restrained movement.`, "产品开发幕后": `Show only visible product decisions around ${focus}; do not invent factory processes.`, "秋冬配色实验室": `Keep the exact product color unchanged while showing material light response and trouser, skirt, hosiery, or dress coordination.`, "穿搭解决方案": `Keep one exact ${loafer ? "loafer" : "ballet flat"}; vary compatible trousers, skirt, dress, suit, and weekend styling without hiding the product.`, "材质工艺认知": `Focus on ${focus}, seams, edge finishing, and material only when present in references.`, "品牌审美观点": `Express ${loafer ? "polished smart-casual restraint" : "low-profile everyday refinement"}, toe proportion, and wardrobe harmony without unsupported claims.`, "上新活动转化": `Explain subtype, toe, opening, ornament, heel or outsole facts and suitable occasions using supplied facts only.`, "棚内上新拍摄": `Use the dedicated eight-shot ${loafer ? "loafer" : "ballet-flat"} studio plan and prove ${focus}.` };
   return guides[topic];
 }
 
@@ -3583,18 +3632,23 @@ function getSoftSeedingExtraRequirement(
         ? `Pump studio continuity for ${imageCount} shots: keep the same person, same closed-toe pump, same outfit, same studio, same light, same color grade, and exact toe, vamp, topline, side cut, heel, and outsole geometry. Change only the specified framing and restrained pose.`
         : baseParams.productContext?.mode === "shoe" && resolveShoeCategory(baseParams.productContext) === "boot"
           ? `Boot studio continuity for ${imageCount} shots: keep the same person, same boot subtype, same shaft height and opening, same outfit, same studio, same light, and exact toe, closure, heel, outsole, and tread geometry. Change only the specified framing and restrained pose.`
+        : baseParams.productContext?.mode === "shoe" && (resolveShoeCategory(baseParams.productContext) === "loafer" || resolveShoeCategory(baseParams.productContext) === "balletFlat")
+          ? `Flat-shoe studio continuity for ${imageCount} shots: keep the same person, same ${resolveShoeCategory(baseParams.productContext) === "loafer" ? "loafer with apron, ornament, welt, and outsole" : "ballet flat with shallow vamp, topline, binding, ornament, and thin outsole"}, same outfit, same studio, same light, and exact product geometry. Change only the specified framing and restrained pose.`
         : getStudioLaunchSetContinuityLine(imageCount)
       : "";
   const pumpCategoryGuide = baseParams.productContext?.mode === "shoe" && resolveShoeCategory(baseParams.productContext) === "pump"
     ? getPumpTopicGuide(topic)
     : "";
   const bootCategoryGuide = baseParams.productContext?.mode === "shoe" && resolveShoeCategory(baseParams.productContext) === "boot" ? getBootTopicGuide(topic) : "";
-  const effectiveThemeGuide = pumpCategoryGuide || bootCategoryGuide || themeGuide;
+  const flatCategory = baseParams.productContext?.mode === "shoe" && (resolveShoeCategory(baseParams.productContext) === "loafer" || resolveShoeCategory(baseParams.productContext) === "balletFlat") ? resolveShoeCategory(baseParams.productContext) as "loafer" | "balletFlat" : undefined;
+  const flatCategoryGuide = flatCategory ? getFlatTopicGuide(topic, flatCategory) : "";
+  const effectiveThemeGuide = pumpCategoryGuide || bootCategoryGuide || flatCategoryGuide || themeGuide;
   const isPump = Boolean(pumpCategoryGuide);
   const isBoot = Boolean(bootCategoryGuide);
-  const draftRequirement = isPump ? adaptDraftForPump(draft).extraRequirement : isBoot ? adaptDraftForBoot(draft).extraRequirement : draft.extraRequirement;
-  const effectiveVariantVisualCue = isPump ? "Pump visual angle: keep the exact closed-toe pump, toe geometry, vamp, topline, heel, and grounded contact readable in a restrained real-life composition." : isBoot ? "Boot visual angle: keep the exact subtype, toe, ankle, shaft, opening, closure, heel, outsole, and leg contact readable." : variantVisualCue;
-  const effectiveCopyVisualAlignmentCue = isPump ? "Pump copy alignment: describe only supplied toe, heel, material, styling, and scene facts; do not use sneaker terminology or unsupported comfort claims." : isBoot ? "Boot copy alignment: describe only supplied subtype, shaft, closure, heel, material, styling, and scene facts; do not substitute another footwear category or add unsupported performance claims." : copyVisualAlignmentCue;
+  const isFlat = Boolean(flatCategoryGuide);
+  const draftRequirement = isPump ? adaptDraftForPump(draft).extraRequirement : isBoot ? adaptDraftForBoot(draft).extraRequirement : isFlat ? adaptDraftForFlat(draft, flatCategory!).extraRequirement : draft.extraRequirement;
+  const effectiveVariantVisualCue = isPump ? "Pump visual angle: keep the exact closed-toe pump, toe geometry, vamp, topline, heel, and grounded contact readable in a restrained real-life composition." : isBoot ? "Boot visual angle: keep the exact subtype, toe, ankle, shaft, opening, closure, heel, outsole, and leg contact readable." : isFlat ? `Flat-shoe visual angle: keep the exact ${flatCategory === "loafer" ? "loafer apron, ornament, welt, and outsole" : "ballet-flat shallow vamp, topline, binding, ornament, and thin outsole"} readable.` : variantVisualCue;
+  const effectiveCopyVisualAlignmentCue = isPump ? "Pump copy alignment: describe only supplied toe, heel, material, styling, and scene facts; do not use sneaker terminology or unsupported comfort claims." : isBoot ? "Boot copy alignment: describe only supplied subtype, shaft, closure, heel, material, styling, and scene facts; do not substitute another footwear category or add unsupported performance claims." : isFlat ? "Flat-shoe copy alignment: use only supplied category facts and do not substitute another footwear category or add unsupported comfort claims." : copyVisualAlignmentCue;
 
   if (baseParams.garmentTypePreference === "自动匹配" || !shouldInheritBaseGarmentType(draft.imageType)) {
     return [draftRequirement, studioShotControlLine, effectiveThemeGuide, effectiveVariantVisualCue, effectiveCopyVisualAlignmentCue, stylingSolutionContinuityLine, studioContinuityLine]
@@ -3666,6 +3720,8 @@ function buildImagePlan(
         ? getPumpLifestyleShotPlan(imageCount, index)
         : baseParams.productContext?.mode === "shoe" && resolveShoeCategory(baseParams.productContext) === "boot"
           ? getBootLifestyleShotPlan(imageCount, index)
+        : baseParams.productContext?.mode === "shoe" && (resolveShoeCategory(baseParams.productContext) === "loafer" || resolveShoeCategory(baseParams.productContext) === "balletFlat")
+          ? getFlatLifestyleShotPlan(resolveShoeCategory(baseParams.productContext) as "loafer" | "balletFlat", imageCount, index)
         : getShoeLifestyleShotPlan(imageCount, index))
       : undefined;
   const lifestyleContinuityLine = getLifestyleSoftSeedingContinuityLines(
@@ -3812,12 +3868,15 @@ export function generateSoftSeedingContent(input: SoftSeedingInput): SoftSeeding
   );
   const isPump = shoeCategoryAdapter?.category === "pump";
   const isBoot = shoeCategoryAdapter?.category === "boot";
+  const flatCategory = shoeCategoryAdapter?.category === "loafer" || shoeCategoryAdapter?.category === "balletFlat" ? shoeCategoryAdapter.category : undefined;
   const copy = input.baseParams.productContext?.mode === "garment"
     ? buildGarmentCopy(topic, variantIndex, selectedImageDrafts, input.baseParams)
     : isPump
       ? buildPumpCopy(topic, variantIndex, selectedImageDrafts, input.baseParams)
       : isBoot
         ? buildBootCopy(topic, variantIndex, selectedImageDrafts, input.baseParams)
+        : flatCategory
+          ? buildFlatCopy(topic, variantIndex, selectedImageDrafts, input.baseParams, flatCategory)
     : buildCopyFromKit(topic, variantIndex, selectedImageDrafts);
   const images = buildSoftSeedingImagePlans(input.baseParams, selectedImageDrafts, topic, variantIndex, imageCount);
   const shoeSeriesDiversityValidation =
@@ -3826,6 +3885,7 @@ export function generateSoftSeedingContent(input: SoftSeedingInput): SoftSeeding
       : undefined;
   const pumpCopyValidation = isPump ? validatePumpCopy({ topic, dateKey, dailySlot: 1, variantIndex, variantCount, variantLabel: "", titles: copy.titles, body: copy.body, images, tags: copy.tags, note: copy.note }) : undefined;
   const bootCopyValidation = isBoot ? validateBootCopy({ topic, dateKey, dailySlot: 1, variantIndex, variantCount, variantLabel: "", titles: copy.titles, body: copy.body, images, tags: copy.tags, note: copy.note }) : undefined;
+  const flatCopyValidation = flatCategory ? validateFlatCopy({ topic, dateKey, dailySlot: 1, variantIndex, variantCount, variantLabel: "", titles: copy.titles, body: copy.body, images, tags: copy.tags, note: copy.note }, flatCategory) : undefined;
 
   return {
     topic,
@@ -3840,6 +3900,7 @@ export function generateSoftSeedingContent(input: SoftSeedingInput): SoftSeeding
     shoeSeriesDiversityValidation,
     pumpCopyValidation,
     bootCopyValidation,
+    flatCopyValidation,
     tags: copy.tags,
     note: copy.note
   };
