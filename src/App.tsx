@@ -103,6 +103,7 @@ type ReferenceImage = {
   url: string;
 };
 type ShoeDraft = Pick<TeamPromptParams, "shoe" | "customShoe">;
+type SinglePromptResult = { mode: ProductMode; sourceFingerprint: string; prompt: string };
 
 function updateField<K extends keyof TeamPromptParams>(params: TeamPromptParams, key: K, value: TeamPromptParams[K]) {
   return { ...params, [key]: value };
@@ -113,13 +114,38 @@ function formatFileSize(size: number) {
   return `${(size / 1024 / 1024).toFixed(1)} MB`;
 }
 
+function createGarmentProductFingerprint(garment: GarmentProductSpec, references: GarmentReference[]) {
+  return JSON.stringify({
+    category: garment.category,
+    name: garment.name.trim(),
+    color: garment.color?.trim() ?? "",
+    fabric: garment.fabric?.trim() ?? "",
+    silhouette: garment.silhouette?.trim() ?? "",
+    neckline: garment.neckline?.trim() ?? "",
+    shoulderStructure: garment.shoulderStructure?.trim() ?? "",
+    sleeveType: garment.sleeveType?.trim() ?? "",
+    sleeveLength: garment.sleeveLength?.trim() ?? "",
+    waistline: garment.waistline?.trim() ?? "",
+    garmentLength: garment.garmentLength?.trim() ?? "",
+    hemLength: garment.hemLength?.trim() ?? "",
+    closure: garment.closure?.trim() ?? "",
+    pattern: garment.pattern?.trim() ?? "",
+    drape: garment.drape?.trim() ?? "",
+    transparency: garment.transparency?.trim() ?? "",
+    keyDetails: [...(garment.keyDetails ?? [])].map((detail) => detail.trim()),
+    references: references.map(({ id, role }) => ({ id, role })).sort((a, b) => a.id.localeCompare(b.id))
+  });
+}
+
 function App() {
   const [params, setParams] = useState<TeamPromptParams>(initialParams);
   const [productMode, setProductMode] = useState<ProductMode>("shoe");
   const [shoeDraft, setShoeDraft] = useState<ShoeDraft>({ shoe: initialParams.shoe, customShoe: initialParams.customShoe });
   const [garmentReferences, setGarmentReferences] = useState<GarmentReference[]>([]);
   const [garment, setGarment] = useState<GarmentProductSpec>({ category: "dress", name: "", color: "", fabric: "", silhouette: "" });
-  const [generatedPrompt, setGeneratedPrompt] = useState(() => initialGeneratedPrompt);
+  const [generatedProductFingerprint, setGeneratedProductFingerprint] = useState("");
+  const lastGarmentFingerprint = useRef(createGarmentProductFingerprint(garment, []));
+  const [singlePromptResult, setSinglePromptResult] = useState<SinglePromptResult | null>({ mode: "shoe", sourceFingerprint: "", prompt: initialGeneratedPrompt });
   const [copyStatus, setCopyStatus] = useState("");
   const [hasPendingChanges, setHasPendingChanges] = useState(false);
   const [softTopic, setSoftTopic] = useState<SoftSeedingTopic>(softSeedingTopicOptions[0]);
@@ -137,6 +163,20 @@ function App() {
   useEffect(() => {
     referenceImagesRef.current = referenceImages;
   }, [referenceImages]);
+
+  useEffect(() => {
+    const nextFingerprint = createGarmentProductFingerprint(garment, garmentReferences);
+    if (lastGarmentFingerprint.current !== nextFingerprint) {
+      lastGarmentFingerprint.current = nextFingerprint;
+      setHasPendingChanges(true);
+      setCopyStatus("");
+      setSoftCopyStatus("");
+      if (productMode === "garment" && generatedProductFingerprint && generatedProductFingerprint !== nextFingerprint) {
+        setSinglePromptResult(null);
+        setGeneratedProductFingerprint("");
+      }
+    }
+  }, [garment, garmentReferences, productMode, generatedProductFingerprint]);
 
   useEffect(() => {
     return () => {
@@ -163,7 +203,10 @@ function App() {
     if (productMode === "garment" && !hasValidGarmentReferences(garmentReferences)) { setImageGenerationStatus("服装模式需要至少4张参考图，并且必须包含正面完整图。"); return; }
     const nextParams = paramsForProduct({ ...params, generationNonce: params.generationNonce + 1 });
     setParams(nextParams);
-    setGeneratedPrompt(generateTeamPrompt(nextParams).prompt);
+    const prompt = generateTeamPrompt(nextParams).prompt;
+    const sourceFingerprint = productMode === "garment" ? createGarmentProductFingerprint(garment, garmentReferences) : "";
+    setSinglePromptResult({ mode: productMode, sourceFingerprint, prompt });
+    setGeneratedProductFingerprint(sourceFingerprint);
     setCopyStatus("");
     setHasPendingChanges(false);
   };
@@ -172,13 +215,17 @@ function App() {
     if (!hasPendingChanges) return params;
     const syncedParams = paramsForProduct({ ...params, generationNonce: params.generationNonce + 1 });
     setParams(syncedParams);
-    setGeneratedPrompt(generateTeamPrompt(syncedParams).prompt);
+    const prompt = generateTeamPrompt(syncedParams).prompt;
+    const sourceFingerprint = productMode === "garment" ? createGarmentProductFingerprint(garment, garmentReferences) : "";
+    setSinglePromptResult({ mode: productMode, sourceFingerprint, prompt });
+    setGeneratedProductFingerprint(sourceFingerprint);
     setHasPendingChanges(false);
     return syncedParams;
   };
 
   const handleCopy = async () => {
-    await navigator.clipboard.writeText(generatedPrompt);
+    if (!singlePromptResult?.prompt) return;
+    await navigator.clipboard.writeText(singlePromptResult.prompt);
     setCopyStatus("已复制提示词。");
   };
 
@@ -349,7 +396,7 @@ function App() {
             <div className="space-y-5">
               <label className="block space-y-2">
                 <span className="text-sm font-medium text-aura-charcoal">产品模式</span>
-                <select className={inputClass} value={productMode} onChange={(event) => { const next = event.target.value as ProductMode; setProductMode(next); setParams((current) => ({ ...current, shoe: shoeDraft.shoe, customShoe: shoeDraft.customShoe })); setHasPendingChanges(true); }}>
+                <select className={inputClass} value={productMode} onChange={(event) => { const next = event.target.value as ProductMode; setProductMode(next); setParams((current) => ({ ...current, shoe: shoeDraft.shoe, customShoe: shoeDraft.customShoe })); setSinglePromptResult(null); setGeneratedProductFingerprint(""); setHasPendingChanges(true); }}>
                   <option value="shoe">鞋履模式</option><option value="garment">服装模式</option>
                 </select>
               </label>
@@ -589,7 +636,7 @@ function App() {
                 <h2 className="text-xl font-semibold text-aura-charcoal">最终英文提示词</h2>
                 <p className="mt-2 text-sm leading-6 text-aura-muted">Standard 版本，可直接复制使用。</p>
               </div>
-              <button type="button" onClick={handleCopy} className={clayButtonClass}>
+              <button type="button" onClick={handleCopy} disabled={!singlePromptResult?.prompt} className={clayButtonClass}>
                 一键复制
               </button>
             </div>
@@ -597,7 +644,7 @@ function App() {
             {productMode === "garment" ? <div className="mb-5 rounded-[22px] bg-aura-cream p-5 text-sm leading-6 text-aura-muted ring-1 ring-aura-beige/70">服装参考图仅在当前浏览器本地预览。网站不会发送图片，也不会直接生成或下载图片；请复制 Prompt 后，将同一组参考图手动上传至 Image 2.0。</div> : imageGenerationPanel}
 
             <div className="aura-scrollbar min-h-[430px] whitespace-pre-wrap rounded-[22px] border border-aura-beige bg-white/75 p-5 text-sm leading-7 text-aura-charcoal shadow-inner lg:max-h-[610px] lg:overflow-y-auto">
-              {generatedPrompt}
+              {singlePromptResult?.prompt ?? "请先点击“生成单张 Prompt”。"}
             </div>
 
             {copyStatus && <p className="mt-3 text-sm text-aura-muted">{copyStatus}</p>}
