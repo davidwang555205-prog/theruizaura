@@ -1791,15 +1791,16 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
     generationNonce: params.generationNonce,
     forceNoHandheldObject: params.forceNoHandheldObject
   });
+  const resolvedSeriesActionLine = params.seriesShotActionLine?.trim() || actionSelection.line;
   const poseCategory = mapActionPoseToHumanCategory({
     params,
     resolvedScene,
-    poseType: actionSelection.poseType
+    poseType: params.seriesShotPoseType ?? actionSelection.poseType
   });
   const primaryHandheldSelection = chooseSinglePrimaryHandheldObject({
     imageType: params.imageType,
     scenePreference: resolvedScene,
-    actionType: [actionSelection.line, actionSelection.supportLine, actionSelection.safetyLine].filter(Boolean).join(" "),
+    actionType: [resolvedSeriesActionLine, actionSelection.supportLine, actionSelection.safetyLine].filter(Boolean).join(" "),
     userExtraRequirement: params.extraRequirement,
     selectedOutfitLine: preAccessoryOutfitLine,
     selectedAccessoryLine: preAccessoryOutfitLine,
@@ -1869,7 +1870,7 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
   const handheldSelection = chooseHandheldObjectLines({
     imageType: params.imageType,
     scenePreference: resolvedScene,
-    actionType: [actionSelection.line, actionSelection.supportLine, actionSelection.safetyLine].filter(Boolean).join(" "),
+    actionType: [resolvedSeriesActionLine, actionSelection.supportLine, actionSelection.safetyLine].filter(Boolean).join(" "),
     userExtraRequirement: params.extraRequirement,
     selectedOutfitLine: outfitLine,
     selectedAccessoryLine: accessorySelection.accessoryLine,
@@ -1882,7 +1883,7 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
   const humanRealism = chooseHumanPresenceLines({
     imageType: params.imageType,
     scenePreference: resolvedScene,
-    actionType: [actionSelection.line, actionSelection.supportLine, actionSelection.safetyLine].filter(Boolean).join(" "),
+    actionType: [resolvedSeriesActionLine, actionSelection.supportLine, actionSelection.safetyLine].filter(Boolean).join(" "),
     poseCategory,
     garmentTypePreference: effectiveGarmentTypePreference,
     selectedOutfitLine: outfitLine,
@@ -1903,10 +1904,12 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
         getTeamModelConsistencyLine(params.modelChoice, imageCountIntent),
         seriesContext?.modelLockLine ?? "",
         [gazeSelection.line, humanRealism.expressionGazeLine].filter(Boolean).join(" "),
+        params.seriesShotGazeLine ?? "",
+        params.seriesShotExpressionLine ?? "",
         humanRealismLine,
         humanRealism.livedInCoreLine,
         humanRealism.realHumanDetailLine,
-        gazeSelection.mode === "phoneHiddenFace" || gazeSelection.mode === "noFaceNeeded"
+        params.seriesShotExpressionLine || gazeSelection.mode === "phoneHiddenFace" || gazeSelection.mode === "noFaceNeeded"
           ? ""
           : getMultiImageExpressionSequenceLine(params),
         getCompactPoseBodyLine(poseCategory),
@@ -1953,7 +1956,7 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
           .filter(Boolean)
           .join(" ")
       : [
-        actionSelection.line,
+        resolvedSeriesActionLine,
         getHandheldSafeActionContextLine({
           params,
           resolvedScene,
@@ -1986,6 +1989,7 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
           .join(" ")
       : [
           studioLaunchAngleLine,
+          params.seriesShotFramingLine ?? "",
           cameraSelection.camera === "AuraOutdoorReference" ? auraOutdoorReferenceCompactToneLine : "",
           photoRealityPatchLines.sceneLine,
           visualScenario.scenarioLine,
@@ -2125,7 +2129,7 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
         actionLine: shouldUsePeopleStyling(params.imageType)
           ? [
               imageTypeTemplate.templateActionLine,
-              actionSelection.line,
+              resolvedSeriesActionLine,
               handheldSelection.handheldObjectLine,
               getSinglePurposeHandLine(handheldSelection.primaryHandheldObject)
             ].filter(Boolean)
