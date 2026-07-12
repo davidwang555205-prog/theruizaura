@@ -12,7 +12,7 @@ import type {
 } from "./types";
 import type { ProductMode } from "./modules/product/types";
 import type { GarmentProductCategory, GarmentProductSpec } from "./modules/product/garment/garmentProductTypes";
-import type { PumpBackType, PumpHeelType, PumpShoeSpec, PumpStrapType, PumpToeShape, ShoeCategory, ShoeReferenceRole } from "./modules/product/shoe/shoeProductTypes";
+import type { BootClosureType, BootHeelType, BootShaftStructure, BootShoeSpec, BootSubtype, BootToeShape, PumpBackType, PumpHeelType, PumpShoeSpec, PumpStrapType, PumpToeShape, ShoeCategory, ShoeReferenceRole } from "./modules/product/shoe/shoeProductTypes";
 import { GarmentReferenceUploader, hasValidGarmentReferences, type GarmentReference } from "./components/GarmentReferenceUploader";
 import { generateTeamPrompt } from "./utils/generatePrompt";
 import {
@@ -145,6 +145,7 @@ function App() {
   const [shoeDraft, setShoeDraft] = useState<ShoeDraft>({ shoe: initialParams.shoe, customShoe: initialParams.customShoe });
   const [shoeCategory, setShoeCategory] = useState<ShoeCategory>("germanTrainer");
   const [pumpSpec, setPumpSpec] = useState<PumpShoeSpec>({ category: "pump", productName: "", color: "", upperMaterial: "", toeShape: "almond", heelType: "kitten", heelHeight: "按参考图保持", backType: "closedBack", strapType: "none", keyDetails: [] });
+  const [bootSpec, setBootSpec] = useState<BootShoeSpec>({ category: "boot", productName: "", subtype: "ankleBoot", toeShape: "almond", color: "", upperMaterial: "", shaftHeight: "按参考图保持", shaftStructure: "structured", closureType: "zipper", heelType: "lowBlock", heelHeight: "按参考图保持", keyDetails: [] });
   const [garmentReferences, setGarmentReferences] = useState<GarmentReference[]>([]);
   const [garment, setGarment] = useState<GarmentProductSpec>({ category: "dress", name: "", color: "", fabric: "", silhouette: "" });
   const [generatedProductFingerprint, setGeneratedProductFingerprint] = useState("");
@@ -190,6 +191,13 @@ function App() {
   }, [pumpSpec, shoeCategory, productMode]);
 
   useEffect(() => {
+    if (productMode !== "shoe" || shoeCategory !== "boot") return;
+    setHasPendingChanges(true);
+    setSinglePromptResult(null);
+    setCopyStatus("");
+  }, [bootSpec, shoeCategory, productMode]);
+
+  useEffect(() => {
     return () => {
       referenceImagesRef.current.forEach((image) => URL.revokeObjectURL(image.url));
     };
@@ -201,7 +209,7 @@ function App() {
   const showsModelChoice = peopleImageTypes.includes(params.imageType);
   const paramsForProduct = (value: TeamPromptParams): TeamPromptParams => productMode === "garment"
     ? { ...value, productContext: { mode: "garment", garment }, garmentReferenceRoles: garmentReferences.map((reference) => reference.role) }
-    : { ...value, productContext: { mode: "shoe", shoe: shoeDraft.shoe, customShoe: shoeDraft.customShoe, category: shoeCategory, pumpSpec: shoeCategory === "pump" ? pumpSpec : undefined } };
+    : { ...value, productContext: { mode: "shoe", shoe: shoeDraft.shoe, customShoe: shoeDraft.customShoe, category: shoeCategory, pumpSpec: shoeCategory === "pump" ? pumpSpec : undefined, bootSpec: shoeCategory === "boot" ? bootSpec : undefined } };
 
   const updateParams = (updater: (current: TeamPromptParams) => TeamPromptParams) => {
     setParams((current) => updater(current));
@@ -217,6 +225,11 @@ function App() {
       if (missingPumpFields) { setImageGenerationStatus("高跟单鞋需要填写鞋款名称、主颜色、鞋面材质、鞋跟高度和关键细节。"); return; }
       if (referenceImages.length < 4) { setImageGenerationStatus("高跟单鞋需要至少 4 张参考图，并且必须包含完整侧面参考图。"); return; }
       if (referenceImages.filter((image) => image.role === "primary").length !== 1 || !referenceImages.some((image) => image.role === "side")) { setImageGenerationStatus("高跟单鞋参考图必须标记 1 张主图和至少 1 张完整侧面图。"); return; }
+    }
+    if (productMode === "shoe" && shoeCategory === "boot") {
+      const missingBootFields = [bootSpec.productName, bootSpec.color, bootSpec.upperMaterial, bootSpec.shaftHeight, bootSpec.heelHeight, (bootSpec.keyDetails ?? []).join("")].some((value) => !value?.trim());
+      if (missingBootFields) { setImageGenerationStatus("靴子需要填写靴款名称、主颜色、材质外观、靴筒高度、鞋跟高度和关键细节。"); return; }
+      if (referenceImages.length < 4 || referenceImages.filter((image) => image.role === "primary").length !== 1 || !referenceImages.some((image) => image.role === "fullSide")) { setImageGenerationStatus("靴子需要至少 4 张参考图，并标记 1 张主图和 1 张完整侧面图。"); return; }
     }
     const nextParams = paramsForProduct({ ...params, generationNonce: params.generationNonce + 1 });
     setParams(nextParams);
@@ -274,12 +287,12 @@ function App() {
     const files = Array.from(event.target.files ?? []);
     if (files.length === 0) return;
 
-    const maxReferenceCount = productMode === "shoe" && shoeCategory === "pump" ? 6 : 9;
+    const maxReferenceCount = productMode === "shoe" && (shoeCategory === "pump" || shoeCategory === "boot") ? 6 : 9;
     const availableSlots = Math.max(0, maxReferenceCount - referenceImages.length);
     const selectedFiles = files.slice(0, availableSlots);
     const skippedCount = files.length - selectedFiles.length;
 
-    const roleOrder: ShoeReferenceRole[] = ["primary", "side", "front", "rear", "detail", "material"];
+    const roleOrder: ShoeReferenceRole[] = shoeCategory === "boot" ? ["primary", "fullSide", "front", "rear", "shaftDetail", "closureDetail"] : ["primary", "side", "front", "rear", "detail", "material"];
     const nextImages = selectedFiles.map((file, index) => ({
       id: `${file.name}-${file.lastModified}-${crypto.randomUUID()}`,
       name: file.name,
@@ -312,8 +325,8 @@ function App() {
       return;
     }
 
-    if (productMode === "shoe" && shoeCategory === "pump" && referenceImages.length < 4) {
-      setImageGenerationStatus("高跟单鞋需要至少 4 张参考图，且应包含完整侧面参考图。");
+    if (productMode === "shoe" && (shoeCategory === "pump" || shoeCategory === "boot") && referenceImages.length < 4) {
+      setImageGenerationStatus(shoeCategory === "boot" ? "靴子需要至少 4 张参考图，且应包含完整侧面参考图。" : "高跟单鞋需要至少 4 张参考图，且应包含完整侧面参考图。");
       return;
     }
 
@@ -374,7 +387,7 @@ function App() {
               <img src={image.url} alt={image.name} className="aspect-square w-full object-cover" />
               <div className="space-y-2 p-3">
                   <p className="truncate text-xs font-medium text-aura-charcoal">{image.name}</p>
-                {productMode === "shoe" && shoeCategory === "pump" && <select className="w-full rounded-lg border border-aura-beige bg-white px-2 py-1 text-xs" value={image.role} onChange={(event) => { const role = event.target.value as ShoeReferenceRole; setReferenceImages((current) => current.map((item) => item.id === image.id ? { ...item, role } : item)); setHasPendingChanges(true); }}><option value="primary">主图</option><option value="side">完整侧面</option><option value="front">正面</option><option value="rear">后面</option><option value="top">俯视</option><option value="outsole">外底</option><option value="detail">后跟 / 细节</option><option value="material">材质</option></select>}
+                {productMode === "shoe" && (shoeCategory === "pump" || shoeCategory === "boot") && <select className="w-full rounded-lg border border-aura-beige bg-white px-2 py-1 text-xs" value={image.role} onChange={(event) => { const role = event.target.value as ShoeReferenceRole; setReferenceImages((current) => current.map((item) => item.id === image.id ? { ...item, role } : item)); setHasPendingChanges(true); }}><option value="primary">主图</option><option value={shoeCategory === "boot" ? "fullSide" : "side"}>完整侧面</option><option value="front">正面</option><option value="rear">后面</option><option value="top">俯视</option><option value="outsole">外底</option><option value={shoeCategory === "boot" ? "shaftDetail" : "detail"}>{shoeCategory === "boot" ? "靴筒细节" : "后跟 / 细节"}</option><option value={shoeCategory === "boot" ? "closureDetail" : "material"}>{shoeCategory === "boot" ? "闭合细节" : "材质"}</option><option value="material">材质</option></select>}
                 <div className="flex items-center justify-between gap-2">
                   <span className="text-xs text-aura-muted">{formatFileSize(image.size)}</span>
                   <button
@@ -512,18 +525,18 @@ function App() {
                 <select
                   className={inputClass}
                   value={shoeCategory}
-                  onChange={(event) => { const category = event.target.value as ShoeCategory; setShoeCategory(category); setSinglePromptResult(null); setGeneratedProductFingerprint(""); updateParams((current) => ({ ...current, productContext: { mode: "shoe", shoe: shoeDraft.shoe, customShoe: shoeDraft.customShoe, category, pumpSpec: category === "pump" ? pumpSpec : undefined } })); }}
+                  onChange={(event) => { const category = event.target.value as ShoeCategory; setShoeCategory(category); setSinglePromptResult(null); setGeneratedProductFingerprint(""); updateParams((current) => ({ ...current, productContext: { mode: "shoe", shoe: shoeDraft.shoe, customShoe: shoeDraft.customShoe, category, pumpSpec: category === "pump" ? pumpSpec : undefined, bootSpec: category === "boot" ? bootSpec : undefined } })); }}
                 >
                   <option value="germanTrainer">德训鞋 / 低帮运动休闲鞋</option>
                   <option value="pump">高跟单鞋</option>
-                  <option value="boot" disabled>靴子（规划中）</option>
+                  <option value="boot">靴子（短靴 / 中筒靴 / 长靴）</option>
                   <option value="loafer" disabled>乐福鞋（规划中）</option>
                   <option value="balletFlat" disabled>芭蕾鞋 / 平底鞋（规划中）</option>
                   <option value="sandal" disabled>凉鞋（规划中）</option>
                   <option value="mule" disabled>穆勒鞋（规划中）</option>
                   <option value="other" disabled>其他鞋型（规划中）</option>
                 </select>
-                <span className="block text-xs leading-5 text-aura-muted">当前已支持德训鞋与高跟单鞋；其他鞋型保持规划状态，不会回退到已支持品类。</span>
+                <span className="block text-xs leading-5 text-aura-muted">当前已支持德训鞋、高跟单鞋与靴子；其他鞋型保持规划状态，不会回退到已支持品类。</span>
               </label>}
 
               {productMode === "shoe" && shoeCategory === "pump" && <div className="space-y-3 rounded-[20px] bg-aura-cream/70 p-4 ring-1 ring-aura-beige/70">
@@ -546,6 +559,27 @@ function App() {
                   <input className={inputClass} placeholder="关键细节（必填）" value={(pumpSpec.keyDetails ?? []).join("、")} onChange={(event) => setPumpSpec((current) => ({ ...current, keyDetails: event.target.value.split(/[、,，]/).map((item) => item.trim()).filter(Boolean) }))} />
                 </div>
                 <p className="text-xs leading-5 text-aura-muted">高跟单鞋至少上传 4 张参考图，建议按主图、完整侧面、正面、后跟 / 细节顺序上传；完整侧面用于确认鞋跟高度、位置、足弓曲线和侧帮结构。</p>
+              </div>}
+
+              {productMode === "shoe" && shoeCategory === "boot" && <div className="space-y-3 rounded-[20px] bg-aura-cream/70 p-4 ring-1 ring-aura-beige/70">
+                <div><p className="text-sm font-medium text-aura-charcoal">靴子规格</p><p className="mt-1 text-xs leading-5 text-aura-muted">未知高度、筒围或材质时填写“按参考图保持”，不自动补写防水、保暖或防滑功能。</p></div>
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <input className={inputClass} placeholder="靴款名称（必填）" value={bootSpec.productName} onChange={(event) => setBootSpec((current) => ({ ...current, productName: event.target.value }))} />
+                  <input className={inputClass} placeholder="主颜色（必填）" value={bootSpec.color ?? ""} onChange={(event) => setBootSpec((current) => ({ ...current, color: event.target.value }))} />
+                  <input className={inputClass} placeholder="材质外观（必填）" value={bootSpec.upperMaterial ?? ""} onChange={(event) => setBootSpec((current) => ({ ...current, upperMaterial: event.target.value }))} />
+                  <select className={inputClass} value={bootSpec.subtype} onChange={(event) => setBootSpec((current) => ({ ...current, subtype: event.target.value as BootSubtype }))}><option value="ankleBoot">短靴</option><option value="midCalfBoot">中筒靴</option><option value="kneeHighBoot">及膝靴</option><option value="overTheKneeBoot">过膝靴</option><option value="chelseaBoot">切尔西靴</option><option value="sockBoot">袜靴</option><option value="ridingBoot">骑士靴</option><option value="westernBoot">西部靴</option><option value="other">其他</option></select>
+                  <select className={inputClass} value={bootSpec.toeShape} onChange={(event) => setBootSpec((current) => ({ ...current, toeShape: event.target.value as BootToeShape }))}><option value="pointed">尖头</option><option value="almond">杏仁头</option><option value="round">圆头</option><option value="square">方头</option><option value="other">按参考图保持</option></select>
+                  <input className={inputClass} placeholder="靴筒高度（必填）" value={bootSpec.shaftHeight} onChange={(event) => setBootSpec((current) => ({ ...current, shaftHeight: event.target.value }))} />
+                  <input className={inputClass} placeholder="筒围 / 筒口 / 前后筒高（可选）" value={[bootSpec.shaftCircumference, bootSpec.shaftOpeningShape, bootSpec.shaftFrontBackHeightRelation].filter(Boolean).join(" / ")} onChange={(event) => setBootSpec((current) => ({ ...current, shaftCircumference: event.target.value, shaftOpeningShape: event.target.value, shaftFrontBackHeightRelation: event.target.value }))} />
+                  <input className={inputClass} placeholder="踝部松量 / 小腿贴合 / 膝盖关系（可选）" value={[bootSpec.ankleEase, bootSpec.calfFit, bootSpec.kneeRelation].filter(Boolean).join(" / ")} onChange={(event) => setBootSpec((current) => ({ ...current, ankleEase: event.target.value, calfFit: event.target.value, kneeRelation: event.target.value }))} />
+                  <select className={inputClass} value={bootSpec.shaftStructure} onChange={(event) => setBootSpec((current) => ({ ...current, shaftStructure: event.target.value as BootShaftStructure }))}><option value="structured">结构挺括</option><option value="semiStructured">半挺括</option><option value="soft">柔软</option><option value="sockLike">袜筒感</option><option value="other">按参考图保持</option></select>
+                  <select className={inputClass} value={bootSpec.closureType} onChange={(event) => setBootSpec((current) => ({ ...current, closureType: event.target.value as BootClosureType }))}><option value="zipper">拉链</option><option value="pullOn">套入式</option><option value="elasticGore">松紧侧片</option><option value="laceUp">系带</option><option value="buckle">搭扣</option><option value="mixed">混合</option><option value="other">按参考图保持</option></select>
+                  <select className={inputClass} value={bootSpec.heelType} onChange={(event) => setBootSpec((current) => ({ ...current, heelType: event.target.value as BootHeelType }))}><option value="flat">平跟</option><option value="lowBlock">低粗跟</option><option value="block">粗跟</option><option value="stiletto">细跟</option><option value="wedge">坡跟</option><option value="western">西部跟</option><option value="platform">厚底</option><option value="other">按参考图保持</option></select>
+                  <input className={inputClass} placeholder="鞋跟高度（必填）" value={bootSpec.heelHeight} onChange={(event) => setBootSpec((current) => ({ ...current, heelHeight: event.target.value }))} />
+                  <input className={inputClass} placeholder="外底 / 前掌台 / 鞋底纹路（可选）" value={[bootSpec.outsoleThickness, bootSpec.platformHeight, bootSpec.treadProfile].filter(Boolean).join(" / ")} onChange={(event) => setBootSpec((current) => ({ ...current, outsoleThickness: event.target.value, platformHeight: event.target.value, treadProfile: event.target.value }))} />
+                  <input className={inputClass} placeholder="关键细节（必填）" value={(bootSpec.keyDetails ?? []).join("、")} onChange={(event) => setBootSpec((current) => ({ ...current, keyDetails: event.target.value.split(/[、,，]/).map((item) => item.trim()).filter(Boolean) }))} />
+                </div>
+                <p className="text-xs leading-5 text-aura-muted">靴子至少上传 4 张参考图，必须包含一张展示完整鞋头、鞋跟和整条靴筒的完整侧面图；长靴侧面图必须包含完整筒口。</p>
               </div>}
 
               {productMode === "shoe" && <label className="block space-y-2">

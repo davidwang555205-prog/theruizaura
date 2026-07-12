@@ -121,7 +121,7 @@ function applyRepair(parts: StructuredPromptParts, repairKey: PromptRepairKey) {
 
 function hasShoeContext(input: PromptPreflightInput) {
   if (input.hasShoe === false) return false;
-  return /sneaker|trainer|pump|closed-toe|THERUIZ AURA/i.test(`${input.promptParts.productLine ?? ""} ${input.promptParts.sceneLine ?? ""}`);
+  return /sneaker|trainer|pump|closed-toe|boot|shaft|THERUIZ AURA/i.test(`${input.promptParts.productLine ?? ""} ${input.promptParts.sceneLine ?? ""}`);
 }
 
 function hasPeopleContext(input: PromptPreflightInput) {
@@ -214,6 +214,9 @@ export function promptPreflightCheck(input: PromptPreflightInput): PromptPreflig
     }
     if (input.shoeCategory === "pump" && !/closed-toe pump|toe shape|heel height|topline|heel counter/i.test(text)) {
       repair("shoeDeformationRepair", "Pump geometry protection needed reinforcement.");
+    }
+    if (input.shoeCategory === "boot" && !/boot|shaft height|shaft opening|heel|outsole/i.test(text)) {
+      repair("shoeDeformationRepair", "Boot shaft and leg-relationship protection needed reinforcement.");
     }
   }
 

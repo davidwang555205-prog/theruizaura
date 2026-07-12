@@ -36,9 +36,12 @@ export type ShoeReferenceRole =
   | "primary"
   | "front"
   | "side"
+  | "fullSide"
   | "rear"
   | "top"
   | "outsole"
+  | "shaftDetail"
+  | "closureDetail"
   | "material"
   | "detail";
 
@@ -46,6 +49,11 @@ export type PumpToeShape = "pointed" | "almond" | "round" | "square" | "other";
 export type PumpHeelType = "stiletto" | "kitten" | "block" | "cone" | "sculptural" | "other";
 export type PumpBackType = "closedBack" | "slingback";
 export type PumpStrapType = "none" | "ankleStrap" | "instepStrap" | "maryJane" | "other";
+export type BootSubtype = "ankleBoot" | "midCalfBoot" | "kneeHighBoot" | "overTheKneeBoot" | "chelseaBoot" | "sockBoot" | "ridingBoot" | "westernBoot" | "other";
+export type BootToeShape = "pointed" | "almond" | "round" | "square" | "other";
+export type BootHeelType = "flat" | "lowBlock" | "block" | "stiletto" | "wedge" | "western" | "platform" | "other";
+export type BootClosureType = "zipper" | "pullOn" | "elasticGore" | "laceUp" | "buckle" | "mixed" | "other";
+export type BootShaftStructure = "structured" | "semiStructured" | "soft" | "sockLike" | "other";
 
 export type ShoeReferenceRequirements = {
   minCount: number;
@@ -94,6 +102,37 @@ export type PumpShoeSpec = BaseShoeSpec & {
   decorativeDetails?: string;
 };
 
+export type BootShoeSpec = BaseShoeSpec & {
+  category: "boot";
+  productName: string;
+  subtype: BootSubtype;
+  toeShape: BootToeShape;
+  shaftHeight: string;
+  shaftCircumference?: string;
+  shaftOpeningShape?: string;
+  shaftFrontBackHeightRelation?: string;
+  ankleEase?: string;
+  calfFit?: string;
+  kneeRelation?: string;
+  shaftStructure: BootShaftStructure;
+  closureType: BootClosureType;
+  zipperPosition?: string;
+  zipperLength?: string;
+  elasticGore?: string;
+  pullTab?: string;
+  heelType: BootHeelType;
+  heelHeight: string;
+  heelPlacement?: string;
+  outsoleThickness?: string;
+  platformHeight?: string;
+  treadProfile?: string;
+  finish?: string;
+  seamStructure?: string;
+  panelStructure?: string;
+  decorativeDetails?: string;
+  logoLettering?: string;
+};
+
 export type GermanTrainerSpec = BaseShoeSpec & {
   category: "germanTrainer";
   silhouette?: string;
@@ -138,6 +177,7 @@ export type ShoeProductContext = {
   /** Omitted only by legacy German-trainer callers. New category-aware callers must set it. */
   category?: ShoeCategory;
   pumpSpec?: PumpShoeSpec;
+  bootSpec?: BootShoeSpec;
 };
 
 export function resolveShoeCategory(context: ShoeProductContext): ShoeCategory {

@@ -1511,6 +1511,24 @@ function adaptPumpPromptVocabulary(prompt: string, isPump: boolean) {
     .replace(/never use sneaker, trainer, tongue, lace, or eyelet language/gi, "never use trainer construction language");
 }
 
+function adaptBootPromptVocabulary(prompt: string, isBoot: boolean) {
+  if (!isBoot) return prompt;
+  return prompt
+    .replace(/both sneakers?/gi, "the complete boots")
+    .replace(/sneakers?/gi, "boots")
+    .replace(/German trainer/gi, "boot")
+    .replace(/closed-toe pump|pumps?/gi, "boot")
+    .replace(/low-cut silhouette/gi, "referenced boot shaft")
+    .replace(/toe box/gi, "toe shape")
+    .replace(/shoe collar/gi, "shaft opening")
+    .replace(/shoelaces?|laces?/gi, "closure")
+    .replace(/tongue|eyelets?/gi, "closure detail")
+    .replace(/slim outsole/gi, "outsole and tread")
+    .replace(/trainer panels?|sneaker panels?/gi, "boot shaft panels")
+    .replace(/forefoot flex/gi, "ankle and shaft movement")
+    .replace(/THERUIZ AURA boots?/gi, "the same boot");
+}
+
 export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
   const productContext = resolveProductContext(params);
   const productAdapter = getProductAdapter(productContext);
@@ -2254,9 +2272,13 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
     prompt,
     productContext.mode === "shoe" && productContext.category === "pump"
   );
+  const bootAwarePrompt = adaptBootPromptVocabulary(
+    categoryAwarePrompt,
+    productContext.mode === "shoe" && productContext.category === "boot"
+  );
 
   return {
-    prompt: categoryAwarePrompt,
+    prompt: bootAwarePrompt,
     hasShoe,
     hasProduct: productPresent,
     productMode: productAdapter.mode,
