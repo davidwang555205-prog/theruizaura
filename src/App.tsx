@@ -148,7 +148,7 @@ function App() {
     : getCompatibleSceneOptions(params.imageType);
   const showsModelChoice = peopleImageTypes.includes(params.imageType);
   const paramsForProduct = (value: TeamPromptParams): TeamPromptParams => productMode === "garment"
-    ? { ...value, productContext: { mode: "garment", garment } }
+    ? { ...value, productContext: { mode: "garment", garment }, garmentReferenceRoles: garmentReferences.map((reference) => reference.role) }
     : { ...value, productContext: undefined };
 
   const updateParams = (updater: (current: TeamPromptParams) => TeamPromptParams) => {

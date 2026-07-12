@@ -7,6 +7,7 @@ import type {
   TeamShoe
 } from "../types";
 import type { GarmentSeriesContext } from "../modules/product/garment/garmentProductTypes";
+import { getGarmentShotPlan } from "../modules/product/garment/garmentShotPlans";
 import {
   lifestyleSoftSeedingScenePool,
   type LifestyleSoftHandheldPolicy,
@@ -3262,6 +3263,14 @@ function createGarmentSeriesContext(baseParams: TeamPromptParams, topic: SoftSee
   };
 }
 
+function sanitizeGarmentShotRequirement(value: string) {
+  return value
+    .replace(/both sneakers(?: fully)? visible|both sneakers readable|sneakers? visible|sneaker shape(?: unobstructed)?|toe box,? laces,? outsole,? and ground contact/gi, "the complete garment silhouette and hemline clearly readable")
+    .replace(/toe box|outsole|laces|foot placement|shoe(?:-floor)? contact|sneaker/gi, "garment structure")
+    .replace(/\s{2,}/g, " ")
+    .trim();
+}
+
 function buildImagePlan(
   baseParams: TeamPromptParams,
   draft: SoftSeedingImageDraft,
@@ -3274,6 +3283,10 @@ function buildImagePlan(
 ): SoftSeedingImagePlan {
   const shoeFields = resolveBaseShoe(baseParams);
   const garmentTypePreference = resolveSoftSeedingGarmentType(baseParams, draft);
+  const garmentContext = baseParams.productContext?.mode === "garment" ? baseParams.productContext : undefined;
+  const garmentShotPlan = garmentContext
+    ? getGarmentShotPlan({ category: garmentContext.garment.category, spec: garmentContext.garment, imageType: draft.imageType, scenePreference: draft.scenePreference, imageCount, imageIndex: index, topic, hasBackReference: baseParams.garmentReferenceRoles?.includes("back") ?? false })
+    : undefined;
   const lifestyleContinuityLine = getLifestyleSoftSeedingContinuityLines(topic, draft, imageCount);
   const params: TeamPromptParams = {
     ...baseParams,
@@ -3288,7 +3301,8 @@ function buildImagePlan(
     studioLaunchAnglePreference: "自动匹配",
     stillLifeStyle: "与主视觉统一",
     extraRequirement: [
-      getSoftSeedingExtraRequirement(baseParams, draft, garmentTypePreference, topic, variantIndex, imageCount),
+      garmentShotPlan ? `Garment shot plan — ${garmentShotPlan.name}: ${garmentShotPlan.purpose}. ${garmentShotPlan.framingLine} ${garmentShotPlan.angleLine} ${garmentShotPlan.productVisibilityLine}` : "",
+      garmentContext ? sanitizeGarmentShotRequirement(getSoftSeedingExtraRequirement(baseParams, draft, garmentTypePreference, topic, variantIndex, imageCount)) : getSoftSeedingExtraRequirement(baseParams, draft, garmentTypePreference, topic, variantIndex, imageCount),
       lifestyleContinuityLine,
       topic === "穿搭解决方案" ? stylingSolutionExpressionBeats[index % stylingSolutionExpressionBeats.length] : ""
     ].filter(Boolean).join(" "),

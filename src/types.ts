@@ -253,6 +253,7 @@ export type TeamPromptParams = {
   customShoe: string;
   productContext?: ProductContext;
   garmentSeriesContext?: import("./modules/product/garment/garmentProductTypes").GarmentSeriesContext;
+  garmentReferenceRoles?: string[];
   season: TeamSeason;
   scenePreference: TeamScenePreference;
   garmentTypePreference: TeamGarmentTypePreference;
