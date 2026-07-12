@@ -269,6 +269,11 @@ export type TeamPromptParams = {
   lockedOutfitLine?: string;
   forceGeneratedOutfitSelection?: boolean;
   forceNoHandheldObject?: boolean;
+  seriesShotActionLine?: string;
+  seriesShotGazeLine?: string;
+  seriesShotExpressionLine?: string;
+  seriesShotFramingLine?: string;
+  seriesShotPoseType?: TeamPoseType;
 };
 
 export type TeamPromptOutput = {

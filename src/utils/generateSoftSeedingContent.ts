@@ -33,6 +33,7 @@ export type SoftSeedingImagePlan = {
   description: string;
   params: TeamPromptParams;
   prompt: string;
+  shoeLifestyleShotPlan?: ShoeLifestyleShotPlan;
 };
 
 export type SoftSeedingContent = {
@@ -45,6 +46,7 @@ export type SoftSeedingContent = {
   titles: string[];
   body: string;
   images: SoftSeedingImagePlan[];
+  shoeSeriesDiversityValidation?: ShoeSeriesDiversityValidation;
   tags: string[];
   note: string;
 };
@@ -75,6 +77,26 @@ type SoftSeedingImageDraft = {
   supportedSeasons?: TeamSeason[];
   handheldPolicy?: LifestyleSoftHandheldPolicy;
   studioLaunchShotIndex?: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7;
+};
+
+type ShoeLifestyleShotPlan = {
+  id: string;
+  purpose: string;
+  actionFamily: string;
+  poseType: "standing" | "walking" | "seated" | "mirror";
+  framing: string;
+  bodyOrientation: string;
+  action: string;
+  gaze: string;
+  expression: string;
+  propRule: string;
+  stylingVariation: string;
+  forceNoHandheldObject: boolean;
+};
+
+export type ShoeSeriesDiversityValidation = {
+  valid: boolean;
+  warnings: string[];
 };
 
 type TopicCopyKit = {
@@ -2873,21 +2895,129 @@ function selectStylingSolutionImageDrafts(variantIndex: number, imageCount: Soft
 
 const lifestyleThreeImageFamilyPatterns: LifestyleSoftSceneFamily[][] = [
   ["departure", "commute", "social"],
-  ["commute", "culture", "community"],
-  ["departure", "social", "travel"],
-  ["commute", "community", "travel"],
-  ["departure", "culture", "social"],
-  ["social", "culture", "community"]
+  ["departure", "commute", "culture"],
+  ["departure", "commute", "community"],
+  ["departure", "commute", "travel"]
 ];
 
 const lifestyleFiveImageFamilyPatterns: LifestyleSoftSceneFamily[][] = [
   ["departure", "commute", "social", "culture", "community"],
-  ["commute", "departure", "culture", "community", "travel"],
-  ["social", "commute", "departure", "culture", "travel"],
-  ["departure", "social", "culture", "travel", "community"],
-  ["commute", "social", "community", "departure", "travel"],
-  ["culture", "commute", "social", "community", "travel"]
+  ["departure", "commute", "culture", "community", "travel"],
+  ["departure", "commute", "community", "social", "travel"],
+  ["departure", "commute", "social", "travel", "culture"]
 ];
+
+const shoeLifestyleThreeImageShotPlans: ShoeLifestyleShotPlan[] = [
+  {
+    id: "shoe-lifestyle-departure-hero",
+    purpose: "departure / ready-to-go hero",
+    actionFamily: "departure",
+    poseType: "standing",
+    framing: "full-body or environmental three-quarter framing",
+    bodyOrientation: "a relaxed front or slight three-quarter weight shift",
+    action: "pause before leaving while checking the mirror, bag, sleeve, or doorway rhythm; do not walk",
+    gaze: "toward the mirror, phone, bag, key area, or a nearby departure point",
+    expression: "calm neutral with relaxed lips and attentive eyes",
+    propRule: "Use only the phone for a mirror card; otherwise keep hands empty or make one small clothing adjustment.",
+    stylingVariation: "Establish the series color family with a polished everyday base layer and one restrained departure-ready accessory.",
+    forceNoHandheldObject: true
+  },
+  {
+    id: "shoe-lifestyle-commute-movement",
+    purpose: "movement / commute transition",
+    actionFamily: "walking",
+    poseType: "walking",
+    framing: "a wider environmental movement composition",
+    bodyOrientation: "a side or three-quarter walking orientation toward the destination",
+    action: "take one short, stable commute step with visible ground contact; do not repeat a standing hero pose",
+    gaze: "focused toward the destination or next transition",
+    expression: "quietly focused and neutral, with naturally alert eyes rather than a smile held for camera",
+    propRule: "Keep hands naturally empty and moving with the step; no staged prop or bag pose.",
+    stylingVariation: "Keep the same quiet-luxury palette but use a scene-compatible layer or carry detail that differs from the departure card.",
+    forceNoHandheldObject: true
+  },
+  {
+    id: "shoe-lifestyle-pause-product-reading",
+    purpose: "pause / candid product-reading moment",
+    actionFamily: "seated-or-standing-pause",
+    poseType: "seated",
+    framing: "a medium or lower three-quarter product-reading composition",
+    bodyOrientation: "a lightly seated, leaning, browsing, waiting, or restrained standing-pause orientation",
+    action: "pause naturally near the selected scene, briefly browse, wait, or settle into a seat; never repeat the walking frame",
+    gaze: "toward a nearby object, shelf, table edge, or the surrounding scene rather than the commute destination",
+    expression: "a softer observant look or faint micro-smile, distinct from the earlier calm and focused states",
+    propRule: "One scene-compatible object is allowed only when it supports the pause and never hides the sneakers.",
+    stylingVariation: "Keep the same model and palette while allowing a different light layer, accessory, or top-and-lower relationship suited to this pause.",
+    forceNoHandheldObject: false
+  }
+];
+
+const shoeLifestyleFiveImageShotPlans: ShoeLifestyleShotPlan[] = [
+  ...shoeLifestyleThreeImageShotPlans,
+  {
+    id: "shoe-lifestyle-arrival",
+    purpose: "arrival / work or cultural destination",
+    actionFamily: "arrival-or-browsing",
+    poseType: "standing",
+    framing: "an environmental three-quarter arrival frame with more negative space",
+    bodyOrientation: "a quiet side-oriented arrival, doorway interaction, or shelf-facing browsing position",
+    action: "arrive at the selected destination and pause at a doorway, exhibit, counter, or shelf without repeating the departure or walking pose",
+    gaze: "toward the destination detail, shelf, doorway, or companion",
+    expression: "quietly observant with a small natural brow response",
+    propRule: "Use no handheld item unless the selected scene naturally calls for one small object; keep it secondary to the shoes.",
+    stylingVariation: "Maintain the color family and silhouette mood while changing one supporting layer, bag treatment, or accessory from the movement card.",
+    forceNoHandheldObject: false
+  },
+  {
+    id: "shoe-lifestyle-detail-proof",
+    purpose: "natural-context closer product proof",
+    actionFamily: "detail-pause",
+    poseType: "seated",
+    framing: "a closer lower three-quarter or waist-to-floor proof frame with natural context",
+    bodyOrientation: "a grounded offset stance or seated lower-leg angle that keeps both shoe and garment relationship readable",
+    action: "settle into a still, believable end-of-route moment with one foot slightly forward; do not create another full-body centered pose",
+    gaze: "downward briefly toward the outfit or shoes, or softly off toward a nearby scene detail",
+    expression: "relaxed after-action expression with a subtle exhale or incidental half-turn",
+    propRule: "No prop is required; if present, keep it placed in the environment rather than posed in hand.",
+    stylingVariation: "Use the same coherent wardrobe family with a distinct hem, outer-layer state, or accessory treatment that keeps the sneakers readable.",
+    forceNoHandheldObject: true
+  }
+];
+
+function getShoeLifestyleShotPlan(imageCount: SoftSeedingImageCount, imageIndex: number) {
+  const plans = imageCount === 3 ? shoeLifestyleThreeImageShotPlans : shoeLifestyleFiveImageShotPlans;
+  return plans[imageIndex] ?? plans[plans.length - 1];
+}
+
+function getShoeLifestyleShotRequirement(plan: ShoeLifestyleShotPlan) {
+  return [
+    `Shoe lifestyle series shot plan — ${plan.purpose}.`,
+    `Action family: ${plan.actionFamily}. ${plan.action}`,
+    `Composition: ${plan.framing}; ${plan.bodyOrientation}.`,
+    `Gaze: ${plan.gaze}. Expression: ${plan.expression}.`,
+    `Prop rule: ${plan.propRule}`,
+    `Supporting styling policy for this card: ${plan.stylingVariation}`
+  ].join(" ");
+}
+
+export function validateShoeLifestyleSeriesDiversity(plans: SoftSeedingImagePlan[]): ShoeSeriesDiversityValidation {
+  const shotPlans = plans.map((plan) => plan.shoeLifestyleShotPlan).filter((plan): plan is ShoeLifestyleShotPlan => Boolean(plan));
+  if (!shotPlans.length) return { valid: true, warnings: [] };
+
+  const countDistinct = (values: string[]) => new Set(values.map((value) => value.trim().toLowerCase())).size;
+  const warnings: string[] = [];
+  const requiredImageCount = shotPlans.length >= 5 ? 5 : 3;
+
+  if (shotPlans.length < requiredImageCount) warnings.push("Lifestyle series is missing one or more required shot plans.");
+  if (countDistinct(shotPlans.map((plan) => plan.id)) < requiredImageCount) warnings.push("Lifestyle series repeats a shot-plan identity.");
+  if (countDistinct(shotPlans.map((plan) => plan.actionFamily)) < (requiredImageCount === 3 ? 3 : 4)) warnings.push("Lifestyle series has too few distinct action families.");
+  if (countDistinct(shotPlans.map((plan) => plan.gaze)) < 2) warnings.push("Lifestyle series has too few distinct gaze states.");
+  if (countDistinct(shotPlans.map((plan) => plan.expression)) < 2) warnings.push("Lifestyle series has too few distinct expression states.");
+  if (countDistinct(shotPlans.map((plan) => plan.framing)) < (requiredImageCount === 3 ? 3 : 4)) warnings.push("Lifestyle series has too few distinct framing families.");
+  if (countDistinct(shotPlans.map((plan) => plan.stylingVariation)) < 2) warnings.push("Lifestyle series has cloned supporting styling instructions.");
+
+  return { valid: warnings.length === 0, warnings };
+}
 
 function pickRotatingLifestyleDraft(
   candidates: SoftSeedingImageDraft[],
@@ -3196,7 +3326,7 @@ const stylingSolutionFaceContinuityLine =
   "If more than one card shows the face, keep the exact same person across the set: same face, same age impression, same hairstyle, same hair color, same makeup or grooming, same facial structure, same body silhouette, and the same quiet daily temperament. Generate the full-figure reference first and use it as the person and styling reference for the following image cards.";
 
 const lifestyleSoftSeedingSetContinuityLine =
-  "Lifestyle buyer-show set continuity: treat all cards as one coherent buyer-show series in the same real contemporary Chinese city or its restrained short-trip context. Keep the exact same person, outfit, shoe, hairstyle, makeup, color palette, and overall styling across the set. Only the location moment, pose, framing, gaze, and camera distance may change.";
+  "Lifestyle buyer-show set continuity: treat all cards as one coherent buyer-show series in the same real contemporary Chinese city or its restrained short-trip context. Keep the exact same person, face identity, age impression, hairstyle, hair color, makeup, body proportions, THERUIZ AURA shoe, season, quiet-luxury visual direction, and warm-neutral color family across the set. Do not clone one exact pose, gaze, expression, crop, hand placement, or full outfit sentence across every card. Keep the wardrobe coherent while allowing scene-appropriate supporting styling, light layers, bag treatment, and accessories to vary when the shot plan requests it.";
 
 const lifestyleEmptyHandsContinuityLine =
   "Multi-image handheld continuity: keep both hands naturally empty in this card. Scene objects may remain placed in the environment, but do not put coffee, books, flowers, shopping bags, luggage, umbrellas, bottles, or other props in either hand.";
@@ -3228,11 +3358,22 @@ function getStylingSolutionContinuityLines(topic: SoftSeedingTopic, draft: SoftS
 }
 
 function getLifestyleSoftSeedingContinuityLines(
+  baseParams: TeamPromptParams,
   topic: SoftSeedingTopic,
   draft: SoftSeedingImageDraft,
-  imageCount: SoftSeedingImageCount
+  imageCount: SoftSeedingImageCount,
+  shoeLifestyleShotPlan?: ShoeLifestyleShotPlan
 ) {
   if (topic !== "生活场景软种草") return "";
+
+  if (baseParams.productContext?.mode !== "garment" && shoeLifestyleShotPlan) {
+    return [
+      lifestyleSoftSeedingSetContinuityLine,
+      getShoeLifestyleShotRequirement(shoeLifestyleShotPlan)
+    ]
+      .filter(Boolean)
+      .join(" ");
+  }
 
   const handheldLine = draft.handheldPolicy === "phoneOnly"
     ? lifestyleMirrorPhoneContinuityLine
@@ -3326,7 +3467,17 @@ function buildImagePlan(
   const garmentShotPlan = garmentContext
     ? getGarmentShotPlan({ category: garmentContext.garment.category, spec: garmentContext.garment, imageType: draft.imageType, scenePreference: draft.scenePreference, imageCount, imageIndex: index, topic, hasBackReference: baseParams.garmentReferenceRoles?.includes("back") ?? false })
     : undefined;
-  const lifestyleContinuityLine = getLifestyleSoftSeedingContinuityLines(topic, draft, imageCount);
+  const shoeLifestyleShotPlan =
+    baseParams.productContext?.mode !== "garment" && topic === "生活场景软种草" && imageCount > 1
+      ? getShoeLifestyleShotPlan(imageCount, index)
+      : undefined;
+  const lifestyleContinuityLine = getLifestyleSoftSeedingContinuityLines(
+    baseParams,
+    topic,
+    draft,
+    imageCount,
+    shoeLifestyleShotPlan
+  );
   const params: TeamPromptParams = {
     ...baseParams,
     ...shoeFields,
@@ -3357,7 +3508,12 @@ function buildImagePlan(
       topic === "穿搭解决方案" || topic === "生活场景软种草" || topic === "棚内上新拍摄",
     forceNoHandheldObject:
       topic === "棚内上新拍摄" ||
-      (topic === "生活场景软种草" && imageCount > 1 && draft.handheldPolicy !== "phoneOnly")
+      (topic === "生活场景软种草" && imageCount > 1 && draft.handheldPolicy !== "phoneOnly" && (shoeLifestyleShotPlan?.forceNoHandheldObject ?? true)),
+    seriesShotActionLine: shoeLifestyleShotPlan ? `Series shot action: ${shoeLifestyleShotPlan.action}` : undefined,
+    seriesShotGazeLine: shoeLifestyleShotPlan ? `Series shot gaze: ${shoeLifestyleShotPlan.gaze}` : undefined,
+    seriesShotExpressionLine: shoeLifestyleShotPlan ? `Series shot expression: ${shoeLifestyleShotPlan.expression}` : undefined,
+    seriesShotFramingLine: shoeLifestyleShotPlan ? `Series shot framing: ${shoeLifestyleShotPlan.framing}; ${shoeLifestyleShotPlan.bodyOrientation}.` : undefined,
+    seriesShotPoseType: shoeLifestyleShotPlan?.poseType
   };
 
   const output = generateTeamPrompt(params);
@@ -3367,7 +3523,8 @@ function buildImagePlan(
     purpose: garmentShotPlan ? garmentShotPlan.purpose : draft.purpose,
     description: draft.description,
     params,
-    prompt: output.prompt
+    prompt: output.prompt,
+    shoeLifestyleShotPlan
   };
 }
 
@@ -3380,11 +3537,21 @@ function buildSoftSeedingImagePlans(
 ) {
   let sharedOutfitLine = "";
   const garmentSeriesContext = createGarmentSeriesContext(baseParams, topic);
+  const locksFullOutfitAcrossSeries = topic === "穿搭解决方案" || topic === "棚内上新拍摄";
 
   return drafts.map((draft, index) => {
-    const plan = buildImagePlan(baseParams, draft, index, topic, variantIndex, imageCount, sharedOutfitLine, garmentSeriesContext);
+    const plan = buildImagePlan(
+      baseParams,
+      draft,
+      index,
+      topic,
+      variantIndex,
+      imageCount,
+      locksFullOutfitAcrossSeries ? sharedOutfitLine : "",
+      garmentSeriesContext
+    );
     if (
-      (topic === "穿搭解决方案" || topic === "生活场景软种草" || topic === "棚内上新拍摄") &&
+      locksFullOutfitAcrossSeries &&
       !sharedOutfitLine &&
       shouldInheritBaseGarmentType(draft.imageType)
     ) {
@@ -3417,6 +3584,11 @@ export function generateSoftSeedingContent(input: SoftSeedingInput): SoftSeeding
   const copy = input.baseParams.productContext?.mode === "garment"
     ? buildGarmentCopy(topic, variantIndex, selectedImageDrafts, input.baseParams)
     : buildCopyFromKit(topic, variantIndex, selectedImageDrafts);
+  const images = buildSoftSeedingImagePlans(input.baseParams, selectedImageDrafts, topic, variantIndex, imageCount);
+  const shoeSeriesDiversityValidation =
+    input.baseParams.productContext?.mode !== "garment" && topic === "生活场景软种草" && imageCount > 1
+      ? validateShoeLifestyleSeriesDiversity(images)
+      : undefined;
 
   return {
     topic,
@@ -3427,7 +3599,8 @@ export function generateSoftSeedingContent(input: SoftSeedingInput): SoftSeeding
     variantLabel: `第 ${variantIndex + 1} / ${variantCount} 版`,
     titles: copy.titles,
     body: copy.body,
-    images: buildSoftSeedingImagePlans(input.baseParams, selectedImageDrafts, topic, variantIndex, imageCount),
+    images,
+    shoeSeriesDiversityValidation,
     tags: copy.tags,
     note: copy.note
   };
