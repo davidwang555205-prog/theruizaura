@@ -9,6 +9,8 @@ export type ActionPoseInput = {
   userExtraRequirement: string;
   generationNonce?: number;
   forceNoHandheldObject?: boolean;
+  seriesActionDirective?: string;
+  seriesPoseType?: TeamPoseType;
 };
 
 export type ActionPoseOutput = {
@@ -227,6 +229,7 @@ function inferRequestedPose(text: string): TeamPoseType | null {
 }
 
 function chooseScenePose(input: ActionPoseInput): TeamPoseType {
+  if (input.seriesPoseType) return input.seriesPoseType;
   const requested = inferRequestedPose(input.userExtraRequirement.toLowerCase());
   if (requested) return requested;
   if (input.imageType === "对镜穿搭图") return "mirror";
@@ -259,6 +262,7 @@ function chooseScenePose(input: ActionPoseInput): TeamPoseType {
 }
 
 function chooseSceneAction(input: ActionPoseInput, poseType: TeamPoseType) {
+  if (input.seriesActionDirective) return input.seriesActionDirective;
   const text = input.userExtraRequirement.toLowerCase();
 
   if (includesAny(text, ["系鞋带", "tying shoelaces"])) {

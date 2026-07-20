@@ -638,7 +638,7 @@ function App() {
                   >
                     <option value={3}>3 张</option>
                     <option value={5}>5 张</option>
-                    {softTopic === "棚内上新拍摄" && <option value={8}>8 张</option>}
+                    <option value={8}>8 张</option>
                   </select>
                 </label>
 

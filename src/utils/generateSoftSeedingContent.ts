@@ -2,6 +2,7 @@ import type {
   TeamGarmentTypePreference,
   TeamImageType,
   TeamPromptParams,
+  TeamPoseType,
   TeamScenePreference,
   TeamSeason,
   TeamShoe
@@ -12,6 +13,7 @@ import {
   type LifestyleSoftSceneFamily
 } from "../data/lifestyleSoftSeedingScenePool";
 import { generateTeamPrompt } from "./generatePrompt";
+import { selectDiversePersonActions } from "./selectDiverseSeriesActions";
 
 type SoftSeedingCopyTopic =
   | "生活场景软种草"
@@ -2746,7 +2748,14 @@ function orderStylingSolutionDrafts(selected: SoftSeedingImageDraft[], variantIn
           [2, 0, 1],
           [1, 2, 0]
         ]
-      : [
+      : selected.length >= 8
+        ? [
+            [0, 1, 2, 3, 4, 5, 6, 7],
+            [0, 2, 1, 4, 3, 6, 5, 7],
+            [0, 3, 1, 5, 2, 6, 4, 7],
+            [0, 4, 2, 1, 6, 3, 7, 5]
+          ]
+        : [
           [0, 1, 2, 3, 4],
           [1, 0, 2, 4, 3],
           [2, 0, 1, 3, 4],
@@ -2799,7 +2808,7 @@ function selectStylingSolutionImageDrafts(variantIndex: number, imageCount: Soft
   pushUniqueDraft(selected, pickDraftById(drafts, lowerBodyIds, normalized + Math.floor(normalized / 3)));
   pushUniqueDraft(selected, pickDraftById(drafts, movementIds, normalized * 3 + 1));
 
-  if (imageCount === 5) {
+  if (imageCount >= 5) {
     const requiredDetailIds = [
       "styling-seated-toe-lace",
       "styling-commute-still-life"
@@ -2817,7 +2826,7 @@ function selectStylingSolutionImageDrafts(variantIndex: number, imageCount: Soft
 
     pushUniqueDraft(selected, pickDraftById(drafts, requiredDetailIds, normalized * 7 + 2));
 
-    for (let offset = 0; selected.length < 5 && offset < extraIds.length * 2; offset += 1) {
+    for (let offset = 0; selected.length < imageCount && offset < extraIds.length * 3; offset += 1) {
       const candidate = pickDraftById(drafts, extraIds, normalized * 11 + offset);
       const hasMirror = selected.some((draft) => draft.composition === "mirror");
       if (candidate?.composition === "mirror" && (hasMirror || normalized % 4 !== 0)) continue;
@@ -2848,6 +2857,13 @@ const lifestyleFiveImageFamilyPatterns: LifestyleSoftSceneFamily[][] = [
   ["culture", "commute", "social", "community", "travel"]
 ];
 
+const lifestyleEightImageFamilyPatterns: LifestyleSoftSceneFamily[][] = [
+  ["departure", "commute", "social", "culture", "community", "travel", "commute", "culture"],
+  ["commute", "departure", "culture", "community", "travel", "social", "commute", "community"],
+  ["social", "commute", "departure", "culture", "travel", "community", "social", "culture"],
+  ["departure", "social", "culture", "travel", "community", "commute", "departure", "social"]
+];
+
 function pickRotatingLifestyleDraft(
   candidates: SoftSeedingImageDraft[],
   familyOccurrenceIndex: number,
@@ -2876,7 +2892,12 @@ function selectLifestyleSoftSeedingImageDrafts(
   imageCount: SoftSeedingImageCount,
   season: TeamSeason
 ) {
-  const patterns = imageCount === 3 ? lifestyleThreeImageFamilyPatterns : lifestyleFiveImageFamilyPatterns;
+  const patterns =
+    imageCount === 3
+      ? lifestyleThreeImageFamilyPatterns
+      : imageCount === 8
+        ? lifestyleEightImageFamilyPatterns
+        : lifestyleFiveImageFamilyPatterns;
   const normalized = normalizeSoftVariantIndex(variantIndex, getTopicVariantCount("生活场景软种草"));
   const familyPattern = patterns[normalized % patterns.length];
   const selected: SoftSeedingImageDraft[] = [];
@@ -2892,7 +2913,14 @@ function selectLifestyleSoftSeedingImageDrafts(
     }
 
     const familyOccurrenceIndex = countPriorLifestyleFamilyOccurrences(patterns, normalized, family);
-    const selectedDraft = pickRotatingLifestyleDraft(candidates, familyOccurrenceIndex, familyIndex);
+    let selectedDraft = pickRotatingLifestyleDraft(candidates, familyOccurrenceIndex, familyIndex);
+    if (selectedDraft && selected.some((draft) => draft.id === selectedDraft?.id)) {
+      const stableCandidates = [...candidates].sort((a, b) => (a.id ?? a.name).localeCompare(b.id ?? b.name));
+      const startIndex = Math.abs(familyOccurrenceIndex + familyIndex) % Math.max(1, stableCandidates.length);
+      selectedDraft = Array.from({ length: stableCandidates.length }, (_, offset) =>
+        stableCandidates[(startIndex + offset) % stableCandidates.length]
+      ).find((candidate) => !selected.some((draft) => draft.id === candidate?.id));
+    }
     if (selectedDraft && !selected.some((draft) => draft.id === selectedDraft.id)) {
       selected.push(selectedDraft);
     }
@@ -2919,7 +2947,21 @@ function selectSoftSeedingImageDrafts(
   const orders = topicImageOrders[topic];
   const order = orders[normalizeSoftVariantIndex(variantIndex, getTopicVariantCount(topic)) % orders.length];
 
-  return order.map((index) => drafts[index]).filter(Boolean).slice(0, imageCount);
+  const selected = order.map((index) => drafts[index]).filter(Boolean);
+  if (selected.length >= imageCount) return selected.slice(0, imageCount);
+
+  const expanded = [...selected];
+  for (let index = selected.length; index < imageCount; index += 1) {
+    const source = selected[(variantIndex + index - selected.length) % selected.length];
+    if (!source) break;
+    expanded.push({
+      ...source,
+      id: `${source.id ?? source.name}-supplement-${index + 1}`,
+      name: `${source.name}｜补充角度 ${index + 1}`,
+      purpose: `${source.purpose}补充不同动作、视角或操作瞬间。`
+    });
+  }
+  return expanded.slice(0, imageCount);
 }
 
 const topicImageGuides: Record<SoftSeedingTopic, string> = {
@@ -3175,6 +3217,128 @@ const stylingSolutionExpressionBeats = [
   "If the face is visible, capture a fleeting relaxed look after the action, such as a soft exhale or incidental half-turn, different from the other cards."
 ];
 
+type SeriesActionBeat = {
+  key: string;
+  family?: string;
+  directive: string;
+  poseType?: TeamPoseType;
+};
+
+const peopleSeriesActionTrack: SeriesActionBeat[] = [
+  {
+    key: "standing-weight-shift",
+    poseType: "standing",
+    directive: "Series action variation: use a quiet full-body standing pause with a clear weight shift, asymmetrical relaxed arms, and both feet planted; do not turn this into a walking frame."
+  },
+  {
+    key: "short-walking-step",
+    poseType: "walking",
+    directive: "Series action variation: capture one compact mid-walk step with natural arm swing and visible weight transfer; make it clearly different from every standing or adjustment frame."
+  },
+  {
+    key: "clothing-adjustment",
+    poseType: "standing",
+    directive: "Series action variation: pause to adjust one sleeve, cuff, lapel, or garment edge with one hand while the other arm rests naturally; keep both feet stable and do not walk."
+  },
+  {
+    key: "three-quarter-turn",
+    poseType: "standing",
+    directive: "Series action variation: use a restrained three-quarter body turn with the head responding to the surroundings, one heel settling after the turn, and hands naturally separated."
+  },
+  {
+    key: "pause-between-steps",
+    poseType: "walking",
+    directive: "Series action variation: show the distinct pause between two steps, with one foot finishing contact, the other preparing to move, and a brief off-camera glance; avoid a generic static stance."
+  },
+  {
+    key: "downward-outfit-check",
+    poseType: "standing",
+    directive: "Series action variation: show a purposeful downward outfit-and-sneaker check with a small hand movement near the garment hem, grounded feet, and task-focused posture; no camera-facing pose."
+  },
+  {
+    key: "side-oriented-pause",
+    poseType: "standing",
+    directive: "Series action variation: use a side-oriented pause with shoulders nearly in profile, one arm slightly behind the torso line, and a different foot direction from the front-standing frame."
+  },
+  {
+    key: "step-finish-half-turn",
+    poseType: "walking",
+    directive: "Series action variation: finish a short step and make a small incidental half-turn as if reacting to something behind or beside the camera, with relaxed hands and stable footwear."
+  }
+];
+
+const mirrorSeriesActionTrack: SeriesActionBeat[] = [
+  { key: "mirror-front-check", poseType: "mirror", directive: "Series mirror variation: use a straight front outfit check with the phone at face level, both feet parallel, and the free arm relaxed; do not use a three-quarter turn." },
+  { key: "mirror-three-quarter", poseType: "mirror", directive: "Series mirror variation: turn the torso and feet into a clear three-quarter mirror stance, phone slightly off-center, with a visible weight shift distinct from the front check." },
+  { key: "mirror-cuff-adjust", poseType: "mirror", directive: "Series mirror variation: use the free hand to adjust one cuff or sleeve while the phone remains steady and the feet stay grounded; make the hand task the main action." },
+  { key: "mirror-side-check", poseType: "mirror", directive: "Series mirror variation: use a near-side mirror orientation to inspect the silhouette, with the head slightly turned back toward the phone and no front-facing stance." },
+  { key: "mirror-lower-phone", poseType: "mirror", directive: "Series mirror variation: lower the phone slightly for a full-look check without blocking the torso, garment hem, or shoes, using a relaxed split stance." },
+  { key: "mirror-hem-check", poseType: "mirror", directive: "Series mirror variation: look down while the free hand lightly checks the garment hem near the hip or thigh, keeping the phone as the only handheld object." },
+  { key: "mirror-step-in", poseType: "mirror", directive: "Series mirror variation: capture a small step into position in front of the mirror, with one foot just settling and the body not yet fully squared to the reflection." },
+  { key: "mirror-relaxed-finish", poseType: "mirror", directive: "Series mirror variation: show the relaxed moment after finishing the outfit check, shoulders lowered, free arm dropping naturally, and feet in an asymmetric resting stance." }
+];
+
+const materialSeriesActionTrack: SeriesActionBeat[] = [
+  { key: "material-arrange-swatches", poseType: "handsOnly", directive: "Series material-action variation: show hands actively arranging two material swatches into position, with one swatch still slightly lifted and the rest of the table undisturbed." },
+  { key: "material-compare-card", poseType: "handsOnly", directive: "Series material-action variation: compare one color card directly beside the relevant leather or suede area, using a single precise hand task rather than arranging the whole table." },
+  { key: "material-lace-check", poseType: "handsOnly", directive: "Series material-action variation: gently check one lace, eyelet route, or tongue-edge detail with fingertips clearly separated from the product; do not repeat a swatch-arranging action." },
+  { key: "material-note-mark", poseType: "handsOnly", directive: "Series material-action variation: mark or point to one handwritten sample note beside the material, with the product and other tools remaining still." },
+  { key: "material-lift-edge", poseType: "handsOnly", directive: "Series material-action variation: lift one fabric, leather, or paper edge to reveal thickness and tactile structure, using a side-oriented working angle." },
+  { key: "material-brush-pass", poseType: "handsOnly", directive: "Series material-action variation: make one gentle care-brush pass beside the relevant material area, with believable pressure and no factory-inspection mood." },
+  { key: "material-shot-list-review", poseType: "handsOnly", directive: "Series material-action variation: review a shot-list or product-note detail with one finger indicating the selected line while the material samples stay naturally scattered." },
+  { key: "material-after-action", poseType: "handsOnly", directive: "Series material-action variation: show the immediate after-action state with hands just leaving the frame, one recently shifted sample, and subtle evidence of the completed task." }
+];
+
+const stillLifeSeriesActionTrack: SeriesActionBeat[] = [
+  { key: "stilllife-three-quarter", poseType: "none", directive: "Series still-life variation: use a three-quarter product view with the full silhouette, grounded contact shadow, and one material cue placed behind rather than beside the shoe." },
+  { key: "stilllife-top-down", poseType: "none", directive: "Series still-life variation: use a clearly different top-down composition showing panel layout and laces, with restrained asymmetrical spacing and no repeated three-quarter camera angle." },
+  { key: "stilllife-side-profile", poseType: "none", directive: "Series still-life variation: use a true side-profile composition focused on outsole line and panel transitions, keeping the product level and physically grounded." },
+  { key: "stilllife-toe-detail", poseType: "none", directive: "Series still-life variation: use a close but undistorted toe-box and forefoot material view, with the rest of the shoe receding naturally rather than repeating a full-product frame." },
+  { key: "stilllife-lace-tongue", poseType: "none", directive: "Series still-life variation: focus on the lace route, tongue, eyelets, and stitching from a higher front angle while preserving the true shoe shape." },
+  { key: "stilllife-outsole-contact", poseType: "none", directive: "Series still-life variation: use a low side detail of outsole edge and contact shadow, without turning it into an on-foot or dramatic low-angle advertisement." },
+  { key: "stilllife-paired-material", poseType: "none", directive: "Series still-life variation: pair the shoe with one relevant material sample at a diagonal offset to explain texture or color, keeping all product structure unobstructed." },
+  { key: "stilllife-negative-space", poseType: "none", directive: "Series still-life variation: use a wider restrained composition with deliberate negative space, an off-center product position, and a different scale from every detail frame." }
+];
+
+const atmosphereSeriesActionTrack: SeriesActionBeat[] = [
+  { key: "atmosphere-recent-departure", poseType: "none", directive: "Series atmosphere variation: imply someone has just left through one shifted chair, soft fabric fold, or doorway light change; do not stage a product-centered still life." },
+  { key: "atmosphere-page-turned", poseType: "none", directive: "Series atmosphere variation: show a recently turned book or note page with one naturally displaced paper edge and quiet window light, distinct from a wardrobe or street frame." },
+  { key: "atmosphere-wardrobe-use", poseType: "none", directive: "Series atmosphere variation: show one garment recently handled in a wardrobe or entry area, with believable folds and no decorative flat-lay arrangement." },
+  { key: "atmosphere-city-passage", poseType: "none", directive: "Series atmosphere variation: capture a real city passage with one distant movement trace, uneven reflections, and an observational camera position rather than an empty perfect street." },
+  { key: "atmosphere-table-after-use", poseType: "none", directive: "Series atmosphere variation: show a table immediately after a small daily task, with one cup ring shadow, shifted note, or fabric edge and no product-development display." },
+  { key: "atmosphere-light-transition", poseType: "none", directive: "Series atmosphere variation: make changing natural light across a curtain, floor, or wall the main event, with objects secondary and no repeated tabletop composition." },
+  { key: "atmosphere-object-set-down", poseType: "none", directive: "Series atmosphere variation: imply one everyday object was just set down through realistic contact, weight, and asymmetric placement, without showing a hand or staged luxury prop." },
+  { key: "atmosphere-quiet-aftermath", poseType: "none", directive: "Series atmosphere variation: show the quiet aftermath of a normal routine with subtle human traces, wider framing, and no centered hero object." }
+];
+
+const studioSeriesActionTrack: SeriesActionBeat[] = [
+  { key: "studio-full-front", poseType: "standing", directive: "Studio action variation: relaxed full-front stance with balanced feet and asymmetrical empty arms; establish the neutral reference pose." },
+  { key: "studio-full-three-quarter", poseType: "standing", directive: "Studio action variation: full-body three-quarter stance with a visible weight shift and a small responsive head turn; do not repeat the front stance." },
+  { key: "studio-full-side", poseType: "standing", directive: "Studio action variation: full side-oriented stance with one foot offset just enough to reveal the shoe profile and both empty hands relaxed." },
+  { key: "studio-rear-turn", poseType: "standing", directive: "Studio action variation: restrained rear three-quarter turn with one heel settling after the turn and the face responding naturally if visible." },
+  { key: "studio-lower-front", poseType: "standing", directive: "Studio action variation: lower-body front stance with both feet aligned and no hand action entering the crop." },
+  { key: "studio-lower-three-quarter", poseType: "standing", directive: "Studio action variation: lower-body three-quarter stance with one foot slightly ahead and a clearly different shoe angle from the lower-front frame." },
+  { key: "studio-on-foot-side", poseType: "standing", directive: "Studio action variation: tight on-foot side-oriented stance emphasizing outsole and side panels, feet still and grounded, hands outside the frame." },
+  { key: "studio-on-foot-step-finish", poseType: "walking", directive: "Studio action variation: tight on-foot frame at the end of one tiny controlled step, with visible weight transfer and no repeated static foot placement." }
+];
+
+function getNonPersonSeriesActionBeat(
+  draft: SoftSeedingImageDraft,
+  index: number,
+  variantIndex: number
+): SeriesActionBeat {
+  const track =
+    draft.imageType === "拍摄花絮 / 材质图"
+          ? materialSeriesActionTrack
+          : draft.imageType === "产品静物图"
+            ? stillLifeSeriesActionTrack
+            : draft.imageType === "非产品氛围图"
+              ? atmosphereSeriesActionTrack
+              : peopleSeriesActionTrack;
+  const rotation = variantIndex % track.length;
+  return track[(index + rotation) % track.length] ?? track[0];
+}
+
 function getStylingSolutionContinuityLines(topic: SoftSeedingTopic, draft: SoftSeedingImageDraft) {
   if (topic !== "穿搭解决方案") return "";
 
@@ -3252,6 +3416,7 @@ function buildImagePlan(
   topic: SoftSeedingTopic,
   variantIndex: number,
   imageCount: SoftSeedingImageCount,
+  seriesActionBeat: SeriesActionBeat,
   lockedOutfitLine = ""
 ): SoftSeedingImagePlan {
   const shoeFields = resolveBaseShoe(baseParams);
@@ -3271,11 +3436,16 @@ function buildImagePlan(
     extraRequirement: [
       getSoftSeedingExtraRequirement(baseParams, draft, garmentTypePreference, topic, variantIndex, imageCount),
       lifestyleContinuityLine,
-      topic === "穿搭解决方案" ? stylingSolutionExpressionBeats[index % stylingSolutionExpressionBeats.length] : ""
+      topic === "穿搭解决方案" ? stylingSolutionExpressionBeats[index % stylingSolutionExpressionBeats.length] : "",
+      `Action lock for this card: ${seriesActionBeat.directive} Treat this as the only primary body action or object-operation moment for this card; ignore any earlier generic walk-or-pause alternative.`
     ].filter(Boolean).join(" "),
     generationNonce: baseParams.generationNonce + variantIndex + index + 1,
     seriesImageCount: imageCount,
     seriesImageIndex: index,
+    seriesActionKey: seriesActionBeat.key,
+    seriesActionFamily: seriesActionBeat.family ?? seriesActionBeat.key,
+    seriesActionDirective: seriesActionBeat.directive,
+    seriesPoseType: seriesActionBeat.poseType,
     studioLaunchShotIndex: draft.studioLaunchShotIndex,
     studioSetNonce:
       topic === "棚内上新拍摄" ? baseParams.generationNonce + variantIndex + 1 : undefined,
@@ -3306,9 +3476,37 @@ function buildSoftSeedingImagePlans(
   imageCount: SoftSeedingImageCount
 ) {
   let sharedOutfitLine = "";
+  const selectedPersonActions = selectDiversePersonActions({
+    cards: drafts.map((draft) => ({
+      imageType: draft.imageType,
+      scenePreference: draft.scenePreference,
+      studioLaunchShotIndex: draft.studioLaunchShotIndex
+    })),
+    topic,
+    variantIndex,
+    generationNonce: baseParams.generationNonce
+  });
 
   return drafts.map((draft, index) => {
-    const plan = buildImagePlan(baseParams, draft, index, topic, variantIndex, imageCount, sharedOutfitLine);
+    const selectedPersonAction = selectedPersonActions[index];
+    const seriesActionBeat: SeriesActionBeat = selectedPersonAction
+      ? {
+          key: selectedPersonAction.id,
+          family: selectedPersonAction.diversityFamily,
+          directive: selectedPersonAction.directive,
+          poseType: selectedPersonAction.poseType
+        }
+      : getNonPersonSeriesActionBeat(draft, index, variantIndex);
+    const plan = buildImagePlan(
+      baseParams,
+      draft,
+      index,
+      topic,
+      variantIndex,
+      imageCount,
+      seriesActionBeat,
+      sharedOutfitLine
+    );
     if (
       (topic === "穿搭解决方案" || topic === "生活场景软种草" || topic === "棚内上新拍摄") &&
       !sharedOutfitLine &&
@@ -3321,11 +3519,10 @@ function buildSoftSeedingImagePlans(
 }
 
 function normalizeSoftSeedingImageCount(
-  topic: SoftSeedingTopic,
+  _topic: SoftSeedingTopic,
   requestedCount: SoftSeedingImageCount
 ): SoftSeedingImageCount {
-  if (topic === "棚内上新拍摄") return requestedCount;
-  return requestedCount === 8 ? 5 : requestedCount;
+  return requestedCount;
 }
 
 export function generateSoftSeedingContent(input: SoftSeedingInput): SoftSeedingContent {

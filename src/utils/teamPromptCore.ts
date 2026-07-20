@@ -1916,7 +1916,9 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
     timeOfDay: seasonCityVisualContext.timeOfDay,
     userExtraRequirement: params.extraRequirement,
     generationNonce: params.generationNonce,
-    forceNoHandheldObject: params.forceNoHandheldObject
+    forceNoHandheldObject: params.forceNoHandheldObject,
+    seriesActionDirective: params.seriesActionDirective,
+    seriesPoseType: params.seriesPoseType
   });
   const poseCategory = mapActionPoseToHumanCategory({
     params,

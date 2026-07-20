@@ -277,6 +277,10 @@ export type TeamPromptParams = {
   generationNonce: number;
   seriesImageCount?: number;
   seriesImageIndex?: number;
+  seriesActionKey?: string;
+  seriesActionFamily?: string;
+  seriesActionDirective?: string;
+  seriesPoseType?: TeamPoseType;
   studioLaunchShotIndex?: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7;
   studioSetNonce?: number;
   lockedOutfitLine?: string;

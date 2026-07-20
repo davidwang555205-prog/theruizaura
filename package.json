@@ -8,6 +8,7 @@
     "build": "vite build",
     "typecheck": "tsc --noEmit",
     "validate:prompts": "node scripts/validatePromptAuthenticity.mjs",
+    "validate:actions": "node scripts/validateSoftSeedingActionDiversity.mjs",
     "preview": "vite preview"
   },
   "dependencies": {
