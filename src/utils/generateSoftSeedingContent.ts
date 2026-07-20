@@ -2458,7 +2458,7 @@ const topicCopyKitEnhancements = {
 const topicImageDrafts: Record<SoftSeedingTopic, SoftSeedingImageDraft[]> = {
   生活场景软种草: lifestyleSoftSeedingScenePool,
   产品开发幕后: [
-    { name: "图1｜材质｜工作台", purpose: "呈现真实开发触感。", description: "皮料、鞋带、色卡和产品笔记克制摆放。", imageType: "拍摄花絮 / 材质图", scenePreference: "材质工作台", garmentTypePreference: "自动匹配", extraRequirement: "Create a tactile material development table with leather swatches, suede samples, shoelaces, neutral color cards, care brush, and product notes on warm stone or linen. Keep it real, restrained, and organized." },
+    { name: "图1｜材质｜工作台", purpose: "呈现真实开发触感。", description: "皮料、鞋带、色卡和产品笔记克制摆放。", imageType: "拍摄花絮 / 材质图", scenePreference: "材质工作台", garmentTypePreference: "自动匹配", extraRequirement: "Create a tactile material development table with leather swatches, suede samples, shoelaces, neutral color cards, care brush, and product notes on warm stone or linen. Keep it orderly but visibly used, with naturally shifted paper edges and a few meaningful working traces." },
     { name: "图2｜现场｜拍摄花絮", purpose: "让品牌过程可信但不杂乱。", description: "灯架边缘、造型桌、手部整理细节。", imageType: "拍摄花絮 / 材质图", scenePreference: "拍摄花絮", garmentTypePreference: "自动匹配", extraRequirement: "Show a quiet behind-the-scenes styling moment with a light stand edge, camera monitor, paper shot list, wardrobe pieces, and hands arranging product details. Avoid chaotic studio clutter." },
     { name: "图3｜上新｜棚内静物", purpose: "把产品结构拍清楚。", description: "棚内克制静物，产品为主。", imageType: "产品静物图", scenePreference: "棚内上新拍摄", garmentTypePreference: "自动匹配", extraRequirement: "Use a clean studio launch still life with minimal props, soft neutral shadow, sharp material texture, visible stitching, laces, panel transitions, and accurate shoe structure." },
     { name: "图4｜整理｜桌边", purpose: "增加小品牌真实工作秩序。", description: "工作台边整理色卡与纸样，不做硬广。", imageType: "非产品氛围图", scenePreference: "工作台 / 桌边整理", garmentTypePreference: "自动匹配", extraRequirement: "Create a refined desk-side organizing scene with product notes, color cards, fabric pieces, and a neutral cup. The mood should feel like quiet brand work, not a direct product advertisement." },
@@ -2926,7 +2926,7 @@ const topicImageGuides: Record<SoftSeedingTopic, string> = {
   生活场景软种草:
     "Use concrete Xiaohongshu buyer-show feedback cues: real customer try-on feeling, candid daily rhythm, clear sneaker visibility, wearable styling, subtle personal-object context, and a scene that feels like a believable user outfit note rather than brand advertising.",
   产品开发幕后:
-    "Use concrete behind-the-scenes cues: hands arranging material cards, selected swatches, laces, sample notes, tidy working surface, visible product decisions, and restrained small-brand process realism.",
+    "Use concrete behind-the-scenes cues: hands arranging material cards, selected swatches, laces, sample notes, a working surface with a few naturally used materials, visible product decisions, and restrained small-brand process realism.",
   秋冬配色实验室:
     "Use concrete color-lab cues: coffee brown leather, oatmeal suede, warm beige cards, muted grey chips, autumn wardrobe layers, soft material contrast, and a saveable palette-board feeling without clutter.",
   穿搭解决方案:
@@ -2956,7 +2956,7 @@ const topicVariantVisualCues: Record<SoftSeedingTopic, string[]> = {
   ],
   产品开发幕后: [
     "Visual content angle: show a quiet product-development decision, such as comparing laces, leather pieces, color cards, or a sample note.",
-    "Visual content angle: keep the working surface real but ordered, with only a few meaningful materials and no decorative clutter.",
+    "Visual content angle: keep the working surface real and orderly but visibly used, with slightly shifted notes, natural material edges, and no irrelevant decorative clutter.",
     "Visual content angle: make the behind-the-scenes moment feel small-brand, tactile, and trustworthy, not like a factory report.",
     "Visual content angle: let hands, swatches, and sample details imply the process without turning the image into a technical manual.",
     "Visual content angle: keep the product or material detail close enough to understand the decision, with warm daylight and calm negative space."

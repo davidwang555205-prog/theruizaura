@@ -7,6 +7,7 @@
     "dev": "vite",
     "build": "vite build",
     "typecheck": "tsc --noEmit",
+    "validate:prompts": "node scripts/validatePromptAuthenticity.mjs",
     "preview": "vite preview"
   },
   "dependencies": {

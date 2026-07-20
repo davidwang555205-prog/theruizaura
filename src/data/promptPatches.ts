@@ -122,7 +122,7 @@ const photoRealityModeLines: Record<
   },
   realDaily: {
     sceneLine:
-      "Real daily photo feeling: slight imperfect framing, natural depth falloff, mild surface wear, believable background life.",
+      "Real daily photo feeling: slight imperfect framing, natural depth falloff, mild wear on surrounding surfaces, and believable background life; keep the sneaker itself clean, undamaged, and structurally accurate.",
     moodLine:
       "The image should feel like a refined real-camera daily capture: tasteful and elevated, but not overly polished, empty, staged, or showroom-like.",
     negativePhrases: [
@@ -151,9 +151,9 @@ const photoRealityModeLines: Record<
   },
   lifestyleAtmosphere: {
     sceneLine:
-      "Her lifestyle world: believable daily objects, natural object contact, warm restraint, clean personal rhythm.",
+      "Her lifestyle world: believable daily objects, natural object contact, warm restraint, and an orderly but visibly used personal rhythm.",
     moodLine:
-      "The atmosphere image should feel like her day, wardrobe, table, city, weekend, travel, before-leaving or after-returning moment, with real life made orderly and tasteful.",
+      "The atmosphere image should feel like her day, wardrobe, table, city, weekend, travel, before-leaving or after-returning moment, with one or two quiet signs of recent human presence and real life kept orderly but not showroom-perfect.",
     negativePhrases: [
       "brand-process overload",
       "product development catalog",

@@ -14,7 +14,7 @@ export const realLightDirectionCompact =
   "Use believable light direction and natural shadows that match the scene. Indoor light should come from windows, ceiling lights, wall lights, or soft reflected light. Outdoor light should match the time of day. Avoid flat synthetic lighting, random spotlighting, harsh commercial flash, over-dramatic cinematic light, or shadows that do not match the environment.";
 
 export const sceneHierarchyCompact =
-  "The scene should support the product story, not become the subject. Keep the model, outfit, and sneakers as the visual priority. Background architecture, props, people, vehicles, furniture, and signage must stay secondary, low-noise, and visually controlled.";
+  "The scene should support the product story, not become the subject. Keep the model, outfit, and sneakers as the visual priority. Background architecture, props, people, vehicles, furniture, and signage must stay secondary and low-noise, while retaining one or two believable signs of daily use.";
 
 export const urbanStreetRealismCompact =
   "Use a real urban street context with textured pavement, believable storefront depth, muted building surfaces, soft street shadows, and subtle daily-life traces, while keeping pedestrians, vehicles, signage, and street clutter secondary.";

@@ -1,4 +1,5 @@
 import { sensitiveWordReducer } from "./sensitiveWordReducer";
+import type { TeamImageType } from "../types";
 
 export type FinalPromptSafetyCheckResult = {
   prompt: string;
@@ -207,6 +208,41 @@ function ensureOnFootShoeScale(prompt: string, warnings: string[]) {
   );
 }
 
+function ensureAuthenticityCoverage(
+  prompt: string,
+  options: { imageType?: TeamImageType; hasPeople?: boolean; hasShoe?: boolean; studioLaunch?: boolean },
+  warnings: string[]
+) {
+  const hasAuthenticityCue =
+    /slight imperfect framing|daily imperfection|normal human asymmetry|mild surface wear|believable background life|real-camera daily capture|physically real through/i.test(
+      prompt
+    );
+  const hasProductProtection =
+    /sneaker itself clean|do not add dirt, wear, or damage to the sneaker itself|do not add lifestyle clutter or any dirt or damage to the sneaker/i.test(
+      prompt
+    );
+  if (hasAuthenticityCue && (!options.hasShoe || hasProductProtection)) return prompt;
+
+  let line = "";
+  if (options.studioLaunch) {
+    line =
+      "Keep the polished studio physically real through natural skin texture, ordinary fabric creases, subtle floor texture, and non-uniform contact shadows; do not add lifestyle clutter or any dirt or damage to the sneaker.";
+  } else if (options.hasPeople) {
+    line =
+      "Keep a real-camera daily capture with slight imperfect framing, normal human asymmetry, natural fabric creases, and one or two believable signs of use in the setting; keep the sneaker itself clean and structurally accurate.";
+  } else if (options.imageType === "产品静物图" || options.imageType === "拍摄花絮 / 材质图") {
+    line =
+      "Keep the setup physically real through natural contact shadows, slight wear on the surrounding work surface, irregular paper or fabric edges, and tactile material texture; do not add dirt, wear, or damage to the sneaker itself.";
+  } else if (options.imageType === "非产品氛围图") {
+    line =
+      "Keep an orderly but visibly used daily setting with slight imperfect framing, natural object spacing, and one or two quiet signs of recent human presence; avoid both decorative clutter and sterile showroom perfection.";
+  }
+
+  if (!line) return prompt;
+  warnings.push("Added post-budget authenticity coverage.");
+  return appendBeforeNegativeOrUserRequirement(prompt, line);
+}
+
 function keepSingleNegativeSection(prompt: string, warnings: string[]) {
   const matches = [...prompt.matchAll(/(?:负面词|Negative):/g)];
   if (matches.length <= 1) return prompt;
@@ -220,7 +256,13 @@ function keepSingleNegativeSection(prompt: string, warnings: string[]) {
 
 export function finalPromptSafetyCheck(
   finalPrompt: string,
-  options: { hasShoe?: boolean; hasPeople?: boolean; requireFullShoeVisibility?: boolean } = {}
+  options: {
+    hasShoe?: boolean;
+    hasPeople?: boolean;
+    requireFullShoeVisibility?: boolean;
+    imageType?: TeamImageType;
+    studioLaunch?: boolean;
+  } = {}
 ): FinalPromptSafetyCheckResult {
   const warnings: string[] = [];
   const { body, userRequirement } = splitAdditionalRequirement(finalPrompt);
@@ -242,6 +284,7 @@ export function finalPromptSafetyCheck(
     prompt = ensureOnFootShoeFit(prompt, warnings);
     prompt = ensureOnFootShoeScale(prompt, warnings);
   }
+  prompt = ensureAuthenticityCoverage(prompt, options, warnings);
   prompt = sensitiveWordReducer(prompt);
   prompt = normalizeSpaces(prompt);
 

@@ -1326,7 +1326,7 @@ function getNegativeLine(input: {
           "over-smoothed skin",
           "lifeless eyes",
           "loud status branding",
-          "messy background",
+          "chaotic unrelated background clutter",
           "plastic skin",
           "sneaker deformation",
           "chunky or running-shoe sole",
@@ -1344,7 +1344,7 @@ function getNegativeLine(input: {
           "loud colors",
           "synthetic luxury staging",
           "cold minimalism",
-          "messy backgrounds",
+          "chaotic unrelated background clutter",
           "overly commercial visual language"
         ];
 
@@ -2026,13 +2026,13 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
   const sneakerSceneControlLine = sneakerProtection.sceneControlLine;
   const modelStructuredLine = shouldUsePeopleStyling(params.imageType)
     ? [
+        humanRealism.livedInCoreLine,
+        humanRealism.realHumanDetailLine,
         getModelContinuityLine(params.modelContinuity, params.modelChoice),
         getModelLine(params),
         getTeamModelConsistencyLine(params.modelChoice, imageCountIntent),
         [gazeSelection.line, humanRealism.expressionGazeLine].filter(Boolean).join(" "),
         humanRealismLine,
-        humanRealism.livedInCoreLine,
-        humanRealism.realHumanDetailLine,
         gazeSelection.mode === "phoneHiddenFace" || gazeSelection.mode === "noFaceNeeded"
           ? ""
           : getMultiImageExpressionSequenceLine(params),
@@ -2102,18 +2102,19 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
     params.imageType === "产品静物图"
       ? [
           photoRealityPatchLines.sceneLine,
+          sceneRealismLine,
           visualScenario.scenarioLine,
           imageTypeTemplate.templateSceneLine,
           sceneVariationLine,
-          sceneRealismLine,
           seasonCityVisualContext.lightingSpaceSupportLine
         ]
           .filter(Boolean)
           .join(" ")
       : [
+          photoRealityPatchLines.sceneLine,
+          sceneRealismLine,
           studioLaunchAngleLine,
           cameraSelection.camera === "AuraOutdoorReference" ? auraOutdoorReferenceCompactToneLine : "",
-          photoRealityPatchLines.sceneLine,
           visualScenario.scenarioLine,
           scenePropsLine,
           summerLifestyleShoeSafetyLine,
@@ -2123,7 +2124,6 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
           getImageTypeLine(params, sceneKey),
           effectiveImageTemplateSceneLine,
           streetRealismPatchLine,
-          sceneRealismLine,
           effectiveLightingSpaceSupportLine,
           handheldSelection.spacingLine,
           handheldSelection.weightLine,
@@ -2136,8 +2136,8 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
           .filter(Boolean)
           .join(" ");
   const moodStructuredLine = [
-    brandMoodLine,
     photoRealityPatchLines.moodLine,
+    brandMoodLine,
     isNonProductAtmosphereImage(params.imageType) ? nonProductAtmosphereMoodLine : "",
     ...promptQualityPatchLines.moodLines,
     shouldUsePeopleStyling(params.imageType) ? customerFeelingLine : "",
@@ -2340,7 +2340,9 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
   const safetyCheckedPrompt = finalPromptSafetyCheck(dedupedPrompt, {
     hasShoe,
     hasPeople: shouldUsePeopleStyling(params.imageType),
-    requireFullShoeVisibility: hasShoe && params.imageType !== "拍摄花絮 / 材质图" && params.imageType !== "非产品氛围图"
+    requireFullShoeVisibility: hasShoe && params.imageType !== "拍摄花絮 / 材质图" && params.imageType !== "非产品氛围图",
+    imageType: params.imageType,
+    studioLaunch: resolvedScene === "棚内上新拍摄"
   });
   const modelAdjustedPrompt = shouldUsePeopleStyling(params.imageType)
     ? adaptFinalPromptForModelChoice(safetyCheckedPrompt.prompt, params.modelChoice)
