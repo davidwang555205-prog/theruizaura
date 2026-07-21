@@ -1051,20 +1051,12 @@ function selectByRotation(candidates: OutfitEntry[], input: ChoosePerSceneOutfit
 export function choosePerSceneOutfitLine(input: ChoosePerSceneOutfitInput): ChoosePerSceneOutfitResult {
   if (hasUserSpecifiedClothingRequirement(input.userExtraRequirement)) return emptySelection;
 
-  const expandedLifestyleSelection = chooseExpandedLifestyleOutfit(input);
-  if (expandedLifestyleSelection) return expandedLifestyleSelection;
-
-  const summerLifestyleSelection = chooseSummerLifestyleOutfit(input);
-  if (summerLifestyleSelection) return summerLifestyleSelection;
-
   const sceneKey = resolvePerSceneKey({
     scenePreference: input.scenePreference,
     imageType: input.imageType,
     userExtraRequirement: input.userExtraRequirement
   });
-  if (!sceneKey) return emptySelection;
-
-  const smartSelection = chooseSmartOutfit({
+  const smartSelection = sceneKey ? chooseSmartOutfit({
     sceneKey,
     season: normalizePerSceneSeason(input.season),
     shoe: normalizePerSceneShoe(input.shoe),
@@ -1074,7 +1066,7 @@ export function choosePerSceneOutfitLine(input: ChoosePerSceneOutfitInput): Choo
     userExtraRequirement: input.userExtraRequirement,
     previousOutfitId: input.previousOutfitId,
     generationNonce: input.generationNonce
-  });
+  }) : null;
 
   if (smartSelection) {
     return {
@@ -1094,6 +1086,14 @@ export function choosePerSceneOutfitLine(input: ChoosePerSceneOutfitInput): Choo
       conflictWarnings: smartSelection.conflictWarnings
     };
   }
+
+  const expandedLifestyleSelection = chooseExpandedLifestyleOutfit(input);
+  if (expandedLifestyleSelection) return expandedLifestyleSelection;
+
+  const summerLifestyleSelection = chooseSummerLifestyleOutfit(input);
+  if (summerLifestyleSelection) return summerLifestyleSelection;
+
+  if (!sceneKey) return emptySelection;
 
   const sceneOutfits = perSceneOutfitLibrary[sceneKey];
   if (!sceneOutfits?.length) return emptySelection;

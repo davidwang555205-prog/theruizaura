@@ -1,6 +1,7 @@
 import type { TeamGarmentTypePreference } from "../types";
 import type { ChinaCityProfile } from "../data/chinaUrbanStreetProfiles";
 import { fallbackSafeOutfitTemplates } from "../data/fallbackSafeOutfitTemplates";
+import { buildCombinatorialOutfit } from "../data/combinatorialOutfitLibrary";
 import { garmentTypePreferenceMap } from "../data/outfitDiversityRules";
 import {
   sceneOutfitSeedLibrary,
@@ -388,6 +389,28 @@ export function chooseSmartOutfit(input: ChooseSmartOutfitInput): ChooseSmartOut
     ? "lightActive"
     : getManualGarment(effectiveParsedUserRequirement.resolvedGarmentTypePreference);
   const history = input.generatedHistory ?? readOutfitGeneratedHistory();
+  const canUseCombinatorialWardrobe =
+    manualGarment === null &&
+    input.sceneKey !== "gymInterior" &&
+    typeof input.generationNonce === "number" &&
+    Number.isFinite(input.generationNonce) &&
+    effectiveParsedUserRequirement.hardExclusions.length === 0;
+
+  if (canUseCombinatorialWardrobe) {
+    const combinedOutfit = buildCombinatorialOutfit({
+      season: input.season,
+      generationNonce: input.generationNonce ?? 0,
+      sceneKey: input.sceneKey
+    });
+    if (isSafeSeed(combinedOutfit, input, manualGarment, effectiveParsedUserRequirement)) {
+      return buildResult({
+        smartInput: input,
+        selected: combinedOutfit,
+        conflictWarnings: effectiveParsedUserRequirement.conflictWarnings
+      });
+    }
+  }
+
   const sceneCandidates = sceneOutfitSeedLibrary[input.sceneKey] ?? [];
   if (forceGymInteriorActivewear(input) && !sceneCandidates.length) {
     return null;
