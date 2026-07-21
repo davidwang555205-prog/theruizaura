@@ -635,7 +635,7 @@ type ExpandedLifestyleScene =
   | "社区市集 / 精品买菜"
   | "城市街角 / 安静街区"
   | "雨天街角"
-  | "酒店走廊"
+  | "酒店咖啡厅内"
   | "酒店房间"
   | "酒店门口 / 门厅"
   | "衣帽间 / 更衣角"
@@ -663,7 +663,7 @@ const expandedSceneCategories: Record<ExpandedLifestyleScene, ExpandedSceneCateg
   "社区市集 / 精品买菜": "weekend",
   "城市街角 / 安静街区": "weekend",
   雨天街角: "weekend",
-  酒店走廊: "indoor",
+  酒店咖啡厅内: "indoor",
   酒店房间: "indoor",
   "酒店门口 / 门厅": "indoor",
   "衣帽间 / 更衣角": "indoor",

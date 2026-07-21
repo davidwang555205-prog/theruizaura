@@ -31,6 +31,7 @@ const noonScenes: TeamScenePreference[] = [
   "拍摄花絮",
   "周末轻采购",
   "咖啡馆内",
+  "酒店咖啡厅内",
   "朋友午餐",
   "美术馆"
 ];
@@ -43,6 +44,7 @@ const indoorScenes: TeamScenePreference[] = [
   "拍摄花絮",
   "健身房内",
   "咖啡馆内",
+  "酒店咖啡厅内",
   "朋友午餐",
   "美术馆"
 ];
@@ -83,6 +85,7 @@ export function chooseTimeOfDay(input: TimeOfDayInput): TimeOfDay {
   if (input.imageType === "非产品氛围图") {
     if (
       input.scenePreference === "咖啡馆内" ||
+      input.scenePreference === "酒店咖啡厅内" ||
       input.scenePreference === "朋友午餐" ||
       input.scenePreference === "美术馆"
     ) {

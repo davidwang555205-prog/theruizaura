@@ -315,7 +315,7 @@ Prefer the most refined hotel selfie zones:
 - an entryway mirror
 - a bedroom corner mirror
 - a subtle full-length mirror near soft daylight
-- a clean hotel corridor mirror if appropriate
+- a full-length mirror in a hotel room entry or wardrobe corner if appropriate
 
 Avoid defaulting to:
 - messy bathroom sink mirror
@@ -324,7 +324,7 @@ Avoid defaulting to:
 - loud hotel lobby selfie
 - gym mirror
 - elevator mirror
-- low-end corridor mirror
+- public restaurant or cafe mirror
 
 The hotel setting should support the outfit and shoes, not overwhelm them.`;
 

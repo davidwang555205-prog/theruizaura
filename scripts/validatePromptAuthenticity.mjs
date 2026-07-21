@@ -27,6 +27,7 @@ const baseParams = {
 const cases = [
   ["生活街景", {}, true],
   ["咖啡馆室内", { scenePreference: "咖啡馆内", generationNonce: 1 }, true],
+  ["酒店咖啡厅室内", { scenePreference: "酒店咖啡厅内", generationNonce: 8 }, true],
   ["对镜穿搭", { imageType: "对镜穿搭图", scenePreference: "居家衣帽间", generationNonce: 2 }, true],
   ["通勤上脚", { imageType: "产品上脚图", scenePreference: "通勤上班", generationNonce: 3 }, true],
   ["棚拍人物", { imageType: "产品上脚图", scenePreference: "棚内上新拍摄", generationNonce: 4 }, true],
@@ -67,9 +68,30 @@ try {
         /over-clean AI lifestyle template|not overly polished|showroom-perfect|sterile showroom perfection|fake CGI|CGI product render/i.test(
           prompt
         );
+      const hasHotelCafeIdentity =
+        name !== "酒店咖啡厅室内" ||
+        (/hotel cafe|hotel-cafe/i.test(prompt) &&
+          !/hotel corridor|hotel-corridor|street cafe substitution/i.test(prompt.replace(/Avoid street-cafe substitution/gi, "")));
+      const hasHotelCafeShoeSafety =
+        name !== "酒店咖啡厅室内" ||
+        /furniture, linens, luggage, props, and guests clear of both sneakers/i.test(prompt);
 
-      if (!hasAuthenticity || (requiresProductProtection && !hasProductProtection) || !hasAiPerfectionBoundary) {
-        failures.push({ name, variant, hasAuthenticity, hasProductProtection, hasAiPerfectionBoundary });
+      if (
+        !hasAuthenticity ||
+        (requiresProductProtection && !hasProductProtection) ||
+        !hasAiPerfectionBoundary ||
+        !hasHotelCafeIdentity ||
+        !hasHotelCafeShoeSafety
+      ) {
+        failures.push({
+          name,
+          variant,
+          hasAuthenticity,
+          hasProductProtection,
+          hasAiPerfectionBoundary,
+          hasHotelCafeIdentity,
+          hasHotelCafeShoeSafety
+        });
       }
     }
   }

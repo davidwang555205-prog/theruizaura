@@ -96,6 +96,7 @@ function getScenePriority(input: SinglePrimaryHandheldObjectInput): PrimaryHandh
   if (input.imageType === "对镜穿搭图" || includesAny(text, ["对镜", "镜拍", "mirror selfie"])) return ["phone"];
   if (input.scenePreference === "健身房内" || includesAny(text, ["gyminterior", "健身房内"])) return ["water bottle", "light dumbbell"];
   if (input.scenePreference === "去运动的路上" || includesAny(text, ["gymcommute", "去运动"])) return ["water bottle"];
+  if (input.scenePreference === "酒店咖啡厅内") return ["coffee cup"];
   if (input.scenePreference === "旅行酒店" || includesAny(text, ["hotel", "酒店", "旅行"])) return [];
   if (input.scenePreference === "通勤上班" || includesAny(text, ["commute", "通勤"])) return [];
   if (input.scenePreference === "精品超市 / 日常采购" || includesAny(text, ["premiumerrands", "grocery", "采购", "超市"])) {

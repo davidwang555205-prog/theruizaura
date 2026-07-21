@@ -240,6 +240,7 @@ function getReaderSceneName(draft: SoftSeedingImageDraft | undefined) {
     写字楼门口: "写字楼门口",
     咖啡店门口: "咖啡店门口",
     咖啡馆内: "咖啡馆内",
+    酒店咖啡厅内: "酒店咖啡厅内",
     朋友午餐: "朋友午餐",
     "书店 / 杂志店门口": "书店门口",
     "花店 / 买花": "花店门口",

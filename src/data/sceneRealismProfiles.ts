@@ -26,7 +26,7 @@ export const gettingReadyMirrorRealismCompact =
   "Use a real getting-ready space with believable mirror placement, natural room depth, soft wardrobe or doorway details, grounded floor contact, and practical object placement. The mirror perspective should feel real, not stretched or warped.";
 
 export const hotelRealismCompact =
-  "Use a calm real hotel environment with soft window light, clean luggage or wardrobe details, a believable doorway or corridor, neutral materials, and organized travel objects that feel used but not messy.";
+  "Use a calm real hotel environment with soft window light, clean luggage or wardrobe details, a believable doorway, lobby cafe, or wardrobe area, neutral materials, and organized travel objects that feel used but not messy.";
 
 export const premiumErrandsRealismCompact =
   "Use a refined daily errand environment with realistic shelves, product depth, clean aisle structure, a tote or small paper bag, and quiet daily movement, while avoiding clutter and commercial supermarket noise.";

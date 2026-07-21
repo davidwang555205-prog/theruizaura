@@ -111,7 +111,7 @@ const summerOutdoorDetails = [
 ];
 
 export function getVisualScenarioDetailPool(sceneKey: StandardSceneKey, scenePreference = "") {
-  if (/咖啡馆内|朋友午餐/.test(scenePreference) || sceneKey === "lightSocial") return indoorSocialDetails;
+  if (/咖啡馆内|酒店咖啡厅内|朋友午餐/.test(scenePreference) || sceneKey === "lightSocial") return indoorSocialDetails;
   if (/美术馆/.test(scenePreference) || sceneKey === "galleryExhibition") return galleryDetails;
   if (/窗边阅读/.test(scenePreference)) return windowDetails;
   if (/工作台 \/ 桌边整理/.test(scenePreference)) return deskDetails;
@@ -131,7 +131,7 @@ export function getVisualScenarioDetailPool(sceneKey: StandardSceneKey, scenePre
 }
 
 export function getDefaultBackgroundDensity(sceneKey: StandardSceneKey, scenePreference = ""): BackgroundDensity {
-  if (/咖啡馆内|朋友午餐|美术馆/.test(scenePreference) || sceneKey === "lightSocial" || sceneKey === "galleryExhibition") {
+  if (/咖啡馆内|酒店咖啡厅内|朋友午餐|美术馆/.test(scenePreference) || sceneKey === "lightSocial" || sceneKey === "galleryExhibition") {
     return "normalDaily";
   }
   if (/窗边阅读|衣帽间|更衣角|入户镜前|回家进门|桌边整理|地铁|商场通道|酒店|旅行/.test(scenePreference)) {

@@ -256,8 +256,8 @@ const TEAM_SCENE_TEXT: Record<Exclude<TeamScenePreference, "自动匹配">, stri
     "Use a quiet city corner or calm neighborhood street with believable urban depth, soft greenery, clean pavement, and real daily atmosphere.",
   雨天街角:
     "Use a refined rainy-day city corner with slightly wet pavement, soft reflected light, umbrellas or subtle rain cues if natural, and a calm urban mood. Avoid dramatic storm styling.",
-  酒店走廊:
-    "Use a refined hotel corridor with clean carpet or stone flooring, soft warm light, and a quiet travel mood. Keep it mature and understated.",
+  酒店咖啡厅内:
+    "Use a daytime hotel cafe beside the lobby with sparse tables and few guests; keep furniture, linens, luggage, props, and guests clear of both sneakers; avoid buffet, banquet, street-cafe, afternoon-tea, and hotel-ad styling.",
   酒店房间:
     "Use a believable hotel-room setting with calm interior textures, soft natural or ambient light, and a travel-related daily feeling. Avoid luxury-resort advertisement styling.",
   "酒店门口 / 门厅":
@@ -287,7 +287,7 @@ const TEAM_SCENE_TEXT: Record<Exclude<TeamScenePreference, "自动匹配">, stri
   草原野餐:
     "Use a quiet grassland picnic or open-field summer setting with a breathable, low-saturation atmosphere, soft natural daylight, and calm holiday rhythm. Keep the mood refined and real rather than camping-influencer styled. The sneakers should remain complete, visible, and appropriate for standing or walking on grass.",
   酒店度假:
-    "Use a refined hotel-holiday setting such as a hotel corridor, lobby corner, room entry, terrace threshold, or luggage-side walkway. Keep the atmosphere quiet, mature, orderly, and travel-related. The sneakers should feel like part of a real holiday wardrobe and remain clearly visible.",
+    "Use a refined hotel-holiday setting such as a quiet lobby cafe, lobby corner, room entry, terrace threshold, or luggage-side walkway. Keep the atmosphere quiet, mature, orderly, and travel-related. The sneakers should feel like part of a real holiday wardrobe and remain clearly visible.",
   亲子自驾出行:
     "Use a believable summer road-trip setting such as a parking area, car-side pause, roadside rest stop, or destination-arrival moment. Add subtle family-travel cues like a tote bag, sunglasses, light jacket, or travel objects, but keep the scene mature and uncluttered. The sneakers must stay clear and readable for a real walking or standing moment.",
   暑假外出后回家:
@@ -307,7 +307,7 @@ const EXPANDED_LIFESTYLE_SCENES = [
   "社区市集 / 精品买菜",
   "城市街角 / 安静街区",
   "雨天街角",
-  "酒店走廊",
+  "酒店咖啡厅内",
   "酒店房间",
   "酒店门口 / 门厅",
   "衣帽间 / 更衣角",
@@ -397,7 +397,7 @@ const SCENE_VARIATION_LINES: Partial<Record<StandardSceneKey, string[]>> = {
     "Use a store-to-sidewalk transition where the outfit and sneakers remain readable while the background stays secondary."
   ],
   hotelTravel: [
-    "Use a hotel doorway, calm corridor, wardrobe area, or suitcase corner with warm neutral walls and quiet travel order.",
+    "Use a hotel doorway, quiet lobby cafe, wardrobe area, or suitcase corner with warm neutral walls and quiet travel order.",
     "Set the moment near a room doorway or wardrobe mirror with folded clothing, a travel tote, and soft hotel daylight.",
     "Use a calm hotel entrance threshold with restrained stone texture, no luxury bragging, and believable business-travel movement.",
     "Place her beside a bed edge or luggage corner before leaving, keeping the room tidy, warm, and refined."
@@ -496,7 +496,7 @@ const SUMMER_LIFESTYLE_SCENE_VARIATION_LINES: Record<SummerLifestyleScene, strin
     "Use a low-saturation open meadow with gentle summer wind, one woven basket or tote, and natural walking room around the shoes."
   ],
   酒店度假: [
-    "Use a quiet hotel corridor or room-entry threshold with one suitcase detail, warm-neutral surfaces, and believable holiday movement.",
+    "Use a quiet hotel lobby cafe or room-entry threshold with one suitcase detail, warm-neutral surfaces, and believable holiday movement.",
     "Set the moment near a hotel terrace doorway or lobby-side passage, keeping luggage secondary and the outfit and sneakers clear.",
     "Use a calm luggage-side walkway or wardrobe-to-door transition with tidy travel order and no luxury-resort advertising mood."
   ],
@@ -520,7 +520,7 @@ const SUMMER_LIFESTYLE_LIGHT_LINES: Record<SummerLifestyleScene, string> = {
   草原野餐:
     "Soft open-field summer daylight with low-saturation green depth, gentle natural shadows, and stable ground contact around the sneakers.",
   酒店度假:
-    "Soft hotel daylight with warm-neutral interior depth, believable corridor or doorway shadows, and clear floor contact around the sneakers.",
+    "Soft hotel daylight with warm-neutral interior depth, believable cafe or doorway shadows, and clear floor contact around the sneakers.",
   亲子自驾出行:
     "Warm-neutral summer daylight with believable parking or rest-stop shadows, restrained vehicle reflections, and clear ground contact around the sneakers.",
   暑假外出后回家:
@@ -567,8 +567,8 @@ const EXPANDED_SCENE_PROPS_LINES: Record<ExpandedLifestyleScene, string> = {
     "Add one subtle city prop only if natural: a light tote, sunglasses, phone, or coffee. Keep props minimal and never block the sneakers.",
   雨天街角:
     "Add one subtle rainy-day prop only if natural: an umbrella, raincoat edge, or tote, with slightly wet pavement. Avoid dramatic storm mood and never block the sneakers.",
-  酒店走廊:
-    "Add one subtle hotel-corridor prop only if natural: small luggage, a travel tote, folded itinerary card, or light cotton overshirt. Keep it quiet and mature, never blocking the sneakers.",
+  酒店咖啡厅内:
+    "Add at most one quiet hotel-cafe cue: a single coffee cup, room key card, travel handbag, or compact menu with unreadable text. Keep tables sparse, place luggage outside the dining area, and never let tables, chairs, table linens, props, or guests block the sneakers.",
   酒店房间:
     "Add one subtle hotel-room prop only if natural: a suitcase, folded shirt, travel notebook, tote, or light cotton overshirt. Avoid luxury-hotel flatlay mood and never block the sneakers.",
   "酒店门口 / 门厅":
@@ -593,7 +593,7 @@ const EXPANDED_SCENE_PROPS_LINES: Record<ExpandedLifestyleScene, string> = {
     "Add one subtle weekend-travel prop only if natural: a travel tote, small luggage, sunglasses, light jacket, or paper bag. Keep it tidy and never block the sneakers."
 };
 
-const INDOOR_SOCIAL_SCENES = ["咖啡馆内", "朋友午餐", "美术馆"] as const satisfies readonly Exclude<
+const INDOOR_SOCIAL_SCENES = ["咖啡馆内", "酒店咖啡厅内", "朋友午餐", "美术馆"] as const satisfies readonly Exclude<
   TeamScenePreference,
   "自动匹配"
 >[];
@@ -609,6 +609,8 @@ function isIndoorSocialScene(
 const INDOOR_SOCIAL_SCENE_PROPS: Record<IndoorSocialScene, string> = {
   咖啡馆内:
     "Use at most one quiet cafe cue such as a ceramic cup, small shoulder bag, folded napkin, or receipt edge. Keep table surfaces sparse, text unreadable, and chairs clear of the sneakers.",
+  酒店咖啡厅内:
+    "Use at most one quiet hotel-cafe cue such as a ceramic coffee cup, room key card, travel handbag, or compact menu with unreadable text. Keep table surfaces sparse and keep tables, chairs, table linens, luggage, and guests clear of the sneakers.",
   朋友午餐:
     "Use simple daytime lunch cues only: restrained tableware, one glass or cup per place, and one compact bag placed beside a chair. Keep companions secondary and prevent the table, chairs, or bags from blocking the outfit and sneakers.",
   美术馆:
@@ -618,6 +620,8 @@ const INDOOR_SOCIAL_SCENE_PROPS: Record<IndoorSocialScene, string> = {
 const INDOOR_SOCIAL_SCENE_NEGATIVES: Record<IndoorSocialScene, string> = {
   咖啡馆内:
     "Avoid exterior cafe substitution, brunch-influencer staging, food close-up advertising, crowded table props, readable cafe branding, chairs hiding shoes, and empty showroom interiors.",
+  酒店咖啡厅内:
+    "Avoid street-cafe substitution, buffet counters, banquet halls, afternoon-tea advertising, luxury-hotel promotional styling, crowded food displays, readable hotel branding, public mirror-selfie staging, and furniture or guests hiding the sneakers.",
   朋友午餐:
     "Avoid party atmosphere, banquet table, formal evening social styling, posed group portrait, excessive food display, multiple hand-held objects, companions blocking the subject, and tables hiding the sneakers.",
   美术馆:
@@ -951,7 +955,7 @@ function resolveSceneKey(params: TeamPromptParams, resolvedScene: Exclude<TeamSc
   if (resolvedScene === "花店 / 买花") return "flowerShop";
   if (resolvedScene === "社区市集 / 精品买菜") return "premiumErrands";
   if (resolvedScene === "城市街角 / 安静街区" || resolvedScene === "雨天街角") return "cityCorner";
-  if (["酒店走廊", "酒店房间", "酒店门口 / 门厅", "周末轻旅行出发"].includes(resolvedScene)) {
+  if (["酒店咖啡厅内", "酒店房间", "酒店门口 / 门厅", "周末轻旅行出发"].includes(resolvedScene)) {
     return "hotelTravel";
   }
   if (["衣帽间 / 更衣角", "窗边阅读角", "工作台 / 桌边整理", "入户镜前"].includes(resolvedScene)) {

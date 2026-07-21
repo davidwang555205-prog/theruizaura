@@ -90,7 +90,7 @@ function getSceneProfile(input: SceneRealismInput) {
       : urbanStreetRealismCompact;
   }
   if (input.scenePreference === "旅行酒店") return hotelRealismCompact;
-  if (input.scenePreference === "咖啡馆内" || input.scenePreference === "朋友午餐") {
+  if (["咖啡馆内", "酒店咖啡厅内", "朋友午餐"].includes(input.scenePreference)) {
     return indoorSocialRealismCompact;
   }
   if (input.scenePreference === "美术馆") return culturalSpaceRealismCompact;
@@ -133,6 +133,7 @@ function shouldUseIndoorSpatialLogic(input: SceneRealismInput) {
     input.scenePreference === "拍摄花絮" ||
     input.scenePreference === "健身房内" ||
     input.scenePreference === "咖啡馆内" ||
+    input.scenePreference === "酒店咖啡厅内" ||
     input.scenePreference === "朋友午餐" ||
     input.scenePreference === "美术馆"
   );

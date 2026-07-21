@@ -69,6 +69,7 @@ const supportedSceneMap: Record<string, PerSceneOutfitSceneKey> = {
   "精品超市 / 日常采购": "premiumErrands",
   居家衣帽间: "mirrorCloset",
   旅行酒店: "mirrorCloset",
+  酒店咖啡厅内: "hotelTravel",
   健身房内: "gymInterior",
   去运动的路上: "gymCommute"
 };

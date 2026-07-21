@@ -50,6 +50,7 @@ function inferLightingSpaceType(input: ChooseLightingSpaceTypeInput): LightingSp
   }
   if (
     input.scenePreference === "咖啡馆内" ||
+    input.scenePreference === "酒店咖啡厅内" ||
     input.scenePreference === "朋友午餐" ||
     input.scenePreference === "美术馆" ||
     input.sceneKey === "lightSocial" ||

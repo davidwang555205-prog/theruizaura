@@ -55,6 +55,7 @@ const PEOPLE_IMAGE_TYPES: TeamImageType[] = ["产品上脚图", "生活场景图
 const MIRROR_IMAGE_TYPES: TeamImageType[] = ["对镜穿搭图"];
 const SEATED_SCENES: TeamScenePreference[] = [
   "咖啡馆内",
+  "酒店咖啡厅内",
   "朋友午餐",
   "窗边阅读",
   "窗边阅读角",
