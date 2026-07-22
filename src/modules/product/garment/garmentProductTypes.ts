@@ -48,6 +48,16 @@ export type GarmentProductContext = {
   garment: GarmentProductSpec;
 };
 
+export type GarmentReferenceScope = "completeLook" | "singleItem" | "uncertain";
+
+export type GarmentClothingRole =
+  | "outerLayer"
+  | "primaryTop"
+  | "innerLayer"
+  | "bottom"
+  | "onePiece"
+  | "coordinatedSet";
+
 export type GarmentSeriesContext = {
   productLockLine: string;
   modelLockLine: string;

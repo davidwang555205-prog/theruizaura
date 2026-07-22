@@ -1,0 +1,2159 @@
+{
+  "schemaVersion": "theruiz-aura-product-config.v1",
+  "mode": "shoe",
+  "role": "imagePrompt",
+  "source": "src/modules/product/shoe",
+  "categories": {
+    "germanTrainer": {
+      "status": "active",
+      "fieldSchema": [
+        {
+          "key": "productName",
+          "label": "鞋款",
+          "type": "select",
+          "required": true,
+          "helpText": "沿用当前 THERUIZ AURA 鞋款选择。"
+        },
+        {
+          "key": "color",
+          "label": "主颜色",
+          "type": "text"
+        },
+        {
+          "key": "upperMaterial",
+          "label": "鞋面材质",
+          "type": "text"
+        },
+        {
+          "key": "toeShape",
+          "label": "鞋头",
+          "type": "text"
+        },
+        {
+          "key": "closureType",
+          "label": "闭合方式",
+          "type": "text"
+        },
+        {
+          "key": "keyDetails",
+          "label": "结构细节",
+          "type": "textarea"
+        }
+      ],
+      "referenceRequirements": {
+        "minCount": 0,
+        "maxCount": 9,
+        "requiredRoles": [],
+        "recommendedRoles": [
+          "primary",
+          "side",
+          "top",
+          "rear",
+          "material",
+          "detail"
+        ]
+      },
+      "shotPlan": {
+        "supportedImageCounts": [
+          1,
+          3,
+          5,
+          8
+        ],
+        "supportsLifestyleSeries": true,
+        "supportsStudioSeries": true
+      },
+      "accuracyGuards": {
+        "structurePriorities": [
+          "low-cut silhouette",
+          "rounded toe box",
+          "slim outsole",
+          "panels",
+          "tongue",
+          "laces",
+          "eyelets",
+          "heel patch"
+        ],
+        "requiresGroundedContact": true,
+        "requiresReferenceAccuracy": true
+      },
+      "negativeRules": [
+        "sneaker deformation",
+        "chunky or running-shoe sole",
+        "shoe clipping",
+        "cropped shoes",
+        "melted laces",
+        "unreadable footwear"
+      ],
+      "contentProfile": {
+        "productNouns": [
+          "German trainer",
+          "sneaker",
+          "toe box",
+          "outsole",
+          "panel",
+          "tongue",
+          "laces"
+        ],
+        "structurePriorities": [
+          "low-cut silhouette",
+          "rounded toe box",
+          "slim outsole",
+          "panels",
+          "tongue",
+          "laces",
+          "eyelets",
+          "heel patch"
+        ],
+        "lifestyleBenefits": [
+          "daily wearability",
+          "clear on-foot proportion",
+          "quiet-luxury styling",
+          "natural movement"
+        ],
+        "forbiddenPrimaryTerms": [
+          "pump",
+          "boot",
+          "chunky running-shoe sole",
+          "skateboard shoe"
+        ]
+      },
+      "promptRules": {
+        "product": "THERUIZ AURA Cloud Dancer German trainer as the main product reference. Use uploaded sneaker reference as strict source: low-cut German trainer silhouette, rounded toe box, slim outsole, panels, tongue, stitching, material, color, and proportions. When worn, allow only subtle forefoot upper flex, gentle collar compression, settled laces, and grounded contact shadow; never let the foot, pose, or fabric reshape the toe box, panels, outsole, or silhouette. Keep at least one sneaker fully visible from toe to heel, with the second clearly readable and grounded. Keep laces naturally tied, with readable loops, lace ends, eyelets, and tongue.",
+        "accuracy": [
+          "Preserve Cloud Dancer as a refined off-white low-cut German trainer with visible panel structure, natural off-white tone, slim outsole, rounded toe box, and no overexposed white upper."
+        ],
+        "visibility": [
+          "Keep at least one sneaker fully visible from toe to heel, with the second clearly readable and grounded."
+        ],
+        "clipping": [
+          "Keep the foot seated inside the shoe; ankle, sock, garment hem, collar, tongue, tied laces, outsole, floor, and props stay separate and readable; no clipping or fabric fusion."
+        ],
+        "scene": [
+          "Keep at least one sneaker fully visible from toe to heel, with the second clearly readable and grounded. Keep the foot seated inside the shoe; ankle, sock, garment hem, collar, tongue, tied laces, outsole, floor, and props stay separate and readable; no clipping or fabric fusion. Keep laces naturally tied, with readable loops, lace ends, eyelets, and tongue. When worn, allow only subtle forefoot upper flex, gentle collar compression, settled laces, and grounded contact shadow; never let the foot, pose, or fabric reshape the toe box, panels, outsole, or silhouette."
+        ],
+        "imageType": [
+          "Generate a refined on-foot lifestyle image with a safe standing pose or small natural walking step. The sneakers must be complete, clear, structurally accurate, and separate from trouser hems."
+        ],
+        "actionSafety": [
+          "Foot placement must stay stable and readable: keep clear ground contact, realistic toe direction, correct left-right shoe relationship, natural ankle-to-shoe alignment, and no overlapping legs hiding the sneaker shape. Props must not cover the shoes, foot placement, laces, tongue, toe box, heel, or outsole.",
+          "Keep body scale, leg length, hand size, foot scale, and shoe-to-leg relationship realistic."
+        ],
+        "negative": [
+          "sneaker deformation",
+          "chunky or running-shoe sole",
+          "shoe clipping",
+          "cropped shoes",
+          "melted laces",
+          "unreadable footwear"
+        ],
+        "stylingBoundary": [
+          "Classic clean light-tone foundation; coordinate it with cream, warm beige, soft denim blue, and refined daily neutrals."
+        ],
+        "quality": []
+      }
+    },
+    "pump": {
+      "status": "active",
+      "fieldSchema": [
+        {
+          "key": "productName",
+          "label": "鞋款名称",
+          "type": "text",
+          "required": true
+        },
+        {
+          "key": "brandName",
+          "label": "品牌（可选）",
+          "type": "text",
+          "helpText": "不填写时不自动添加品牌。"
+        },
+        {
+          "key": "color",
+          "label": "主颜色",
+          "type": "text",
+          "required": true
+        },
+        {
+          "key": "upperMaterial",
+          "label": "鞋面材质 / 材质外观",
+          "type": "text",
+          "required": true
+        },
+        {
+          "key": "finish",
+          "label": "表面光泽 / 工艺",
+          "type": "text"
+        },
+        {
+          "key": "toeShape",
+          "label": "鞋头形状",
+          "type": "select",
+          "required": true
+        },
+        {
+          "key": "vampShape",
+          "label": "鞋面覆盖 / 鞋口线",
+          "type": "text"
+        },
+        {
+          "key": "toplineShape",
+          "label": "鞋口 Topline",
+          "type": "text"
+        },
+        {
+          "key": "sideCut",
+          "label": "侧帮开口",
+          "type": "text"
+        },
+        {
+          "key": "heelType",
+          "label": "鞋跟类型",
+          "type": "select",
+          "required": true
+        },
+        {
+          "key": "heelHeight",
+          "label": "鞋跟高度",
+          "type": "text",
+          "required": true,
+          "helpText": "未知时填写“按参考图保持”。"
+        },
+        {
+          "key": "heelThickness",
+          "label": "鞋跟厚度",
+          "type": "text"
+        },
+        {
+          "key": "heelPlacement",
+          "label": "鞋跟位置 / 后移量",
+          "type": "text"
+        },
+        {
+          "key": "heelAngle",
+          "label": "鞋跟角度",
+          "type": "text"
+        },
+        {
+          "key": "platformHeight",
+          "label": "前掌台高度",
+          "type": "text"
+        },
+        {
+          "key": "backType",
+          "label": "后跟结构",
+          "type": "select",
+          "required": true
+        },
+        {
+          "key": "heelCounterHeight",
+          "label": "后跟包覆高度",
+          "type": "text"
+        },
+        {
+          "key": "strapType",
+          "label": "绑带类型",
+          "type": "select"
+        },
+        {
+          "key": "strapPlacement",
+          "label": "绑带位置",
+          "type": "text"
+        },
+        {
+          "key": "archCurve",
+          "label": "足弓曲线",
+          "type": "text"
+        },
+        {
+          "key": "outsoleThickness",
+          "label": "外底厚度",
+          "type": "text"
+        },
+        {
+          "key": "decorativeDetails",
+          "label": "装饰 / Logo 细节",
+          "type": "text"
+        },
+        {
+          "key": "keyDetails",
+          "label": "关键细节",
+          "type": "textarea",
+          "required": true
+        }
+      ],
+      "referenceRequirements": {
+        "minCount": 4,
+        "maxCount": 6,
+        "requiredRoles": [
+          "primary",
+          "side"
+        ],
+        "recommendedRoles": [
+          "front",
+          "rear",
+          "detail",
+          "material"
+        ]
+      },
+      "shotPlan": {
+        "supportedImageCounts": [
+          1,
+          3,
+          5,
+          8
+        ],
+        "supportsLifestyleSeries": true,
+        "supportsStudioSeries": true
+      },
+      "accuracyGuards": {
+        "structurePriorities": [
+          "toe shape",
+          "toe width",
+          "vamp",
+          "topline opening",
+          "side cut",
+          "heel counter",
+          "heel height",
+          "heel type",
+          "heel thickness",
+          "heel curve",
+          "heel placement",
+          "heel angle",
+          "arch curve",
+          "shoe pitch",
+          "outsole thickness",
+          "platform height",
+          "back or strap construction",
+          "material",
+          "color",
+          "decorative detail placement"
+        ],
+        "requiresGroundedContact": true,
+        "requiresReferenceAccuracy": true
+      },
+      "negativeRules": [
+        "bent heel",
+        "broken heel",
+        "detached heel",
+        "floating heel",
+        "heel shifted forward or backward",
+        "changed heel height",
+        "changed heel thickness",
+        "asymmetrical left and right heel",
+        "changed toe shape",
+        "changed topline",
+        "changed vamp coverage",
+        "changed side cut",
+        "added or removed strap",
+        "altered rear counter",
+        "thick sneaker outsole",
+        "unreferenced platform",
+        "athletic-footwear construction",
+        "added closure components",
+        "performance-footwear transformation",
+        "foot or shoe intersection",
+        "exposed toes in a closed-toe pump",
+        "impossible ankle rotation",
+        "duplicated feet or shoes",
+        "shoe floating above the floor",
+        "sole and heel geometry mismatch"
+      ],
+      "contentProfile": {
+        "productNouns": [
+          "closed-toe pump",
+          "pump",
+          "高跟单鞋",
+          "高跟鞋"
+        ],
+        "structurePriorities": [
+          "toe shape",
+          "toe width",
+          "vamp",
+          "topline opening",
+          "side cut",
+          "heel counter",
+          "heel height",
+          "heel type",
+          "heel thickness",
+          "heel curve",
+          "heel placement",
+          "heel angle",
+          "arch curve",
+          "shoe pitch",
+          "outsole thickness",
+          "platform height",
+          "back or strap construction",
+          "material",
+          "color",
+          "decorative detail placement"
+        ],
+        "lifestyleBenefits": [
+          "outfit proportion",
+          "refined posture",
+          "work and social versatility",
+          "skirt and trouser coordination",
+          "heel-height balance"
+        ],
+        "forbiddenPrimaryTerms": [
+          "German trainer",
+          "sneaker",
+          "trainer",
+          "running-shoe sole"
+        ]
+      },
+      "promptRules": {
+        "product": "Use the uploaded pump references as the strict source. Preserve closed-toe pump named closed-toe pump, toe shape other, heel type other, heel height 按参考图保持, back construction closedBack, no strap.",
+        "accuracy": [
+          "Keep the foot naturally seated inside the closed-toe pump, with heel aligned to the heel counter, realistic ankle alignment, grounded contact, and no foot or shoe intersection. Preserve the exact pump silhouette, toe geometry, vamp line, topline opening, side cut, heel counter, heel height, heel shape, heel thickness, heel placement, heel angle, arch curve, shoe pitch, outsole thickness, platform height, back or strap construction, material, color, and proportions shown in the uploaded references. At least one pump must remain fully visible from toe to heel; keep the second pump readable when the composition allows. Preserve the closed rear counter exactly as referenced."
+        ],
+        "visibility": [
+          "Keep the closed-toe pump fully visible from toe to heel, with topline, vamp, side cut, heel, and grounded contact readable."
+        ],
+        "clipping": [
+          "Keep ankle, hosiery, garment hem, pump topline, vamp, heel counter, floor, and props physically separate; no foot clipping or fabric fusion."
+        ],
+        "scene": [
+          "Keep the pump as the same product in every frame; do not redesign the heel or toe between shots."
+        ],
+        "imageType": [
+          "Closed-toe pump product identity: preserve toe geometry, vamp line, topline opening, side cut, heel geometry, arch curve, and outsole relationship."
+        ],
+        "actionSafety": [
+          "Foot-to-pump contact: foot seated naturally inside the shoe, heel aligned with the counter, no exposed toes, no floating heel, no impossible ankle rotation, and believable left-right scale."
+        ],
+        "negative": [
+          "bent heel",
+          "broken heel",
+          "detached heel",
+          "floating heel",
+          "heel shifted forward or backward",
+          "changed heel height",
+          "changed heel thickness",
+          "asymmetrical left and right heel",
+          "changed toe shape",
+          "changed topline",
+          "changed vamp coverage",
+          "changed side cut",
+          "added or removed strap",
+          "altered rear counter",
+          "thick sneaker outsole",
+          "unreferenced platform",
+          "athletic-footwear construction",
+          "added closure components",
+          "performance-footwear transformation",
+          "foot or shoe intersection",
+          "exposed toes in a closed-toe pump",
+          "impossible ankle rotation",
+          "duplicated feet or shoes",
+          "shoe floating above the floor",
+          "sole and heel geometry mismatch"
+        ],
+        "stylingBoundary": [
+          "Pump-supporting styling: keep at least one shoe fully visible from toe to heel; use ankle-length trousers, cropped trousers, midi or knee-length skirts, refined dresses, or tailored suits without hems covering the heel."
+        ],
+        "quality": [
+          "Pump quality check: toe, vamp, topline, side cut, arch, heel height, heel shape, heel placement, outsole, and material must remain reference-accurate."
+        ]
+      }
+    },
+    "boot": {
+      "status": "active",
+      "fieldSchema": [
+        {
+          "key": "productName",
+          "label": "靴款名称",
+          "type": "text",
+          "required": true
+        },
+        {
+          "key": "brandName",
+          "label": "品牌（可选）",
+          "type": "text"
+        },
+        {
+          "key": "subtype",
+          "label": "靴子类型",
+          "type": "select",
+          "required": true
+        },
+        {
+          "key": "color",
+          "label": "主颜色",
+          "type": "text",
+          "required": true
+        },
+        {
+          "key": "upperMaterial",
+          "label": "材质外观",
+          "type": "text",
+          "required": true
+        },
+        {
+          "key": "finish",
+          "label": "表面工艺",
+          "type": "text"
+        },
+        {
+          "key": "toeShape",
+          "label": "鞋头形状",
+          "type": "select",
+          "required": true
+        },
+        {
+          "key": "shaftHeight",
+          "label": "靴筒高度",
+          "type": "text",
+          "required": true
+        },
+        {
+          "key": "shaftCircumference",
+          "label": "筒围",
+          "type": "text"
+        },
+        {
+          "key": "shaftOpeningShape",
+          "label": "筒口形状",
+          "type": "text"
+        },
+        {
+          "key": "shaftFrontBackHeightRelation",
+          "label": "前后筒高关系",
+          "type": "text"
+        },
+        {
+          "key": "ankleEase",
+          "label": "踝部松量",
+          "type": "text"
+        },
+        {
+          "key": "calfFit",
+          "label": "小腿贴合",
+          "type": "text"
+        },
+        {
+          "key": "kneeRelation",
+          "label": "膝盖位置关系",
+          "type": "text"
+        },
+        {
+          "key": "shaftStructure",
+          "label": "筒身结构",
+          "type": "select",
+          "required": true
+        },
+        {
+          "key": "closureType",
+          "label": "闭合方式",
+          "type": "select",
+          "required": true
+        },
+        {
+          "key": "zipperPosition",
+          "label": "拉链位置",
+          "type": "text"
+        },
+        {
+          "key": "zipperLength",
+          "label": "拉链长度",
+          "type": "text"
+        },
+        {
+          "key": "elasticGore",
+          "label": "松紧侧片",
+          "type": "text"
+        },
+        {
+          "key": "pullTab",
+          "label": "提拉袢",
+          "type": "text"
+        },
+        {
+          "key": "heelType",
+          "label": "鞋跟类型",
+          "type": "select",
+          "required": true
+        },
+        {
+          "key": "heelHeight",
+          "label": "鞋跟高度",
+          "type": "text",
+          "required": true
+        },
+        {
+          "key": "heelPlacement",
+          "label": "鞋跟位置",
+          "type": "text"
+        },
+        {
+          "key": "outsoleThickness",
+          "label": "外底厚度",
+          "type": "text"
+        },
+        {
+          "key": "platformHeight",
+          "label": "前掌台",
+          "type": "text"
+        },
+        {
+          "key": "treadProfile",
+          "label": "鞋底纹路",
+          "type": "text"
+        },
+        {
+          "key": "seamStructure",
+          "label": "缝线结构",
+          "type": "text"
+        },
+        {
+          "key": "panelStructure",
+          "label": "拼片结构",
+          "type": "text"
+        },
+        {
+          "key": "decorativeDetails",
+          "label": "装饰细节",
+          "type": "text"
+        },
+        {
+          "key": "logoLettering",
+          "label": "Logo / 字样",
+          "type": "text"
+        },
+        {
+          "key": "keyDetails",
+          "label": "关键细节",
+          "type": "textarea",
+          "required": true
+        }
+      ],
+      "referenceRequirements": {
+        "minCount": 4,
+        "maxCount": 6,
+        "requiredRoles": [
+          "primary",
+          "fullSide"
+        ],
+        "recommendedRoles": [
+          "front",
+          "rear",
+          "shaftDetail",
+          "closureDetail",
+          "material"
+        ]
+      },
+      "shotPlan": {
+        "supportedImageCounts": [
+          1,
+          3,
+          5,
+          8
+        ],
+        "supportsLifestyleSeries": true,
+        "supportsStudioSeries": true
+      },
+      "accuracyGuards": {
+        "structurePriorities": [
+          "subtype",
+          "toe shape",
+          "shaft height",
+          "shaft circumference",
+          "shaft opening",
+          "ankle ease",
+          "calf fit",
+          "knee relation",
+          "closure",
+          "heel",
+          "outsole",
+          "tread",
+          "material",
+          "color"
+        ],
+        "requiresGroundedContact": true,
+        "requiresReferenceAccuracy": true
+      },
+      "negativeRules": [
+        "changed shaft height or circumference",
+        "left/right shaft mismatch",
+        "shaft cutting through knee",
+        "structured shaft becoming sock-like",
+        "sock boot becoming riding boot",
+        "ankle boot becoming knee-high",
+        "knee-high becoming ankle boot",
+        "shortened over-the-knee boot",
+        "invented or moved zipper",
+        "added or removed buckle",
+        "invented gore or pull tab",
+        "changed toe or heel",
+        "bent or detached heel",
+        "invented lug or tread",
+        "athletic-footwear closure logic",
+        "leg or boot intersection",
+        "trouser fabric passing through boot",
+        "product hidden by skirt or coat",
+        "floating boot",
+        "duplicated boot or leg",
+        "impossible ankle rotation"
+      ],
+      "contentProfile": {
+        "productNouns": [
+          "boot",
+          "ankle boot",
+          "mid-calf boot",
+          "knee-high boot",
+          "over-the-knee boot",
+          "靴子",
+          "短靴",
+          "长靴"
+        ],
+        "structurePriorities": [
+          "subtype",
+          "toe shape",
+          "shaft height",
+          "shaft circumference",
+          "shaft opening",
+          "ankle ease",
+          "calf fit",
+          "knee relation",
+          "closure",
+          "heel",
+          "outsole",
+          "tread",
+          "material",
+          "color"
+        ],
+        "lifestyleBenefits": [
+          "autumn and winter layering",
+          "trouser and skirt coordination",
+          "lower-body proportion",
+          "shaft-height styling",
+          "work and social versatility"
+        ],
+        "forbiddenPrimaryTerms": [
+          "German trainer",
+          "sneaker",
+          "pump",
+          "low-cut silhouette"
+        ]
+      },
+      "promptRules": {
+        "product": "Use uploaded boot references as the strict source. Preserve boot named boot, subtype other, toe shape other, shaft height 按参考图保持, shaft structure other, closure other, heel type other, heel height 按参考图保持.",
+        "accuracy": [
+          "Preserve the exact boot subtype, toe geometry, shaft height, shaft circumference, shaft opening, ankle ease, calf fit, knee relation, shaft stiffness, closure construction, heel geometry, outsole thickness, tread profile, material, color, finish, and overall proportions shown in the uploaded references."
+        ],
+        "visibility": [
+          "Keep at least one complete boot visible from toe to shaft opening; for long boots do not crop away the shaft."
+        ],
+        "clipping": [
+          "Keep foot, ankle, calf, knee, shaft opening, garment hem, boot, floor, and props physically separate; no leg or fabric clipping."
+        ],
+        "scene": [
+          "Keep the exact same boot subtype and shaft height in every frame."
+        ],
+        "imageType": [
+          "Boot identity: preserve subtype, toe, shaft, opening, ankle, calf, closure, heel, outsole, tread, material, and finish."
+        ],
+        "actionSafety": [
+          "Keep the foot inside the boot with aligned ankle, centered calf, plausible knee relationship, natural shaft opening, realistic gravity, and clean ground contact; no leg or boot intersection."
+        ],
+        "negative": [
+          "changed shaft height or circumference",
+          "left/right shaft mismatch",
+          "shaft cutting through knee",
+          "structured shaft becoming sock-like",
+          "sock boot becoming riding boot",
+          "ankle boot becoming knee-high",
+          "knee-high becoming ankle boot",
+          "shortened over-the-knee boot",
+          "invented or moved zipper",
+          "added or removed buckle",
+          "invented gore or pull tab",
+          "changed toe or heel",
+          "bent or detached heel",
+          "invented lug or tread",
+          "athletic-footwear closure logic",
+          "leg or boot intersection",
+          "trouser fabric passing through boot",
+          "product hidden by skirt or coat",
+          "floating boot",
+          "duplicated boot or leg",
+          "impossible ankle rotation"
+        ],
+        "stylingBoundary": [
+          "Boot styling: keep one complete boot visible; use subtype-appropriate cropped or straight trousers, tucked narrow trousers, midi or knee-length skirts, dresses, and coats without shaft clipping or permanent concealment."
+        ],
+        "quality": [
+          "Boot quality check: subtype, toe, shaft height/opening, closure, heel, outsole, tread, and leg relationship remain reference-accurate."
+        ]
+      }
+    },
+    "loafer": {
+      "status": "active",
+      "fieldSchema": [
+        {
+          "key": "productName",
+          "label": "productName",
+          "type": "text",
+          "required": true
+        },
+        {
+          "key": "brandName",
+          "label": "brandName",
+          "type": "text",
+          "required": false
+        },
+        {
+          "key": "subtype",
+          "label": "subtype",
+          "type": "text",
+          "required": true
+        },
+        {
+          "key": "color",
+          "label": "color",
+          "type": "text",
+          "required": true
+        },
+        {
+          "key": "upperMaterial",
+          "label": "upperMaterial",
+          "type": "text",
+          "required": true
+        },
+        {
+          "key": "finish",
+          "label": "finish",
+          "type": "text",
+          "required": false
+        },
+        {
+          "key": "toeShape",
+          "label": "toeShape",
+          "type": "text",
+          "required": true
+        },
+        {
+          "key": "upperConstruction",
+          "label": "upperConstruction",
+          "type": "text",
+          "required": true
+        },
+        {
+          "key": "apronShape",
+          "label": "apronShape",
+          "type": "text",
+          "required": false
+        },
+        {
+          "key": "apronSeam",
+          "label": "apronSeam",
+          "type": "text",
+          "required": false
+        },
+        {
+          "key": "vampHeight",
+          "label": "vampHeight",
+          "type": "text",
+          "required": false
+        },
+        {
+          "key": "instepPanelShape",
+          "label": "instepPanelShape",
+          "type": "text",
+          "required": false
+        },
+        {
+          "key": "ornament",
+          "label": "ornament",
+          "type": "text",
+          "required": true
+        },
+        {
+          "key": "saddleShape",
+          "label": "saddleShape",
+          "type": "text",
+          "required": false
+        },
+        {
+          "key": "pennySlotShape",
+          "label": "pennySlotShape",
+          "type": "text",
+          "required": false
+        },
+        {
+          "key": "hardwareShape",
+          "label": "hardwareShape",
+          "type": "text",
+          "required": false
+        },
+        {
+          "key": "hardwareFinish",
+          "label": "hardwareFinish",
+          "type": "text",
+          "required": false
+        },
+        {
+          "key": "tasselCount",
+          "label": "tasselCount",
+          "type": "text",
+          "required": false
+        },
+        {
+          "key": "toplineShape",
+          "label": "toplineShape",
+          "type": "text",
+          "required": false
+        },
+        {
+          "key": "toplineDepth",
+          "label": "toplineDepth",
+          "type": "text",
+          "required": false
+        },
+        {
+          "key": "heelHeight",
+          "label": "heelHeight",
+          "type": "text",
+          "required": true
+        },
+        {
+          "key": "outsoleThickness",
+          "label": "outsoleThickness",
+          "type": "text",
+          "required": false
+        },
+        {
+          "key": "outsoleProfile",
+          "label": "outsoleProfile",
+          "type": "text",
+          "required": false
+        },
+        {
+          "key": "weltEdge",
+          "label": "weltEdge",
+          "type": "text",
+          "required": false
+        },
+        {
+          "key": "treadProfile",
+          "label": "treadProfile",
+          "type": "text",
+          "required": false
+        },
+        {
+          "key": "seamStructure",
+          "label": "seamStructure",
+          "type": "text",
+          "required": false
+        },
+        {
+          "key": "decorativeDetails",
+          "label": "decorativeDetails",
+          "type": "text",
+          "required": false
+        },
+        {
+          "key": "keyDetails",
+          "label": "keyDetails",
+          "type": "textarea",
+          "required": true
+        }
+      ],
+      "referenceRequirements": {
+        "minCount": 4,
+        "maxCount": 6,
+        "requiredRoles": [
+          "primary",
+          "fullSide"
+        ],
+        "recommendedRoles": [
+          "front",
+          "top",
+          "rear",
+          "detail",
+          "material"
+        ]
+      },
+      "shotPlan": {
+        "supportedImageCounts": [
+          1,
+          3,
+          5,
+          8
+        ],
+        "supportsLifestyleSeries": true,
+        "supportsStudioSeries": true
+      },
+      "accuracyGuards": {
+        "structurePriorities": [
+          "toe shape",
+          "apron",
+          "apron seam",
+          "vamp",
+          "saddle",
+          "penny slot",
+          "ornament",
+          "topline",
+          "heel",
+          "welt",
+          "outsole",
+          "tread",
+          "material"
+        ],
+        "requiresGroundedContact": true,
+        "requiresReferenceAccuracy": true
+      },
+      "negativeRules": [
+        "changed apron shape",
+        "missing apron seam",
+        "added or removed penny saddle",
+        "changed penny slot",
+        "invented horsebit",
+        "changed hardware finish",
+        "added or removed tassel",
+        "changed tassel count",
+        "fringe unless referenced",
+        "athletic-footwear closure logic",
+        "thick running-shoe sole",
+        "pump transformation",
+        "ballet-flat transformation",
+        "boot shaft",
+        "changed topline",
+        "invented tread",
+        "foot or shoe intersection",
+        "floating heel",
+        "duplicated shoes or feet"
+      ],
+      "contentProfile": {
+        "productNouns": [
+          "loafer",
+          "penny loafer",
+          "horsebit loafer",
+          "tassel loafer",
+          "乐福鞋"
+        ],
+        "structurePriorities": [
+          "toe shape",
+          "apron",
+          "apron seam",
+          "vamp",
+          "saddle",
+          "penny slot",
+          "ornament",
+          "topline",
+          "heel",
+          "welt",
+          "outsole",
+          "tread",
+          "material"
+        ],
+        "lifestyleBenefits": [
+          "work and weekend versatility",
+          "smart-casual balance",
+          "trouser and skirt coordination"
+        ],
+        "forbiddenPrimaryTerms": [
+          "German trainer",
+          "sneaker",
+          "pump",
+          "boot shaft",
+          "ballet flat"
+        ]
+      },
+      "promptRules": {
+        "product": "Use uploaded loafer references as the strict source. Preserve loafer, subtype other, toe shape other, other construction, apron/vamp, saddle or ornament none, topline, heel height 按参考图保持, outsole, welt, material, color, and proportions.",
+        "accuracy": [
+          "Preserve the exact loafer silhouette, toe geometry, apron or vamp construction, saddle and ornament structure, topline opening, heel counter, heel height, outsole thickness, welt profile, material, color, finish, and proportions shown in the uploaded references."
+        ],
+        "visibility": [
+          "Keep at least one loafer fully visible from toe to heel."
+        ],
+        "clipping": [
+          "Keep foot, instep, vamp, topline, garment hem, loafer, and floor physically separate; no clipping or floating heel."
+        ],
+        "scene": [
+          "Use refined smart-casual movement: standing, small step, side stance, or restrained seated pause; avoid running, jumping, deep squat, and exaggerated athletic flex."
+        ],
+        "imageType": [
+          "Loafer identity: keep apron, saddle, ornament, topline, heel, welt, outsole, and material category-native."
+        ],
+        "actionSafety": [
+          "Foot-to-loafer contact must be natural at the instep; no foot through vamp, floating heel, or duplicated feet."
+        ],
+        "negative": [
+          "changed apron shape",
+          "missing apron seam",
+          "added or removed penny saddle",
+          "changed penny slot",
+          "invented horsebit",
+          "changed hardware finish",
+          "added or removed tassel",
+          "changed tassel count",
+          "fringe unless referenced",
+          "athletic-footwear closure logic",
+          "thick running-shoe sole",
+          "pump transformation",
+          "ballet-flat transformation",
+          "boot shaft",
+          "changed topline",
+          "invented tread",
+          "foot or shoe intersection",
+          "floating heel",
+          "duplicated shoes or feet"
+        ],
+        "stylingBoundary": [
+          "Use cropped or straight trousers, midi skirts, dresses, suits, and intentional refined socks; keep apron and ornament visible."
+        ],
+        "quality": [
+          "Loafer quality check: subtype, apron, ornament, topline, heel, welt, outsole, and foot contact remain reference-accurate."
+        ]
+      }
+    },
+    "balletFlat": {
+      "status": "active",
+      "fieldSchema": [
+        {
+          "key": "productName",
+          "label": "productName",
+          "type": "text",
+          "required": true
+        },
+        {
+          "key": "brandName",
+          "label": "brandName",
+          "type": "text",
+          "required": false
+        },
+        {
+          "key": "subtype",
+          "label": "subtype",
+          "type": "text",
+          "required": true
+        },
+        {
+          "key": "color",
+          "label": "color",
+          "type": "text",
+          "required": true
+        },
+        {
+          "key": "upperMaterial",
+          "label": "upperMaterial",
+          "type": "text",
+          "required": true
+        },
+        {
+          "key": "finish",
+          "label": "finish",
+          "type": "text",
+          "required": false
+        },
+        {
+          "key": "toeShape",
+          "label": "toeShape",
+          "type": "text",
+          "required": true
+        },
+        {
+          "key": "vampCoverage",
+          "label": "vampCoverage",
+          "type": "text",
+          "required": true
+        },
+        {
+          "key": "vampShape",
+          "label": "vampShape",
+          "type": "text",
+          "required": false
+        },
+        {
+          "key": "toplineShape",
+          "label": "toplineShape",
+          "type": "text",
+          "required": true
+        },
+        {
+          "key": "toplineDepth",
+          "label": "toplineDepth",
+          "type": "text",
+          "required": false
+        },
+        {
+          "key": "sideCut",
+          "label": "sideCut",
+          "type": "text",
+          "required": false
+        },
+        {
+          "key": "bindingType",
+          "label": "bindingType",
+          "type": "text",
+          "required": false
+        },
+        {
+          "key": "bindingWidth",
+          "label": "bindingWidth",
+          "type": "text",
+          "required": false
+        },
+        {
+          "key": "elasticEdge",
+          "label": "elasticEdge",
+          "type": "text",
+          "required": false
+        },
+        {
+          "key": "ornament",
+          "label": "ornament",
+          "type": "text",
+          "required": true
+        },
+        {
+          "key": "bowShape",
+          "label": "bowShape",
+          "type": "text",
+          "required": false
+        },
+        {
+          "key": "bowSize",
+          "label": "bowSize",
+          "type": "text",
+          "required": false
+        },
+        {
+          "key": "ornamentPlacement",
+          "label": "ornamentPlacement",
+          "type": "text",
+          "required": false
+        },
+        {
+          "key": "strapType",
+          "label": "strapType",
+          "type": "text",
+          "required": true
+        },
+        {
+          "key": "strapPlacement",
+          "label": "strapPlacement",
+          "type": "text",
+          "required": false
+        },
+        {
+          "key": "buckleShape",
+          "label": "buckleShape",
+          "type": "text",
+          "required": false
+        },
+        {
+          "key": "heelCounterHeight",
+          "label": "heelCounterHeight",
+          "type": "text",
+          "required": false
+        },
+        {
+          "key": "heelLift",
+          "label": "heelLift",
+          "type": "text",
+          "required": true
+        },
+        {
+          "key": "outsoleThickness",
+          "label": "outsoleThickness",
+          "type": "text",
+          "required": true
+        },
+        {
+          "key": "outsoleFlex",
+          "label": "outsoleFlex",
+          "type": "text",
+          "required": false
+        },
+        {
+          "key": "seamStructure",
+          "label": "seamStructure",
+          "type": "text",
+          "required": false
+        },
+        {
+          "key": "decorativeDetails",
+          "label": "decorativeDetails",
+          "type": "text",
+          "required": false
+        },
+        {
+          "key": "keyDetails",
+          "label": "keyDetails",
+          "type": "textarea",
+          "required": true
+        }
+      ],
+      "referenceRequirements": {
+        "minCount": 4,
+        "maxCount": 6,
+        "requiredRoles": [
+          "primary",
+          "fullSide"
+        ],
+        "recommendedRoles": [
+          "front",
+          "top",
+          "rear",
+          "detail",
+          "material"
+        ]
+      },
+      "shotPlan": {
+        "supportedImageCounts": [
+          1,
+          3,
+          5,
+          8
+        ],
+        "supportsLifestyleSeries": true,
+        "supportsStudioSeries": true
+      },
+      "accuracyGuards": {
+        "structurePriorities": [
+          "toe shape",
+          "shallow vamp",
+          "topline",
+          "binding",
+          "side cut",
+          "bow or ornament",
+          "strap",
+          "heel lift",
+          "thin outsole",
+          "material"
+        ],
+        "requiresGroundedContact": true,
+        "requiresReferenceAccuracy": true
+      },
+      "negativeRules": [
+        "changed topline depth",
+        "changed shallow-vamp coverage",
+        "added or removed bow",
+        "changed bow size",
+        "added or removed strap",
+        "changed strap count",
+        "invented buckle",
+        "changed binding width",
+        "thick athletic-shoe sole",
+        "loafer apron or horsebit",
+        "pump heel",
+        "boot shaft",
+        "slipper transformation",
+        "extreme collapse",
+        "exposed toes in a closed-toe flat",
+        "foot or shoe intersection",
+        "floating heel",
+        "duplicated shoes or feet"
+      ],
+      "contentProfile": {
+        "productNouns": [
+          "ballet flat",
+          "Mary Jane flat",
+          "soft flat",
+          "芭蕾鞋",
+          "平底鞋"
+        ],
+        "structurePriorities": [
+          "toe shape",
+          "shallow vamp",
+          "topline",
+          "binding",
+          "side cut",
+          "bow or ornament",
+          "strap",
+          "heel lift",
+          "thin outsole",
+          "material"
+        ],
+        "lifestyleBenefits": [
+          "everyday styling",
+          "trouser, skirt, and dress coordination",
+          "low-profile proportion",
+          "work and weekend versatility"
+        ],
+        "forbiddenPrimaryTerms": [
+          "German trainer",
+          "sneaker",
+          "pump",
+          "boot shaft",
+          "loafer apron"
+        ]
+      },
+      "promptRules": {
+        "product": "Use uploaded ballet-flat references as the strict source. Preserve ballet flat, subtype other, toe shape other, vamp coverage 按参考图保持, topline 按参考图保持, binding, ornament none, strap none, heel lift 按参考图保持, thin outsole 按参考图保持, material, color, and proportions.",
+        "accuracy": [
+          "Preserve the exact ballet-flat silhouette, toe geometry, shallow vamp coverage, topline opening, binding edge, side cut, heel counter, heel lift, outsole thinness, strap or ornament structure, material, color, finish, and proportions shown in the uploaded references."
+        ],
+        "visibility": [
+          "Keep at least one ballet flat fully visible from toe to heel."
+        ],
+        "clipping": [
+          "Keep foot, opening, binding, garment hem, flat, and floor physically separate; no toe clipping, opening cutting into the foot, or floating heel."
+        ],
+        "scene": [
+          "Use natural everyday movement: standing, slight weight shift, small step, side stance, or restrained seated pause; avoid running, jumping, high kick, extreme toe pointing, and slipper-like collapse."
+        ],
+        "imageType": [
+          "Ballet-flat identity: keep shallow vamp, topline, binding, side cut, bow or strap, heel lift, thin outsole, and material category-native."
+        ],
+        "actionSafety": [
+          "Foot-to-flat contact must be natural; no foot sliding out, no opening cutting into the foot, no collapse, no floating heel, and no duplicated feet."
+        ],
+        "negative": [
+          "changed topline depth",
+          "changed shallow-vamp coverage",
+          "added or removed bow",
+          "changed bow size",
+          "added or removed strap",
+          "changed strap count",
+          "invented buckle",
+          "changed binding width",
+          "thick athletic-shoe sole",
+          "loafer apron or horsebit",
+          "pump heel",
+          "boot shaft",
+          "slipper transformation",
+          "extreme collapse",
+          "exposed toes in a closed-toe flat",
+          "foot or shoe intersection",
+          "floating heel",
+          "duplicated shoes or feet"
+        ],
+        "stylingBoundary": [
+          "Use cropped or straight trousers, midi skirts, dresses, relaxed tailoring, and intentional hosiery; keep the opening, binding, and ornament visible."
+        ],
+        "quality": [
+          "Ballet-flat quality check: subtype, toe, vamp, topline, binding, ornament, strap, heel lift, outsole, and foot contact remain reference-accurate."
+        ]
+      }
+    },
+    "sandal": {
+      "status": "active",
+      "fieldSchema": [
+        {
+          "key": "productName",
+          "label": "productName",
+          "type": "text",
+          "required": true
+        },
+        {
+          "key": "brandName",
+          "label": "brandName",
+          "type": "text",
+          "required": false
+        },
+        {
+          "key": "subtype",
+          "label": "subtype",
+          "type": "text",
+          "required": true
+        },
+        {
+          "key": "color",
+          "label": "color",
+          "type": "text",
+          "required": true
+        },
+        {
+          "key": "upperMaterial",
+          "label": "upperMaterial",
+          "type": "text",
+          "required": true
+        },
+        {
+          "key": "finish",
+          "label": "finish",
+          "type": "text",
+          "required": false
+        },
+        {
+          "key": "toeType",
+          "label": "toeType",
+          "type": "text",
+          "required": true
+        },
+        {
+          "key": "toeOpeningShape",
+          "label": "toeOpeningShape",
+          "type": "text",
+          "required": false
+        },
+        {
+          "key": "forefootStrapCount",
+          "label": "forefootStrapCount",
+          "type": "text",
+          "required": false
+        },
+        {
+          "key": "forefootStrapWidth",
+          "label": "forefootStrapWidth",
+          "type": "text",
+          "required": false
+        },
+        {
+          "key": "forefootStrapPlacement",
+          "label": "forefootStrapPlacement",
+          "type": "text",
+          "required": false
+        },
+        {
+          "key": "vampStrapShape",
+          "label": "vampStrapShape",
+          "type": "text",
+          "required": false
+        },
+        {
+          "key": "instepStrap",
+          "label": "instepStrap",
+          "type": "text",
+          "required": false
+        },
+        {
+          "key": "ankleStrap",
+          "label": "ankleStrap",
+          "type": "text",
+          "required": false
+        },
+        {
+          "key": "heelStrap",
+          "label": "heelStrap",
+          "type": "text",
+          "required": false
+        },
+        {
+          "key": "slingbackShape",
+          "label": "slingbackShape",
+          "type": "text",
+          "required": false
+        },
+        {
+          "key": "tBarShape",
+          "label": "tBarShape",
+          "type": "text",
+          "required": false
+        },
+        {
+          "key": "toePostShape",
+          "label": "toePostShape",
+          "type": "text",
+          "required": false
+        },
+        {
+          "key": "buckleCount",
+          "label": "buckleCount",
+          "type": "text",
+          "required": false
+        },
+        {
+          "key": "bucklePosition",
+          "label": "bucklePosition",
+          "type": "text",
+          "required": false
+        },
+        {
+          "key": "hardwareShape",
+          "label": "hardwareShape",
+          "type": "text",
+          "required": false
+        },
+        {
+          "key": "hardwareFinish",
+          "label": "hardwareFinish",
+          "type": "text",
+          "required": false
+        },
+        {
+          "key": "footbedShape",
+          "label": "footbedShape",
+          "type": "text",
+          "required": false
+        },
+        {
+          "key": "heelType",
+          "label": "heelType",
+          "type": "text",
+          "required": true
+        },
+        {
+          "key": "heelHeight",
+          "label": "heelHeight",
+          "type": "text",
+          "required": true
+        },
+        {
+          "key": "heelPlacement",
+          "label": "heelPlacement",
+          "type": "text",
+          "required": false
+        },
+        {
+          "key": "outsoleThickness",
+          "label": "outsoleThickness",
+          "type": "text",
+          "required": false
+        },
+        {
+          "key": "platformHeight",
+          "label": "platformHeight",
+          "type": "text",
+          "required": false
+        },
+        {
+          "key": "treadProfile",
+          "label": "treadProfile",
+          "type": "text",
+          "required": false
+        },
+        {
+          "key": "decorativeDetails",
+          "label": "decorativeDetails",
+          "type": "text",
+          "required": false
+        },
+        {
+          "key": "keyDetails",
+          "label": "keyDetails",
+          "type": "textarea",
+          "required": true
+        }
+      ],
+      "referenceRequirements": {
+        "minCount": 4,
+        "maxCount": 6,
+        "requiredRoles": [
+          "primary",
+          "fullSide"
+        ],
+        "recommendedRoles": [
+          "front",
+          "rear",
+          "top",
+          "detail",
+          "material"
+        ]
+      },
+      "shotPlan": {
+        "supportedImageCounts": [
+          1,
+          3,
+          5,
+          8
+        ],
+        "supportsLifestyleSeries": true,
+        "supportsStudioSeries": true
+      },
+      "accuracyGuards": {
+        "structurePriorities": [
+          "toe opening",
+          "strap count",
+          "strap placement",
+          "ankle strap",
+          "heel strap",
+          "buckle",
+          "footbed",
+          "heel",
+          "outsole",
+          "platform",
+          "material"
+        ],
+        "requiresGroundedContact": true,
+        "requiresReferenceAccuracy": true
+      },
+      "negativeRules": [
+        "changed toe opening",
+        "missing or extra straps",
+        "changed strap crossing order",
+        "strap cutting through foot",
+        "missing heel strap",
+        "invented T-bar or toe post",
+        "changed buckle count",
+        "changed heel",
+        "pump transformation",
+        "mule transformation",
+        "ballet-flat transformation",
+        "sneaker sole",
+        "foot or strap intersection",
+        "toes beyond footbed",
+        "floating heel",
+        "duplicated toes or feet"
+      ],
+      "contentProfile": {
+        "productNouns": [
+          "sandal",
+          "ankle-strap sandal",
+          "slingback sandal",
+          "strappy sandal",
+          "凉鞋"
+        ],
+        "structurePriorities": [
+          "toe opening",
+          "strap count",
+          "strap placement",
+          "ankle strap",
+          "heel strap",
+          "buckle",
+          "footbed",
+          "heel",
+          "outsole",
+          "platform",
+          "material"
+        ],
+        "lifestyleBenefits": [
+          "warm-weather styling",
+          "dress and trouser coordination",
+          "social versatility",
+          "strap and heel balance"
+        ],
+        "forbiddenPrimaryTerms": [
+          "mule",
+          "pump",
+          "boot shaft",
+          "German trainer",
+          "sneaker"
+        ]
+      },
+      "promptRules": {
+        "product": "Use uploaded sandal references as the strict source. Preserve sandal, subtype other, toe type other, strap layout and count, ankle or heel strap, buckle, heel other 按参考图保持, outsole, material, color, and proportions.",
+        "accuracy": [
+          "Preserve the exact sandal subtype, toe opening, strap count, strap width, strap placement and crossing order, ankle or heel strap construction, buckle and hardware geometry, footbed shape, heel geometry, outsole thickness, platform height, material, color, finish, and proportions shown in the uploaded references."
+        ],
+        "visibility": [
+          "Keep at least one sandal fully readable from toe opening to heel."
+        ],
+        "clipping": [
+          "Keep toes, footbed, straps, ankle, heel strap, garment hem, and floor physically separate; no strap cutting through skin or foot intersection."
+        ],
+        "scene": [
+          "Use natural warm-weather movement: standing, slight weight shift, small step, side stance, or restrained seated pause; avoid running, jumping, long stride, and unnatural toe gripping."
+        ],
+        "imageType": [
+          "Sandal identity: keep toe exposure, strap hierarchy, ankle or heel strap, footbed, heel, platform, and outsole category-native."
+        ],
+        "actionSafety": [
+          "Toes must align naturally with the opening and remain seated on the footbed; no missing or duplicated toes, floating heel, or sliding foot."
+        ],
+        "negative": [
+          "changed toe opening",
+          "missing or extra straps",
+          "changed strap crossing order",
+          "strap cutting through foot",
+          "missing heel strap",
+          "invented T-bar or toe post",
+          "changed buckle count",
+          "changed heel",
+          "pump transformation",
+          "mule transformation",
+          "ballet-flat transformation",
+          "sneaker sole",
+          "foot or strap intersection",
+          "toes beyond footbed",
+          "floating heel",
+          "duplicated toes or feet"
+        ],
+        "stylingBoundary": [
+          "Use cropped trousers, midi skirts, dresses, tailored shorts, light suits, or refined event styling; keep toes, straps, and heel visible."
+        ],
+        "quality": [
+          "Sandal quality check: toe opening, strap layout, heel/ankle structure, footbed, outsole, and foot contact remain reference-accurate."
+        ]
+      }
+    },
+    "mule": {
+      "status": "active",
+      "fieldSchema": [
+        {
+          "key": "productName",
+          "label": "productName",
+          "type": "text",
+          "required": true
+        },
+        {
+          "key": "brandName",
+          "label": "brandName",
+          "type": "text",
+          "required": false
+        },
+        {
+          "key": "subtype",
+          "label": "subtype",
+          "type": "text",
+          "required": true
+        },
+        {
+          "key": "color",
+          "label": "color",
+          "type": "text",
+          "required": true
+        },
+        {
+          "key": "upperMaterial",
+          "label": "upperMaterial",
+          "type": "text",
+          "required": true
+        },
+        {
+          "key": "finish",
+          "label": "finish",
+          "type": "text",
+          "required": false
+        },
+        {
+          "key": "toeType",
+          "label": "toeType",
+          "type": "text",
+          "required": true
+        },
+        {
+          "key": "toeShape",
+          "label": "toeShape",
+          "type": "text",
+          "required": false
+        },
+        {
+          "key": "toeOpeningShape",
+          "label": "toeOpeningShape",
+          "type": "text",
+          "required": false
+        },
+        {
+          "key": "vampCoverage",
+          "label": "vampCoverage",
+          "type": "text",
+          "required": true
+        },
+        {
+          "key": "vampShape",
+          "label": "vampShape",
+          "type": "text",
+          "required": false
+        },
+        {
+          "key": "throatShape",
+          "label": "throatShape",
+          "type": "text",
+          "required": false
+        },
+        {
+          "key": "toplineShape",
+          "label": "toplineShape",
+          "type": "text",
+          "required": false
+        },
+        {
+          "key": "sideCut",
+          "label": "sideCut",
+          "type": "text",
+          "required": false
+        },
+        {
+          "key": "backlessEdgeShape",
+          "label": "backlessEdgeShape",
+          "type": "text",
+          "required": false
+        },
+        {
+          "key": "footInsertionDepth",
+          "label": "footInsertionDepth",
+          "type": "text",
+          "required": false
+        },
+        {
+          "key": "heelExposure",
+          "label": "heelExposure",
+          "type": "text",
+          "required": false
+        },
+        {
+          "key": "heelOverhangRelation",
+          "label": "heelOverhangRelation",
+          "type": "text",
+          "required": false
+        },
+        {
+          "key": "strapType",
+          "label": "strapType",
+          "type": "text",
+          "required": false
+        },
+        {
+          "key": "strapPlacement",
+          "label": "strapPlacement",
+          "type": "text",
+          "required": false
+        },
+        {
+          "key": "ornamentType",
+          "label": "ornamentType",
+          "type": "text",
+          "required": false
+        },
+        {
+          "key": "ornamentPlacement",
+          "label": "ornamentPlacement",
+          "type": "text",
+          "required": false
+        },
+        {
+          "key": "hardwareShape",
+          "label": "hardwareShape",
+          "type": "text",
+          "required": false
+        },
+        {
+          "key": "heelType",
+          "label": "heelType",
+          "type": "text",
+          "required": true
+        },
+        {
+          "key": "heelHeight",
+          "label": "heelHeight",
+          "type": "text",
+          "required": true
+        },
+        {
+          "key": "heelPlacement",
+          "label": "heelPlacement",
+          "type": "text",
+          "required": false
+        },
+        {
+          "key": "outsoleThickness",
+          "label": "outsoleThickness",
+          "type": "text",
+          "required": false
+        },
+        {
+          "key": "platformHeight",
+          "label": "platformHeight",
+          "type": "text",
+          "required": false
+        },
+        {
+          "key": "treadProfile",
+          "label": "treadProfile",
+          "type": "text",
+          "required": false
+        },
+        {
+          "key": "decorativeDetails",
+          "label": "decorativeDetails",
+          "type": "text",
+          "required": false
+        },
+        {
+          "key": "keyDetails",
+          "label": "keyDetails",
+          "type": "textarea",
+          "required": true
+        }
+      ],
+      "referenceRequirements": {
+        "minCount": 4,
+        "maxCount": 6,
+        "requiredRoles": [
+          "primary",
+          "fullSide"
+        ],
+        "recommendedRoles": [
+          "front",
+          "rear",
+          "top",
+          "detail",
+          "material"
+        ]
+      },
+      "shotPlan": {
+        "supportedImageCounts": [
+          1,
+          3,
+          5,
+          8
+        ],
+        "supportsLifestyleSeries": true,
+        "supportsStudioSeries": true
+      },
+      "accuracyGuards": {
+        "structurePriorities": [
+          "toe opening",
+          "vamp coverage",
+          "throat",
+          "topline",
+          "backless edge",
+          "insertion depth",
+          "heel exposure",
+          "heel",
+          "outsole",
+          "platform",
+          "material"
+        ],
+        "requiresGroundedContact": true,
+        "requiresReferenceAccuracy": true
+      },
+      "negativeRules": [
+        "added heel counter",
+        "changed backless edge",
+        "changed heel exposure",
+        "changed insertion depth",
+        "pump transformation",
+        "sandal ankle strap unless referenced",
+        "loafer transformation unless loafer-mule subtype",
+        "ballet-flat transformation",
+        "slipper collapse",
+        "changed toe or vamp coverage",
+        "changed heel",
+        "changed platform",
+        "foot sliding forward",
+        "floating heel",
+        "foot or shoe intersection",
+        "duplicated feet or shoes"
+      ],
+      "contentProfile": {
+        "productNouns": [
+          "mule",
+          "closed-toe mule",
+          "open-toe mule",
+          "heeled mule",
+          "flat mule",
+          "穆勒鞋"
+        ],
+        "structurePriorities": [
+          "toe opening",
+          "vamp coverage",
+          "throat",
+          "topline",
+          "backless edge",
+          "insertion depth",
+          "heel exposure",
+          "heel",
+          "outsole",
+          "platform",
+          "material"
+        ],
+        "lifestyleBenefits": [
+          "easy styling",
+          "trouser, skirt, and dress coordination",
+          "work and social versatility",
+          "backless proportion"
+        ],
+        "forbiddenPrimaryTerms": [
+          "sandal",
+          "pump",
+          "boot shaft",
+          "German trainer",
+          "sneaker"
+        ]
+      },
+      "promptRules": {
+        "product": "Use uploaded mule references as the strict source. Preserve mule, subtype other, toe type other, vamp coverage 按参考图保持, throat and topline, backless edge, insertion depth, heel exposure, heel other 按参考图保持, outsole, material, color, and proportions.",
+        "accuracy": [
+          "Preserve the exact mule silhouette, toe geometry or opening, vamp coverage, throat and topline shape, side cut, backless edge, foot-insertion depth, heel-exposure proportion, heel geometry, outsole thickness, platform height, material, color, finish, and proportions shown in the uploaded references."
+        ],
+        "visibility": [
+          "Keep at least one mule fully visible from toe or opening to heel."
+        ],
+        "clipping": [
+          "Keep foot, vamp, opening, backless edge, heel exposure, garment hem, mule, and floor physically separate; no sliding foot, floating heel, or intersection."
+        ],
+        "scene": [
+          "Use relaxed movement: standing, slight weight shift, small step, side stance, or restrained seated pause; avoid running, jumping, long stride, and shoe rotation under the foot."
+        ],
+        "imageType": [
+          "Mule identity: preserve backless structure, vamp coverage, opening, insertion depth, heel exposure, heel, platform, and outsole without turning it into a sandal or pump."
+        ],
+        "actionSafety": [
+          "Insert the foot to the referenced depth; heel remains naturally exposed, not floating far above the sole, and the foot must not slide forward."
+        ],
+        "negative": [
+          "added heel counter",
+          "changed backless edge",
+          "changed heel exposure",
+          "changed insertion depth",
+          "pump transformation",
+          "sandal ankle strap unless referenced",
+          "loafer transformation unless loafer-mule subtype",
+          "ballet-flat transformation",
+          "slipper collapse",
+          "changed toe or vamp coverage",
+          "changed heel",
+          "changed platform",
+          "foot sliding forward",
+          "floating heel",
+          "foot or shoe intersection",
+          "duplicated feet or shoes"
+        ],
+        "stylingBoundary": [
+          "Use cropped or straight trousers, midi skirts, dresses, tailored shorts, relaxed tailoring, or refined evening styling; keep backless edge and heel exposure visible."
+        ],
+        "quality": [
+          "Mule quality check: toe, vamp, backless edge, insertion depth, heel exposure, outsole, and foot contact remain reference-accurate."
+        ]
+      }
+    },
+    "other": {
+      "status": "planned",
+      "fieldSchema": [],
+      "referenceRequirements": {
+        "minCount": 0,
+        "maxCount": 0,
+        "requiredRoles": [],
+        "recommendedRoles": []
+      },
+      "shotPlan": {
+        "supportedImageCounts": [],
+        "supportsLifestyleSeries": false,
+        "supportsStudioSeries": false
+      },
+      "accuracyGuards": {
+        "structurePriorities": [],
+        "requiresGroundedContact": false,
+        "requiresReferenceAccuracy": false
+      },
+      "negativeRules": [
+        "category substitution",
+        "silent category fallback"
+      ],
+      "contentProfile": {
+        "productNouns": [
+          "其他鞋型"
+        ],
+        "structurePriorities": [],
+        "lifestyleBenefits": [],
+        "forbiddenPrimaryTerms": []
+      },
+      "promptRules": {
+        "product": "Black Mirror does not yet support 其他鞋型 for formal generation. Do not substitute another footwear category or create a formal product prompt.",
+        "accuracy": [
+          "Black Mirror does not yet support 其他鞋型 for formal generation. Do not substitute another footwear category or create a formal product prompt."
+        ],
+        "visibility": [],
+        "clipping": [],
+        "scene": [
+          "Stop before generating a formal product prompt for this unsupported shoe category."
+        ],
+        "imageType": [
+          "This category is planned and cannot use a formal production prompt path."
+        ],
+        "actionSafety": [],
+        "negative": [
+          "category substitution",
+          "silent category fallback"
+        ],
+        "stylingBoundary": [],
+        "quality": []
+      }
+    }
+  },
+  "boundary": {
+    "owner": "shoe-imagePrompt",
+    "targetOnly": true,
+    "doesNotOwn": [
+      "garment business rules",
+      "provider runtime",
+      "model id"
+    ]
+  }
+}

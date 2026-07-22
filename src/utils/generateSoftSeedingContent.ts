@@ -3694,14 +3694,23 @@ function createGarmentSeriesContext(baseParams: TeamPromptParams, topic: SoftSee
   if (!context || context.mode !== "garment") return undefined;
   const garment = context.garment;
   const details = [garment.category, garment.name, garment.color, garment.fabric, garment.silhouette, garment.neckline, garment.sleeveType, garment.sleeveLength, garment.waistline, garment.garmentLength ?? garment.hemLength, garment.closure, garment.pattern, garment.drape, garment.transparency, garment.keyDetails?.join(", ")].filter(Boolean).join("; ");
+  const visibleRoles = [...new Set(baseParams.garmentClothingRoles ?? [])];
+  const completeReferenceLook =
+    baseParams.garmentReferenceScope === "completeLook" ||
+    visibleRoles.length >= 2 ||
+    visibleRoles.includes("onePiece") ||
+    visibleRoles.includes("coordinatedSet");
+  const singleItemReference = baseParams.garmentReferenceScope === "singleItem" && visibleRoles.length === 1;
   return {
     productLockLine: `Garment series product lock: use the exact same uploaded ${details || "garment"} in every image. Preserve category, color, material, silhouette, proportions, construction, length, recognizable details, and natural fit; do not redesign, recolor, replace, shorten, lengthen, or invent unseen construction.`,
     modelLockLine: `Garment series model lock: use the exact same model, face, age impression, hair, hairstyle, makeup, body proportions, and general presence across the entire ${topic} image series. Only gaze, expression intensity, pose, action, and crop may vary.`,
-    stylingLockLine: topic === "穿搭解决方案"
-      ? "Garment series styling policy: the uploaded garment remains exactly unchanged in every image; only supporting styling may vary, and supporting items must never replace, cover, recolor, or compete with the primary garment."
-      : "Garment series styling lock: keep the exact same supporting styling, layers, accessories, color palette, and wearing proportions across every image; only scene, pose, framing, and action may vary.",
+    stylingLockLine: completeReferenceLook
+      ? "Garment series complete-look lock: keep every visible reference garment and its exact layering relationship unchanged across every image; add no clothing identity."
+      : singleItemReference
+        ? "Garment series single-item styling lock: keep the uploaded garment and the one selected necessary supporting garment unchanged across every image."
+        : "Garment series fail-closed styling lock: preserve all reference-visible clothing exactly and add no clothing identity.",
     visualLockLine: "Garment series visual-direction lock: keep one coherent refined real-camera look, warm-neutral low-saturation color family, natural material response, quiet premium realism, and consistent model treatment across all images; allow only scene-appropriate light variation.",
-    lockSupportingStyling: topic !== "穿搭解决方案"
+    lockSupportingStyling: singleItemReference
   };
 }
 
@@ -3773,7 +3782,7 @@ function buildImagePlan(
     studioLaunchShotIndex: draft.studioLaunchShotIndex,
     studioSetNonce:
       topic === "棚内上新拍摄" ? baseParams.generationNonce + variantIndex + 1 : undefined,
-    lockedOutfitLine: shouldInheritBaseGarmentType(draft.imageType) ? lockedOutfitLine : "",
+    lockedOutfitLine: garmentContext ? "" : shouldInheritBaseGarmentType(draft.imageType) ? lockedOutfitLine : "",
     forceGeneratedOutfitSelection:
       topic === "穿搭解决方案" || topic === "生活场景软种草" || topic === "棚内上新拍摄",
     forceNoHandheldObject:
@@ -3807,7 +3816,7 @@ function buildSoftSeedingImagePlans(
 ) {
   let sharedOutfitLine = "";
   const garmentSeriesContext = createGarmentSeriesContext(baseParams, topic);
-  const locksFullOutfitAcrossSeries = topic === "穿搭解决方案" || topic === "棚内上新拍摄";
+  const locksFullOutfitAcrossSeries = !garmentSeriesContext && (topic === "穿搭解决方案" || topic === "棚内上新拍摄");
 
   return drafts.map((draft, index) => {
     const plan = buildImagePlan(

@@ -1590,7 +1590,9 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
     userSpecifiedStyling: false, studioLaunchAnglePreference: params.studioLaunchAnglePreference,
     studioLaunchShotIndex: params.studioLaunchShotIndex, seriesImageCount: params.seriesImageCount,
     generationNonce: params.generationNonce,
-    shotKind: params.garmentShotKind
+    shotKind: params.garmentShotKind,
+    garmentReferenceScope: params.garmentReferenceScope,
+    garmentClothingRoles: params.garmentClothingRoles
   };
   const productNegativePhrases = productAdapter.buildNegativePhrases(productAdapterInput);
   const footPlacementPatchLine = shouldUsePeopleStyling(params.imageType)
@@ -1620,7 +1622,7 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
     : params.seriesImageCount === 2
       ? "twoImageSet"
       : detectImageCountOrSeriesIntent(params.extraRequirement, params.imageType);
-  const hasLockedOutfit = Boolean(params.lockedOutfitLine?.trim());
+  const hasLockedOutfit = productAdapter.mode !== "garment" && Boolean(params.lockedOutfitLine?.trim());
   const userClothingRequirementText = params.extraRequirement.replace(
     /Manual clothing type from the interface:[^.]*clear sneaker visibility\./gi,
     ""
@@ -1737,7 +1739,7 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
   const effectiveImageTemplateNegativeLine = usesSummerLifestylePeopleSupport
     ? "tourism advertisement, staged family portrait, theme-park campaign, resort campaign, cropped shoes, props covering shoes, unstable ground hiding footwear"
     : imageTypeTemplate.templateNegativeLine;
-  const perSceneOutfitSelection = !hasLockedOutfit && shouldUsePeopleStyling(params.imageType) &&
+  const perSceneOutfitSelection = productAdapter.mode !== "garment" && !hasLockedOutfit && shouldUsePeopleStyling(params.imageType) &&
     (effectiveGarmentTypePreference === "自动匹配" || resolvedScene === "海边度假")
     ? choosePerSceneOutfitLine({
         scenePreference: resolvedScene,
@@ -1818,7 +1820,9 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
   const productImageTypeLine = productAdapter.buildImageTypeLines(productAdapterInput).join(" ");
   const productStylingLine = productAdapter.buildStylingBoundaryLines(productAdapterInput).join(" ");
   const baseOutfitLine =
-    hasLockedOutfit
+    productAdapter.mode === "garment"
+      ? ""
+      : hasLockedOutfit
       ? params.lockedOutfitLine!.trim()
       : selectedStandardOutfit?.outfitLine ??
         perSceneOutfitSelection?.selectedPerSceneOutfitLine ??
@@ -1977,7 +1981,15 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
         .join(" ")
     : "";
   const outfitStructuredLine = shouldUsePeopleStyling(params.imageType)
-    ? [
+    ? productAdapter.mode === "garment"
+      ? [
+          outfitLine,
+          humanRealism.clothingWornLine,
+          seriesContext?.stylingLockLine ?? ""
+        ]
+          .filter(Boolean)
+          .join(" ")
+      : [
         userSpecifiedClothing || resolvedScene === "海边度假"
           ? ""
           : getGarmentTypeLockLine(effectiveGarmentTypePreference, params.season, params.modelChoice),

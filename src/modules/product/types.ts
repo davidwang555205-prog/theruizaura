@@ -1,4 +1,4 @@
-import type { GarmentProductContext } from "./garment/garmentProductTypes";
+import type { GarmentClothingRole, GarmentProductContext, GarmentReferenceScope } from "./garment/garmentProductTypes";
 import type { ShoeProductContext } from "./shoe/shoeProductTypes";
 
 export type ProductMode = "shoe" | "garment";
@@ -31,6 +31,8 @@ export type ProductAdapterInput = ProductPresenceInput & {
   seriesImageCount?: number;
   generationNonce: number;
   shotKind?: string;
+  garmentReferenceScope?: GarmentReferenceScope;
+  garmentClothingRoles?: GarmentClothingRole[];
 };
 
 export type StylingRole =

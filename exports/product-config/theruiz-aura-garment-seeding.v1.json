@@ -1,0 +1,366 @@
+{
+  "schemaVersion": "theruiz-aura-product-config.v1",
+  "mode": "garment",
+  "role": "seeding",
+  "boundary": {
+    "owner": "garment-seeding",
+    "notPromptCompiler": true,
+    "excludedOwners": [
+      "other-product-identity",
+      "provider-runtime"
+    ],
+    "noModelIds": true,
+    "forbiddenShoeOwnership": [
+      "shoe identity",
+      "toe box",
+      "outsole",
+      "laces",
+      "heel geometry"
+    ]
+  },
+  "sourceFiles": [
+    "src/modules/product/garment/garmentShotPlans.ts",
+    "src/data/lifestyleSoftSeedingScenePool.ts",
+    "src/data/activePromptTemplates.ts"
+  ],
+  "lifestyleScenes": [
+    {
+      "id": "lifestyle-business-corner",
+      "name": "图｜工作日｜商务区转角",
+      "purpose": "让通勤穿搭进入真实城市空间。",
+      "description": "商务区安静转角，小步幅或自然站立。",
+      "imageType": "生活场景图",
+      "scenePreference": "商务区转角",
+      "extraRequirement": "Use a quiet business-district corner with a small natural step, relaxed empty hands, realistic pavement, and a friend-taken daily-photo feeling rather than corporate advertising.",
+      "family": "commute",
+      "supportedSeasons": [
+        "春",
+        "夏",
+        "秋",
+        "冬"
+      ],
+      "handheldPolicy": "none",
+      "weight": 4
+    },
+    {
+      "id": "lifestyle-parking-to-office",
+      "name": "图｜工作日｜停车后步行",
+      "purpose": "呈现从停车到办公室的真实短距离移动。",
+      "description": "停车区到办公室的干净步行路线，动作简单。",
+      "imageType": "生活场景图",
+      "scenePreference": "停车后步行去办公室",
+      "extraRequirement": "Use a believable parking-to-office walking transition with a short safe step, relaxed empty hands, clean ground contact, and no car-showcase mood.",
+      "family": "commute",
+      "supportedSeasons": [
+        "春",
+        "夏",
+        "秋",
+        "冬"
+      ],
+      "handheldPolicy": "none",
+      "weight": 3
+    },
+    {
+      "id": "lifestyle-metro-passage",
+      "name": "图｜工作日｜地铁商场通道",
+      "purpose": "补充真实城市通道中的移动感。",
+      "description": "地铁或商场连接通道，背景克制，脚步稳定。",
+      "imageType": "生活场景图",
+      "scenePreference": "地铁 / 商场通道",
+      "extraRequirement": "Use a clean but lived-in metro or mall passage with a compact walking step, relaxed empty hands, realistic indoor depth, and no shopping-mall campaign styling.",
+      "family": "commute",
+      "supportedSeasons": [
+        "春",
+        "夏",
+        "秋",
+        "冬"
+      ],
+      "handheldPolicy": "none",
+      "weight": 3
+    },
+    {
+      "id": "lifestyle-parking-elevator",
+      "name": "图｜工作日｜停车场到电梯口",
+      "purpose": "增加室内通勤过渡的真实使用证明。",
+      "description": "停车场到电梯口的短暂停留或等待，地面接触清楚。",
+      "imageType": "生活场景图",
+      "scenePreference": "停车场到电梯口",
+      "extraRequirement": "Show a calm parking-area to elevator-lobby transition with believable indoor light, relaxed empty hands, stable posture, and clear shoe-floor contact.",
+      "family": "commute",
+      "supportedSeasons": [
+        "春",
+        "夏",
+        "秋",
+        "冬"
+      ],
+      "handheldPolicy": "none",
+      "weight": 2
+    },
+    {
+      "id": "lifestyle-weekend-city-walk",
+      "name": "图｜周末｜城市散步",
+      "purpose": "呈现不刻意营业的周末穿着状态。",
+      "description": "安静城市步行路线，步子短，背景有真实生活痕迹。",
+      "imageType": "生活场景图",
+      "scenePreference": "周末城市散步",
+      "extraRequirement": "Use a quiet weekend city walk with a short natural stride, relaxed empty hands, real sidewalk texture, and a candid customer-photo feeling.",
+      "family": "culture",
+      "supportedSeasons": [
+        "春",
+        "夏",
+        "秋",
+        "冬"
+      ],
+      "handheldPolicy": "none",
+      "weight": 5
+    },
+    {
+      "id": "lifestyle-cafe-exterior",
+      "name": "图｜周末｜咖啡店门口",
+      "purpose": "增加小红书生活方式代入。",
+      "description": "咖啡店门口轻松停留，低饱和真实街景。",
+      "imageType": "生活场景图",
+      "scenePreference": "咖啡店门口",
+      "extraRequirement": "Use a restrained real cafe exterior with natural daylight and a candid customer-like pause. Place any cup on a table or ledge, keep hands relaxed, and keep the shoes readable.",
+      "family": "social",
+      "supportedSeasons": [
+        "春",
+        "夏",
+        "秋",
+        "冬"
+      ],
+      "handheldPolicy": "none",
+      "weight": 6
+    },
+    {
+      "id": "lifestyle-city-corner",
+      "name": "图｜周末｜安静街角",
+      "purpose": "补充非硬广的普通城市停留。",
+      "description": "安静街区自然站立或短步行，真实路面和树影。",
+      "imageType": "生活场景图",
+      "scenePreference": "城市街角 / 安静街区",
+      "extraRequirement": "Use a quiet real city corner with a natural standing pause or short walk, relaxed empty hands, real pavement and soft street depth, without campaign styling.",
+      "family": "culture",
+      "supportedSeasons": [
+        "春",
+        "夏",
+        "秋",
+        "冬"
+      ],
+      "handheldPolicy": "none",
+      "weight": 6
+    },
+    {
+      "id": "lifestyle-light-shopping",
+      "name": "图｜社区｜周末轻采购",
+      "purpose": "加入不夸张的周末小型采购路线。",
+      "description": "社区商业入口或店外短暂停留，购物袋不手持。",
+      "imageType": "生活场景图",
+      "scenePreference": "周末轻采购",
+      "extraRequirement": "Show a light weekend purchase near a quiet neighborhood shop. Keep any shopping bag placed nearby rather than held, use relaxed empty hands, and preserve clear shoe visibility.",
+      "family": "community",
+      "supportedSeasons": [
+        "春",
+        "夏",
+        "秋",
+        "冬"
+      ],
+      "handheldPolicy": "none",
+      "weight": 4
+    },
+    {
+      "id": "lifestyle-park-walk",
+      "name": "图｜社区｜公园慢走",
+      "purpose": "呈现普通步行中的舒适和真实比例。",
+      "description": "城市公园干净步道，小步幅慢走，不做户外广告。",
+      "imageType": "生活场景图",
+      "scenePreference": "公园慢走",
+      "extraRequirement": "Use a clean urban-park path with a short natural walking step, relaxed empty hands, restrained greenery, and no hiking or sports-advertising mood.",
+      "family": "community",
+      "supportedSeasons": [
+        "春",
+        "夏",
+        "秋"
+      ],
+      "handheldPolicy": "none",
+      "weight": 5
+    },
+    {
+      "id": "lifestyle-community-path",
+      "name": "图｜社区｜步道",
+      "purpose": "补充低压力、可反复穿着的社区路线。",
+      "description": "社区步道短走或停留，背景有轻微生活痕迹。",
+      "imageType": "生活场景图",
+      "scenePreference": "社区步道",
+      "extraRequirement": "Use a real neighborhood walking path with a compact step or soft standing pause, relaxed empty hands, subtle greenery, and believable daily-life texture.",
+      "family": "community",
+      "supportedSeasons": [
+        "春",
+        "夏",
+        "秋"
+      ],
+      "handheldPolicy": "none",
+      "weight": 5
+    },
+    {
+      "id": "lifestyle-hotel-corridor",
+      "name": "图｜轻旅行｜酒店走廊",
+      "purpose": "补充真实旅行动线中的短距离移动。",
+      "description": "酒店走廊短步行，地面和鞋子接触清楚。",
+      "imageType": "生活场景图",
+      "scenePreference": "酒店走廊",
+      "extraRequirement": "Show a short hotel-corridor walk with relaxed empty hands, quiet warm-neutral architecture, clean ground contact, and no luxury-resort advertising mood.",
+      "family": "travel",
+      "supportedSeasons": [
+        "春",
+        "夏",
+        "秋",
+        "冬"
+      ],
+      "handheldPolicy": "none",
+      "weight": 3
+    },
+    {
+      "id": "lifestyle-hotel-entrance",
+      "name": "图｜轻旅行｜酒店门厅",
+      "purpose": "让旅行场景保持真实出门感而非打卡感。",
+      "description": "酒店门口或门厅自然停留，行李不进入手中。",
+      "imageType": "生活场景图",
+      "scenePreference": "酒店门口 / 门厅",
+      "extraRequirement": "Use a restrained hotel entrance or lobby-threshold pause with any luggage kept nearby rather than held, relaxed empty hands, and no influencer check-in mood.",
+      "family": "travel",
+      "supportedSeasons": [
+        "春",
+        "夏",
+        "秋",
+        "冬"
+      ],
+      "handheldPolicy": "none",
+      "weight": 3
+    }
+  ],
+  "outfitSeeds": {},
+  "stylingAssembly": {
+    "sourcePolicy": "referenceScopeOnly",
+    "ignoreLegacyOutfitLine": true,
+    "rejectExternalStylingConcatenation": true,
+    "forbiddenLegacySources": [
+      "outfitSeeds",
+      "sceneOutfitSeedLibrary",
+      "automaticLookSystem",
+      "shoeStyling",
+      "sneakerReadability"
+    ],
+    "outputOrder": [
+      "referenceScopeTemplate",
+      "singleSupportingStyleWhenEligible",
+      "seriesLock"
+    ]
+  },
+  "supportingStyling": {
+    "enabledReferenceScope": "singleItem",
+    "seriesLock": true,
+    "deterministicSeedRequired": true,
+    "fallbackWhenUncertain": "noSupportingGarment",
+    "categoryPools": {
+      "top": "supportingBottom",
+      "shirt": "supportingBottom",
+      "knitwear": "supportingBottom",
+      "tshirt": "supportingBottom",
+      "trousers": "supportingTop",
+      "skirt": "supportingTop",
+      "coat": "supportingInnerAndBottom",
+      "jacket": "supportingInnerAndBottom"
+    },
+    "pools": {
+      "supportingBottom": [
+        {
+          "id": "support-bottom-straight-trousers",
+          "line": "Add only quiet straight trousers as necessary lower-body coverage, using a visually recessive solid palette relationship derived from the uploaded top; preserve the uploaded item as the only styling focus."
+        },
+        {
+          "id": "support-bottom-relaxed-trousers",
+          "line": "Add only relaxed clean-cut trousers as necessary lower-body coverage, with restrained proportions and a non-competing palette relationship derived from the uploaded top."
+        },
+        {
+          "id": "support-bottom-column-skirt",
+          "line": "Add only a simple column skirt as necessary lower-body coverage, keeping its surface plain, its silhouette quiet, and its palette subordinate to the uploaded top."
+        },
+        {
+          "id": "support-bottom-midi-skirt",
+          "line": "Add only a restrained midi skirt as necessary lower-body coverage, without assertive pattern, decoration, texture, or layering that competes with the uploaded top."
+        },
+        {
+          "id": "support-bottom-tailored-shorts",
+          "line": "Add only clean tailored shorts when season and coverage make them appropriate, using a plain visually recessive treatment derived from the uploaded top."
+        },
+        {
+          "id": "support-bottom-clean-denim",
+          "line": "Add only clean unembellished denim trousers as necessary lower-body coverage, with restrained wash contrast and no styling detail that competes with the uploaded top."
+        }
+      ],
+      "supportingTop": [
+        {
+          "id": "support-top-clean-tee",
+          "line": "Add only a clean plain T-shirt as necessary upper-body coverage, using a visually recessive palette relationship derived from the uploaded bottom garment."
+        },
+        {
+          "id": "support-top-simple-shirt",
+          "line": "Add only a simple unembellished shirt as necessary upper-body coverage, keeping its structure and palette subordinate to the uploaded bottom garment."
+        },
+        {
+          "id": "support-top-fine-knit",
+          "line": "Add only a restrained fine-knit top as necessary upper-body coverage, without assertive texture, pattern, decoration, or layering that competes with the uploaded bottom garment."
+        },
+        {
+          "id": "support-top-clean-sleeveless",
+          "line": "Add only a clean sleeveless top when season and coverage make it appropriate, using a plain treatment derived from the uploaded bottom garment."
+        },
+        {
+          "id": "support-top-long-sleeve",
+          "line": "Add only a simple long-sleeve top as necessary upper-body coverage, with restrained volume and no styling detail that competes with the uploaded bottom garment."
+        },
+        {
+          "id": "support-top-soft-blouse",
+          "line": "Add only a quiet undecorated blouse as necessary upper-body coverage, keeping its drape, surface, and palette visually secondary to the uploaded bottom garment."
+        }
+      ],
+      "supportingInnerAndBottom": [
+        {
+          "id": "support-outerwear-clean-base-straight-bottom",
+          "line": "Add only a plain close-to-body inner base and a quiet straight bottom as necessary coverage beneath the uploaded outerwear; keep both visually recessive and do not change its open or closed wearing state."
+        },
+        {
+          "id": "support-outerwear-fine-knit-relaxed-bottom",
+          "line": "Add only a restrained fine-knit inner layer and a clean relaxed bottom as necessary coverage beneath the uploaded outerwear, deriving their palette relationship from the reference without competing with it."
+        },
+        {
+          "id": "support-outerwear-simple-shirt-straight-bottom",
+          "line": "Add only a simple undecorated inner shirt and a quiet straight bottom as necessary coverage beneath the uploaded outerwear; preserve every visible outerwear edge and closure detail."
+        },
+        {
+          "id": "support-outerwear-clean-tee-column-bottom",
+          "line": "Add only a plain inner T-shirt and a restrained column bottom as necessary coverage beneath the uploaded outerwear, with no assertive color, pattern, texture, or accessory."
+        }
+      ]
+    }
+  },
+  "activePromptTemplates": {
+    "gymInterior_onFoot": "Create a refined full-body garment image inside a clean modern gym or movement studio during a calm light-activity moment. Preserve the uploaded garment exactly as referenced and do not generate a coordinated outfit, substitute garment, added outer layer, bag, or accessory. Keep the environment believable, softly lit, and visually quiet without intense training, sweaty fitness content, or campaign posing.",
+    "gymInterior_mirror": "Create a refined mirror garment image inside a clean gym or movement studio. Preserve the uploaded garment exactly as referenced, keep its silhouette and construction readable, and do not add or redesign clothing, layers, bags, or accessories. Use bright believable mirror light and a relaxed pose without influencer fitness energy or figure-emphasizing presentation.",
+    "gymCommute_onFoot": "Create a refined full-body garment image during a calm walk toward a gym or movement session. Preserve the uploaded garment exactly as referenced and do not add a coordinated outfit, substitute garment, outer layer, bag, or accessory. Keep the movement natural and the city-to-studio setting understated without sports-campaign energy.",
+    "gymCommute_lifestyle": "Create a refined garment-led lifestyle image during a believable city-to-movement transition. Keep the uploaded garment as the only clothing identity and preserve its exact color, material, silhouette, construction, and visible layering. Do not introduce a styled outfit, tote, gym bag, or accessory unless explicitly present in the reference.",
+    "gymInterior_lifestyle": "Create a refined garment-led lifestyle image inside a clean modern gym or movement space during a calm pause, light stretch, or preparation moment. Preserve the uploaded garment exactly as referenced and do not add or redesign clothing, layers, bags, or accessories. Keep the scene natural and quiet without intense action or gym-advertising aesthetics.",
+    "gymCommute_mirror": "Create a refined mirror garment image before or on the way to a light movement session. Preserve the uploaded garment exactly as referenced and keep it clearly readable without adding a coordinated outfit, outer layer, bag, or accessory. Use believable light and a relaxed mirror pose without influencer fitness styling."
+  },
+  "sampling": {
+    "supportedCounts": [
+      1,
+      3,
+      5,
+      8
+    ],
+    "preserveGarmentIdentity": true,
+    "keepGarmentCategoryPrimary": true
+  }
+}

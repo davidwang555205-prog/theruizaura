@@ -1,5 +1,5 @@
 import type { ProductAdapterInput } from "../types";
-import type { GarmentProductContext, GarmentProductSpec } from "./garmentProductTypes";
+import type { GarmentClothingRole, GarmentProductContext, GarmentProductSpec, GarmentReferenceScope } from "./garmentProductTypes";
 import { buildGarmentDecorativeGuard, buildGarmentMaterialGuard, buildGarmentNegativeRules, getGarmentVisibilityGuard } from "./garmentAccuracyGuards";
 
 const categoryNames: Record<GarmentProductSpec["category"], string> = {
@@ -167,21 +167,55 @@ export function buildGarmentNegativePhrases(context: GarmentProductContext, inpu
 export function buildGarmentStylingBoundaryLines(context: GarmentProductContext, input: ProductAdapterInput) {
   if (!input.productPresent) return [];
   const category = context.garment.category;
-  const supportingBoundary =
-    category === "top" || category === "shirt" || category === "knitwear"
-      ? "Select only a supporting bottom, shoes, bag, and restrained accessories; never replace, cover, or layer over the primary top unless explicitly requested."
-      : category === "trousers" || category === "skirt"
-        ? "Select only a supporting top, shoes, bag, and restrained accessories; never replace or obscure the primary bottom garment."
-        : category === "coat" || category === "jacket"
-          ? "Select only quiet supporting inner layers, bottoms, shoes, and restrained accessories; keep the primary outerwear open or closed only as supported by its uploaded construction."
-          : category === "dress" || category === "bridal"
-            ? "Do not add a competing top, bottom, or outer layer over the primary garment; use only compatible shoes and restrained accessories."
-            : category === "suit"
-              ? "Treat the uploaded suit components as one locked primary product set; add only a quiet inner layer, shoes, and restrained accessories."
-              : "Keep the uploaded garment as the immutable primary product and use only secondary styling that does not alter or hide it.";
+  const roles = [...new Set(input.garmentClothingRoles ?? [])].sort();
+  const completeCategories = new Set(["dress", "suit", "set", "bridal", "eveningGown"]);
+  const completeRoleMarkers = new Set<GarmentClothingRole>(["onePiece", "coordinatedSet"]);
+  const compatibleSingleRoles: Partial<Record<GarmentProductSpec["category"], GarmentClothingRole[]>> = {
+    top: ["primaryTop", "innerLayer"],
+    shirt: ["primaryTop", "innerLayer"],
+    knitwear: ["primaryTop", "innerLayer"],
+    tshirt: ["primaryTop", "innerLayer"],
+    trousers: ["bottom"],
+    skirt: ["bottom"],
+    coat: ["outerLayer"],
+    jacket: ["outerLayer"]
+  };
+  const inferredScope: GarmentReferenceScope =
+    completeCategories.has(category) || roles.length >= 2 || roles.some((role) => completeRoleMarkers.has(role))
+      ? "completeLook"
+      : roles.length === 1 && compatibleSingleRoles[category]?.includes(roles[0])
+        ? "singleItem"
+        : "uncertain";
+  const requestedScope = input.garmentReferenceScope;
+  const scope: GarmentReferenceScope =
+    requestedScope === "completeLook"
+      ? "completeLook"
+      : requestedScope === "singleItem" && inferredScope === "singleItem"
+        ? "singleItem"
+        : inferredScope === "completeLook"
+          ? "completeLook"
+          : "uncertain";
+  const completeLookLine = "Treat every garment visible in the uploaded reference as one complete locked look. Preserve the exact outer layer, inner layer, top, bottom, colors, materials, silhouettes, lengths, wearing relationships, and layering order shown in the reference. Keep this complete clothing combination unchanged across the image set. Change only the scene, pose, gaze, action, and framing.";
+  const uncertainLine = "Preserve all clothing visible in the uploaded reference exactly as shown and treat it as one locked look. Keep the complete visible clothing combination unchanged across the image set and add no new clothing identity.";
+  if (scope === "completeLook") return [completeLookLine];
+  if (scope !== "singleItem") return [uncertainLine];
+  const pools: Partial<Record<GarmentProductSpec["category"], string[]>> = {
+    top: ["Add only quiet straight trousers as necessary lower-body coverage, using a visually recessive palette relationship derived from the uploaded top.", "Add only a restrained plain midi skirt as necessary lower-body coverage, keeping it visually secondary to the uploaded top."],
+    shirt: ["Add only relaxed clean-cut trousers as necessary lower-body coverage, with a non-competing palette relationship derived from the uploaded shirt.", "Add only a simple plain skirt as necessary lower-body coverage, keeping it visually secondary to the uploaded shirt."],
+    knitwear: ["Add only clean straight trousers as necessary lower-body coverage, keeping their surface and palette subordinate to the uploaded knitwear.", "Add only a restrained column skirt as necessary lower-body coverage without competing texture or decoration."],
+    tshirt: ["Add only clean unembellished trousers as necessary lower-body coverage, using a restrained palette relationship derived from the uploaded T-shirt.", "Add only simple tailored shorts when season and coverage make them appropriate, keeping them visually secondary."],
+    trousers: ["Add only a clean plain top as necessary upper-body coverage, using a visually recessive palette relationship derived from the uploaded trousers.", "Add only a restrained fine-knit top as necessary upper-body coverage without competing pattern, texture, or decoration."],
+    skirt: ["Add only a simple plain shirt as necessary upper-body coverage, keeping its structure and palette subordinate to the uploaded skirt.", "Add only a quiet undecorated top as necessary upper-body coverage, keeping it visually secondary to the uploaded skirt."],
+    coat: ["Add only a plain inner base and a quiet straight bottom as necessary coverage beneath the uploaded coat; preserve every visible coat edge, layer, and closure detail.", "Add only a restrained fine-knit inner layer and a clean bottom as necessary coverage beneath the uploaded coat, deriving their palette relationship from the reference."],
+    jacket: ["Add only a plain inner base and a quiet straight bottom as necessary coverage beneath the uploaded jacket; preserve every visible jacket edge, layer, and closure detail.", "Add only a simple inner top and a restrained bottom as necessary coverage beneath the uploaded jacket, keeping both visually secondary."]
+  };
+  const pool = pools[category] ?? [];
+  if (!pool.length) return [uncertainLine];
+  const supportingLine = pool[Math.abs(input.generationNonce) % pool.length];
   return [
-    "Primary garment styling boundary: the uploaded garment occupies the primaryProduct role and cannot be replaced by the automatic outfit system.",
-    supportingBoundary
+    "Keep the uploaded item as the exact and only primary garment. Preserve its color, material, silhouette, construction, length, and wearing details.",
+    supportingLine,
+    `Series styling lock: keep this supporting selection unchanged across every image in the set.`
   ];
 }
 

@@ -1,0 +1,217 @@
+{
+  "schemaVersion": "theruiz-aura-product-config.v1",
+  "mode": "garment",
+  "role": "imagePrompt",
+  "source": "src/modules/product/garment",
+  "categories": [
+    "dress",
+    "top",
+    "shirt",
+    "knitwear",
+    "tshirt",
+    "trousers",
+    "skirt",
+    "coat",
+    "jacket",
+    "suit",
+    "set",
+    "activewear",
+    "bridal",
+    "eveningGown",
+    "other"
+  ],
+  "specFields": [
+    "category",
+    "name",
+    "silhouette",
+    "neckline",
+    "shoulderStructure",
+    "sleeveType",
+    "sleeveLength",
+    "waistline",
+    "hemLength",
+    "garmentLength",
+    "closure",
+    "fabric",
+    "color",
+    "pattern",
+    "drape",
+    "transparency",
+    "buttons",
+    "pockets",
+    "pleats",
+    "darts",
+    "panelBoundaries",
+    "embroidery",
+    "lace",
+    "beadwork",
+    "keyDetails"
+  ],
+  "referenceStylingPolicy": {
+    "scopeOrder": [
+      "completeLook",
+      "singleItem",
+      "uncertain"
+    ],
+    "referenceRoles": [
+      "outerLayer",
+      "primaryTop",
+      "innerLayer",
+      "bottom",
+      "onePiece",
+      "coordinatedSet"
+    ],
+    "completeLookCategories": [
+      "dress",
+      "suit",
+      "set",
+      "bridal",
+      "eveningGown"
+    ],
+    "singleItemCategories": [
+      "top",
+      "shirt",
+      "knitwear",
+      "tshirt",
+      "trousers",
+      "skirt",
+      "coat",
+      "jacket"
+    ],
+    "singleItemReferenceRoles": {
+      "top": [
+        "primaryTop",
+        "innerLayer"
+      ],
+      "shirt": [
+        "primaryTop",
+        "innerLayer"
+      ],
+      "knitwear": [
+        "primaryTop",
+        "innerLayer"
+      ],
+      "tshirt": [
+        "primaryTop",
+        "innerLayer"
+      ],
+      "trousers": [
+        "bottom"
+      ],
+      "skirt": [
+        "bottom"
+      ],
+      "coat": [
+        "outerLayer"
+      ],
+      "jacket": [
+        "outerLayer"
+      ]
+    },
+    "uncertainCategories": [
+      "activewear",
+      "other"
+    ],
+    "completeLookRule": "When the references show two or more clothing roles, a one-piece garment, or a coordinated set, lock every visible garment and its color, material, silhouette, length, wearing relationship, and layering order; do not add any clothing keyword.",
+    "singleItemRule": "Only when the references clearly show one eligible garment role may the system select the minimum necessary supporting garment from the category-compatible supporting pool.",
+    "uncertainRule": "When reference clothing roles are missing, ambiguous, or unsupported, treat the reference as a complete look and add no clothing keyword.",
+    "priorityRule": "Reference-visible clothing roles override the selected garment category, and the selected garment category overrides any supporting-style seed.",
+    "stylingOutputTemplates": {
+      "completeLook": "Treat every garment visible in the uploaded reference as one complete locked look. Preserve the exact outer layer, inner layer, top, bottom, colors, materials, silhouettes, lengths, wearing relationships, and layering order shown in the reference. Keep this complete clothing combination unchanged across the image set. Change only the scene, pose, gaze, action, and framing.",
+      "singleItem": "Keep the uploaded item as the exact and only primary garment. Preserve its color, material, silhouette, construction, length, and wearing details. Use only the one deterministic supporting garment instruction selected for necessary body coverage, keep it visually secondary, and lock it unchanged across the image set.",
+      "uncertain": "Preserve all clothing visible in the uploaded reference exactly as shown and treat it as one locked look. Keep the complete visible clothing combination unchanged across the image set and add no new clothing identity."
+    }
+  },
+  "promptRules": {
+    "product": "Use the uploaded selected garment garment as the only primary product reference.",
+    "accuracy": [
+      "Preserve the exact uploaded garment category, silhouette, overall proportions, shoulder structure, neckline, sleeve construction, sleeve length, waistline, garment length, hemline, closure, panel boundaries, seams, darts, pleats, buttons, pockets, and all visible construction details; do not redesign, simplify, add, remove, shorten, lengthen, tighten, or loosen the primary garment.",
+      "Preserve the uploaded garment's exact fabric identity, surface texture, color relationship, pattern scale and placement, transparency, drape, embroidery, lace, beadwork, and visible key details; do not substitute materials, recolor the garment, invent decoration, or generate fake labels and logos.",
+      "Preserve the exact material appearance, surface texture, thickness, opacity, sheen, drape, and light response shown in the uploaded references; do not invent fiber composition or performance claims.",
+      "Preserve the exact garment ease, body-to-garment spacing, shoulder fit, waist or bodice fit, sleeve volume, leg volume where relevant, garment length, and overall product-to-body proportion shown in the uploaded references."
+    ],
+    "visibility": [
+      "Keep the primary garment clearly readable on the model: preserve user-specified key details, silhouette, closure, material, hem without pose, hair, hands, bags, or supporting layers hiding the design.",
+      "Keep hands, bags, hair, props, furniture, and supporting layers from hiding the primary garment silhouette, priority structures, or hemline.",
+      "Use restrained standing, walking, or turning; natural folds may vary but garment construction, length, and proportions must not change."
+    ],
+    "clipping": [
+      "Dress the model naturally in the exact garment while keeping neck, shoulders, arms, torso, waist, hips, legs, skin, hair, supporting clothes, and accessories physically separate from every garment edge; no body penetration, fused layers, broken sleeves, duplicated closures, or impossible folds."
+    ],
+    "scene": [
+      "The model must wear the uploaded primary garment rather than a similar substitute. Change only the supporting styling, scene, pose, gaze, and framing permitted by this image card."
+    ],
+    "imageType": [
+      "The model must wear the uploaded primary garment rather than a similar substitute. Change only the supporting styling, scene, pose, gaze, and framing permitted by this image card."
+    ],
+    "actionSafety": [
+      "Keep the model's body, hands, hair, pose, and supporting accessories from hiding, pulling, penetrating, or redesigning the primary garment.",
+      "Keep hands away from closures, waistlines, pockets, lapels, bodices, lace, embroidery, and other priority structures; omit or reposition bags and props when they obstruct the shot purpose."
+    ],
+    "negative": [
+      "different garment",
+      "garment redesign",
+      "changed silhouette",
+      "changed neckline",
+      "changed shoulder structure",
+      "changed sleeve type or length",
+      "changed waistline",
+      "changed hem length",
+      "missing or extra closure",
+      "missing or extra buttons",
+      "missing or extra pockets",
+      "changed pleats or darts",
+      "broken panel boundaries",
+      "changed fabric texture",
+      "recolored garment",
+      "changed pattern scale or placement",
+      "incorrect transparency",
+      "stiff or plastic drape",
+      "invented embroidery, lace, or beadwork",
+      "fake label or logo",
+      "body clipping through garment",
+      "fused garment layers",
+      "garment hidden by hair, hands, bag, or supporting layers",
+      "garment redesign",
+      "changed proportions or length",
+      "invented construction",
+      "floating garment",
+      "body-fabric intersection",
+      "fused layers",
+      "hands, hair, bags, or props covering priority structures",
+      "pose-driven silhouette change",
+      "incorrect garment scale"
+    ],
+    "stylingBoundary": [
+      "Reference garment priority: the uploaded garment is the complete and immutable source of clothing identity, including category, color, pattern, material, silhouette, construction, and visible layering; Styling must be assembled only by the reference-scope policy.",
+      "If the uploaded references show an outer layer, inner layer, top, and bottom together, or otherwise show two or more clothing roles, treat the complete visible combination as one locked look and add no clothing keyword.",
+      "For dress, suit, set, bridal, evening gown, and every other visually complete reference look, add no top, bottom, inner layer, outer layer, or alternative garment styling beyond what is visible in the reference.",
+      "Only when the references clearly show one eligible top, shirt, knitwear piece, T-shirt, pair of trousers, skirt, coat, or jacket may the system add the minimum category-compatible supporting garment selected by the deterministic single-item styling policy.",
+      "Any supporting garment must remain visually recessive and derive its palette relationship from the uploaded item; it must not cover, recolor, restyle, relayer, or compete with the uploaded garment.",
+      "If reference completeness is uncertain, add no clothing keyword.",
+      "Do not introduce a coordinated outfit, named wardrobe combination, bag, accessory, shoe-visibility instruction, or legacy outfit line unless the user reference or explicit image-card requirement provides it."
+    ],
+    "quality": [
+      "Garment quality priority: construction continuity, truthful fabric behavior, exact color and pattern, natural wearing tension, clean layer separation, and faithful reference identity must remain stable across the complete image set."
+    ]
+  },
+  "isolation": {
+    "forbiddenShoeOwnership": [
+      "shoe identity",
+      "toe box",
+      "outsole",
+      "laces",
+      "sneaker silhouette",
+      "heel geometry"
+    ]
+  },
+  "boundary": {
+    "owner": "garment-imagePrompt",
+    "targetOnly": true,
+    "doesNotOwn": [
+      "shoe business rules",
+      "provider runtime",
+      "model id"
+    ]
+  }
+}
