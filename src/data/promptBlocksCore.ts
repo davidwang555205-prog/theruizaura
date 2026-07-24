@@ -56,11 +56,11 @@ Do not change the model's identity from image to image.
 Do not change the outfit.
 Do not change the hairstyle.
 Do not change the hair color.
-Do not change the clothing details, bag, jewelry, or accessories.
+  Do not change the clothing details, bag, jewelry, or accessories.
 
-Across the 3-image set, the woman should look like the same person wearing the same outfit in different daily scenes.
+  Across the 3-image set, the woman should look like the same person wearing the same outfit in different daily scenes.
 
-Only the scene, pose, body movement, framing, camera distance, and composition may change.
+  The scene, pose, body movement, framing, camera distance, composition, gaze direction, facial lighting, and subtle expression may change.
 
 The final result should feel like one coherent editorial shoot showing the same woman moving through 3 different daily moments, not separate unrelated images.
 

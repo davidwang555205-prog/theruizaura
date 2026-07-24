@@ -145,6 +145,5 @@ export function getTeamModelConsistencyLine(modelChoice: TeamModelChoice, intent
   const profile = getTeamModelProfile(modelChoice);
   const setLabel = intent === "twoImageSet" ? "two-image set" : "multi-image set";
   const groomingDetail = modelChoice === "欧洲30岁左右男模特" ? "grooming" : "makeup";
-  return `Across the ${setLabel}, keep the exact same ${profile.identityLabel}, face, age appearance, hairstyle, hair color, ${groomingDetail}, skin tone, body proportions, outfit, accessories, and personal identity.`;
   return `Across the ${setLabel}, keep the exact same ${profile.identityLabel}, face, age appearance, hairstyle, hair color, ${groomingDetail}, skin tone, body proportions, outfit, accessories, and personal identity. Gaze direction, eye focus, and subtle expression may vary naturally with each image's body angle and action.`;
 }

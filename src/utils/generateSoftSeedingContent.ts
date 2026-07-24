@@ -3192,7 +3192,6 @@ function sanitizeSoftSeedingExtraRequirementForGarment(
 }
 
 const stylingSolutionSetContinuityLine =
-  "Styling-solution set continuity: treat this image as part of one single styling plan. Keep the exact same clothing combination across all cards: same top, same bottom garment category, same outer layer if present, same bag if present, same accessories if present, same color palette, same garment hem length, same wearing proportions, and the same THERUIZ AURA sneaker. Only the scene angle, camera distance, pose, and detail focus may change.";
   "Styling-solution set continuity: treat this image as part of one single styling plan. Keep the exact same clothing combination across all cards: same top, same bottom garment category, same outer layer if present, same bag if present, same accessories if present, same color palette, same garment hem length, same wearing proportions, and the same THERUIZ AURA sneaker. The scene angle, camera distance, pose, gaze direction, expression, and detail focus may change, so the eyes and face feel alive and distinct in each frame rather than cloned.";
 
 const stylingSolutionFaceContinuityLine =

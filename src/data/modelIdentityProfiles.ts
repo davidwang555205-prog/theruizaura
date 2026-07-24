@@ -35,7 +35,6 @@ export const singleImageModelConsistencyCompact =
   "Use one believable Asian or subtle Asian mixed-heritage woman as the model, with natural dark hair, clean daily makeup, real skin texture, refined but approachable facial features, and realistic body proportions.";
 
 export const twoImageConsistencyCompact =
-  "For a two-image set, keep the same Asian woman, same face, same hairstyle, same makeup, same body proportion, same outfit, same bag, and same shoes unless the user explicitly asks for different looks.";
   "For a two-image set, keep the same Asian woman, same face, same hairstyle, same makeup, same body proportion, same outfit, same bag, and same shoes unless the user explicitly asks for different looks. Gaze direction may differ naturally between the two images.";
 
 export const multiImageModelIdentityLockCompact =
