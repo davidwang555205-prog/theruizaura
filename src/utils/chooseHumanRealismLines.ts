@@ -18,6 +18,7 @@ import {
 import {
   bodyWeightRealismLine,
   clothingWornRealismLine,
+  facialLightingAngleLines,
   livedInHumanRealismCoreLine,
   naturalExpressionAndGazeLine,
   naturalHandBehaviorLine,
@@ -46,6 +47,8 @@ export type HumanRealismInput = {
   scenePreference: TeamScenePreference;
   actionType?: string;
   poseCategory?: TeamHumanPoseCategory;
+  bodyOrientation?: string;
+  gazeMode?: string;
   garmentTypePreference: TeamGarmentTypePreference;
   selectedOutfitLine: string;
   hasShoe: boolean;
@@ -65,6 +68,7 @@ export type HumanRealismSelection = {
   bodySpecialLine: string;
   onFootSneakerLines: string;
   multiImageConsistencyLine: string;
+  facialLightingLine: string;
   negativePhrases: string[];
 };
 
@@ -264,6 +268,15 @@ function getNegativePhrases(poseCategory: TeamHumanPoseCategory, hasShoe: boolea
   return phrases;
 }
 
+function resolveFacialLightingLine(bodyOrientation?: string, gazeMode?: string) {
+  if (bodyOrientation === "front") return facialLightingAngleLines[0];
+  if (bodyOrientation === "threeQuarter") return facialLightingAngleLines[1];
+  if (bodyOrientation === "side") return facialLightingAngleLines[2];
+  if (bodyOrientation === "rearThreeQuarter") return facialLightingAngleLines[3];
+  if (gazeMode === "lookAtCamera") return facialLightingAngleLines[0];
+  return facialLightingAngleLines[4];
+}
+
 export function chooseHumanRealismLines(input: HumanRealismInput): HumanRealismSelection {
   const peopleImage = isPeopleImage(input.imageType);
   const poseCategory = input.poseCategory ?? resolveHumanPoseCategory(input);
@@ -281,6 +294,7 @@ export function chooseHumanRealismLines(input: HumanRealismInput): HumanRealismS
       bodySpecialLine: "",
       onFootSneakerLines: "",
       multiImageConsistencyLine: "",
+      facialLightingLine: "",
       negativePhrases: []
     };
   }
@@ -311,6 +325,7 @@ export function chooseHumanRealismLines(input: HumanRealismInput): HumanRealismS
     clothingWornLine: clothingWornRealismLine,
     bloggerLiteLine: tastefulBloggerLiteRealismLine,
     expressionGazeLine: poseCategory === "mirror" ? "" : naturalExpressionAndGazeLine,
+    facialLightingLine: resolveFacialLightingLine(input.bodyOrientation, input.gazeMode),
     naturalHandLine: shouldIncludeHandLine(input) ? naturalHandBehaviorLine : "",
     bodyWeightLine:
       poseCategory === "standing" || poseCategory === "walking" || poseCategory === "mirror" || poseCategory === "gymLightAction"

@@ -319,6 +319,7 @@ export type TeamPromptParams = {
   lockedOutfitLine?: string;
   forceGeneratedOutfitSelection?: boolean;
   forceNoHandheldObject?: boolean;
+  seriesActionBodyOrientation?: string;
 };
 
 export type TeamPromptOutput = {

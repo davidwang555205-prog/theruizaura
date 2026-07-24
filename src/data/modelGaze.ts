@@ -9,6 +9,7 @@ type GazeInput = {
   userExtraRequirement: string;
   usesCreatorStyling: boolean;
   isMultiImageSet: boolean;
+  bodyOrientation?: string;
   generationNonce?: number;
 };
 
@@ -16,6 +17,17 @@ export type GazeOutput = {
   mode: TeamGazeMode;
   line: string;
   negative: string;
+};
+
+const gazeAngleDirectives: Record<string, string> = {
+  front:
+    "Eyes meet the camera directly with balanced focus, both pupils centered, a slight eyebrow response, and soft catchlights visible in both eyes.",
+  threeQuarter:
+    "Head turns gently toward the lens while the body stays in three-quarter view, so one eye appears slightly nearer than the other and the gaze feels like a brief warm acknowledgment rather than a stare.",
+  side:
+    "The face stays in near-profile while the eyes shift toward the camera across the shoulder, with focused but relaxed eye contact and natural asymmetry in the visible eye shape.",
+  rearThreeQuarter:
+    "A glancing look back over the shoulder toward the camera, with brief eye contact that reads like a natural caught moment rather than a held pose."
 };
 
 const naturalCameraGazeCompact =
@@ -246,7 +258,10 @@ function buildGazeLine(mode: TeamGazeMode, input: GazeInput) {
 
   if (mode === "lookAtCamera") {
     const cameraLine = input.scenePreference === "健身房内" ? gymCameraGazeBoundaryCompact : naturalCameraGazeCompact;
-    return `${cameraLine}${identityLine}`;
+    const angleDirective = input.bodyOrientation && gazeAngleDirectives[input.bodyOrientation]
+      ? ` ${gazeAngleDirectives[input.bodyOrientation]}`
+      : "";
+    return `${cameraLine}${angleDirective}${identityLine}`;
   }
 
   if (mode === "softOffCamera") {

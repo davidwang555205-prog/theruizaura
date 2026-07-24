@@ -116,11 +116,11 @@ const humanRealismLine =
   "Keep one candid in-between expression with slight facial asymmetry, relaxed mouth, natural catchlights, soft shoulder-neck tension, grounded weight, and believable hand pressure.";
 
 const multiImageExpressionSequenceLines = [
-  "Expression beat for this image: a brief friendly response to the nearby camera, with a faint asymmetric smile and focused, alive eyes rather than a posed portrait face.",
-  "Expression beat for this image: focus naturally on the walking direction or next small action, with relaxed eyelids, softly parted or resting lips, and no vacant stare.",
-  "Expression beat for this image: glance purposefully toward the garment edge or sneakers while making a small adjustment, so the facial muscles respond to a real task.",
-  "Expression beat for this image: react subtly to one scene object or nearby point, with natural eye focus, a tiny brow response, and an unforced mouth shape.",
-  "Expression beat for this image: use a fleeting relaxed look after the action, such as a soft exhale or incidental half-turn, avoiding the same expression used in the other images."
+  "Expression beat for this image: a brief friendly response to the nearby camera, with a faint asymmetric smile and focused alive eyes that match the body angle — if facing the camera directly, both eyes carry balanced focus; if in a three-quarter or side view, the eyes shift naturally toward the lens while the face keeps its original angle, avoiding a stiff head-on stare.",
+  "Expression beat for this image: focus naturally on the walking direction or next small action, with relaxed eyelids, softly parted or resting lips, and no vacant stare. The facial lighting should follow the body orientation: one side of the face holds more light if the body is at an angle, while a front-facing frame keeps the light balanced.",
+  "Expression beat for this image: glance purposefully toward the garment edge or sneakers while making a small adjustment, so the facial muscles respond to a real task. The downward eye direction should feel plausible from the current body angle rather than forced — avoid creating neck strain or an unnatural head tilt.",
+  "Expression beat for this image: react subtly to one scene object or nearby point, with natural eye focus, a tiny brow response, and an unforced mouth shape. The catchlight in the eye closest to the camera should be slightly brighter than the far eye, and the shadow pattern on the face should shift subtly from the previous image.",
+  "Expression beat for this image: use a fleeting relaxed look after the action, with a soft exhale or incidental half-turn, avoiding the same expression used in the other images. The light wrap on the face should feel different from the previous beating by matching this image's body orientation rather than repeating a uniform frontal-lit face."
 ];
 
 function getMultiImageExpressionSequenceLine(params: TeamPromptParams) {
@@ -644,10 +644,10 @@ const STUDIO_LAUNCH_ON_FOOT_ANGLE_LINES = [
 ];
 
 const STUDIO_LAUNCH_SERIES_SHOT_LINES = [
-  "Studio launch series shot 1 of 8 — full-body front reference: frame the same person head-to-toe from a straight-on eye-level viewpoint, with a relaxed balanced stance, complete outfit proportions, both sneakers fully readable, and enough clean space around the figure. This is the identity, outfit, shoe, and studio reference for shots 2–8.",
-  "Studio launch series shot 2 of 8 — full-body 3/4 front: keep the full figure in frame and turn the body about 30 degrees toward camera, with a subtle weight shift, relaxed arms, both sneakers readable, and no overlap that hides the shoe shape.",
-  "Studio launch series shot 3 of 8 — full-body side profile: show the same full figure in a clean side-oriented stance with the head returning slightly toward the light, arms relaxed, feet separated naturally, and the side panel and outsole line of the sneakers clearly readable.",
-  "Studio launch series shot 4 of 8 — full-body slight turn-back: photograph a restrained over-shoulder body turn from a rear 3/4 direction while keeping the face naturally visible if included, the complete outfit readable, both feet grounded, and at least one sneaker fully unobstructed.",
+  "Studio launch series shot 1 of 8 — full-body front reference: frame the same person head-to-toe from a straight-on eye-level viewpoint, eyes meeting the camera with balanced focus and soft catchlights in both eyes, facial light wrapping evenly, a relaxed balanced stance, complete outfit proportions, both sneakers fully readable, and enough clean space around the figure. This is the identity, outfit, shoe, and studio reference for shots 2–8.",
+  "Studio launch series shot 2 of 8 — full-body 3/4 front: keep the full figure in frame and turn the body about 30 degrees toward camera, with the eyes following the shoulder turn toward the lens for a brief natural acknowledgment, one eye slightly nearer than the other, the near cheek catching more light while the far cheek recedes into soft shadow, a subtle weight shift, relaxed arms, both sneakers readable, and no overlap that hides the shoe shape.",
+  "Studio launch series shot 3 of 8 — full-body side profile: show the same full figure in a clean side-oriented stance with the head turning gently toward the light while the eyes shift across the shoulder toward the camera with relaxed focus, light sculpting the nose bridge and jaw edge on the near side while the far side recedes naturally, arms relaxed, feet separated naturally, and the side panel and outsole line of the sneakers clearly readable.",
+  "Studio launch series shot 4 of 8 — full-body slight turn-back: photograph a restrained over-shoulder body turn from a rear 3/4 direction with the face glancing back toward the camera for brief eye contact that reads as a caught moment rather than a pose, the visible cheek and temple receiving diffuse ambient fill while the main light rides the turned-away side, the complete outfit readable, both feet grounded, and at least one sneaker fully unobstructed.",
   "Studio launch series shot 5 of 8 — waist-to-floor straight front: crop from the waist or upper thigh to the floor, keep both legs natural and parallel with a small weight shift, and make garment hem, shoe collar, toe box, laces, outsole, and ground contact easy to judge.",
   "Studio launch series shot 6 of 8 — waist-to-floor 3/4 front-side: crop from the waist or upper thigh to the floor, place one foot only slightly forward, preserve realistic scale, and show the relationship between garment hem, ankle, toe shape, side panels, laces, and outsole without foreground enlargement.",
   "Studio launch series shot 7 of 8 — on-foot front detail: use a controlled close framing from mid-calf or garment edge to the floor, with both sneakers facing mostly forward, accurate left-right structure, natural ankle alignment, clean laces, and no wide-angle enlargement.",
@@ -1668,6 +1668,11 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
     ? footPlacementSafetyLine
     : "";
   const sceneKey = resolveSceneKey(params, resolvedScene);
+  const resolvedBodyOrientation =
+    params.seriesActionBodyOrientation ??
+    (params.seriesPoseType === "mirror" ? "front" :
+     params.seriesImageCount && params.seriesImageCount >= 2 ? (["front", "threeQuarter", "side", "rearThreeQuarter", "threeQuarter"][(params.seriesImageIndex ?? 0) % 5]) :
+     "threeQuarter");
   const resolvedStudioPreset: StudioLaunchPresetDefinition | null =
     resolvedScene === "棚内上新拍摄"
       ? resolveStudioLaunchPreset({
@@ -1946,6 +1951,7 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
     userExtraRequirement: params.extraRequirement,
     usesCreatorStyling: shouldUsePeopleStyling(params.imageType),
     isMultiImageSet: imageCountIntent !== "singleImage",
+    bodyOrientation: resolvedBodyOrientation,
     generationNonce: params.generationNonce
   });
   const actionSelection = chooseActionLine({
@@ -2057,6 +2063,8 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
     selectedOutfitLine: outfitLine,
     hasShoe,
     multiImageMode: imageCountIntent !== "singleImage",
+    bodyOrientation: resolvedBodyOrientation,
+    gazeMode: gazeSelection.mode,
     promptMode: TEAM_PROMPT_MODE
   });
   const sceneRealismLine = getSceneRealismLine({
@@ -2074,6 +2082,7 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
         getModelLine(params),
         getTeamModelConsistencyLine(params.modelChoice, imageCountIntent),
         [gazeSelection.line, humanRealism.expressionGazeLine].filter(Boolean).join(" "),
+        humanRealism.facialLightingLine,
         humanRealismLine,
         gazeSelection.mode === "phoneHiddenFace" || gazeSelection.mode === "noFaceNeeded"
           ? ""
@@ -2271,6 +2280,7 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
           ? [
               bodyProportionLine,
               humanRealism.expressionGazeLine,
+              humanRealism.facialLightingLine,
               gazeSelection.mode === "phoneHiddenFace" || gazeSelection.mode === "noFaceNeeded"
                 ? ""
                 : getMultiImageExpressionSequenceLine(params)

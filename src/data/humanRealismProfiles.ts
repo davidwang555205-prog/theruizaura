@@ -18,3 +18,11 @@ export const naturalHandBehaviorLine =
 
 export const bodyWeightRealismLine =
   "Keep the body weight naturally grounded, with one leg slightly relaxed when standing, a believable center of gravity, soft knee tension, natural hip and shoulder balance, and no stiff mannequin posture.";
+
+export const facialLightingAngleLines = [
+  "Front-facing light: let soft diffused key light wrap evenly across both sides of the face, with subtle shadow under the cheekbones and a delicate catchlight in both eyes for an open, natural look.",
+  "Three-quarter light: the near side of the face receives the main light while the far cheek falls into a soft shadow gradation; one eye catches slightly more light than the other, creating natural depth without harsh contrast.",
+  "Side-profile light: light sculpts the nose bridge, brow line, and jaw's edge with a gentle highlight, while the far side of the face recedes into a controlled soft shadow that preserves skin texture and detail.",
+  "Rear three-quarter light: the turned-away side of the face holds the main light direction while the visible cheek and temple receive diffuse ambient fill; the eye facing the camera carries a subtle catchlight from the ambient source.",
+  "Overhead soft light: light falls from slightly above, with a gentle highlight on the forehead and bridge of the nose, soft shadow in the eye sockets that still shows the eye detail, and a natural shadow under the chin that shapes the jawline."
+];

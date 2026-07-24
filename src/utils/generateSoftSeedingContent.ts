@@ -3221,6 +3221,7 @@ const stylingSolutionExpressionBeats = [
 type SeriesActionBeat = {
   key: string;
   family?: string;
+  bodyOrientation?: string;
   directive: string;
   poseType?: TeamPoseType;
 };
@@ -3446,6 +3447,7 @@ function buildImagePlan(
     seriesActionKey: seriesActionBeat.key,
     seriesActionFamily: seriesActionBeat.family ?? seriesActionBeat.key,
     seriesActionDirective: seriesActionBeat.directive,
+    seriesActionBodyOrientation: seriesActionBeat.bodyOrientation,
     seriesPoseType: seriesActionBeat.poseType,
     studioLaunchShotIndex: draft.studioLaunchShotIndex,
     studioSetNonce:
@@ -3495,9 +3497,10 @@ function buildSoftSeedingImagePlans(
           key: selectedPersonAction.id,
           family: selectedPersonAction.diversityFamily,
           directive: selectedPersonAction.directive,
+          bodyOrientation: selectedPersonAction.bodyOrientation,
           poseType: selectedPersonAction.poseType
         }
-      : getNonPersonSeriesActionBeat(draft, index, variantIndex);
+       : getNonPersonSeriesActionBeat(draft, index, variantIndex);
     const plan = buildImagePlan(
       baseParams,
       draft,
