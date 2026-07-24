@@ -65,7 +65,7 @@ export const seasonalLuxuryStyleProfiles: SeasonalLuxuryStyleProfile[] = [
   },
   {
     id: "chanelRefinedFeminine",
-    styleName: "CHANEL-inspired refined feminine",
+    styleName: "refined feminine tailoring",
     referenceMood: "polished feminine, compact structure, light social elegance",
     suitableSeason: ["春", "秋", "冬"],
     suitableScenes: ["对镜穿搭", "咖啡店外", "逛街 / 精品店", "朋友小聚", "展览 / 画廊", "轻打卡店铺"],
@@ -82,13 +82,13 @@ export const seasonalLuxuryStyleProfiles: SeasonalLuxuryStyleProfile[] = [
     colorDirection: "cream, black-white balance, soft grey, pale gold, warm neutral",
     accessoryDirection: "small understated shoulder bag, subtle pearl or metal jewelry without logos",
     compactLuxuryStyleLine:
-      "Use a CHANEL-inspired refined feminine styling direction with a short structured jacket, fine knitwear, clean trousers or a soft skirt, subtle jewelry, and a small understated shoulder bag, keeping the mood polished, feminine, and modern without visible logos or socialite energy.",
+      "Use a refined feminine tailoring styling direction with a short structured jacket, fine knitwear, clean trousers or a soft skirt, subtle jewelry, and a small understated shoulder bag, keeping the mood polished, feminine, and modern without visible logos or socialite energy.",
     forbidden:
       "Avoid obvious logo, fake Chanel look, heavy tweed costume, socialite styling, party mood, over-accessorized outfit, or high-heel-only elegance."
   },
   {
     id: "chloeSoftEase",
-    styleName: "Chloé-inspired soft feminine ease",
+    styleName: "soft feminine ease",
     referenceMood: "soft feminine ease, relaxed flow, warm lightness",
     suitableSeason: ["春", "夏", "秋"],
     suitableScenes: ["买花 / 花店", "面包店 / 甜品店", "咖啡店外", "周末城市散步", "旅行酒店", "朋友小聚"],
@@ -105,7 +105,7 @@ export const seasonalLuxuryStyleProfiles: SeasonalLuxuryStyleProfile[] = [
     colorDirection: "cream, pale yellow, light blue, warm beige, soft coffee",
     accessoryDirection: "small quiet bag or restrained woven texture, without resort styling",
     compactLuxuryStyleLine:
-      "Use a Chloé-inspired soft feminine ease direction with flowing neutral layers, light knitwear, relaxed skirts or linen trousers, warm cream tones, and subtle feminine accessories, keeping the look gentle, free, and mature rather than sweet or bohemian.",
+      "Use a soft feminine ease direction with flowing neutral layers, light knitwear, relaxed skirts or linen trousers, warm cream tones, and subtle feminine accessories, keeping the look gentle, free, and mature rather than sweet or bohemian.",
     forbidden:
       "Avoid festival boho, excessive ruffles, lace overload, overly youthful romance, vacation styling, oversized floral styling, or overly free-spirited costume feeling."
   },

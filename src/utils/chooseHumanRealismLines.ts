@@ -269,12 +269,14 @@ function getNegativePhrases(poseCategory: TeamHumanPoseCategory, hasShoe: boolea
 }
 
 function resolveFacialLightingLine(bodyOrientation?: string, gazeMode?: string) {
-  if (bodyOrientation === "front") return facialLightingAngleLines[0];
-  if (bodyOrientation === "threeQuarter") return facialLightingAngleLines[1];
-  if (bodyOrientation === "side") return facialLightingAngleLines[2];
-  if (bodyOrientation === "rearThreeQuarter") return facialLightingAngleLines[3];
-  if (gazeMode === "lookAtCamera") return facialLightingAngleLines[0];
-  return facialLightingAngleLines[4];
+  const line = 
+    bodyOrientation === "front" ? facialLightingAngleLines[0] :
+    bodyOrientation === "threeQuarter" ? facialLightingAngleLines[1] :
+    bodyOrientation === "side" ? facialLightingAngleLines[2] :
+    bodyOrientation === "rearThreeQuarter" ? facialLightingAngleLines[3] :
+    gazeMode === "lookAtCamera" ? facialLightingAngleLines[0] :
+    facialLightingAngleLines[4];
+  return `${line} The facial light direction and shadow pattern must follow the scene's main light source rather than creating a second independent light on the face.`;
 }
 
 export function chooseHumanRealismLines(input: HumanRealismInput): HumanRealismSelection {

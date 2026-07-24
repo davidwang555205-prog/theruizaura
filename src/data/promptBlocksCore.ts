@@ -1,6 +1,6 @@
 import type { AgeRange } from "../types";
 
-export const BRAND_RULE = `THERUIZ AURA 92-point visual = The Row's restrained structure + Chloé's feminine ease + Le Labo's tactile material authenticity.
+export const BRAND_RULE = `THERUIZ AURA 92-point visual = restrained tailoring with precise structure + soft feminine ease + tactile material authenticity.
 
 Final direction: Quiet Warm Luxury / 温感静奢.
 
@@ -20,7 +20,7 @@ Strictly preserve the real shoe shape, outsole thickness, toe shape, lace thickn
 
 The image should express THERUIZ AURA's brand language: cream-white, warm beige, soft stone, linen, natural daylight, quiet luxury, refined daily life, relaxed elegance, breathable composition, and believable daily sophistication.
 
-The mood should feel like The Row's restraint, Chloé's feminine ease, and Le Labo's tactile authenticity, translated into THERUIZ AURA's own visual system.
+The mood should feel like restrained tailoring, soft feminine ease, and tactile material authenticity, translated into THERUIZ AURA's own visual system.
 
 The image must not look like a generic e-commerce shoe photo. The sneaker should naturally belong in a refined, real, low-saturation lifestyle environment for a tasteful modern woman.
 

@@ -992,12 +992,6 @@ function getSceneVariationLine(
   resolvedScene: Exclude<TeamScenePreference, "自动匹配">,
   sceneKey: StandardSceneKey
 ) {
-  const studioLaunchLines = [
-    "Use a near-empty warm-white seamless studio with no props, a soft-stone floor, one large diffused main light, gentle contact shadows, and uncluttered launch-ready framing.",
-    "Set the image against a clean cream studio cyclorama with no props, restrained side light, subtle tonal depth, and open floor space.",
-    "Use a soft-grey-beige studio sweep with no props, generous negative space, accurate material color, and realistic floor contact.",
-    "Use a plain tactile linen-toned studio backdrop with no props, diffused directional light, and a commercially readable new-launch composition."
-  ];
   const windowReadingLines = [
     "Use a quiet window-side chair or sofa edge with linen curtains, one book, and calm private space.",
     "Set a window-side reading moment beside a real window with a small table, magazine or cup, and warm neutral interior depth.",
@@ -1007,7 +1001,7 @@ function getSceneVariationLine(
   let lines: string[] | undefined;
 
   if (resolvedScene === "棚内上新拍摄") {
-    lines = studioLaunchLines;
+    return "";
   } else if (isNonProductAtmosphereImage(params.imageType)) {
     lines = [];
   } else if (isExpandedLifestyleScene(resolvedScene) || resolvedScene === "拍摄花絮") {
@@ -1031,9 +1025,7 @@ function getSceneVariationLine(
 
   const nonce = Math.max(
     0,
-    resolvedScene === "棚内上新拍摄"
-      ? params.studioSetNonce ?? params.generationNonce ?? 0
-      : params.generationNonce ?? 0
+    params.generationNonce ?? 0
   );
   return lines[nonce % lines.length];
 }

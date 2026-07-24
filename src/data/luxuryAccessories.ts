@@ -39,25 +39,25 @@ export const luxuryAccessoryNegative =
 export const luxuryAccessoryPool = {
   bags: {
     hermesBag:
-      "Add an understated Hermès-style structured leather bag in taupe, warm brown, cream, or muted camel, without visible logo, to lift the outfit quietly without overpowering the sneakers.",
+      "Add an understated understated structured leather bag in taupe, warm brown, cream, or muted camel, without visible logo, to lift the outfit quietly without overpowering the sneakers.",
     goyardBag:
-      "Add a refined Goyard-style canvas tote in a muted neutral tone, used as a practical daily luxury accent, without making the logo or pattern too dominant.",
+      "Add a refined refined coated-canvas tote in a muted neutral tone, used as a practical daily luxury accent, without making the logo or pattern too dominant.",
     lvBag:
-      "Add a muted LV-style warm brown daily bag or travel tote as a subtle city-luxury accessory, avoiding loud monogram focus or flashy logo display.",
+      "Add a muted muted warm-brown daily bag or travel tote as a subtle city-luxury accessory, avoiding loud monogram focus or flashy logo display.",
     chanelBag:
-      "Add a small Chanel-style quilted shoulder bag in black, cream, or soft grey, keeping it elegant and understated without clear logo emphasis.",
+      "Add a small quilted leather shoulder bag in black, cream, or soft grey, keeping it elegant and understated without clear logo emphasis.",
     celineBag:
-      "Add a Celine-style minimalist leather shoulder bag or slim crossbody in black, tan, cream, or taupe, keeping the outfit clean, intellectual, and understated.",
+      "Add a minimalist leather shoulder bag or slim crossbody in black, tan, cream, or taupe, keeping the outfit clean, intellectual, and understated.",
     theRowBag:
-      "Add a The Row-style no-logo soft leather tote or shoulder bag in cream, taupe, warm brown, or black, keeping the look quiet, expensive, and effortless.",
+      "Add a no-logo soft leather tote or shoulder bag in cream, taupe, warm brown, or black, keeping the look quiet, expensive, and effortless.",
     simpleNoLogoBag:
       "Add a simple no-logo leather tote or shoulder bag in cream, taupe, or warm brown, keeping the accessory practical, quiet, and clearly secondary."
   },
   sunglasses: {
     celineSunglasses:
-      "Add Celine-style black or tortoise rectangular sunglasses for a refined urban touch, avoiding celebrity-like posing or oversized influencer styling.",
+      "Add black or tortoise rectangular sunglasses for a refined urban touch, avoiding celebrity-like posing or oversized influencer styling.",
     chanelSunglasses:
-      "Add Chanel-style elegant black sunglasses as a polished feminine accent, without making the look too glamorous or logo-focused.",
+      "Add elegant black sunglasses as a polished feminine accent, without making the look too glamorous or logo-focused.",
     gentleMonsterSunglasses:
       "Add Gentle Monster-style modern sunglasses with a clean sculptural frame, keeping the mood urban and restrained rather than futuristic or trendy."
   },
@@ -70,14 +70,14 @@ export const luxuryAccessoryPool = {
   forbidden:
     "Avoid clear logos, counterfeit-looking details, logo stacking, socialite styling, loud monogram focus, heavy glamor, and accessories becoming the subject.",
   compactAccessoryLines: [
-    "Add an understated Hermès-style structured leather bag in taupe, warm brown, cream, or muted camel, without visible logo, to lift the outfit quietly without overpowering the sneakers.",
-    "Add a refined Goyard-style canvas tote in a muted neutral tone, used as a practical daily luxury accent, without making the logo or pattern too dominant.",
-    "Add a muted LV-style warm brown daily bag or travel tote as a subtle city-luxury accessory, avoiding loud monogram focus or flashy logo display.",
-    "Add a small Chanel-style quilted shoulder bag in black, cream, or soft grey, keeping it elegant and understated without clear logo emphasis.",
-    "Add a Celine-style minimalist leather shoulder bag or slim crossbody in black, tan, cream, or taupe, keeping the outfit clean, intellectual, and understated.",
-    "Add a The Row-style no-logo soft leather tote or shoulder bag in cream, taupe, warm brown, or black, keeping the look quiet, expensive, and effortless.",
-    "Add Celine-style black or tortoise rectangular sunglasses for a refined urban touch, avoiding celebrity-like posing or oversized influencer styling.",
-    "Add Chanel-style elegant black sunglasses as a polished feminine accent, without making the look too glamorous or logo-focused.",
+    "Add an understated understated structured leather bag in taupe, warm brown, cream, or muted camel, without visible logo, to lift the outfit quietly without overpowering the sneakers.",
+    "Add a refined refined coated-canvas tote in a muted neutral tone, used as a practical daily luxury accent, without making the logo or pattern too dominant.",
+    "Add a muted muted warm-brown daily bag or travel tote as a subtle city-luxury accessory, avoiding loud monogram focus or flashy logo display.",
+    "Add a small quilted leather shoulder bag in black, cream, or soft grey, keeping it elegant and understated without clear logo emphasis.",
+    "Add a minimalist leather shoulder bag or slim crossbody in black, tan, cream, or taupe, keeping the outfit clean, intellectual, and understated.",
+    "Add a no-logo soft leather tote or shoulder bag in cream, taupe, warm brown, or black, keeping the look quiet, expensive, and effortless.",
+    "Add black or tortoise rectangular sunglasses for a refined urban touch, avoiding celebrity-like posing or oversized influencer styling.",
+    "Add elegant black sunglasses as a polished feminine accent, without making the look too glamorous or logo-focused.",
     "Add Gentle Monster-style modern sunglasses with a clean sculptural frame, keeping the mood urban and restrained rather than futuristic or trendy.",
     "Add minimal optical glasses with a thin metal, soft brown acetate, or light tortoise frame for an intellectual and daily refined feeling."
   ]
