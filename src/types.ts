@@ -192,6 +192,37 @@ export type TeamStudioLaunchAnglePreference =
   | "鞋子上脚特写角度"
   | "3/4侧前方上脚角度";
 
+export type TeamStudioLaunchPreset =
+  | "auto"
+  | "warmGreySeamless"
+  | "creamMinimal"
+  | "linenTexture"
+  | "monochromeArchitectural"
+  | "softWindowLight";
+
+export type TeamStudioWardrobePreference =
+  | "auto"
+  | "fineGaugeShortSleeveKnit"
+  | "knitPolo"
+  | "mockNeckFineKnit"
+  | "relaxedIvoryShirt"
+  | "sleevelessMinimalTop"
+  | "highWaistStraightTrousers"
+  | "wideStraightTailoredTrousers"
+  | "croppedCigaretteTrousers"
+  | "pleatedOatmealTrousers"
+  | "subtleKickFlareTrousers"
+  | "tailoredBermudaShorts"
+  | "aLineMidiSkirt"
+  | "straightMidiSkirt"
+  | "biasSatinMidiSkirt"
+  | "straightKnitSkirt"
+  | "structuredSingleBreastedBlazer"
+  | "minimalBoyfriendBlazer"
+  | "collarlessCroppedTexturedJacket"
+  | "croppedCardigan"
+  | "sleevelessLongTailoringVest";
+
 export type TeamGazeMode =
   | "lookAtCamera"
   | "softOffCamera"
@@ -272,6 +303,8 @@ export type TeamPromptParams = {
   scenePreference: TeamScenePreference;
   garmentTypePreference: TeamGarmentTypePreference;
   studioLaunchAnglePreference: TeamStudioLaunchAnglePreference;
+  studioLaunchPreset: TeamStudioLaunchPreset;
+  studioWardrobePreference: TeamStudioWardrobePreference;
   stillLifeStyle: TeamStillLifeStyle;
   extraRequirement: string;
   generationNonce: number;

@@ -7,14 +7,14 @@ import type {
   TeamPromptParams,
   TeamScenePreference,
   TeamSeason,
-  TeamShoe,
-  TeamStudioLaunchAnglePreference
+  TeamStudioLaunchAnglePreference,
+  TeamStudioLaunchPreset,
+  TeamStudioWardrobePreference,
 } from "./types";
 import { generateTeamPrompt } from "./utils/generatePrompt";
 import {
   formatSoftSeedingImagePrompts,
   generateSoftSeedingContent,
-  getShoeDisplayName,
   getSoftSeedingInventory,
   softSeedingTopicOptions,
   type SoftSeedingImageCount,
@@ -24,6 +24,8 @@ import { promptQualityPatchNotice } from "./data/promptPatches";
 import { getCompatibleSceneOptions, isSceneCompatibleWithImageType } from "./data/teamSceneOptions";
 import { TEAM_MODEL_OPTIONS } from "./data/teamModelProfiles";
 import { TEAM_MODEL_CONTINUITY_OPTIONS } from "./data/modelContinuityProfiles";
+import { STUDIO_LAUNCH_PRESET_OPTIONS } from "./data/studioLaunchPresets";
+import { getCompatibleStudioWardrobeOptions, STUDIO_WARDROBE_OPTIONS } from "./data/studioWardrobeLibrary";
 
 const imageTypeOptions: TeamImageType[] = [
   "产品上脚图",
@@ -32,20 +34,6 @@ const imageTypeOptions: TeamImageType[] = [
   "非产品氛围图",
   "拍摄花絮 / 材质图",
   "产品静物图"
-];
-
-const shoeOptions: TeamShoe[] = [
-  "Cloud Dancer 云舞者",
-  "Sand Dollar 沙钱白",
-  "Cappuccino 卡布奇诺",
-  "Silver Romance 银色浪漫",
-  "Aire 微风",
-  "Delphinium Blue 飞燕草蓝",
-  "Lemon 柠檬",
-  "Maple Grove 枫林",
-  "Oreo 奥利奥",
-  "Panda 熊猫",
-  "自定义"
 ];
 
 const seasonOptions: TeamSeason[] = ["春", "夏", "秋", "冬"];
@@ -64,12 +52,14 @@ const initialParams: TeamPromptParams = {
   imageType: "产品上脚图",
   modelChoice: "30–45岁客户画像模特",
   modelContinuity: "新人物",
-  shoe: "Cloud Dancer 云舞者",
+  shoe: "自定义",
   customShoe: "",
   season: "春",
   scenePreference: "自动匹配",
   garmentTypePreference: "自动匹配",
   studioLaunchAnglePreference: "自动匹配",
+  studioLaunchPreset: "auto",
+  studioWardrobePreference: "auto",
   stillLifeStyle: "与主视觉统一",
   extraRequirement: "",
   generationNonce: 0
@@ -347,6 +337,15 @@ function App() {
                         peopleImageTypes.includes(imageType) && current.scenePreference === "棚内上新拍摄"
                           ? current.studioLaunchAnglePreference
                           : "自动匹配"
+                          ,
+                      studioLaunchPreset:
+                        current.scenePreference === "棚内上新拍摄" && peopleImageTypes.includes(imageType)
+                          ? current.studioLaunchPreset
+                          : "auto",
+                      studioWardrobePreference:
+                        current.scenePreference === "棚内上新拍摄" && peopleImageTypes.includes(imageType)
+                          ? current.studioWardrobePreference
+                          : "auto",
                     }));
                   }}
                 >
@@ -404,33 +403,6 @@ function App() {
                 </>
               )}
 
-              <label className="block space-y-2">
-                <span className="text-sm font-medium text-aura-charcoal">鞋款</span>
-                <select
-                  className={inputClass}
-                  value={params.shoe}
-                  onChange={(event) => updateParams((current) => updateField(current, "shoe", event.target.value as TeamShoe))}
-                >
-                  {shoeOptions.map((option) => (
-                    <option key={option} value={option}>
-                      {option}
-                    </option>
-                  ))}
-                </select>
-              </label>
-
-              {params.shoe === "自定义" && (
-                <label className="block space-y-2">
-                  <span className="text-sm font-medium text-aura-charcoal">自定义鞋款名称</span>
-                  <input
-                    className={inputClass}
-                    value={params.customShoe}
-                    onChange={(event) => updateParams((current) => updateField(current, "customShoe", event.target.value))}
-                    placeholder="例如：Warm Grey 低饱和暖灰"
-                  />
-                </label>
-              )}
-
               {params.imageType === "非产品氛围图" && (
                 <p className="rounded-[18px] bg-aura-cream px-4 py-3 text-sm leading-6 text-aura-muted ring-1 ring-aura-beige/70">
                   非产品氛围图不强制生成鞋子。材质工作台、拍摄花絮、品牌生活方式氛围，都可直接写进补充要求。
@@ -481,11 +453,15 @@ function App() {
                     onChange={(event) =>
                       updateParams((current) =>
                         updateField(
-                          {
-                            ...current,
-                            studioLaunchAnglePreference:
-                              event.target.value === "棚内上新拍摄" ? current.studioLaunchAnglePreference : "自动匹配"
-                          },
+                        {
+                          ...current,
+                          studioLaunchAnglePreference:
+                            event.target.value === "棚内上新拍摄" ? current.studioLaunchAnglePreference : "自动匹配",
+                          studioLaunchPreset:
+                            event.target.value === "棚内上新拍摄" ? current.studioLaunchPreset : "auto",
+                          studioWardrobePreference:
+                            event.target.value === "棚内上新拍摄" ? current.studioWardrobePreference : "auto",
+                        },
                           "scenePreference",
                           event.target.value as TeamScenePreference
                         )
@@ -502,6 +478,61 @@ function App() {
                     当前仅显示适合“{params.imageType}”的场景；切换图片类型时，不兼容的旧场景会自动恢复为“自动匹配”。
                   </span>
                 </label>
+
+                {params.scenePreference === "棚内上新拍摄" && showsModelChoice && (
+                  <label className="mt-4 block space-y-2">
+                    <span className="text-sm font-medium text-aura-charcoal">棚拍背景预设</span>
+                    <select
+                      className={inputClass}
+                      value={params.studioLaunchPreset}
+                      onChange={(event) =>
+                        updateParams((current) =>
+                          updateField(current, "studioLaunchPreset", event.target.value as TeamStudioLaunchPreset)
+                        )
+                      }
+                    >
+                      {STUDIO_LAUNCH_PRESET_OPTIONS.map((option) => (
+                        <option key={option.value} value={option.value}>
+                          {option.label}
+                        </option>
+                      ))}
+                    </select>
+                    <span className="block text-xs leading-5 text-aura-muted">
+                      控制棚内背景、空间结构和灯光方式。人物角度在下方单独选择。
+                    </span>
+                  </label>
+                )}
+
+                {params.scenePreference === "棚内上新拍摄" && showsModelChoice && (
+                  <label className="mt-4 block space-y-2">
+                    <span className="text-sm font-medium text-aura-charcoal">棚拍服装单品</span>
+                    <select
+                      className={inputClass}
+                      value={params.studioWardrobePreference}
+                      onChange={(event) =>
+                        updateParams((current) =>
+                          updateField(current, "studioWardrobePreference", event.target.value as TeamStudioWardrobePreference)
+                        )
+                      }
+                    >
+                      {STUDIO_WARDROBE_OPTIONS.filter(
+                        (o) =>
+                          o.value === "auto" ||
+                          getCompatibleStudioWardrobeOptions({
+                            garmentTypePreference: params.garmentTypePreference,
+                            season: params.season
+                          }).includes(o.value)
+                      ).map((option) => (
+                        <option key={option.value} value={option.value}>
+                          {option.label}
+                        </option>
+                      ))}
+                    </select>
+                    <span className="block text-xs leading-5 text-aura-muted">
+                      按当前服装类型和季节筛选。选择"自动匹配"由系统根据季节、鞋款和背景自动搭配。
+                    </span>
+                  </label>
+                )}
 
                 {params.scenePreference === "棚内上新拍摄" && showsModelChoice && (
                   <label className="mt-4 block space-y-2">
@@ -718,7 +749,7 @@ function App() {
                     <span className={softStatusPillClass}>{image.params.season}</span>
                     <span className={softStatusPillClass}>{image.params.garmentTypePreference}</span>
                     <span className={softStatusPillClass}>
-                      {getShoeDisplayName(image.params.shoe, image.params.customShoe)}
+                      上传参考鞋款
                     </span>
                     <span className={softStatusPillClass}>{image.params.modelContinuity}</span>
                   </div>

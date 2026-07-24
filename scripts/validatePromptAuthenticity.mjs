@@ -19,6 +19,8 @@ const baseParams = {
   scenePreference: "周末城市散步",
   garmentTypePreference: "自动匹配",
   studioLaunchAnglePreference: "自动匹配",
+  studioLaunchPreset: "auto",
+  studioWardrobePreference: "auto",
   stillLifeStyle: "与主视觉统一",
   extraRequirement: "",
   generationNonce: 0

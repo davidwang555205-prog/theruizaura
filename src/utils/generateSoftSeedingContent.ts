@@ -3081,8 +3081,8 @@ function resolveBaseSeason(baseSeason: TeamSeason, overrideSeason?: TeamSeason) 
 
 function resolveBaseShoe(baseParams: TeamPromptParams): Pick<TeamPromptParams, "shoe" | "customShoe"> {
   return {
-    shoe: baseParams.shoe,
-    customShoe: baseParams.shoe === "自定义" ? baseParams.customShoe : ""
+    shoe: "自定义",
+    customShoe: ""
   };
 }
 
@@ -3557,7 +3557,7 @@ export function generateSoftSeedingContent(input: SoftSeedingInput): SoftSeeding
 
 export function getShoeDisplayName(shoe: TeamShoe, customShoe: string) {
   if (shoe !== "自定义") return shoe;
-  return customShoe.trim() || "自定义鞋款";
+  return "上传参考鞋款";
 }
 
 export function formatSoftSeedingContent(content: SoftSeedingContent) {

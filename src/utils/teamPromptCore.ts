@@ -12,6 +12,8 @@ import type {
   TeamShoe
 } from "../types";
 import { getManualGarmentType, type StandardSceneKey } from "../data/outfitDiversityRules";
+import { resolveStudioLaunchPreset, type StudioLaunchPresetDefinition } from "../data/studioLaunchPresets";
+import { resolveStudioWardrobeSelection, getStudioWardrobeContrastLine, type StudioWardrobeDefinition } from "../data/studioWardrobeLibrary";
 import { hasUserSpecifiedClothingRequirement } from "./outfitLibraryFilters";
 import { buildStructuredPrompt } from "./buildStructuredPrompt";
 import { buildPromptTemplateByImageType } from "./buildPromptTemplateByImageType";
@@ -1666,6 +1668,22 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
     ? footPlacementSafetyLine
     : "";
   const sceneKey = resolveSceneKey(params, resolvedScene);
+  const resolvedStudioPreset: StudioLaunchPresetDefinition | null =
+    resolvedScene === "棚内上新拍摄"
+      ? resolveStudioLaunchPreset({
+          preset: params.studioLaunchPreset,
+          nonce: params.studioSetNonce ?? params.generationNonce
+        })
+      : null;
+  const resolvedStudioWardrobe =
+    resolvedScene === "棚内上新拍摄"
+      ? resolveStudioWardrobeSelection({
+          preference: params.studioWardrobePreference,
+          garmentTypePreference: params.garmentTypePreference,
+          season: params.season,
+          nonce: params.studioSetNonce ?? params.generationNonce
+        })
+      : null;
   const photoRealityMode = getPhotoRealityMode(params, resolvedScene, sceneKey);
   const photoRealityPatchLines = getPhotoRealityPatchLines(photoRealityMode);
   const streetRealismPatchLine = shouldUseStreetRealismLine(params, resolvedScene) ? streetRealismLine : "";
@@ -1875,6 +1893,24 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
   )
     .filter(Boolean)
     .join(" ");
+  const studioPresetBackgroundLine =
+    resolvedStudioPreset
+      ? [
+          resolvedStudioPreset.backgroundLine,
+          resolvedStudioPreset.lightingLine,
+          resolvedStudioPreset.propPolicyLine,
+          resolvedStudioPreset.realismLine,
+          resolvedStudioPreset.productSeparationLine,
+          resolvedStudioWardrobe
+            ? getStudioWardrobeContrastLine({
+                presetId: resolvedStudioPreset.id,
+                wardrobeLine: resolvedStudioWardrobe.wardrobeLine
+              })
+            : ""
+        ]
+          .filter(Boolean)
+          .join(" ")
+      : "";
   const shoeStyleLine =
     sceneKey === "gymInterior" && hasShoe
       ? "Style the selected THERUIZ AURA sneaker only with refined fitness-related clothing, keeping the look active, clean, and gym-appropriate."
@@ -2053,7 +2089,9 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
         userSpecifiedClothing || resolvedScene === "海边度假"
           ? ""
           : getGarmentTypeLockLine(effectiveGarmentTypePreference, params.season, params.modelChoice),
-        outfitLine,
+        resolvedScene === "棚内上新拍摄" && resolvedStudioWardrobe
+          ? resolvedStudioWardrobe.wardrobeLine
+          : outfitLine,
         sceneKey === "gymInterior" ? gymInteriorClothingLockLine : "",
         saturatedGarmentBoundaryLine,
         baseStylingRealismLine,
@@ -2193,22 +2231,20 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
       ...photoRealityPatchLines.negativePhrases,
       ...(resolvedScene === "棚内上新拍摄"
         ? [
+            ...(resolvedStudioPreset ? extractAvoidPhrases(`Avoid ${resolvedStudioPreset.negativeLine}.`) : []),
             "high-saturation clothing",
             "cobalt blue clothing",
             "tomato red clothing",
             "forest green clothing",
             "deep burgundy clothing",
             "neon clothing",
-            "multiple studio props",
-            "decorative prop cluster",
-            "visible equipment clutter"
           ]
         : [])
     ]
   });
   const basePromptParts = {
     timeLine: effectiveSeasonalLightLine,
-    placeLine,
+    placeLine: [studioPresetBackgroundLine, placeLine].filter(Boolean).join(" "),
     productLine: sneakerProtection.productLine,
     modelLine: modelStructuredLine,
     outfitLine: outfitStructuredLine,
