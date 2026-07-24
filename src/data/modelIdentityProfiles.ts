@@ -36,9 +36,10 @@ export const singleImageModelConsistencyCompact =
 
 export const twoImageConsistencyCompact =
   "For a two-image set, keep the same Asian woman, same face, same hairstyle, same makeup, same body proportion, same outfit, same bag, and same shoes unless the user explicitly asks for different looks.";
+  "For a two-image set, keep the same Asian woman, same face, same hairstyle, same makeup, same body proportion, same outfit, same bag, and same shoes unless the user explicitly asks for different looks. Gaze direction may differ naturally between the two images.";
 
 export const multiImageModelIdentityLockCompact =
-  "Use the exact same Asian or subtle Asian mixed-heritage woman across all images. Keep the same face, age appearance, hairstyle, hair color, makeup, skin tone, body shape, height impression, outfit, bag, accessories, shoe styling, and overall identity; only pose, framing, movement, camera distance, and scene may change.";
+  "Use the exact same Asian or subtle Asian mixed-heritage woman across all images. Keep the same face, age appearance, hairstyle, hair color, makeup, skin tone, body shape, height impression, outfit, bag, accessories, shoe styling, and overall identity; pose, framing, movement, camera distance, gaze direction, facial lighting, subtle expression, and scene may change, so the eyes and face feel alive rather than cloned across frames.";
 
 export const faceStyleBoundaryCompact =
   "Her face should be naturally refined and recognizable as an Asian or subtle Asian mixed woman, with soft real features, natural skin texture, and quiet confidence; avoid Western casting, exaggerated mixed-race features, heavy contouring, plastic beauty, over-smoothed skin, doll-like face, influencer surgery look, or fashion-model severity.";
