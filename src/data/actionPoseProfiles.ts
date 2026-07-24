@@ -44,7 +44,7 @@ export const shoelaceActionSafetyCompact =
   "If tying shoelaces, use a safe seated or low-bend pose with the shoe fully visible, hands clearly separated from the laces, and no finger-lace merging. Avoid hands covering the shoe, laces melting into fingers, distorted ankles, extreme bending, or cropped footwear.";
 
 export const multiImageActionVariationCompact =
-  "Across a multi-image set, keep the same model and styling, but vary the pose naturally: one image may show standing, one walking, one seated or adjusting a bag. The actions should feel like moments from the same shoot, not different campaigns.";
+  "Across a multi-image set, keep the same model and styling, but vary both pose and eye direction naturally: one image may show standing with a direct gaze, one walking with eyes following the path, one seated with a task-focused glance. The actions and gaze should feel like distinct moments from the same shoot, never cloned expressions across frames.";
 
 export const actionPoseNegative =
   "Avoid stiff symmetrical posing, runway posing, influencer gestures, awkward frozen limbs, over-directed commercial model actions, claw hands, extra fingers, hands fused with bag or phone, hands touching shoes, hands covering the product, long stride, running posture, floating feet, twisted legs, over-stretched calves, crossed-leg distortion, broken knees, hidden feet, and meaningless hand placement.";

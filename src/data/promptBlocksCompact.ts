@@ -47,7 +47,7 @@ export const SHOELACE_COMPACT = `Shoelace compact:
 If hands interact with laces, keep laces correctly threaded through eyelets and lying over the tongue. Fingers must hold laces naturally without clipping, merging, floating, broken loops, chaotic knots, or duplicated lace strands.`;
 
 export const MULTI_IMAGE_CONSISTENCY_COMPACT = `3-image consistency compact:
-For a 3-image set, keep the same model, face, body shape, hairstyle, makeup, outfit, bag, accessories, trouser length, and styling across all images. Only scene, pose, framing, and camera distance may change.`;
+For a 3-image set, keep the same model, face, body shape, hairstyle, makeup, outfit, bag, accessories, trouser length, and styling across all images. Scene, pose, framing, camera distance, gaze direction, eye focus, and facial lighting may change — so the eyes and expression feel alive and distinct in each frame rather than cloned.`;
 
 export const HIGH_RISK_ON_FOOT_COMPACT = `High-risk on-foot pose compact:
 This action can deform footwear. Simplify the movement into a slow, stable, physically believable version. Prioritize clean sneaker structure, correct foot placement, separated trouser hem, and stable shoe-ground contact over dramatic action.`;
