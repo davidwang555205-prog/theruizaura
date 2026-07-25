@@ -13,7 +13,7 @@ export const TEAM_MODEL_OPTIONS: TeamModelChoice[] = [
   "欧洲25–30岁女模特",
   "欧洲30岁左右男模特",
   "亚裔20–25岁模特",
-  "亚裔混血模特",
+  "30岁左右亚裔混血模特",
   "30–45岁客户画像模特"
 ];
 
@@ -79,7 +79,7 @@ const TEAM_MODEL_PROFILES: Record<TeamModelChoice, TeamModelProfile> = {
       "student-like styling"
     ]
   },
-  亚裔混血模特: {
+  "30岁左右亚裔混血模特": {
     promptLine:
       "Use one real-looking Asian mixed-heritage woman aged 25–30, with subtle Asian mixed features, natural dark or deep brown hair, slight facial asymmetry, normal skin and under-eye texture, understated daily makeup, realistic proportions, and a calm real-camera presence. Keep her Asian mixed-heritage and unperformed, not European-looking, Western-dominant, blonde, stereotyped, doll-like, or campaign-faced.",
     identityLabel: "selected Asian mixed-heritage woman aged 25–30",

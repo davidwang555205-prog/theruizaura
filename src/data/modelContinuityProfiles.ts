@@ -9,7 +9,7 @@ const modelContinuityLines: Record<TeamModelChoice, string> = {
     "Same-person identity lock: use the previous approved man image as the only identity source and recreate the exact same European male individual around age 30, not a similar new man or a fresh AI face. Keep identical face geometry across front, side, three-quarter, mirror, seated, walking, close, medium, and full-body views: eye shape and spacing, brow shape, nose bridge, nose-mouth ratio, cheekbone-jawline contour, lips, hairline, hair part, hair volume, hair color, skin tone, grooming, expression temperament, body scale, shoulder-neck line, hand scale, foot scale, and personal aura. Only scene, pose, camera distance, gaze direction, and clothing may change within the same person identity.",
   "亚裔20–25岁模特":
     "Same-person identity lock: use the previous approved woman image as the only identity source and recreate the exact same 20-25 Asian individual, not a similar new Asian model or a fresh AI face. Keep identical face geometry across front, side, three-quarter, mirror, seated, walking, close, medium, and full-body views: eye shape and spacing, brow shape, nose bridge, nose-mouth ratio, cheekbone-jawline contour, lips, hairline, hair part, hair volume, hair color, skin tone, makeup, expression temperament, body scale, shoulder-neck line, hand scale, foot scale, and quiet personal aura. Only scene, pose, camera distance, gaze direction, and clothing may change within the same person identity.",
-  亚裔混血模特:
+  "30岁左右亚裔混血模特":
     "Same-person identity lock: use the previous approved woman image as the only identity source and recreate the exact same 25-30 Asian mixed-heritage individual, not a similar new mixed-heritage model, not a European-looking drift, and not a fresh AI face. Keep identical face geometry across front, side, three-quarter, mirror, seated, walking, close, medium, and full-body views: eye shape and spacing, brow shape, nose bridge, nose-mouth ratio, cheekbone-jawline contour, lips, hairline, hair part, hair volume, hair color, skin tone, makeup, expression temperament, body scale, shoulder-neck line, hand scale, foot scale, and quiet personal aura. Only scene, pose, camera distance, gaze direction, and clothing may change within the same person identity.",
   "30–45岁客户画像模特":
     "Same-person identity lock: use the previous approved woman image as the only identity source and recreate the exact same 30-45 Asian or subtle Asian-mixed customer individual, not a similar customer type or a fresh AI face. Keep identical face geometry across front, side, three-quarter, mirror, seated, walking, close, medium, and full-body views: eye shape and spacing, brow shape, nose bridge, nose-mouth ratio, cheekbone-jawline contour, lips, hairline, hair part, hair volume, hair color, skin tone, makeup, expression temperament, body scale, shoulder-neck line, hand scale, foot scale, and quiet personal aura. Only scene, pose, camera distance, gaze direction, and clothing may change within the same person identity."
@@ -76,7 +76,7 @@ const priorityContinuityNegativePhrases: Record<TeamModelChoice, string[]> = {
     "changed face from previous reference",
     "identity reset from previous reference"
   ],
-  亚裔混血模特: [
+  "30岁左右亚裔混血模特": [
     "generic AI mixed-heritage face",
     "similar mixed-heritage model but different woman",
     "changed face from previous reference",
