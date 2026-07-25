@@ -179,6 +179,7 @@ export type TeamModelChoice =
   | "欧洲30岁左右男模特"
   | "亚裔20–25岁模特"
   | "30岁左右亚裔混血模特"
+  | "25岁左右亚裔混血模特"
   | "30–45岁客户画像模特";
 
 export type TeamModelContinuity = "新人物" | "延续上一组人物";
