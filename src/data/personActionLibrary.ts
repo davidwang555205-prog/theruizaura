@@ -390,7 +390,7 @@ const studioSubfamilies = [
   "studio-on-foot-side",
   "studio-on-foot-step-finish"
 ];
-const studioActions: PersonActionDefinition[] = Array.from({ length: 14 }, (_, index) => {
+const studioActions: PersonActionDefinition[] = Array.from({ length: 32 }, (_, index) => {
   const studioShotIndex = (index % studioSubfamilies.length) as 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7;
   const variant = Math.floor(index / studioSubfamilies.length);
   const orientation: PersonActionOrientation[] = ["front", "threeQuarter", "side", "rearThreeQuarter", "front", "threeQuarter", "side", "threeQuarter"];
@@ -408,13 +408,15 @@ const studioActions: PersonActionDefinition[] = Array.from({ length: 14 }, (_, i
   return {
     id: `${studioSubfamilies[studioShotIndex]}-${variant + 1}`,
     category: "studio",
-    directive: `Person action lock: ${cores[studioShotIndex]}. ${variant === 0 ? "Keep both empty hands relaxed and the pose neutral." : "Use a slightly softer weight transfer and a more incidental finish than the first studio version."} Preserve the exact studio continuity and do not repeat another shot's body orientation or foot placement.`,
+    directive: `Person action lock: ${cores[studioShotIndex]}. ${variant === 0 ? "Keep both empty hands relaxed and the pose neutral." : variant === 1 ? "Use a slightly softer weight transfer and a more incidental finish than the first studio version." : variant === 2 ? "Add a subtle garment adjustment to the hand action while keeping the body orientation and foot placement unchanged." : "Add a lapel-settling movement to the hand action while keeping the body orientation unchanged."} Preserve the exact studio continuity and do not repeat another shot's body orientation or foot placement.`,
     poseType: studioShotIndex === 7 ? "walking" : "standing",
     diversityFamily: studioSubfamilies[studioShotIndex],
     bodyOrientation: orientation[studioShotIndex],
     footwork: footwork[studioShotIndex],
     movementPhase: studioShotIndex === 3 || studioShotIndex === 7 ? "settling" : "still",
-    handTask: "emptyRelaxed",
+    handTask: studioShotIndex <= 3
+      ? variant === 3 ? "lapel" : variant === 2 ? "sleeve" : "emptyRelaxed"
+      : variant === 2 ? "hem" : "emptyRelaxed",
     framing: studioShotIndex <= 3 ? "fullFigure" : studioShotIndex <= 5 ? "waistToFloor" : "onFootDetail",
     compatibleImageTypes: ["产品上脚图"],
     studioShotIndex,
@@ -432,7 +434,7 @@ export const personActionLibrary: PersonActionDefinition[] = [
   ...studioActions
 ];
 
-export const PERSON_ACTION_LIBRARY_EXPECTED_COUNT = 300;
+export const PERSON_ACTION_LIBRARY_EXPECTED_COUNT = 318;
 
 if (personActionLibrary.length !== PERSON_ACTION_LIBRARY_EXPECTED_COUNT) {
   throw new Error(`Person action library must contain exactly ${PERSON_ACTION_LIBRARY_EXPECTED_COUNT} actions; received ${personActionLibrary.length}.`);

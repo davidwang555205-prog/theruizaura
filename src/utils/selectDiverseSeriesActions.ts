@@ -46,8 +46,14 @@ function eligibleActions(card: SeriesActionCardInput, topic: string) {
   if (!["产品上脚图", "生活场景图", "对镜穿搭图"].includes(card.imageType)) return [];
 
   if (topic === "棚内上新拍摄" && typeof card.studioLaunchShotIndex === "number") {
-    return personActionLibrary.filter(
+    const exact = personActionLibrary.filter(
       (action) => action.category === "studio" && action.studioShotIndex === card.studioLaunchShotIndex
+    );
+    if (exact.length >= 4) return exact;
+    return personActionLibrary.filter(
+      (action) => action.category === "studio" &&
+        (action.studioShotIndex === card.studioLaunchShotIndex ||
+         action.studioShotIndex === (card.studioLaunchShotIndex! + 1))
     );
   }
 
