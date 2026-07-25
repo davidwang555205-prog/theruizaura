@@ -3198,7 +3198,10 @@ const stylingSolutionFaceContinuityLine =
   "If more than one card shows the face, keep the exact same person across the set: same face, same age impression, same hairstyle, same hair color, same makeup or grooming, same facial structure, same body silhouette, and the same quiet daily temperament. Let the gaze direction and subtle expression vary naturally with each card's body angle and action so the eyes feel alive rather than cloned across frames. Generate the full-figure reference first and use it as the person and styling reference for the following image cards.";
 
 const lifestyleSoftSeedingSetContinuityLine =
-  "Lifestyle buyer-show set continuity: treat all cards as one coherent buyer-show series in the same real contemporary Chinese city or its restrained short-trip context. Keep the exact same person, outfit, shoe, hairstyle, makeup, color palette, and overall styling across the set. Only the location moment, pose, framing, gaze, and camera distance may change.";
+  "Lifestyle buyer-show set continuity: treat all cards as one coherent buyer-show series in the same real contemporary Chinese city or its restrained short-trip context. Keep the exact same person, outfit, shoe, hairstyle, makeup, color palette, and overall styling across the set. The location moment, pose, framing, camera distance, gaze direction, head angle, and subtle expression must vary naturally with each card's body action and setting so the face feels alive rather than cloned across the series.";
+
+const lifestyleSoftSeedingFaceContinuityLine =
+  "If the face appears in more than one card, keep the same facial identity but let head angle, gaze direction, and subtle expression change visibly between cards. Do not repeat the same head position or the same eye direction across the set.";
 
 const lifestyleEmptyHandsContinuityLine =
   "Multi-image handheld continuity: keep both hands naturally empty in this card. Scene objects may remain placed in the environment, but do not put coffee, books, flowers, shopping bags, luggage, umbrellas, bottles, or other props in either hand.";
@@ -3216,6 +3219,14 @@ const stylingSolutionExpressionBeats = [
   "If the face is visible, use a purposeful downward glance toward the garment or sneakers, with facial muscles responding naturally to the small task.",
   "If the face is visible, show a subtle reaction to one real scene detail, with a tiny brow response and an unforced mouth shape.",
   "If the face is visible, capture a fleeting relaxed look after the action, such as a soft exhale or incidental half-turn, different from the other cards."
+];
+
+const lifestyleExpressionBeats = [
+  "Head-and-face beat for this card: a soft three-quarter head turn with eyes briefly meeting the camera, a faint asymmetric smile, catchlights alive and visibly different from the other cards.",
+  "Head-and-face beat for this card: head tilted slightly toward the walking direction while the eyes track the path ahead, relaxed mouth, jaw naturally soft, no camera-facing performance.",
+  "Head-and-face beat for this card: head angled gently downward as the eyes check the sneakers or garment hem, brows relaxed, a genuine task-focused expression rather than a pose.",
+  "Head-and-face beat for this card: head turning subtly toward a scene detail or shop window with a small brow response, natural catchlights, one eye slightly nearer the camera than the other.",
+  "Head-and-face beat for this card: a quiet straight-ahead relaxed pause after a small action, head aligned with shoulders but differently from the other cards, eyes and mouth soft and unforced."
 ];
 
 type SeriesActionBeat = {
@@ -3365,7 +3376,9 @@ function getLifestyleSoftSeedingContinuityLines(
       ? lifestyleEmptyHandsContinuityLine
       : "";
 
-  return [lifestyleSoftSeedingSetContinuityLine, handheldLine].filter(Boolean).join(" ");
+  const faceLine = imageCount > 1 ? lifestyleSoftSeedingFaceContinuityLine : "";
+
+  return [lifestyleSoftSeedingSetContinuityLine, faceLine, handheldLine].filter(Boolean).join(" ");
 }
 
 function getSoftSeedingExtraRequirement(
@@ -3438,6 +3451,7 @@ function buildImagePlan(
     extraRequirement: [
       getSoftSeedingExtraRequirement(baseParams, draft, garmentTypePreference, topic, variantIndex, imageCount),
       lifestyleContinuityLine,
+      topic === "生活场景软种草" ? lifestyleExpressionBeats[index % lifestyleExpressionBeats.length] : "",
       topic === "穿搭解决方案" ? stylingSolutionExpressionBeats[index % stylingSolutionExpressionBeats.length] : "",
       `Action lock for this card: ${seriesActionBeat.directive} Treat this as the only primary body action or object-operation moment for this card; ignore any earlier generic walk-or-pause alternative.`
     ].filter(Boolean).join(" "),
