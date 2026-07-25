@@ -50,7 +50,7 @@ export const MULTI_IMAGE_CONSISTENCY_CONTROL = `Multi-image consistency control:
 If generating 3 images in one set, use the exact same model identity across all images.
 
 The model must keep the same face, same age appearance, same hairstyle, same hair color, same makeup style, same body shape, same outfit, same bag, same accessories, same clothing details, same trouser length, same sleeve length, and same overall styling in every image.
-Gaze direction, eye focus, facial lighting, and subtle expression must shift naturally to match the body angle and action in each frame; the eyes should look alive and distinct rather than cloned across images.
+Gaze direction, eye focus, and subtle expression follow each image's unique expression beat from the multi-image sequence; avoid repeating the same eye direction or head angle.
 
 Do not change the model's identity from image to image.
 Do not change the outfit.
@@ -60,7 +60,7 @@ Do not change the hair color.
 
   Across the 3-image set, the woman should look like the same person wearing the same outfit in different daily scenes.
 
-  The scene, pose, body movement, framing, camera distance, composition, gaze direction, facial lighting, and subtle expression may change.
+  The scene, pose, body movement, framing, camera distance, composition, gaze direction, and subtle expression may change per frame.
 
 The final result should feel like one coherent editorial shoot showing the same woman moving through 3 different daily moments, not separate unrelated images.
 

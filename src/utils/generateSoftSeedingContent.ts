@@ -3198,10 +3198,7 @@ const stylingSolutionFaceContinuityLine =
   "If more than one card shows the face, keep the exact same person across the set: same face, same age impression, same hairstyle, same hair color, same makeup or grooming, same facial structure, same body silhouette, and the same quiet daily temperament. Let the gaze direction and subtle expression vary naturally with each card's body angle and action so the eyes feel alive rather than cloned across frames. Generate the full-figure reference first and use it as the person and styling reference for the following image cards.";
 
 const lifestyleSoftSeedingSetContinuityLine =
-  "Lifestyle buyer-show set continuity: treat all cards as one coherent buyer-show series in the same real contemporary Chinese city or its restrained short-trip context. Keep the exact same person, outfit, shoe, hairstyle, makeup, color palette, and overall styling across the set. The location moment, pose, framing, camera distance, gaze direction, head angle, and subtle expression must vary naturally with each card's body action and setting so the face feels alive rather than cloned across the series.";
-
-const lifestyleSoftSeedingFaceContinuityLine =
-  "If the face appears in more than one card, keep the same facial identity but let head angle, gaze direction, and subtle expression change visibly between cards. Do not repeat the same head position or the same eye direction across the set.";
+  "Lifestyle buyer-show set continuity: treat all cards as one coherent buyer-show series in the same real contemporary Chinese city or its restrained short-trip context. Keep the exact same person, outfit, shoe, hairstyle, makeup, color palette, and overall styling across the set. Location, pose, framing, and camera distance follow each card's scene naturally.";
 
 const lifestyleEmptyHandsContinuityLine =
   "Multi-image handheld continuity: keep both hands naturally empty in this card. Scene objects may remain placed in the environment, but do not put coffee, books, flowers, shopping bags, luggage, umbrellas, bottles, or other props in either hand.";
@@ -3376,9 +3373,7 @@ function getLifestyleSoftSeedingContinuityLines(
       ? lifestyleEmptyHandsContinuityLine
       : "";
 
-  const faceLine = imageCount > 1 ? lifestyleSoftSeedingFaceContinuityLine : "";
-
-  return [lifestyleSoftSeedingSetContinuityLine, faceLine, handheldLine].filter(Boolean).join(" ");
+  return [lifestyleSoftSeedingSetContinuityLine, handheldLine].filter(Boolean).join(" ");
 }
 
 function getSoftSeedingExtraRequirement(
@@ -3449,10 +3444,10 @@ function buildImagePlan(
     studioLaunchAnglePreference: "自动匹配",
     stillLifeStyle: "与主视觉统一",
     extraRequirement: [
-      getSoftSeedingExtraRequirement(baseParams, draft, garmentTypePreference, topic, variantIndex, imageCount),
-      lifestyleContinuityLine,
       topic === "生活场景软种草" ? lifestyleExpressionBeats[index % lifestyleExpressionBeats.length] : "",
       topic === "穿搭解决方案" ? stylingSolutionExpressionBeats[index % stylingSolutionExpressionBeats.length] : "",
+      getSoftSeedingExtraRequirement(baseParams, draft, garmentTypePreference, topic, variantIndex, imageCount),
+      lifestyleContinuityLine,
       `Action lock for this card: ${seriesActionBeat.directive} Treat this as the only primary body action or object-operation moment for this card; ignore any earlier generic walk-or-pause alternative.`
     ].filter(Boolean).join(" "),
     generationNonce: baseParams.generationNonce + variantIndex + index + 1,
