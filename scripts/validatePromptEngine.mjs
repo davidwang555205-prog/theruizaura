@@ -11,10 +11,11 @@ const E = join(D, "e.ts"), B = join(D, "b.mjs");
 await writeFile(E,
   `export { compilePrompt } from ${JSON.stringify(resolve(P,"src/prompt-engine/compilePrompt.ts"))};\n` +
   `export { setPromptEngineConfig } from ${JSON.stringify(resolve(P,"src/prompt-engine/promptFeatureFlags.ts"))};\n`
+  + `export { resolveProductPresence } from ${JSON.stringify(resolve(P,"src/prompt-engine/normalizePromptProfileInput.ts"))};\n`
 );
 await build({ entryPoints:[E], bundle:true, outfile:B, format:"esm", platform:"node", target:"node20", logLevel:"silent" });
 
-const { compilePrompt, setPromptEngineConfig } = await import(pathToFileURL(B));
+const { compilePrompt, setPromptEngineConfig, resolveProductPresence } = await import(pathToFileURL(B));
 setPromptEngineConfig({ mode: "new" });
 
 let f=0,c=0;
@@ -35,6 +36,15 @@ for(let i=0;i<types.length;i++) {
   ok(r.prompt.length>0, types[i].substring(0,4)+" compiles");
   ok(r.includedRuleIds.length>0, types[i].substring(0,4)+" has rules");
 }
+
+console.log("=== 1b. Product presence normalization ===");
+const basePresence = { imageType:"拍摄花絮 / 材质图", extraRequirement:"" };
+ok(resolveProductPresence({ ...basePresence, imageType:"产品上脚图" }) === true, "On-foot has product");
+ok(resolveProductPresence({ ...basePresence, imageType:"对镜穿搭图" }) === true, "Mirror has product");
+ok(resolveProductPresence({ ...basePresence, imageType:"产品静物图" }) === true, "Still life has product");
+ok(resolveProductPresence({ ...basePresence, imageType:"非产品氛围图", extraRequirement:"include sneakers" }) === false, "Atmosphere suppresses product");
+ok(resolveProductPresence({ ...basePresence, extraRequirement:"show the sneaker material" }) === true, "Material user shoe mention");
+ok(resolveProductPresence({ ...basePresence, extraRequirement:"show the model holding a book" }) === false, "Material without shoe");
 
 // 2. Still life: no person
 const s = go("产品静物图","stillLife","棚内上新拍摄",true,1);

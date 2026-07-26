@@ -4,6 +4,7 @@ import { compilePrompt } from "../compilePrompt";
 import { getPromptEngineConfig, recordCompareResult } from "../promptFeatureFlags";
 import { logDiagnostics } from "../diagnostics";
 import { generateTeamPrompt as legacyGenerateTeamPrompt } from "../../utils/generatePrompt";
+import { resolveProductPresence } from "../normalizePromptProfileInput";
 
 function resolveCompositionMode(params: TeamPromptParams): CompositionMode {
   if (params.imageType === "产品静物图") return "stillLife";
@@ -41,7 +42,7 @@ function mapSceneToKey(scene: string): string {
   return sceneKeyMap[scene] ?? "weekendCityWalk";
 }
 
-function buildProfileInput(params: TeamPromptParams, output: TeamPromptOutput): PromptProfileInput {
+function buildProfileInput(params: TeamPromptParams, hasShoe: boolean): PromptProfileInput {
   return {
     imageType: params.imageType,
     compositionMode: resolveCompositionMode(params),
@@ -50,7 +51,7 @@ function buildProfileInput(params: TeamPromptParams, output: TeamPromptOutput): 
     season: params.season,
     modelChoice: params.modelChoice,
     modelContinuity: params.modelContinuity,
-    hasShoe: output.hasShoe,
+    hasShoe,
     garmentTypePreference: params.garmentTypePreference,
     userExtraRequirement: params.extraRequirement,
     isMultiImage: !!params.seriesImageCount && params.seriesImageCount >= 2,
@@ -68,9 +69,9 @@ export function generateTeamPrompt(params: TeamPromptParams): { prompt: string }
     return legacyGenerateTeamPrompt(params);
   }
 
-  // Get legacy output for hasShoe field
-  const legacyOutput = legacyGenerateTeamPrompt(params);
-  const input = buildProfileInput(params, legacyOutput);
+  const hasShoe = resolveProductPresence(params);
+  const legacyOutput = config.mode === "compare" ? legacyGenerateTeamPrompt(params) : null;
+  const input = buildProfileInput(params, hasShoe);
   const result = compilePrompt(input);
 
   if (config.enableDiagnostics) logDiagnostics(result);
@@ -78,10 +79,10 @@ export function generateTeamPrompt(params: TeamPromptParams): { prompt: string }
   if (config.mode === "compare") {
     recordCompareResult(
       `${params.imageType}-${input.compositionMode}`,
-      legacyOutput.prompt,
+      legacyOutput?.prompt ?? "",
       result.prompt
     );
-    return legacyOutput;
+    return { prompt: legacyOutput?.prompt ?? "" };
   }
 
   return { prompt: result.prompt };

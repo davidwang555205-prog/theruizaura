@@ -6,4 +6,5 @@ export { allocatePromptBudget } from "./allocatePromptBudget";
 export { compilePrompt } from "./compilePrompt";
 export { validateCompiledPrompt } from "./validateCompiledPrompt";
 export { generateTeamPrompt } from "./adapters/legacyTeamPromptAdapter";
+export { resolveProductPresence, isNonProductAtmosphereImage } from "./normalizePromptProfileInput";
 export { formatDiagnostics, logDiagnostics } from "./diagnostics";
