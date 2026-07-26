@@ -1,4 +1,4 @@
-import type { TeamPromptParams, TeamPromptOutput } from "../../types";
+import type { TeamPromptParams } from "../../types";
 import type { CompositionMode, PromptProfileInput } from "../contracts";
 import { compilePrompt } from "../compilePrompt";
 import { getPromptEngineConfig, recordCompareResult } from "../promptFeatureFlags";
@@ -42,7 +42,8 @@ function mapSceneToKey(scene: string): string {
   return sceneKeyMap[scene] ?? "weekendCityWalk";
 }
 
-function buildProfileInput(params: TeamPromptParams, hasShoe: boolean): PromptProfileInput {
+export function buildPromptProfileInput(params: TeamPromptParams): PromptProfileInput {
+  const hasShoe = resolveProductPresence(params);
   return {
     imageType: params.imageType,
     compositionMode: resolveCompositionMode(params),
@@ -69,9 +70,8 @@ export function generateTeamPrompt(params: TeamPromptParams): { prompt: string }
     return legacyGenerateTeamPrompt(params);
   }
 
-  const hasShoe = resolveProductPresence(params);
   const legacyOutput = config.mode === "compare" ? legacyGenerateTeamPrompt(params) : null;
-  const input = buildProfileInput(params, hasShoe);
+  const input = buildPromptProfileInput(params);
   const result = compilePrompt(input);
 
   if (config.enableDiagnostics) logDiagnostics(result);

@@ -1,6 +1,6 @@
 import type { PromptEngineConfig, PromptEngineMode } from "./contracts";
 
-let _mode: PromptEngineMode = "legacy";
+let _mode: PromptEngineMode = "compare";
 let _diagnostics: boolean = false;
 let _budgetReport: boolean = false;
 let _validationReport: boolean = false;
