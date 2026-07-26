@@ -192,7 +192,7 @@ const GLOBAL_NEGATIVE_RULES: PromptRule[] = [
   {
     id: "negative-brand-protection",
     section: "negative",
-    text: "Avoid visible brand logo, brand lettering, readable fake brand text, luxury brand advertising aesthetic, Chloé-style, Hermès-style, CHANEL-style, CELINE-style visual cues.",
+    text: "Avoid visible brand logo, brand lettering, readable fake brand text, luxury fashion house visual cues, influencer-brand aesthetic.",
     priority: PromptPriority.P7_LOW_PRIORITY_NEGATIVE,
     source: "negative-default",
     appliesWhen: {},
