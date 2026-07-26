@@ -1,6 +1,8 @@
 import type { PromptRule, PromptProfileInput, PromptSection } from "./contracts";
 import { PromptPriority } from "./contracts";
 import { COMPOSITION_PROFILES } from "./profiles/compositionProfiles";
+import { IMAGE_TYPE_PROFILES } from "./profiles/imageTypeProfiles";
+import { SCENE_PROFILES } from "./profiles/sceneProfiles";
 
 // ─── Global hard rules (P0-P2) ──────────────────────────────
 const GLOBAL_HARD_RULES: PromptRule[] = [
@@ -220,6 +222,24 @@ export function collectPromptRules(input: PromptProfileInput): PromptRule[] {
   if (profile) {
     for (const rule of profile.rules) {
       if (matchesPredicate(rule.appliesWhen, input)) rules.push(rule);
+    }
+  }
+
+  // 2b. Image type rules
+  const imgProfile = IMAGE_TYPE_PROFILES[input.imageType];
+  if (imgProfile) {
+    for (const rule of imgProfile.rules) {
+      if (matchesPredicate(rule.appliesWhen, input)) rules.push(rule);
+    }
+  }
+
+  // 2c. Scene rules
+  if (input.sceneKey) {
+    const sceneProfile = SCENE_PROFILES[input.sceneKey];
+    if (sceneProfile) {
+      for (const rule of sceneProfile.rules) {
+        if (matchesPredicate(rule.appliesWhen, input)) rules.push(rule);
+      }
     }
   }
 

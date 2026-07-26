@@ -63,7 +63,7 @@ export type PromptRuleSource =
 export type RulePredicate = {
   imageTypes?: TeamImageType[];
   compositionModes?: CompositionMode[];
-  sceneKeys?: StandardSceneKey[];
+  sceneKeys?: string[];
   seasons?: TeamSeason[];
   modelChoices?: TeamModelChoice[];
   garmentTypes?: TeamGarmentTypePreference[];

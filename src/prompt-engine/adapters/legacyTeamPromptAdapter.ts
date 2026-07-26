@@ -25,11 +25,28 @@ function resolveCompositionMode(params: TeamPromptParams): CompositionMode {
   return "onFootLifestyle";
 }
 
+function mapSceneToKey(scene: string): string {
+  const sceneKeyMap: Record<string, string> = {
+    "通勤上班": "commute", "商务区转角": "commute", "写字楼门口": "commute",
+    "咖啡馆内": "cafeInterior", "咖啡店门口": "cafeExterior",
+    "旅行酒店": "hotelTravel", "酒店咖啡厅内": "hotelCafeInterior", "酒店房间": "hotelTravel", "酒店门口 / 门厅": "hotelTravel",
+    "周末城市散步": "weekendCityWalk", "精品超市 / 日常采购": "premiumErrands",
+    "玄关出门": "entrywayDeparture", "回家进门": "entrywayDeparture",
+    "美术馆": "galleryExhibition", "书店 / 杂志店门口": "bookstoreMagazine",
+    "花店 / 买花": "flowerShop", "朋友午餐": "lightSocial",
+    "居家衣帽间": "mirrorCloset", "衣帽间 / 更衣角": "mirrorCloset",
+    "健身房内": "gymInterior", "棚内上新拍摄": "studioLaunch",
+    "社区市集 / 精品买菜": "premiumErrands", "城市街角 / 安静街区": "weekendCityWalk",
+  };
+  return sceneKeyMap[scene] ?? "weekendCityWalk";
+}
+
 function buildProfileInput(params: TeamPromptParams, output: TeamPromptOutput): PromptProfileInput {
   return {
     imageType: params.imageType,
     compositionMode: resolveCompositionMode(params),
     scenePreference: params.scenePreference as Exclude<typeof params.scenePreference, "自动匹配">,
+    sceneKey: mapSceneToKey(params.scenePreference) as any,
     season: params.season,
     modelChoice: params.modelChoice,
     modelContinuity: params.modelContinuity,
