@@ -9,6 +9,7 @@
     "typecheck": "tsc --noEmit",
     "validate:prompts": "node scripts/validatePromptAuthenticity.mjs",
     "validate:studio": "node scripts/validateStudioSceneWardrobe.mjs",
+    "validate:engine": "node scripts/validatePromptEngine.mjs",
     "validate:actions": "node scripts/validateSoftSeedingActionDiversity.mjs",
     "validate:outfits": "node scripts/validateOutfitCombinationDiversity.mjs",
     "preview": "vite preview"
