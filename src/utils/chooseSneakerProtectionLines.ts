@@ -1,5 +1,6 @@
 import type { TeamImageType, TeamShoe } from "../types";
 import { getShoeSpecificAccuracyLine } from "../data/shoeSpecificAccuracyProfiles";
+import { naturalSneakerScaleCompact } from "../data/sneakerProtectionProfiles";
 
 export type SneakerProtectionInput = {
   imageType: TeamImageType;
@@ -95,12 +96,14 @@ export function chooseSneakerProtectionLines(input: SneakerProtectionInput): Sne
     accuracyLine,
     isWornPeopleImage(input.imageType) ? onFootMaterialResponseLine : "",
     shoeVisibilityLine,
+    isWornPeopleImage(input.imageType) ? naturalSneakerScaleCompact : "",
     lacesLine
   ]
     .filter(Boolean)
     .join(" ");
   const sceneControlLine = [
     shoeVisibilityLine,
+    isWornPeopleImage(input.imageType) ? naturalSneakerScaleCompact : "",
     shoeClippingLine,
     lacesLine,
     isWornPeopleImage(input.imageType) ? onFootMaterialResponseLine : ""

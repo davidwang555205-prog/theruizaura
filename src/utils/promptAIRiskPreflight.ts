@@ -32,6 +32,37 @@ function countConcepts(text: string, patterns: RegExp[]) {
   return patterns.reduce((total, pattern) => total + (text.match(pattern)?.length ?? 0), 0);
 }
 
+function applyScenePriority(input: {
+  imageType: TeamImageType;
+  modelLine?: string;
+  sceneLine?: string;
+  moodLine?: string;
+}) {
+  const result = {
+    modelLine: input.modelLine,
+    sceneLine: input.sceneLine,
+    moodLine: input.moodLine
+  };
+
+  if (input.imageType === "对镜穿搭图") {
+    result.modelLine = result.modelLine
+      ?.split(/(?<=[.!?])\s+/)
+      .filter((sentence) => !/Expression beat for this image|catchlight pattern|facial lighting should/i.test(sentence))
+      .join(" ");
+  }
+
+  if (input.imageType === "非产品氛围图") {
+    const demoteShoePriority = (line = "") =>
+      line
+        .replace(/The shoe must remain the main subject in product scenes, but it should feel naturally integrated into the woman's daily life\.?/gi, "")
+        .replace(/Keep the shoe as the visual priority/gi, "Keep the sneaker subtle and secondary to the selected atmosphere");
+    result.sceneLine = demoteShoePriority(result.sceneLine);
+    result.moodLine = demoteShoePriority(result.moodLine);
+  }
+
+  return result;
+}
+
 export function promptAIRiskPreflight(input: {
   promptParts: StructuredPromptParts;
   imageType: TeamImageType;
@@ -45,6 +76,16 @@ export function promptAIRiskPreflight(input: {
   const warnings: string[] = [];
   const riskFlags: PromptAIRiskFlag[] = [];
   const peopleImage = isPeopleImage(input.imageType);
+
+  const prioritizedScene = applyScenePriority({
+    imageType: input.imageType,
+    modelLine: fixedPromptParts.modelLine,
+    sceneLine: fixedPromptParts.sceneLine,
+    moodLine: fixedPromptParts.moodLine
+  });
+  fixedPromptParts.modelLine = prioritizedScene.modelLine;
+  fixedPromptParts.sceneLine = prioritizedScene.sceneLine;
+  fixedPromptParts.moodLine = prioritizedScene.moodLine;
 
   if (peopleImage && fixedPromptParts.modelLine) {
     const normalized = normalizeAge(fixedPromptParts.modelLine, input.modelChoice);

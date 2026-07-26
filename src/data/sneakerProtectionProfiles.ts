@@ -31,6 +31,9 @@ export const panelStructureLockCompact =
 export const groundContactCompact =
   "Keep both sneakers grounded with believable shoe-floor contact and natural shadows. Avoid floating shoes, warped floor contact, shoes sinking into the ground, distorted outsole perspective, or shadows that hide the shoe shape.";
 
+export const naturalSneakerScaleCompact =
+  "Keep both sneakers naturally proportional to the woman's feet and body. The closer shoe may be clearer, but it must not appear enlarged, inflated, or visually heavier than its real reference scale.";
+
 export const actionSafeShoeDisplayCompact =
   "Choose actions that protect shoe visibility and structure. Use small walking steps, relaxed standing, light sitting, or calm gym-transition movements. Avoid extreme bending, running, jumping, squatting, crossed legs, deep lunges, or actions that twist the foot, hide the sneaker, or create shoe-foot clipping.";
 

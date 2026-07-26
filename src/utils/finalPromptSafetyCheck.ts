@@ -6,6 +6,71 @@ export type FinalPromptSafetyCheckResult = {
   warnings: string[];
 };
 
+function countPromptWords(text: string) {
+  return text.match(/[A-Za-z0-9]+(?:[-'][A-Za-z0-9]+)?/g)?.length ?? 0;
+}
+
+function trimNegativeSectionToWordCap(prompt: string, maxWords: number) {
+  if (!maxWords || countPromptWords(prompt) <= maxWords) return prompt;
+
+  const marker = "\n\nNegative:";
+  const markerIndex = prompt.indexOf(marker);
+  if (markerIndex < 0) return prompt;
+
+  const body = prompt.slice(0, markerIndex);
+  const negative = prompt.slice(markerIndex + marker.length).trim();
+  const bodyWords = countPromptWords(body);
+  const available = Math.max(0, maxWords - bodyWords);
+  // Keep the original prompt when the positive sections alone exceed the cap;
+  // dropping the entire negative section would remove mandatory safety cues.
+  if (available <= 0) return prompt;
+
+  const phrases = negative
+    .replace(/^Avoid\s+/i, "")
+    .replace(/\.$/, "")
+    .split(/,\s*/)
+    .filter(Boolean);
+  const priorityPhrases = phrases.filter((phrase) =>
+    /over-clean AI lifestyle template|not overly polished|showroom-perfect|sterile showroom perfection|fake CGI|CGI product render|AI-perfect|unrealistic AI/i.test(
+      phrase
+    )
+  );
+  const kept: string[] = [];
+  let used = 0;
+  for (const phrase of [...priorityPhrases, ...phrases.filter((phrase) => !priorityPhrases.includes(phrase))]) {
+    const phraseWords = countPromptWords(phrase);
+    if (!phrase || used + phraseWords > available) break;
+    kept.push(phrase);
+    used += phraseWords;
+  }
+
+  return kept.length ? `${body}${marker}\nAvoid ${kept.join(", ")}.` : body;
+}
+
+function trimAdditionalRequirement(prompt: string, maxWords: number) {
+  const marker = "Additional user requirement:";
+  const markerIndex = prompt.lastIndexOf(marker);
+  if (markerIndex < 0) return prompt;
+  const prefix = prompt.slice(0, markerIndex).trimEnd();
+  const requirement = prompt.slice(markerIndex + marker.length).trim();
+  if (countPromptWords(requirement) <= maxWords) return prompt;
+
+  const kept: string[] = [];
+  let used = 0;
+  for (const sentence of requirement.split(/(?<=[.!?])\s+/)) {
+    const words = countPromptWords(sentence);
+    if (!sentence || used + words > maxWords) break;
+    kept.push(sentence);
+    used += words;
+  }
+  return kept.length ? `${prefix}\n\n${marker} ${kept.join(" ")}` : prefix;
+}
+
+export function enforceFinalPromptWordCap(prompt: string, maxWords: number) {
+  const withTrimmedRequirement = trimAdditionalRequirement(prompt, 120);
+  return trimNegativeSectionToWordCap(withTrimmedRequirement, maxWords);
+}
+
 const forbiddenReplacements: Array<[RegExp, string]> = [
   [/\bhot pants\b/gi, "tailored knee-length shorts"],
   [/\bsports bra\b/gi, "layered active top"],

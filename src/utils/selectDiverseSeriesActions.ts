@@ -61,12 +61,19 @@ function eligibleActions(card: SeriesActionCardInput, topic: string) {
     return personActionLibrary.filter((action) => action.category === "mirror");
   }
 
-  return personActionLibrary.filter((action) => {
+  const candidates = personActionLibrary.filter((action) => {
     if (!action.compatibleImageTypes.includes(card.imageType)) return false;
+    if (action.compatibleScenes?.length && !action.compatibleScenes.includes(card.scenePreference)) return false;
     if (action.category === "general") return true;
     if (action.category !== "seated") return false;
     return action.compatibleScenes?.includes(card.scenePreference) ?? false;
   });
+
+  const sceneIsNotMirror = card.scenePreference !== "居家衣帽间" && card.scenePreference !== "衣帽间 / 更衣角";
+  const sceneSafeCandidates = sceneIsNotMirror
+    ? candidates.filter((action) => !/mirror|selfie|phone|mirror check|outfit check/i.test(action.directive))
+    : candidates;
+  return sceneSafeCandidates.length >= 3 ? sceneSafeCandidates : candidates;
 }
 
 function chooseCandidate(

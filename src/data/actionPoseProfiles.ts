@@ -64,7 +64,7 @@ const standingPosePool = [
 ];
 
 const walkingPosePool = [
-  "Use a small natural walking step with one foot slightly ahead, keeping both sneakers visible and anatomically aligned.",
+  "Capture the instant between two short steps: the rear heel has just lifted, the front foot is receiving weight, and the hips and shoulders show a small natural walking transfer. Keep the stride short and stable, with both sneakers visible and anatomically aligned; do not create a dramatic fashion walk.",
   "Walk slowly with relaxed arms or the single selected scene-compatible object, natural stride length, and grounded shoe-floor contact.",
   "Move away from or toward the selected setting with a calm daily rhythm, not a performance pose.",
   "Take a subtle step forward while looking slightly to the side or toward the scene, keeping the trouser hem separate from the shoe collar.",
@@ -318,7 +318,7 @@ function chooseSceneAction(input: ActionPoseInput, poseType: TeamPoseType) {
   if (input.scenePreference === "通勤上班") {
     return pick(
       [
-        "Use a small natural walking step toward the office entrance, with relaxed arms and clearly grounded sneakers.",
+        "Use a small natural walking step along the selected workday route toward the office entrance, with relaxed arms and clearly grounded sneakers; if a cafe frontage appears, pass it as background street life rather than entering or dining there.",
         "Pause near the office entrance while lightly settling one sleeve, with stable feet and an unperformed daily posture.",
         "Wait calmly near the elevator or building threshold, shifting weight naturally while keeping both sneakers readable.",
         "Finish a short commute step and turn the shoulders slightly toward the entrance, with relaxed hands and clear footwear."

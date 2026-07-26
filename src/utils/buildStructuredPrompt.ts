@@ -4,6 +4,7 @@ export type StructuredPromptParts = {
   timeLine?: string;
   placeLine?: string;
   productLine?: string;
+  studioAngleLine?: string;
   modelLine?: string;
   outfitLine?: string;
   sceneLine?: string;
@@ -38,6 +39,7 @@ export function buildStructuredPrompt(parts: StructuredPromptParts) {
     buildSection("Time", parts.timeLine),
     buildSection("Location", parts.placeLine),
     productSection,
+    buildSection("Studio angle", parts.studioAngleLine),
     isStillLife ? "" : buildSection("Model", parts.modelLine),
     isStillLife ? "" : buildSection("Styling", parts.outfitLine),
     buildSection("Scene", parts.sceneLine),

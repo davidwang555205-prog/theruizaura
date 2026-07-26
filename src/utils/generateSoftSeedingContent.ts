@@ -3419,6 +3419,14 @@ function getSoftSeedingExtraRequirement(
   return sanitizeSoftSeedingExtraRequirementForGarment(combinedRequirement, garmentTypePreference);
 }
 
+function joinSoftPromptSentences(...lines: string[]) {
+  return lines
+    .map((line) => line.trim())
+    .filter(Boolean)
+    .map((line) => /[.!?]$/.test(line) ? line : `${line}.`)
+    .join(" ");
+}
+
 function buildImagePlan(
   baseParams: TeamPromptParams,
   draft: SoftSeedingImageDraft,
@@ -3443,13 +3451,13 @@ function buildImagePlan(
     modelContinuity: index === 0 ? "新人物" : "延续上一组人物",
     studioLaunchAnglePreference: "自动匹配",
     stillLifeStyle: "与主视觉统一",
-    extraRequirement: [
+    extraRequirement: joinSoftPromptSentences(
       topic === "生活场景软种草" ? lifestyleExpressionBeats[index % lifestyleExpressionBeats.length] : "",
       topic === "穿搭解决方案" ? stylingSolutionExpressionBeats[index % stylingSolutionExpressionBeats.length] : "",
       getSoftSeedingExtraRequirement(baseParams, draft, garmentTypePreference, topic, variantIndex, imageCount),
       lifestyleContinuityLine,
       `Action lock for this card: ${seriesActionBeat.directive} Treat this as the only primary body action or object-operation moment for this card; ignore any earlier generic walk-or-pause alternative.`
-    ].filter(Boolean).join(" "),
+    ),
     generationNonce: baseParams.generationNonce + variantIndex + index + 1,
     seriesImageCount: imageCount,
     seriesImageIndex: index,

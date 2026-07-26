@@ -58,7 +58,7 @@ import {
 import { isSceneCompatibleWithImageType } from "../data/teamSceneOptions";
 import { getNonProductAtmosphereSceneLine } from "../data/nonProductAtmosphereSceneLines";
 import { promptPreflightCheck } from "./promptPreflightCheck";
-import { finalPromptSafetyCheck } from "./finalPromptSafetyCheck";
+import { enforceFinalPromptWordCap, finalPromptSafetyCheck } from "./finalPromptSafetyCheck";
 import { buildVisualScenario } from "./buildVisualScenario";
 import { promptAIRiskPreflight } from "./promptAIRiskPreflight";
 import {
@@ -107,7 +107,7 @@ const TEAM_SHOE_KEYWORDS = [
 ];
 
 const brandMoodLine =
-  "Create a premium THERUIZ AURA Quiet Warm Luxury image: cream-white, warm beige, soft stone tones, low saturation, refined daily elegance, believable comfort.";
+  "Create a premium THERUIZ AURA Quiet Warm Luxury image: use cream-white, warm beige, and soft stone mainly for the environment, light, and secondary styling; preserve the uploaded sneaker's exact color above all palette suggestions, with low saturation, refined daily elegance, and believable comfort.";
 
 const customerFeelingLine =
   "Express all-day ease, comfort without carelessness, clean composure, taste, and quiet put-together confidence.";
@@ -129,7 +129,7 @@ function getMultiImageExpressionSequenceLine(params: TeamPromptParams) {
 }
 
 const actionLine =
-  "Use one simple daily action: slow walk, coffee, tote, flowers, book, or storefront pause.";
+  "Use one scene-appropriate daily action selected by the action planner; do not combine multiple primary hand-held objects.";
 
 const mirrorGazeActionLine =
   "Use a natural mirror outfit pose with the phone hiding or cropping the face, realistic mirror proportions, one foot slightly forward, relaxed shoulders, and natural leg length.";
@@ -1033,13 +1033,6 @@ function getSceneVariationLine(
 function getStudioLaunchAngleLine(params: TeamPromptParams, resolvedScene: Exclude<TeamScenePreference, "自动匹配">, hasShoe: boolean) {
   if (resolvedScene !== "棚内上新拍摄" || !hasShoe || !shouldUsePeopleStyling(params.imageType)) return "";
 
-  if (typeof params.studioLaunchShotIndex === "number") {
-    const line = STUDIO_LAUNCH_SERIES_SHOT_LINES[params.studioLaunchShotIndex];
-    return params.seriesImageCount
-      ? line.replace("of 8", `of ${params.seriesImageCount}`)
-      : line;
-  }
-
   const lines = params.imageType === "对镜穿搭图" ? STUDIO_LAUNCH_MIRROR_ANGLE_LINES : STUDIO_LAUNCH_ON_FOOT_ANGLE_LINES;
   const selectedIndex =
     params.studioLaunchAnglePreference === "全身棚拍角度"
@@ -1052,7 +1045,15 @@ function getStudioLaunchAngleLine(params: TeamPromptParams, resolvedScene: Exclu
             ? 3
             : null;
 
+  // A user-selected angle is a hard override for the generated series shot.
   if (selectedIndex !== null) return lines[selectedIndex];
+
+  if (typeof params.studioLaunchShotIndex === "number") {
+    const line = STUDIO_LAUNCH_SERIES_SHOT_LINES[params.studioLaunchShotIndex];
+    return params.seriesImageCount
+      ? line.replace("of 8", `of ${params.seriesImageCount}`)
+      : line;
+  }
 
   const nonce = Math.max(0, params.generationNonce ?? 0);
   return lines[nonce % lines.length];
@@ -1416,7 +1417,7 @@ function getNegativeLine(input: {
   phrases.push("harsh HDR", "heavy filters", "warped lens perspective");
   phrases.push(...(input.extraPhrases ?? []));
 
-  return `Avoid ${Array.from(new Set(phrases)).join(", ")}.`;
+  return `Avoid ${compactNegativePhrases(phrases).join(", ")}.`;
 }
 
 function extractAvoidPhrases(line?: string) {
@@ -1428,6 +1429,27 @@ function extractAvoidPhrases(line?: string) {
     .split(/,\s*|\s+and\s+/)
     .map((phrase) => phrase.trim())
     .filter(Boolean);
+}
+
+function compactNegativePhrases(phrases: string[]) {
+  const compacted = phrases.map((phrase) => {
+    if (/^(?:small metal|ringed|door-access|car-access|house-access) items$/i.test(phrase)) {
+      return "visible keys or access items";
+    }
+    if (/^hotel access cards$/i.test(phrase)) return "visible hotel access cards";
+    if (/^(?:CGI product render feeling|3D render feeling)$/i.test(phrase)) {
+      return "CGI product render feeling";
+    }
+    if (/^(?:plastic skin|over-smoothed skin|perfect influencer skin)$/i.test(phrase)) {
+      return "plastic or over-smoothed skin";
+    }
+    if (/^(?:influencer posing|posed selfie mood|influencer styling)$/i.test(phrase)) {
+      return "influencer or posed-selfie energy";
+    }
+    return phrase;
+  });
+
+  return Array.from(new Set(compacted));
 }
 
 function getTeamGazeMode(params: TeamPromptParams, sceneKey: StandardSceneKey) {
@@ -2158,7 +2180,6 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
       : [
           photoRealityPatchLines.sceneLine,
           sceneRealismLine,
-          studioLaunchAngleLine,
           cameraSelection.camera === "AuraOutdoorReference" ? auraOutdoorReferenceCompactToneLine : "",
           visualScenario.scenarioLine,
           scenePropsLine,
@@ -2247,6 +2268,7 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
     timeLine: effectiveSeasonalLightLine,
     placeLine: [studioPresetBackgroundLine, placeLine].filter(Boolean).join(" "),
     productLine: sneakerProtection.productLine,
+    studioAngleLine: studioLaunchAngleLine,
     modelLine: modelStructuredLine,
     outfitLine: outfitStructuredLine,
     sceneLine: sceneStructuredLine,
@@ -2263,7 +2285,7 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
       hardConstraints: {
         timeLine: [effectiveIndoorOutdoorLightLine],
         placeLine: [effectiveLightingSpaceSupportLine],
-        productLine: [
+    productLine: [
           ...promptQualityPatchLines.productLines,
           sneakerProtection.shoeSpecificAccuracyLine,
           sneakerProtection.clippingLine
@@ -2281,7 +2303,6 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
         outfitLine: [],
         moodLine: cameraSelection.camera === "AuraOutdoorReference" ? [cameraSelection.cameraLookLine] : [],
         sceneLine: [
-          studioLaunchAngleLine,
           photoRealityPatchLines.sceneLine,
           ...promptQualityPatchLines.sceneLines,
           conditionalNonProductBrandProcessLine,
@@ -2391,7 +2412,12 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
   const modelAdjustedPrompt = shouldUsePeopleStyling(params.imageType)
     ? adaptFinalPromptForModelChoice(safetyCheckedPrompt.prompt, params.modelChoice)
     : safetyCheckedPrompt.prompt;
-  const prompt = cleanFinalPrompt(modelAdjustedPrompt);
+  const finalWordCap = shouldUsePeopleStyling(params.imageType)
+    ? params.modelContinuity === "延续上一组人物"
+      ? 410
+      : 350
+    : 270;
+  const prompt = cleanFinalPrompt(enforceFinalPromptWordCap(modelAdjustedPrompt, finalWordCap));
 
   return {
     prompt,

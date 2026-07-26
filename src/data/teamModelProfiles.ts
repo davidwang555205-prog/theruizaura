@@ -82,7 +82,7 @@ const TEAM_MODEL_PROFILES: Record<TeamModelChoice, TeamModelProfile> = {
   },
   "25岁左右亚裔混血模特": {
     promptLine:
-      "Use one real-looking Asian mixed-heritage woman aged 22–27, with subtle Asian mixed features, natural dark or deep brown hair, slight facial asymmetry, normal skin and under-eye texture, understated daily makeup, realistic proportions, and a calm real-camera presence. Keep her Asian mixed-heritage and unperformed, not European-looking, Western-dominant, blonde, stereotyped, doll-like, or campaign-faced.",
+      "Use one real-looking 25-year-old Asian mixed-heritage woman with a clearly retained mixed-heritage facial identity, subtle Asian eye-area structure, natural dark or deep brown hair, slight facial asymmetry, normal skin and under-eye texture, understated daily makeup, realistic proportions, and a calm real-camera presence. Keep her Asian mixed-heritage and unperformed, not European-looking, Western-dominant, blonde, stereotyped, doll-like, or campaign-faced.",
     identityLabel: "selected Asian mixed-heritage woman aged 22–27",
     agePhrase: "aged 22–27",
     priorityNegativePhrases: [
