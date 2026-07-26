@@ -1,5 +1,6 @@
 import type { PromptRule, PromptProfileInput, PromptSection } from "./contracts";
 import { PromptPriority } from "./contracts";
+import { COMPOSITION_PROFILES } from "./profiles/compositionProfiles";
 
 // ─── Global hard rules (P0-P2) ──────────────────────────────
 const GLOBAL_HARD_RULES: PromptRule[] = [
@@ -215,9 +216,9 @@ export function collectPromptRules(input: PromptProfileInput): PromptRule[] {
   }
 
   // 2. Composition rules
-  const compRules = COMPOSITION_RULES[input.compositionMode];
-  if (compRules) {
-    for (const rule of compRules) {
+  const profile = COMPOSITION_PROFILES[input.compositionMode];
+  if (profile) {
+    for (const rule of profile.rules) {
       if (matchesPredicate(rule.appliesWhen, input)) rules.push(rule);
     }
   }
