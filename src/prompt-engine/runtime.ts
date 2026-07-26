@@ -20,6 +20,7 @@ export type PromptRuntimeDiagnostics = {
 
 export type PromptRuntimeResult = {
   prompt: string;
+  selectedOutfitLine?: string;
   compiled?: CompiledPromptResult;
   diagnostics: PromptRuntimeDiagnostics;
 };
@@ -39,7 +40,7 @@ export function generatePromptRuntime(params: TeamPromptParams): PromptRuntimeRe
   const config = getPromptEngineConfig();
   if (config.mode === "legacy") {
     const legacy = legacyGenerateTeamPrompt(params);
-    return { prompt: legacy.prompt, diagnostics: { mode: "legacy", legacyWordCount: countWords(legacy.prompt) } };
+    return { prompt: legacy.prompt, selectedOutfitLine: legacy.selectedOutfitLine, diagnostics: { mode: "legacy", legacyWordCount: countWords(legacy.prompt) } };
   }
 
   const compiled = compilePrompt(buildPromptProfileInput(params));
@@ -62,9 +63,8 @@ export function generatePromptRuntime(params: TeamPromptParams): PromptRuntimeRe
       diffSummary: buildDiffSummary(legacy.prompt, compiled.prompt),
     } satisfies PromptRuntimeDiagnostics;
     recordCompareResult(`${params.imageType}-${params.generationNonce}`, legacy.prompt, compiled.prompt);
-    return { prompt: legacy.prompt, compiled, diagnostics };
+    return { prompt: legacy.prompt, selectedOutfitLine: legacy.selectedOutfitLine, compiled, diagnostics };
   }
 
   return { prompt: compiled.prompt, compiled, diagnostics: diagnosticsBase };
 }
-

@@ -11,7 +11,7 @@ import type {
   TeamStudioLaunchPreset,
   TeamStudioWardrobePreference,
 } from "./types";
-import { generateTeamPrompt } from "./utils/generatePrompt";
+import { generatePromptRuntime } from "./prompt-engine/runtime";
 import {
   formatSoftSeedingImagePrompts,
   generateSoftSeedingContent,
@@ -65,7 +65,7 @@ const initialParams: TeamPromptParams = {
   generationNonce: 0
 };
 
-const initialGeneratedPrompt = generateTeamPrompt(initialParams).prompt;
+const initialGeneratedPrompt = generatePromptRuntime(initialParams).prompt;
 
 const inputClass =
   "w-full rounded-[18px] border border-aura-beige bg-white/75 px-4 py-3 text-sm text-aura-charcoal outline-none transition focus:border-aura-clay disabled:cursor-not-allowed disabled:bg-aura-cream disabled:text-aura-muted";
@@ -136,7 +136,7 @@ function App() {
   const handleGenerate = () => {
     const nextParams = { ...params, generationNonce: params.generationNonce + 1 };
     setParams(nextParams);
-    setGeneratedPrompt(generateTeamPrompt(nextParams).prompt);
+    setGeneratedPrompt(generatePromptRuntime(nextParams).prompt);
     setCopyStatus("");
     setHasPendingChanges(false);
   };
@@ -145,7 +145,7 @@ function App() {
     if (!hasPendingChanges) return params;
     const syncedParams = { ...params, generationNonce: params.generationNonce + 1 };
     setParams(syncedParams);
-    setGeneratedPrompt(generateTeamPrompt(syncedParams).prompt);
+    setGeneratedPrompt(generatePromptRuntime(syncedParams).prompt);
     setHasPendingChanges(false);
     return syncedParams;
   };
