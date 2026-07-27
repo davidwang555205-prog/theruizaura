@@ -1,0 +1,8 @@
+{
+  "adapter_version": "image2-theme-adapter-v1",
+  "provider": "Image2",
+  "language": "English-only",
+  "source_chain": ["brand_visual_mother_v1.2", "canonical_theme_specifications_v1", "current_task_product_truth", "task_context"],
+  "section_order": ["task_identity", "theme_purpose", "person_action", "scene_evidence", "styling_boundary", "camera_composition", "light_color_material", "product_truth", "product_visibility", "physical_realism", "brand_prohibitions", "technical_negatives"],
+  "formal_theme_count": 8
+}

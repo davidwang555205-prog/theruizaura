@@ -17,6 +17,14 @@ test('internal visual system workspace exposes frozen mother, 13 anchors and val
     expect(prompt).not.toMatch(/[\u3400-\u9fff]/);
     for (const field of ['burgundy and ivory', 'low-cut silhouette', 'rounded toe box', 'slim brown outsole', 'side panels', 'heel counter', 'tongue', 'white laces', 'stitching', 'material contrast', 'original proportions']) expect(prompt).toContain(field);
   }
+  const themePrompts = await page.locator('pre[data-testid^="theme-prompt-"]').allTextContents();
+  expect(themePrompts).toHaveLength(8);
+  for (const prompt of themePrompts) {
+    expect(prompt.trim().length).toBeGreaterThan(0);
+    expect(prompt).not.toMatch(/[\u3400-\u9fff]/);
+    expect(prompt).toContain('Product Truth lock:');
+    expect(prompt).toContain('burgundy and ivory');
+  }
   expect(errors).toEqual([]);
 });
 

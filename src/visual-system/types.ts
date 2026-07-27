@@ -46,7 +46,7 @@ const englishCaseDirections: Record<string, string> = {
   C5: "Top-down product view showing toe-box structure, tongue, settled white laces, panel geometry, and consistent material detail."
 };
 
-const productTruthLock = "Preserve the uploaded sneaker exactly: burgundy and ivory color blocking, low-cut silhouette, rounded toe box, slim brown outsole, side panels, heel counter, tongue, white laces, visible stitching, leather and suede material contrast, and original proportions. Use the uploaded Product Truth as the sole product source. Allow only subtle natural flex and grounded contact shadow; never redesign, recolor, replace, enlarge, or reshape the shoe.";
+export const productTruthLock = "Preserve the uploaded sneaker exactly: burgundy and ivory color blocking, low-cut silhouette, rounded toe box, slim brown outsole, side panels, heel counter, tongue, white laces, visible stitching, leather and suede material contrast, and original proportions. Use the uploaded Product Truth as the sole product source. Allow only subtle natural flex and grounded contact shadow; never redesign, recolor, replace, enlarge, or reshape the shoe.";
 
 export function assertImage2ProviderPrompt(prompt: string): string {
   if (!prompt.trim()) throw new Error("Image2 Provider-ready Prompt must not be empty.");
