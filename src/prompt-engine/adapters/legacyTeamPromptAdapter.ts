@@ -1,9 +1,10 @@
-import type { TeamPromptParams, TeamPromptOutput } from "../../types";
+import type { TeamPromptParams } from "../../types";
 import type { CompositionMode, PromptProfileInput } from "../contracts";
 import { compilePrompt } from "../compilePrompt";
 import { getPromptEngineConfig, recordCompareResult } from "../promptFeatureFlags";
 import { logDiagnostics } from "../diagnostics";
 import { generateTeamPrompt as legacyGenerateTeamPrompt } from "../../utils/generatePrompt";
+import { resolveProductPresence } from "../normalizePromptProfileInput";
 
 function resolveCompositionMode(params: TeamPromptParams): CompositionMode {
   if (params.imageType === "产品静物图") return "stillLife";
@@ -41,7 +42,8 @@ function mapSceneToKey(scene: string): string {
   return sceneKeyMap[scene] ?? "weekendCityWalk";
 }
 
-function buildProfileInput(params: TeamPromptParams, output: TeamPromptOutput): PromptProfileInput {
+export function buildPromptProfileInput(params: TeamPromptParams): PromptProfileInput {
+  const hasShoe = resolveProductPresence(params);
   return {
     imageType: params.imageType,
     compositionMode: resolveCompositionMode(params),
@@ -50,7 +52,7 @@ function buildProfileInput(params: TeamPromptParams, output: TeamPromptOutput): 
     season: params.season,
     modelChoice: params.modelChoice,
     modelContinuity: params.modelContinuity,
-    hasShoe: output.hasShoe,
+    hasShoe,
     garmentTypePreference: params.garmentTypePreference,
     userExtraRequirement: params.extraRequirement,
     isMultiImage: !!params.seriesImageCount && params.seriesImageCount >= 2,
@@ -68,9 +70,8 @@ export function generateTeamPrompt(params: TeamPromptParams): { prompt: string }
     return legacyGenerateTeamPrompt(params);
   }
 
-  // Get legacy output for hasShoe field
-  const legacyOutput = legacyGenerateTeamPrompt(params);
-  const input = buildProfileInput(params, legacyOutput);
+  const legacyOutput = config.mode === "compare" ? legacyGenerateTeamPrompt(params) : null;
+  const input = buildPromptProfileInput(params);
   const result = compilePrompt(input);
 
   if (config.enableDiagnostics) logDiagnostics(result);
@@ -78,10 +79,10 @@ export function generateTeamPrompt(params: TeamPromptParams): { prompt: string }
   if (config.mode === "compare") {
     recordCompareResult(
       `${params.imageType}-${input.compositionMode}`,
-      legacyOutput.prompt,
+      legacyOutput?.prompt ?? "",
       result.prompt
     );
-    return legacyOutput;
+    return { prompt: legacyOutput?.prompt ?? "" };
   }
 
   return { prompt: result.prompt };

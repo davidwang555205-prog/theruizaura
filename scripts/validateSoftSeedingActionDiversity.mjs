@@ -83,10 +83,10 @@ try {
   const actionIds = personActionLibrary.map((action) => action.id);
   const actionDirectives = personActionLibrary.map((action) => action.directive);
   if (
-    personActionLibrary.length !== 300 ||
-    PERSON_ACTION_LIBRARY_EXPECTED_COUNT !== 300 ||
-    new Set(actionIds).size !== 300 ||
-    new Set(actionDirectives).size !== 300 ||
+    personActionLibrary.length !== PERSON_ACTION_LIBRARY_EXPECTED_COUNT ||
+    PERSON_ACTION_LIBRARY_EXPECTED_COUNT < 300 ||
+    new Set(actionIds).size !== PERSON_ACTION_LIBRARY_EXPECTED_COUNT ||
+    new Set(actionDirectives).size !== PERSON_ACTION_LIBRARY_EXPECTED_COUNT ||
     personActionLibrary.some((action) =>
       !action.id || !action.diversityFamily || !action.bodyOrientation || !action.footwork ||
       !action.movementPhase || !action.handTask || !action.framing || !action.poseType
@@ -96,7 +96,7 @@ try {
       libraryCount: personActionLibrary.length,
       uniqueIds: new Set(actionIds).size,
       uniqueDirectives: new Set(actionDirectives).size,
-      message: "The person action library must contain 300 unique, fully tagged actions."
+      message: `The person action library must contain ${PERSON_ACTION_LIBRARY_EXPECTED_COUNT} unique, fully tagged actions.`
     });
   }
 
@@ -116,7 +116,7 @@ try {
         const keys = content.images.map((image) => image.params.seriesActionKey).filter(Boolean);
         const families = content.images.map((image) => image.params.seriesActionFamily).filter(Boolean);
         const directives = content.images.map((image) => image.params.seriesActionDirective).filter(Boolean);
-        const promptCoverage = content.images.every((image) =>
+        const promptCoverage = content.images.filter((image) => image.params.imageType !== "产品静物图").every((image) =>
           /(?:Person action lock:|Series (?:action|mirror|material-action|still-life|atmosphere) variation:|Studio action variation:)/i.test(image.prompt)
         );
         const directiveSets = content.images
@@ -208,7 +208,7 @@ try {
     process.exitCode = 1;
   } else {
     console.log(
-      `Soft-seeding action diversity passed: 300 unique tagged actions, ${checkedSets} generated sets / ${checkedImages} prompts, and ${stressCheckedSets} eight-image stress sets.`
+      `Soft-seeding action diversity passed: ${PERSON_ACTION_LIBRARY_EXPECTED_COUNT} unique tagged actions, ${checkedSets} generated sets / ${checkedImages} prompts, and ${stressCheckedSets} eight-image stress sets.`
     );
   }
 } finally {

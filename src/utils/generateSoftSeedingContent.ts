@@ -12,7 +12,7 @@ import {
   type LifestyleSoftHandheldPolicy,
   type LifestyleSoftSceneFamily
 } from "../data/lifestyleSoftSeedingScenePool";
-import { generateTeamPrompt } from "./generatePrompt";
+import { generatePromptRuntime } from "../prompt-engine/runtime";
 import { selectDiversePersonActions } from "./selectDiverseSeriesActions";
 
 type SoftSeedingCopyTopic =
@@ -3454,9 +3454,9 @@ function buildImagePlan(
     extraRequirement: joinSoftPromptSentences(
       topic === "生活场景软种草" ? lifestyleExpressionBeats[index % lifestyleExpressionBeats.length] : "",
       topic === "穿搭解决方案" ? stylingSolutionExpressionBeats[index % stylingSolutionExpressionBeats.length] : "",
+      `Action lock for this card: ${seriesActionBeat.directive} Treat this as the only primary body action or object-operation moment for this card; ignore any earlier generic walk-or-pause alternative.`,
       getSoftSeedingExtraRequirement(baseParams, draft, garmentTypePreference, topic, variantIndex, imageCount),
-      lifestyleContinuityLine,
-      `Action lock for this card: ${seriesActionBeat.directive} Treat this as the only primary body action or object-operation moment for this card; ignore any earlier generic walk-or-pause alternative.`
+      lifestyleContinuityLine
     ),
     generationNonce: baseParams.generationNonce + variantIndex + index + 1,
     seriesImageCount: imageCount,
@@ -3477,7 +3477,7 @@ function buildImagePlan(
       (topic === "生活场景软种草" && imageCount > 1 && draft.handheldPolicy !== "phoneOnly")
   };
 
-  const output = generateTeamPrompt(params);
+  const output = generatePromptRuntime(params);
 
   return {
     name: draft.name,
@@ -3533,7 +3533,7 @@ function buildSoftSeedingImagePlans(
       !sharedOutfitLine &&
       shouldInheritBaseGarmentType(draft.imageType)
     ) {
-      sharedOutfitLine = generateTeamPrompt(plan.params).selectedOutfitLine;
+      sharedOutfitLine = generatePromptRuntime(plan.params).selectedOutfitLine ?? "";
     }
     return plan;
   });

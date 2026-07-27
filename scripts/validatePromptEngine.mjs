@@ -11,10 +11,12 @@ const E = join(D, "e.ts"), B = join(D, "b.mjs");
 await writeFile(E,
   `export { compilePrompt } from ${JSON.stringify(resolve(P,"src/prompt-engine/compilePrompt.ts"))};\n` +
   `export { setPromptEngineConfig } from ${JSON.stringify(resolve(P,"src/prompt-engine/promptFeatureFlags.ts"))};\n`
+  + `export { resolveProductPresence } from ${JSON.stringify(resolve(P,"src/prompt-engine/normalizePromptProfileInput.ts"))};\n`
+  + `export { generatePromptRuntime } from ${JSON.stringify(resolve(P,"src/prompt-engine/runtime.ts"))};\n`
 );
 await build({ entryPoints:[E], bundle:true, outfile:B, format:"esm", platform:"node", target:"node20", logLevel:"silent" });
 
-const { compilePrompt, setPromptEngineConfig } = await import(pathToFileURL(B));
+const { compilePrompt, setPromptEngineConfig, resolveProductPresence, generatePromptRuntime } = await import(pathToFileURL(B));
 setPromptEngineConfig({ mode: "new" });
 
 let f=0,c=0;
@@ -35,6 +37,15 @@ for(let i=0;i<types.length;i++) {
   ok(r.prompt.length>0, types[i].substring(0,4)+" compiles");
   ok(r.includedRuleIds.length>0, types[i].substring(0,4)+" has rules");
 }
+
+console.log("=== 1b. Product presence normalization ===");
+const basePresence = { imageType:"拍摄花絮 / 材质图", extraRequirement:"" };
+ok(resolveProductPresence({ ...basePresence, imageType:"产品上脚图" }) === true, "On-foot has product");
+ok(resolveProductPresence({ ...basePresence, imageType:"对镜穿搭图" }) === true, "Mirror has product");
+ok(resolveProductPresence({ ...basePresence, imageType:"产品静物图" }) === true, "Still life has product");
+ok(resolveProductPresence({ ...basePresence, imageType:"非产品氛围图", extraRequirement:"include sneakers" }) === false, "Atmosphere suppresses product");
+ok(resolveProductPresence({ ...basePresence, extraRequirement:"show the sneaker material" }) === true, "Material user shoe mention");
+ok(resolveProductPresence({ ...basePresence, extraRequirement:"show the model holding a book" }) === false, "Material without shoe");
 
 // 2. Still life: no person
 const s = go("产品静物图","stillLife","棚内上新拍摄",true,1);
@@ -70,6 +81,22 @@ has(usr.prompt,"soft cream cardigan","User input");
 
 // 9. Validation report has diagnostics
 ok(req.validationReport.totalErrors===0 || (req.validationReport.totalErrors===5 && req.validationReport.brandNameLeaks.length===5), "Validation acceptable");
+
+console.log("=== 10. Runtime modes ===");
+const runtimeParams = {
+  imageType:"产品上脚图", modelChoice:"30–45岁客户画像模特", modelContinuity:"新人物", shoe:"自定义", customShoe:"", season:"春", scenePreference:"通勤上班", garmentTypePreference:"自动匹配", studioLaunchAnglePreference:"自动匹配", studioLaunchPreset:"auto", studioWardrobePreference:"auto", stillLifeStyle:"与主视觉统一", extraRequirement:"中文补充要求", generationNonce:31
+};
+setPromptEngineConfig({ mode:"legacy" });
+const legacyRuntime = generatePromptRuntime(runtimeParams);
+ok(legacyRuntime.prompt.length > 0 && legacyRuntime.diagnostics.mode === "legacy", "Legacy runtime");
+setPromptEngineConfig({ mode:"compare" });
+const compareRuntime = generatePromptRuntime(runtimeParams);
+ok(compareRuntime.prompt === legacyRuntime.prompt, "Compare returns legacy prompt");
+ok(compareRuntime.compiled?.prompt && compareRuntime.diagnostics.diffSummary, "Compare diagnostics");
+setPromptEngineConfig({ mode:"new" });
+const newRuntime = generatePromptRuntime(runtimeParams);
+ok(newRuntime.prompt === newRuntime.compiled?.prompt, "New returns compiled prompt");
+ok(!newRuntime.prompt.includes(legacyRuntime.prompt), "New does not concatenate legacy prompt");
 
 console.log(`\n${c} checks, ${f} failures`);
 await rm(D, {recursive:true, force:true});

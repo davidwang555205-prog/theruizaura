@@ -11,7 +11,7 @@ import type {
   TeamStudioLaunchPreset,
   TeamStudioWardrobePreference,
 } from "./types";
-import { generateTeamPrompt } from "./utils/generatePrompt";
+import { generatePromptRuntime } from "./prompt-engine/runtime";
 import {
   formatSoftSeedingImagePrompts,
   generateSoftSeedingContent,
@@ -65,7 +65,7 @@ const initialParams: TeamPromptParams = {
   generationNonce: 0
 };
 
-const initialGeneratedPrompt = generateTeamPrompt(initialParams).prompt;
+const initialGeneratedPrompt = generatePromptRuntime(initialParams).prompt;
 
 const inputClass =
   "w-full rounded-[18px] border border-aura-beige bg-white/75 px-4 py-3 text-sm text-aura-charcoal outline-none transition focus:border-aura-clay disabled:cursor-not-allowed disabled:bg-aura-cream disabled:text-aura-muted";
@@ -97,6 +97,7 @@ function formatFileSize(size: number) {
 }
 
 function App() {
+  const [activePage, setActivePage] = useState<"workbench" | "prompt" | "xiaohongshu">("workbench");
   const [params, setParams] = useState<TeamPromptParams>(initialParams);
   const [generatedPrompt, setGeneratedPrompt] = useState(() => initialGeneratedPrompt);
   const [copyStatus, setCopyStatus] = useState("");
@@ -136,7 +137,7 @@ function App() {
   const handleGenerate = () => {
     const nextParams = { ...params, generationNonce: params.generationNonce + 1 };
     setParams(nextParams);
-    setGeneratedPrompt(generateTeamPrompt(nextParams).prompt);
+    setGeneratedPrompt(generatePromptRuntime(nextParams).prompt);
     setCopyStatus("");
     setHasPendingChanges(false);
   };
@@ -145,7 +146,7 @@ function App() {
     if (!hasPendingChanges) return params;
     const syncedParams = { ...params, generationNonce: params.generationNonce + 1 };
     setParams(syncedParams);
-    setGeneratedPrompt(generateTeamPrompt(syncedParams).prompt);
+    setGeneratedPrompt(generatePromptRuntime(syncedParams).prompt);
     setHasPendingChanges(false);
     return syncedParams;
   };
@@ -297,9 +298,29 @@ function App() {
     </section>
   );
 
+  const dashboard = (
+    <div className="ui-dashboard-grid">
+      <section className="ui-hero-card">
+        <div><p className="ui-eyebrow">THERUIZ AURA / BRAND CONTENT PLATFORM</p><h1>Founder<br /><em>Workbench</em></h1><p>集中管理品牌内容生产的全流程，让每一次表达都精准有力。</p></div>
+        <div className="ui-hero-art" aria-hidden="true"><span>CLARITY<br />CREATES<br />CONFIDENCE.</span></div>
+      </section>
+      <section><div className="ui-section-heading"><h2>今日重点任务</h2><span>2026—07—26</span></div><div className="ui-task-grid">
+        {[['完善 Prompt 提示词','优化产品与场景的提示词，提升输出一致性。','继续编辑','prompt'],['生成小红书内容','生成一组生活场景软种草内容。','去生成','xiaohongshu'],['图像生成与筛选','为新品训练生成场景图并筛选最佳画面。','即将开放','prompt'],['结果质检','检查近期生成内容质量与合规性。','查看结果','prompt']].map(([title,desc,cta,page]) => <button key={title} className="ui-task-card" onClick={() => setActivePage(page as "prompt" | "xiaohongshu")}><span className="ui-status">{cta === '即将开放' ? '待开始' : '进行中'}</span><h3>{title}</h3><p>{desc}</p><strong>{cta} →</strong></button>)}
+      </div></section>
+      <section className="ui-dashboard-columns"><div className="ui-preview-card"><div className="ui-section-heading"><h2>Prompt 构建器</h2><button onClick={() => setActivePage('prompt')}>继续编辑 →</button></div><dl><dt>当前配置</dt><dd>{params.modelChoice} · {params.season} · {params.garmentTypePreference}</dd><dt>场景</dt><dd>{params.scenePreference}</dd><dt>Prompt 片段</dt><dd>{generatedPrompt.slice(0, 180)}…</dd></dl></div><div className="ui-preview-card"><div className="ui-section-heading"><h2>小红书内容</h2><button onClick={() => setActivePage('xiaohongshu')}>继续生成 →</button></div><div className="ui-story-strip">{softContent.images.slice(0, 5).map((image) => <div key={image.name} className="ui-story-tile"><span>{image.params.scenePreference}</span></div>)}</div><p>{softContent.topic} · {softContent.images.length} 张</p></div></section>
+      <section className="ui-activity-card"><div className="ui-section-heading"><h2>快速操作</h2><span>本地工作区</span></div><div className="ui-quick-actions"><button onClick={() => setActivePage('prompt')}>＋ 新建 Prompt</button><button onClick={() => setActivePage('xiaohongshu')}>▣ 生成小红书内容</button><button onClick={() => setActivePage('prompt')}>▧ 上传参考图</button><button>✓ 结果质检</button></div></section>
+    </div>
+  );
+
   return (
-    <main className="min-h-screen bg-aura-cream px-5 py-8 text-aura-charcoal sm:px-8 lg:px-10">
-      <div className="mx-auto flex max-w-6xl flex-col gap-8">
+    <main className="ui-app-shell">
+      <aside className="ui-sidebar"><div className="ui-brand">THERUIZ AURA<small>BRAND CONTENT PLATFORM</small></div><nav aria-label="平台导航">
+        <button className={activePage === 'workbench' ? 'active' : ''} onClick={() => setActivePage('workbench')}>⌂ <span>工作台<small>Workbench</small></span></button>
+        <p>内容生产</p><button className={activePage === 'prompt' ? 'active' : ''} onClick={() => setActivePage('prompt')}>◌ <span>Prompt 构建器<small>Prompt Builder</small></span></button><button className={activePage === 'xiaohongshu' ? 'active' : ''} onClick={() => setActivePage('xiaohongshu')}>▧ <span>小红书内容<small>Xiaohongshu Content</small></span></button><button onClick={() => setImageGenerationStatus('图片生成 API 尚未接入。')}>▣ <span>图片生成<small>Image Generation</small></span></button>
+        <p>品牌基础</p><button onClick={() => setImageGenerationStatus('Product Truth 将在后续阶段接入。')}>◈ <span>Product Truth<small>产品真相</small></span></button><button onClick={() => setImageGenerationStatus('资产库将在后续阶段接入。')}>◇ <span>资产库<small>Asset Library</small></span></button>
+      </nav><div className="ui-sidebar-foot">团队空间<br /><strong>THERUIZ AURA 团队</strong></div></aside>
+      <div className="ui-main"><header className="ui-topbar"><div className="ui-project">项目 / <strong>THERUIZ AURA 主项目</strong>⌄</div><div className="ui-top-actions"><span>◉ 9,842 积分</span><input aria-label="搜索" placeholder="搜索内容、Prompt、素材…" /><span>♧</span><b>TA</b><span>Theruiz Team⌄</span></div></header><div className="ui-content">
+        {activePage === 'workbench' ? dashboard : <>
         <header className="max-w-3xl space-y-3">
           <p className="text-xs uppercase tracking-[0.28em] text-aura-muted">Standard accurate team mode</p>
           <h1 className="text-3xl font-semibold tracking-tight text-aura-charcoal sm:text-4xl">
@@ -310,7 +331,7 @@ function App() {
           </p>
         </header>
 
-        <section className="grid gap-6 lg:grid-cols-[0.9fr_1.1fr]">
+        {activePage === 'prompt' && <section className="ui-generation-grid grid gap-6 lg:grid-cols-[320px_minmax(0,1fr)_280px]">
           <div className="rounded-[28px] bg-aura-porcelain/95 p-6 shadow-aura ring-1 ring-aura-beige/70">
             <div className="mb-6">
               <h2 className="text-xl font-semibold text-aura-charcoal">输入</h2>
@@ -611,9 +632,10 @@ function App() {
               生成产品上脚图、对镜穿搭图、生活场景图、产品静物图时，请务必上传对应鞋款参考图，否则 AI 容易改变鞋型与颜色。
             </p>
           </aside>
-        </section>
+          <aside className="ui-queue-card"><p className="ui-eyebrow">GENERATION QUEUE</p><h2>任务队列</h2><div className="ui-queue-empty"><span>○</span><strong>API 尚未接入</strong><p>当前保留本地参考图预览、Prompt 复制和下载入口。</p></div><div className="ui-queue-summary"><span>状态</span><b>idle</b></div></aside>
+        </section>}
 
-        <section className="rounded-[28px] bg-aura-porcelain/95 p-6 shadow-aura ring-1 ring-aura-beige/70">
+        {activePage === 'xiaohongshu' && <section className="rounded-[28px] bg-aura-porcelain/95 p-6 shadow-aura ring-1 ring-aura-beige/70">
           <div className="mb-6 space-y-5">
             <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
               <div className="max-w-2xl">
@@ -768,8 +790,9 @@ function App() {
               {softCopyStatus && <p className="text-sm text-aura-muted">{softCopyStatus}</p>}
             </div>
           </div>
-        </section>
-      </div>
+        </section>}
+        </>}
+      </div></div>
     </main>
   );
 }
