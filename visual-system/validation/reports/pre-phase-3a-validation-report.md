@@ -2,7 +2,7 @@
 
 Status: `PARTIAL`
 
-The internal workspace can create and inspect 13 A1–C5 validation tasks and can bind current-task Product Truth evidence. No external provider is connected and no real result images have been returned, so this report intentionally does not claim PASS.
+The internal workspace can create and inspect 13 A1–C5 validation tasks and can bind current-task Product Truth evidence. No external provider is connected; returned images are manually reviewed validation results only.
 
 ## Required manual bridge
 
@@ -16,7 +16,9 @@ Select/upload product evidence → review Product Truth confidence → copy each
 - Evidence confidence: `High` for structure, color, panel layout, outsole, heel, tongue, laces, and material appearance. No on-foot evidence was supplied; this is not a blocker for the product-only validation set, but it remains a missing optional role for B/C scenes involving wear.
 - Corrected returned provider images: A2, B3 and C1 were manually reviewed and passed; the first purple/lavender-reference run is `INVALID_TEST` and excluded from the pass rate.
 - Browser workbench smoke test: 1 passed; frozen mother, 13 anchors, and 13 validation cases rendered with console/page errors at 0.
-- Final conclusion: `PARTIAL` pending manual provider bridge and human QA.
+- Effective validation passes: `8 / 13` (`A2`, `A4`, `B1`, `B2`, `B3`, `C1`, `C2`, `C5`).
+- Remaining validation tasks: `A1`, `A3`, `B4`, `C3`, `C4`.
+- Final conclusion: `PARTIAL`; Phase 3-A remains closed.
 
 ## Product Truth evidence ledger
 
@@ -82,3 +84,21 @@ The three corrected results pass the current Product Truth and hard-reject gate.
 ### QA conclusion
 
 The first A2/B3/C1 run used an incorrect purple/lavender reference result and is marked `INVALID_TEST`; it is excluded from the pass rate and cannot be used as Product Truth evidence. The corrected reruns for A2, B3 and C1 are `PASS` and are eligible only as validation evidence, not as frozen brand anchors. The overall status remains `PARTIAL` because the complete A1—C5 set has not been returned and reviewed. Phase 3-A remains closed.
+
+## Returned-result QA: Phase 2-D second high-risk batch
+
+The following five returned images were reviewed against the current Product Truth, task role, and hard-reject rubric. All five are validation results only. None is promoted to a frozen brand anchor.
+
+| Task | Returned result | Product Truth / scene QA conclusion | Hard-reject check | Status | Record type |
+|---|---|---|---|---|---|
+| A4 | `codex-clipboard-bb00208e-a444-49c3-b3ba-3c9dab2c8fe5.png` | Burgundy/ivory color blocking, low-cut silhouette, panel geometry, white laces and brown outsole remain readable; natural crossed-leg / lifted-foot relationship and complete product visibility are acceptable. | No changed colorway, duplicated/merged shoe, severe clipping, impossible contact, or unsupported product detail observed. | `PASS` | validated generation result |
+| B1 | `codex-clipboard-78cf27ce-0fd5-4ea5-b763-6248c08c5d6d.png` | Controlled studio lower-third keeps the garment hem clear of the sneaker details; both shoes remain structurally readable with accurate product color and scale. | No hard reject observed. | `PASS` | validated generation result |
+| B2 | `codex-clipboard-b4ae0507-070a-4aaf-98b2-891fd690b4ee.png` | Official studio back view preserves heel counter, collar, rear construction, outsole termination and grounded stance. | No hard reject observed. | `PASS` | validated generation result |
+| C2 | `codex-clipboard-d4b6bb44-1088-4f39-8c85-48f059df2650.png` | Natural on-foot close-up; shoe geometry, burgundy/ivory construction, laces, material contrast and contact remain consistent with available Product Truth. | No hard reject observed. | `PASS` | validated generation result |
+| C5 | `codex-clipboard-e3d1e6c8-17e1-45a3-8247-cf275697b005.png` | Top-down view clearly preserves toe-box structure, tongue, settled white laces, panel geometry and material detail. | No hard reject observed. | `PASS` | validated generation result |
+
+### Phase 2-D second-batch conclusion
+
+The effective validation pass count is now `8 / 13`: `A2`, `A4`, `B1`, `B2`, `B3`, `C1`, `C2`, and `C5`. The remaining tasks are `A1`, `A3`, `B4`, `C3`, and `C4`.
+
+C2 is recorded only as a `validated generation result`. It is not added to the original `on_foot` Product Truth evidence and does not change the missing-evidence ledger. The five second-batch results are not frozen brand anchors. Overall status remains `PARTIAL`, and Phase 3-A remains closed.
