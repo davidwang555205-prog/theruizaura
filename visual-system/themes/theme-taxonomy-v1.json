@@ -1,0 +1,10 @@
+{
+  "version": "1.0",
+  "families": [
+    { "family_id": "lifestyle", "title": "Lifestyle", "theme_ids": ["soft-lifestyle-daily-life", "soft-outfit-solution", "soft-autumn-winter-color-lab", "soft-brand-aesthetic"] },
+    { "family_id": "official-studio", "title": "Official Studio", "theme_ids": ["soft-launch-conversion"] },
+    { "family_id": "product-presentation", "title": "Product Presentation", "theme_ids": ["soft-material-awareness"] },
+    { "family_id": "material-craft", "title": "Material & Craft", "theme_ids": ["soft-product-development", "soft-material-awareness"] },
+    { "family_id": "supporting-scene-library", "title": "Supporting Scene Library", "theme_ids": ["soft-multi-scene-life"] }
+  ]
+}
