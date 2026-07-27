@@ -44,7 +44,7 @@ for (const [width, height] of viewports) {
     await expect(page.getByRole('heading', { name: '每日小红书内容' })).toBeVisible();
     await expect(page.getByText('配图卡片')).toBeVisible();
     await page.getByRole('button', { name: '生成小红书内容' }).click();
-    await expect(page.getByText('标题')).toBeVisible();
+    await expect(page.getByRole('heading', { name: '标题 3 个' })).toBeVisible();
     await page.screenshot({ path: path.join(process.cwd(), 'artifacts/ui-redesign', `xiaohongshu-workspace-${width}.png`), fullPage: true });
   });
 }

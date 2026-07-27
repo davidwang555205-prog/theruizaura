@@ -1,12 +1,12 @@
 # Prompt Engine + Founder UI v1 本地集成验收报告
 
-状态：`NOT_READY_FOR_PUSH`
+状态：`READY_FOR_USER_APPROVAL_TO_PUSH`
 
 ## 分支与基线
 
 - 当前分支：`integration/prompt-engine-founder-ui-v1`
 - 集成基线：`f1b1af9b9eed7d8c2ddc5d77c91b2e4f0ababef1`
-- 当前 HEAD：`d5e5973`（本轮本地修复提交）
+- 当前 HEAD：待本轮验收提交后写入
 - `feature/prompt-engine-full-production-integration-v1`：`f16f45f9a524b38b9f865274558744bf1b2b8cdd`，已通过 `merge-base --is-ancestor`。
 - `feature/founder-workbench-ui-v1`：`f1b1af9b9eed7d8c2ddc5d77c91b2e4f0ababef1`，已通过 `merge-base --is-ancestor`。
 - 工作树：报告更新后应保持干净；未 push，未创建 PR。
@@ -73,6 +73,8 @@
 - 已知风险：`validate:actions` 当前失败；真实目标 viewport 的像素级浏览器回归尚未在项目专用浏览器框架中完成。
 - 回滚方式：`git switch feature/founder-workbench-ui-v1`；若需回到提示词集成分支，使用 `git switch feature/prompt-engine-full-production-integration-v1`。
 
-## 结论
+## 最终回归结论
 
-当前集成分支未达到上传条件，因此标记为 `NOT_READY_FOR_PUSH`。完成 action validation 修复并在项目专用浏览器框架补跑六个目标 viewport 后，再重新验收。
+Playwright `npx playwright test --workers=1 --retries=0` 两次均为 18 passed、0 failed、0 skipped，真实覆盖 1600/1440/1280/1024/768/390 六档 viewport；console error/warning 与 pageerror 均为 0，横向溢出断言通过。正式校验重新运行通过：engine 55/0、prompts 27 samples、studio 178/0、outfits 5000 unique samples per season、actions 318、typecheck、build、git diff check。最终 18 张截图均由本轮全绿运行生成并保存在 `artifacts/ui-redesign/`；Playwright 临时 report/test-results 已清理，工作树无残留修改、无残留测试服务。
+
+达到 `READY_FOR_USER_APPROVAL_TO_PUSH`。未执行 push，未创建 PR。
