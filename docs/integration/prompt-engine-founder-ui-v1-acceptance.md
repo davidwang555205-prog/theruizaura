@@ -78,3 +78,15 @@
 Playwright `npx playwright test --workers=1 --retries=0` 两次均为 18 passed、0 failed、0 skipped，真实覆盖 1600/1440/1280/1024/768/390 六档 viewport；console error/warning 与 pageerror 均为 0，横向溢出断言通过。正式校验重新运行通过：engine 55/0、prompts 27 samples、studio 178/0、outfits 5000 unique samples per season、actions 318、typecheck、build、git diff check。最终 18 张截图均由本轮全绿运行生成并保存在 `artifacts/ui-redesign/`；Playwright 临时 report/test-results 已清理，工作树无残留修改、无残留测试服务。
 
 达到 `READY_FOR_USER_APPROVAL_TO_PUSH`。未执行 push，未创建 PR。
+
+## 提示词分支最终集成验收
+
+- 最新提示词分支 HEAD：`c9f4f06515784e24d94bb8469d61f94df1552d87`，已通过 merge-base 验证。
+- 集成 merge commit：`11029d4`；当前集成 HEAD：待本地验收提交后写入。
+- 默认模式：`new`；`legacy` 与 `compare` 仍由 Runtime 配置显式可用，compare 不拼接新旧 Prompt。
+- 软种草 Runtime 审计：8 个主题 × 1/3/5/8 图，712 项、0 failures；所有卡片经过 Runtime，未发现 compile 后主题追加。
+- `npm run validate:actions`：exit 0，318 条动作、72 generated sets、384 prompts、10,000 八图 stress sets。
+- Playwright：`npx playwright test --workers=1 --retries=0` 连续两次均 18/18 passed、0 failed、0 skipped；覆盖 1600/1440/1280/1024/768/390 六档 viewport，console error/warning 与 pageerror 均为 0。
+- 最终截图：`artifacts/ui-redesign/` 下 Founder Workbench、Generation Workspace、小红书工作区各 6 张，共 18 张，来自本轮全绿运行。
+- 代码回归：engine 55/0、prompts 27 samples、studio 178/0、outfits 通过、actions 318、typecheck 通过、build 通过、git diff check 通过。
+- 未完成项：无；临时 Playwright report/test-results 在提交前清理，未 push、未创建 PR。
