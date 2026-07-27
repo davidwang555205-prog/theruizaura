@@ -76,10 +76,12 @@ src/prompt-engine/
 - `git reset --hard e93f83b` — 版本回退
 - 旧 generateTeamPrompt() 未修改
 
-## 未完成（后续迭代）
-- 软种草 8 主题 Profile 迁移
-- 旧重复逻辑正式清理
-- 浏览器验收
+## 本轮 Phase 4–11 进展
+- 默认 Runtime 已切换为 `new`，`legacy` / `compare` 仍可显式回滚。
+- 8 个软种草主题 × 1/3/5/8 图通过 `scripts/validateSoftSeedingRuntimeMigration.mjs` 的 712 项审计；每张卡片的最终文本等于重新调用 Runtime 的 compiled prompt，无 compile 后追加长字符串，required rules 无缺失。
+- `npm run validate:actions` exit code 0：318 条动作、72 generated sets / 384 prompts、10,000 八图 stress sets。
+- `validate:engine` 55/0、`validate:prompts` 27 samples、`validate:studio` 178/0、`validate:outfits`、typecheck、build、git diff check 均通过。
+- 浏览器业务验收尚未在本分支完成；因此仍为 `NOT_READY_FOR_LOCAL_INTEGRATION`。
 
 ## GitHub 状态
-**NOT_PUSHED** — READY_FOR_USER_APPROVAL_TO_PUSH
+**NOT_PUSHED** — NOT_READY_FOR_LOCAL_INTEGRATION

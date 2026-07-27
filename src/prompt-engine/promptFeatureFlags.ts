@@ -1,6 +1,8 @@
 import type { PromptEngineConfig, PromptEngineMode } from "./contracts";
 
-let _mode: PromptEngineMode = "compare";
+// Production now uses the structured compiler. Compare remains available for
+// explicit diagnostics and rollback without changing the runtime contract.
+let _mode: PromptEngineMode = "new";
 let _diagnostics: boolean = false;
 let _budgetReport: boolean = false;
 let _validationReport: boolean = false;

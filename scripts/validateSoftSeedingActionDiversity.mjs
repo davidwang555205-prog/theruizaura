@@ -116,11 +116,9 @@ try {
         const keys = content.images.map((image) => image.params.seriesActionKey).filter(Boolean);
         const families = content.images.map((image) => image.params.seriesActionFamily).filter(Boolean);
         const directives = content.images.map((image) => image.params.seriesActionDirective).filter(Boolean);
-        const promptCoverage = content.images
-          .filter((image) => image.params.imageType !== "产品静物图")
-          .every((image) =>
-            /(?:Person action lock:|Series (?:action|mirror|material-action|still-life|atmosphere) variation:|Studio action variation:)/i.test(image.prompt)
-          );
+        const promptCoverage = content.images.filter((image) => image.params.imageType !== "产品静物图").every((image) =>
+          /(?:Person action lock:|Series (?:action|mirror|material-action|still-life|atmosphere) variation:|Studio action variation:)/i.test(image.prompt)
+        );
         const directiveSets = content.images
           .filter((image) => !["产品上脚图", "对镜穿搭图", "生活场景图"].includes(image.params.imageType))
           .map((image) => normalizedWords(image.params.seriesActionDirective));
