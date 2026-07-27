@@ -82,7 +82,7 @@ Playwright `npx playwright test --workers=1 --retries=0` 两次均为 18 passed�
 ## 提示词分支最终集成验收
 
 - 最新提示词分支 HEAD：`c9f4f06515784e24d94bb8469d61f94df1552d87`，已通过 merge-base 验证。
-- 集成 merge commit：`11029d4`；当前集成 HEAD：待本地验收提交后写入。
+- 集成 merge commit：`11029d4`；当前集成 HEAD：`3558bfa7b52b64b70ab9cad734f53a7ee055bc4c`。
 - 默认模式：`new`；`legacy` 与 `compare` 仍由 Runtime 配置显式可用，compare 不拼接新旧 Prompt。
 - 软种草 Runtime 审计：8 个主题 × 1/3/5/8 图，712 项、0 failures；所有卡片经过 Runtime，未发现 compile 后主题追加。
 - `npm run validate:actions`：exit 0，318 条动作、72 generated sets、384 prompts、10,000 八图 stress sets。
