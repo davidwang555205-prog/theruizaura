@@ -31,6 +31,10 @@
 - `npm run validate:outfits`：通过
 - `git diff --check`
 
+本轮处理：动作注册表实际为 318 条，旧校验器硬编码 300，且动作锁曾在预算截断风险位置。已改为引用 `PERSON_ACTION_LIBRARY_EXPECTED_COUNT`，并将真实动作锁前置；基线 `06f9ffc1a7ad25cf3aa00eef1e69e494b3bc7a5c` 的临时 worktree 可复现旧失败。当前 `npm run validate:actions` 已通过，318 条动作和覆盖校验通过。
+
+新增 `playwright.config.ts` 与 `tests/e2e/responsive-workspaces.spec.ts`，通过真实 `npm run dev -- --host 127.0.0.1 --port 4173` webServer 覆盖 Founder Workbench、Generation Workspace、小红书工作区及 1600/1440/1280/1024/768/390 六档 CSS viewport。已生成 18 张真实浏览器截图，位于 `artifacts/ui-redesign/`。首次运行发现并修正了测试选择器与真实页面文案不一致；最终完整运行结果仍需清理残留测试进程后复核，因此状态暂不提前改为 READY。
+
 失败/阻塞：
 
 - `npm run validate:actions`：失败。当前 action library 为 318 条，而脚本仍要求“300 unique fully tagged actions”，并报告多个软种草场景的 `promptCoverage: false`。该问题不由本次两分支接线产生，当前未擅自修改提示词核心或动作库。

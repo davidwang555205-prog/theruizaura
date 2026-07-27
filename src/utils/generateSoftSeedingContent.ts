@@ -3454,9 +3454,9 @@ function buildImagePlan(
     extraRequirement: joinSoftPromptSentences(
       topic === "生活场景软种草" ? lifestyleExpressionBeats[index % lifestyleExpressionBeats.length] : "",
       topic === "穿搭解决方案" ? stylingSolutionExpressionBeats[index % stylingSolutionExpressionBeats.length] : "",
+      `Action lock for this card: ${seriesActionBeat.directive} Treat this as the only primary body action or object-operation moment for this card; ignore any earlier generic walk-or-pause alternative.`,
       getSoftSeedingExtraRequirement(baseParams, draft, garmentTypePreference, topic, variantIndex, imageCount),
-      lifestyleContinuityLine,
-      `Action lock for this card: ${seriesActionBeat.directive} Treat this as the only primary body action or object-operation moment for this card; ignore any earlier generic walk-or-pause alternative.`
+      lifestyleContinuityLine
     ),
     generationNonce: baseParams.generationNonce + variantIndex + index + 1,
     seriesImageCount: imageCount,
