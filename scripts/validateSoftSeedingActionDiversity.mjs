@@ -208,7 +208,7 @@ try {
     process.exitCode = 1;
   } else {
     console.log(
-      `Soft-seeding action diversity passed: 300 unique tagged actions, ${checkedSets} generated sets / ${checkedImages} prompts, and ${stressCheckedSets} eight-image stress sets.`
+      `Soft-seeding action diversity passed: ${PERSON_ACTION_LIBRARY_EXPECTED_COUNT} unique tagged actions, ${checkedSets} generated sets / ${checkedImages} prompts, and ${stressCheckedSets} eight-image stress sets.`
     );
   }
 } finally {

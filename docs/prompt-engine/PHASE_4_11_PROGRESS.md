@@ -8,6 +8,8 @@ Branch: `feature/prompt-engine-full-production-integration-v1`
 - Production default was switched from `compare` to `new`; `legacy` and `compare` remain explicit rollback/diagnostic modes.
 - Soft-seeding action locks are assembled before long topic continuity strings so the structured runtime budget cannot silently discard the primary card action.
 - The action validator now reads the authoritative `PERSON_ACTION_LIBRARY_EXPECTED_COUNT` (318) instead of a stale literal.
+- Added `scripts/validateSoftSeedingRuntimeMigration.mjs`: all 8 topics × 1/3/5/8 cards passed 712 checks. Each card's final text equals a fresh `generatePromptRuntime` result, with no post-compile topic append and no missing required rules.
+- `npm run validate:actions` completed with exit code 0: 72 generated sets / 384 prompts and 10,000 eight-image stress sets.
 
 ## Validation evidence
 
@@ -19,7 +21,6 @@ Branch: `feature/prompt-engine-full-production-integration-v1`
 
 ## Not yet complete
 
-- Full eight-topic structured theme/card profile migration has not yet been proven; `generateSoftSeedingContent.ts` still owns topic copy/draft registries and requires a dedicated final-prompt audit.
-- The action stress validator is computationally long in this worktree and has not produced a completed exit-code record after the 318-count change.
-- Browser business acceptance for this branch has not been run. Therefore the final state remains `NOT_READY_FOR_PUSH`.
+- The eight topics still use the existing topic draft registries as their source data; the final Runtime migration and budget boundary are proven, but a larger data-file decomposition remains future cleanup.
+- Browser business acceptance for this branch has not been run. Therefore the final state remains `NOT_READY_FOR_LOCAL_INTEGRATION`.
 - No push or PR was performed.
