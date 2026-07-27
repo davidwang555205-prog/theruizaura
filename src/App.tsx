@@ -24,7 +24,7 @@ import { promptQualityPatchNotice } from "./data/promptPatches";
 import { getCompatibleSceneOptions, isSceneCompatibleWithImageType } from "./data/teamSceneOptions";
 import { TEAM_MODEL_OPTIONS } from "./data/teamModelProfiles";
 import { TEAM_MODEL_CONTINUITY_OPTIONS } from "./data/modelContinuityProfiles";
-import { anchorManifest, brandVisualMother, validationCases } from "./visual-system";
+import { anchorManifest, brandVisualMother, createVisualValidationWorkspace, validationCases } from "./visual-system";
 import { STUDIO_LAUNCH_PRESET_OPTIONS } from "./data/studioLaunchPresets";
 import { getCompatibleStudioWardrobeOptions, STUDIO_WARDROBE_OPTIONS } from "./data/studioWardrobeLibrary";
 
@@ -97,7 +97,38 @@ function formatFileSize(size: number) {
   return `${(size / 1024 / 1024).toFixed(1)} MB`;
 }
 
+async function copyWithFallback(value: string): Promise<"clipboard" | "fallback"> {
+  try {
+    if (navigator.clipboard?.writeText) {
+      await navigator.clipboard.writeText(value);
+      return "clipboard";
+    }
+  } catch {
+    // Fall through to the legacy textarea path for insecure contexts and denied permissions.
+  }
+  const textarea = document.createElement("textarea");
+  textarea.value = value;
+  textarea.setAttribute("readonly", "true");
+  textarea.style.position = "fixed";
+  textarea.style.opacity = "0";
+  document.body.appendChild(textarea);
+  textarea.select();
+  const copied = document.execCommand("copy");
+  textarea.remove();
+  if (!copied) throw new Error("Clipboard API 不可用，且降级复制失败。请展开 Prompt 后手动选择复制。");
+  return "fallback";
+}
+
+const visualEvidence = [
+  { id: "PT-01", name: "overall lateral product", role: "overall_structure" as const },
+  { id: "PT-02", name: "top front product", role: "top_front" as const },
+  { id: "PT-03", name: "heel side product", role: "heel_side" as const },
+  { id: "PT-04", name: "material craft product", role: "material_craft" as const }
+];
+const visualValidationTasks = createVisualValidationWorkspace(visualEvidence).tasks;
+
 function VisualSystemWorkspace() {
+  const [copyStatus, setCopyStatus] = useState("");
   const groups = [
     ["A", "生活方式母体锚点", anchorManifest.anchors.filter((anchor) => anchor.group === "lifestyle")],
     ["B", "官方棚内人物锚点", anchorManifest.anchors.filter((anchor) => anchor.group === "official_studio")],
@@ -107,7 +138,7 @@ function VisualSystemWorkspace() {
     <header className="max-w-3xl space-y-2"><p className="ui-eyebrow">INTERNAL ONLY / PRE-PHASE 3-A</p><h1 className="text-3xl font-semibold text-aura-charcoal">视觉母体验证工作台</h1><p className="text-sm leading-6 text-aura-muted">品牌母体定义画面语言，不定义当前上传产品的真实鞋型。Product Truth 只来自本次任务上传证据。</p></header>
     <section className="rounded-[24px] bg-aura-porcelain/95 p-5 ring-1 ring-aura-beige/70"><div className="flex flex-wrap items-center justify-between gap-3"><div><p className="text-xs uppercase tracking-[0.2em] text-aura-muted">FROZEN BRAND SYSTEM v{brandVisualMother.version}</p><h2 className="text-xl font-semibold text-aura-charcoal">{brandVisualMother.core_positioning}</h2></div><span className="rounded-full bg-aura-cream px-3 py-1 text-xs">{brandVisualMother.status}</span></div><div className="mt-4 grid gap-3 sm:grid-cols-3"><div><b>年龄范围</b><p className="text-sm text-aura-muted">{brandVisualMother.audience_visual_age_range.min}—{brandVisualMother.audience_visual_age_range.max} 岁</p></div><div><b>产品导演画面</b><p className="text-sm text-aura-muted">禁止</p></div><div><b>产品事实来源</b><p className="text-sm text-aura-muted">本次上传图片</p></div></div></section>
     {groups.map(([label, title, anchors]) => <section key={label} className="rounded-[24px] bg-aura-porcelain/95 p-5 ring-1 ring-aura-beige/70"><div className="mb-4 flex items-center justify-between"><h2 className="text-lg font-semibold text-aura-charcoal">{label}｜{title}</h2><span className="text-xs text-aura-muted">{anchors.length} anchors</span></div><div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">{anchors.map((anchor) => <figure key={anchor.id} className="overflow-hidden rounded-[18px] bg-white/70 ring-1 ring-aura-beige/70"><img src={anchor.file.replace("../", "/visual-system/")} alt={`${anchor.id} visual anchor`} className="aspect-[4/5] w-full object-cover" /><figcaption className="space-y-1 p-3 text-xs"><b>{anchor.id}</b><p className="text-aura-muted">定义抽象画面语言；不定义当前产品 Product Truth。</p></figcaption></figure>)}</div></section>)}
-    <section className="rounded-[24px] bg-aura-porcelain/95 p-5 ring-1 ring-aura-beige/70"><div className="flex items-center justify-between"><h2 className="text-lg font-semibold text-aura-charcoal">A1—C5 视觉验证任务</h2><span className="text-xs text-aura-muted">{validationCases.length} cases / validation only</span></div><div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">{validationCases.map((item) => <article key={item.id} className="rounded-[16px] bg-white/70 p-4 ring-1 ring-aura-beige/70"><div className="flex justify-between"><b>{item.id}</b><span className="text-xs text-aura-muted">{item.recommended_ratio}</span></div><h3 className="mt-2 font-medium text-aura-charcoal">{item.role}</h3><p className="mt-2 text-xs leading-5 text-aura-muted">{item.validation_goal}</p><button type="button" className="mt-3 text-xs font-medium underline underline-offset-4">复制 Provider-ready Prompt</button></article>)}</div></section>
+    <section className="rounded-[24px] bg-aura-porcelain/95 p-5 ring-1 ring-aura-beige/70"><div className="flex items-center justify-between"><h2 className="text-lg font-semibold text-aura-charcoal">A1—C5 视觉验证任务</h2><span className="text-xs text-aura-muted">{validationCases.length} cases / validation only</span></div><p className="mt-2 text-sm text-aura-muted">Product Truth confidence: High · 当前任务证据仅用于验证，不自动接入 Provider。</p><div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">{visualValidationTasks.map((item) => { const referencePlan = `Reference Plan: ${item.referencePlan.join(", ")}. Use current uploaded Product Truth as the sole product source; brand anchors provide visual language only.`; const prompt = item.providerReadyPrompt; const reportCopy = async (value: string, label: string) => { try { const mode = await copyWithFallback(value); setCopyStatus(`${label} 已复制${mode === "fallback" ? "（兼容模式）" : ""}`); } catch (error) { setCopyStatus(error instanceof Error ? error.message : "复制失败，请展开 Prompt 后手动复制。"); } }; return <article key={item.id} className="rounded-[16px] bg-white/70 p-4 ring-1 ring-aura-beige/70"><div className="flex justify-between"><b>{item.id}</b><span className="text-xs text-aura-muted">{item.recommended_ratio}</span></div><h3 className="mt-2 font-medium text-aura-charcoal">{item.role}</h3><p className="mt-2 text-xs leading-5 text-aura-muted">{item.validation_goal}</p><details className="mt-3 rounded-xl bg-aura-cream/60 p-3"><summary className="cursor-pointer text-xs font-medium">展开查看完整 Prompt</summary><pre data-testid={`prompt-${item.id}`} className="mt-3 max-h-64 overflow-auto whitespace-pre-wrap text-xs leading-5 text-aura-charcoal">{prompt}</pre><p className="mt-3 text-xs leading-5 text-aura-muted">{referencePlan}</p></details><div className="mt-3 flex flex-wrap gap-2"><button type="button" onClick={() => reportCopy(prompt, "Prompt")} aria-label={`${item.id} 复制完整 Prompt`} className="rounded-lg bg-aura-charcoal px-3 py-2 text-xs font-medium text-white">复制完整 Prompt</button><button type="button" onClick={() => reportCopy(referencePlan, "Reference Plan")} aria-label={`${item.id} 复制 Reference Plan`} className="rounded-lg border border-aura-beige px-3 py-2 text-xs font-medium">复制 Reference Plan</button><button type="button" onClick={() => reportCopy(`${prompt}\n\n${referencePlan}`, "Prompt + Reference Plan")} aria-label={`${item.id} 复制 Prompt 和 Reference Plan`} className="rounded-lg border border-aura-beige px-3 py-2 text-xs font-medium">复制全部</button></div></article>; })}</div>{copyStatus && <p role="status" className="mt-4 text-sm text-aura-muted">{copyStatus}</p>}</section>
   </section>;
 }
 
