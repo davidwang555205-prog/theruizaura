@@ -1,0 +1,258 @@
+{
+  "version": "1.0",
+  "status": "validation_only",
+  "cases": [
+    {
+      "id": "A1",
+      "group": "lifestyle",
+      "role": "坐姿完整产品露出",
+      "validation_goal": "验证坐姿松弛、人物真实重心、至少一只鞋完整可见以及自然城市生活感。",
+      "product_weight": "medium",
+      "recommended_ratio": "4:5",
+      "required": [
+        "人物25—46岁品牌范围",
+        "真实座椅受力",
+        "至少一只鞋完整",
+        "自然侧光",
+        "产品不决定人物与场景"
+      ],
+      "avoid": [
+        "咖啡馆模板照搬",
+        "刻意抬脚露鞋",
+        "网红看镜头",
+        "复制锚点人物身份"
+      ]
+    },
+    {
+      "id": "A2",
+      "group": "lifestyle",
+      "role": "站姿与城市过渡空间",
+      "validation_goal": "验证城市边界空间、自然停顿状态、完整人物和产品自然参与画面。",
+      "product_weight": "medium_low",
+      "recommended_ratio": "4:5",
+      "required": [
+        "门口/街角等过渡逻辑",
+        "人物有明确行为节点",
+        "至少一只鞋完整",
+        "空间有真实材质"
+      ],
+      "avoid": [
+        "只有站姿没有行为",
+        "豪宅或酒店模板",
+        "产品成为唯一画面中心"
+      ]
+    },
+    {
+      "id": "A3",
+      "group": "lifestyle",
+      "role": "坐姿松弛与材质关系",
+      "validation_goal": "验证人物、衣物、椅子、桌面和产品之间可触摸的物理与材质关系。",
+      "product_weight": "medium_low",
+      "recommended_ratio": "4:5",
+      "required": [
+        "真实衣物褶皱",
+        "椅子与身体受力",
+        "温暖真实光线",
+        "人物注意力不主要在镜头"
+      ],
+      "avoid": [
+        "软塌慵懒表演",
+        "塑料材质",
+        "道具堆砌高级感"
+      ]
+    },
+    {
+      "id": "A4",
+      "group": "lifestyle",
+      "role": "交叉腿与产品自然可见",
+      "validation_goal": "验证复杂坐姿中脚、鞋、腿和衣物结构的真实关系。",
+      "product_weight": "medium",
+      "recommended_ratio": "4:5",
+      "required": [
+        "交叉腿不穿模",
+        "鞋型不被动作重塑",
+        "至少一只鞋完整",
+        "人物姿态克制"
+      ],
+      "avoid": [
+        "扭曲腿部",
+        "鞋底异常",
+        "为露鞋过度摆姿"
+      ]
+    },
+    {
+      "id": "B1",
+      "group": "official_studio",
+      "role": "鞋履近景与裙装比例",
+      "validation_goal": "验证暖灰棚拍中裙摆、腿部和上脚产品的正式关系。",
+      "product_weight": "high",
+      "recommended_ratio": "4:5",
+      "required": [
+        "暖灰棚景",
+        "成熟人物",
+        "鞋履完整",
+        "裙摆不遮挡关键结构"
+      ],
+      "avoid": [
+        "冷白电商棚",
+        "腿部拉长",
+        "鞋型变化"
+      ]
+    },
+    {
+      "id": "B2",
+      "group": "official_studio",
+      "role": "背面全身",
+      "validation_goal": "验证官方棚内背面人物、服装后部和产品后跟关系。",
+      "product_weight": "medium",
+      "recommended_ratio": "4:5",
+      "required": [
+        "上传图有足够后跟证据",
+        "真实站姿重心",
+        "人物身份一致",
+        "背景温暖克制"
+      ],
+      "avoid": [
+        "证据不足时编造后跟",
+        "职业模特扭胯",
+        "产品被裙摆遮挡"
+      ]
+    },
+    {
+      "id": "B3",
+      "group": "official_studio",
+      "role": "正面全身",
+      "validation_goal": "验证品牌官方人物正面完整造型、成熟气质与产品比例。",
+      "product_weight": "medium_high",
+      "recommended_ratio": "4:5",
+      "required": [
+        "人物25—46岁",
+        "自然正面重心",
+        "简洁轮廓",
+        "产品可识别"
+      ],
+      "avoid": [
+        "幼态",
+        "甜美广告笑",
+        "冷漠时装大片",
+        "纯白棚"
+      ]
+    },
+    {
+      "id": "B4",
+      "group": "official_studio",
+      "role": "三分之四全身与侧向站姿",
+      "validation_goal": "验证人物立体感、产品侧向结构和克制棚拍动作。",
+      "product_weight": "medium_high",
+      "recommended_ratio": "4:5",
+      "required": [
+        "自然3/4角度",
+        "产品侧面结构可核验",
+        "人体比例真实",
+        "留白充足"
+      ],
+      "avoid": [
+        "过度扭胯",
+        "模特展示动作",
+        "产品侧面与上传图不一致"
+      ]
+    },
+    {
+      "id": "C1",
+      "group": "product_presentation",
+      "role": "完整侧面轮廓",
+      "validation_goal": "验证当前上传产品的完整侧面结构、比例、材质和品牌留白。",
+      "product_weight": "very_high",
+      "recommended_ratio": "1:1",
+      "required": [
+        "完整侧面证据",
+        "真实接触阴影",
+        "暖白或浅石背景",
+        "产品结构100%优先"
+      ],
+      "avoid": [
+        "悬浮",
+        "复杂道具",
+        "纯白抠图感",
+        "视觉锚点鞋型替代当前产品"
+      ]
+    },
+    {
+      "id": "C2",
+      "group": "product_presentation",
+      "role": "上脚双鞋近景",
+      "validation_goal": "验证双鞋一致性、鞋口与脚踝关系、真实落地和允许形变边界。",
+      "product_weight": "very_high",
+      "recommended_ratio": "4:5",
+      "required": [
+        "双鞋结构一致",
+        "至少一只完整",
+        "接触阴影真实",
+        "上脚形变轻微"
+      ],
+      "avoid": [
+        "左右鞋不同",
+        "鞋底变厚",
+        "鞋头变宽",
+        "脚鞋穿模"
+      ]
+    },
+    {
+      "id": "C3",
+      "group": "product_presentation",
+      "role": "双鞋三分之四静物",
+      "validation_goal": "验证双鞋体积、层次、结构一致和克制静物构图。",
+      "product_weight": "very_high",
+      "recommended_ratio": "1:1",
+      "required": [
+        "双鞋一致",
+        "轮廓完整",
+        "自然前后层次",
+        "真实阴影"
+      ],
+      "avoid": [
+        "交叉造成结构混乱",
+        "大小比例错误",
+        "艺术化摆放牺牲产品"
+      ]
+    },
+    {
+      "id": "C4",
+      "group": "product_presentation",
+      "role": "后跟材质与工艺特写",
+      "validation_goal": "验证上传图可见的后跟、缝线、材质和鞋底工艺证据。",
+      "product_weight": "very_high",
+      "recommended_ratio": "1:1",
+      "required": [
+        "只展示上传图可确认细节",
+        "材质纹理真实",
+        "缝线位置正确",
+        "背景克制"
+      ],
+      "avoid": [
+        "编造工艺",
+        "过度磨皮",
+        "CGI轮廓光"
+      ]
+    },
+    {
+      "id": "C5",
+      "group": "product_presentation",
+      "role": "俯视结构与鞋带状态",
+      "validation_goal": "验证鞋头、鞋带、鞋舌、鞋口和前掌裁片的真实结构。",
+      "product_weight": "very_high",
+      "recommended_ratio": "1:1",
+      "required": [
+        "完整俯视证据",
+        "鞋带孔与鞋舌正确",
+        "鞋头比例正确",
+        "真实落地"
+      ],
+      "avoid": [
+        "鞋带孔数量变化",
+        "鞋舌消失",
+        "鞋头变宽或变尖"
+      ]
+    }
+  ]
+}

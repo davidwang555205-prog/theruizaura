@@ -1,0 +1,75 @@
+{
+  "version": "1.2",
+  "status": "approved_frozen",
+  "brand": "THERUIZ AURA",
+  "core_positioning": "Quiet Warm Luxury / 温感静奢",
+  "core_traits": [
+    "温暖",
+    "克制",
+    "松弛",
+    "真实",
+    "成熟",
+    "有触感",
+    "不费力的体面"
+  ],
+  "audience_visual_age_range": {
+    "min": 25,
+    "max": 46
+  },
+  "age_routing_by_product_forbidden": true,
+  "product_is_visual_director": false,
+  "product_truth_source": "current_task_uploaded_images",
+  "fixed_rules": [
+    "产品真实性优先",
+    "品牌人物范围为25—46岁城市女性",
+    "不甜妹、不网红、不塑料、不幼态",
+    "低声量色彩秩序",
+    "温暖且有明确来源的光线",
+    "真实材质和真实物理关系",
+    "产品准确自然地参与画面",
+    "生活方式表达与产品证据共存"
+  ],
+  "variable_rules": [
+    "模特具体面貌",
+    "发型",
+    "城市与空间",
+    "室内或室外",
+    "是否露脸",
+    "季节",
+    "穿搭单品",
+    "动作",
+    "景别",
+    "内容制作感",
+    "字标是否出现"
+  ],
+  "decision_authority": {
+    "brand_visual_mother": [
+      "人物范围与气质",
+      "色彩秩序",
+      "光线",
+      "材质语言",
+      "空间气质",
+      "构图边界",
+      "品牌禁区"
+    ],
+    "uploaded_product_images": [
+      "产品轮廓",
+      "鞋头",
+      "鞋底",
+      "裁片",
+      "鞋带",
+      "后跟",
+      "颜色",
+      "材质",
+      "工艺",
+      "可安全生成的产品角度"
+    ],
+    "future_usage_adapter": [
+      "图组角色",
+      "图片比例",
+      "制作感",
+      "产品可见度",
+      "交付规格"
+    ]
+  }
+}

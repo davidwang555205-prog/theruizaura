@@ -24,6 +24,7 @@ import { promptQualityPatchNotice } from "./data/promptPatches";
 import { getCompatibleSceneOptions, isSceneCompatibleWithImageType } from "./data/teamSceneOptions";
 import { TEAM_MODEL_OPTIONS } from "./data/teamModelProfiles";
 import { TEAM_MODEL_CONTINUITY_OPTIONS } from "./data/modelContinuityProfiles";
+import { anchorManifest, brandVisualMother, validationCases } from "./visual-system";
 import { STUDIO_LAUNCH_PRESET_OPTIONS } from "./data/studioLaunchPresets";
 import { getCompatibleStudioWardrobeOptions, STUDIO_WARDROBE_OPTIONS } from "./data/studioWardrobeLibrary";
 
@@ -96,8 +97,22 @@ function formatFileSize(size: number) {
   return `${(size / 1024 / 1024).toFixed(1)} MB`;
 }
 
+function VisualSystemWorkspace() {
+  const groups = [
+    ["A", "生活方式母体锚点", anchorManifest.anchors.filter((anchor) => anchor.group === "lifestyle")],
+    ["B", "官方棚内人物锚点", anchorManifest.anchors.filter((anchor) => anchor.group === "official_studio")],
+    ["C", "产品呈现与材质锚点", anchorManifest.anchors.filter((anchor) => anchor.group === "product_presentation")],
+  ] as const;
+  return <section className="space-y-6">
+    <header className="max-w-3xl space-y-2"><p className="ui-eyebrow">INTERNAL ONLY / PRE-PHASE 3-A</p><h1 className="text-3xl font-semibold text-aura-charcoal">视觉母体验证工作台</h1><p className="text-sm leading-6 text-aura-muted">品牌母体定义画面语言，不定义当前上传产品的真实鞋型。Product Truth 只来自本次任务上传证据。</p></header>
+    <section className="rounded-[24px] bg-aura-porcelain/95 p-5 ring-1 ring-aura-beige/70"><div className="flex flex-wrap items-center justify-between gap-3"><div><p className="text-xs uppercase tracking-[0.2em] text-aura-muted">FROZEN BRAND SYSTEM v{brandVisualMother.version}</p><h2 className="text-xl font-semibold text-aura-charcoal">{brandVisualMother.core_positioning}</h2></div><span className="rounded-full bg-aura-cream px-3 py-1 text-xs">{brandVisualMother.status}</span></div><div className="mt-4 grid gap-3 sm:grid-cols-3"><div><b>年龄范围</b><p className="text-sm text-aura-muted">{brandVisualMother.audience_visual_age_range.min}—{brandVisualMother.audience_visual_age_range.max} 岁</p></div><div><b>产品导演画面</b><p className="text-sm text-aura-muted">禁止</p></div><div><b>产品事实来源</b><p className="text-sm text-aura-muted">本次上传图片</p></div></div></section>
+    {groups.map(([label, title, anchors]) => <section key={label} className="rounded-[24px] bg-aura-porcelain/95 p-5 ring-1 ring-aura-beige/70"><div className="mb-4 flex items-center justify-between"><h2 className="text-lg font-semibold text-aura-charcoal">{label}｜{title}</h2><span className="text-xs text-aura-muted">{anchors.length} anchors</span></div><div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">{anchors.map((anchor) => <figure key={anchor.id} className="overflow-hidden rounded-[18px] bg-white/70 ring-1 ring-aura-beige/70"><img src={anchor.file.replace("../", "/visual-system/")} alt={`${anchor.id} visual anchor`} className="aspect-[4/5] w-full object-cover" /><figcaption className="space-y-1 p-3 text-xs"><b>{anchor.id}</b><p className="text-aura-muted">定义抽象画面语言；不定义当前产品 Product Truth。</p></figcaption></figure>)}</div></section>)}
+    <section className="rounded-[24px] bg-aura-porcelain/95 p-5 ring-1 ring-aura-beige/70"><div className="flex items-center justify-between"><h2 className="text-lg font-semibold text-aura-charcoal">A1—C5 视觉验证任务</h2><span className="text-xs text-aura-muted">{validationCases.length} cases / validation only</span></div><div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">{validationCases.map((item) => <article key={item.id} className="rounded-[16px] bg-white/70 p-4 ring-1 ring-aura-beige/70"><div className="flex justify-between"><b>{item.id}</b><span className="text-xs text-aura-muted">{item.recommended_ratio}</span></div><h3 className="mt-2 font-medium text-aura-charcoal">{item.role}</h3><p className="mt-2 text-xs leading-5 text-aura-muted">{item.validation_goal}</p><button type="button" className="mt-3 text-xs font-medium underline underline-offset-4">复制 Provider-ready Prompt</button></article>)}</div></section>
+  </section>;
+}
+
 function App() {
-  const [activePage, setActivePage] = useState<"workbench" | "prompt" | "xiaohongshu">("workbench");
+  const [activePage, setActivePage] = useState<"workbench" | "prompt" | "xiaohongshu" | "visual">("workbench");
   const [params, setParams] = useState<TeamPromptParams>(initialParams);
   const [generatedPrompt, setGeneratedPrompt] = useState(() => initialGeneratedPrompt);
   const [copyStatus, setCopyStatus] = useState("");
@@ -317,10 +332,10 @@ function App() {
       <aside className="ui-sidebar"><div className="ui-brand">THERUIZ AURA<small>BRAND CONTENT PLATFORM</small></div><nav aria-label="平台导航">
         <button className={activePage === 'workbench' ? 'active' : ''} onClick={() => setActivePage('workbench')}>⌂ <span>工作台<small>Workbench</small></span></button>
         <p>内容生产</p><button className={activePage === 'prompt' ? 'active' : ''} onClick={() => setActivePage('prompt')}>◌ <span>Prompt 构建器<small>Prompt Builder</small></span></button><button className={activePage === 'xiaohongshu' ? 'active' : ''} onClick={() => setActivePage('xiaohongshu')}>▧ <span>小红书内容<small>Xiaohongshu Content</small></span></button><button onClick={() => setImageGenerationStatus('图片生成 API 尚未接入。')}>▣ <span>图片生成<small>Image Generation</small></span></button>
-        <p>品牌基础</p><button onClick={() => setImageGenerationStatus('Product Truth 将在后续阶段接入。')}>◈ <span>Product Truth<small>产品真相</small></span></button><button onClick={() => setImageGenerationStatus('资产库将在后续阶段接入。')}>◇ <span>资产库<small>Asset Library</small></span></button>
+        <p>品牌基础</p><button onClick={() => setActivePage('visual')}>◈ <span>视觉母体验证<small>Visual System QA</small></span></button><button onClick={() => setImageGenerationStatus('资产库将在后续阶段接入。')}>◇ <span>资产库<small>Asset Library</small></span></button>
       </nav><div className="ui-sidebar-foot">团队空间<br /><strong>THERUIZ AURA 团队</strong></div></aside>
       <div className="ui-main"><header className="ui-topbar"><div className="ui-project">项目 / <strong>THERUIZ AURA 主项目</strong>⌄</div><div className="ui-top-actions"><span>◉ 9,842 积分</span><input aria-label="搜索" placeholder="搜索内容、Prompt、素材…" /><span>♧</span><b>TA</b><span>Theruiz Team⌄</span></div></header><div className="ui-content">
-        {activePage === 'workbench' ? dashboard : <>
+        {activePage === 'workbench' ? dashboard : activePage === 'visual' ? <VisualSystemWorkspace /> : <>
         <header className="max-w-3xl space-y-3">
           <p className="text-xs uppercase tracking-[0.28em] text-aura-muted">Standard accurate team mode</p>
           <h1 className="text-3xl font-semibold tracking-tight text-aura-charcoal sm:text-4xl">

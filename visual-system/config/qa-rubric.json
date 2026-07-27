@@ -1,0 +1,30 @@
+{
+  "version": "1.0",
+  "hard_reject": [
+    "产品结构、颜色或材质明显错误",
+    "跑鞋化、厚底化或滑板鞋化",
+    "脚、鞋、裤口穿模",
+    "人体、手部、面部或重心明显错误",
+    "产品悬浮或物理接触错误",
+    "明显CGI、塑料或蜡像感",
+    "甜妹、网红、幼态或职业硬广模特感",
+    "场景与人物没有行为关系",
+    "产品不可识别",
+    "只靠米白背景和自然光冒充品牌一致性"
+  ],
+  "scores": {
+    "product_truth": 30,
+    "person_mother": 15,
+    "color_and_light": 15,
+    "material_realism": 10,
+    "product_integration": 10,
+    "composition": 10,
+    "brand_anchor_completion": 10
+  },
+  "thresholds": {
+    "brand_reference_candidate": 90,
+    "formal_use": 80,
+    "repair": 70,
+    "reject_below": 70
+  }
+}
