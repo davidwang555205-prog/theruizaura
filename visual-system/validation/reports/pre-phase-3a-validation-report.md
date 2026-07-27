@@ -1,6 +1,7 @@
 # Pre-Phase 3-A Visual Validation Report
 
-Status: `PARTIAL`
+Phase 2-D Status: `VERIFIED`
+Phase 3 Status: `READY` (implementation not started)
 
 The internal workspace can create and inspect 13 A1–C5 validation tasks and can bind current-task Product Truth evidence. No external provider is connected; returned images are manually reviewed validation results only.
 
@@ -16,9 +17,10 @@ Select/upload product evidence → review Product Truth confidence → copy each
 - Evidence confidence: `High` for structure, color, panel layout, outsole, heel, tongue, laces, and material appearance. No on-foot evidence was supplied; this is not a blocker for the product-only validation set, but it remains a missing optional role for B/C scenes involving wear.
 - Corrected returned provider images: A2, B3 and C1 were manually reviewed and passed; the first purple/lavender-reference run is `INVALID_TEST` and excluded from the pass rate.
 - Browser workbench smoke test: 1 passed; frozen mother, 13 anchors, and 13 validation cases rendered with console/page errors at 0.
-- Effective validation passes: `8 / 13` (`A2`, `A4`, `B1`, `B2`, `B3`, `C1`, `C2`, `C5`).
-- Remaining validation tasks: `A1`, `A3`, `B4`, `C3`, `C4`.
-- Final conclusion: `PARTIAL`; Phase 3-A remains closed.
+- Effective validation passes: `13 / 13` (`A1`–`C5`).
+- Provider validation scope: `Image2 verified` only. This does not claim Seedream, Nano Banana, or any other model has passed.
+- All 13 results are recorded as `validated generation results`; none is automatically promoted to a frozen brand anchor.
+- Final conclusion: Phase 2-D `VERIFIED`; Phase 3 is `READY` for a separately authorized implementation, but implementation has not started.
 
 ## Product Truth evidence ledger
 
@@ -59,7 +61,7 @@ All 13 tasks inherit the same Product Truth reference plan: PT-01/PT-02/PT-03/PT
 2. Return the generated image file(s) here; no provider is connected by this workspace.
 3. For each returned image, run Product Truth, brand-mother, evidence-role and hard-reject checks from `visual-system/config/qa-rubric.json`.
 4. Record `pass`, `repair`, or `reject` per task. Any changed shoe color, panel geometry, outsole profile, impossible contact, clipping, duplicated/merged shoe, or invented on-foot fact is a hard reject.
-5. Until returned images are reviewed, this report must remain `PARTIAL` and Phase 3-A must not start.
+5. Phase 2-D may be marked `VERIFIED` only after all 13 returned results are reviewed; Phase 3 implementation remains a separate step.
 
 ## Returned-result QA: A2 / B3 / C1
 
@@ -79,11 +81,11 @@ All 13 tasks inherit the same Product Truth reference plan: PT-01/PT-02/PT-03/PT
 
 ### Corrected-rerun conclusion
 
-The three corrected results pass the current Product Truth and hard-reject gate. They are eligible as validation passes for A2, B3 and C1, but they are not automatically promoted to frozen brand anchors. The overall report remains `PARTIAL` because the complete A1—C5 set has not been returned and reviewed, and Phase 3-A remains closed until the full manual bridge is complete.
+The three corrected results pass the current Product Truth and hard-reject gate. They are recorded as validated generation results for A2, B3 and C1, but are not automatically promoted to frozen brand anchors.
 
 ### QA conclusion
 
-The first A2/B3/C1 run used an incorrect purple/lavender reference result and is marked `INVALID_TEST`; it is excluded from the pass rate and cannot be used as Product Truth evidence. The corrected reruns for A2, B3 and C1 are `PASS` and are eligible only as validation evidence, not as frozen brand anchors. The overall status remains `PARTIAL` because the complete A1—C5 set has not been returned and reviewed. Phase 3-A remains closed.
+The first A2/B3/C1 run used an incorrect purple/lavender reference result and is marked `INVALID_TEST`; it is excluded from the pass rate and cannot be used as Product Truth evidence. The corrected reruns are recorded only as validated generation results, not as frozen brand anchors.
 
 ## Returned-result QA: Phase 2-D second high-risk batch
 
@@ -99,6 +101,24 @@ The following five returned images were reviewed against the current Product Tru
 
 ### Phase 2-D second-batch conclusion
 
-The effective validation pass count is now `8 / 13`: `A2`, `A4`, `B1`, `B2`, `B3`, `C1`, `C2`, and `C5`. The remaining tasks are `A1`, `A3`, `B4`, `C3`, and `C4`.
+The effective validation pass count before the final batch was `8 / 13`: `A2`, `A4`, `B1`, `B2`, `B3`, `C1`, `C2`, and `C5`.
 
-C2 is recorded only as a `validated generation result`. It is not added to the original `on_foot` Product Truth evidence and does not change the missing-evidence ledger. The five second-batch results are not frozen brand anchors. Overall status remains `PARTIAL`, and Phase 3-A remains closed.
+C2 is recorded only as a `validated generation result`. It is not added to the original `on_foot` Product Truth evidence and does not change the missing-evidence ledger. The five second-batch results are not frozen brand anchors.
+
+## Returned-result QA: Phase 2-D final batch
+
+| Task | Returned result | Product Truth / scene QA conclusion | Hard-reject check | Status | Record type |
+|---|---|---|---|---|---|
+| A1 | `codex-clipboard-13d5ea8c-76b1-446d-872b-f958cf5ad74d.png` | Relaxed seated lifestyle scene with both shoes visible; product color, silhouette, panel geometry, laces and grounded contact remain consistent. | No product recolor, shoe reshaping, duplicate/merged shoe, severe clipping, floating contact, or unsupported product detail observed. | `PASS` | validated generation result |
+| A3 | `codex-clipboard-e1a4db78-0b15-40d4-94c2-02dafc971d8a.png` | Seated tactile lifestyle scene preserves the relationship between person, garment, chair, table and sneaker; product remains readable. | No hard reject observed. | `PASS` | validated generation result |
+| B4 | `codex-clipboard-ee6e31f2-0991-4568-a15e-f4cba1c98fdc.png` | Official studio three-quarter side view preserves full product silhouette, scale, color blocking and grounded stance. | No hard reject observed. | `PASS` | validated generation result |
+| C3 | `codex-clipboard-a84d6098-de5d-43ef-9c3d-6426d95b0784.png` | Paired-sneaker three-quarter still life preserves spacing, scale, material contrast and contact shadows. | No hard reject observed. | `PASS` | validated generation result |
+| C4 | `codex-clipboard-0fb7141d-dcf8-46cb-a302-bea1f58b3af2.png` | Heel/material craft close-up clearly preserves heel counter, collar, stitching, panel construction and outsole termination. | No hard reject observed. | `PASS` | validated generation result |
+
+### Phase 2-D final conclusion
+
+All A1–C5 tasks are now `PASS`, yielding `13 / 13` effective validation passes. Across the final batch, no product recolor, shoe reshaping, duplicate or merged shoe, severe clipping, floating contact, or unsupported product detail was observed.
+
+The first purple/lavender reference run remains `INVALID_TEST` and is excluded from the pass rate. The complete 13-result set is recorded as `validated generation results` under the provider scope `Image2 verified` only; this is not a pass claim for Seedream, Nano Banana, or any other model. The results are not automatically promoted to frozen brand anchors. Product Truth and the brand visual mother remain unchanged.
+
+Phase 2-D is `VERIFIED`. Phase 3 is `READY` for separately authorized implementation, but no Phase 3 implementation has been performed in this commit.
