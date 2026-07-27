@@ -6,10 +6,10 @@
 
 - 当前分支：`integration/prompt-engine-founder-ui-v1`
 - 集成基线：`f1b1af9b9eed7d8c2ddc5d77c91b2e4f0ababef1`
-- 当前 HEAD：`f1b1af9b9eed7d8c2ddc5d77c91b2e4f0ababef1`
+- 当前 HEAD：`d5e5973`（本轮本地修复提交）
 - `feature/prompt-engine-full-production-integration-v1`：`f16f45f9a524b38b9f865274558744bf1b2b8cdd`，已通过 `merge-base --is-ancestor`。
 - `feature/founder-workbench-ui-v1`：`f1b1af9b9eed7d8c2ddc5d77c91b2e4f0ababef1`，已通过 `merge-base --is-ancestor`。
-- 工作树：干净；未 push，未创建 PR。
+- 工作树：报告更新后应保持干净；未 push，未创建 PR。
 
 ## 代码接线核对
 
