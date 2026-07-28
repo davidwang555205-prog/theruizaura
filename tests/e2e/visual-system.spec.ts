@@ -17,6 +17,11 @@ test('internal visual system workspace exposes frozen mother, 13 anchors and val
     expect(prompt).not.toMatch(/[\u3400-\u9fff]/);
     for (const field of ['burgundy and ivory', 'low-cut silhouette', 'rounded toe box', 'slim brown outsole', 'side panels', 'heel counter', 'tongue', 'white laces', 'stitching', 'material contrast', 'original proportions']) expect(prompt).toContain(field);
   }
+  const expectedActiveMarkers: Record<string, string> = { A1: 'daily-life', A2: 'walking near a café or doorway', A3: 'interior-daily', B3: 'official-studio', B4: 'three-quarter studio', C1: 'clean side-view', C2: 'on-foot', C3: 'paired-product', C4: 'material-craft', C5: 'True overhead top-down view' };
+  for (const [id, marker] of Object.entries(expectedActiveMarkers)) {
+    const prompt = await page.getByTestId(`prompt-${id}`).textContent();
+    expect(prompt).toContain(marker);
+  }
   const themePrompts = await page.locator('pre[data-testid^="theme-prompt-"]').allTextContents();
   expect(themePrompts).toHaveLength(8);
   for (const prompt of themePrompts) {

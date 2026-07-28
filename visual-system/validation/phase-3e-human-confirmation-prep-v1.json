@@ -1,0 +1,101 @@
+{
+  "version": "1.0",
+  "status": "IMPLEMENTED",
+  "provider_scope": "Image2 only",
+  "source_commit": "8a0c40e",
+  "registry_note": "Entries are comparison-role scoped because A1-A3 share one canonical lifestyle family while serving different validated purposes.",
+  "active_prompt_registry": [
+    { "comparison_id": "cmp-01", "role": "A1", "theme_id": "soft-lifestyle-daily-life", "active_prompt": "new", "status": "active" },
+    { "comparison_id": "cmp-02", "role": "A2", "theme_id": "soft-lifestyle-daily-life", "active_prompt": "old", "status": "legacy_retained" },
+    { "comparison_id": "cmp-03", "role": "A3", "theme_id": "soft-lifestyle-daily-life", "active_prompt": "new", "status": "active" },
+    { "comparison_id": "cmp-04", "role": "B3", "theme_id": "soft-launch-conversion", "active_prompt": "new", "status": "active" },
+    { "comparison_id": "cmp-05", "role": "C2", "theme_id": "soft-autumn-winter-color-lab", "active_prompt": "new", "status": "active_validated_generation_only" },
+    { "comparison_id": "cmp-06", "role": "C1", "theme_id": "soft-material-awareness", "active_prompt": "old", "status": "legacy_retained" },
+    { "comparison_id": "cmp-07", "role": "C3", "theme_id": "soft-brand-aesthetic", "active_prompt": "new", "status": "active" },
+    { "comparison_id": "cmp-08", "role": "C4", "theme_id": "soft-material-awareness", "active_prompt": "new", "status": "active" },
+    { "comparison_id": "cmp-09", "role": "C5", "theme_id": "soft-product-development", "active_prompt": "repaired_new", "status": "active" },
+    { "comparison_id": "cmp-10", "role": "B4", "theme_id": "soft-outfit-solution", "active_prompt": "new", "status": "active" }
+  ],
+  "old_better_core_expressions": [
+    { "comparison_id": "cmp-02", "role": "A2", "retain": ["walking near a doorway or café", "full product visibility", "premium urban atmosphere"], "reason": "These cues preserve movement, transitional space and product visibility that the new result under-expressed." },
+    { "comparison_id": "cmp-06", "role": "C1", "retain": ["clean side-view product image", "complete lateral product structure", "pale background", "premium lighting"], "reason": "The lateral view requirement is more explicit and complete in the old wording." }
+  ],
+  "repair_pending": {
+    "comparison_id": "cmp-09",
+    "role": "C5",
+    "theme_id": "soft-product-development",
+    "diagnosis": ["new result reversed the intended visual orientation", "tongue-to-upper relationship was less readable", "top-down evidence framing was not explicit enough"],
+    "minimal_repair": "Keep the new semantic structure, add an explicit camera instruction: true overhead top-down view, toe pointing toward the top of frame, heel toward the bottom, centered full shoe, tongue and settled laces fully visible, no rotation or mirrored orientation.",
+    "retest_scope": "Run cmp-09 only in Image2 with the same Product Truth, reference order, aspect ratio and task context; compare against the existing old result and the current new result. Do not rerun the other nine pairs.",
+    "product_reference_order": ["PT-02", "PT-04", "PT-06"],
+    "image2_input": "C5 new Prompt with only the minimal orientation/evidence addition; no other prompt or adapter change.",
+    "hard_gate": "Product Truth must pass before visual comparison.",
+    "brand_checks": ["structural readability", "quiet material-led composition", "no template or hard-sell feel", "natural physical continuity"]
+  },
+  "repair_test_results": {
+    "C5": {
+      "previous_status": "repair_pending",
+      "executed": true,
+      "result": "REPAIR_PASS",
+      "preferred_result": "Image 2",
+      "secondary_result": "Image 1",
+      "human_conclusion": "Accepted repaired version; current human confirmation selection is the new Prompt.",
+      "implementation_status": "implemented in active registry"
+    }
+  },
+  "anchor_candidates": [
+    { "anchor_id": "A1", "role": "daily-life behavior", "status": "approved", "human_decision": "APPROVE_ANCHOR" },
+    { "anchor_id": "A2", "role": "transitional urban movement", "status": "approved", "human_decision": "APPROVE_ANCHOR" },
+    { "anchor_id": "A3", "role": "interior daily action", "status": "approved", "human_decision": "APPROVE_ANCHOR" },
+    { "anchor_id": "A4", "role": "seated on-foot lifestyle", "status": "approved", "human_decision": "APPROVE_ANCHOR" },
+    { "anchor_id": "B1", "role": "front on-foot lifestyle", "status": "approved", "human_decision": "APPROVE_ANCHOR" },
+    { "anchor_id": "B2", "role": "rear on-foot lifestyle", "status": "approved", "human_decision": "APPROVE_ANCHOR" },
+    { "anchor_id": "B3", "role": "official studio", "status": "approved", "human_decision": "APPROVE_ANCHOR" },
+    { "anchor_id": "B4", "role": "outfit studio", "status": "approved", "human_decision": "APPROVE_ANCHOR" },
+    { "anchor_id": "C1", "role": "lateral product profile", "status": "approved", "human_decision": "APPROVE_ANCHOR" },
+    { "anchor_id": "C2", "role": "validated generation result; not on-foot Product Truth", "status": "approved", "human_decision": "APPROVE_ANCHOR" },
+    { "anchor_id": "C3", "role": "paired product still life", "status": "approved", "human_decision": "APPROVE_ANCHOR" },
+    { "anchor_id": "C4", "role": "material craft detail", "status": "approved", "human_decision": "APPROVE_ANCHOR" },
+    { "anchor_id": "C5", "role": "top-down structure; repair pending", "status": "approved", "human_decision": "APPROVE_ANCHOR" }
+  ],
+  "retirement_recommendations": [
+    { "target": "A2 old Prompt", "classification": "Legacy Active", "human_decision": null },
+    { "target": "C1 old Prompt", "classification": "Legacy Active", "human_decision": null },
+    { "target": "C5 old and new Prompts", "classification": "Repair Pending", "human_decision": null },
+    { "target": "all Phase 3-D comparison Prompts", "classification": "Historical Evidence", "human_decision": null },
+    { "target": "unverified legacy themes", "classification": "Keep Pending", "human_decision": null }
+  ],
+  "humanConfirmation": {
+    "status": "approved",
+    "confirmedBy": "brand_owner",
+    "confirmedAt": "2026-07-28T00:00:00+08:00",
+    "registryDecisions": {
+      "A1": "APPROVE_NEW",
+      "A2": "APPROVE_OLD",
+      "A3": "APPROVE_NEW",
+      "B3": "APPROVE_NEW",
+      "B4": "APPROVE_NEW",
+      "C1": "APPROVE_OLD",
+      "C2": "APPROVE_NEW",
+      "C3": "APPROVE_NEW",
+      "C4": "APPROVE_NEW",
+      "C5": "APPROVE_NEW"
+    },
+    "legacyPromptDecisions": {
+      "A2": "KEEP_OLD_AS_ACTIVE",
+      "C1": "KEEP_OLD_AS_ACTIVE"
+    },
+    "repairDecisions": {
+      "C5": "APPROVE_MINIMAL_REPAIR_TEST"
+    },
+    "brandVisualLanguageDecision": "FREEZE_AS_V1",
+    "anchorDecisions": {},
+    "retirementDecisions": {},
+    "implementationDecision": "APPROVE_IMPLEMENTATION",
+    "notes": [
+      "Recorded human decisions only; no production Prompt route was changed.",
+      "C5 was previously repair_pending; the minimal repair test was executed and recorded as REPAIR_PASS. Image 2 is preferred and Image 1 is secondary; the repaired version is accepted and integrated as the active C5 selection.",
+      "All 13 anchors approved by brand_owner; no Prompt retired or deleted; historical and rollback evidence preserved."
+    ]
+  }
+}
