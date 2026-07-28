@@ -13,10 +13,11 @@ await writeFile(E,
   `export { setPromptEngineConfig } from ${JSON.stringify(resolve(P,"src/prompt-engine/promptFeatureFlags.ts"))};\n`
   + `export { resolveProductPresence } from ${JSON.stringify(resolve(P,"src/prompt-engine/normalizePromptProfileInput.ts"))};\n`
   + `export { generatePromptRuntime } from ${JSON.stringify(resolve(P,"src/prompt-engine/runtime.ts"))};\n`
+  + `export { NON_PRODUCT_ATMOSPHERE_SCENES, NON_PRODUCT_ATMOSPHERE_SCENE_LINES } from ${JSON.stringify(resolve(P,"src/data/nonProductAtmosphereSceneLines.ts"))};\n`
 );
 await build({ entryPoints:[E], bundle:true, outfile:B, format:"esm", platform:"node", target:"node20", logLevel:"silent" });
 
-const { compilePrompt, setPromptEngineConfig, resolveProductPresence, generatePromptRuntime } = await import(pathToFileURL(B));
+const { compilePrompt, setPromptEngineConfig, resolveProductPresence, generatePromptRuntime, NON_PRODUCT_ATMOSPHERE_SCENES, NON_PRODUCT_ATMOSPHERE_SCENE_LINES } = await import(pathToFileURL(B));
 setPromptEngineConfig({ mode: "new" });
 
 let f=0,c=0;
@@ -59,6 +60,32 @@ no(l.prompt,"facial expression","Lower: no face");
 // 4. Atmosphere: no product hero
 const a = go("非产品氛围图","atmosphere","工作台 / 桌边整理",false,3);
 no(a.prompt,"absolute subject","Atmo: no product hero");
+
+console.log("=== 4b. Atmosphere deterministic diversity ===");
+const atmosphereParams = {
+  imageType:"非产品氛围图", modelChoice:"不需要模特", modelContinuity:"新人物", shoe:"自定义", customShoe:"",
+  season:"春", scenePreference:"工作台 / 桌边整理", garmentTypePreference:"自动匹配",
+  studioLaunchAnglePreference:"自动匹配", studioLaunchPreset:"auto", studioWardrobePreference:"auto",
+  stillLifeStyle:"与主视觉统一", extraRequirement:"", generationNonce:0
+};
+const fixedAtmospherePrompts = Array.from({length:9}, (_, generationNonce) =>
+  generatePromptRuntime({...atmosphereParams, generationNonce}).prompt
+);
+ok(new Set(fixedAtmospherePrompts.slice(0,8)).size === 8, "Fixed atmosphere scene has eight unique prompt variations");
+ok(fixedAtmospherePrompts[0] === fixedAtmospherePrompts[8], "Fixed atmosphere scene cycles only after eight variations");
+
+const explicitScenePrompts = NON_PRODUCT_ATMOSPHERE_SCENES.map((scenePreference) => {
+  const prompt = generatePromptRuntime({...atmosphereParams, scenePreference, generationNonce:0}).prompt;
+  has(prompt, NON_PRODUCT_ATMOSPHERE_SCENE_LINES[scenePreference], `Atmosphere scene preserved: ${scenePreference}`);
+  return prompt;
+});
+ok(NON_PRODUCT_ATMOSPHERE_SCENES.length === 35, "Atmosphere registry exposes all 35 explicit scenes");
+ok(new Set(explicitScenePrompts).size === 35, "All explicit atmosphere scenes compile to unique prompts");
+
+const automaticAtmospherePrompts = Array.from({length:280}, (_, generationNonce) =>
+  generatePromptRuntime({...atmosphereParams, scenePreference:"自动匹配", generationNonce}).prompt
+);
+ok(new Set(automaticAtmospherePrompts).size === 280, "Automatic atmosphere matching exposes 35 x 8 deterministic combinations");
 
 // 5. No brand names
 const brands = ["Chloé","Hermès","CHANEL","CELINE"];

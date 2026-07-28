@@ -69,6 +69,28 @@ test('clipboard failure uses compatible fallback and visible feedback', async ({
   expect(errors).toEqual([]);
 });
 
+test('non-product atmosphere prompt rotates eight times without changing the selected scene', async ({ page }) => {
+  await page.goto('/');
+  await page.getByRole('button', { name: /Prompt 构建器/ }).click();
+  await page.locator('select').filter({ has: page.locator('option[value="非产品氛围图"]') }).selectOption('非产品氛围图');
+  await page.getByText('高级选项：手动指定场景').click();
+  await page.locator('select').filter({ has: page.locator('option[value="工作台 / 桌边整理"]') }).selectOption('工作台 / 桌边整理');
+
+  const prompts: string[] = [];
+  for (let index = 0; index < 9; index += 1) {
+    await page.getByRole('button', { name: /重新生成提示词|生成提示词/ }).click();
+    prompts.push((await page.getByTestId('generated-prompt').textContent()) ?? '');
+  }
+
+  expect(new Set(prompts.slice(0, 8)).size).toBe(8);
+  expect(prompts[8]).toBe(prompts[0]);
+  for (const prompt of prompts) {
+    expect(prompt).toContain('personal worktable atmosphere');
+    expect(prompt).not.toContain('quiet city walk setting');
+    expect(prompt).toContain('Do not show a full person');
+  }
+});
+
 test('user-facing soft-seeding prompts use active registry routing for display and copy', async ({ page, context }) => {
   await context.grantPermissions(['clipboard-read', 'clipboard-write'], { origin: 'http://127.0.0.1:4173' });
   await page.goto('/');

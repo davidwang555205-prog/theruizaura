@@ -29,6 +29,10 @@ function countWords(value: string) {
   return value.trim() ? value.trim().split(/\s+/).length : 0;
 }
 
+function usesPersonOutfit(params: TeamPromptParams) {
+  return ["产品上脚图", "对镜穿搭图", "生活场景图"].includes(params.imageType);
+}
+
 function buildDiffSummary(legacy: string, current: string) {
   if (legacy === current) return "identical";
   const legacyWords = countWords(legacy);
@@ -43,7 +47,14 @@ export function generatePromptRuntime(params: TeamPromptParams): PromptRuntimeRe
     return { prompt: legacy.prompt, selectedOutfitLine: legacy.selectedOutfitLine, diagnostics: { mode: "legacy", legacyWordCount: countWords(legacy.prompt) } };
   }
 
-  const compiled = compilePrompt(buildPromptProfileInput(params));
+  // The structured compiler owns final prompt assembly, while the established
+  // selector remains the deterministic source for concrete wardrobe choices.
+  const usesOutfit = usesPersonOutfit(params);
+  const legacy = usesOutfit || config.mode === "compare" ? legacyGenerateTeamPrompt(params) : null;
+  const selectedOutfitLine = usesOutfit
+    ? params.lockedOutfitLine?.trim() || legacy?.selectedOutfitLine || ""
+    : "";
+  const compiled = compilePrompt(buildPromptProfileInput(params, selectedOutfitLine));
   const diagnosticsBase = {
     mode: config.mode,
     newWordCount: countWords(compiled.prompt),
@@ -56,15 +67,19 @@ export function generatePromptRuntime(params: TeamPromptParams): PromptRuntimeRe
   } satisfies PromptRuntimeDiagnostics;
 
   if (config.mode === "compare") {
-    const legacy = legacyGenerateTeamPrompt(params);
     const diagnostics = {
       ...diagnosticsBase,
-      legacyWordCount: countWords(legacy.prompt),
-      diffSummary: buildDiffSummary(legacy.prompt, compiled.prompt),
+      legacyWordCount: countWords(legacy!.prompt),
+      diffSummary: buildDiffSummary(legacy!.prompt, compiled.prompt),
     } satisfies PromptRuntimeDiagnostics;
-    recordCompareResult(`${params.imageType}-${params.generationNonce}`, legacy.prompt, compiled.prompt);
-    return { prompt: legacy.prompt, selectedOutfitLine: legacy.selectedOutfitLine, compiled, diagnostics };
+    recordCompareResult(`${params.imageType}-${params.generationNonce}`, legacy!.prompt, compiled.prompt);
+    return { prompt: legacy!.prompt, selectedOutfitLine, compiled, diagnostics };
   }
 
-  return { prompt: compiled.prompt, compiled, diagnostics: diagnosticsBase };
+  return {
+    prompt: compiled.prompt,
+    selectedOutfitLine,
+    compiled,
+    diagnostics: diagnosticsBase
+  };
 }

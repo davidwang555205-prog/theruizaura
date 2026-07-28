@@ -18,6 +18,8 @@ try {
       resolve(projectRoot, "src/utils/choosePerSceneOutfitLine.ts")
     )};\nexport { generateSoftSeedingContent } from ${JSON.stringify(
       resolve(projectRoot, "src/utils/generateSoftSeedingContent.ts")
+    )};\nexport { generatePromptRuntime } from ${JSON.stringify(
+      resolve(projectRoot, "src/prompt-engine/runtime.ts")
     )};\n`
   );
   await build({
@@ -34,7 +36,8 @@ try {
     choosePerSceneOutfitLine,
     combinatorialOutfitPools,
     getCombinatorialOutfitCapacity,
-    generateSoftSeedingContent
+    generateSoftSeedingContent,
+    generatePromptRuntime
   } = await import(`${pathToFileURL(bundlePath).href}?v=${Date.now()}`);
   const seasons = ["spring", "summer", "autumn", "winter"];
   const seasonLabels = { spring: "春", summer: "夏", autumn: "秋", winter: "冬" };
@@ -132,14 +135,109 @@ try {
         variantOffset: 4,
         date: new Date("2026-07-20T12:00:00+08:00")
       });
-      const personOutfits = content.images
-        .filter((image) => ["产品上脚图", "对镜穿搭图", "生活场景图"].includes(image.params.imageType))
-        .map((image) => image.prompt.match(/Style her in [^.]+\./)?.[0])
-        .filter(Boolean);
+      const personImages = content.images.filter((image) =>
+        ["产品上脚图", "对镜穿搭图", "生活场景图"].includes(image.params.imageType)
+      );
+      const personOutfits = personImages.map((image) => generatePromptRuntime(image.params).selectedOutfitLine ?? "");
+      if (personOutfits.some((outfit) => !outfit)) {
+        failures.push({ season, imageCount, message: "A person image is missing its structured outfit selection." });
+      }
+      if (personImages.some((image, index) => !image.prompt.includes(personOutfits[index]))) {
+        failures.push({ season, imageCount, message: "A selected outfit is missing from the final copied prompt." });
+      }
       if (personOutfits.length >= 2 && new Set(personOutfits).size !== 1) {
         failures.push({ season, imageCount, message: "Multi-image set did not keep one locked outfit." });
       }
     }
+  }
+
+  const baseParams = {
+    imageType: "生活场景图",
+    modelChoice: "30–45岁客户画像模特",
+    modelContinuity: "新人物",
+    shoe: "Cloud Dancer 云舞者",
+    customShoe: "",
+    season: "秋",
+    scenePreference: "自动匹配",
+    garmentTypePreference: "自动匹配",
+    studioLaunchAnglePreference: "自动匹配",
+    stillLifeStyle: "与主视觉统一",
+    extraRequirement: "",
+    generationNonce: 730
+  };
+  const personImageTypes = new Set(["产品上脚图", "对镜穿搭图", "生活场景图"]);
+  const topics = [
+    "生活场景软种草",
+    "产品开发幕后",
+    "秋冬配色实验室",
+    "穿搭解决方案",
+    "材质工艺认知",
+    "品牌审美观点",
+    "上新活动转化",
+    "棚内上新拍摄"
+  ];
+
+  for (const topic of topics) {
+    const content = generateSoftSeedingContent({
+      baseParams,
+      topic,
+      imageCount: 5,
+      variantOffset: 1,
+      date: new Date("2026-07-20T12:00:00+08:00")
+    });
+    for (const image of content.images.filter((item) => personImageTypes.has(item.params.imageType))) {
+      const selectedOutfit = generatePromptRuntime(image.params).selectedOutfitLine ?? "";
+      if (!selectedOutfit || !image.prompt.includes(selectedOutfit)) {
+        failures.push({ topic, image: image.name, message: "Final person prompt lost its structured outfit." });
+      }
+    }
+  }
+
+  for (const topic of [
+    "生活场景软种草",
+    "秋冬配色实验室",
+    "穿搭解决方案",
+    "品牌审美观点",
+    "上新活动转化",
+    "棚内上新拍摄"
+  ]) {
+    const setOutfits = Array.from({ length: 8 }, (_, index) => {
+      const content = generateSoftSeedingContent({
+        baseParams,
+        topic,
+        imageCount: 5,
+        variantOffset: index + 1,
+        date: new Date("2026-07-20T12:00:00+08:00")
+      });
+      const firstPersonImage = content.images.find((image) => personImageTypes.has(image.params.imageType));
+      return firstPersonImage ? generatePromptRuntime(firstPersonImage.params).selectedOutfitLine ?? "" : "";
+    });
+    if (setOutfits.some((outfit) => !outfit)) {
+      failures.push({ topic, message: "A regenerated set is missing its outfit selection." });
+    }
+    if (setOutfits.some((outfit, index) => index > 0 && outfit === setOutfits[index - 1])) {
+      failures.push({ topic, message: "Adjacent regenerated sets repeated the same outfit." });
+    }
+  }
+
+  const singlePromptOutfits = Array.from({ length: 8 }, (_, generationNonce) =>
+    generatePromptRuntime({ ...baseParams, generationNonce })
+  );
+  if (singlePromptOutfits.some((runtime) => !runtime.selectedOutfitLine || !runtime.prompt.includes(runtime.selectedOutfitLine))) {
+    failures.push({ message: "The single-image person runtime lost its structured outfit." });
+  }
+  if (singlePromptOutfits.some((runtime, index) =>
+    index > 0 && runtime.selectedOutfitLine === singlePromptOutfits[index - 1].selectedOutfitLine
+  )) {
+    failures.push({ message: "Adjacent single-image regenerations repeated the same outfit." });
+  }
+  const stillLifeRuntime = generatePromptRuntime({
+    ...baseParams,
+    imageType: "产品静物图",
+    scenePreference: "棚内上新拍摄"
+  });
+  if (stillLifeRuntime.selectedOutfitLine || stillLifeRuntime.compiled?.includedRuleIds.includes("styling-selected-outfit")) {
+    failures.push({ message: "A non-person prompt received a person outfit rule." });
   }
 
   const manualGarmentSelection = choosePerSceneOutfitLine({

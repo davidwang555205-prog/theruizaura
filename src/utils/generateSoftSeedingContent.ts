@@ -12,8 +12,10 @@ import {
   type LifestyleSoftHandheldPolicy,
   type LifestyleSoftSceneFamily
 } from "../data/lifestyleSoftSeedingScenePool";
+import { NON_PRODUCT_ATMOSPHERE_VARIATIONS } from "../data/nonProductAtmosphereSceneLines";
 import { generatePromptRuntime } from "../prompt-engine/runtime";
 import { selectDiversePersonActions } from "./selectDiverseSeriesActions";
+import { choosePerSceneOutfitLine } from "./choosePerSceneOutfitLine";
 import { resolveTopicRoleBundle } from "../visual-system/topicRoutingRegistry";
 import { compileRoutedImage2UserPrompt } from "../visual-system/routedPromptCompiler";
 
@@ -3328,16 +3330,13 @@ const stillLifeSeriesActionTrack: SeriesActionBeat[] = [
   { key: "stilllife-negative-space", poseType: "none", directive: "Series still-life variation: use a wider restrained composition with deliberate negative space, an off-center product position, and a different scale from every detail frame." }
 ];
 
-const atmosphereSeriesActionTrack: SeriesActionBeat[] = [
-  { key: "atmosphere-recent-departure", poseType: "none", directive: "Series atmosphere variation: imply someone has just left through one shifted chair, soft fabric fold, or doorway light change; do not stage a product-centered still life." },
-  { key: "atmosphere-page-turned", poseType: "none", directive: "Series atmosphere variation: show a recently turned book or note page with one naturally displaced paper edge and quiet window light, distinct from a wardrobe or street frame." },
-  { key: "atmosphere-wardrobe-use", poseType: "none", directive: "Series atmosphere variation: show one garment recently handled in a wardrobe or entry area, with believable folds and no decorative flat-lay arrangement." },
-  { key: "atmosphere-city-passage", poseType: "none", directive: "Series atmosphere variation: capture a real city passage with one distant movement trace, uneven reflections, and an observational camera position rather than an empty perfect street." },
-  { key: "atmosphere-table-after-use", poseType: "none", directive: "Series atmosphere variation: show a table immediately after a small daily task, with one cup ring shadow, shifted note, or fabric edge and no product-development display." },
-  { key: "atmosphere-light-transition", poseType: "none", directive: "Series atmosphere variation: make changing natural light across a curtain, floor, or wall the main event, with objects secondary and no repeated tabletop composition." },
-  { key: "atmosphere-object-set-down", poseType: "none", directive: "Series atmosphere variation: imply one everyday object was just set down through realistic contact, weight, and asymmetric placement, without showing a hand or staged luxury prop." },
-  { key: "atmosphere-quiet-aftermath", poseType: "none", directive: "Series atmosphere variation: show the quiet aftermath of a normal routine with subtle human traces, wider framing, and no centered hero object." }
-];
+const atmosphereSeriesActionTrack: SeriesActionBeat[] = NON_PRODUCT_ATMOSPHERE_VARIATIONS.map(
+  (variation) => ({
+    key: `atmosphere-${variation.key}`,
+    poseType: "none",
+    directive: variation.directive.replace("Atmosphere moment variation:", "Series atmosphere variation:")
+  })
+);
 
 const studioSeriesActionTrack: SeriesActionBeat[] = [
   { key: "studio-full-front", poseType: "standing", directive: "Studio action variation: relaxed full-front stance with balanced feet and asymmetrical empty arms; establish the neutral reference pose." },
@@ -3488,8 +3487,7 @@ function buildImagePlan(
     studioSetNonce:
       topic === "棚内上新拍摄" ? baseParams.generationNonce + variantIndex + 1 : undefined,
     lockedOutfitLine: shouldInheritBaseGarmentType(draft.imageType) ? lockedOutfitLine : "",
-    forceGeneratedOutfitSelection:
-      topic === "穿搭解决方案" || topic === "生活场景软种草" || topic === "棚内上新拍摄",
+    forceGeneratedOutfitSelection: shouldInheritBaseGarmentType(draft.imageType),
     forceNoHandheldObject:
       topic === "棚内上新拍摄" ||
       (topic === "生活场景软种草" && imageCount > 1 && draft.handheldPolicy !== "phoneOnly")
@@ -3514,7 +3512,19 @@ function buildSoftSeedingImagePlans(
   imageCount: SoftSeedingImageCount
 ) {
   const roleBundle = resolveTopicRoleBundle(topic, imageCount);
-  let sharedOutfitLine = "";
+  const firstPersonDraft = drafts.find((draft) => shouldInheritBaseGarmentType(draft.imageType));
+  const initialSetOutfit = firstPersonDraft && topic !== "棚内上新拍摄"
+    ? choosePerSceneOutfitLine({
+        scenePreference: "自动匹配",
+        season: resolveBaseSeason(baseParams.season, firstPersonDraft.season),
+        shoe: baseParams.shoe,
+        imageType: firstPersonDraft.imageType,
+        garmentTypePreference: resolveSoftSeedingGarmentType(baseParams, firstPersonDraft),
+        userExtraRequirement: "",
+        generationNonce: baseParams.generationNonce + variantIndex + 1
+      }).selectedPerSceneOutfitLine
+    : "";
+  let sharedOutfitLine = initialSetOutfit ?? "";
   const selectedPersonActions = selectDiversePersonActions({
     cards: drafts.map((draft) => ({
       imageType: draft.imageType,
@@ -3547,11 +3557,7 @@ function buildSoftSeedingImagePlans(
       seriesActionBeat,
       sharedOutfitLine
     );
-    if (
-      (topic === "穿搭解决方案" || topic === "生活场景软种草" || topic === "棚内上新拍摄") &&
-      !sharedOutfitLine &&
-      shouldInheritBaseGarmentType(draft.imageType)
-    ) {
+    if (!sharedOutfitLine && shouldInheritBaseGarmentType(draft.imageType)) {
       sharedOutfitLine = generatePromptRuntime(plan.params).selectedOutfitLine ?? "";
     }
     const visualRoleId = roleBundle.roleIds[index % roleBundle.roleIds.length];

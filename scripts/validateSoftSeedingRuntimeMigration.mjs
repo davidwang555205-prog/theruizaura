@@ -39,7 +39,11 @@ for (const topic of softSeedingTopicOptions) {
       if (!/Action lock for this card:|Person action lock:|Series (?:action|mirror|material-action|still-life|atmosphere) variation:|Studio action variation:/i.test(image.prompt)) failures.push(`${topic}/${imageCount}/${image.name}: missing action lock`);
       if (/\b(undefined|null)\b/i.test(image.prompt)) failures.push(`${topic}/${imageCount}/${image.name}: unresolved token`);
       const runtime = generatePromptRuntime(image.params);
-      if (runtime.prompt !== image.prompt) failures.push(`${topic}/${imageCount}/${image.name}: prompt was appended or bypassed after runtime compile`);
+      if (!image.prompt.startsWith(runtime.prompt)) failures.push(`${topic}/${imageCount}/${image.name}: routed prompt does not preserve the runtime prompt as its base`);
+      if (["产品上脚图", "对镜穿搭图", "生活场景图"].includes(image.params.imageType)) {
+        if (!runtime.selectedOutfitLine) failures.push(`${topic}/${imageCount}/${image.name}: person prompt has no structured outfit`);
+        if (runtime.selectedOutfitLine && !image.prompt.includes(runtime.selectedOutfitLine)) failures.push(`${topic}/${imageCount}/${image.name}: final routed prompt lost its structured outfit`);
+      }
       if (runtime.compiled?.validationReport.missingRequiredRules.length) failures.push(`${topic}/${imageCount}/${image.name}: required rules missing`);
       if (image.params.imageType !== "产品静物图" && !image.prompt.includes("selected")) checks += 0;
     }

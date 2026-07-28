@@ -42,18 +42,22 @@ function mapSceneToKey(scene: string): string {
   return sceneKeyMap[scene] ?? "weekendCityWalk";
 }
 
-export function buildPromptProfileInput(params: TeamPromptParams): PromptProfileInput {
+export function buildPromptProfileInput(
+  params: TeamPromptParams,
+  selectedOutfitLine = ""
+): PromptProfileInput {
   const hasShoe = resolveProductPresence(params);
   return {
     imageType: params.imageType,
     compositionMode: resolveCompositionMode(params),
-    scenePreference: params.scenePreference as Exclude<typeof params.scenePreference, "自动匹配">,
-    sceneKey: mapSceneToKey(params.scenePreference) as any,
+    scenePreference: params.scenePreference,
+    sceneKey: params.imageType === "非产品氛围图" ? undefined : mapSceneToKey(params.scenePreference) as any,
     season: params.season,
     modelChoice: params.modelChoice,
     modelContinuity: params.modelContinuity,
     hasShoe,
     garmentTypePreference: params.garmentTypePreference,
+    selectedOutfitLine: selectedOutfitLine.trim(),
     userExtraRequirement: params.extraRequirement,
     isMultiImage: !!params.seriesImageCount && params.seriesImageCount >= 2,
     seriesImageIndex: params.seriesImageIndex,

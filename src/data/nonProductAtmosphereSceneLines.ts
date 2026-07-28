@@ -75,6 +75,50 @@ export const NON_PRODUCT_ATMOSPHERE_SCENE_LINES: Partial<
     "Create one weekend-departure atmosphere at a building threshold, tidy luggage corner, car-side loading detail, or travel-start table with a tote, light jacket, sunglasses, or paper bag. Keep it light and anticipatory, not a hotel advertisement."
 };
 
+export const NON_PRODUCT_ATMOSPHERE_VARIATIONS = [
+  { key: "recent-departure", directive: "Atmosphere moment variation: imply someone has just left through one shifted chair, soft fabric fold, or doorway light change; do not stage a product-centered still life." },
+  { key: "page-turned", directive: "Atmosphere moment variation: show a recently turned book or note page with one naturally displaced paper edge and quiet window light, distinct from a wardrobe or street frame." },
+  { key: "wardrobe-use", directive: "Atmosphere moment variation: show one garment recently handled in a wardrobe or entry area, with believable folds and no decorative flat-lay arrangement." },
+  { key: "city-passage", directive: "Atmosphere moment variation: capture one distant movement trace, uneven reflection, or observational passage cue appropriate to the selected location rather than an empty perfect set." },
+  { key: "table-after-use", directive: "Atmosphere moment variation: show the selected place immediately after a small daily task, with one cup-ring shadow, shifted note, receipt, or fabric edge and no product-development display." },
+  { key: "light-transition", directive: "Atmosphere moment variation: make changing natural light across a curtain, floor, wall, pavement, or work surface the main event, with objects secondary and no repeated centered composition." },
+  { key: "object-set-down", directive: "Atmosphere moment variation: imply one everyday object was just set down through realistic contact, weight, and asymmetric placement, without a posed hand or staged luxury prop." },
+  { key: "quiet-aftermath", directive: "Atmosphere moment variation: show the quiet aftermath of a normal routine with subtle human traces, wider framing, and no centered hero object." }
+] as const;
+
+const NON_PRODUCT_ATMOSPHERE_SEASON_LINES = {
+  春: "Seasonal atmosphere: soft spring daylight, airy tactile surfaces, pale restrained neutrals, and a fresh but quiet sense of use.",
+  夏: "Seasonal atmosphere: breathable summer light, light natural materials, soft shade, and restrained warm-neutral color without decorative resort styling.",
+  秋: "Seasonal atmosphere: mellow autumn daylight, tactile paper or fabric depth, muted warm neutrals, and calm lived-in layering.",
+  冬: "Seasonal atmosphere: soft winter light, warm tactile layers, cream and warm-grey restraint, and believable quiet shadows without artificial coziness."
+} as const;
+
+export const NON_PRODUCT_ATMOSPHERE_SCENES = Object.keys(
+  NON_PRODUCT_ATMOSPHERE_SCENE_LINES
+) as Array<Exclude<TeamScenePreference, "自动匹配">>;
+
+export function resolveNonProductAtmospherePromptParts(
+  scene: TeamScenePreference,
+  season: keyof typeof NON_PRODUCT_ATMOSPHERE_SEASON_LINES,
+  generationNonce: number
+) {
+  const rotationIndex = Math.abs(Math.floor(generationNonce));
+  const resolvedScene = scene === "自动匹配"
+    ? NON_PRODUCT_ATMOSPHERE_SCENES[rotationIndex % NON_PRODUCT_ATMOSPHERE_SCENES.length]
+    : scene;
+  const sceneLine = resolvedScene ? NON_PRODUCT_ATMOSPHERE_SCENE_LINES[resolvedScene] ?? "" : "";
+  const variation = NON_PRODUCT_ATMOSPHERE_VARIATIONS[
+    rotationIndex % NON_PRODUCT_ATMOSPHERE_VARIATIONS.length
+  ];
+
+  return {
+    resolvedScene,
+    sceneLine,
+    variation,
+    seasonLine: NON_PRODUCT_ATMOSPHERE_SEASON_LINES[season]
+  };
+}
+
 export function getNonProductAtmosphereSceneLine(
   scene: Exclude<TeamScenePreference, "自动匹配">
 ) {
