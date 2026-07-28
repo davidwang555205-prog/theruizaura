@@ -101,6 +101,7 @@ test('non-product atmosphere is an isolated content module with exact quantity p
   await expect(page.getByText('场景偏好')).toHaveCount(0);
   await expect(page.getByText('服装类型')).toHaveCount(0);
   await expect(page.getByText('人物选择')).toHaveCount(0);
+  await expect(page.locator('[data-testid^="atmosphere-prompt-"]')).toHaveCount(5);
   await page.getByLabel('上传非产品氛围图 API 预留参考图').setInputFiles({ name: 'current-task-reference.jpg', mimeType: 'image/jpeg', buffer: Buffer.from('fake-reference') });
   await page.getByLabel('非产品氛围图生成数量').selectOption('3');
   await page.getByRole('button', { name: '生成非产品氛围图' }).click();

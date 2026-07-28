@@ -48,6 +48,8 @@ for (const quantity of NON_PRODUCT_ATMOSPHERE_COUNTS) {
 let missingSourceBlocked = false;
 try { buildNonProductAtmospherePlan({ quantity: 1 }); } catch (error) { missingSourceBlocked = error?.code === "PRODUCT_ECHO_SOURCE_MISSING"; }
 if (!missingSourceBlocked) fail("missing current reference source did not fail closed");
+const previewPlan = buildNonProductAtmospherePlan({ quantity: 1, previewWithoutReference: true, taskId: "preview" });
+if (previewPlan.referenceAssetIds.length !== 0 || !previewPlan.images[0].prompt.includes("actual reference image attached in the external Image2 tool")) fail("reference-free preview contract failed");
 const first = buildNonProductAtmospherePlan({ quantity: 3, generationNonce: 0, referenceAssetIds: ["task-ref-a"] });
 const second = buildNonProductAtmospherePlan({ quantity: 3, generationNonce: 1, referenceAssetIds: ["task-ref-b"] });
 if (first.images[0].slot.sceneId === second.images[0].slot.sceneId) fail("regenerated batch did not rotate scene slot");

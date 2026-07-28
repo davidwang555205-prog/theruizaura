@@ -95,6 +95,7 @@ export type BuildNonProductAtmospherePlanInput = {
   aspectRatio?: NonProductAtmosphereAspectRatio;
   taskId?: string;
   referenceAssetIds?: string[];
+  previewWithoutReference?: boolean;
 };
 
 type ObjectCue = { id: string; text: string };
@@ -208,7 +209,7 @@ export function buildAtmosphereRepairPrompt(input: { errorType: string; archetyp
 
 export function buildNonProductAtmospherePlan(input: BuildNonProductAtmospherePlanInput): NonProductAtmospherePlan {
   const referenceAssetIds = [...new Set(input.referenceAssetIds ?? [])].filter(Boolean);
-  if (referenceAssetIds.length === 0) throw new AtmosphereCompileError("PRODUCT_ECHO_SOURCE_MISSING", "PRODUCT_ECHO_SOURCE_MISSING: current task reference assets are required before compiling atmosphere Prompts.");
+  if (referenceAssetIds.length === 0 && !input.previewWithoutReference) throw new AtmosphereCompileError("PRODUCT_ECHO_SOURCE_MISSING", "PRODUCT_ECHO_SOURCE_MISSING: current task reference assets are required before compiling production Prompts.");
   const quantity = input.quantity;
   const rotationIndex = Math.abs(Math.floor(input.generationNonce ?? 0));
   const season = input.season ?? "春";
