@@ -30,9 +30,10 @@ for (const quantity of NON_PRODUCT_ATMOSPHERE_COUNTS) {
   if (new Set(plan.images.map((image) => image.prompt)).size !== quantity) fail(`${quantity}: duplicate prompts`);
   for (const image of plan.images) {
     const prompt = image.prompt;
-    for (const required of ["THERUIZ AURA", "Quiet Warm Luxury", "visual_echo_extraction_only", "Do not show the uploaded product", "Do not show any sneaker", "Do not show any person", "Product Echo", "Do not create a centered hero object", "Image2 only"]) {
+    for (const required of ["THERUIZ AURA", "Quiet Warm Luxury", "visual_echo_extraction_only", "Use the actual reference image attached in the external image-generation tool", "Do not use a website-uploaded reference image", "Do not show the uploaded product", "Do not show any sneaker", "Do not show any person", "Product Echo", "Do not create a centered hero object", "Image2 only"]) {
       if (!prompt.includes(required)) fail(`${quantity}/${image.index}: missing ${required}`);
     }
+    if (prompt.includes("Use uploaded Product Truth reference images")) fail(`${quantity}/${image.index}: copied Prompt still depends on website upload wording`);
     if (/[\u3400-\u4DBF\u4E00-\u9FFF\uF900-\uFAFF]/.test(prompt)) fail(`${quantity}/${image.index}: Chinese leakage`);
     if (forbiddenPositive.test(prompt)) fail(`${quantity}/${image.index}: positive forbidden rendering instruction`);
     if (image.productVisibility !== "forbidden" || image.footwearVisibility !== "forbidden" || image.personVisibility !== "forbidden") fail(`${quantity}/${image.index}: visibility contract not forbidden`);
