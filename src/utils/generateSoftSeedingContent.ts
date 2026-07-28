@@ -3554,7 +3554,7 @@ function buildSoftSeedingImagePlans(
       basePrompt: plan.prompt,
       topicRoute: roleBundle.route,
       visualRoleId,
-      currentTaskContext: `${draft.imageType}, ${draft.scenePreference}, image ${index + 1} of ${imageCount}`
+      currentTaskContext: { imageType: draft.imageType, scenePreference: draft.scenePreference }
     });
     return {
       ...plan,

@@ -92,6 +92,11 @@ test('user-facing soft-seeding prompts use active registry routing for display a
     const prompts = page.locator('[data-testid^="soft-prompt-"]');
     await expect(prompts).toHaveCount(sample.count);
     const firstPrompt = await prompts.nth(0).textContent();
+    const provenance = page.getByTestId('provenance-0');
+    await expect(provenance).toContainText(sample.topic);
+    await expect(provenance).toContainText('场景：');
+    await expect(provenance).toContainText('图片类型：');
+    await expect(provenance).toContainText('任务上下文：');
     expect(firstPrompt).toContain(sample.marker);
     expect(firstPrompt).toContain('Image2 provider boundary');
     expect(firstPrompt).toContain('Product Truth protection');
@@ -109,4 +114,18 @@ test('user-facing soft-seeding prompts use active registry routing for display a
     expect(allCopied).toContain(firstPrompt ?? '');
     expect(allCopied.split(/\n\nImage \d+:\n/).length).toBe(sample.count);
   }
+});
+
+test('unmapped structured fields fail closed before entering the English Prompt', async ({ page }) => {
+  await page.goto('/');
+  const result = await page.evaluate(async () => {
+    const module = await import('/src/visual-system/englishPromptMappings.ts');
+    try {
+      module.mapEnglishPromptField('scene', '未登记场景');
+      return 'NO_ERROR';
+    } catch (error) {
+      return error instanceof Error ? error.message : String(error);
+    }
+  });
+  expect(result).toContain('ENGLISH_PROMPT_MAPPING_MISSING');
 });
