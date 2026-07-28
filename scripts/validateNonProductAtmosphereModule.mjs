@@ -28,8 +28,10 @@ for (const quantity of NON_PRODUCT_ATMOSPHERE_COUNTS) {
   if (plan.referenceImageCount !== 4) fail(`${quantity}: reference count not preserved`);
   if (plan.productEchoProfile.prohibitedDirections.length === 0) fail(`${quantity}: missing Product Echo prohibitions`);
   if (plan.aspectRatio !== "4:5") fail(`${quantity}: default portrait aspect ratio not preserved`);
+  if (plan.sceneSelectionMode !== "AUTO_CONTROLLED_RANDOM" || !plan.curationSeed) fail(`${quantity}: controlled curation metadata missing`);
   if (plan.productEchoProfile.sourceMode !== "CURRENT_TASK_REFERENCE_ONLY" || JSON.stringify(plan.referenceAssetIds) !== JSON.stringify(["task-ref-a", "task-ref-b"])) fail(`${quantity}: current task reference provenance not preserved`);
   if (plan.images.some((image) => image.promptPackage.generationCount !== 1 || !image.promptPackage.standaloneImage || image.promptPackage.continuityMode !== "STYLE_ONLY_CONTINUITY")) fail(`${quantity}: single-card isolation package missing`);
+  if (plan.images.some((image) => !image.productResponsiveProfile || !image.visualGrammar || !image.prompt.includes("PRODUCT-RESPONSIVE VISUAL GRAMMAR") || !image.prompt.includes("PRODUCT AND BRAND RESPONSIBILITY") || !image.prompt.includes("AVOID GENERIC BRAND TEMPLATE"))) fail(`${quantity}: product-responsive grammar contract missing`);
   if (new Set(plan.images.map((image) => image.slot.sceneId)).size !== quantity) fail(`${quantity}: duplicate scene slots`);
   if (new Set(plan.images.map((image) => image.prompt)).size !== quantity) fail(`${quantity}: duplicate prompts`);
   for (const image of plan.images) {
@@ -53,6 +55,12 @@ if (previewPlan.referenceAssetIds.length !== 0 || !previewPlan.images[0].prompt.
 const first = buildNonProductAtmospherePlan({ quantity: 3, generationNonce: 0, referenceAssetIds: ["task-ref-a"] });
 const second = buildNonProductAtmospherePlan({ quantity: 3, generationNonce: 1, referenceAssetIds: ["task-ref-b"] });
 if (first.images[0].slot.sceneId === second.images[0].slot.sceneId) fail("regenerated batch did not rotate scene slot");
+if (first.curationSeed === second.curationSeed) fail("regenerated batch did not create a new curation seed");
+const sameSeedA = buildNonProductAtmospherePlan({ quantity: 3, generationNonce: 7, taskId: "seed-task", referenceAssetIds: ["seed-ref"] });
+const sameSeedB = buildNonProductAtmospherePlan({ quantity: 3, generationNonce: 7, taskId: "seed-task", referenceAssetIds: ["seed-ref"] });
+if (sameSeedA.curationSeed !== sameSeedB.curationSeed || sameSeedA.images.map((image) => image.sceneFingerprint.id).join(",") !== sameSeedB.images.map((image) => image.sceneFingerprint.id).join(",")) fail("same seed is not reproducible");
+const cooled = buildNonProductAtmospherePlan({ quantity: 1, taskId: "cooldown-task", referenceAssetIds: ["cooldown-ref"], recentVariationHistory: [sameSeedA.images[0].variationSignature] });
+if (cooled.images[0].sceneFingerprint.id === sameSeedA.images[0].sceneFingerprint.id) fail("cross-task scene cooldown did not apply");
 if (first.productEchoProfile.primaryEchoColor.includes("burgundy") || first.productEchoProfile.primaryEchoColor.includes("ivory")) fail("Product Echo profile contains a hardcoded validation color");
 const seasonalMarkers = { 春: "soft spring daylight", 夏: "breathable summer light", 秋: "mellow autumn daylight", 冬: "soft winter light" };
 for (const season of ["春", "夏", "秋", "冬"]) {
