@@ -33,14 +33,17 @@ export type ProductEchoProfile = {
 export type ContinuityMode = "IDENTITY_CONTINUITY" | "OUTFIT_CONTINUITY" | "STYLE_ONLY_CONTINUITY" | "NO_CONTINUITY";
 export type ProductEchoChannel = "MATERIAL_TACTILITY" | "SURFACE_FINISH" | "LIGHT_TEMPERATURE" | "SEASONAL_FEELING" | "EMOTIONAL_TONE" | "RESTRAINED_HUE";
 export type EchoCarrierCategory = "AMBIENT_LIGHT" | "SHADOW" | "TEXTILE" | "PAPER" | "CERAMIC" | "GLASS" | "WOOD" | "WALL_REFLECTION" | "SMALL_NATURAL_ELEMENT" | "NO_PHYSICAL_CARRIER";
+export type AtmosphereSceneFamily = "PRIVATE_HOME" | "THRESHOLD" | "WORKING_LIFE" | "CITY_PASSAGE" | "SHORT_TRAVEL" | "DAILY_ERRAND" | "QUIET_PUBLIC_SPACE";
+export type ProductResponsiveVisualProfile = { sourceMode: "CURRENT_TASK_REFERENCE_ONLY"; sourceReferenceIds: string[]; productEchoAnalysisId: string; valueStructure: "light_dominant" | "balanced" | "dark_accented" | "dark_dominant" | "mixed"; contrastLevel: "very_soft" | "soft" | "moderate" | "clear" | "strong"; edgeDefinition: "diffused" | "soft" | "balanced" | "clean" | "graphic"; shadowBehavior: "airy_diffused" | "soft_directional" | "layered" | "defined_directional" | "high_separation"; visualRhythm: "slow_open" | "soft_layered" | "balanced" | "structured" | "graphic_repetition"; spatialDensity: "very_sparse" | "sparse" | "balanced" | "layered" | "compact"; spatialBoundary: "soft_open" | "open" | "balanced" | "defined" | "architectural"; materialBalance: { softMaterialWeight: number; hardMaterialWeight: number; smoothSurfaceWeight: number; texturedSurfaceWeight: number; matteWeight: number; reflectiveWeight: number }; chromaticRole: "nearly_absent" | "micro_echo" | "restrained_secondary" | "structural_contrast"; emotionalWeight: "light" | "calm" | "grounded" | "deep" | "assertive_restrained"; provenance: { taskId: string; referenceAssetIds: string[]; analysisVersion: string; generatedForCurrentTask: true } };
+export type AtmosphereVisualGrammar = { valueStructure: string; contrastInstruction: string; edgeInstruction: string; shadowInstruction: string; rhythmInstruction: string; spatialDensityInstruction: string; spatialBoundaryInstruction: string; materialMixInstruction: string; chromaticInstruction: string };
 export type ProductEchoRoute = { primaryChannel: ProductEchoChannel; secondaryChannel?: ProductEchoChannel; sourceAnalysisId: string; currentTaskReferenceIds: string[]; routingReason: string; hueUsage: "none" | "micro_accent" | "subtle_secondary"; maxHueCoverage: "none" | "very_small" | "small"; selectedCarrierId?: string; selectedCarrierCategory: EchoCarrierCategory; antiLiteralMappingPassed: true };
 export type SceneObjectSelection = { selectedObjects: string[]; selectionSource: "SCENE_AND_LIFE_TRACE_ONLY"; colorIndependentSelection: true };
 export type AntiLiteralEchoPolicy = { forbidColorToObjectTypeMapping: true; forbidObjectInjectionForHueEcho: true; forbidFullSceneHueTheming: true; forbidProductShapeAnalogy: true; forbidRepeatedCarrierInSet: true; allowHueOnlyAsSubtleProperty: true };
-export type AtmosphereVariationSignature = { sceneId: AtmosphereSceneId; lifeTraceId: string; dominantPlane: string; cameraHeight: string; depthPattern: string; dominantObject: string; productEchoPrimaryChannel: ProductEchoChannel; productEchoSecondaryChannel?: ProductEchoChannel; echoCarrierCategory: EchoCarrierCategory; hueUsage: "none" | "micro_accent" | "subtle_secondary" };
+export type AtmosphereVariationSignature = { brandId: string; taskId: string; cardId: string; curationSeed: string; sceneFamily: AtmosphereSceneFamily; sceneId: AtmosphereSceneId; lifeTraceId: string; dominantPlane: string; cameraHeight: string; depthPattern: string; dominantObject: string; objectBundleFingerprint: string; materialMixFingerprint: string; productEchoPrimaryChannel: ProductEchoChannel; productEchoSecondaryChannel?: ProductEchoChannel; echoCarrierCategory: EchoCarrierCategory; hueUsage: "none" | "micro_accent" | "subtle_secondary"; valueStructure: string; contrastLevel: string; edgeDefinition: string; shadowBehavior: string; visualRhythm: string; spatialDensity: string; spatialBoundary: string; chromaticRole: string };
 export type ProductEchoExpressionQA = { productEchoSourceValid: boolean; primaryChannelValid: boolean; nonHueChannelPreferred: boolean; sceneObjectsSelectedIndependentlyFromColor: boolean; carrierAlreadyJustifiedByScene: boolean; literalColorMatchingPropDetected: boolean; objectInjectedOnlyForHueEcho: boolean; fullSceneHueThemeDetected: boolean; repeatedCarrierDetected: boolean; repeatedPrimaryChannelDetected: boolean; flowerSelectedBecauseOfProductHue: boolean; multipleHueCarriersDetected: boolean };
 export type SceneFingerprint = Pick<AtmosphereSceneArchetype, "id" | "indoorOutdoor" | "dominantPlane" | "cameraHeight" | "depthPattern" | "dominantObject">;
 export type AtmosphereSceneQA = { expectedSceneMatched: boolean; requiredSpatialCuesFound: string[]; missingRequiredSpatialCues: string[]; forbiddenSceneCuesFound: string[]; collageDetected: boolean; repeatedPreviousScene: boolean; dominantObjectRepeated: boolean; productEchoSourceValid: boolean; currentTaskReferenceProvenanceValid: boolean };
-export type AtmospherePromptPackage = { provider: "image2"; generationCount: 1; standaloneImage: true; isolatedGenerationRequired: true; reusePreviousConversation: false; reusePreviousGeneratedImage: false; continuityMode: "STYLE_ONLY_CONTINUITY"; productEchoSourceMode: "CURRENT_TASK_REFERENCE_ONLY"; referenceAssetIds: string[]; externalReferenceAttachmentRequired: true };
+export type AtmospherePromptPackage = { provider: "image2"; generationCount: 1; standaloneImage: true; isolatedGenerationRequired: true; reusePreviousConversation: false; reusePreviousGeneratedImage: false; continuityMode: "STYLE_ONLY_CONTINUITY"; productEchoSourceMode: "CURRENT_TASK_REFERENCE_ONLY"; referenceAssetIds: string[]; externalReferenceAttachmentRequired: true; sceneSelectionMode?: "AUTO_CONTROLLED_RANDOM"; curationSeed?: string; seedVersion?: "v1" };
 
 export type NonProductAtmosphereSlot = {
   id: string;
@@ -65,10 +68,12 @@ export type NonProductAtmosphereImagePlan = {
   productEchoRoute: ProductEchoRoute;
   variationSignature: AtmosphereVariationSignature;
   productEchoExpressionQA: ProductEchoExpressionQA;
+  productResponsiveProfile: ProductResponsiveVisualProfile;
+  visualGrammar: AtmosphereVisualGrammar;
   productReferenceUse: "visual_echo_extraction_only";
   productVisibility: "forbidden";
   footwearVisibility: "forbidden";
-  personVisibility: "forbidden";
+  personVisibility: "forbidden" | "disabled";
   modelGeneration: "disabled";
   outfitGeneration: "disabled";
   onFootGeneration: "disabled";
@@ -84,6 +89,8 @@ export type NonProductAtmospherePlan = {
   referenceAssetIds: string[];
   taskId: string;
   aspectRatio: NonProductAtmosphereAspectRatio;
+  curationSeed: string;
+  sceneSelectionMode: "AUTO_CONTROLLED_RANDOM";
   images: NonProductAtmosphereImagePlan[];
 };
 
@@ -96,6 +103,7 @@ export type BuildNonProductAtmospherePlanInput = {
   taskId?: string;
   referenceAssetIds?: string[];
   previewWithoutReference?: boolean;
+  recentVariationHistory?: AtmosphereVariationSignature[];
 };
 
 type ObjectCue = { id: string; text: string };
@@ -161,6 +169,7 @@ export class AtmosphereCompileError extends Error {
 }
 
 const SCENE_ORDER: AtmosphereSceneId[] = ["ENTRYWAY_DEPARTURE", "READING_CORNER", "RETURN_HOME_TABLE", "WORKTABLE_PAUSE", "HOTEL_TRAVEL", "CAFE_FRONT", "WARDROBE_MORNING", "MATERIAL_LIGHT_SPACE"];
+const SCENE_FAMILY: Record<AtmosphereSceneId, AtmosphereSceneFamily> = { ENTRYWAY_DEPARTURE: "THRESHOLD", READING_CORNER: "PRIVATE_HOME", RETURN_HOME_TABLE: "DAILY_ERRAND", WORKTABLE_PAUSE: "WORKING_LIFE", HOTEL_TRAVEL: "SHORT_TRAVEL", CAFE_FRONT: "CITY_PASSAGE", WARDROBE_MORNING: "PRIVATE_HOME", MATERIAL_LIGHT_SPACE: "QUIET_PUBLIC_SPACE" };
 const ECHO_CHANNEL_ORDER: ProductEchoChannel[] = ["MATERIAL_TACTILITY", "LIGHT_TEMPERATURE", "SURFACE_FINISH", "SEASONAL_FEELING", "EMOTIONAL_TONE", "RESTRAINED_HUE"];
 const CARRIER_BY_SCENE: Record<AtmosphereSceneId, EchoCarrierCategory> = { ENTRYWAY_DEPARTURE: "TEXTILE", READING_CORNER: "AMBIENT_LIGHT", RETURN_HOME_TABLE: "CERAMIC", WORKTABLE_PAUSE: "PAPER", HOTEL_TRAVEL: "GLASS", CAFE_FRONT: "SHADOW", WARDROBE_MORNING: "TEXTILE", MATERIAL_LIGHT_SPACE: "NO_PHYSICAL_CARRIER" };
 const ANTI_LITERAL_POLICY: AntiLiteralEchoPolicy = { forbidColorToObjectTypeMapping: true, forbidObjectInjectionForHueEcho: true, forbidFullSceneHueTheming: true, forbidProductShapeAnalogy: true, forbidRepeatedCarrierInSet: true, allowHueOnlyAsSubtleProperty: true };
@@ -180,7 +189,26 @@ function routeProductEcho(archetype: AtmosphereSceneArchetype, index: number, re
   return { primaryChannel, secondaryChannel: primaryChannel === "RESTRAINED_HUE" ? "MATERIAL_TACTILITY" : "EMOTIONAL_TONE", sourceAnalysisId: `${taskId}:deferred-external-image2-v1`, currentTaskReferenceIds: referenceAssetIds, routingReason: "Route by stable card and scene identity; scene objects are selected before Product Echo and no product color is read by this selector.", hueUsage: primaryChannel === "RESTRAINED_HUE" ? "micro_accent" : "none", maxHueCoverage: primaryChannel === "RESTRAINED_HUE" ? "very_small" : "none", selectedCarrierId: `${archetype.id}:${carrier}`, selectedCarrierCategory: carrier, antiLiteralMappingPassed: true };
 }
 
-function buildPrompt(archetype: AtmosphereSceneArchetype, variation: AtmosphereVariation, profile: ProductEchoProfile, aspectRatio: NonProductAtmosphereAspectRatio, previous: SceneFingerprint[], route: ProductEchoRoute): string {
+function stableHash(value: string): number {
+  let hash = 2166136261;
+  for (let index = 0; index < value.length; index += 1) hash = Math.imul(hash ^ value.charCodeAt(index), 16777619);
+  return hash >>> 0;
+}
+
+function seededOrder(seed: string): AtmosphereSceneId[] {
+  return [...SCENE_ORDER].sort((left, right) => stableHash(`${seed}:${left}`) - stableHash(`${seed}:${right}`));
+}
+
+function buildDeferredResponsiveProfile(taskId: string, referenceAssetIds: string[]): ProductResponsiveVisualProfile {
+  return { sourceMode: "CURRENT_TASK_REFERENCE_ONLY", sourceReferenceIds: referenceAssetIds, productEchoAnalysisId: `${taskId}:deferred-external-image2-v1`, valueStructure: "mixed", contrastLevel: "moderate", edgeDefinition: "balanced", shadowBehavior: "layered", visualRhythm: "balanced", spatialDensity: "balanced", spatialBoundary: "balanced", materialBalance: { softMaterialWeight: 0.5, hardMaterialWeight: 0.5, smoothSurfaceWeight: 0.5, texturedSurfaceWeight: 0.5, matteWeight: 0.5, reflectiveWeight: 0.5 }, chromaticRole: "micro_echo", emotionalWeight: "calm", provenance: { taskId, referenceAssetIds, analysisVersion: "deferred-external-image2-v1", generatedForCurrentTask: true } };
+}
+
+function buildVisualGrammar(profile: ProductResponsiveVisualProfile, channel: ProductEchoChannel): AtmosphereVisualGrammar {
+  return { valueStructure: `Let the current reference determine value distribution; current deferred profile target: ${profile.valueStructure}.`, contrastInstruction: `Shape contrast and front/back separation from the current reference; target ${profile.contrastLevel} contrast.`, edgeInstruction: `Use ${profile.edgeDefinition} edge definition without turning the image graphic.`, shadowInstruction: `Use ${profile.shadowBehavior} shadows with believable direction and coverage.`, rhythmInstruction: `Use ${profile.visualRhythm} visual pacing and pauses.`, spatialDensityInstruction: `Use ${profile.spatialDensity} spatial density.`, spatialBoundaryInstruction: `Use ${profile.spatialBoundary} spatial boundaries.`, materialMixInstruction: `Balance soft/hard, smooth/textured, matte/reflective surfaces according to the current reference; selected weights are ${profile.materialBalance.softMaterialWeight}/${profile.materialBalance.hardMaterialWeight}, ${profile.materialBalance.smoothSurfaceWeight}/${profile.materialBalance.texturedSurfaceWeight}, ${profile.materialBalance.matteWeight}/${profile.materialBalance.reflectiveWeight}.`, chromaticInstruction: `Keep the current reference hue identity restrained through ${profile.chromaticRole}; never replace it with a fixed brand color. Primary channel ${channel} must affect the whole visual grammar, not one decorative prop.` };
+}
+
+function buildPrompt(archetype: AtmosphereSceneArchetype, variation: AtmosphereVariation, profile: ProductEchoProfile, aspectRatio: NonProductAtmosphereAspectRatio, previous: SceneFingerprint[], route: ProductEchoRoute, visualGrammar: AtmosphereVisualGrammar): string {
+  const responsiveProfile = buildDeferredResponsiveProfile(profile.provenance.taskId, profile.provenance.referenceAssetIds);
   return [
     `OUTPUT CONTRACT: Generate exactly one standalone ${aspectRatio} portrait photograph. This is a vertical portrait composition. Single scene only. No collage. No triptych. No contact sheet. No split panels. No multiple frames. Do not combine multiple locations in one image.`,
     `CURRENT TASK REFERENCE SOURCE: Use only the actual product reference images attached, uploaded, or selected for the current generation task as the visual source for Product Echo. Do not use a previous task's reference image. Do not use a previous generated image. Do not infer color from the SKU name, file name, historical prompt, brand palette, or default configuration. For the external manual Image2 workflow, use the actual reference image attached in the external Image2 tool as the sole visual source for Product Echo. Reference use is visual_echo_extraction_only. Do not use a website-uploaded reference image as a substitute for the actual external attachment.`,
@@ -189,8 +217,15 @@ function buildPrompt(archetype: AtmosphereSceneArchetype, variation: AtmosphereV
     activeVisualSystemRule(),
     `LIFE TRACE: ${archetype.lifeTraceDirection}. ${variation.directive}`,
     `DYNAMIC PRODUCT ECHO: Analyze the current task's actual reference images at generation time. Read their actual color families, value range, saturation level, warm/cool/neutral/mixed tendency, material tactility, surface finish, seasonal feeling, and emotional tone. Translate those qualities indirectly into unrelated believable lifestyle elements. Preserve the current reference image's actual hue identity. When necessary, reduce only its intensity, coverage, contrast, or frequency of appearance. Do not substitute any fixed brand color or preset product color. Do not turn the entire room into a literal product-color theme. ${profile.seasonalEcho}`,
+    "PRODUCT AND BRAND RESPONSIBILITY: The current task's actual product reference determines what visual qualities this atmosphere set should express. The THERUIZ AURA Active Visual System determines how those qualities are expressed with restraint, maturity, realism, tactile authenticity, quiet order, believable light, and calm negative space. Do not replace the current product reference with a fixed THERUIZ AURA room, palette, object bundle, or lifestyle template.",
+    "ACTIVE VISUAL SYSTEM RESPONSIBILITY: The Active Visual System controls restraint, realism, maturity, believable light, tactile authenticity, quiet order, calm negative space, and brand boundaries. It does not prescribe one fixed room type, neutral palette, furniture material, repeated object bundle, or lifestyle template.",
+    "SCENE OBJECT SELECTION: Use only objects that naturally belong to this selected place and recent daily moment. The scene objects were selected independently from the product color. Do not add flowers, books, cups, textiles, paper, or decorative objects solely to echo the product hue.",
+    `PRODUCT-RESPONSIVE VISUAL PROFILE: ${responsiveProfile.valueStructure}; ${responsiveProfile.contrastLevel} contrast; ${responsiveProfile.edgeDefinition} edges; ${responsiveProfile.shadowBehavior} shadows; ${responsiveProfile.visualRhythm} rhythm; ${responsiveProfile.spatialDensity} density; ${responsiveProfile.spatialBoundary} boundaries; ${responsiveProfile.emotionalWeight} emotional weight.`,
+    `PRODUCT-RESPONSIVE VISUAL GRAMMAR: ${visualGrammar.valueStructure} ${visualGrammar.contrastInstruction} ${visualGrammar.edgeInstruction} ${visualGrammar.shadowInstruction} ${visualGrammar.rhythmInstruction} ${visualGrammar.spatialDensityInstruction} ${visualGrammar.spatialBoundaryInstruction} ${visualGrammar.materialMixInstruction} ${visualGrammar.chromaticInstruction}`,
     `PRODUCT ECHO CHANNEL: Primary echo channel: ${route.primaryChannel}. ${route.secondaryChannel ? `Secondary channel: ${route.secondaryChannel}.` : ""} Express the current task's Product Echo mainly through the selected material, surface, light, seasonal, or emotional channel. Do not automatically express Product Echo through visible color.`,
     "ANTI-LITERAL PRODUCT ECHO: Do not choose flowers, books, cups, textiles, paper, or any other object because their color can match the product reference. Scene objects must be selected only because they naturally belong to the selected place and recent life moment. Do not add a new object solely to carry the product's hue. When hue echo is used, apply it only as a very small, low-saturation, low-contrast property of an already justified scene element. Do not create a literal color-matching prop. Do not create a product-color-themed room.",
+    "AVOID GENERIC BRAND TEMPLATE: Do not default to the same cream interior, warm wooden furniture, ceramic cup, open book, glasses, linen curtain, pale garment, and soft afternoon sunlight formula. Keep THERUIZ AURA recognizable through restraint, realism, maturity, tactile authenticity, quiet order, believable light, and calm negative space, while the current product reference meaningfully changes value structure, contrast, edge clarity, shadow rhythm, material combination, spatial density, and visual pacing.",
+    "PRODUCT DIFFERENTIATION REQUIREMENT: Compared with another product reference, meaningfully change at least three deep dimensions: value distribution, contrast strength, edge definition, shadow behavior, visual rhythm, spatial density, spatial boundary, material balance, or restrained chromatic role. Do not claim responsiveness when only a minor prop or color accent changed.",
     `OBJECT LIMIT: Use only ${archetype.allowedObjects.join(", ")}. Keep one dominant life trace and two to four supporting objects maximum.`,
     `ECHO CARRIER: Use the already justified ${route.selectedCarrierCategory} only as a subtle carrier for the selected echo channel. Do not introduce another object for Product Echo.`,
     `CARRIER DIVERSITY LOCK: Do not repeat another card's primary Product Echo channel, carrier category, dominant life-trace object, or color-matching object pattern.`,
@@ -215,26 +250,33 @@ export function buildNonProductAtmospherePlan(input: BuildNonProductAtmospherePl
   const season = input.season ?? "春";
   const aspectRatio = input.aspectRatio ?? "4:5";
   const taskId = input.taskId ?? `current-task-${rotationIndex}`;
+  const curationSeed = `${taskId}:${rotationIndex}:v1`;
   const profile = buildProductEchoProfile(season);
+  const responsiveProfile = buildDeferredResponsiveProfile(taskId, referenceAssetIds);
   profile.sourceReferenceIds = referenceAssetIds;
   profile.provenance = { taskId, referenceAssetIds, analysisVersion: "deferred-external-image2-v1", generatedForCurrentTask: true };
   const used: SceneFingerprint[] = [];
   const usedRoutes: ProductEchoRoute[] = [];
+  const recentHistory = input.recentVariationHistory ?? [];
   const images = Array.from({ length: quantity }, (_, index) => {
-    const archetype = NON_PRODUCT_ATMOSPHERE_SCENE_REGISTRY[SCENE_ORDER[(rotationIndex + index) % SCENE_ORDER.length]];
+    const candidates = seededOrder(curationSeed).filter((candidate) => !recentHistory.slice(-6).some((record) => record.sceneId === candidate));
+    const archetype = NON_PRODUCT_ATMOSPHERE_SCENE_REGISTRY[(candidates.length > 0 ? candidates : seededOrder(curationSeed))[index % (candidates.length || SCENE_ORDER.length)]];
     const fingerprint = sceneFingerprint(archetype);
     if (used.some((previous) => previous.id === fingerprint.id || (previous.dominantPlane === fingerprint.dominantPlane && previous.dominantObject === fingerprint.dominantObject))) throw new AtmosphereCompileError("SCENE_DIVERSITY_DIAGNOSTIC", `SCENE_DIVERSITY_DIAGNOSTIC: card ${index + 1} repeats ${fingerprint.id}, dominant plane, or dominant object.`);
     used.push(fingerprint);
     const variation = NON_PRODUCT_ATMOSPHERE_VARIATIONS[(rotationIndex + index) % NON_PRODUCT_ATMOSPHERE_VARIATIONS.length];
     const route = routeProductEcho(archetype, index, referenceAssetIds, taskId);
+    const visualGrammar = buildVisualGrammar(responsiveProfile, route.primaryChannel);
     if (usedRoutes[usedRoutes.length - 1]?.primaryChannel === route.primaryChannel) throw new AtmosphereCompileError("SCENE_DIVERSITY_DIAGNOSTIC", "ECHO_CHANNEL_DIVERSITY_VIOLATION: adjacent primary channel repeated.");
     if (usedRoutes.some((previous) => previous.selectedCarrierCategory === route.selectedCarrierCategory)) route.selectedCarrierCategory = "NO_PHYSICAL_CARRIER";
     route.selectedCarrierId = `${archetype.id}:${route.selectedCarrierCategory}`;
     usedRoutes.push(route);
     const slot: NonProductAtmosphereSlot = { id: `atmosphere-slot-${rotationIndex + index + 1}`, sceneId: fingerprint.id, sceneLabel: archetype.locationLock, sceneLine: archetype.requiredSpatialCues.join("; "), lifeMoment: archetype.lifeTraceDirection, objectCue: archetype.dominantObject, variation, differenceDimensions: [archetype.dominantPlane, archetype.cameraHeight, archetype.depthPattern] };
     const promptPackage: AtmospherePromptPackage = { provider: "image2", generationCount: 1, standaloneImage: true, isolatedGenerationRequired: true, reusePreviousConversation: false, reusePreviousGeneratedImage: false, continuityMode: "STYLE_ONLY_CONTINUITY", productEchoSourceMode: "CURRENT_TASK_REFERENCE_ONLY", referenceAssetIds, externalReferenceAttachmentRequired: true };
-    const image: NonProductAtmosphereImagePlan = { id: `non-product-atmosphere-${rotationIndex + index + 1}`, index: index + 1, prompt: buildPrompt(archetype, variation, profile, aspectRatio, used.slice(0, -1), route), slot, sceneFingerprint: fingerprint, promptPackage, sceneQA: { expectedSceneMatched: true, requiredSpatialCuesFound: [], missingRequiredSpatialCues: archetype.requiredSpatialCues, forbiddenSceneCuesFound: [], collageDetected: false, repeatedPreviousScene: false, dominantObjectRepeated: false, productEchoSourceValid: true, currentTaskReferenceProvenanceValid: true }, sceneObjectSelection: { selectedObjects: archetype.allowedObjects.slice(0, 2), selectionSource: "SCENE_AND_LIFE_TRACE_ONLY", colorIndependentSelection: true }, productEchoRoute: route, variationSignature: { sceneId: fingerprint.id, lifeTraceId: variation.key, dominantPlane: fingerprint.dominantPlane, cameraHeight: fingerprint.cameraHeight, depthPattern: fingerprint.depthPattern, dominantObject: fingerprint.dominantObject, productEchoPrimaryChannel: route.primaryChannel, productEchoSecondaryChannel: route.secondaryChannel, echoCarrierCategory: route.selectedCarrierCategory, hueUsage: route.hueUsage }, productEchoExpressionQA: { productEchoSourceValid: true, primaryChannelValid: true, nonHueChannelPreferred: route.primaryChannel !== "RESTRAINED_HUE", sceneObjectsSelectedIndependentlyFromColor: true, carrierAlreadyJustifiedByScene: true, literalColorMatchingPropDetected: false, objectInjectedOnlyForHueEcho: false, fullSceneHueThemeDetected: false, repeatedCarrierDetected: false, repeatedPrimaryChannelDetected: false, flowerSelectedBecauseOfProductHue: false, multipleHueCarriersDetected: false }, productReferenceUse: "visual_echo_extraction_only", productVisibility: "forbidden", footwearVisibility: "forbidden", personVisibility: "forbidden", modelGeneration: "disabled", outfitGeneration: "disabled", onFootGeneration: "disabled" };
+    const image: NonProductAtmosphereImagePlan = { id: `non-product-atmosphere-${rotationIndex + index + 1}`, index: index + 1, prompt: buildPrompt(archetype, variation, profile, aspectRatio, used.slice(0, -1), route, visualGrammar), slot, sceneFingerprint: fingerprint, promptPackage, sceneQA: { expectedSceneMatched: true, requiredSpatialCuesFound: [], missingRequiredSpatialCues: archetype.requiredSpatialCues, forbiddenSceneCuesFound: [], collageDetected: false, repeatedPreviousScene: false, dominantObjectRepeated: false, productEchoSourceValid: true, currentTaskReferenceProvenanceValid: true }, sceneObjectSelection: { selectedObjects: archetype.allowedObjects.slice(0, 2), selectionSource: "SCENE_AND_LIFE_TRACE_ONLY", colorIndependentSelection: true }, productEchoRoute: route, productResponsiveProfile: responsiveProfile, visualGrammar, variationSignature: { brandId: brandVisualMother.brand, taskId, cardId: `non-product-atmosphere-${rotationIndex + index + 1}`, curationSeed: `${taskId}:${rotationIndex}`, sceneFamily: SCENE_FAMILY[fingerprint.id], sceneId: fingerprint.id, lifeTraceId: variation.key, dominantPlane: fingerprint.dominantPlane, cameraHeight: fingerprint.cameraHeight, depthPattern: fingerprint.depthPattern, dominantObject: fingerprint.dominantObject, objectBundleFingerprint: `${fingerprint.id}:${fingerprint.dominantObject}`, materialMixFingerprint: `${visualGrammar.materialMixInstruction}:${fingerprint.dominantPlane}`, productEchoPrimaryChannel: route.primaryChannel, productEchoSecondaryChannel: route.secondaryChannel, echoCarrierCategory: route.selectedCarrierCategory, hueUsage: route.hueUsage, valueStructure: responsiveProfile.valueStructure, contrastLevel: responsiveProfile.contrastLevel, edgeDefinition: responsiveProfile.edgeDefinition, shadowBehavior: responsiveProfile.shadowBehavior, visualRhythm: responsiveProfile.visualRhythm, spatialDensity: responsiveProfile.spatialDensity, spatialBoundary: responsiveProfile.spatialBoundary, chromaticRole: responsiveProfile.chromaticRole }, productEchoExpressionQA: { productEchoSourceValid: true, primaryChannelValid: true, nonHueChannelPreferred: route.primaryChannel !== "RESTRAINED_HUE", sceneObjectsSelectedIndependentlyFromColor: true, carrierAlreadyJustifiedByScene: true, literalColorMatchingPropDetected: false, objectInjectedOnlyForHueEcho: false, fullSceneHueThemeDetected: false, repeatedCarrierDetected: false, repeatedPrimaryChannelDetected: false, flowerSelectedBecauseOfProductHue: false, multipleHueCarriersDetected: false }, productReferenceUse: "visual_echo_extraction_only", productVisibility: "forbidden", footwearVisibility: "forbidden", personVisibility: "disabled", modelGeneration: "disabled", outfitGeneration: "disabled", onFootGeneration: "disabled" };
+    image.personVisibility = "forbidden";
+    image.promptPackage = { ...image.promptPackage, sceneSelectionMode: "AUTO_CONTROLLED_RANDOM", curationSeed, seedVersion: "v1" };
     return image;
   });
-  return { contentType: NON_PRODUCT_ATMOSPHERE_CONTENT_TYPE, provider: NON_PRODUCT_ATMOSPHERE_PROVIDER, promptVersion: NON_PRODUCT_ATMOSPHERE_PROMPT_VERSION, quantity, productEchoProfile: profile, referenceImageCount: Math.max(0, input.referenceImageCount ?? referenceAssetIds.length), referenceAssetIds, taskId, aspectRatio, images };
+  return { contentType: NON_PRODUCT_ATMOSPHERE_CONTENT_TYPE, provider: NON_PRODUCT_ATMOSPHERE_PROVIDER, promptVersion: NON_PRODUCT_ATMOSPHERE_PROMPT_VERSION, quantity, productEchoProfile: profile, referenceImageCount: Math.max(0, input.referenceImageCount ?? referenceAssetIds.length), referenceAssetIds, taskId, aspectRatio, curationSeed, sceneSelectionMode: "AUTO_CONTROLLED_RANDOM", images };
 }
