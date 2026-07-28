@@ -85,6 +85,7 @@ export const NON_PRODUCT_ATMOSPHERE_VARIATIONS = [
   { key: "object-set-down", directive: "Atmosphere moment variation: imply one everyday object was just set down through realistic contact, weight, and asymmetric placement, without a posed hand or staged luxury prop." },
   { key: "quiet-aftermath", directive: "Atmosphere moment variation: show the quiet aftermath of a normal routine with subtle human traces, wider framing, and no centered hero object." }
 ] as const;
+export type AtmosphereVariation = (typeof NON_PRODUCT_ATMOSPHERE_VARIATIONS)[number];
 
 const NON_PRODUCT_ATMOSPHERE_SEASON_LINES = {
   春: "Seasonal atmosphere: soft spring daylight, airy tactile surfaces, pale restrained neutrals, and a fresh but quiet sense of use.",

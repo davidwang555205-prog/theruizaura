@@ -91,6 +91,29 @@ test('non-product atmosphere prompt rotates eight times without changing the sel
   }
 });
 
+test('non-product atmosphere is an isolated content module with exact quantity planning', async ({ page }) => {
+  await page.goto('/');
+  await page.getByRole('button', { name: /非产品氛围图/ }).click();
+  await expect(page.getByRole('heading', { name: '非产品氛围图' })).toBeVisible();
+  await expect(page.getByText('根据当前产品的颜色、材质与情绪')).toBeVisible();
+  await expect(page.getByRole('button', { name: '生成非产品氛围图' })).toBeVisible();
+  await expect(page.getByLabel('非产品氛围图生成数量')).toHaveValue('5');
+  await expect(page.getByText('场景偏好')).toHaveCount(0);
+  await expect(page.getByText('服装类型')).toHaveCount(0);
+  await expect(page.getByText('人物选择')).toHaveCount(0);
+  await page.getByLabel('非产品氛围图生成数量').selectOption('3');
+  await page.getByRole('button', { name: '生成非产品氛围图' }).click();
+  const prompts = page.locator('[data-testid^="atmosphere-prompt-"]');
+  await expect(prompts).toHaveCount(3);
+  for (const prompt of await prompts.allTextContents()) {
+    expect(prompt).toContain('Product Echo');
+    expect(prompt).toContain('Do not show the uploaded product');
+    expect(prompt).toContain('Do not show any person');
+    expect(prompt).toContain('Image2 only');
+    expect(prompt).not.toMatch(/[\u3400-\u9fff]/);
+  }
+});
+
 test('user-facing soft-seeding prompts use active registry routing for display and copy', async ({ page, context }) => {
   await context.grantPermissions(['clipboard-read', 'clipboard-write'], { origin: 'http://127.0.0.1:4173' });
   await page.goto('/');
