@@ -11,6 +11,8 @@ export const NON_PRODUCT_ATMOSPHERE_PROVIDER = "image2" as const;
 export const NON_PRODUCT_ATMOSPHERE_PROMPT_VERSION = "non-product-atmosphere-image2-v1" as const;
 export const NON_PRODUCT_ATMOSPHERE_COUNTS = [1, 3, 5, 8] as const;
 export type NonProductAtmosphereCount = (typeof NON_PRODUCT_ATMOSPHERE_COUNTS)[number];
+export const NON_PRODUCT_ATMOSPHERE_ASPECT_RATIOS = ["4:5", "9:16", "1:1"] as const;
+export type NonProductAtmosphereAspectRatio = (typeof NON_PRODUCT_ATMOSPHERE_ASPECT_RATIOS)[number];
 
 export type ProductEchoProfile = {
   primaryEchoColor: string;
@@ -54,6 +56,7 @@ export type NonProductAtmospherePlan = {
   quantity: NonProductAtmosphereCount;
   productEchoProfile: ProductEchoProfile;
   referenceImageCount: number;
+  aspectRatio: NonProductAtmosphereAspectRatio;
   images: NonProductAtmosphereImagePlan[];
 };
 
@@ -62,6 +65,7 @@ export type BuildNonProductAtmospherePlanInput = {
   generationNonce?: number;
   referenceImageCount?: number;
   season?: "春" | "夏" | "秋" | "冬";
+  aspectRatio?: NonProductAtmosphereAspectRatio;
 };
 
 type ObjectCue = { id: string; text: string };
@@ -107,7 +111,7 @@ function activeVisualSystemRule() {
 const BRAND_CORE = `Create a ${brandVisualMother.brand} non-product lifestyle atmosphere image guided by ${brandVisualMother.core_positioning.split(" /")[0] || "Quiet Warm Luxury"}. Express warm restraint, calm negative space, mature relaxed elegance, tactile authenticity, quiet daily order, low-saturation color, soft natural daylight, and believable lived-in atmosphere. The image must feel warm, restrained, mature, calm, tactile, and real.`;
 const EXTERNAL_REFERENCE_RULE = "Use the actual reference image attached in the external image-generation tool as the sole visual source for Product Echo. Read its color family, material tactility, surface finish, emotional tone, and seasonal feeling at generation time. Do not use a website-uploaded reference image as the source for this copied Prompt. Reference use is visual_echo_extraction_only. The website reference-upload field is reserved for the future server/API generation path.";
 const PRODUCT_ECHO_RULE = "Translate the product's visual qualities into unrelated but believable lifestyle elements. Use only restrained visual echoes through color, texture, light, atmosphere, or everyday objects. The connection must be subtle, indirect, and emotionally readable. Do not create an obvious product-color theme or color the entire scene according to the product. If Product Echo conflicts with the Active Visual System, lower saturation and follow the brand's cream, warm beige, pale stone, warm-grey, natural-material, and quiet-light order.";
-const COMPOSITION_RULE = "Use wider observational framing with calm negative space. Do not create a centered hero object, flatlay composition, symmetrical styling, evenly spaced props, showroom arrangement, or advertising hierarchy. Allow natural cropping, partial occlusion, depth, and believable visual imbalance.";
+const COMPOSITION_RULE = "Use a vertical portrait composition with calm negative space and natural top-to-bottom visual flow. Do not create a centered hero object, flatlay composition, symmetrical styling, evenly spaced props, showroom arrangement, or advertising hierarchy. Allow natural cropping, partial occlusion, depth, and believable visual imbalance.";
 const HARD_PROHIBITIONS = "Do not show the uploaded product. Do not show any sneaker, shoe, footwear, product substitute, product fragment, product-like object, product packaging used as product display, or any other brand footwear. Do not show any person, model, face, portrait, hand, foot, leg, body fragment, reflection, silhouette, human shadow, mirror person, on-foot styling, outfit display, or human action. Product visibility = forbidden. Footwear visibility = forbidden. Person visibility = forbidden. Model generation = disabled. Outfit generation = disabled. On-foot generation = disabled.";
 const NEGATIVE_CONSTRAINTS = "Avoid luxury real-estate interiors, showroom styling, home-furnishing advertising, bedding advertising, interior-design editorial, coffee-brand advertising, flower-shop advertising, generic lifestyle moodboards, Pinterest styling, influencer clichés, decorative prop collections, artificial symmetry, empty CGI spaces, loud color blocking, and category drift.";
 
@@ -142,13 +146,14 @@ function resolveScene(sceneId: string, rotationIndex: number) {
   return { label: fallbackScene, line: NON_PRODUCT_ATMOSPHERE_SCENE_LINES[fallbackScene] ?? "Create one quiet tactile atmosphere with believable daily traces." };
 }
 
-function buildPrompt(slot: NonProductAtmosphereSlot, profile: ProductEchoProfile): string {
+function buildPrompt(slot: NonProductAtmosphereSlot, profile: ProductEchoProfile, aspectRatio: NonProductAtmosphereAspectRatio): string {
   return [
     activeVisualSystemRule(),
     BRAND_CORE,
     EXTERNAL_REFERENCE_RULE,
     `Product Echo profile: primary echo is ${profile.primaryEchoColor}; use ${profile.materialEchoes.join(", ")} and ${profile.emotionalEchoes.join(", ")}. ${profile.seasonalEcho}`,
     PRODUCT_ECHO_RULE,
+    `Output format: ${aspectRatio} portrait-ready composition. Treat this aspect ratio as a hard framing requirement.`,
     `Life moment: ${slot.lifeMoment}. Scene: ${slot.sceneLine} Object direction: use ${slot.objectCue}. Keep one main life trace plus only two to four supporting objects, each justified by recent daily use.`,
     `Variation dimensions: ${slot.differenceDimensions.join(", ")}. ${slot.variation.directive}`,
     COMPOSITION_RULE,
@@ -162,6 +167,7 @@ export function buildNonProductAtmospherePlan(input: BuildNonProductAtmospherePl
   const quantity = input.quantity;
   const rotationIndex = Math.abs(Math.floor(input.generationNonce ?? 0));
   const season = input.season ?? "春";
+  const aspectRatio = input.aspectRatio ?? "4:5";
   const profile = buildProductEchoProfile(season);
   const images = Array.from({ length: quantity }, (_, index) => {
     const sceneSlot = SLOT_SCENES[(rotationIndex + index) % SLOT_SCENES.length];
@@ -180,7 +186,7 @@ export function buildNonProductAtmospherePlan(input: BuildNonProductAtmospherePl
     return {
       id: `non-product-atmosphere-${rotationIndex + index + 1}`,
       index: index + 1,
-      prompt: buildPrompt(slot, profile),
+      prompt: buildPrompt(slot, profile, aspectRatio),
       slot,
       productReferenceUse: "visual_echo_extraction_only" as const,
       productVisibility: "forbidden" as const,
@@ -198,6 +204,7 @@ export function buildNonProductAtmospherePlan(input: BuildNonProductAtmospherePl
     quantity,
     productEchoProfile: profile,
     referenceImageCount: Math.max(0, input.referenceImageCount ?? 0),
+    aspectRatio,
     images
   };
 }

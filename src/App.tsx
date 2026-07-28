@@ -33,6 +33,8 @@ import {
   buildNonProductAtmospherePlan,
   NON_PRODUCT_ATMOSPHERE_COUNTS,
   NON_PRODUCT_ATMOSPHERE_CONTENT_TYPE,
+  NON_PRODUCT_ATMOSPHERE_ASPECT_RATIOS,
+  type NonProductAtmosphereAspectRatio,
   type NonProductAtmosphereCount,
   type NonProductAtmospherePlan
 } from "./non-product-atmosphere";
@@ -175,18 +177,26 @@ function VisualSystemWorkspace() {
 function NonProductAtmosphereWorkspace({
   plan,
   quantity,
+  season,
+  aspectRatio,
   referenceImages,
   copyStatus,
   onQuantityChange,
+  onSeasonChange,
+  onAspectRatioChange,
   onGenerate,
   onCopyPrompt,
   onUploadReferences
 }: {
   plan: NonProductAtmospherePlan;
   quantity: NonProductAtmosphereCount;
+  season: TeamSeason;
+  aspectRatio: NonProductAtmosphereAspectRatio;
   referenceImages: ReferenceImage[];
   copyStatus: string;
   onQuantityChange: (value: NonProductAtmosphereCount) => void;
+  onSeasonChange: (value: TeamSeason) => void;
+  onAspectRatioChange: (value: NonProductAtmosphereAspectRatio) => void;
   onGenerate: () => void;
   onCopyPrompt: (prompt: string, label: string) => void;
   onUploadReferences: (event: ChangeEvent<HTMLInputElement>) => void;
@@ -202,16 +212,18 @@ function NonProductAtmosphereWorkspace({
         <div><h2 className="text-lg font-semibold text-aura-charcoal">生成设置</h2><p className="mt-1 text-xs text-aura-muted">系统自动编排场景、生活痕迹、构图与 Product Echo；本模块不开放场景或风格参数。</p></div>
         <span className={softStatusPillClass}>Image2 only · {NON_PRODUCT_ATMOSPHERE_CONTENT_TYPE}</span>
       </div>
-      <div className="mt-4 grid gap-4 md:grid-cols-[1fr_1fr_auto] md:items-end">
+      <div className="mt-4 grid gap-4 md:grid-cols-2 lg:grid-cols-4 lg:items-end">
         <label className="block space-y-2"><span className="text-sm font-medium text-aura-charcoal">生成数量</span><select aria-label="非产品氛围图生成数量" className={inputClass} value={quantity} onChange={(event) => onQuantityChange(Number(event.target.value) as NonProductAtmosphereCount)}>{NON_PRODUCT_ATMOSPHERE_COUNTS.map((count) => <option key={count} value={count}>{count}张</option>)}</select></label>
+        <label className="block space-y-2"><span className="text-sm font-medium text-aura-charcoal">季节</span><select aria-label="非产品氛围图季节" className={inputClass} value={season} onChange={(event) => onSeasonChange(event.target.value as TeamSeason)}>{seasonOptions.map((option) => <option key={option} value={option}>{option}</option>)}</select></label>
+        <label className="block space-y-2"><span className="text-sm font-medium text-aura-charcoal">画幅比例</span><select aria-label="非产品氛围图画幅比例" className={inputClass} value={aspectRatio} onChange={(event) => onAspectRatioChange(event.target.value as NonProductAtmosphereAspectRatio)}>{NON_PRODUCT_ATMOSPHERE_ASPECT_RATIOS.map((ratio) => <option key={ratio} value={ratio}>{ratio}{ratio === "4:5" ? "（推荐）" : ""}</option>)}</select></label>
         <label className="block space-y-2"><span className="text-sm font-medium text-aura-charcoal">API 预留参考图</span><span className="flex min-h-[48px] items-center rounded-[18px] bg-white/70 px-4 text-sm text-aura-muted ring-1 ring-aura-beige/70">已上传 {referenceImages.length} 张 · 当前复制 Prompt 不读取</span></label>
-        <button type="button" onClick={onGenerate} className={clayButtonClass}>生成非产品氛围图</button>
+        <button type="button" onClick={onGenerate} className={`${clayButtonClass} lg:col-start-4`}>生成非产品氛围图</button>
       </div>
       <label className="mt-4 block rounded-[18px] border border-dashed border-aura-beige bg-white/50 px-4 py-3 text-xs text-aura-muted">上传参考图（服务器 / API 接入后启用；当前复制 Prompt 请在外部生图工具中附加实际参考图）<input aria-label="上传非产品氛围图 API 预留参考图" type="file" accept="image/*" multiple className="mt-2 block w-full text-xs" onChange={onUploadReferences} /></label>
       <div className="mt-4 grid gap-2 sm:grid-cols-3">{["产品可见性：禁止", "鞋履可见性：禁止", "人物 / 穿搭 / 上脚：禁用"].map((text) => <span key={text} className="rounded-[14px] bg-aura-cream px-3 py-2 text-xs text-aura-muted">{text}</span>)}</div>
     </section>
     <section className="rounded-[24px] bg-aura-porcelain/95 p-5 ring-1 ring-aura-beige/70">
-      <div className="flex flex-wrap items-center justify-between gap-3"><div><h2 className="text-lg font-semibold text-aura-charcoal">Provider-ready Prompt 计划</h2><p className="mt-1 text-xs text-aura-muted">{plan.promptVersion} · {plan.images.length} 份 Prompt · 复制后请在外部生图工具中附加实际参考图</p></div><button type="button" onClick={() => onCopyPrompt(plan.images.map((image) => `Image ${image.index}:\n${image.prompt}`).join("\n\n"), "全部非产品氛围图 Prompt")} className={imageToolButtonClass}>复制全部 Prompt</button></div>
+      <div className="flex flex-wrap items-center justify-between gap-3"><div><h2 className="text-lg font-semibold text-aura-charcoal">Provider-ready Prompt 计划</h2><p className="mt-1 text-xs text-aura-muted">{plan.promptVersion} · {plan.images.length} 份 Prompt · {plan.aspectRatio} · {season} · 复制后请在外部生图工具中附加实际参考图</p></div><button type="button" onClick={() => onCopyPrompt(plan.images.map((image) => `Image ${image.index}:\n${image.prompt}`).join("\n\n"), "全部非产品氛围图 Prompt")} className={imageToolButtonClass}>复制全部 Prompt</button></div>
       <div className="mt-4 space-y-3">{plan.images.map((image) => <article key={image.id} className="rounded-[18px] bg-white/70 p-4 ring-1 ring-aura-beige/70"><div className="flex flex-wrap items-center justify-between gap-2"><div><b>Image {image.index} · {image.slot.sceneLabel}</b><p className="mt-1 text-xs text-aura-muted">系统槽位：{image.slot.id} · 差异：{image.slot.differenceDimensions.join(" / ")}</p></div><button type="button" onClick={() => onCopyPrompt(image.prompt, `Image ${image.index} Prompt`)} className={imageToolButtonClass}>复制这张 Prompt</button></div><details className="mt-3 rounded-[14px] bg-aura-cream/60 p-3"><summary className="cursor-pointer text-xs font-medium">查看完整 Image2 Prompt</summary><pre data-testid={`atmosphere-prompt-${image.index}`} className="mt-3 max-h-80 overflow-auto whitespace-pre-wrap text-xs leading-5 text-aura-charcoal">{image.prompt}</pre></details></article>)}</div>
       {copyStatus && <p role="status" className="mt-4 text-sm text-aura-muted">{copyStatus}</p>}
     </section>
@@ -236,9 +248,11 @@ function App() {
   const [imageGenerationStatus, setImageGenerationStatus] = useState("");
   const [generatedImageUrl] = useState("");
   const [atmosphereQuantity, setAtmosphereQuantity] = useState<NonProductAtmosphereCount>(5);
+  const [atmosphereSeason, setAtmosphereSeason] = useState<TeamSeason>(initialParams.season);
+  const [atmosphereAspectRatio, setAtmosphereAspectRatio] = useState<NonProductAtmosphereAspectRatio>("4:5");
   const [atmosphereGenerationNonce, setAtmosphereGenerationNonce] = useState(0);
   const [atmosphereCopyStatus, setAtmosphereCopyStatus] = useState("");
-  const [atmospherePlan, setAtmospherePlan] = useState<NonProductAtmospherePlan>(() => buildNonProductAtmospherePlan({ quantity: 5, referenceImageCount: 0, season: initialParams.season }));
+  const [atmospherePlan, setAtmospherePlan] = useState<NonProductAtmospherePlan>(() => buildNonProductAtmospherePlan({ quantity: 5, referenceImageCount: 0, season: initialParams.season, aspectRatio: "4:5" }));
 
   useEffect(() => {
     referenceImagesRef.current = referenceImages;
@@ -309,7 +323,7 @@ function App() {
   const handleGenerateAtmosphere = () => {
     const nextNonce = atmosphereGenerationNonce + 1;
     setAtmosphereGenerationNonce(nextNonce);
-    setAtmospherePlan(buildNonProductAtmospherePlan({ quantity: atmosphereQuantity, generationNonce: nextNonce, referenceImageCount: referenceImages.length, season: params.season }));
+    setAtmospherePlan(buildNonProductAtmospherePlan({ quantity: atmosphereQuantity, generationNonce: nextNonce, referenceImageCount: referenceImages.length, season: atmosphereSeason, aspectRatio: atmosphereAspectRatio }));
     setAtmosphereCopyStatus("");
   };
 
@@ -462,7 +476,7 @@ function App() {
         <p>品牌基础</p><button onClick={() => setActivePage('visual')}>◈ <span>视觉母体验证<small>Visual System QA</small></span></button><button onClick={() => setImageGenerationStatus('资产库将在后续阶段接入。')}>◇ <span>资产库<small>Asset Library</small></span></button>
       </nav><div className="ui-sidebar-foot">团队空间<br /><strong>THERUIZ AURA 团队</strong></div></aside>
       <div className="ui-main"><header className="ui-topbar"><div className="ui-project">项目 / <strong>THERUIZ AURA 主项目</strong>⌄</div><div className="ui-top-actions"><span>◉ 9,842 积分</span><input aria-label="搜索" placeholder="搜索内容、Prompt、素材…" /><span>♧</span><b>TA</b><span>Theruiz Team⌄</span></div></header><div className="ui-content">
-        {activePage === 'workbench' ? dashboard : activePage === 'visual' ? <VisualSystemWorkspace /> : activePage === 'atmosphere' ? <NonProductAtmosphereWorkspace plan={atmospherePlan} quantity={atmosphereQuantity} referenceImages={referenceImages} copyStatus={atmosphereCopyStatus} onQuantityChange={setAtmosphereQuantity} onGenerate={handleGenerateAtmosphere} onCopyPrompt={handleCopyAtmospherePrompt} onUploadReferences={handleReferenceImagesUpload} /> : <>
+            {activePage === 'workbench' ? dashboard : activePage === 'visual' ? <VisualSystemWorkspace /> : activePage === 'atmosphere' ? <NonProductAtmosphereWorkspace plan={atmospherePlan} quantity={atmosphereQuantity} season={atmosphereSeason} aspectRatio={atmosphereAspectRatio} referenceImages={referenceImages} copyStatus={atmosphereCopyStatus} onQuantityChange={setAtmosphereQuantity} onSeasonChange={setAtmosphereSeason} onAspectRatioChange={setAtmosphereAspectRatio} onGenerate={handleGenerateAtmosphere} onCopyPrompt={handleCopyAtmospherePrompt} onUploadReferences={handleReferenceImagesUpload} /> : <>
         <header className="max-w-3xl space-y-3">
           <p className="text-xs uppercase tracking-[0.28em] text-aura-muted">Standard accurate team mode</p>
           <h1 className="text-3xl font-semibold tracking-tight text-aura-charcoal sm:text-4xl">
