@@ -24,21 +24,38 @@ const canonicalNegatives = [
 
 function wordCount(value: string) { return value.trim().split(/\s+/).filter(Boolean).length; }
 
+function naturalCueList(cues: string[]): string {
+  const cleaned = cues.map((cue) => cue.trim().replace(/\.$/, "")).filter(Boolean);
+  if (cleaned.length === 0) return "the scene's quiet spatial character";
+  if (cleaned.length === 1) return cleaned[0];
+  if (cleaned.length === 2) return `${cleaned[0]} and ${cleaned[1]}`;
+  return `${cleaned.slice(0, -1).join(", ")}, and ${cleaned[cleaned.length - 1]}`;
+}
+
+function naturalSceneDirection(ir: AtmospherePromptIR): string {
+  const evidence = naturalCueList(ir.scene.requiredSpatialEvidence);
+  return `${ir.scene.description.replace(/\.$/, "")}. Let the frame make ${evidence} feel naturally present rather than itemized. ${ir.scene.lifeTrace}`;
+}
+
 export function renderImage2AtmospherePrompt(ir: AtmospherePromptIR): string {
   if (!ir.curationPlanPresent) throw new Image2AtmospherePromptRenderError("ATMOSPHERE_CURATION_PLAN_MISSING", "Atmosphere curation plan is required before Provider compilation.");
   if (ir.profileMode === "RESOLVED" && /analy[sz]e .*reference|currently attached/i.test(ir.visualDirection.productResponsiveDirection)) throw new Image2AtmospherePromptRenderError("PRODUCT_PROFILE_RESOLUTION_CONFLICT", "Resolved profile cannot also request deferred reference analysis.");
   if (/mixed|moderate|balanced|0\.5\s*\/\s*0\.5|softMaterialWeight|provenance|analysisVersion|curationSeed|candidateScores|history/i.test(ir.visualDirection.productResponsiveDirection + ir.visualDirection.materialDirection)) throw new Image2AtmospherePromptRenderError("PRODUCT_PROFILE_PLACEHOLDER_LEAK", "Raw or placeholder Product Profile data reached the Provider IR.");
   const objects = [...new Set(ir.selectedObjects.map((object) => object.trim()).filter(Boolean))];
   if (ir.selectedCarrier && ir.selectedCarrier !== "no dedicated physical carrier" && !objects.some((object) => ir.selectedCarrier?.toLowerCase().includes(object.toLowerCase()))) throw new Image2AtmospherePromptRenderError("ECHO_CARRIER_NOT_AVAILABLE_IN_SCENE", "Selected carrier is not present in the selected scene objects.");
-  const competingScenes = ir.scene.forbiddenCompetingScenes.map((item) => item.trim()).filter(Boolean).slice(0, 2);
-  const negatives = [...new Set([...canonicalNegatives, ...competingScenes.map((item) => `No competing scene cue: ${item}.`)])].filter(Boolean);
+  const competingScenes = ir.scene.forbiddenCompetingScenes.map((item) => item.trim()).filter(Boolean).slice(0, 3);
+  const negatives = [...new Set([...canonicalNegatives, competingScenes.length > 0 ? `Keep the setting away from ${naturalCueList(competingScenes)}.` : ""])] .filter(Boolean);
+  const productDirection = "Let the currently attached product reference shape the room's overall light-to-dark balance, edge softness or clarity, material weight, and restrained tonal atmosphere.";
+  const carrierDirection = ir.selectedCarrier && ir.selectedCarrier !== "no dedicated physical carrier"
+    ? `Let ${ir.selectedCarrier} remain a subtle quality already present in the scene; do not introduce another object to carry the Product Echo.`
+    : "Do not introduce a dedicated physical carrier. Let the Product Echo appear only through subtle qualities already present in the scene.";
   const prompt = [
     `Generate exactly one standalone ${ir.outputContract.aspectRatio} portrait photograph. Single scene only.`,
-    `${ir.scene.description} Show ${ir.scene.requiredSpatialEvidence.join(", ")}. ${ir.scene.lifeTrace}`,
-    `${ir.visualDirection.productResponsiveDirection} ${ir.visualDirection.brandExpression}`,
+    naturalSceneDirection(ir),
+    `${productDirection} ${ir.visualDirection.brandExpression}`,
     `${ir.visualDirection.lightDirection} ${ir.visualDirection.materialDirection} ${ir.visualDirection.compositionDirection}`,
-    objects.length > 0 ? `Use only these already-justified scene elements: ${objects.join(", ")}.` : "Use only scene-justified elements; add no decorative carrier.",
-    ir.selectedCarrier ? `Use ${ir.selectedCarrier} only as an existing, subtle scene property; do not add another object for Product Echo.` : "Use no dedicated physical color-matching object.",
+    objects.length > 0 ? `Keep the object presence minimal and believable, allowing the required spatial evidence to remain visible without turning the frame into a prop arrangement.` : "Keep the scene materially quiet and free of decorative additions.",
+    carrierDirection,
     negatives.join(" ")
   ].join("\n\n");
   if ((prompt.match(/scene/gi) ?? []).length > 12) throw new Image2AtmospherePromptRenderError("MULTIPLE_SCENE_IN_PROVIDER_PROMPT", "Provider Prompt contains competing scene language.");
