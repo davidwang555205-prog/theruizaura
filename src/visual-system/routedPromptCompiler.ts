@@ -1,5 +1,6 @@
 import { getActivePromptRegistryEntry, type ThemePromptRegistryEntry, type ThemePromptRole } from "./activePromptRegistry";
 import type { TopicRoute } from "./topicRoutingRegistry";
+import { assertEnglishPrompt, mapEnglishPromptField } from "./englishPromptMappings";
 
 export const ROUTED_IMAGE2_PROMPT_COMPILER_VERSION = "routed-image2-user-prompt-v1";
 
@@ -21,7 +22,7 @@ export type RoutedImage2PromptInput = {
   topicRoute: TopicRoute;
   visualRoleId: ThemePromptRole;
   activePromptEntry?: ThemePromptRegistryEntry;
-  currentTaskContext?: string;
+  currentTaskContext?: { imageType: string; scenePreference: string; imageIndex: number; imageCount: number };
 };
 
 export function compileRoutedImage2UserPrompt(input: RoutedImage2PromptInput): string {
@@ -34,14 +35,23 @@ export function compileRoutedImage2UserPrompt(input: RoutedImage2PromptInput): s
   if (/theme validation|visual validation case|burgundy and ivory/i.test(input.basePrompt)) {
     throw new Error("Validation fixture language cannot enter the user-facing runtime Prompt.");
   }
+  const topic = mapEnglishPromptField("topic", input.topicRoute.userFacingLabel);
+  const imageType = input.currentTaskContext ? mapEnglishPromptField("imageType", input.currentTaskContext.imageType) : "";
+  const scene = input.currentTaskContext ? mapEnglishPromptField("scene", input.currentTaskContext.scenePreference) : "";
+  const imageIndex = input.currentTaskContext?.imageIndex ?? 0;
+  const imageCount = input.currentTaskContext?.imageCount ?? 0;
+  if (!Number.isInteger(imageIndex) || !Number.isInteger(imageCount) || imageIndex < 1 || imageCount < imageIndex) {
+    throw new Error("ENGLISH_PROMPT_MAPPING_MISSING:invalid_image_sequence");
+  }
 
-  return [
+  const prompt = [
     input.basePrompt.trim(),
     `Active Prompt Registry: ${entry.activeVersionId}.`,
     `Image2 provider boundary: use Image2 only; this is a user-facing production Prompt, not an internal validation task.`,
-    `Topic responsibility: ${input.topicRoute.topicId} (${input.topicRoute.userFacingLabel}); preserve the original Topic provenance and do not silently substitute another Topic.`,
+    `Topic responsibility: ${input.topicRoute.topicId} (${topic}); preserve the original Topic provenance and do not silently substitute another Topic.`,
     roleLanguage[input.visualRoleId],
     "Product Truth protection: use only the current task's selected or uploaded product truth. Brand visual language and anchors provide composition, camera, light, human state, material treatment, and negative visual constraints only; never invent or replace SKU color, shape, material, logo, or construction.",
-    input.currentTaskContext?.trim() ? `Current task context: ${input.currentTaskContext.trim()}.` : ""
-  ].filter(Boolean).join(" ");
+    `Current task context: ${imageType}, ${scene}, image ${imageIndex} of ${imageCount}.`
+  ].filter((value): value is string => Boolean(value)).join(" ");
+  return assertEnglishPrompt(prompt);
 }

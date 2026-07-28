@@ -834,6 +834,13 @@ function App() {
                     {image.description}
                   </p>
 
+                  <div data-testid={`provenance-${softContent.images.indexOf(image)}`} className="mt-3 rounded-[18px] bg-aura-cream/70 px-4 py-3 text-xs leading-5 text-aura-muted">
+                    <div>Topic：{image.provenanceDisplay.topicLabelZh}</div>
+                    <div>场景：{image.provenanceDisplay.sceneLabelZh}</div>
+                    <div>图片类型：{image.provenanceDisplay.imageTypeLabelZh}</div>
+                    <div>图片序列：{image.provenanceDisplay.sequenceLabelZh}</div>
+                  </div>
+
                   <div className="mt-4 flex flex-wrap gap-2 text-xs leading-5 text-aura-muted">
                     <span className={softStatusPillClass}>{image.params.imageType}</span>
                     <span className={softStatusPillClass}>{image.params.scenePreference}</span>
