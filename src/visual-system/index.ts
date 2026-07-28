@@ -10,6 +10,7 @@ export const brandVisualMother = validateFrozenMother(motherJson as unknown as P
 export const anchorManifest = validateAnchors(anchorsJson as unknown as Parameters<typeof validateAnchors>[0]);
 export const validationCases = casesJson.cases;
 export { activePromptRegistry, getActivePromptRegistryEntry, resolveActiveImage2Prompt, validateActivePromptRegistry } from "./activePromptRegistry";
+export { topicRoutingRegistry, topicRoutingRegistryVersion, resolveTopicRoute, resolveTopicRoleBundle, validateTopicRoutingRegistry, type UserContentTopicId, type TopicRoute } from "./topicRoutingRegistry";
 export function createVisualValidationWorkspace(evidence: ProductEvidence[]): { productTruth: ProductTruth; tasks: ReturnType<typeof buildValidationTasks> } {
   const productTruth = buildProductTruth(evidence);
   validateActivePromptRegistry();

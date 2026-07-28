@@ -14,6 +14,7 @@ import {
 } from "../data/lifestyleSoftSeedingScenePool";
 import { generatePromptRuntime } from "../prompt-engine/runtime";
 import { selectDiversePersonActions } from "./selectDiverseSeriesActions";
+import { resolveTopicRoleBundle } from "../visual-system/topicRoutingRegistry";
 
 type SoftSeedingCopyTopic =
   | "生活场景软种草"
@@ -33,6 +34,16 @@ export type SoftSeedingImagePlan = {
   description: string;
   params: TeamPromptParams;
   prompt: string;
+  visualRoleId: string;
+  activePromptVersionId: string;
+  routingProvenance: {
+    originalUserTopicId: string;
+    userFacingTopicLabel: string;
+    resolvedVisualRoleId: string;
+    activePromptSource: "active_prompt_registry";
+    provider: "image2";
+    routingRegistryVersion: string;
+  };
 };
 
 export type SoftSeedingContent = {
@@ -3436,7 +3447,7 @@ function buildImagePlan(
   imageCount: SoftSeedingImageCount,
   seriesActionBeat: SeriesActionBeat,
   lockedOutfitLine = ""
-): SoftSeedingImagePlan {
+): Omit<SoftSeedingImagePlan, "visualRoleId" | "activePromptVersionId" | "routingProvenance"> {
   const shoeFields = resolveBaseShoe(baseParams);
   const garmentTypePreference = resolveSoftSeedingGarmentType(baseParams, draft);
   const lifestyleContinuityLine = getLifestyleSoftSeedingContinuityLines(topic, draft, imageCount);
@@ -3495,6 +3506,7 @@ function buildSoftSeedingImagePlans(
   variantIndex: number,
   imageCount: SoftSeedingImageCount
 ) {
+  const roleBundle = resolveTopicRoleBundle(topic, imageCount);
   let sharedOutfitLine = "";
   const selectedPersonActions = selectDiversePersonActions({
     cards: drafts.map((draft) => ({
@@ -3535,7 +3547,21 @@ function buildSoftSeedingImagePlans(
     ) {
       sharedOutfitLine = generatePromptRuntime(plan.params).selectedOutfitLine ?? "";
     }
-    return plan;
+    const visualRoleId = roleBundle.roleIds[index % roleBundle.roleIds.length];
+    const activePromptVersionId = roleBundle.promptVersions[index % roleBundle.promptVersions.length];
+    return {
+      ...plan,
+      visualRoleId,
+      activePromptVersionId,
+      routingProvenance: {
+        originalUserTopicId: roleBundle.route.topicId,
+        userFacingTopicLabel: roleBundle.route.userFacingLabel,
+        resolvedVisualRoleId: visualRoleId,
+        activePromptSource: "active_prompt_registry" as const,
+        provider: roleBundle.route.provider,
+        routingRegistryVersion: "topic-routing-registry-v1"
+      }
+    };
   });
 }
 
