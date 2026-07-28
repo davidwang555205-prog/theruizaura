@@ -87,6 +87,42 @@ export const NON_PRODUCT_ATMOSPHERE_VARIATIONS = [
 ] as const;
 export type AtmosphereVariation = (typeof NON_PRODUCT_ATMOSPHERE_VARIATIONS)[number];
 
+export type AtmosphereSceneId =
+  | "ENTRYWAY_DEPARTURE"
+  | "READING_CORNER"
+  | "RETURN_HOME_TABLE"
+  | "WORKTABLE_PAUSE"
+  | "HOTEL_TRAVEL"
+  | "CAFE_FRONT"
+  | "WARDROBE_MORNING"
+  | "MATERIAL_LIGHT_SPACE";
+
+export type AtmosphereSceneArchetype = {
+  id: AtmosphereSceneId;
+  locationLock: string;
+  requiredSpatialCues: string[];
+  forbiddenSpatialCues: string[];
+  allowedObjects: string[];
+  cameraDirection: string;
+  lifeTraceDirection: string;
+  indoorOutdoor: "indoor" | "outdoor" | "threshold";
+  dominantPlane: "wall" | "floor" | "window" | "table" | "doorway";
+  cameraHeight: "low" | "eye_level" | "slightly_high";
+  depthPattern: "flat" | "layered" | "corridor" | "foreground_obstruction";
+  dominantObject: string;
+};
+
+export const NON_PRODUCT_ATMOSPHERE_SCENE_REGISTRY: Record<AtmosphereSceneId, AtmosphereSceneArchetype> = {
+  ENTRYWAY_DEPARTURE: { id: "ENTRYWAY_DEPARTURE", locationLock: "a real apartment entryway or doorway threshold", requiredSpatialCues: ["visible entrance door or door frame", "threshold floor transition", "narrow entry bench, console, wall hook or cabinet", "daylight entering through the doorway or nearby window"], forbiddenSpatialCues: ["bedroom", "bed", "pillow", "duvet", "bedside table", "sleeping area", "hotel bed", "reading corner", "office desk"], allowedObjects: ["folded canvas tote", "receipt", "bread paper bag", "folded note", "light cardigan"], cameraDirection: "low observational viewpoint with visible doorway depth", lifeTraceDirection: "one object appears to have just been set down before leaving", indoorOutdoor: "threshold", dominantPlane: "doorway", cameraHeight: "low", depthPattern: "corridor", dominantObject: "folded tote" },
+  READING_CORNER: { id: "READING_CORNER", locationLock: "a quiet window-side reading corner", requiredSpatialCues: ["chair or small side table", "linen curtain or side window", "open book or magazine", "side daylight"], forbiddenSpatialCues: ["entrance door as dominant subject", "threshold floor transition", "bed", "suitcase", "office desk", "café storefront"], allowedObjects: ["open book", "glasses", "ceramic cup", "lightly handled garment", "shifted page"], cameraDirection: "medium-distance observational framing beside a window", lifeTraceDirection: "a page appears to have just been turned", indoorOutdoor: "indoor", dominantPlane: "window", cameraHeight: "eye_level", depthPattern: "layered", dominantObject: "open book" },
+  RETURN_HOME_TABLE: { id: "RETURN_HOME_TABLE", locationLock: "a real apartment entry table or console near a hallway", requiredSpatialCues: ["table or console near an apartment entrance", "tote or grocery paper bag recently set down", "one used ceramic cup", "receipt, folded note, flower paper or light cardigan", "visible depth toward an entrance or hallway"], forbiddenSpatialCues: ["bedroom", "styled product table", "flatlay", "showroom", "café table", "hotel luggage display"], allowedObjects: ["tote", "grocery paper bag", "ceramic cup", "receipt", "flower paper"], cameraDirection: "slightly high observational crop with layered foreground depth", lifeTraceDirection: "objects show the quiet aftermath of returning home", indoorOutdoor: "threshold", dominantPlane: "table", cameraHeight: "slightly_high", depthPattern: "foreground_obstruction", dominantObject: "used ceramic cup" },
+  WORKTABLE_PAUSE: { id: "WORKTABLE_PAUSE", locationLock: "a personal work surface in a lived-in home or studio corner", requiredSpatialCues: ["personal work surface", "notebook or shifted note", "used pen", "glasses, ceramic cup or laptop edge", "one recent-use trace such as a cup-ring shadow"], forbiddenSpatialCues: ["product-development board", "footwear design studio", "showroom", "bed", "suitcase", "café advertising setup"], allowedObjects: ["notebook", "used pen", "glasses", "ceramic cup", "paper"], cameraDirection: "off-center observational work-surface framing", lifeTraceDirection: "a small work task has just paused", indoorOutdoor: "indoor", dominantPlane: "table", cameraHeight: "eye_level", depthPattern: "flat", dominantObject: "shifted notebook" },
+  HOTEL_TRAVEL: { id: "HOTEL_TRAVEL", locationLock: "a temporary hotel room corner during a short trip", requiredSpatialCues: ["hotel curtain or temporary-room daylight", "suitcase corner or travel tote", "folded itinerary or room card", "restrained temporary-living trace"], forbiddenSpatialCues: ["luxury hotel advertisement", "centered hotel bed", "bedding hero image", "resort styling", "product display"], allowedObjects: ["travel tote", "suitcase corner", "itinerary", "room card"], cameraDirection: "layered room-depth composition led by changing daylight", lifeTraceDirection: "the room appears briefly occupied during a short trip", indoorOutdoor: "indoor", dominantPlane: "window", cameraHeight: "eye_level", depthPattern: "layered", dominantObject: "folded itinerary" },
+  CAFE_FRONT: { id: "CAFE_FRONT", locationLock: "a real café frontage and pavement", requiredSpatialCues: ["real pavement", "storefront glass", "soft window reflection", "restrained signage", "one takeaway cup or paper bag naturally placed"], forbiddenSpatialCues: ["indoor bedroom", "apartment entryway", "influencer check-in styling", "centered café logo advertisement", "seated person", "product hero shot"], allowedObjects: ["takeaway cup", "paper bag", "receipt"], cameraDirection: "observational street-side framing with visible storefront depth", lifeTraceDirection: "a takeaway item appears to have just been placed down", indoorOutdoor: "outdoor", dominantPlane: "wall", cameraHeight: "eye_level", depthPattern: "corridor", dominantObject: "takeaway cup" },
+  WARDROBE_MORNING: { id: "WARDROBE_MORNING", locationLock: "a private wardrobe or dressing corner in the morning", requiredSpatialCues: ["wardrobe, hook, chair or garment rail", "one recently handled garment", "believable folds", "morning side light"], forbiddenSpatialCues: ["decorative fashion flatlay", "boutique display", "product catalog", "bed as hero subject", "centered clothing arrangement"], allowedObjects: ["light garment", "hanger", "chair", "tote"], cameraDirection: "asymmetrical private-home framing", lifeTraceDirection: "one garment appears recently handled before leaving", indoorOutdoor: "indoor", dominantPlane: "wall", cameraHeight: "slightly_high", depthPattern: "foreground_obstruction", dominantObject: "handled garment" },
+  MATERIAL_LIGHT_SPACE: { id: "MATERIAL_LIGHT_SPACE", locationLock: "a quiet material-focused corner with natural light", requiredSpatialCues: ["matte tactile surface", "visible light transition across wall or floor", "one restrained everyday object", "generous negative space"], forbiddenSpatialCues: ["product display", "showroom", "bedroom", "café table", "decorative flatlay"], allowedObjects: ["linen", "matte ceramic", "paper", "frosted glass"], cameraDirection: "low off-center observational crop with light as the main event", lifeTraceDirection: "a normal daily routine has just moved through the space", indoorOutdoor: "indoor", dominantPlane: "floor", cameraHeight: "low", depthPattern: "flat", dominantObject: "light transition" }
+};
+
 const NON_PRODUCT_ATMOSPHERE_SEASON_LINES = {
   春: "Seasonal atmosphere: soft spring daylight, airy tactile surfaces, pale restrained neutrals, and a fresh but quiet sense of use.",
   夏: "Seasonal atmosphere: breathable summer light, light natural materials, soft shade, and restrained warm-neutral color without decorative resort styling.",
