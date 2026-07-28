@@ -3,6 +3,7 @@ import { PromptPriority } from "./contracts";
 import { COMPOSITION_PROFILES } from "./profiles/compositionProfiles";
 import { IMAGE_TYPE_PROFILES } from "./profiles/imageTypeProfiles";
 import { SCENE_PROFILES } from "./profiles/sceneProfiles";
+import { resolveNonProductAtmospherePromptParts } from "../data/nonProductAtmosphereSceneLines";
 
 // ─── Global hard rules (P0-P2) ──────────────────────────────
 const GLOBAL_HARD_RULES: PromptRule[] = [
@@ -243,12 +244,72 @@ export function collectPromptRules(input: PromptProfileInput): PromptRule[] {
     }
   }
 
+  // 2d. Non-product atmosphere uses its full scene registry and a deterministic
+  // moment rotation instead of collapsing unmatched scenes into one fallback.
+  if (input.imageType === "非产品氛围图") {
+    const atmosphere = resolveNonProductAtmospherePromptParts(
+      input.scenePreference,
+      input.season,
+      input.generationNonce
+    );
+    if (!atmosphere.sceneLine || !atmosphere.variation) {
+      throw new Error("NON_PRODUCT_ATMOSPHERE_MAPPING_MISSING");
+    }
+    rules.push({
+      id: `atmosphere-scene-${atmosphere.resolvedScene}`,
+      section: "scene",
+      text: atmosphere.sceneLine,
+      priority: PromptPriority.P3_COMPOSITION_AND_VISIBILITY,
+      source: "scene-profile",
+      appliesWhen: {},
+      required: true,
+      tags: ["atmosphere", "scene", "deterministic"]
+    });
+    if (!input.isMultiImage) {
+      rules.push({
+        id: `atmosphere-variation-${atmosphere.variation.key}`,
+        section: "action",
+        text: atmosphere.variation.directive,
+        priority: PromptPriority.P4_SCENE_AND_ACTION,
+        source: "action-profile",
+        appliesWhen: {},
+        required: true,
+        tags: ["atmosphere", "variation", "deterministic"]
+      });
+    }
+    rules.push({
+      id: `atmosphere-season-${input.season}`,
+      section: "lighting",
+      text: atmosphere.seasonLine,
+      priority: PromptPriority.P5_REALISM_AND_CAMERA,
+      source: "lighting-profile",
+      appliesWhen: {},
+      required: true,
+      tags: ["atmosphere", "season"]
+    });
+  }
+
   // 3. Global negative rules
   for (const rule of GLOBAL_NEGATIVE_RULES) {
     if (matchesPredicate(rule.appliesWhen, input)) rules.push(rule);
   }
 
-  // 4. User extra requirement
+  // 4. The deterministic outfit selection is part of the execution contract.
+  // Keep it explicit so prompt budgeting cannot reduce it to a generic outfit cue.
+  if (input.selectedOutfitLine?.trim()) {
+    rules.push({
+      id: "styling-selected-outfit",
+      section: "styling",
+      text: input.selectedOutfitLine.trim(),
+      priority: PromptPriority.P2_IDENTITY_CONTINUITY,
+      source: "styling-profile",
+      appliesWhen: {},
+      required: true,
+      tags: ["styling", "outfit", "deterministic"],
+    });
+  }
+
+  // 5. User extra requirement
   if (input.userExtraRequirement.trim()) {
     rules.push({
       id: "user-extra-requirement",

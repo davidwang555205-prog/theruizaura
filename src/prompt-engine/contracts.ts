@@ -151,7 +151,7 @@ export type CompiledPromptResult = {
 export type PromptProfileInput = {
   imageType: TeamImageType;
   compositionMode: CompositionMode;
-  scenePreference: Exclude<TeamScenePreference, "自动匹配">;
+  scenePreference: TeamScenePreference;
   sceneKey?: StandardSceneKey;
   season: TeamSeason;
   modelChoice: TeamModelChoice;
@@ -159,6 +159,7 @@ export type PromptProfileInput = {
   hasShoe: boolean;
   shoeDisplayName?: string;
   garmentTypePreference: TeamGarmentTypePreference;
+  selectedOutfitLine?: string;
   userExtraRequirement: string;
   isMultiImage: boolean;
   seriesImageIndex?: number;
