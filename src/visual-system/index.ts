@@ -11,6 +11,7 @@ export const anchorManifest = validateAnchors(anchorsJson as unknown as Paramete
 export const validationCases = casesJson.cases;
 export { activePromptRegistry, getActivePromptRegistryEntry, resolveActiveImage2Prompt, validateActivePromptRegistry } from "./activePromptRegistry";
 export { topicRoutingRegistry, topicRoutingRegistryVersion, resolveTopicRoute, resolveTopicRoleBundle, validateTopicRoutingRegistry, type UserContentTopicId, type TopicRoute } from "./topicRoutingRegistry";
+export { compileRoutedImage2UserPrompt, ROUTED_IMAGE2_PROMPT_COMPILER_VERSION } from "./routedPromptCompiler";
 export function createVisualValidationWorkspace(evidence: ProductEvidence[]): { productTruth: ProductTruth; tasks: ReturnType<typeof buildValidationTasks> } {
   const productTruth = buildProductTruth(evidence);
   validateActivePromptRegistry();

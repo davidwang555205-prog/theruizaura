@@ -15,6 +15,7 @@ import {
 import { generatePromptRuntime } from "../prompt-engine/runtime";
 import { selectDiversePersonActions } from "./selectDiverseSeriesActions";
 import { resolveTopicRoleBundle } from "../visual-system/topicRoutingRegistry";
+import { compileRoutedImage2UserPrompt } from "../visual-system/routedPromptCompiler";
 
 type SoftSeedingCopyTopic =
   | "生活场景软种草"
@@ -3549,8 +3550,15 @@ function buildSoftSeedingImagePlans(
     }
     const visualRoleId = roleBundle.roleIds[index % roleBundle.roleIds.length];
     const activePromptVersionId = roleBundle.promptVersions[index % roleBundle.promptVersions.length];
+    const routedPrompt = compileRoutedImage2UserPrompt({
+      basePrompt: plan.prompt,
+      topicRoute: roleBundle.route,
+      visualRoleId,
+      currentTaskContext: `${draft.imageType}, ${draft.scenePreference}, image ${index + 1} of ${imageCount}`
+    });
     return {
       ...plan,
+      prompt: routedPrompt,
       visualRoleId,
       activePromptVersionId,
       routingProvenance: {

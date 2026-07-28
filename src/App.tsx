@@ -850,7 +850,7 @@ function App() {
                       查看完整 Image 2.0 提示词
                     </summary>
                     <div className="aura-scrollbar mt-4 max-h-[360px] whitespace-pre-wrap text-sm leading-7 text-aura-charcoal lg:overflow-y-auto">
-                      {image.prompt}
+                      <span data-testid={`soft-prompt-${softContent.images.indexOf(image)}`}>{image.prompt}</span>
                     </div>
                   </details>
                 </article>

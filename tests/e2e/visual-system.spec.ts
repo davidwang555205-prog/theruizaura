@@ -68,3 +68,45 @@ test('clipboard failure uses compatible fallback and visible feedback', async ({
   await expect(page.getByRole('status')).toContainText('Prompt 已复制（兼容模式）');
   expect(errors).toEqual([]);
 });
+
+test('user-facing soft-seeding prompts use active registry routing for display and copy', async ({ page, context }) => {
+  await context.grantPermissions(['clipboard-read', 'clipboard-write'], { origin: 'http://127.0.0.1:4173' });
+  await page.goto('/');
+  await page.getByRole('button', { name: /▧ 小红书内容/ }).click();
+
+  const samples = [
+    { topic: '生活场景软种草', count: 3, role: 'A1', marker: 'Active Prompt Registry: image2-cmp-01-new-v1.' },
+    { topic: '穿搭解决方案', count: 5, role: 'A1', marker: 'Active Prompt Registry:' },
+    { topic: '棚内上新拍摄', count: 5, role: 'B3', marker: 'Active Prompt Registry:' },
+    { topic: '材质工艺认知', count: 3, role: 'C4', marker: 'Active Prompt Registry:' },
+    { topic: '秋冬配色实验室', count: 5, role: 'C3', marker: 'Active Prompt Registry:' },
+    { topic: '产品开发幕后', count: 3, role: 'C4', marker: 'Active Prompt Registry:' },
+    { topic: '品牌审美观点', count: 5, role: 'A2', marker: 'Active Prompt Registry:' },
+    { topic: '上新活动转化', count: 5, role: 'B3', marker: 'Active Prompt Registry:' }
+  ];
+
+  for (const sample of samples) {
+    await page.getByLabel('内容主题').selectOption({ label: sample.topic });
+    await page.getByLabel('配图数量').selectOption(String(sample.count));
+    await page.getByRole('button', { name: '生成小红书内容' }).click();
+    const prompts = page.locator('[data-testid^="soft-prompt-"]');
+    await expect(prompts).toHaveCount(sample.count);
+    const firstPrompt = await prompts.nth(0).textContent();
+    expect(firstPrompt).toContain(sample.marker);
+    expect(firstPrompt).toContain('Image2 provider boundary');
+    expect(firstPrompt).toContain('Product Truth protection');
+    const allPrompts = await prompts.allTextContents();
+    for (const prompt of allPrompts) {
+      expect(prompt).not.toMatch(/theme validation|visual validation case|burgundy and ivory/i);
+      expect(prompt).toContain('provider boundary: use Image2 only');
+    }
+    if (sample.topic === '产品开发幕后') expect(allPrompts.join('\n')).toContain('image2-cmp-09-repaired_new-v1');
+    if (sample.topic === '品牌审美观点') expect(allPrompts.join('\n')).toContain('image2-cmp-02-old-v1');
+    await page.getByRole('button', { name: '复制这张 Prompt' }).first().click();
+    await expect.poll(() => page.evaluate(() => navigator.clipboard.readText())).toBe(firstPrompt);
+    await page.getByRole('button', { name: '复制全部生图 Prompt' }).click();
+    const allCopied = await page.evaluate(() => navigator.clipboard.readText());
+    expect(allCopied).toContain(firstPrompt ?? '');
+    expect(allCopied.split(/\n\nImage \d+:\n/).length).toBe(sample.count);
+  }
+});
