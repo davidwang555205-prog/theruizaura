@@ -188,7 +188,7 @@ function NonProductAtmosphereWorkspace({
   onCopyPrompt,
   onUploadReferences
 }: {
-  plan: NonProductAtmospherePlan;
+  plan: NonProductAtmospherePlan | null;
   quantity: NonProductAtmosphereCount;
   season: TeamSeason;
   aspectRatio: NonProductAtmosphereAspectRatio;
@@ -223,8 +223,7 @@ function NonProductAtmosphereWorkspace({
       <div className="mt-4 grid gap-2 sm:grid-cols-3">{["产品可见性：禁止", "鞋履可见性：禁止", "人物 / 穿搭 / 上脚：禁用"].map((text) => <span key={text} className="rounded-[14px] bg-aura-cream px-3 py-2 text-xs text-aura-muted">{text}</span>)}</div>
     </section>
     <section className="rounded-[24px] bg-aura-porcelain/95 p-5 ring-1 ring-aura-beige/70">
-      <div className="flex flex-wrap items-center justify-between gap-3"><div><h2 className="text-lg font-semibold text-aura-charcoal">Provider-ready Prompt 计划</h2><p className="mt-1 text-xs text-aura-muted">{plan.promptVersion} · {plan.images.length} 份 Prompt · {plan.aspectRatio} · {season} · 复制后请在外部生图工具中附加实际参考图</p></div><button type="button" onClick={() => onCopyPrompt(plan.images.map((image) => `Image ${image.index}:\n${image.prompt}`).join("\n\n"), "全部非产品氛围图 Prompt")} className={imageToolButtonClass}>复制全部 Prompt</button></div>
-      <div className="mt-4 space-y-3">{plan.images.map((image) => <article key={image.id} className="rounded-[18px] bg-white/70 p-4 ring-1 ring-aura-beige/70"><div className="flex flex-wrap items-center justify-between gap-2"><div><b>Image {image.index} · {image.slot.sceneLabel}</b><p className="mt-1 text-xs text-aura-muted">系统槽位：{image.slot.id} · 差异：{image.slot.differenceDimensions.join(" / ")}</p></div><button type="button" onClick={() => onCopyPrompt(image.prompt, `Image ${image.index} Prompt`)} className={imageToolButtonClass}>复制这张 Prompt</button></div><details className="mt-3 rounded-[14px] bg-aura-cream/60 p-3"><summary className="cursor-pointer text-xs font-medium">查看完整 Image2 Prompt</summary><pre data-testid={`atmosphere-prompt-${image.index}`} className="mt-3 max-h-80 overflow-auto whitespace-pre-wrap text-xs leading-5 text-aura-charcoal">{image.prompt}</pre></details></article>)}</div>
+      {plan ? <><div className="flex flex-wrap items-center justify-between gap-3"><div><h2 className="text-lg font-semibold text-aura-charcoal">Provider-ready Prompt 计划</h2><p className="mt-1 text-xs text-aura-muted">{plan.promptVersion} · {plan.images.length} 份独立 Prompt · {plan.aspectRatio} · {season} · 当前任务参考图已锁定</p></div><button type="button" onClick={() => onCopyPrompt(plan.images.map((image) => `Image ${image.index}:\n${image.prompt}`).join("\n\n"), "全部非产品氛围图 Prompt")} className={imageToolButtonClass}>复制全部 Prompt</button></div><div className="mt-4 space-y-3">{plan.images.map((image) => <article key={image.id} className="rounded-[18px] bg-white/70 p-4 ring-1 ring-aura-beige/70"><div className="flex flex-wrap items-center justify-between gap-2"><div><b>Image {image.index} · {image.slot.sceneLabel}</b><p className="mt-1 text-xs text-aura-muted">Scene：{image.sceneFingerprint.id} · {image.sceneFingerprint.dominantPlane} / {image.sceneFingerprint.cameraHeight} / {image.sceneFingerprint.depthPattern}</p></div><button type="button" onClick={() => onCopyPrompt(image.prompt, `Image ${image.index} Prompt`)} className={imageToolButtonClass}>复制这张 Prompt</button></div><details className="mt-3 rounded-[14px] bg-aura-cream/60 p-3"><summary className="cursor-pointer text-xs font-medium">查看完整 Image2 Prompt</summary><pre data-testid={`atmosphere-prompt-${image.index}`} className="mt-3 max-h-80 overflow-auto whitespace-pre-wrap text-xs leading-5 text-aura-charcoal">{image.prompt}</pre></details></article>)}</div></> : <p className="mt-4 rounded-[18px] bg-aura-cream px-4 py-3 text-sm leading-6 text-aura-muted">尚未编译 Prompt。请先上传当前任务实际参考图，再生成；没有当前任务参考图时系统会阻止编译。</p>}
       {copyStatus && <p role="status" className="mt-4 text-sm text-aura-muted">{copyStatus}</p>}
     </section>
   </section>;
@@ -252,7 +251,7 @@ function App() {
   const [atmosphereAspectRatio, setAtmosphereAspectRatio] = useState<NonProductAtmosphereAspectRatio>("4:5");
   const [atmosphereGenerationNonce, setAtmosphereGenerationNonce] = useState(0);
   const [atmosphereCopyStatus, setAtmosphereCopyStatus] = useState("");
-  const [atmospherePlan, setAtmospherePlan] = useState<NonProductAtmospherePlan>(() => buildNonProductAtmospherePlan({ quantity: 5, referenceImageCount: 0, season: initialParams.season, aspectRatio: "4:5" }));
+  const [atmospherePlan, setAtmospherePlan] = useState<NonProductAtmospherePlan | null>(null);
 
   useEffect(() => {
     referenceImagesRef.current = referenceImages;
@@ -323,8 +322,13 @@ function App() {
   const handleGenerateAtmosphere = () => {
     const nextNonce = atmosphereGenerationNonce + 1;
     setAtmosphereGenerationNonce(nextNonce);
-    setAtmospherePlan(buildNonProductAtmospherePlan({ quantity: atmosphereQuantity, generationNonce: nextNonce, referenceImageCount: referenceImages.length, season: atmosphereSeason, aspectRatio: atmosphereAspectRatio }));
-    setAtmosphereCopyStatus("");
+    try {
+      setAtmospherePlan(buildNonProductAtmospherePlan({ quantity: atmosphereQuantity, generationNonce: nextNonce, referenceImageCount: referenceImages.length, referenceAssetIds: referenceImages.map((image) => image.id), taskId: "current-task", season: atmosphereSeason, aspectRatio: atmosphereAspectRatio }));
+      setAtmosphereCopyStatus("");
+    } catch (error) {
+      setAtmospherePlan(null);
+      setAtmosphereCopyStatus(error instanceof Error ? error.message : "PRODUCT_ECHO_SOURCE_MISSING");
+    }
   };
 
   const handleCopyAtmospherePrompt = async (prompt: string, label: string) => {
