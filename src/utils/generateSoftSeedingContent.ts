@@ -37,6 +37,12 @@ export type SoftSeedingImagePlan = {
   prompt: string;
   visualRoleId: string;
   activePromptVersionId: string;
+  provenanceDisplay: {
+    topicLabelZh: string;
+    sceneLabelZh: string;
+    imageTypeLabelZh: string;
+    sequenceLabelZh: string;
+  };
   routingProvenance: {
     originalUserTopicId: string;
     userFacingTopicLabel: string;
@@ -3448,7 +3454,7 @@ function buildImagePlan(
   imageCount: SoftSeedingImageCount,
   seriesActionBeat: SeriesActionBeat,
   lockedOutfitLine = ""
-): Omit<SoftSeedingImagePlan, "visualRoleId" | "activePromptVersionId" | "routingProvenance"> {
+): Omit<SoftSeedingImagePlan, "visualRoleId" | "activePromptVersionId" | "provenanceDisplay" | "routingProvenance"> {
   const shoeFields = resolveBaseShoe(baseParams);
   const garmentTypePreference = resolveSoftSeedingGarmentType(baseParams, draft);
   const lifestyleContinuityLine = getLifestyleSoftSeedingContinuityLines(topic, draft, imageCount);
@@ -3554,13 +3560,19 @@ function buildSoftSeedingImagePlans(
       basePrompt: plan.prompt,
       topicRoute: roleBundle.route,
       visualRoleId,
-      currentTaskContext: { imageType: draft.imageType, scenePreference: draft.scenePreference }
+      currentTaskContext: { imageType: draft.imageType, scenePreference: draft.scenePreference, imageIndex: index + 1, imageCount }
     });
     return {
       ...plan,
       prompt: routedPrompt,
       visualRoleId,
       activePromptVersionId,
+      provenanceDisplay: {
+        topicLabelZh: roleBundle.route.userFacingLabel,
+        sceneLabelZh: draft.scenePreference,
+        imageTypeLabelZh: draft.imageType,
+        sequenceLabelZh: `第 ${index + 1} 张，共 ${imageCount} 张`
+      },
       routingProvenance: {
         originalUserTopicId: roleBundle.route.topicId,
         userFacingTopicLabel: roleBundle.route.userFacingLabel,

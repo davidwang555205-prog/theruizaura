@@ -75,14 +75,14 @@ test('user-facing soft-seeding prompts use active registry routing for display a
   await page.getByRole('button', { name: /▧ 小红书内容/ }).click();
 
   const samples = [
-    { topic: '生活场景软种草', count: 3, role: 'A1', marker: 'Active Prompt Registry: image2-cmp-01-new-v1.' },
-    { topic: '穿搭解决方案', count: 5, role: 'A1', marker: 'Active Prompt Registry:' },
-    { topic: '棚内上新拍摄', count: 5, role: 'B3', marker: 'Active Prompt Registry:' },
-    { topic: '材质工艺认知', count: 3, role: 'C4', marker: 'Active Prompt Registry:' },
-    { topic: '秋冬配色实验室', count: 5, role: 'C3', marker: 'Active Prompt Registry:' },
-    { topic: '产品开发幕后', count: 3, role: 'C4', marker: 'Active Prompt Registry:' },
-    { topic: '品牌审美观点', count: 5, role: 'A2', marker: 'Active Prompt Registry:' },
-    { topic: '上新活动转化', count: 5, role: 'B3', marker: 'Active Prompt Registry:' }
+    { topic: '生活场景软种草', topicId: 'lifestyle_soft_seeding', count: 3, role: 'A1', marker: 'Active Prompt Registry: image2-cmp-01-new-v1.' },
+    { topic: '穿搭解决方案', topicId: 'styling_solution', count: 5, role: 'A1', marker: 'Active Prompt Registry:' },
+    { topic: '棚内上新拍摄', topicId: 'studio_launch_shoot', count: 5, role: 'B3', marker: 'Active Prompt Registry:' },
+    { topic: '材质工艺认知', topicId: 'material_craft_education', count: 3, role: 'C4', marker: 'Active Prompt Registry:' },
+    { topic: '秋冬配色实验室', topicId: 'autumn_winter_color_lab', count: 5, role: 'C3', marker: 'Active Prompt Registry:' },
+    { topic: '产品开发幕后', topicId: 'product_development_behind_the_scenes', count: 3, role: 'C4', marker: 'Active Prompt Registry:' },
+    { topic: '品牌审美观点', topicId: 'brand_aesthetic_viewpoint', count: 5, role: 'A2', marker: 'Active Prompt Registry:' },
+    { topic: '上新活动转化', topicId: 'launch_conversion', count: 5, role: 'B3', marker: 'Active Prompt Registry:' }
   ];
 
   for (const sample of samples) {
@@ -96,8 +96,11 @@ test('user-facing soft-seeding prompts use active registry routing for display a
     await expect(provenance).toContainText(sample.topic);
     await expect(provenance).toContainText('场景：');
     await expect(provenance).toContainText('图片类型：');
-    await expect(provenance).toContainText('任务上下文：');
+    await expect(provenance).toContainText('图片序列：第 1 张，共 ' + sample.count + ' 张');
+    expect(await provenance.textContent()).not.toContain('任务上下文：');
     expect(firstPrompt).toContain(sample.marker);
+    expect(firstPrompt).toMatch(/Topic responsibility: [a-z0-9_]+ \([a-z -]+\)/);
+    expect(firstPrompt).toContain(`image 1 of ${sample.count}`);
     expect(firstPrompt).toContain('Image2 provider boundary');
     expect(firstPrompt).toContain('Product Truth protection');
     const allPrompts = await prompts.allTextContents();

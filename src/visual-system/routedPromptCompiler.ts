@@ -22,7 +22,7 @@ export type RoutedImage2PromptInput = {
   topicRoute: TopicRoute;
   visualRoleId: ThemePromptRole;
   activePromptEntry?: ThemePromptRegistryEntry;
-  currentTaskContext?: { imageType: string; scenePreference: string };
+  currentTaskContext?: { imageType: string; scenePreference: string; imageIndex: number; imageCount: number };
 };
 
 export function compileRoutedImage2UserPrompt(input: RoutedImage2PromptInput): string {
@@ -38,15 +38,20 @@ export function compileRoutedImage2UserPrompt(input: RoutedImage2PromptInput): s
   const topic = mapEnglishPromptField("topic", input.topicRoute.userFacingLabel);
   const imageType = input.currentTaskContext ? mapEnglishPromptField("imageType", input.currentTaskContext.imageType) : "";
   const scene = input.currentTaskContext ? mapEnglishPromptField("scene", input.currentTaskContext.scenePreference) : "";
+  const imageIndex = input.currentTaskContext?.imageIndex ?? 0;
+  const imageCount = input.currentTaskContext?.imageCount ?? 0;
+  if (!Number.isInteger(imageIndex) || !Number.isInteger(imageCount) || imageIndex < 1 || imageCount < imageIndex) {
+    throw new Error("ENGLISH_PROMPT_MAPPING_MISSING:invalid_image_sequence");
+  }
 
   const prompt = [
     input.basePrompt.trim(),
     `Active Prompt Registry: ${entry.activeVersionId}.`,
     `Image2 provider boundary: use Image2 only; this is a user-facing production Prompt, not an internal validation task.`,
-    `Topic responsibility: ${topic}; preserve the original Topic provenance and do not silently substitute another Topic.`,
+    `Topic responsibility: ${input.topicRoute.topicId} (${topic}); preserve the original Topic provenance and do not silently substitute another Topic.`,
     roleLanguage[input.visualRoleId],
     "Product Truth protection: use only the current task's selected or uploaded product truth. Brand visual language and anchors provide composition, camera, light, human state, material treatment, and negative visual constraints only; never invent or replace SKU color, shape, material, logo, or construction.",
-    imageType && scene ? `Current task context: ${imageType}, ${scene}.` : ""
+    `Current task context: ${imageType}, ${scene}, image ${imageIndex} of ${imageCount}.`
   ].filter((value): value is string => Boolean(value)).join(" ");
   return assertEnglishPrompt(prompt);
 }
