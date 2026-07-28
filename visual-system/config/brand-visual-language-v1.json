@@ -1,0 +1,26 @@
+{
+  "version": "1.0",
+  "status": "FROZEN",
+  "finalDecision": "FREEZE_AS_V1",
+  "humanConfirmationStatus": "APPROVED",
+  "confirmedBy": "brand_owner",
+  "productTruthBoundaryPreserved": true,
+  "providerScope": "Image2 only",
+  "priority": ["Product Truth", "Brand Visual Language", "Use-case Adaptation", "Provider Implementation"],
+  "sections": {
+    "Core Definition": "Warm, restrained, relaxed and real; quiet commercial usefulness with tactile material truth.",
+    "Human Presence": "Adult presence remains independent from the product; no fixed identity or model.",
+    "Life State": "Believable daily action, calm attention and unperformed ease.",
+    "Color": "Low-saturation warm neutrals with restrained contrast; no SKU color lock.",
+    "Light": "Believable daylight or controlled warm-grey directional light.",
+    "Material": "Tactile textile, leather, suede, stone, wood, paper and real surface relationships.",
+    "Styling": "Complete wearable looks without a fixed outfit template.",
+    "Space": "Specific lived-in thresholds, interiors, work surfaces or restrained studio space.",
+    "Composition": "Deliberate spacing, readable contact and useful negative space.",
+    "Product Presence": "Product participates naturally and remains structurally readable without hard-sell posing.",
+    "Product Truth Boundary": "Product facts come only from current-task Product Truth; anchors provide abstract language and never replace evidence.",
+    "Negative Visual Territory": "No influencer posing, generic luxury shorthand, hard-sell catalogue behavior, CGI polish or unsupported product detail.",
+    "Provider Scope": "Frozen language is model-neutral; current implementation and evidence scope is Image2 only."
+  },
+  "exclusions": ["specific SKU facts", "fixed model identity", "fixed outfit", "fixed scene", "fixed props", "fixed camera template", "provider-specific prompt tricks", "anchor surface copying"]
+}

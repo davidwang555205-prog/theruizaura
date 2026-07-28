@@ -24,6 +24,9 @@ import { promptQualityPatchNotice } from "./data/promptPatches";
 import { getCompatibleSceneOptions, isSceneCompatibleWithImageType } from "./data/teamSceneOptions";
 import { TEAM_MODEL_OPTIONS } from "./data/teamModelProfiles";
 import { TEAM_MODEL_CONTINUITY_OPTIONS } from "./data/modelContinuityProfiles";
+import { anchorManifest, brandVisualMother, canonicalThemeSpecifications, createVisualValidationWorkspace, productTruthLock, validationCases } from "./visual-system";
+import { compileImage2ThemePrompt } from "./visual-system/image2ThemeAdapter";
+import comparisonPlanJson from "../visual-system/validation/comparisons/phase-3d-comparison-plan.json";
 import { STUDIO_LAUNCH_PRESET_OPTIONS } from "./data/studioLaunchPresets";
 import { getCompatibleStudioWardrobeOptions, STUDIO_WARDROBE_OPTIONS } from "./data/studioWardrobeLibrary";
 
@@ -96,8 +99,74 @@ function formatFileSize(size: number) {
   return `${(size / 1024 / 1024).toFixed(1)} MB`;
 }
 
+async function copyWithFallback(value: string): Promise<"clipboard" | "fallback"> {
+  try {
+    if (navigator.clipboard?.writeText) {
+      await navigator.clipboard.writeText(value);
+      return "clipboard";
+    }
+  } catch {
+    // Fall through to the legacy textarea path for insecure contexts and denied permissions.
+  }
+  const textarea = document.createElement("textarea");
+  textarea.value = value;
+  textarea.setAttribute("readonly", "true");
+  textarea.style.position = "fixed";
+  textarea.style.opacity = "0";
+  document.body.appendChild(textarea);
+  textarea.select();
+  const copied = document.execCommand("copy");
+  textarea.remove();
+  if (!copied) throw new Error("Clipboard API 不可用，且降级复制失败。请展开 Prompt 后手动选择复制。");
+  return "fallback";
+}
+
+const visualEvidence = [
+  { id: "PT-01", name: "overall lateral product", role: "overall_structure" as const, file: "/visual-system/product-truth/PT-01-overall.jpg" },
+  { id: "PT-02", name: "top front product", role: "top_front" as const, file: "/visual-system/product-truth/PT-02-top-front.jpg" },
+  { id: "PT-03", name: "heel side product", role: "heel_side" as const, file: "/visual-system/product-truth/PT-03-heel-side.jpg" },
+  { id: "PT-04", name: "material craft product", role: "material_craft" as const, file: "/visual-system/product-truth/PT-04-material-craft.jpg" },
+  { id: "PT-05", name: "paired overall product", role: "overall_structure" as const, file: "/visual-system/product-truth/PT-05-paired-overall.jpg" },
+  { id: "PT-06", name: "toe and material detail", role: "material_craft" as const, file: "/visual-system/product-truth/PT-06-toe-material.jpg" }
+];
+const visualValidationTasks = createVisualValidationWorkspace(visualEvidence).tasks;
+const phase2DReferenceOrder: Record<string, string[]> = {
+  A4: ["PT-01", "PT-02", "PT-03"],
+  B1: ["PT-01", "PT-02", "PT-04"],
+  B2: ["PT-01", "PT-03", "PT-04"],
+  C2: ["PT-01", "PT-02", "PT-03", "PT-04"],
+  C5: ["PT-02", "PT-04", "PT-06"]
+};
+const phase2DIds = new Set(Object.keys(phase2DReferenceOrder));
+
+function VisualSystemWorkspace() {
+  const [copyStatus, setCopyStatus] = useState("");
+  const [comparisonUploads, setComparisonUploads] = useState<Record<string, { old?: string; new?: string }>>({});
+  const reportCopy = async (value: string, label: string) => {
+    try {
+      const mode = await copyWithFallback(value);
+      setCopyStatus(`${label} 已复制${mode === "fallback" ? "（兼容模式）" : ""}`);
+    } catch (error) {
+      setCopyStatus(error instanceof Error ? error.message : "复制失败，请展开 Prompt 后手动复制。");
+    }
+  };
+  const groups = [
+    ["A", "生活方式母体锚点", anchorManifest.anchors.filter((anchor) => anchor.group === "lifestyle")],
+    ["B", "官方棚内人物锚点", anchorManifest.anchors.filter((anchor) => anchor.group === "official_studio")],
+    ["C", "产品呈现与材质锚点", anchorManifest.anchors.filter((anchor) => anchor.group === "product_presentation")],
+  ] as const;
+  return <section className="space-y-6">
+    <header className="max-w-3xl space-y-2"><p className="ui-eyebrow">INTERNAL ONLY / PRE-PHASE 3-A</p><h1 className="text-3xl font-semibold text-aura-charcoal">视觉母体验证工作台</h1><p className="text-sm leading-6 text-aura-muted">品牌母体定义画面语言，不定义当前上传产品的真实鞋型。Product Truth 只来自本次任务上传证据。</p></header>
+    <section className="rounded-[24px] bg-aura-porcelain/95 p-5 ring-1 ring-aura-beige/70"><div className="flex flex-wrap items-center justify-between gap-3"><div><p className="text-xs uppercase tracking-[0.2em] text-aura-muted">FROZEN BRAND SYSTEM v{brandVisualMother.version}</p><h2 className="text-xl font-semibold text-aura-charcoal">{brandVisualMother.core_positioning}</h2></div><span className="rounded-full bg-aura-cream px-3 py-1 text-xs">{brandVisualMother.status}</span></div><div className="mt-4 grid gap-3 sm:grid-cols-3"><div><b>年龄范围</b><p className="text-sm text-aura-muted">{brandVisualMother.audience_visual_age_range.min}—{brandVisualMother.audience_visual_age_range.max} 岁</p></div><div><b>产品导演画面</b><p className="text-sm text-aura-muted">禁止</p></div><div><b>产品事实来源</b><p className="text-sm text-aura-muted">本次上传图片</p></div></div></section>
+    {groups.map(([label, title, anchors]) => <section key={label} className="rounded-[24px] bg-aura-porcelain/95 p-5 ring-1 ring-aura-beige/70"><div className="mb-4 flex items-center justify-between"><h2 className="text-lg font-semibold text-aura-charcoal">{label}｜{title}</h2><span className="text-xs text-aura-muted">{anchors.length} anchors</span></div><div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">{anchors.map((anchor) => <figure key={anchor.id} className="overflow-hidden rounded-[18px] bg-white/70 ring-1 ring-aura-beige/70"><img src={anchor.file.replace("../", "/visual-system/")} alt={`${anchor.id} visual anchor`} className="aspect-[4/5] w-full object-cover" /><figcaption className="space-y-1 p-3 text-xs"><b>{anchor.id}</b><p className="text-aura-muted">定义抽象画面语言；不定义当前产品 Product Truth。</p></figcaption></figure>)}</div></section>)}
+    <section className="rounded-[24px] bg-aura-porcelain/95 p-5 ring-1 ring-aura-beige/70"><div className="flex items-center justify-between"><h2 className="text-lg font-semibold text-aura-charcoal">Canonical Content Themes</h2><span className="text-xs text-aura-muted">{canonicalThemeSpecifications.length} active specifications / Image2 only</span></div><p className="mt-2 text-sm text-aura-muted">Canonical Theme Specification 先定义内容语义，再由 Image2 Adapter 编译；Product Truth 仍只来自当前任务。</p><div className="mt-4 grid gap-3 sm:grid-cols-2">{canonicalThemeSpecifications.map((theme) => { const compiled = compileImage2ThemePrompt({ theme, currentTaskProductTruth: productTruthLock, taskContext: "Prepare one internal Phase 3 theme validation image; do not call a provider." }); return <article key={theme.theme_id} className="rounded-[16px] bg-white/70 p-4 ring-1 ring-aura-beige/70"><div className="flex items-center justify-between gap-3"><b>{theme.title_zh}</b><span className="text-[10px] text-aura-muted">{theme.theme_id} · v{theme.version}</span></div><p className="mt-2 text-xs text-aura-muted">{theme.content_purpose}</p><details className="mt-3 rounded-xl bg-aura-cream/60 p-3"><summary className="cursor-pointer text-xs font-medium">查看 Canonical Specification 与 Image2 Prompt</summary><p className="mt-3 text-xs leading-5 text-aura-charcoal">{theme.title_en} · {theme.scene_type} · {theme.validation_priority} priority</p><pre data-testid={`theme-prompt-${theme.theme_id}`} className="mt-3 max-h-56 overflow-auto whitespace-pre-wrap text-xs leading-5 text-aura-charcoal">{compiled.prompt}</pre><p className="mt-2 text-[10px] text-aura-muted">Adapter: {compiled.adapterVersion} · Diagnostics: {compiled.diagnostics.length === 0 ? "none" : compiled.diagnostics.join(", ")}</p></details><div className="mt-3 flex flex-wrap gap-2"><button type="button" onClick={() => reportCopy(compiled.prompt, "Theme Prompt")} aria-label={`${theme.theme_id} 复制 Theme Prompt`} className={imageToolButtonClass}>复制 Theme Prompt</button><button type="button" onClick={() => reportCopy(`Reference Plan: current task Product Truth only. Required evidence: ${theme.required_product_evidence.join(", ")}. Brand anchors provide visual language only.`, "Theme Reference Plan")} aria-label={`${theme.theme_id} 复制 Theme Reference Plan`} className={imageToolButtonClass}>复制 Theme Reference Plan</button></div></article>; })}</div></section>
+    <section className="rounded-[24px] bg-aura-porcelain/95 p-5 ring-1 ring-aura-beige/70"><div className="flex items-center justify-between"><h2 className="text-lg font-semibold text-aura-charcoal">Phase 3-D 新旧 Prompt 对照测试</h2><span className="text-xs text-aura-muted">{comparisonPlanJson.comparisons.length} comparisons · Image2 manual gate</span></div><p className="mt-2 text-sm text-aura-muted">同一 Product Truth、参考图顺序、比例和 Image2；只比较 Prompt。当前没有任何真实结果或自动 QA 结论。</p><div className="mt-4 space-y-3">{comparisonPlanJson.comparisons.map((comparison) => <article key={comparison.comparison_id} className="rounded-[16px] bg-white/70 p-4 ring-1 ring-aura-beige/70"><div className="flex flex-wrap items-center justify-between gap-2"><b>{comparison.comparison_id} · {comparison.role}</b><span className="text-xs text-aura-muted">{comparison.status}</span></div><p className="mt-1 text-xs text-aura-muted">上传顺序：{comparison.product_reference_order.join(" → ")} · {comparison.aspect_ratio}</p><div className="mt-3 grid gap-3 md:grid-cols-2"><div><p className="mb-1 text-xs font-medium">Old Prompt</p><pre className="max-h-32 overflow-auto whitespace-pre-wrap rounded-lg bg-aura-cream/60 p-3 text-[11px] leading-4">{comparison.old_prompt}</pre><button type="button" onClick={() => reportCopy(comparison.old_prompt, "Old Prompt")} className={`${imageToolButtonClass} mt-2`}>复制 Old Prompt</button><label className="mt-2 block text-[11px] text-aura-muted">上传旧结果<input type="file" accept="image/*" className="mt-1 block w-full text-xs" onChange={(event) => setComparisonUploads((current) => ({ ...current, [comparison.comparison_id]: { ...current[comparison.comparison_id], old: event.target.files?.[0]?.name } }))} /></label></div><div><p className="mb-1 text-xs font-medium">New Prompt</p><pre className="max-h-32 overflow-auto whitespace-pre-wrap rounded-lg bg-aura-cream/60 p-3 text-[11px] leading-4">{comparison.new_prompt}</pre><button type="button" onClick={() => reportCopy(comparison.new_prompt, "New Prompt")} className={`${imageToolButtonClass} mt-2`}>复制 New Prompt</button><label className="mt-2 block text-[11px] text-aura-muted">上传新结果<input type="file" accept="image/*" className="mt-1 block w-full text-xs" onChange={(event) => setComparisonUploads((current) => ({ ...current, [comparison.comparison_id]: { ...current[comparison.comparison_id], new: event.target.files?.[0]?.name } }))} /></label></div></div><p className="mt-2 text-[10px] text-aura-muted">回传：旧结果 {comparisonUploads[comparison.comparison_id]?.old ?? "未上传"} · 新结果 {comparisonUploads[comparison.comparison_id]?.new ?? "未上传"} · QA 尚未开始</p></article>)}</div></section>
+    <section className="rounded-[24px] bg-aura-porcelain/95 p-5 ring-1 ring-aura-beige/70"><div className="flex items-center justify-between"><h2 className="text-lg font-semibold text-aura-charcoal">A1—C5 视觉验证任务</h2><span className="text-xs text-aura-muted">{validationCases.length} cases / validation only</span></div><p className="mt-2 text-sm text-aura-muted">Product Truth confidence: High · 当前任务证据仅用于验证，不自动接入 Provider。</p><div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">{visualValidationTasks.map((item) => { const uploadOrder = phase2DReferenceOrder[item.id] ?? item.referencePlan; const referencePlan = `Reference Plan: ${uploadOrder.join(", ")}. Upload in this order. Use current uploaded Product Truth as the sole product source; brand anchors provide visual language only.`; const prompt = item.providerReadyPrompt; const evidenceById = new Map(visualEvidence.map((evidence) => [evidence.id, evidence])); return <article key={item.id} className="rounded-[16px] bg-white/70 p-4 ring-1 ring-aura-beige/70"><div className="flex justify-between"><b>{item.id}</b><span className="text-xs text-aura-muted">{item.recommended_ratio}</span></div><h3 className="mt-2 font-medium text-aura-charcoal">{item.role}</h3><p className="mt-2 text-xs leading-5 text-aura-muted">{item.validation_goal}</p>{phase2DIds.has(item.id) && <div className="mt-3 rounded-xl bg-aura-cream/70 p-3"><p className="text-xs font-medium text-aura-charcoal">Phase 2-D Product Truth 上传顺序</p><div className="mt-2 flex flex-wrap gap-2">{uploadOrder.map((id, index) => { const evidence = evidenceById.get(id); return <figure key={id} className="w-16"><img src={evidence?.file} alt={`${id} product reference thumbnail`} className="h-16 w-16 rounded-lg object-cover ring-1 ring-aura-beige" /><figcaption className="mt-1 text-center text-[10px] text-aura-muted">{index + 1}. {id}</figcaption></figure>; })}</div><p className="mt-2 text-[10px] leading-4 text-aura-muted">仅使用这些 Product Truth 图；不要上传品牌锚点图。</p></div>}<details className="mt-3 rounded-xl bg-aura-cream/60 p-3"><summary className="cursor-pointer text-xs font-medium">展开查看完整 Prompt</summary><pre data-testid={`prompt-${item.id}`} className="mt-3 max-h-64 overflow-auto whitespace-pre-wrap text-xs leading-5 text-aura-charcoal">{prompt}</pre><p className="mt-3 text-xs leading-5 text-aura-muted">{referencePlan}</p></details><div className="mt-3 flex flex-wrap gap-2"><button type="button" onClick={() => reportCopy(prompt, "Prompt")} aria-label={`${item.id} 复制完整 Prompt`} className="rounded-lg bg-aura-charcoal px-3 py-2 text-xs font-medium text-white">复制完整 Prompt</button><button type="button" onClick={() => reportCopy(referencePlan, "Reference Plan")} aria-label={`${item.id} 复制 Reference Plan`} className="rounded-lg border border-aura-beige px-3 py-2 text-xs font-medium">复制 Reference Plan</button><button type="button" onClick={() => reportCopy(`${prompt}\n\n${referencePlan}`, "Prompt + Reference Plan")} aria-label={`${item.id} 复制 Prompt 和 Reference Plan`} className="rounded-lg border border-aura-beige px-3 py-2 text-xs font-medium">复制全部</button></div></article>; })}</div>{copyStatus && <p role="status" className="mt-4 text-sm text-aura-muted">{copyStatus}</p>}</section>
+  </section>;
+}
+
 function App() {
-  const [activePage, setActivePage] = useState<"workbench" | "prompt" | "xiaohongshu">("workbench");
+  const [activePage, setActivePage] = useState<"workbench" | "prompt" | "xiaohongshu" | "visual">("workbench");
   const [params, setParams] = useState<TeamPromptParams>(initialParams);
   const [generatedPrompt, setGeneratedPrompt] = useState(() => initialGeneratedPrompt);
   const [copyStatus, setCopyStatus] = useState("");
@@ -317,10 +386,10 @@ function App() {
       <aside className="ui-sidebar"><div className="ui-brand">THERUIZ AURA<small>BRAND CONTENT PLATFORM</small></div><nav aria-label="平台导航">
         <button className={activePage === 'workbench' ? 'active' : ''} onClick={() => setActivePage('workbench')}>⌂ <span>工作台<small>Workbench</small></span></button>
         <p>内容生产</p><button className={activePage === 'prompt' ? 'active' : ''} onClick={() => setActivePage('prompt')}>◌ <span>Prompt 构建器<small>Prompt Builder</small></span></button><button className={activePage === 'xiaohongshu' ? 'active' : ''} onClick={() => setActivePage('xiaohongshu')}>▧ <span>小红书内容<small>Xiaohongshu Content</small></span></button><button onClick={() => setImageGenerationStatus('图片生成 API 尚未接入。')}>▣ <span>图片生成<small>Image Generation</small></span></button>
-        <p>品牌基础</p><button onClick={() => setImageGenerationStatus('Product Truth 将在后续阶段接入。')}>◈ <span>Product Truth<small>产品真相</small></span></button><button onClick={() => setImageGenerationStatus('资产库将在后续阶段接入。')}>◇ <span>资产库<small>Asset Library</small></span></button>
+        <p>品牌基础</p><button onClick={() => setActivePage('visual')}>◈ <span>视觉母体验证<small>Visual System QA</small></span></button><button onClick={() => setImageGenerationStatus('资产库将在后续阶段接入。')}>◇ <span>资产库<small>Asset Library</small></span></button>
       </nav><div className="ui-sidebar-foot">团队空间<br /><strong>THERUIZ AURA 团队</strong></div></aside>
       <div className="ui-main"><header className="ui-topbar"><div className="ui-project">项目 / <strong>THERUIZ AURA 主项目</strong>⌄</div><div className="ui-top-actions"><span>◉ 9,842 积分</span><input aria-label="搜索" placeholder="搜索内容、Prompt、素材…" /><span>♧</span><b>TA</b><span>Theruiz Team⌄</span></div></header><div className="ui-content">
-        {activePage === 'workbench' ? dashboard : <>
+        {activePage === 'workbench' ? dashboard : activePage === 'visual' ? <VisualSystemWorkspace /> : <>
         <header className="max-w-3xl space-y-3">
           <p className="text-xs uppercase tracking-[0.28em] text-aura-muted">Standard accurate team mode</p>
           <h1 className="text-3xl font-semibold tracking-tight text-aura-charcoal sm:text-4xl">
@@ -781,7 +850,7 @@ function App() {
                       查看完整 Image 2.0 提示词
                     </summary>
                     <div className="aura-scrollbar mt-4 max-h-[360px] whitespace-pre-wrap text-sm leading-7 text-aura-charcoal lg:overflow-y-auto">
-                      {image.prompt}
+                      <span data-testid={`soft-prompt-${softContent.images.indexOf(image)}`}>{image.prompt}</span>
                     </div>
                   </details>
                 </article>

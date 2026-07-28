@@ -1,0 +1,109 @@
+{
+  "version": "1.0",
+  "anchors": [
+    {
+      "id": "A1",
+      "group": "lifestyle",
+      "file": "../anchors/A1_lifestyle_sitting_full_product.png",
+      "status": "approved",
+      "authority": "brand_visual_reference",
+      "not_product_truth": true
+    },
+    {
+      "id": "A2",
+      "group": "lifestyle",
+      "file": "../anchors/A2_lifestyle_standing_transition.png",
+      "status": "approved",
+      "authority": "brand_visual_reference",
+      "not_product_truth": true
+    },
+    {
+      "id": "A3",
+      "group": "lifestyle",
+      "file": "../anchors/A3_lifestyle_sitting_tactile.png",
+      "status": "approved",
+      "authority": "brand_visual_reference",
+      "not_product_truth": true
+    },
+    {
+      "id": "A4",
+      "group": "lifestyle",
+      "file": "../anchors/A4_lifestyle_crossed_leg_natural_product.png",
+      "status": "approved",
+      "authority": "brand_visual_reference",
+      "not_product_truth": true
+    },
+    {
+      "id": "B1",
+      "group": "official_studio",
+      "file": "../anchors/B1_studio_shoe_closeup_skirt.png",
+      "status": "approved",
+      "authority": "brand_visual_reference",
+      "not_product_truth": true
+    },
+    {
+      "id": "B2",
+      "group": "official_studio",
+      "file": "../anchors/B2_studio_back_fullbody.png",
+      "status": "approved",
+      "authority": "brand_visual_reference",
+      "not_product_truth": true
+    },
+    {
+      "id": "B3",
+      "group": "official_studio",
+      "file": "../anchors/B3_studio_front_fullbody.png",
+      "status": "approved",
+      "authority": "brand_visual_reference",
+      "not_product_truth": true
+    },
+    {
+      "id": "B4",
+      "group": "official_studio",
+      "file": "../anchors/B4_studio_threequarter_side.png",
+      "status": "approved",
+      "authority": "brand_visual_reference",
+      "not_product_truth": true
+    },
+    {
+      "id": "C1",
+      "group": "product_presentation",
+      "file": "../anchors/C1_product_side_profile.jpg",
+      "status": "approved",
+      "authority": "brand_visual_reference",
+      "not_product_truth": true
+    },
+    {
+      "id": "C2",
+      "group": "product_presentation",
+      "file": "../anchors/C2_product_onfoot_closeup.jpg",
+      "status": "approved",
+      "authority": "brand_visual_reference",
+      "not_product_truth": true
+    },
+    {
+      "id": "C3",
+      "group": "product_presentation",
+      "file": "../anchors/C3_product_double_threequarter.jpg",
+      "status": "approved",
+      "authority": "brand_visual_reference",
+      "not_product_truth": true
+    },
+    {
+      "id": "C4",
+      "group": "product_presentation",
+      "file": "../anchors/C4_product_heel_material.jpg",
+      "status": "approved",
+      "authority": "brand_visual_reference",
+      "not_product_truth": true
+    },
+    {
+      "id": "C5",
+      "group": "product_presentation",
+      "file": "../anchors/C5_product_topdown_structure.jpg",
+      "status": "approved",
+      "authority": "brand_visual_reference",
+      "not_product_truth": true
+    }
+  ]
+}
