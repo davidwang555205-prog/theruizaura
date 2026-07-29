@@ -11,10 +11,10 @@ const bundle = join(dir, "bundle.mjs");
 await writeFile(entry, `export * from ${JSON.stringify(resolve(root, "src/non-product-atmosphere/index.ts"))};\n`);
 await build({ entryPoints: [entry], bundle: true, outfile: bundle, format: "esm", platform: "node", target: "node20", logLevel: "silent" });
 const module = await import(`${pathToFileURL(bundle).href}?v=${Date.now()}`);
-const { buildNonProductAtmospherePlan, NON_PRODUCT_ATMOSPHERE_COUNTS, NON_PRODUCT_ATMOSPHERE_ASPECT_RATIOS, NON_PRODUCT_ATMOSPHERE_CONTENT_TYPE, NON_PRODUCT_ATMOSPHERE_PROVIDER } = module;
+const { buildNonProductAtmospherePlan, NON_PRODUCT_ATMOSPHERE_COUNTS, NON_PRODUCT_ATMOSPHERE_ASPECT_RATIOS, NON_PRODUCT_ATMOSPHERE_CONTENT_TYPE, NON_PRODUCT_ATMOSPHERE_PROVIDER, SEASON_SEMANTIC_PROFILES } = module;
 const failures = [];
 const fail = (message) => failures.push(message);
-const internalLeak = /curationSeed|candidateScores|analysisVersion|provenance|history|0\.5|softMaterialWeight|CARRIER DIVERSITY LOCK|PRODUCT AND BRAND RESPONSIBILITY|Provider boundary|website-uploaded|soft spring daylight|warm afternoon sunlight/i;
+const internalLeak = /curationSeed|candidateScores|analysisVersion|provenance|history|0\.5|softMaterialWeight|CARRIER DIVERSITY LOCK|PRODUCT AND BRAND RESPONSIBILITY|Provider boundary|website-uploaded/i;
 
 if (NON_PRODUCT_ATMOSPHERE_CONTENT_TYPE !== "non_product_atmosphere") fail("content type is not isolated");
 if (NON_PRODUCT_ATMOSPHERE_PROVIDER !== "image2") fail("provider is not Image2 only");
@@ -29,12 +29,15 @@ for (const quantity of NON_PRODUCT_ATMOSPHERE_COUNTS) {
     const prompt = image.prompt;
     if (!prompt.includes("Generate exactly one standalone 4:5 portrait photograph")) fail(`${quantity}/${image.index}: output contract`);
     if (!prompt.includes("THERUIZ AURA") || !prompt.includes("currently attached product reference")) fail(`${quantity}/${image.index}: brand/reference direction`);
-    if (!prompt.includes("No product or footwear.") || !prompt.includes("No person, body part") || !prompt.includes("No collage, triptych")) fail(`${quantity}/${image.index}: canonical negatives`);
+    if (!prompt.includes("Product presence is optional") || !prompt.includes("No person, body part") || !prompt.includes("No collage, triptych")) fail(`${quantity}/${image.index}: canonical non-product-led policy`);
+    if (image.productPresenceMode === "no_product" && !prompt.includes("No product or footwear.")) fail(`${quantity}/${image.index}: no-product mode leaked product presence`);
+    if (image.productPresenceMode !== "no_product" && prompt.includes("No product or footwear.")) fail(`${quantity}/${image.index}: optional product mode was hard-forbidden`);
     if (/[㐀-䶿一-鿿豈-﫿]/.test(prompt)) fail(`${quantity}/${image.index}: Chinese leakage`);
     if (internalLeak.test(prompt)) fail(`${quantity}/${image.index}: internal or placeholder leakage`);
     const words = prompt.trim().split(/\s+/).filter(Boolean).length;
-    if (words < 150 || words > 320) fail(`${quantity}/${image.index}: word budget ${words}`);
-    if ((prompt.match(/No product or footwear\./g) ?? []).length !== 1) fail(`${quantity}/${image.index}: duplicate negatives`);
+    if (words < 150 || words > 420) fail(`${quantity}/${image.index}: word budget ${words}`);
+    if ((prompt.match(/No product or footwear\./g) ?? []).length > 1) fail(`${quantity}/${image.index}: duplicate negatives`);
+    if (!image.seasonConsistencyQA.passed || !image.productDominanceQA.passed || !image.seasonConsistencyQA.manualReviewRequired || !image.productDominanceQA.manualReviewRequired) fail(`${quantity}/${image.index}: honest Prompt/manual QA contract`);
     if (image.promptPackage.generationCount !== 1 || image.promptPackage.reusePreviousConversation || image.promptPackage.reusePreviousGeneratedImage) fail(`${quantity}/${image.index}: isolated generation contract`);
   }
 }
@@ -51,6 +54,29 @@ const cooled = buildNonProductAtmospherePlan({ quantity: 1, taskId: "cooldown-ta
 if (cooled.images[0].sceneFingerprint.id === a.images[0].sceneFingerprint.id) fail("cross-task cooldown did not apply");
 if (a.productEchoProfile.primaryEchoColor.includes("burgundy") || a.productEchoProfile.primaryEchoColor.includes("ivory")) fail("validation fixture color leaked");
 if (a.images.some((image) => image.prompt.includes("0.5") || image.prompt.includes("mixed") || image.prompt.includes("balanced"))) fail("placeholder profile leaked");
+
+const matrix = [
+  ["S1", "春", "dark", "no_product", "brand_neutral"], ["S2", "春", "dark", "subtle_supporting_presence", "material_translation"], ["S3", "春", "light", "lifestyle_trace_presence", "direct_accent"],
+  ["U1", "夏", "brown", "no_product", "material_translation"], ["U2", "夏", "burgundy", "subtle_supporting_presence", "material_translation"], ["U3", "夏", "black", "lifestyle_trace_presence", "brand_neutral"],
+  ["A1", "秋", "light", "no_product", "brand_neutral"], ["A2", "秋", "dark", "subtle_supporting_presence", "direct_accent"], ["A3", "秋", "burgundy", "lifestyle_trace_presence", "material_translation"],
+  ["W1", "冬", "light", "no_product", "brand_neutral"], ["W2", "冬", "dark", "subtle_supporting_presence", "direct_accent"], ["W3", "冬", "black", "lifestyle_trace_presence", "material_translation"]
+];
+for (const [id, season, productPaletteClass, productPresenceMode, productPaletteEchoMode] of matrix) {
+  const image = buildNonProductAtmospherePlan({ quantity: 1, generationNonce: 0, taskId: id, referenceAssetIds: [`${id}-ref`], season, productPaletteClass, productPresenceMode, productPaletteEchoMode }).images[0];
+  const seasonId = { 春: "spring", 夏: "summer", 秋: "autumn", 冬: "winter" }[season];
+  if (!image.prompt.includes(`SEASON AUTHORITY — ${seasonId}`)) fail(`${id}: season profile not compiled`);
+  if (image.productPresenceMode !== productPresenceMode || image.productPaletteEchoMode !== productPaletteEchoMode) fail(`${id}: role or palette strategy changed unexpectedly`);
+  if (!image.sceneObjectSelection.colorIndependentSelection) fail(`${id}: product palette selected scene objects`);
+  if (image.seasonSemanticProfileId !== seasonId || !image.seasonGate.sceneCandidatePassed || !image.seasonGate.objectsFilteredBeforePrompt) fail(`${id}: season gate metadata missing`);
+  if (/product (is|as) (the )?(hero|visual center|primary subject)/i.test(image.prompt)) fail(`${id}: product became dominant`);
+  if (productPresenceMode === "no_product" && /preserve only the visible structure/i.test(image.prompt)) fail(`${id}: Product Truth expanded in no-product mode`);
+}
+for (const profile of Object.values(SEASON_SEMANTIC_PROFILES)) {
+  if (!profile.allowedWardrobe.length || !profile.allowedMaterials.length || !profile.allowedObjects.length || !profile.allowedLifeMoments.length || !profile.lighting.length || !profile.spatialState.length || !profile.paletteGuidance.length || profile.conflictsWith.length < 10) fail(`${profile.id}: incomplete seasonal semantics`);
+}
+const summerDarkAccent = buildNonProductAtmospherePlan({ quantity: 1, taskId: "summer-dark-downgrade", referenceAssetIds: ["dark-ref"], season: "夏", productPaletteClass: "dark", productPresenceMode: "subtle_supporting_presence", productPaletteEchoMode: "direct_accent" }).images[0];
+if (summerDarkAccent.productPaletteEchoMode !== "material_translation") fail("summer dark direct accent did not downgrade");
+if (/wool coat|chunky sweater|fireplace|winter domestic mood/i.test(summerDarkAccent.prompt.split("Exclude conflicting seasonal semantics")[0])) fail("dark palette overrode summer semantics");
 
 if (failures.length) { console.error(`Non-product atmosphere module failed: ${failures.length}`); for (const failure of failures) console.error(`FAIL: ${failure}`); process.exitCode = 1; } else console.log("Non-product atmosphere compact Image2 Prompt compiler passed.");
 await rm(dir, { recursive: true, force: true });

@@ -9,6 +9,10 @@ export type AtmospherePromptIR = {
   selectedCarrier?: string;
   profileMode: "RESOLVED" | "EXTERNAL_REFERENCE_ANALYSIS";
   curationPlanPresent: boolean;
+  seasonLines: string[];
+  productPresenceLine: string;
+  paletteEchoLine: string;
+  productMayAppear: boolean;
 };
 
 export class Image2AtmospherePromptRenderError extends Error {
@@ -16,7 +20,6 @@ export class Image2AtmospherePromptRenderError extends Error {
 }
 
 const canonicalNegatives = [
-  "No product or footwear.",
   "No person, body part, reflection, silhouette, or human shadow.",
   "No collage, triptych, split panel, contact sheet, or multiple scene.",
   "Avoid showroom styling, advertising hierarchy, decorative symmetry, and generic lifestyle moodboard styling."
@@ -45,20 +48,21 @@ export function renderImage2AtmospherePrompt(ir: AtmospherePromptIR): string {
   if (ir.selectedCarrier && ir.selectedCarrier !== "no dedicated physical carrier" && !objects.some((object) => ir.selectedCarrier?.toLowerCase().includes(object.toLowerCase()))) throw new Image2AtmospherePromptRenderError("ECHO_CARRIER_NOT_AVAILABLE_IN_SCENE", "Selected carrier is not present in the selected scene objects.");
   const competingScenes = ir.scene.forbiddenCompetingScenes.map((item) => item.trim()).filter(Boolean).slice(0, 3);
   const negatives = [...new Set([...canonicalNegatives, competingScenes.length > 0 ? `Keep the setting away from ${naturalCueList(competingScenes)}.` : ""])] .filter(Boolean);
-  const productDirection = "Let the currently attached product reference shape the room's overall light-to-dark balance, edge softness or clarity, material weight, and restrained tonal atmosphere.";
-  const carrierDirection = ir.selectedCarrier && ir.selectedCarrier !== "no dedicated physical carrier"
-    ? `Let ${ir.selectedCarrier} remain a subtle quality already present in the scene; do not introduce another object to carry the Product Echo.`
-    : "Do not introduce a dedicated physical carrier. Let the Product Echo appear only through subtle qualities already present in the scene.";
   const prompt = [
     `Generate exactly one standalone ${ir.outputContract.aspectRatio} portrait photograph. Single scene only.`,
+    "Create a THERUIZ AURA Non-Product-Led Atmosphere image: the product may be absent or appear only as secondary support or a believable daily trace, never as the visual center, primary narrative subject, or e-commerce display.",
+    ...ir.seasonLines,
     naturalSceneDirection(ir),
-    `${productDirection} ${ir.visualDirection.brandExpression}`,
-    `${ir.visualDirection.lightDirection} ${ir.visualDirection.materialDirection} ${ir.visualDirection.compositionDirection}`,
+    ir.visualDirection.brandExpression,
+    `${ir.visualDirection.lightDirection} ${ir.visualDirection.compositionDirection}`,
     objects.length > 0 ? `Keep the object presence minimal and believable, allowing the required spatial evidence to remain visible without turning the frame into a prop arrangement.` : "Keep the scene materially quiet and free of decorative additions.",
-    carrierDirection,
+    ir.productPresenceLine,
+    "Product presence is optional and always secondary, incidental, peripheral, and subordinate. Never center, separately light, enlarge, sharpen, or arrange around it. No catalog, product still life, campaign hero, or direct advertisement.",
+    ir.paletteEchoLine,
+    ir.productMayAppear ? "If a product fragment is actually visible, preserve only the visible structure and color from the attached reference without demanding complete product readability." : "No product or footwear.",
     negatives.join(" ")
   ].join("\n\n");
   if ((prompt.match(/scene/gi) ?? []).length > 12) throw new Image2AtmospherePromptRenderError("MULTIPLE_SCENE_IN_PROVIDER_PROMPT", "Provider Prompt contains competing scene language.");
-  if (wordCount(prompt) > 320) throw new Image2AtmospherePromptRenderError("IMAGE2_ATMOSPHERE_PROMPT_TOO_LONG", `Provider Prompt is ${wordCount(prompt)} words; maximum is 320.`);
+  if (wordCount(prompt) > 420) throw new Image2AtmospherePromptRenderError("IMAGE2_ATMOSPHERE_PROMPT_TOO_LONG", `Provider Prompt is ${wordCount(prompt)} words; maximum is 420.`);
   return prompt;
 }

@@ -24,7 +24,7 @@ export const IMAGE_TYPE_PROFILES: Record<string, { label: string; rules: PromptR
     ],
   },
   "非产品氛围图": {
-    label: "Non-Product Atmosphere",
+    label: "Non-Product-Led Atmosphere",
     rules: [
       { id: "img-atmosphere-secondary", section: "product", text: "The sneaker may appear only as a subtle partial object or background detail, not as the main product subject; do not force full on-foot display.", priority: PromptPriority.P3_COMPOSITION_AND_VISIBILITY, source: "image-type-profile", appliesWhen: {}, required: true, tags: ["image-type"], conflictsWith: ["product-accuracy-uploaded-reference"] },
       { id: "img-atmosphere-no-person", section: "model", text: "Do not show a full person, model, face, or portrait. Express the scene through still-life details, spatial cues, and quiet daily traces.", priority: PromptPriority.P3_COMPOSITION_AND_VISIBILITY, source: "image-type-profile", appliesWhen: {}, required: true, tags: ["image-type"], conflictsWith: ["model-identity-real-person"] },
