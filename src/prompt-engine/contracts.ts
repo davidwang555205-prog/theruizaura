@@ -2,6 +2,7 @@ import type { TeamImageType, TeamScenePreference, TeamSeason, TeamModelChoice, T
 import type { StandardSceneKey } from "../data/outfitDiversityRules";
 import type { ProductTruth } from "../visual-system/types";
 import type { ThemePromptRole } from "../visual-system/activePromptRegistry";
+import type { Image2ReferencePlan } from "../visual-system/taskReferenceBinding";
 
 // ─── Composition Mode ────────────────────────────────────────
 export type CompositionMode =
@@ -154,9 +155,18 @@ export type CompiledPromptResult = {
     activePromptVersionId?: string;
     productTruthProvenance?: PromptProfileInput["productTruthProvenance"];
     referencePlan?: PromptProfileInput["referencePlan"];
+    referenceSetId?: string;
+    taskProductTruthId?: string;
+    productTruthVersion?: string;
+    referencePlanReady: boolean;
+    productTruthMode?: "reference_bound";
+    referenceEvidenceBound: boolean;
+    structuredFactsExtracted: boolean;
+    manualExecutionReady: boolean;
+    providerExecutionReady: boolean;
     card?: { index?: number; count?: number; role?: string; framing?: string; orientation?: string };
     strictProduction: boolean;
-    productTruthBound: boolean;
+    productTruthBound: boolean | "partial";
     productionReady: boolean;
     diagnostics: string[];
   };
@@ -190,8 +200,8 @@ export type PromptProfileInput = {
   topicId?: string;
   activeVisualRoleId?: ThemePromptRole;
   selectedProductTruth?: ProductTruth;
-  productTruthProvenance?: { source: "current_task_uploaded_images"; assetIds: string[] };
-  referencePlan?: { assetIds: string[]; order: string[] };
+  productTruthProvenance?: { source: "current_task_uploaded_images"; assetIds: string[]; referenceSetId?: string; taskProductTruthId?: string; version?: string };
+  referencePlan?: Image2ReferencePlan;
   cardRole?: string;
   cardFraming?: string;
   cardOrientation?: string;

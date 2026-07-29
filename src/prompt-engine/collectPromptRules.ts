@@ -8,6 +8,7 @@ import { getTheruizAuraRealismRules } from "./profiles/theruizAuraRealismProfile
 import { getTeamModelProfile } from "../data/teamModelProfiles";
 import { getActivePromptRegistryEntry } from "../visual-system/activePromptRegistry";
 import { resolveTopicRoute } from "../visual-system/topicRoutingRegistry";
+import { productTruthPromptLines } from "../visual-system/taskReferenceBinding";
 
 const ACTIVE_ROLE_DIRECTIVES: Record<string, string> = {
   A1: "Active visual role: relaxed daily-life framing with natural body weight, believable daylight, and a readable sneaker inside an ordinary lived-in scene.",
@@ -24,16 +25,6 @@ const ACTIVE_ROLE_DIRECTIVES: Record<string, string> = {
 
 // ─── Global hard rules (P0-P2) ──────────────────────────────
 const GLOBAL_HARD_RULES: PromptRule[] = [
-  {
-    id: "product-accuracy-uploaded-reference",
-    section: "product",
-    text: "Use uploaded sneaker reference as strict source: low-cut German trainer silhouette, rounded toe box, slim outsole, panels, tongue, stitching, material, color, and proportions.",
-    priority: PromptPriority.P1_PRODUCT_HARD_LOCK,
-    source: "product-profile",
-    appliesWhen: { hasShoe: true },
-    required: true,
-    tags: ["product", "accuracy"],
-  },
   {
     id: "shoe-visibility-at-least-one",
     section: "product",
@@ -229,6 +220,8 @@ const GLOBAL_NEGATIVE_RULES: PromptRule[] = [
 
 export function collectPromptRules(input: PromptProfileInput): PromptRule[] {
   const rules: PromptRule[] = [];
+
+  if (input.hasShoe) rules.push({ id: "product-accuracy-current-task-reference", section: "product", text: productTruthPromptLines(input.selectedProductTruth).join(" "), priority: PromptPriority.P1_PRODUCT_HARD_LOCK, source: "product-profile", appliesWhen: {}, required: true, tags: ["product", "accuracy", "current-task"] });
 
   if (input.topicId) resolveTopicRoute(input.topicId === "studio_launch_shoot" ? "棚内上新拍摄" : input.topicId === "lifestyle_soft_seeding" ? "生活场景软种草" : input.topicId);
   if (input.activeVisualRoleId) {

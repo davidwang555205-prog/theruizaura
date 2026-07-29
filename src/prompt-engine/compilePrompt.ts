@@ -7,9 +7,14 @@ import type { PromptProfileInput } from "./contracts";
 import { getActivePromptRegistryEntry } from "../visual-system/activePromptRegistry";
 
 export function compilePrompt(input: PromptProfileInput): CompiledPromptResult {
+  const taskTruth = input.selectedProductTruth as { status?: "draft" | "blocked"; productTruthMode?: "reference_bound"; referenceEvidenceBound?: boolean; structuredFactsExtracted?: boolean; manualExecutionReady?: boolean; providerExecutionReady?: boolean; productionReady?: boolean } | undefined;
+  const taskTruthStatus = taskTruth?.status;
   const missingProductionInputs = [
-    input.selectedProductTruth ? "" : "MISSING_CURRENT_TASK_PRODUCT_TRUTH",
+    !input.selectedProductTruth || taskTruthStatus === "blocked" ? "MISSING_CURRENT_TASK_PRODUCT_TRUTH" : "",
+    taskTruthStatus === "draft" && !taskTruth?.referenceEvidenceBound ? "PRODUCT_TRUTH_EVIDENCE_INCOMPLETE" : "",
     input.referencePlan ? "" : "MISSING_REFERENCE_PLAN",
+    input.referencePlan?.referencePlanReady ? "" : "REFERENCE_PLAN_NOT_READY",
+    taskTruth?.providerExecutionReady ? "" : "PROVIDER_EXECUTION_NOT_READY",
   ].filter(Boolean);
   if (input.strictProduction && missingProductionInputs.length > 0) {
     throw new Error(missingProductionInputs.join(","));
@@ -69,6 +74,15 @@ export function compilePrompt(input: PromptProfileInput): CompiledPromptResult {
         : undefined,
       productTruthProvenance: input.productTruthProvenance,
       referencePlan: input.referencePlan,
+      referenceSetId: input.productTruthProvenance?.referenceSetId,
+      taskProductTruthId: input.productTruthProvenance?.taskProductTruthId,
+      productTruthVersion: input.productTruthProvenance?.version,
+      referencePlanReady: input.referencePlan?.referencePlanReady === true,
+      productTruthMode: taskTruth?.productTruthMode,
+      referenceEvidenceBound: taskTruth?.referenceEvidenceBound === true,
+      structuredFactsExtracted: taskTruth?.structuredFactsExtracted === true,
+      manualExecutionReady: taskTruth?.manualExecutionReady === true && input.referencePlan?.manualExecutionReady === true,
+      providerExecutionReady: false,
       card: {
         index: input.seriesImageIndex !== undefined ? input.seriesImageIndex + 1 : undefined,
         count: input.seriesImageCount,
@@ -77,14 +91,27 @@ export function compilePrompt(input: PromptProfileInput): CompiledPromptResult {
         orientation: input.cardOrientation,
       },
       strictProduction: input.strictProduction === true,
-      productTruthBound: Boolean(input.selectedProductTruth),
-      productionReady: Boolean(input.selectedProductTruth && input.referencePlan),
+      productTruthBound: input.selectedProductTruth && input.referencePlan?.referencePlanReady
+        ? true
+        : (input.selectedProductTruth as { coverage?: unknown[] } | undefined)?.coverage?.length
+          ? "partial"
+          : false,
+      productionReady: taskTruth?.productionReady === true && taskTruth?.providerExecutionReady === true,
       diagnostics: [
-        ...(input.brandId === "theruiz_aura" && !input.selectedProductTruth
+        ...(input.brandId === "theruiz_aura" && (!input.selectedProductTruth || taskTruthStatus === "blocked")
           ? ["MISSING_CURRENT_TASK_PRODUCT_TRUTH"]
+          : []),
+        ...(input.brandId === "theruiz_aura" && taskTruthStatus === "draft" && !taskTruth?.referenceEvidenceBound
+          ? ["PRODUCT_TRUTH_EVIDENCE_INCOMPLETE"]
+          : []),
+        ...(input.brandId === "theruiz_aura" && !taskTruth?.providerExecutionReady
+          ? ["PROVIDER_EXECUTION_NOT_READY"]
           : []),
         ...(input.brandId === "theruiz_aura" && !input.referencePlan
           ? ["MISSING_REFERENCE_PLAN"]
+          : []),
+        ...(input.brandId === "theruiz_aura" && input.referencePlan && !input.referencePlan.referencePlanReady
+          ? input.referencePlan.diagnostics ?? ["REFERENCE_PLAN_NOT_READY"]
           : []),
       ],
     },

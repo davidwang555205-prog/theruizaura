@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type ChangeEvent } from "react";
+import { useEffect, useMemo, useRef, useState, type ChangeEvent } from "react";
 import type {
   TeamGarmentTypePreference,
   TeamImageType,
@@ -26,6 +26,7 @@ import { TEAM_MODEL_OPTIONS } from "./data/teamModelProfiles";
 import { TEAM_MODEL_CONTINUITY_OPTIONS } from "./data/modelContinuityProfiles";
 import { anchorManifest, brandVisualMother, canonicalThemeSpecifications, createVisualValidationWorkspace, productTruthLock, validationCases } from "./visual-system";
 import { compileImage2ThemePrompt } from "./visual-system/image2ThemeAdapter";
+import { assignReferenceRole, bindTaskProductTruth, createTaskReferenceSet, type ReferenceAssetRole } from "./visual-system/taskReferenceBinding";
 import comparisonPlanJson from "../visual-system/validation/comparisons/phase-3d-comparison-plan.json";
 import { STUDIO_LAUNCH_PRESET_OPTIONS } from "./data/studioLaunchPresets";
 import { getCompatibleStudioWardrobeOptions, STUDIO_WARDROBE_OPTIONS } from "./data/studioWardrobeLibrary";
@@ -96,6 +97,11 @@ type ReferenceImage = {
   id: string;
   name: string;
   size: number;
+  mime: string;
+  width?: number;
+  height?: number;
+  originalUploadIndex: number;
+  role: ReferenceAssetRole;
   url: string;
 };
 
@@ -106,6 +112,15 @@ function updateField<K extends keyof TeamPromptParams>(params: TeamPromptParams,
 function formatFileSize(size: number) {
   if (size < 1024 * 1024) return `${Math.max(1, Math.round(size / 1024))} KB`;
   return `${(size / 1024 / 1024).toFixed(1)} MB`;
+}
+
+async function readImageDimensions(url: string): Promise<{ width?: number; height?: number }> {
+  return new Promise((resolve) => {
+    const image = new Image();
+    image.onload = () => resolve({ width: image.naturalWidth, height: image.naturalHeight });
+    image.onerror = () => resolve({});
+    image.src = url;
+  });
 }
 
 async function copyWithFallback(value: string): Promise<"clipboard" | "fallback"> {
@@ -244,6 +259,8 @@ function App() {
   const [softCopyStatus, setSoftCopyStatus] = useState("");
   const [referenceImages, setReferenceImages] = useState<ReferenceImage[]>([]);
   const referenceImagesRef = useRef<ReferenceImage[]>([]);
+  const referenceSetIdRef = useRef(`reference-set-${crypto.randomUUID()}`);
+  const referenceSetCreatedAtRef = useRef(new Date().toISOString());
   const [imageGenerationStatus, setImageGenerationStatus] = useState("");
   const [generatedImageUrl] = useState("");
   const [atmosphereQuantity, setAtmosphereQuantity] = useState<NonProductAtmosphereCount>(5);
@@ -265,6 +282,35 @@ function App() {
 
   const sceneOptions = getCompatibleSceneOptions(params.imageType);
   const showsModelChoice = peopleImageTypes.includes(params.imageType);
+  const referenceBinding = useMemo(() => {
+    const referenceSet = createTaskReferenceSet({
+      referenceSetId: referenceSetIdRef.current,
+      taskId: "current-local-task",
+      createdAt: referenceSetCreatedAtRef.current,
+      assets: referenceImages.map((image) => ({
+        id: image.id,
+        name: image.name,
+        mime: image.mime,
+        width: image.width,
+        height: image.height,
+        originalUploadIndex: image.originalUploadIndex,
+        roles: [image.role],
+        coverage: [],
+        confidence: image.role === "unclassified" ? "unknown" : "high",
+        assignmentSource: image.role === "unclassified" ? "unclassified" : "user_confirmed",
+        needsConfirmation: image.role === "unclassified",
+        confirmedByUser: image.role !== "unclassified",
+      })),
+    });
+    return { referenceSet, ...bindTaskProductTruth(referenceSet) };
+  }, [referenceImages]);
+
+  const bindReferenceInputs = (current: TeamPromptParams): TeamPromptParams => ({
+    ...current,
+    selectedProductTruth: referenceBinding.productTruth,
+    productTruthAssetIds: referenceBinding.referencePlan.assetIds,
+    referencePlan: referenceBinding.referencePlan,
+  });
 
   const updateParams = (updater: (current: TeamPromptParams) => TeamPromptParams) => {
     setParams((current) => updater(current));
@@ -274,12 +320,7 @@ function App() {
   };
 
   const handleGenerate = () => {
-    const nextParams = {
-      ...params,
-      productTruthAssetIds: referenceImages.map((image) => image.id),
-      referencePlan: { assetIds: referenceImages.map((image) => image.id), order: referenceImages.map((image) => image.id) },
-      generationNonce: params.generationNonce + 1
-    };
+    const nextParams = bindReferenceInputs({ ...params, generationNonce: params.generationNonce + 1 });
     setParams(nextParams);
     setGeneratedPrompt(generatePromptRuntime(nextParams).prompt);
     setCopyStatus("");
@@ -288,12 +329,7 @@ function App() {
 
   const syncPromptParams = () => {
     if (!hasPendingChanges) return params;
-    const syncedParams = {
-      ...params,
-      productTruthAssetIds: referenceImages.map((image) => image.id),
-      referencePlan: { assetIds: referenceImages.map((image) => image.id), order: referenceImages.map((image) => image.id) },
-      generationNonce: params.generationNonce + 1
-    };
+    const syncedParams = bindReferenceInputs({ ...params, generationNonce: params.generationNonce + 1 });
     setParams(syncedParams);
     setGeneratedPrompt(generatePromptRuntime(syncedParams).prompt);
     setHasPendingChanges(false);
@@ -350,7 +386,7 @@ function App() {
     }
   };
 
-  const handleReferenceImagesUpload = (event: ChangeEvent<HTMLInputElement>) => {
+  const handleReferenceImagesUpload = async (event: ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(event.target.files ?? []);
     if (files.length === 0) return;
 
@@ -358,11 +394,18 @@ function App() {
     const selectedFiles = files.slice(0, availableSlots);
     const skippedCount = files.length - selectedFiles.length;
 
-    const nextImages = selectedFiles.map((file) => ({
-      id: `${file.name}-${file.lastModified}-${crypto.randomUUID()}`,
-      name: file.name,
-      size: file.size,
-      url: URL.createObjectURL(file)
+    const nextImages = await Promise.all(selectedFiles.map(async (file, index) => {
+      const url = URL.createObjectURL(file);
+      return {
+        id: `${file.name}-${file.lastModified}-${crypto.randomUUID()}`,
+        name: file.name,
+        size: file.size,
+        mime: file.type,
+        originalUploadIndex: referenceImages.length + index,
+        role: "unclassified" as const,
+        ...(await readImageDimensions(url)),
+        url,
+      };
     }));
 
     setReferenceImages((current) => [...current, ...nextImages]);
@@ -372,6 +415,13 @@ function App() {
         : `已添加 ${nextImages.length} 张参考图。`
     );
     event.target.value = "";
+  };
+
+  const handleReferenceRoleChange = (id: string, role: ReferenceAssetRole) => {
+    setReferenceImages((current) => current.map((image) => image.id === id
+      ? { ...image, role: assignReferenceRole({ id: image.id, name: image.name, mime: image.mime, width: image.width, height: image.height, originalUploadIndex: image.originalUploadIndex, roles: [image.role], coverage: [], confidence: "unknown", assignmentSource: "unclassified", needsConfirmation: true, confirmedByUser: false }, role).roles[0] }
+      : image));
+    setImageGenerationStatus("参考用途已确认；已更新建议的外部 Image2 手动上传顺序，尚未发送任何 Provider Request。");
   };
 
   const handleRemoveReferenceImage = (id: string) => {
@@ -385,12 +435,12 @@ function App() {
 
   const handleGenerateImagePlaceholder = () => {
     if (referenceImages.length === 0) {
-      setImageGenerationStatus("请先上传 1–9 张鞋子参考图，再点击生成图片。");
+      setImageGenerationStatus("请先上传 1–9 张鞋子参考图，并确认每张图片的参考用途。");
       return;
     }
 
     setImageGenerationStatus(
-      `已准备好 ${referenceImages.length} 张参考图和当前英文提示词。图片生成接口尚未接入，后续会在这里显示生成结果。`
+      `已整理 ${referenceImages.length} 张参考图用途和建议上传顺序。请复制 Prompt，并在外部 Image2 手动上传图片后生成；系统尚未发送 Provider Request。`
     );
   };
 
@@ -406,7 +456,7 @@ function App() {
         <div>
           <h3 className="text-base font-semibold text-aura-charcoal">图片生成预留区</h3>
           <p className="mt-2 text-sm leading-6 text-aura-muted">
-            可先上传 1–9 张鞋子参考图。当前只做本地预览，后期接入图片生成模型后会用这些图片和当前提示词生成结果。
+            可上传 1–9 张鞋子参考图并轻量确认用途。系统只整理证据覆盖和建议顺序；仍需用户复制 Prompt，并在外部 Image2 手动上传图片后生成。
           </p>
         </div>
         <span className="shrink-0 rounded-full bg-aura-cream px-3 py-1 text-xs font-medium text-aura-muted ring-1 ring-aura-beige/70">
@@ -426,7 +476,7 @@ function App() {
           />
         </label>
         <button type="button" onClick={handleGenerateImagePlaceholder} className={primaryButtonClass}>
-          生成图片
+          检查手动执行准备
         </button>
         {generatedImageUrl ? (
           <a href={generatedImageUrl} download="theruiz-aura-generated-image.png" className={imageToolButtonClass}>
@@ -446,6 +496,17 @@ function App() {
               <img src={image.url} alt={image.name} className="aspect-square w-full object-cover" />
               <div className="space-y-2 p-3">
                 <p className="truncate text-xs font-medium text-aura-charcoal">{image.name}</p>
+                <select aria-label={`${image.name} 参考角色`} value={image.role} onChange={(event) => handleReferenceRoleChange(image.id, event.target.value as ReferenceAssetRole)} className="w-full rounded-lg border border-aura-beige bg-white px-2 py-1 text-xs text-aura-charcoal">
+                  <option value="unclassified">请选择参考角色</option>
+                  <option value="primary_product_reference">主产品参考（完整覆盖）</option>
+                  <option value="full_product_reference">完整侧面 / 结构</option>
+                  <option value="top_view_reference">俯视 / 鞋头</option>
+                  <option value="heel_reference">后跟 / 鞋底收口</option>
+                  <option value="material_reference">材质 / 工艺细节</option>
+                  <option value="color_reference">配色细节</option>
+                  <option value="on_foot_reference">上脚辅助参考</option>
+                </select>
+                <p className="text-[10px] leading-4 text-aura-muted">上传顺序 #{image.originalUploadIndex + 1} · {image.mime || "unknown MIME"}{image.width && image.height ? ` · ${image.width}×${image.height}` : ""}</p>
                 <div className="flex items-center justify-between gap-2">
                   <span className="text-xs text-aura-muted">{formatFileSize(image.size)}</span>
                   <button
@@ -463,7 +524,10 @@ function App() {
       )}
 
       <div className="mt-4 rounded-[18px] bg-aura-cream px-4 py-3 text-sm leading-6 text-aura-muted ring-1 ring-aura-beige/70">
-        {imageGenerationStatus || "接口未接入前不会向外发送图片。接入后建议通过本地后端保存 API Key，再返回生成图片用于下载。"}
+        {imageGenerationStatus || "当前为 Manual / Draft execution：系统只整理参考用途与建议上传顺序，不会自动识别具体产品事实，也不会向 Image2 发送图片。"}
+      </div>
+      <div className="mt-3 rounded-[18px] bg-white/65 px-4 py-3 text-sm leading-6 text-aura-muted ring-1 ring-aura-beige/70">
+        <b>Manual / Draft execution</b> · 已整理参考图片用途，覆盖 {referenceBinding.productTruth.coverage.length}/7 项参考证据。{referenceBinding.referencePlan.referencePlanReady ? " 已生成建议的外部 Image2 手动上传顺序。" : ` ${referenceBinding.referencePlan.diagnostics.join(" · ")}`} 仍需用户复制 Prompt，并在外部 Image2 手动上传图片后生成。当前未提取具体产品事实，未发送 Provider Request，尚非 production-ready。
       </div>
     </section>
   );
@@ -793,7 +857,7 @@ function App() {
             </div>
 
             <p role="status" className="mt-3 rounded-[18px] bg-aura-cream px-4 py-3 text-sm leading-6 text-aura-muted ring-1 ring-aura-beige/70">
-              Draft 模式：当前仅绑定上传参考资产 ID，尚未绑定结构化 Product Truth；该 Prompt 可用于外部 Image2 手动复制，但不是 production-ready。严格生产编译会在缺少 Product Truth 或 Reference Plan 时阻断。
+              Manual / Draft execution：当前绑定参考图片用途、证据覆盖和建议上传顺序，但不提取具体材质、颜色或结构事实。Prompt 可复制到外部 Image2 手动执行；Provider API 未接入，当前不是 production-ready。
             </p>
 
             {copyStatus && <p className="mt-3 text-sm text-aura-muted">{copyStatus}</p>}
