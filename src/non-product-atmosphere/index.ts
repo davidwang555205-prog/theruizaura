@@ -1,14 +1,13 @@
 import {
   NON_PRODUCT_ATMOSPHERE_VARIATIONS,
-  NON_PRODUCT_ATMOSPHERE_SCENE_REGISTRY,
-  type AtmosphereSceneArchetype,
-  type AtmosphereSceneId,
   type AtmosphereVariation
 } from "../data/nonProductAtmosphereSceneLines";
 import { brandVisualMother } from "../visual-system";
 import { renderImage2AtmospherePrompt, type AtmospherePromptIR } from "./image2AtmospherePromptRenderer";
 import { filterSeasonCompatibleCandidates, paletteEchoPrompt, productPresencePrompt, resolvePaletteEchoMode, resolveSeasonalSceneCues, runProductDominancePromptQA, runSeasonConsistencyPromptQA, seasonProfilePromptLines, SEASON_LABEL_TO_ID, SEASON_SEMANTIC_PROFILES, type AtmospherePromptSections, type AtmosphereSeasonId, type ProductDominanceFailure, type ProductPaletteClass, type ProductPaletteEchoMode, type ProductPresenceMode, type SeasonConsistencyFailure } from "./seasonSemanticProfiles";
+import { ATMOSPHERE_SCENE_ARCHETYPES, ATMOSPHERE_SCENE_ARCHETYPE_IDS, ATMOSPHERE_SCENE_VARIANTS, resolveAtmosphereScene, resolveSceneVariantContent, type AtmosphereSceneArchetype, type AtmosphereSceneArchetypeId, type AtmosphereSceneResolution, type AtmosphereSceneVariant, type ResolvedSceneVariantContent } from "./sceneVariants";
 export * from "./seasonSemanticProfiles";
+export * from "./sceneVariants";
 
 export const NON_PRODUCT_ATMOSPHERE_CONTENT_TYPE = "non_product_atmosphere" as const;
 export const NON_PRODUCT_ATMOSPHERE_PROVIDER = "image2" as const;
@@ -40,9 +39,9 @@ export type AtmosphereVisualGrammar = { valueStructure: string; contrastInstruct
 export type ProductEchoRoute = { primaryChannel: ProductEchoChannel; secondaryChannel?: ProductEchoChannel; sourceAnalysisId: string; currentTaskReferenceIds: string[]; routingReason: string; hueUsage: "none" | "micro_accent" | "subtle_secondary"; maxHueCoverage: "none" | "very_small" | "small"; selectedCarrierId?: string; selectedCarrierCategory: EchoCarrierCategory; antiLiteralMappingPassed: true };
 export type SceneObjectSelection = { selectedObjects: string[]; selectionSource: "SCENE_AND_LIFE_TRACE_ONLY"; colorIndependentSelection: true };
 export type AntiLiteralEchoPolicy = { forbidColorToObjectTypeMapping: true; forbidObjectInjectionForHueEcho: true; forbidFullSceneHueTheming: true; forbidProductShapeAnalogy: true; forbidRepeatedCarrierInSet: true; allowHueOnlyAsSubtleProperty: true };
-export type AtmosphereVariationSignature = { brandId: string; taskId: string; cardId: string; curationSeed: string; sceneFamily: AtmosphereSceneFamily; sceneId: AtmosphereSceneId; lifeTraceId: string; dominantPlane: string; cameraHeight: string; depthPattern: string; dominantObject: string; objectBundleFingerprint: string; materialMixFingerprint: string; productEchoPrimaryChannel: ProductEchoChannel; productEchoSecondaryChannel?: ProductEchoChannel; echoCarrierCategory: EchoCarrierCategory; hueUsage: "none" | "micro_accent" | "subtle_secondary"; valueStructure: string; contrastLevel: string; edgeDefinition: string; shadowBehavior: string; visualRhythm: string; spatialDensity: string; spatialBoundary: string; chromaticRole: string };
+export type AtmosphereVariationSignature = { brandId: string; taskId: string; cardId: string; curationSeed: string; sceneFamily: AtmosphereSceneFamily; sceneId: AtmosphereSceneArchetypeId; variantId: string; lifeTraceId: string; dominantPlane: string; cameraHeight: string; depthPattern: string; dominantObject: string; objectBundleFingerprint: string; materialMixFingerprint: string; productEchoPrimaryChannel: ProductEchoChannel; productEchoSecondaryChannel?: ProductEchoChannel; echoCarrierCategory: EchoCarrierCategory; hueUsage: "none" | "micro_accent" | "subtle_secondary"; valueStructure: string; contrastLevel: string; edgeDefinition: string; shadowBehavior: string; visualRhythm: string; spatialDensity: string; spatialBoundary: string; chromaticRole: string };
 export type ProductEchoExpressionQA = { productEchoSourceValid: boolean; primaryChannelValid: boolean; nonHueChannelPreferred: boolean; sceneObjectsSelectedIndependentlyFromColor: boolean; carrierAlreadyJustifiedByScene: boolean; literalColorMatchingPropDetected: boolean; objectInjectedOnlyForHueEcho: boolean; fullSceneHueThemeDetected: boolean; repeatedCarrierDetected: boolean; repeatedPrimaryChannelDetected: boolean; flowerSelectedBecauseOfProductHue: boolean; multipleHueCarriersDetected: boolean };
-export type SceneFingerprint = Pick<AtmosphereSceneArchetype, "id" | "indoorOutdoor" | "dominantPlane" | "cameraHeight" | "depthPattern" | "dominantObject">;
+export type SceneFingerprint = Pick<AtmosphereSceneArchetype, "id" | "dominantPlane" | "cameraHeight" | "depthPattern" | "dominantObject"> & { indoorOutdoor: AtmosphereSceneArchetype["spatialType"] };
 export type AtmosphereSceneQA = { expectedSceneMatched: boolean; requiredSpatialCuesFound: string[]; missingRequiredSpatialCues: string[]; forbiddenSceneCuesFound: string[]; collageDetected: boolean; repeatedPreviousScene: boolean; dominantObjectRepeated: boolean; productEchoSourceValid: boolean; currentTaskReferenceProvenanceValid: boolean };
 export type AtmospherePromptPackage = { provider: "image2"; generationCount: 1; standaloneImage: true; isolatedGenerationRequired: true; reusePreviousConversation: false; reusePreviousGeneratedImage: false; continuityMode: "STYLE_ONLY_CONTINUITY"; productEchoSourceMode: "CURRENT_TASK_REFERENCE_ONLY"; referenceAssetIds: string[]; externalReferenceAttachmentRequired: true; sceneSelectionMode?: "AUTO_CONTROLLED_RANDOM"; curationSeed?: string; seedVersion?: "v1" };
 
@@ -75,6 +74,8 @@ export type NonProductAtmosphereImagePlan = {
   productPresenceMode: ProductPresenceMode;
   productPaletteEchoMode: ProductPaletteEchoMode;
   seasonSemanticProfileId: AtmosphereSeasonId;
+  sceneResolution: AtmosphereSceneResolution;
+  sceneVariantContent: ResolvedSceneVariantContent;
   seasonGate: { sceneCandidatePassed: true; objectsFilteredBeforePrompt: true; requestedSceneRejected: boolean; usedSeasonNeutralFallback: boolean };
   seasonConsistencyQA: { capability: "prompt_level_only"; passed: boolean; failures: SeasonConsistencyFailure[]; manualReviewRequired: true };
   productDominanceQA: { capability: "prompt_level_only"; passed: boolean; failures: ProductDominanceFailure[]; manualReviewRequired: true };
@@ -144,7 +145,7 @@ export const NON_PRODUCT_ATMOSPHERE_PROMPT_REGISTRY = {
 };
 
 function activeVisualSystemRule() {
-  return `ACTIVE VISUAL SYSTEM — ${brandVisualMother.brand} Brand Visual Mother v${brandVisualMother.version} (${brandVisualMother.status}) is highest authority: Quiet Warm Luxury, low-volume color, sourced warm light, real materials and physics, mature urban space, and observed asymmetry. No sweet, influencer, plastic, juvenile, showroom, or module-specific drift.`;
+  return `ACTIVE VISUAL SYSTEM — ${brandVisualMother.brand} Brand Visual Mother v${brandVisualMother.version} (${brandVisualMother.status}) is highest authority: Quiet Warm Luxury, low-volume color, sourced light, real materials and physics, mature urban space, observed asymmetry. No sweet, influencer, plastic, juvenile, showroom, or module-specific drift.`;
 }
 const BRAND_CORE = `Create a ${brandVisualMother.brand} non-product lifestyle atmosphere image guided by ${brandVisualMother.core_positioning.split(" /")[0] || "Quiet Warm Luxury"}. Express warm restraint, calm negative space, mature relaxed elegance, tactile authenticity, quiet daily order, low-saturation color, soft natural daylight, and believable lived-in atmosphere. The image must feel warm, restrained, mature, calm, tactile, and real.`;
 const EXTERNAL_REFERENCE_RULE = "Use the actual reference image attached in the external image-generation tool as the sole visual source for Product Echo. Read its color family, material tactility, surface finish, emotional tone, and seasonal feeling at generation time. Do not use a website-uploaded reference image as the source for this copied Prompt. Reference use is visual_echo_extraction_only. The website reference-upload field is reserved for the future server/API generation path.";
@@ -172,14 +173,13 @@ export class AtmosphereCompileError extends Error {
   constructor(public readonly code: "PRODUCT_ECHO_SOURCE_MISSING" | "SCENE_DIVERSITY_DIAGNOSTIC", message: string) { super(message); }
 }
 
-const SCENE_ORDER: AtmosphereSceneId[] = ["ENTRYWAY_DEPARTURE", "READING_CORNER", "RETURN_HOME_TABLE", "WORKTABLE_PAUSE", "HOTEL_TRAVEL", "CAFE_FRONT", "WARDROBE_MORNING", "MATERIAL_LIGHT_SPACE"];
-const SCENE_FAMILY: Record<AtmosphereSceneId, AtmosphereSceneFamily> = { ENTRYWAY_DEPARTURE: "THRESHOLD", READING_CORNER: "PRIVATE_HOME", RETURN_HOME_TABLE: "DAILY_ERRAND", WORKTABLE_PAUSE: "WORKING_LIFE", HOTEL_TRAVEL: "SHORT_TRAVEL", CAFE_FRONT: "CITY_PASSAGE", WARDROBE_MORNING: "PRIVATE_HOME", MATERIAL_LIGHT_SPACE: "QUIET_PUBLIC_SPACE" };
+const SCENE_FAMILY: Record<AtmosphereSceneArchetypeId, AtmosphereSceneFamily> = { ENTRYWAY_DEPARTURE: "THRESHOLD", ENTRYWAY_ARRIVAL: "THRESHOLD", WARDROBE_PREPARATION: "PRIVATE_HOME", WINDOW_READING: "PRIVATE_HOME", WORKTABLE_PAUSE: "WORKING_LIFE", RETURN_HOME_TABLE: "DAILY_ERRAND", MARKET_RETURN_KITCHEN: "DAILY_ERRAND", CAFE_FRONT: "CITY_PASSAGE", CAFE_INTERIOR: "QUIET_PUBLIC_SPACE", BOOKSTORE_MAGAZINE: "QUIET_PUBLIC_SPACE", HOTEL_STAY: "SHORT_TRAVEL", RESIDENTIAL_TRANSITION: "THRESHOLD", CITY_TRANSIT: "CITY_PASSAGE", MATERIAL_LIGHT_SPACE: "QUIET_PUBLIC_SPACE" };
 const ECHO_CHANNEL_ORDER: ProductEchoChannel[] = ["MATERIAL_TACTILITY", "SURFACE_FINISH", "EMOTIONAL_TONE", "RESTRAINED_HUE"];
-const CARRIER_BY_SCENE: Record<AtmosphereSceneId, EchoCarrierCategory> = { ENTRYWAY_DEPARTURE: "TEXTILE", READING_CORNER: "AMBIENT_LIGHT", RETURN_HOME_TABLE: "CERAMIC", WORKTABLE_PAUSE: "PAPER", HOTEL_TRAVEL: "GLASS", CAFE_FRONT: "SHADOW", WARDROBE_MORNING: "TEXTILE", MATERIAL_LIGHT_SPACE: "NO_PHYSICAL_CARRIER" };
+const CARRIER_BY_SCENE: Record<AtmosphereSceneArchetypeId, EchoCarrierCategory> = { ENTRYWAY_DEPARTURE: "TEXTILE", ENTRYWAY_ARRIVAL: "SHADOW", WARDROBE_PREPARATION: "TEXTILE", WINDOW_READING: "AMBIENT_LIGHT", WORKTABLE_PAUSE: "PAPER", RETURN_HOME_TABLE: "WOOD", MARKET_RETURN_KITCHEN: "PAPER", CAFE_FRONT: "WALL_REFLECTION", CAFE_INTERIOR: "CERAMIC", BOOKSTORE_MAGAZINE: "PAPER", HOTEL_STAY: "GLASS", RESIDENTIAL_TRANSITION: "SHADOW", CITY_TRANSIT: "SHADOW", MATERIAL_LIGHT_SPACE: "NO_PHYSICAL_CARRIER" };
 const ANTI_LITERAL_POLICY: AntiLiteralEchoPolicy = { forbidColorToObjectTypeMapping: true, forbidObjectInjectionForHueEcho: true, forbidFullSceneHueTheming: true, forbidProductShapeAnalogy: true, forbidRepeatedCarrierInSet: true, allowHueOnlyAsSubtleProperty: true };
 
 function sceneFingerprint(archetype: AtmosphereSceneArchetype): SceneFingerprint {
-  return { id: archetype.id, indoorOutdoor: archetype.indoorOutdoor, dominantPlane: archetype.dominantPlane, cameraHeight: archetype.cameraHeight, depthPattern: archetype.depthPattern, dominantObject: archetype.dominantObject };
+  return { id: archetype.id, indoorOutdoor: archetype.spatialType, dominantPlane: archetype.dominantPlane, cameraHeight: archetype.cameraHeight, depthPattern: archetype.depthPattern, dominantObject: archetype.dominantObject };
 }
 
 function buildSceneLock(archetype: AtmosphereSceneArchetype, previous: SceneFingerprint[]): string {
@@ -199,20 +199,9 @@ function stableHash(value: string): number {
   return hash >>> 0;
 }
 
-function seededOrder(seed: string): AtmosphereSceneId[] {
-  return [...SCENE_ORDER].sort((left, right) => stableHash(`${seed}:${left}`) - stableHash(`${seed}:${right}`));
-}
-
-export function selectSeasonCompatibleSceneCandidates(candidateIds: AtmosphereSceneId[], seasonProfile: (typeof SEASON_SEMANTIC_PROFILES)[AtmosphereSeasonId], excludedSceneIds: AtmosphereSceneId[] = []): { sceneIds: AtmosphereSceneId[]; usedSeasonNeutralFallback: boolean } {
-  const sceneIds = candidateIds.filter((candidate) => {
-    if (excludedSceneIds.includes(candidate)) return false;
-    const scene = NON_PRODUCT_ATMOSPHERE_SCENE_REGISTRY[candidate];
-    const searchable = [scene.locationLock, scene.lifeTraceDirection, ...scene.allowedObjects].join(" ");
-    return filterSeasonCompatibleCandidates([searchable], seasonProfile).length === 1;
-  });
-  return sceneIds.length > 0
-    ? { sceneIds, usedSeasonNeutralFallback: false }
-    : { sceneIds: ["MATERIAL_LIGHT_SPACE"], usedSeasonNeutralFallback: true };
+export function selectSeasonCompatibleSceneCandidates(candidateIds: AtmosphereSceneArchetypeId[], seasonProfile: (typeof SEASON_SEMANTIC_PROFILES)[AtmosphereSeasonId], excludedSceneIds: AtmosphereSceneArchetypeId[] = []): { sceneIds: AtmosphereSceneArchetypeId[]; usedSeasonNeutralFallback: boolean } {
+  const sceneIds = candidateIds.filter((candidate) => candidate !== "MATERIAL_LIGHT_SPACE" && !excludedSceneIds.includes(candidate) && ATMOSPHERE_SCENE_VARIANTS.some((variant) => variant.archetypeId === candidate && (variant.compatibleSeasons === "all" || variant.compatibleSeasons.includes(seasonProfile.id))));
+  return sceneIds.length ? { sceneIds, usedSeasonNeutralFallback: false } : { sceneIds: ["MATERIAL_LIGHT_SPACE"], usedSeasonNeutralFallback: true };
 }
 
 function buildDeferredResponsiveProfile(taskId: string, referenceAssetIds: string[]): ProductResponsiveVisualProfile {
@@ -223,43 +212,28 @@ function buildVisualGrammar(_profile: ProductResponsiveVisualProfile, channel: P
   return { valueStructure: "The selected season and scene control the global value structure.", contrastInstruction: "Keep contrast season- and scene-led.", edgeInstruction: "Keep edge definition natural and tactile.", shadowInstruction: "Use believable season-led shadows.", rhythmInstruction: "Keep visual pacing calm and restrained.", spatialDensityInstruction: "Keep spatial density scene-led.", spatialBoundaryInstruction: "Keep spatial boundaries believable.", materialMixInstruction: "Use scene-appropriate material relationships without numeric weights.", chromaticInstruction: `Keep any reference hue local and restrained; channel ${channel} may affect only a small existing surface, never the global visual grammar.` };
 }
 
-const REQUESTED_SCENE_ARCHETYPE: Record<string, AtmosphereSceneId> = {
-  "玄关出门": "ENTRYWAY_DEPARTURE", "回家进门": "RETURN_HOME_TABLE", "暑假外出后回家": "RETURN_HOME_TABLE",
-  "窗边阅读": "READING_CORNER", "窗边阅读角": "READING_CORNER",
-  "工作台 / 桌边整理": "WORKTABLE_PAUSE", "材质工作台": "WORKTABLE_PAUSE", "拍摄花絮": "WORKTABLE_PAUSE", "棚内上新拍摄": "WORKTABLE_PAUSE",
-  "旅行酒店": "HOTEL_TRAVEL", "酒店房间": "HOTEL_TRAVEL", "酒店门口 / 门厅": "HOTEL_TRAVEL", "酒店度假": "HOTEL_TRAVEL", "周末轻旅行出发": "HOTEL_TRAVEL",
-  "咖啡店门口": "CAFE_FRONT", "咖啡馆内": "CAFE_FRONT", "城市街角 / 安静街区": "CAFE_FRONT", "周末城市散步": "CAFE_FRONT", "美术馆": "CAFE_FRONT", "书店 / 杂志店门口": "CAFE_FRONT", "公园慢走": "CAFE_FRONT", "社区步道": "CAFE_FRONT",
-  "居家衣帽间": "WARDROBE_MORNING", "衣帽间 / 更衣角": "WARDROBE_MORNING",
-};
-
-const SEASON_EXCLUSIVE_REQUESTS: Partial<Record<string, AtmosphereSeasonId[]>> = {
-  "暑假游乐园": ["summer"], "海边度假": ["summer"], "暑假外出后回家": ["summer"],
-  "草原野餐": ["spring", "summer", "autumn"]
-};
-
-export function resolveRequestedAtmosphereScene(scenePreference: string | undefined, seasonId: AtmosphereSeasonId): { sceneId?: AtmosphereSceneId; requestedSceneRejected: boolean; usedSeasonNeutralFallback: boolean } {
+export function resolveRequestedAtmosphereScene(scenePreference: string | undefined, seasonId: AtmosphereSeasonId): { sceneId?: AtmosphereSceneArchetypeId; variantId?: string; requestedSceneRejected: boolean; usedSeasonNeutralFallback: boolean } {
+  const resolved = resolveAtmosphereScene({ requestedScene: scenePreference, season: seasonId, seed: `requested:${scenePreference ?? "auto"}:${seasonId}` });
   if (!scenePreference || scenePreference === "自动匹配") return { requestedSceneRejected: false, usedSeasonNeutralFallback: false };
-  const allowedSeasons = SEASON_EXCLUSIVE_REQUESTS[scenePreference];
-  if (allowedSeasons && !allowedSeasons.includes(seasonId)) return { sceneId: "MATERIAL_LIGHT_SPACE", requestedSceneRejected: true, usedSeasonNeutralFallback: true };
-  return { sceneId: REQUESTED_SCENE_ARCHETYPE[scenePreference] ?? "MATERIAL_LIGHT_SPACE", requestedSceneRejected: !REQUESTED_SCENE_ARCHETYPE[scenePreference], usedSeasonNeutralFallback: !REQUESTED_SCENE_ARCHETYPE[scenePreference] };
+  return { sceneId: resolved.archetype.id, variantId: resolved.variant.id, requestedSceneRejected: resolved.resolution.usedFallback, usedSeasonNeutralFallback: resolved.resolution.usedFallback };
 }
 
-function buildPrompt(archetype: AtmosphereSceneArchetype, variation: AtmosphereVariation, profile: ProductEchoProfile, aspectRatio: NonProductAtmosphereAspectRatio, route: ProductEchoRoute, curationPlanPresent: boolean, season: "春" | "夏" | "秋" | "冬", presenceMode: ProductPresenceMode, paletteMode: ProductPaletteEchoMode, sceneDirective?: string): { prompt: string; sections: AtmospherePromptSections; selectedObjects: string[] } {
+function buildPrompt(archetype: AtmosphereSceneArchetype, variant: AtmosphereSceneVariant, variantContent: ResolvedSceneVariantContent, variation: AtmosphereVariation, profile: ProductEchoProfile, aspectRatio: NonProductAtmosphereAspectRatio, route: ProductEchoRoute, curationPlanPresent: boolean, season: "春" | "夏" | "秋" | "冬", presenceMode: ProductPresenceMode, paletteMode: ProductPaletteEchoMode, sceneDirective?: string): { prompt: string; sections: AtmospherePromptSections; selectedObjects: string[] } {
   const seasonProfile = SEASON_SEMANTIC_PROFILES[SEASON_LABEL_TO_ID[season]];
-  const selectedObjects = filterSeasonCompatibleCandidates(archetype.allowedObjects, seasonProfile).slice(0, 2);
-  const cues = resolveSeasonalSceneCues({ profile: seasonProfile, spatialType: archetype.indoorOutdoor, sceneId: archetype.id, sceneObjects: selectedObjects, lifeMoment: archetype.lifeTraceDirection, wardrobeTraceAllowed: ["ENTRYWAY_DEPARTURE", "WARDROBE_MORNING", "HOTEL_TRAVEL"].includes(archetype.id) });
+  const selectedObjects = filterSeasonCompatibleCandidates(variantContent.supportingObjects, seasonProfile).slice(0, 2);
+  const cues = resolveSeasonalSceneCues({ profile: seasonProfile, spatialType: archetype.spatialType, sceneId: archetype.id, sceneObjects: selectedObjects, lifeMoment: variantContent.primaryTrace, wardrobeTraceAllowed: archetype.allowsWardrobeTrace && variant.allowsWardrobeTrace, wardrobeTrace: variantContent.wardrobeTrace });
   const seasonalLines = seasonProfilePromptLines(seasonProfile, cues);
   const productMayAppear = presenceMode !== "no_product";
   const sections: AtmospherePromptSections = {
-    moduleDefinition: ["Create a THERUIZ AURA Non-Product-Led Atmosphere image. Product presence is optional; the environment and lived moment are the subject, never an e-commerce display."],
+    moduleDefinition: ["Create a THERUIZ AURA Non-Product-Led Atmosphere image. Product presence is optional; environment and lived moment lead, never e-commerce display."],
     activeVisualSystem: [activeVisualSystemRule()],
     seasonIdentity: [seasonalLines[0]],
     positiveSeasonCues: seasonalLines.slice(1, 3),
-    scene: [`Create ${archetype.locationLock}. Show ${archetype.requiredSpatialCues[0]}. ${cues.lifeMoments[0]}. Variation: ${variation.key.replace(/-/g, " ")}. Minimal objects: ${selectedObjects.join(" and ") || "none"}.`, ...(sceneDirective?.trim() ? [sceneDirective.trim()] : [])],
+    scene: [`Scene: ${variant.description}. Show ${variantContent.spatialCue}. ${cues.lifeMoments[0]}. ${variantContent.timeOfDay ? `${variantContent.timeOfDay}.` : ""} ${variantContent.compositionCue}. Objects: ${selectedObjects.join(" and ") || "none"}.`, ...(sceneDirective?.trim() ? [sceneDirective.trim()] : [])],
     productPresence: [productPresencePrompt(presenceMode)],
-    paletteEcho: [paletteEchoPrompt(paletteMode), "Season and scene exclusively control global light temperature, spatial climate, material weight, wardrobe thickness, and seasonal identity. The product reference may affect only a small local accent, reflection, or surface property; it cannot change global light, season, wardrobe, space, scene, or activity."],
+    paletteEcho: [paletteEchoPrompt(paletteMode), "Season and scene exclusively control global light, spatial climate, material weight, wardrobe thickness, and season. Product reference may affect only a local accent, reflection, or surface; never global light, season, wardrobe, space, scene, or activity."],
     productTruth: [productMayAppear ? "Only if a product fragment is actually visible, preserve its visible structure and color from the attached reference without demanding complete product readability." : "No product or footwear."],
-    composition: [COMPOSITION_RULE, "Any product must remain incidental and peripheral. Never center, separately light, enlarge, sharpen, or arrange the scene around it. No catalog, product still life, campaign hero, or direct advertisement."],
+    composition: [COMPOSITION_RULE, "Any product stays incidental and peripheral. Never center, separately light, enlarge, sharpen, or arrange around it. No catalog, product still life, campaign hero, or advertisement."],
     negativeConstraints: [seasonalLines[3], `Keep the setting away from ${archetype.forbiddenSpatialCues.slice(0, 2).join(", ")}.`]
   };
   const ir: AtmospherePromptIR = {
@@ -284,7 +258,6 @@ export function buildNonProductAtmospherePlan(input: BuildNonProductAtmospherePl
   const rotationIndex = Math.abs(Math.floor(input.generationNonce ?? 0));
   const season = input.season ?? "春";
   const seasonProfile = SEASON_SEMANTIC_PROFILES[SEASON_LABEL_TO_ID[season]];
-  const requestedScene = resolveRequestedAtmosphereScene(input.scenePreference, seasonProfile.id);
   const aspectRatio = input.aspectRatio ?? "4:5";
   const taskId = input.taskId ?? `current-task-${rotationIndex}`;
   const curationSeed = `${taskId}:${rotationIndex}:v1`;
@@ -298,10 +271,10 @@ export function buildNonProductAtmospherePlan(input: BuildNonProductAtmospherePl
   const images = Array.from({ length: quantity }, (_, index) => {
     const productPresenceMode = input.productPresenceMode ?? (["no_product", "subtle_supporting_presence", "lifestyle_trace_presence"] as ProductPresenceMode[])[(rotationIndex + index) % 3];
     const productPaletteEchoMode = resolvePaletteEchoMode(seasonProfile.id, input.productPaletteClass ?? "unknown", input.productPaletteEchoMode ?? (["brand_neutral", "material_translation", "direct_accent"] as ProductPaletteEchoMode[])[(rotationIndex + index) % 3]);
-    const selection = selectSeasonCompatibleSceneCandidates(seededOrder(curationSeed), seasonProfile, recentHistory.slice(-6).map((record) => record.sceneId));
-    const candidates = selection.sceneIds;
-    const requestedId = index === 0 ? requestedScene.sceneId : undefined;
-    const archetype = NON_PRODUCT_ATMOSPHERE_SCENE_REGISTRY[requestedId ?? candidates[index % candidates.length]];
+    const requestedScene = index === 0 ? input.scenePreference : undefined;
+    const resolvedScene = resolveAtmosphereScene({ requestedScene, season: seasonProfile.id, seed: `${curationSeed}:${index}`, excludedArchetypes: [...recentHistory.slice(-6).map((record) => record.sceneId), ...used.map((record) => record.id)] });
+    const { archetype, variant, resolution } = resolvedScene;
+    const variantContent = resolveSceneVariantContent(variant, seasonProfile, `${curationSeed}:${index}:${variant.id}`);
     const fingerprint = sceneFingerprint(archetype);
     if (used.some((previous) => previous.id === fingerprint.id || (previous.dominantPlane === fingerprint.dominantPlane && previous.dominantObject === fingerprint.dominantObject))) throw new AtmosphereCompileError("SCENE_DIVERSITY_DIAGNOSTIC", `SCENE_DIVERSITY_DIAGNOSTIC: card ${index + 1} repeats ${fingerprint.id}, dominant plane, or dominant object.`);
     used.push(fingerprint);
@@ -312,12 +285,12 @@ export function buildNonProductAtmospherePlan(input: BuildNonProductAtmospherePl
     if (usedRoutes.some((previous) => previous.selectedCarrierCategory === route.selectedCarrierCategory)) route.selectedCarrierCategory = "NO_PHYSICAL_CARRIER";
     route.selectedCarrierId = `${archetype.id}:${route.selectedCarrierCategory}`;
     usedRoutes.push(route);
-    const slot: NonProductAtmosphereSlot = { id: `atmosphere-slot-${rotationIndex + index + 1}`, sceneId: fingerprint.id, sceneLabel: archetype.locationLock, sceneLine: archetype.requiredSpatialCues.join("; "), lifeMoment: archetype.lifeTraceDirection, objectCue: archetype.dominantObject, variation, differenceDimensions: [archetype.dominantPlane, archetype.cameraHeight, archetype.depthPattern] };
+    const slot: NonProductAtmosphereSlot = { id: `atmosphere-slot-${rotationIndex + index + 1}`, sceneId: fingerprint.id, sceneLabel: variant.label, sceneLine: variantContent.spatialCue, lifeMoment: variantContent.primaryTrace, objectCue: variantContent.supportingObjects[0] ?? archetype.dominantObject, variation, differenceDimensions: [archetype.dominantPlane, archetype.cameraHeight, archetype.depthPattern, variant.id] };
     const promptPackage: AtmospherePromptPackage = { provider: "image2", generationCount: 1, standaloneImage: true, isolatedGenerationRequired: true, reusePreviousConversation: false, reusePreviousGeneratedImage: false, continuityMode: "STYLE_ONLY_CONTINUITY", productEchoSourceMode: "CURRENT_TASK_REFERENCE_ONLY", referenceAssetIds, externalReferenceAttachmentRequired: true };
-    const compiledPrompt = buildPrompt(archetype, variation, profile, aspectRatio, route, true, season, productPresenceMode, productPaletteEchoMode, input.sceneDirective);
+    const compiledPrompt = buildPrompt(archetype, variant, variantContent, variation, profile, aspectRatio, route, true, season, productPresenceMode, productPaletteEchoMode, input.sceneDirective);
     const seasonFailures = runSeasonConsistencyPromptQA(compiledPrompt.sections, seasonProfile);
     const dominanceFailures = runProductDominancePromptQA(compiledPrompt.sections);
-    const image: NonProductAtmosphereImagePlan = { id: `non-product-atmosphere-${rotationIndex + index + 1}`, index: index + 1, prompt: compiledPrompt.prompt, slot, sceneFingerprint: fingerprint, promptPackage, sceneQA: { expectedSceneMatched: true, requiredSpatialCuesFound: [], missingRequiredSpatialCues: archetype.requiredSpatialCues, forbiddenSceneCuesFound: [], collageDetected: false, repeatedPreviousScene: false, dominantObjectRepeated: false, productEchoSourceValid: true, currentTaskReferenceProvenanceValid: true }, sceneObjectSelection: { selectedObjects: compiledPrompt.selectedObjects, selectionSource: "SCENE_AND_LIFE_TRACE_ONLY", colorIndependentSelection: true }, productEchoRoute: route, productResponsiveProfile: responsiveProfile, visualGrammar, variationSignature: { brandId: brandVisualMother.brand, taskId, cardId: `non-product-atmosphere-${rotationIndex + index + 1}`, curationSeed: `${taskId}:${rotationIndex}`, sceneFamily: SCENE_FAMILY[fingerprint.id], sceneId: fingerprint.id, lifeTraceId: variation.key, dominantPlane: fingerprint.dominantPlane, cameraHeight: fingerprint.cameraHeight, depthPattern: fingerprint.depthPattern, dominantObject: fingerprint.dominantObject, objectBundleFingerprint: `${fingerprint.id}:${fingerprint.dominantObject}`, materialMixFingerprint: `${visualGrammar.materialMixInstruction}:${fingerprint.dominantPlane}`, productEchoPrimaryChannel: route.primaryChannel, productEchoSecondaryChannel: route.secondaryChannel, echoCarrierCategory: route.selectedCarrierCategory, hueUsage: route.hueUsage, valueStructure: responsiveProfile.valueStructure, contrastLevel: responsiveProfile.contrastLevel, edgeDefinition: responsiveProfile.edgeDefinition, shadowBehavior: responsiveProfile.shadowBehavior, visualRhythm: responsiveProfile.visualRhythm, spatialDensity: responsiveProfile.spatialDensity, spatialBoundary: responsiveProfile.spatialBoundary, chromaticRole: responsiveProfile.chromaticRole }, productEchoExpressionQA: { productEchoSourceValid: true, primaryChannelValid: true, nonHueChannelPreferred: route.primaryChannel !== "RESTRAINED_HUE", sceneObjectsSelectedIndependentlyFromColor: true, carrierAlreadyJustifiedByScene: true, literalColorMatchingPropDetected: false, objectInjectedOnlyForHueEcho: false, fullSceneHueThemeDetected: false, repeatedCarrierDetected: false, repeatedPrimaryChannelDetected: false, flowerSelectedBecauseOfProductHue: false, multipleHueCarriersDetected: false }, productReferenceUse: "visual_echo_extraction_only", productPresenceMode, productPaletteEchoMode, seasonSemanticProfileId: seasonProfile.id, seasonGate: { sceneCandidatePassed: true, objectsFilteredBeforePrompt: true, requestedSceneRejected: index === 0 && requestedScene.requestedSceneRejected, usedSeasonNeutralFallback: (index === 0 && requestedScene.usedSeasonNeutralFallback) || selection.usedSeasonNeutralFallback }, seasonConsistencyQA: { capability: "prompt_level_only", passed: seasonFailures.length === 0, failures: seasonFailures, manualReviewRequired: true }, productDominanceQA: { capability: "prompt_level_only", passed: dominanceFailures.length === 0, failures: dominanceFailures, manualReviewRequired: true }, productVisibility: productPresenceMode === "no_product" ? "forbidden" : productPresenceMode === "subtle_supporting_presence" ? "optional_secondary" : "optional_lifestyle_trace", footwearVisibility: productPresenceMode === "no_product" ? "forbidden" : "optional_secondary", personVisibility: "disabled", modelGeneration: "disabled", outfitGeneration: "disabled", onFootGeneration: "disabled" };
+    const image: NonProductAtmosphereImagePlan = { id: `non-product-atmosphere-${rotationIndex + index + 1}`, index: index + 1, prompt: compiledPrompt.prompt, slot, sceneFingerprint: fingerprint, promptPackage, sceneQA: { expectedSceneMatched: true, requiredSpatialCuesFound: [], missingRequiredSpatialCues: archetype.requiredSpatialCues, forbiddenSceneCuesFound: [], collageDetected: false, repeatedPreviousScene: false, dominantObjectRepeated: false, productEchoSourceValid: true, currentTaskReferenceProvenanceValid: true }, sceneObjectSelection: { selectedObjects: compiledPrompt.selectedObjects, selectionSource: "SCENE_AND_LIFE_TRACE_ONLY", colorIndependentSelection: true }, productEchoRoute: route, productResponsiveProfile: responsiveProfile, visualGrammar, variationSignature: { brandId: brandVisualMother.brand, taskId, cardId: `non-product-atmosphere-${rotationIndex + index + 1}`, curationSeed: `${taskId}:${rotationIndex}`, sceneFamily: SCENE_FAMILY[fingerprint.id], sceneId: fingerprint.id, variantId: variant.id, lifeTraceId: variation.key, dominantPlane: fingerprint.dominantPlane, cameraHeight: fingerprint.cameraHeight, depthPattern: fingerprint.depthPattern, dominantObject: fingerprint.dominantObject, objectBundleFingerprint: `${variant.id}:${variantContent.supportingObjects.join("|")}`, materialMixFingerprint: `${visualGrammar.materialMixInstruction}:${fingerprint.dominantPlane}`, productEchoPrimaryChannel: route.primaryChannel, productEchoSecondaryChannel: route.secondaryChannel, echoCarrierCategory: route.selectedCarrierCategory, hueUsage: route.hueUsage, valueStructure: responsiveProfile.valueStructure, contrastLevel: responsiveProfile.contrastLevel, edgeDefinition: responsiveProfile.edgeDefinition, shadowBehavior: responsiveProfile.shadowBehavior, visualRhythm: responsiveProfile.visualRhythm, spatialDensity: responsiveProfile.spatialDensity, spatialBoundary: responsiveProfile.spatialBoundary, chromaticRole: responsiveProfile.chromaticRole }, productEchoExpressionQA: { productEchoSourceValid: true, primaryChannelValid: true, nonHueChannelPreferred: route.primaryChannel !== "RESTRAINED_HUE", sceneObjectsSelectedIndependentlyFromColor: true, carrierAlreadyJustifiedByScene: true, literalColorMatchingPropDetected: false, objectInjectedOnlyForHueEcho: false, fullSceneHueThemeDetected: false, repeatedCarrierDetected: false, repeatedPrimaryChannelDetected: false, flowerSelectedBecauseOfProductHue: false, multipleHueCarriersDetected: false }, productReferenceUse: "visual_echo_extraction_only", productPresenceMode, productPaletteEchoMode, seasonSemanticProfileId: seasonProfile.id, sceneResolution: resolution, sceneVariantContent: variantContent, seasonGate: { sceneCandidatePassed: true, objectsFilteredBeforePrompt: true, requestedSceneRejected: resolution.usedFallback && Boolean(requestedScene), usedSeasonNeutralFallback: resolution.usedFallback }, seasonConsistencyQA: { capability: "prompt_level_only", passed: seasonFailures.length === 0, failures: seasonFailures, manualReviewRequired: true }, productDominanceQA: { capability: "prompt_level_only", passed: dominanceFailures.length === 0, failures: dominanceFailures, manualReviewRequired: true }, productVisibility: productPresenceMode === "no_product" ? "forbidden" : productPresenceMode === "subtle_supporting_presence" ? "optional_secondary" : "optional_lifestyle_trace", footwearVisibility: productPresenceMode === "no_product" ? "forbidden" : "optional_secondary", personVisibility: "disabled", modelGeneration: "disabled", outfitGeneration: "disabled", onFootGeneration: "disabled" };
     image.personVisibility = "forbidden";
     image.promptPackage = { ...image.promptPackage, sceneSelectionMode: "AUTO_CONTROLLED_RANDOM", curationSeed, seedVersion: "v1" };
     return image;

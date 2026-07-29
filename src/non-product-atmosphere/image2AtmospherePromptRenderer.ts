@@ -23,7 +23,7 @@ function wordCount(value: string) { return value.trim().split(/\s+/).filter(Bool
 export function renderImage2AtmospherePrompt(ir: AtmospherePromptIR): string {
   if (!ir.curationPlanPresent) throw new Image2AtmospherePromptRenderError("ATMOSPHERE_CURATION_PLAN_MISSING", "Atmosphere curation plan is required before Provider compilation.");
   const providerText = Object.values(ir.sections).flat().join(" ");
-  if (/mixed|0\.5\s*\/\s*0\.5|softMaterialWeight|provenance|analysisVersion|curationSeed|candidateScores|history/i.test(providerText)) throw new Image2AtmospherePromptRenderError("PRODUCT_PROFILE_PLACEHOLDER_LEAK", "Raw or placeholder Product Profile data reached the Provider IR.");
+  if (/0\.5\s*\/\s*0\.5|softMaterialWeight|provenance|analysisVersion|curationSeed|candidateScores|history/i.test(providerText)) throw new Image2AtmospherePromptRenderError("PRODUCT_PROFILE_PLACEHOLDER_LEAK", "Raw or placeholder Product Profile data reached the Provider IR.");
   const negatives = [...new Set([...ir.sections.negativeConstraints, ...canonicalNegatives])].filter(Boolean);
   const prompt = [
     `Generate exactly one standalone ${ir.outputContract.aspectRatio} portrait photograph. Single scene only.`,

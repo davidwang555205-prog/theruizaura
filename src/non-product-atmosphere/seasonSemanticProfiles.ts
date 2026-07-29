@@ -147,11 +147,12 @@ export function resolveSeasonalSceneCues(input: {
   sceneObjects: string[];
   lifeMoment: string;
   wardrobeTraceAllowed: boolean;
+  wardrobeTrace?: string;
 }): ResolvedSeasonalSceneCues {
-  const { profile, spatialType, sceneId, sceneObjects, lifeMoment, wardrobeTraceAllowed } = input;
+  const { profile, spatialType, sceneId, sceneObjects, lifeMoment, wardrobeTraceAllowed, wardrobeTrace } = input;
   const personPresence: PersonPresence = wardrobeTraceAllowed ? "human_trace_only" : "no_person";
   const wardrobeTraces = wardrobeTraceAllowed
-    ? [`one partial, non-dominant trace of ${profile.allowedWardrobe[0]} appropriate to ${sceneId}`]
+    ? [`${wardrobeTrace ?? "one local garment trace"}, expressed only through ${profile.allowedWardrobe[0]} appropriate to ${sceneId}`]
     : [];
   return {
     atmosphere: profile.atmosphere.slice(0, 2),
