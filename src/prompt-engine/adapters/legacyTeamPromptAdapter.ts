@@ -48,6 +48,7 @@ export function buildPromptProfileInput(
 ): PromptProfileInput {
   const hasShoe = resolveProductPresence(params);
   return {
+    brandId: "theruiz_aura",
     imageType: params.imageType,
     compositionMode: resolveCompositionMode(params),
     scenePreference: params.scenePreference,

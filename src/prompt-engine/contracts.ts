@@ -149,6 +149,7 @@ export type CompiledPromptResult = {
 
 // ─── Prompt Profile ──────────────────────────────────────────
 export type PromptProfileInput = {
+  brandId?: "theruiz_aura";
   imageType: TeamImageType;
   compositionMode: CompositionMode;
   scenePreference: TeamScenePreference;

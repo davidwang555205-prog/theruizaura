@@ -4,6 +4,7 @@ import { COMPOSITION_PROFILES } from "./profiles/compositionProfiles";
 import { IMAGE_TYPE_PROFILES } from "./profiles/imageTypeProfiles";
 import { SCENE_PROFILES } from "./profiles/sceneProfiles";
 import { resolveNonProductAtmospherePromptParts } from "../data/nonProductAtmosphereSceneLines";
+import { getTheruizAuraRealismRules } from "./profiles/theruizAuraRealismProfiles";
 
 // ─── Global hard rules (P0-P2) ──────────────────────────────
 const GLOBAL_HARD_RULES: PromptRule[] = [
@@ -322,6 +323,10 @@ export function collectPromptRules(input: PromptProfileInput): PromptRule[] {
       tags: ["user"],
     });
   }
+
+  // Add brand-scoped realism rules after the established blocks so explicit
+  // conflicts replace legacy defaults instead of being kept behind them.
+  rules.push(...getTheruizAuraRealismRules(input));
 
   return rules;
 }
