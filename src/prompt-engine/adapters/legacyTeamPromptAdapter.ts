@@ -36,10 +36,24 @@ function mapSceneToKey(scene: string): string {
     "美术馆": "galleryExhibition", "书店 / 杂志店门口": "bookstoreMagazine",
     "花店 / 买花": "flowerShop", "朋友午餐": "lightSocial",
     "居家衣帽间": "mirrorCloset", "衣帽间 / 更衣角": "mirrorCloset",
+    "材质工作台": "materialTable", "工作台 / 桌边整理": "materialTable", "拍摄花絮": "materialTable",
+    "窗边阅读": "bookstoreMagazine", "窗边阅读角": "bookstoreMagazine",
     "健身房内": "gymInterior", "棚内上新拍摄": "studioLaunch",
     "社区市集 / 精品买菜": "premiumErrands", "城市街角 / 安静街区": "weekendCityWalk",
   };
   return sceneKeyMap[scene] ?? "weekendCityWalk";
+}
+
+function resolveDefaultVisualRole(params: TeamPromptParams): "A1" | "A3" | "B3" | "B4" | "C1" | "C2" | "C3" | "C4" | "C5" | undefined {
+  if (params.scenePreference === "棚内上新拍摄") {
+    if (params.studioLaunchShotIndex === 1) return "B4";
+    if (params.studioLaunchShotIndex === 2) return "C1";
+    return "B3";
+  }
+  if (params.imageType === "产品静物图") return "C3";
+  if (params.imageType === "拍摄花絮 / 材质图") return "C4";
+  if (params.imageType === "非产品氛围图") return undefined;
+  return "A1";
 }
 
 export function buildPromptProfileInput(
@@ -49,6 +63,13 @@ export function buildPromptProfileInput(
   const hasShoe = resolveProductPresence(params);
   return {
     brandId: "theruiz_aura",
+    provider: "image2",
+    topicId: params.topicId ?? (params.scenePreference === "棚内上新拍摄"
+      ? "studio_launch_shoot"
+      : params.imageType === "生活场景图"
+        ? "lifestyle_soft_seeding"
+        : undefined),
+    activeVisualRoleId: params.activeVisualRoleId ?? resolveDefaultVisualRole(params),
     imageType: params.imageType,
     compositionMode: resolveCompositionMode(params),
     scenePreference: params.scenePreference,
@@ -65,6 +86,20 @@ export function buildPromptProfileInput(
     seriesImageCount: params.seriesImageCount,
     studioShotIndex: params.studioLaunchShotIndex,
     generationNonce: params.generationNonce,
+    selectedProductTruth: params.selectedProductTruth,
+    productTruthProvenance: params.productTruthAssetIds
+      ? { source: "current_task_uploaded_images", assetIds: params.productTruthAssetIds }
+      : undefined,
+    referencePlan: params.referencePlan,
+    strictProduction: params.strictProduction,
+    cardRole: params.seriesActionFamily,
+    cardFraming: params.seriesPoseType,
+    cardOrientation: params.seriesActionBodyOrientation,
+    actionLock: params.seriesActionDirective,
+    sceneLock: params.scenePreference === "棚内上新拍摄" ? "professional studio launch set" : undefined,
+    identityContinuity: params.modelContinuity === "延续上一组人物" ? "same selected person identity" : undefined,
+    outfitContinuity: params.lockedOutfitLine ? "same locked outfit across the series" : undefined,
+    studioContinuity: params.scenePreference === "棚内上新拍摄" ? "same studio backdrop, light direction, and color grade" : undefined,
   };
 }
 

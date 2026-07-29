@@ -1,3 +1,5 @@
+import type { ProductTruth } from "./visual-system/types";
+
 export type AppTab = "product" | "atmosphere" | "templates";
 
 export type BuilderMode = "product" | "atmosphere";
@@ -321,6 +323,12 @@ export type TeamPromptParams = {
   forceGeneratedOutfitSelection?: boolean;
   forceNoHandheldObject?: boolean;
   seriesActionBodyOrientation?: string;
+  selectedProductTruth?: ProductTruth;
+  productTruthAssetIds?: string[];
+  referencePlan?: { assetIds: string[]; order: string[] };
+  strictProduction?: boolean;
+  topicId?: string;
+  activeVisualRoleId?: import("./visual-system/activePromptRegistry").ThemePromptRole;
 };
 
 export type TeamPromptOutput = {

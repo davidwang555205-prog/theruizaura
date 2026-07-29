@@ -89,7 +89,7 @@ export const SCENE_PROFILES: Record<string, { label: string; rules: PromptRule[]
   studioLaunch: {
     label: "棚内上新拍摄",
     rules: [
-      { id: "scene-studio-launch", section: "scene", text: "Use a physically believable professional studio with a seamless backdrop meeting the floor naturally, consistent light direction, accurate material colors, and generous clean negative space.", priority: PromptPriority.P4_SCENE_AND_ACTION, source: "scene-profile", appliesWhen: {}, tags: ["scene"] },
+      { id: "scene-studio-launch", section: "scene", text: "Use a physically believable professional studio with a seamless backdrop meeting the floor naturally, consistent light direction, accurate material colors, and generous clean negative space.", priority: PromptPriority.P1_PRODUCT_HARD_LOCK, source: "scene-profile", appliesWhen: {}, required: true, tags: ["scene", "studio-lock"] },
     ],
   },
 };

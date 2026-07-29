@@ -5,6 +5,22 @@ import { IMAGE_TYPE_PROFILES } from "./profiles/imageTypeProfiles";
 import { SCENE_PROFILES } from "./profiles/sceneProfiles";
 import { resolveNonProductAtmospherePromptParts } from "../data/nonProductAtmosphereSceneLines";
 import { getTheruizAuraRealismRules } from "./profiles/theruizAuraRealismProfiles";
+import { getTeamModelProfile } from "../data/teamModelProfiles";
+import { getActivePromptRegistryEntry } from "../visual-system/activePromptRegistry";
+import { resolveTopicRoute } from "../visual-system/topicRoutingRegistry";
+
+const ACTIVE_ROLE_DIRECTIVES: Record<string, string> = {
+  A1: "Active visual role: relaxed daily-life framing with natural body weight, believable daylight, and a readable sneaker inside an ordinary lived-in scene.",
+  A2: "Active visual role: transitional urban movement near a threshold with credible weight transfer and observational composition.",
+  A3: "Active visual role: interior daily-life moment with tactile relationships between person, clothing, furniture, and product plus one believable small action.",
+  B3: "Active visual role: official studio front full-body composition with clean silhouette separation, natural scale, readable floor contact, and restrained studio light.",
+  B4: "Active visual role: official studio three-quarter composition with relaxed weight transfer, complete outfit balance, and structurally readable sneaker silhouette.",
+  C1: "Active visual role: complete lateral product profile with toe-to-heel structure, quiet surface, and plausible contact shadow.",
+  C2: "Active visual role: natural on-foot detail with clear shoe-to-floor and garment relationships.",
+  C3: "Active visual role: restrained paired-product still life with accurate scale, deliberate spacing, tactile material contrast, and grounded contact shadows.",
+  C4: "Active visual role: material-craft close-up focused on heel, collar, stitching, material boundary, and outsole termination.",
+  C5: "Active visual role: true overhead top-down product evidence with toe box, tongue, laces, panel geometry, and consistent material detail fully readable."
+};
 
 // ─── Global hard rules (P0-P2) ──────────────────────────────
 const GLOBAL_HARD_RULES: PromptRule[] = [
@@ -214,6 +230,48 @@ const GLOBAL_NEGATIVE_RULES: PromptRule[] = [
 export function collectPromptRules(input: PromptProfileInput): PromptRule[] {
   const rules: PromptRule[] = [];
 
+  if (input.topicId) resolveTopicRoute(input.topicId === "studio_launch_shoot" ? "棚内上新拍摄" : input.topicId === "lifestyle_soft_seeding" ? "生活场景软种草" : input.topicId);
+  if (input.activeVisualRoleId) {
+    const entry = getActivePromptRegistryEntry(input.activeVisualRoleId);
+    rules.push({
+      id: `active-visual-role-${entry.role}`,
+      section: "brand",
+      text: ACTIVE_ROLE_DIRECTIVES[entry.role],
+      priority: PromptPriority.P1_PRODUCT_HARD_LOCK,
+      source: "theme-card",
+      appliesWhen: {},
+      required: true,
+      tags: ["active-prompt-registry", "image2", entry.activeSelection]
+    });
+  }
+
+  const peopleImage = ["产品上脚图", "对镜穿搭图", "生活场景图"].includes(input.imageType);
+  const identityVisible = !["studioOnFootDetail", "studioLowerThird", "stillLife", "materialDetail", "atmosphere"].includes(input.compositionMode);
+  const modelProfile = input.modelChoice ? getTeamModelProfile(input.modelChoice) : null;
+  const modelSelectionRule: PromptRule | null = modelProfile ? {
+    id: `model-selection-${input.modelChoice}`,
+    section: "model",
+    text: modelProfile.promptLine,
+    priority: PromptPriority.P1_PRODUCT_HARD_LOCK,
+    source: "identity-profile",
+    appliesWhen: {},
+    required: true,
+    tags: ["model", "selection", "user-specified"]
+  } : null;
+  const modelSelectionNegativeRule: PromptRule | null = modelProfile ? {
+    id: `model-selection-negative-${input.modelChoice}`,
+    section: "negative",
+    text: `Avoid ${modelProfile.negativePhrases.join(", ")}.`,
+    priority: PromptPriority.P1_PRODUCT_HARD_LOCK,
+    source: "identity-profile",
+    appliesWhen: {},
+    required: true,
+    tags: ["model", "selection", "negative"]
+  } : null;
+  if (peopleImage && identityVisible && modelSelectionRule && modelSelectionNegativeRule) {
+    rules.push(modelSelectionRule, modelSelectionNegativeRule);
+  }
+
   // 1. Global hard rules
   for (const rule of GLOBAL_HARD_RULES) {
     if (matchesPredicate(rule.appliesWhen, input)) rules.push(rule);
@@ -327,6 +385,47 @@ export function collectPromptRules(input: PromptProfileInput): PromptRule[] {
   // Add brand-scoped realism rules after the established blocks so explicit
   // conflicts replace legacy defaults instead of being kept behind them.
   rules.push(...getTheruizAuraRealismRules(input));
+
+  if (peopleImage && input.seriesImageCount && input.seriesImageCount > 1 && Number.isInteger(input.seriesImageIndex)) {
+    const index = input.seriesImageIndex! + 1;
+    const count = input.seriesImageCount;
+    rules.push({
+      id: "card-series-context",
+      section: "continuity",
+      text: `This is image ${index} of ${count}. Preserve the same selected person, outfit, sneaker, and ${input.sceneLock ? "locked scene" : "scene continuity"}; vary only the card-specific framing, orientation, action phase, gaze, and expression.`,
+      priority: PromptPriority.P0_USER_SPECIFIED,
+      source: "theme-card",
+      appliesWhen: {},
+      required: true,
+      tags: ["card", "continuity", "multi-image"]
+    });
+  }
+
+  if (input.actionLock && peopleImage) {
+    rules.push({
+      id: "card-action-lock",
+      section: "action",
+      text: `Action Lock: ${input.actionLock} This is the only primary body action for this card; do not add another walking, arrival, adjustment, or object-operation action.`,
+      priority: PromptPriority.P0_USER_SPECIFIED,
+      source: "theme-card",
+      appliesWhen: {},
+      required: true,
+      tags: ["card", "action-lock"]
+    });
+  }
+
+  if (input.sceneLock) {
+    rules.push({
+      id: "card-scene-lock",
+      section: "scene",
+      text: `Scene Lock: ${input.sceneLock} Do not introduce an alternative location or scene route.`,
+      priority: PromptPriority.P0_USER_SPECIFIED,
+      source: "theme-card",
+      appliesWhen: {},
+      required: true,
+      tags: ["card", "scene-lock"]
+    });
+  }
 
   return rules;
 }

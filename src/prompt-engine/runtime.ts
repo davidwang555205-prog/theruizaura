@@ -16,6 +16,10 @@ export type PromptRuntimeDiagnostics = {
   budgetReport?: CompiledPromptResult["budgetReport"];
   validationReport?: CompiledPromptResult["validationReport"];
   diffSummary?: string;
+  strictProduction: boolean;
+  productTruthBound: boolean;
+  productionReady: boolean;
+  productionDiagnostics: string[];
 };
 
 export type PromptRuntimeResult = {
@@ -44,7 +48,7 @@ export function generatePromptRuntime(params: TeamPromptParams): PromptRuntimeRe
   const config = getPromptEngineConfig();
   if (config.mode === "legacy") {
     const legacy = legacyGenerateTeamPrompt(params);
-    return { prompt: legacy.prompt, selectedOutfitLine: legacy.selectedOutfitLine, diagnostics: { mode: "legacy", legacyWordCount: countWords(legacy.prompt) } };
+    return { prompt: legacy.prompt, selectedOutfitLine: legacy.selectedOutfitLine, diagnostics: { mode: "legacy", legacyWordCount: countWords(legacy.prompt), strictProduction: false, productTruthBound: false, productionReady: false, productionDiagnostics: ["LEGACY_RUNTIME_NOT_PRODUCTION_READY"] } };
   }
 
   // The structured compiler owns final prompt assembly, while the established
@@ -64,6 +68,10 @@ export function generatePromptRuntime(params: TeamPromptParams): PromptRuntimeRe
     conflicts: compiled.conflicts,
     budgetReport: compiled.budgetReport,
     validationReport: compiled.validationReport,
+    strictProduction: compiled.metadata?.strictProduction ?? false,
+    productTruthBound: compiled.metadata?.productTruthBound ?? false,
+    productionReady: compiled.metadata?.productionReady ?? false,
+    productionDiagnostics: compiled.metadata?.diagnostics ?? [],
   } satisfies PromptRuntimeDiagnostics;
 
   if (config.mode === "compare") {

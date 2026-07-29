@@ -58,7 +58,7 @@ export const COMPOSITION_PROFILES: Record<CompositionMode, { label: string; rule
     label: "Still Life",
     rules: [
       { id: "comp-still-product", section: "product", text: "The sneaker is the absolute subject. Keep accurate color, material texture, panel boundaries, laces, outsole, and product scale. Use a clean matte surface with diffused light.", priority: PromptPriority.P3_COMPOSITION_AND_VISIBILITY, source: "composition-profile", appliesWhen: {}, tags: ["composition"] },
-      { id: "comp-still-no-person", section: "model", text: "No person, face, body, or action rules apply. The product stands alone with clean negative space.", priority: PromptPriority.P3_COMPOSITION_AND_VISIBILITY, source: "composition-profile", appliesWhen: {}, required: true, tags: ["composition"], conflictsWith: ["model-identity-real-person"] },
+      { id: "comp-still-no-person", section: "model", text: "The product stands alone with clean negative space; human presence and action are excluded from this still-life frame.", priority: PromptPriority.P3_COMPOSITION_AND_VISIBILITY, source: "composition-profile", appliesWhen: {}, required: true, tags: ["composition"], conflictsWith: ["model-identity-real-person"] },
     ],
   },
   materialDetail: {

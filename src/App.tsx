@@ -274,7 +274,12 @@ function App() {
   };
 
   const handleGenerate = () => {
-    const nextParams = { ...params, generationNonce: params.generationNonce + 1 };
+    const nextParams = {
+      ...params,
+      productTruthAssetIds: referenceImages.map((image) => image.id),
+      referencePlan: { assetIds: referenceImages.map((image) => image.id), order: referenceImages.map((image) => image.id) },
+      generationNonce: params.generationNonce + 1
+    };
     setParams(nextParams);
     setGeneratedPrompt(generatePromptRuntime(nextParams).prompt);
     setCopyStatus("");
@@ -283,7 +288,12 @@ function App() {
 
   const syncPromptParams = () => {
     if (!hasPendingChanges) return params;
-    const syncedParams = { ...params, generationNonce: params.generationNonce + 1 };
+    const syncedParams = {
+      ...params,
+      productTruthAssetIds: referenceImages.map((image) => image.id),
+      referencePlan: { assetIds: referenceImages.map((image) => image.id), order: referenceImages.map((image) => image.id) },
+      generationNonce: params.generationNonce + 1
+    };
     setParams(syncedParams);
     setGeneratedPrompt(generatePromptRuntime(syncedParams).prompt);
     setHasPendingChanges(false);
@@ -781,6 +791,10 @@ function App() {
             <div data-testid="generated-prompt" className="aura-scrollbar min-h-[430px] whitespace-pre-wrap rounded-[22px] border border-aura-beige bg-white/75 p-5 text-sm leading-7 text-aura-charcoal shadow-inner lg:max-h-[610px] lg:overflow-y-auto">
               {generatedPrompt}
             </div>
+
+            <p role="status" className="mt-3 rounded-[18px] bg-aura-cream px-4 py-3 text-sm leading-6 text-aura-muted ring-1 ring-aura-beige/70">
+              Draft 模式：当前仅绑定上传参考资产 ID，尚未绑定结构化 Product Truth；该 Prompt 可用于外部 Image2 手动复制，但不是 production-ready。严格生产编译会在缺少 Product Truth 或 Reference Plan 时阻断。
+            </p>
 
             {copyStatus && <p className="mt-3 text-sm text-aura-muted">{copyStatus}</p>}
 

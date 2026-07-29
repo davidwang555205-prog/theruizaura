@@ -1,5 +1,7 @@
 import type { TeamImageType, TeamScenePreference, TeamSeason, TeamModelChoice, TeamGarmentTypePreference } from "../types";
 import type { StandardSceneKey } from "../data/outfitDiversityRules";
+import type { ProductTruth } from "../visual-system/types";
+import type { ThemePromptRole } from "../visual-system/activePromptRegistry";
 
 // ─── Composition Mode ────────────────────────────────────────
 export type CompositionMode =
@@ -145,6 +147,19 @@ export type CompiledPromptResult = {
   conflicts: ResolvedPromptConflict[];
   budgetReport: PromptBudgetReport;
   validationReport: PromptValidationReport;
+  metadata?: {
+    provider: "image2";
+    topicId?: string;
+    activeVisualRoleId?: ThemePromptRole;
+    activePromptVersionId?: string;
+    productTruthProvenance?: PromptProfileInput["productTruthProvenance"];
+    referencePlan?: PromptProfileInput["referencePlan"];
+    card?: { index?: number; count?: number; role?: string; framing?: string; orientation?: string };
+    strictProduction: boolean;
+    productTruthBound: boolean;
+    productionReady: boolean;
+    diagnostics: string[];
+  };
 };
 
 // ─── Prompt Profile ──────────────────────────────────────────
@@ -171,6 +186,21 @@ export type PromptProfileInput = {
   studioLaunchPreset?: string;
   studioWardrobePreference?: string;
   generationNonce: number;
+  provider?: "image2";
+  topicId?: string;
+  activeVisualRoleId?: ThemePromptRole;
+  selectedProductTruth?: ProductTruth;
+  productTruthProvenance?: { source: "current_task_uploaded_images"; assetIds: string[] };
+  referencePlan?: { assetIds: string[]; order: string[] };
+  cardRole?: string;
+  cardFraming?: string;
+  cardOrientation?: string;
+  actionLock?: string;
+  sceneLock?: string;
+  identityContinuity?: string;
+  outfitContinuity?: string;
+  studioContinuity?: string;
+  strictProduction?: boolean;
 };
 
 // ─── Engine Mode ─────────────────────────────────────────────

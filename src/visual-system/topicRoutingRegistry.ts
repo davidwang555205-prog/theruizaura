@@ -39,7 +39,7 @@ export const topicRoutingRegistry: TopicRoute[] = [
 
 const topicByLabel = new Map(topicRoutingRegistry.map((route) => [route.userFacingLabel, route]));
 export function resolveTopicRoute(label: string): TopicRoute {
-  const route = topicByLabel.get(label);
+  const route = topicByLabel.get(label) ?? topicRoutingRegistry.find((item) => item.topicId === label);
   if (!route) throw new Error(`Unregistered user content topic: ${label}.`);
   return route;
 }

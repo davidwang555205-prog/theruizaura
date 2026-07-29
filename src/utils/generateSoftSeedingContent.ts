@@ -3462,6 +3462,13 @@ function buildImagePlan(
     ...shoeFields,
     imageType: draft.imageType,
     scenePreference: draft.scenePreference,
+    topicId: topic === "棚内上新拍摄"
+      ? "studio_launch_shoot"
+      : topic === "生活场景软种草"
+        ? "lifestyle_soft_seeding"
+        : topic === "穿搭解决方案"
+          ? "styling_solution"
+          : undefined,
     garmentTypePreference,
     season: resolveBaseSeason(baseParams.season, draft.season),
     modelChoice: baseParams.modelChoice,

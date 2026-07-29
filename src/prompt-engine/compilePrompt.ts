@@ -4,8 +4,16 @@ import { resolvePromptConflicts } from "./resolvePromptConflicts";
 import { allocatePromptBudget } from "./allocatePromptBudget";
 import { validateCompiledPrompt } from "./validateCompiledPrompt";
 import type { PromptProfileInput } from "./contracts";
+import { getActivePromptRegistryEntry } from "../visual-system/activePromptRegistry";
 
 export function compilePrompt(input: PromptProfileInput): CompiledPromptResult {
+  const missingProductionInputs = [
+    input.selectedProductTruth ? "" : "MISSING_CURRENT_TASK_PRODUCT_TRUTH",
+    input.referencePlan ? "" : "MISSING_REFERENCE_PLAN",
+  ].filter(Boolean);
+  if (input.strictProduction && missingProductionInputs.length > 0) {
+    throw new Error(missingProductionInputs.join(","));
+  }
   // Phase 1: Collect
   const allRules = collectPromptRules(input);
 
@@ -52,5 +60,33 @@ export function compilePrompt(input: PromptProfileInput): CompiledPromptResult {
     conflicts,
     budgetReport,
     validationReport,
+    metadata: {
+      provider: input.provider ?? "image2",
+      topicId: input.topicId,
+      activeVisualRoleId: input.activeVisualRoleId,
+      activePromptVersionId: input.activeVisualRoleId
+        ? getActivePromptRegistryEntry(input.activeVisualRoleId).activeVersionId
+        : undefined,
+      productTruthProvenance: input.productTruthProvenance,
+      referencePlan: input.referencePlan,
+      card: {
+        index: input.seriesImageIndex !== undefined ? input.seriesImageIndex + 1 : undefined,
+        count: input.seriesImageCount,
+        role: input.cardRole,
+        framing: input.cardFraming,
+        orientation: input.cardOrientation,
+      },
+      strictProduction: input.strictProduction === true,
+      productTruthBound: Boolean(input.selectedProductTruth),
+      productionReady: Boolean(input.selectedProductTruth && input.referencePlan),
+      diagnostics: [
+        ...(input.brandId === "theruiz_aura" && !input.selectedProductTruth
+          ? ["MISSING_CURRENT_TASK_PRODUCT_TRUTH"]
+          : []),
+        ...(input.brandId === "theruiz_aura" && !input.referencePlan
+          ? ["MISSING_REFERENCE_PLAN"]
+          : []),
+      ],
+    },
   };
 }

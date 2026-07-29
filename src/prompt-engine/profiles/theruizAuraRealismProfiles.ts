@@ -96,7 +96,23 @@ const NEGATIVE_RISK: PromptRule = {
 
 export function getTheruizAuraRealismRules(input: PromptProfileInput): PromptRule[] {
   if (input.brandId !== THERUIZ_AURA_BRAND_ID) return [];
-  return [HUMAN_STATE, ACTION_STATE, COMPOSITION_STATE, SCENE_STATE, LIGHTING_STATE, PRODUCT_PRESENTATION, PHYSICAL_INTEGRITY, NEGATIVE_RISK]
+  const isStillLife = input.compositionMode === "stillLife" || input.compositionMode === "materialDetail";
+  const isAtmosphere = input.compositionMode === "atmosphere" || input.imageType === "非产品氛围图";
+  const isStudio = input.scenePreference === "棚内上新拍摄";
+  const rules = isAtmosphere
+    ? []
+    : isStillLife
+      ? []
+      : isStudio
+        ? [HUMAN_STATE, COMPOSITION_STATE, LIGHTING_STATE, PRODUCT_PRESENTATION, PHYSICAL_INTEGRITY, NEGATIVE_RISK]
+        : [HUMAN_STATE, ACTION_STATE, COMPOSITION_STATE, SCENE_STATE, LIGHTING_STATE, PRODUCT_PRESENTATION, PHYSICAL_INTEGRITY, NEGATIVE_RISK];
+  return rules
+    .map((rule) => isStudio && rule.id === HUMAN_STATE.id
+      ? {
+          ...rule,
+          text: "Make the selected person feel real and unperformed in a controlled professional studio. Keep natural facial tension, subtle hair and fabric texture, relaxed shoulders, believable body asymmetry, and a calm expression responding to the pose rather than performing for the lens. Direct eye contact may appear when the selected studio role requires it, but avoid mannequin-like stillness or campaign-face perfection."
+        }
+      : rule)
     .filter((rule) => {
       const modes = rule.appliesWhen.compositionModes;
       return !modes || modes.includes(input.compositionMode);
