@@ -8,13 +8,20 @@ const root = resolve(import.meta.dirname, "..");
 const dir = await mkdtemp(join(tmpdir(), "theruizaura-atmosphere-module-"));
 const entry = join(dir, "entry.ts");
 const bundle = join(dir, "bundle.mjs");
-await writeFile(entry, `export * from ${JSON.stringify(resolve(root, "src/non-product-atmosphere/index.ts"))};\n`);
+await writeFile(entry, `export * from ${JSON.stringify(resolve(root, "src/non-product-atmosphere/index.ts"))};\nexport { compilePrompt } from ${JSON.stringify(resolve(root, "src/prompt-engine/compilePrompt.ts"))};\n`);
 await build({ entryPoints: [entry], bundle: true, outfile: bundle, format: "esm", platform: "node", target: "node20", logLevel: "silent" });
 const module = await import(`${pathToFileURL(bundle).href}?v=${Date.now()}`);
-const { buildNonProductAtmospherePlan, NON_PRODUCT_ATMOSPHERE_COUNTS, NON_PRODUCT_ATMOSPHERE_ASPECT_RATIOS, NON_PRODUCT_ATMOSPHERE_CONTENT_TYPE, NON_PRODUCT_ATMOSPHERE_PROVIDER, SEASON_SEMANTIC_PROFILES } = module;
+const { buildNonProductAtmospherePlan, compilePrompt, resolveRequestedAtmosphereScene, selectSeasonCompatibleSceneCandidates, runSeasonConsistencyPromptQA, NON_PRODUCT_ATMOSPHERE_COUNTS, NON_PRODUCT_ATMOSPHERE_ASPECT_RATIOS, NON_PRODUCT_ATMOSPHERE_CONTENT_TYPE, NON_PRODUCT_ATMOSPHERE_PROVIDER, SEASON_SEMANTIC_PROFILES } = module;
 const failures = [];
 const fail = (message) => failures.push(message);
 const internalLeak = /curationSeed|candidateScores|analysisVersion|provenance|history|0\.5|softMaterialWeight|CARRIER DIVERSITY LOCK|PRODUCT AND BRAND RESPONSIBILITY|Provider boundary|website-uploaded/i;
+
+const promptInput = (season, scenePreference, overrides = {}) => ({
+  brandId: "theruiz_aura", provider: "image2", imageType: "非产品氛围图", compositionMode: "atmosphere",
+  scenePreference, season, modelChoice: "自动匹配", modelContinuity: "新人物", hasShoe: false,
+  garmentTypePreference: "自动匹配", userExtraRequirement: "", isMultiImage: false, generationNonce: 0,
+  ...overrides
+});
 
 if (NON_PRODUCT_ATMOSPHERE_CONTENT_TYPE !== "non_product_atmosphere") fail("content type is not isolated");
 if (NON_PRODUCT_ATMOSPHERE_PROVIDER !== "image2") fail("provider is not Image2 only");
@@ -68,6 +75,8 @@ for (const [id, season, productPaletteClass, productPresenceMode, productPalette
   if (image.productPresenceMode !== productPresenceMode || image.productPaletteEchoMode !== productPaletteEchoMode) fail(`${id}: role or palette strategy changed unexpectedly`);
   if (!image.sceneObjectSelection.colorIndependentSelection) fail(`${id}: product palette selected scene objects`);
   if (image.seasonSemanticProfileId !== seasonId || !image.seasonGate.sceneCandidatePassed || !image.seasonGate.objectsFilteredBeforePrompt) fail(`${id}: season gate metadata missing`);
+  if (!image.prompt.includes("ACTIVE VISUAL SYSTEM") || !image.seasonConsistencyQA.passed || !image.productDominanceQA.passed) fail(`${id}: AVS or full Prompt QA missing`);
+  if (!["ENTRYWAY_DEPARTURE", "WARDROBE_MORNING", "HOTEL_TRAVEL"].includes(image.sceneFingerprint.id) && /Human trace:/i.test(image.prompt)) fail(`${id}: wardrobe trace entered a no-person scene`);
   if (/product (is|as) (the )?(hero|visual center|primary subject)/i.test(image.prompt)) fail(`${id}: product became dominant`);
   if (productPresenceMode === "no_product" && /preserve only the visible structure/i.test(image.prompt)) fail(`${id}: Product Truth expanded in no-product mode`);
 }
@@ -77,6 +86,45 @@ for (const profile of Object.values(SEASON_SEMANTIC_PROFILES)) {
 const summerDarkAccent = buildNonProductAtmospherePlan({ quantity: 1, taskId: "summer-dark-downgrade", referenceAssetIds: ["dark-ref"], season: "夏", productPaletteClass: "dark", productPresenceMode: "subtle_supporting_presence", productPaletteEchoMode: "direct_accent" }).images[0];
 if (summerDarkAccent.productPaletteEchoMode !== "material_translation") fail("summer dark direct accent did not downgrade");
 if (/wool coat|chunky sweater|fireplace|winter domestic mood/i.test(summerDarkAccent.prompt.split("Exclude conflicting seasonal semantics")[0])) fail("dark palette overrode summer semantics");
+
+const conflictCases = [
+  ["winter-amusement", "冬", "暑假游乐园", /summer amusement|park map|sun hat|paper wristband/i],
+  ["summer-entryway", "夏", "玄关出门", /\bcoat\b|wool|thick knit|scarf/i],
+  ["spring-mediterranean", "春", "海边度假", /Mediterranean|seaside|limestone promenade|coastal lane/i],
+];
+for (const [id, season, scenePreference, forbidden] of conflictCases) {
+  const dedicated = buildNonProductAtmospherePlan({ quantity: 1, taskId: id, referenceAssetIds: [`${id}-ref`], season, scenePreference, productPresenceMode: "no_product", productPaletteEchoMode: "brand_neutral" }).images[0];
+  const generic = compilePrompt(promptInput(season, scenePreference, { atmosphereProductPresenceMode: "no_product", atmosphereProductPaletteEchoMode: "brand_neutral" }));
+  const dedicatedPositive = dedicated.prompt.split("Exclude conflicting seasonal semantics")[0];
+  const genericPositive = generic.prompt.split("Exclude conflicting seasonal semantics")[0];
+  if (forbidden.test(dedicatedPositive) || forbidden.test(genericPositive)) fail(`${id}: requested scene conflict leaked through a compiler path`);
+  if (generic.prompt !== buildNonProductAtmospherePlan({ quantity: 1, taskId: "prompt-builder-0", previewWithoutReference: true, season, scenePreference, productPresenceMode: "no_product", productPaletteEchoMode: "brand_neutral" }).images[0].prompt) fail(`${id}: dedicated and generic compilers diverged`);
+  if (!dedicated.seasonGate.requestedSceneRejected && id !== "summer-entryway") fail(`${id}: incompatible requested scene was not rejected`);
+}
+
+const winterCafe = buildNonProductAtmospherePlan({ quantity: 1, taskId: "winter-cafe", referenceAssetIds: ["winter-ref"], season: "冬", scenePreference: "咖啡店门口", productPresenceMode: "no_product" }).images[0];
+if (/blanket|indoor reading|contained residential warmth|wool coat|thick knit/i.test(winterCafe.prompt)) fail("winter outdoor cafe inherited blanket, indoor, residential, or wardrobe defaults");
+if (!/clear cold urban air/i.test(winterCafe.prompt)) fail("winter outdoor cafe lost outdoor spatial semantics");
+if (/Human trace:/i.test(winterCafe.prompt) || /wool coat|thick knit|scarf/i.test(winterCafe.prompt)) fail("no-person outdoor scene received wardrobe instructions");
+const winterWardrobe = buildNonProductAtmospherePlan({ quantity: 1, taskId: "winter-wardrobe", referenceAssetIds: ["winter-ref"], season: "冬", scenePreference: "居家衣帽间" }).images[0];
+if ((winterWardrobe.prompt.match(/Human trace:/g) ?? []).length !== 1) fail("wardrobe scene did not receive exactly one justified human trace");
+
+for (const prompt of [winterCafe.prompt, winterWardrobe.prompt]) {
+  if (!prompt.includes("ACTIVE VISUAL SYSTEM") || prompt.indexOf("ACTIVE VISUAL SYSTEM") > prompt.indexOf("SEASON AUTHORITY")) fail("Active Visual System missing or ordered after season");
+  if (/reference.+(?:determine|control).+(?:global|whole image|light temperature|seasonal feeling|material weight)/i.test(prompt)) fail("Product Echo escaped its local boundary");
+}
+
+const emptySections = { moduleDefinition: [], activeVisualSystem: [], seasonIdentity: ["SEASON AUTHORITY — summer"], positiveSeasonCues: [], scene: ["summer-safe scene"], productPresence: [], paletteEcho: [], productTruth: [], composition: [], negativeConstraints: ["Exclude conflicting seasonal semantics"] };
+if (runSeasonConsistencyPromptQA({ ...emptySections, scene: ["summer-safe scene with a wool coat"] }, SEASON_SEMANTIC_PROFILES.summer).length === 0) fail("season QA did not inspect content after the negative/conflict section boundary");
+if (resolveRequestedAtmosphereScene("暑假游乐园", "winter").sceneId !== "MATERIAL_LIGHT_SPACE" || !resolveRequestedAtmosphereScene("暑假游乐园", "winter").usedSeasonNeutralFallback) fail("incompatible requested scene did not fail closed");
+if (resolveRequestedAtmosphereScene("未注册场景", "spring").sceneId !== "MATERIAL_LIGHT_SPACE") fail("unknown requested scene did not use neutral fallback");
+const forcedEmpty = selectSeasonCompatibleSceneCandidates(["ENTRYWAY_DEPARTURE", "CAFE_FRONT"], { ...SEASON_SEMANTIC_PROFILES.summer, conflictsWith: [""] });
+if (forcedEmpty.sceneIds.join(",") !== "MATERIAL_LIGHT_SPACE" || !forcedEmpty.usedSeasonNeutralFallback) fail("empty compatible candidate set reopened the unfiltered scene pool");
+
+const unrelated = compilePrompt({ ...promptInput("夏", "玄关出门"), brandId: undefined, imageType: "产品静物图", compositionMode: "stillLife" });
+if (/ACTIVE VISUAL SYSTEM|Non-Product-Led Atmosphere|SEASON AUTHORITY/.test(unrelated.prompt)) fail("atmosphere system polluted a non-THERUIZ or non-atmosphere prompt");
+const unbrandedAtmosphere = compilePrompt({ ...promptInput("夏", "玄关出门"), brandId: undefined });
+if (/ACTIVE VISUAL SYSTEM|Brand Visual Mother/.test(unbrandedAtmosphere.prompt)) fail("THERUIZ Active Visual System polluted an unbranded atmosphere prompt");
 
 if (failures.length) { console.error(`Non-product atmosphere module failed: ${failures.length}`); for (const failure of failures) console.error(`FAIL: ${failure}`); process.exitCode = 1; } else console.log("Non-product atmosphere compact Image2 Prompt compiler passed.");
 await rm(dir, { recursive: true, force: true });

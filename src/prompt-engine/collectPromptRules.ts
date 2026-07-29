@@ -3,7 +3,7 @@ import { PromptPriority } from "./contracts";
 import { COMPOSITION_PROFILES } from "./profiles/compositionProfiles";
 import { IMAGE_TYPE_PROFILES } from "./profiles/imageTypeProfiles";
 import { SCENE_PROFILES } from "./profiles/sceneProfiles";
-import { resolveNonProductAtmospherePromptParts } from "../data/nonProductAtmosphereSceneLines";
+import { buildNonProductAtmospherePlan } from "../non-product-atmosphere";
 import { getTheruizAuraRealismRules } from "./profiles/theruizAuraRealismProfiles";
 import { getTeamModelProfile } from "../data/teamModelProfiles";
 import { getActivePromptRegistryEntry } from "../visual-system/activePromptRegistry";
@@ -219,6 +219,32 @@ const GLOBAL_NEGATIVE_RULES: PromptRule[] = [
 ];
 
 export function collectPromptRules(input: PromptProfileInput): PromptRule[] {
+  if (input.brandId === "theruiz_aura" && input.imageType === "非产品氛围图") {
+    const atmosphere = buildNonProductAtmospherePlan({
+      quantity: 1,
+      generationNonce: input.generationNonce,
+      season: input.season,
+      scenePreference: input.scenePreference,
+      taskId: `prompt-builder-${input.generationNonce}`,
+      referenceAssetIds: input.productTruthProvenance?.assetIds ?? [],
+      referenceImageCount: input.productTruthProvenance?.assetIds.length ?? 0,
+      previewWithoutReference: true,
+      productPresenceMode: input.atmosphereProductPresenceMode,
+      productPaletteEchoMode: input.atmosphereProductPaletteEchoMode,
+      productPaletteClass: input.atmosphereProductPaletteClass,
+      sceneDirective: input.actionLock,
+    });
+    return [{
+      id: "theruiz-atmosphere-shared-compiler",
+      section: "scene",
+      text: atmosphere.images[0].prompt,
+      priority: PromptPriority.P0_USER_SPECIFIED,
+      source: "brand-profile",
+      appliesWhen: {},
+      required: true,
+      tags: ["theruiz-aura", "atmosphere", "shared-compiler", "image2"]
+    }];
+  }
   const rules: PromptRule[] = [];
 
   if (input.hasShoe) rules.push({ id: "product-accuracy-current-task-reference", section: "product", text: productTruthPromptLines(input.selectedProductTruth).join(" "), priority: PromptPriority.P1_PRODUCT_HARD_LOCK, source: "product-profile", appliesWhen: {}, required: true, tags: ["product", "accuracy", "current-task"] });
@@ -294,51 +320,6 @@ export function collectPromptRules(input: PromptProfileInput): PromptRule[] {
         if (matchesPredicate(rule.appliesWhen, input)) rules.push(rule);
       }
     }
-  }
-
-  // 2d. Non-product atmosphere uses its full scene registry and a deterministic
-  // moment rotation instead of collapsing unmatched scenes into one fallback.
-  if (input.imageType === "非产品氛围图") {
-    const atmosphere = resolveNonProductAtmospherePromptParts(
-      input.scenePreference,
-      input.season,
-      input.generationNonce
-    );
-    if (!atmosphere.sceneLine || !atmosphere.variation) {
-      throw new Error("NON_PRODUCT_ATMOSPHERE_MAPPING_MISSING");
-    }
-    rules.push({
-      id: `atmosphere-scene-${atmosphere.resolvedScene}`,
-      section: "scene",
-      text: atmosphere.sceneLine,
-      priority: PromptPriority.P3_COMPOSITION_AND_VISIBILITY,
-      source: "scene-profile",
-      appliesWhen: {},
-      required: true,
-      tags: ["atmosphere", "scene", "deterministic"]
-    });
-    if (!input.isMultiImage) {
-      rules.push({
-        id: `atmosphere-variation-${atmosphere.variation.key}`,
-        section: "action",
-        text: atmosphere.variation.directive,
-        priority: PromptPriority.P4_SCENE_AND_ACTION,
-        source: "action-profile",
-        appliesWhen: {},
-        required: true,
-        tags: ["atmosphere", "variation", "deterministic"]
-      });
-    }
-    rules.push({
-      id: `atmosphere-season-${input.season}`,
-      section: "lighting",
-      text: atmosphere.seasonLine,
-      priority: PromptPriority.P5_REALISM_AND_CAMERA,
-      source: "lighting-profile",
-      appliesWhen: {},
-      required: true,
-      tags: ["atmosphere", "season"]
-    });
   }
 
   // 3. Global negative rules

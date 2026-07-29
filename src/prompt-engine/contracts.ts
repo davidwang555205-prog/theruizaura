@@ -3,6 +3,7 @@ import type { StandardSceneKey } from "../data/outfitDiversityRules";
 import type { ProductTruth } from "../visual-system/types";
 import type { ThemePromptRole } from "../visual-system/activePromptRegistry";
 import type { Image2ReferencePlan } from "../visual-system/taskReferenceBinding";
+import type { ProductPaletteClass, ProductPaletteEchoMode, ProductPresenceMode } from "../non-product-atmosphere/seasonSemanticProfiles";
 
 // ─── Composition Mode ────────────────────────────────────────
 export type CompositionMode =
@@ -211,6 +212,9 @@ export type PromptProfileInput = {
   outfitContinuity?: string;
   studioContinuity?: string;
   strictProduction?: boolean;
+  atmosphereProductPresenceMode?: ProductPresenceMode;
+  atmosphereProductPaletteEchoMode?: ProductPaletteEchoMode;
+  atmosphereProductPaletteClass?: ProductPaletteClass;
 };
 
 // ─── Engine Mode ─────────────────────────────────────────────

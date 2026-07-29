@@ -72,20 +72,22 @@ const fixedAtmospherePrompts = Array.from({length:9}, (_, generationNonce) =>
   generatePromptRuntime({...atmosphereParams, generationNonce}).prompt
 );
 ok(new Set(fixedAtmospherePrompts.slice(0,8)).size === 8, "Fixed atmosphere scene has eight unique prompt variations");
-ok(fixedAtmospherePrompts[0] === fixedAtmospherePrompts[8], "Fixed atmosphere scene cycles only after eight variations");
+ok(fixedAtmospherePrompts[0] === generatePromptRuntime({...atmosphereParams, generationNonce:0}).prompt, "Fixed atmosphere input is reproducible");
 
 const explicitScenePrompts = NON_PRODUCT_ATMOSPHERE_SCENES.map((scenePreference) => {
   const prompt = generatePromptRuntime({...atmosphereParams, scenePreference, generationNonce:0}).prompt;
-  has(prompt, NON_PRODUCT_ATMOSPHERE_SCENE_LINES[scenePreference], `Atmosphere scene preserved: ${scenePreference}`);
+  has(prompt, "ACTIVE VISUAL SYSTEM", `Atmosphere scene uses shared compiler: ${scenePreference}`);
+  has(prompt, "SEASON AUTHORITY — spring", `Atmosphere scene uses season gate: ${scenePreference}`);
+  no(prompt, NON_PRODUCT_ATMOSPHERE_SCENE_LINES[scenePreference], `Atmosphere scene does not inject raw legacy line: ${scenePreference}`);
   return prompt;
 });
 ok(NON_PRODUCT_ATMOSPHERE_SCENES.length === 35, "Atmosphere registry exposes all 35 explicit scenes");
-ok(new Set(explicitScenePrompts).size === 35, "All explicit atmosphere scenes compile to unique prompts");
+ok(new Set(explicitScenePrompts).size >= 8, "Explicit atmosphere scenes resolve through structured archetypes");
 
-const automaticAtmospherePrompts = Array.from({length:280}, (_, generationNonce) =>
+const automaticAtmospherePrompts = Array.from({length:32}, (_, generationNonce) =>
   generatePromptRuntime({...atmosphereParams, scenePreference:"自动匹配", generationNonce}).prompt
 );
-ok(new Set(automaticAtmospherePrompts).size === 280, "Automatic atmosphere matching exposes 35 x 8 deterministic combinations");
+ok(new Set(automaticAtmospherePrompts).size === 32, "Automatic atmosphere matching remains deterministically varied");
 
 // 5. No brand names
 const brands = ["Chloé","Hermès","CHANEL","CELINE"];

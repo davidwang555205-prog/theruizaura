@@ -330,6 +330,9 @@ export type TeamPromptParams = {
   strictProduction?: boolean;
   topicId?: string;
   activeVisualRoleId?: import("./visual-system/activePromptRegistry").ThemePromptRole;
+  atmosphereProductPresenceMode?: import("./non-product-atmosphere/seasonSemanticProfiles").ProductPresenceMode;
+  atmosphereProductPaletteEchoMode?: import("./non-product-atmosphere/seasonSemanticProfiles").ProductPaletteEchoMode;
+  atmosphereProductPaletteClass?: import("./non-product-atmosphere/seasonSemanticProfiles").ProductPaletteClass;
 };
 
 export type TeamPromptOutput = {

@@ -3,6 +3,8 @@ export type AtmosphereSeasonLabel = "春" | "夏" | "秋" | "冬";
 export type ProductPresenceMode = "no_product" | "subtle_supporting_presence" | "lifestyle_trace_presence";
 export type ProductPaletteEchoMode = "direct_accent" | "material_translation" | "brand_neutral";
 export type ProductPaletteClass = "dark" | "brown" | "burgundy" | "black" | "light" | "unknown";
+export type AtmosphereSpatialType = "indoor" | "outdoor" | "threshold";
+export type PersonPresence = "no_person" | "human_trace_only";
 
 export type SeasonConsistencyFailure =
   | "season_semantic_conflict"
@@ -37,6 +39,30 @@ export type SeasonSemanticProfile = {
   spatialState: string[];
   paletteGuidance: string[];
   conflictsWith: string[];
+};
+
+export type ResolvedSeasonalSceneCues = {
+  atmosphere: string[];
+  wardrobeTraces: string[];
+  materials: string[];
+  objects: string[];
+  lighting: string[];
+  spatialState: string[];
+  lifeMoments: string[];
+  personPresence: PersonPresence;
+};
+
+export type AtmospherePromptSections = {
+  moduleDefinition: string[];
+  activeVisualSystem: string[];
+  seasonIdentity: string[];
+  positiveSeasonCues: string[];
+  scene: string[];
+  productPresence: string[];
+  paletteEcho: string[];
+  productTruth: string[];
+  composition: string[];
+  negativeConstraints: string[];
 };
 
 const sharedBrand = ["THERUIZ AURA Quiet Warm Luxury", "mature restrained urban life", "tactile realism without seasonal decoration"];
@@ -100,12 +126,52 @@ export function filterSeasonCompatibleCandidates(candidates: string[], profile: 
   return candidates.filter((candidate) => !profile.conflictsWith.some((conflict) => candidate.toLowerCase().includes(conflict.toLowerCase())));
 }
 
-export function seasonProfilePromptLines(profile: SeasonSemanticProfile): string[] {
+const spatialMaterial: Record<AtmosphereSeasonId, Record<AtmosphereSpatialType, string>> = {
+  spring: { indoor: "light cotton or linen-blend tactility", outdoor: "light stone and clear glass surfaces", threshold: "light wood and breathable fabric traces" },
+  summer: { indoor: "linen or thin cotton tactility", outdoor: "cool stone and clear glass surfaces", threshold: "cool stone and one light textile trace" },
+  autumn: { indoor: "light knit or natural wood tactility", outdoor: "warm-grey stone and weathered wood surfaces", threshold: "natural wood and one moderate textile trace" },
+  winter: { indoor: "wool or dark wood tactility", outdoor: "cold stone and dark wood surfaces", threshold: "dark wood and one contained winter textile trace" },
+};
+
+const spatialState: Record<AtmosphereSeasonId, Record<AtmosphereSpatialType, string>> = {
+  spring: { indoor: "a fresh breathable interior", outdoor: "mild open urban air", threshold: "a lightly open spring threshold" },
+  summer: { indoor: "a ventilated interior", outdoor: "cool shaded urban air", threshold: "a ventilated cool threshold" },
+  autumn: { indoor: "a settled lived-in interior", outdoor: "stable mellow urban air", threshold: "a calm warm-grey threshold" },
+  winter: { indoor: "contained indoor warmth", outdoor: "clear cold urban air without holiday styling", threshold: "a restrained transition between cold air and localized warmth" },
+};
+
+export function resolveSeasonalSceneCues(input: {
+  profile: SeasonSemanticProfile;
+  spatialType: AtmosphereSpatialType;
+  sceneId: string;
+  sceneObjects: string[];
+  lifeMoment: string;
+  wardrobeTraceAllowed: boolean;
+}): ResolvedSeasonalSceneCues {
+  const { profile, spatialType, sceneId, sceneObjects, lifeMoment, wardrobeTraceAllowed } = input;
+  const personPresence: PersonPresence = wardrobeTraceAllowed ? "human_trace_only" : "no_person";
+  const wardrobeTraces = wardrobeTraceAllowed
+    ? [`one partial, non-dominant trace of ${profile.allowedWardrobe[0]} appropriate to ${sceneId}`]
+    : [];
+  return {
+    atmosphere: profile.atmosphere.slice(0, 2),
+    wardrobeTraces,
+    materials: [spatialMaterial[profile.id][spatialType]],
+    objects: sceneObjects.slice(0, 2),
+    lighting: [profile.lighting[0]],
+    spatialState: [spatialState[profile.id][spatialType]],
+    lifeMoments: [lifeMoment],
+    personPresence,
+  };
+}
+
+export function seasonProfilePromptLines(profile: SeasonSemanticProfile, cues: ResolvedSeasonalSceneCues): string[] {
+  const trace = cues.wardrobeTraces.length ? ` Human trace: ${cues.wardrobeTraces[0]}.` : " No wardrobe or outfit instruction.";
   return [
-    `SEASON AUTHORITY — ${profile.id}: ${profile.atmosphere.join(", ")}. Season outranks product palette.`,
-    `Use season-compatible wardrobe, materials, objects, and life: ${profile.allowedWardrobe.slice(0, 2).join(", ")}; ${profile.allowedMaterials.slice(0, 2).join(", ")}; ${profile.allowedObjects.slice(0, 2).join(", ")}; ${profile.allowedLifeMoments[0]}.`,
-    `Light and space: ${profile.lighting[0]}; ${profile.spatialState[0]}. ${profile.paletteGuidance[0]}.`,
-    `Exclude conflicting seasonal semantics: ${profile.conflictsWith.join(", ")}.`
+    `SEASON AUTHORITY — ${profile.id}: ${cues.atmosphere.join(", ")}. Season outranks product palette.`,
+    `Scene-aware seasonal cues: ${cues.materials[0]}; ${cues.objects.join(", ")}; ${cues.lifeMoments[0]}.${trace}`,
+    `Season-exclusive light and space: ${cues.lighting[0]}; ${cues.spatialState[0]}. ${profile.paletteGuidance[0]}.`,
+    `Exclude conflicting seasonal semantics: ${profile.conflictsWith.slice(0, 4).join(", ")}.`
   ];
 }
 
@@ -121,13 +187,27 @@ export function paletteEchoPrompt(mode: ProductPaletteEchoMode): string {
   return "Product palette echo from the currently attached product reference: brand neutral. Suppress its hue when it competes with the season and return to THERUIZ AURA restrained neutrals; do not force a color match.";
 }
 
-export function runSeasonConsistencyPromptQA(prompt: string, profile: SeasonSemanticProfile): SeasonConsistencyFailure[] {
-  const positivePrompt = prompt.toLowerCase().split("exclude conflicting seasonal semantics")[0];
-  return profile.conflictsWith.some((term) => positivePrompt.includes(term.toLowerCase())) ? ["season_semantic_conflict"] : [];
+export function runSeasonConsistencyPromptQA(sections: AtmospherePromptSections, profile: SeasonSemanticProfile): SeasonConsistencyFailure[] {
+  const positivePrompt = [
+    ...sections.moduleDefinition,
+    ...sections.activeVisualSystem,
+    ...sections.seasonIdentity,
+    ...sections.positiveSeasonCues,
+    ...sections.scene,
+    ...sections.productPresence,
+    ...sections.paletteEcho,
+    ...sections.productTruth,
+    ...sections.composition,
+  ].join(" ").toLowerCase();
+  const failures: SeasonConsistencyFailure[] = [];
+  if (profile.conflictsWith.some((term) => positivePrompt.includes(term.toLowerCase()))) failures.push("season_semantic_conflict");
+  if (/product reference (?:and|or) (?:this )?scene determine (?:the )?(?:overall |global )?(?:light|temperature|season|material weight)/i.test(positivePrompt)) failures.push("product_palette_overrode_season");
+  if (/overall light temperature|global lighting|spatial climate|wardrobe thickness/.test(sections.paletteEcho.join(" ").toLowerCase()) && !/must not|cannot|exclusively/.test(sections.paletteEcho.join(" ").toLowerCase())) failures.push("product_palette_overrode_season");
+  return [...new Set(failures)];
 }
 
-export function runProductDominancePromptQA(prompt: string): ProductDominanceFailure[] {
-  const lower = prompt.toLowerCase();
+export function runProductDominancePromptQA(sections: AtmospherePromptSections): ProductDominanceFailure[] {
+  const lower = [...sections.productPresence, ...sections.productTruth, ...sections.composition].join(" ").toLowerCase();
   const failures: ProductDominanceFailure[] = [];
   if (/product (is|as) (the )?(hero|visual center|primary subject)/.test(lower)) failures.push("product_became_hero");
   if (/center(ed)? (the )?product/.test(lower) && !/never centered|do not center/.test(lower)) failures.push("product_centered");

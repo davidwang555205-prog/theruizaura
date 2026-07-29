@@ -1,18 +1,11 @@
+import type { AtmospherePromptSections } from "./seasonSemanticProfiles";
+
 export type PromptSectionAudience = "INTERNAL" | "QA" | "PROVIDER";
 
 export type AtmospherePromptIR = {
   outputContract: { aspectRatio: string; standaloneImage: true; singleScene: true };
-  scene: { description: string; requiredSpatialEvidence: string[]; lifeTrace: string; forbiddenCompetingScenes: string[] };
-  visualDirection: { productResponsiveDirection: string; brandExpression: string; lightDirection: string; materialDirection: string; compositionDirection: string };
-  selectedObjects: string[];
-  negativeConstraints: string[];
-  selectedCarrier?: string;
-  profileMode: "RESOLVED" | "EXTERNAL_REFERENCE_ANALYSIS";
+  sections: AtmospherePromptSections;
   curationPlanPresent: boolean;
-  seasonLines: string[];
-  productPresenceLine: string;
-  paletteEchoLine: string;
-  productMayAppear: boolean;
 };
 
 export class Image2AtmospherePromptRenderError extends Error {
@@ -22,44 +15,27 @@ export class Image2AtmospherePromptRenderError extends Error {
 const canonicalNegatives = [
   "No person, body part, reflection, silhouette, or human shadow.",
   "No collage, triptych, split panel, contact sheet, or multiple scene.",
-  "Avoid showroom styling, advertising hierarchy, decorative symmetry, and generic lifestyle moodboard styling."
+  "Avoid showroom styling, advertising hierarchy, decorative symmetry, and generic moodboards."
 ];
 
 function wordCount(value: string) { return value.trim().split(/\s+/).filter(Boolean).length; }
 
-function naturalCueList(cues: string[]): string {
-  const cleaned = cues.map((cue) => cue.trim().replace(/\.$/, "")).filter(Boolean);
-  if (cleaned.length === 0) return "the scene's quiet spatial character";
-  if (cleaned.length === 1) return cleaned[0];
-  if (cleaned.length === 2) return `${cleaned[0]} and ${cleaned[1]}`;
-  return `${cleaned.slice(0, -1).join(", ")}, and ${cleaned[cleaned.length - 1]}`;
-}
-
-function naturalSceneDirection(ir: AtmospherePromptIR): string {
-  const evidence = naturalCueList(ir.scene.requiredSpatialEvidence);
-  return `${ir.scene.description.replace(/\.$/, "")}. Let the frame make ${evidence} feel naturally present rather than itemized. ${ir.scene.lifeTrace}`;
-}
-
 export function renderImage2AtmospherePrompt(ir: AtmospherePromptIR): string {
   if (!ir.curationPlanPresent) throw new Image2AtmospherePromptRenderError("ATMOSPHERE_CURATION_PLAN_MISSING", "Atmosphere curation plan is required before Provider compilation.");
-  if (ir.profileMode === "RESOLVED" && /analy[sz]e .*reference|currently attached/i.test(ir.visualDirection.productResponsiveDirection)) throw new Image2AtmospherePromptRenderError("PRODUCT_PROFILE_RESOLUTION_CONFLICT", "Resolved profile cannot also request deferred reference analysis.");
-  if (/mixed|moderate|balanced|0\.5\s*\/\s*0\.5|softMaterialWeight|provenance|analysisVersion|curationSeed|candidateScores|history/i.test(ir.visualDirection.productResponsiveDirection + ir.visualDirection.materialDirection)) throw new Image2AtmospherePromptRenderError("PRODUCT_PROFILE_PLACEHOLDER_LEAK", "Raw or placeholder Product Profile data reached the Provider IR.");
-  const objects = [...new Set(ir.selectedObjects.map((object) => object.trim()).filter(Boolean))];
-  if (ir.selectedCarrier && ir.selectedCarrier !== "no dedicated physical carrier" && !objects.some((object) => ir.selectedCarrier?.toLowerCase().includes(object.toLowerCase()))) throw new Image2AtmospherePromptRenderError("ECHO_CARRIER_NOT_AVAILABLE_IN_SCENE", "Selected carrier is not present in the selected scene objects.");
-  const competingScenes = ir.scene.forbiddenCompetingScenes.map((item) => item.trim()).filter(Boolean).slice(0, 3);
-  const negatives = [...new Set([...canonicalNegatives, competingScenes.length > 0 ? `Keep the setting away from ${naturalCueList(competingScenes)}.` : ""])] .filter(Boolean);
+  const providerText = Object.values(ir.sections).flat().join(" ");
+  if (/mixed|0\.5\s*\/\s*0\.5|softMaterialWeight|provenance|analysisVersion|curationSeed|candidateScores|history/i.test(providerText)) throw new Image2AtmospherePromptRenderError("PRODUCT_PROFILE_PLACEHOLDER_LEAK", "Raw or placeholder Product Profile data reached the Provider IR.");
+  const negatives = [...new Set([...ir.sections.negativeConstraints, ...canonicalNegatives])].filter(Boolean);
   const prompt = [
     `Generate exactly one standalone ${ir.outputContract.aspectRatio} portrait photograph. Single scene only.`,
-    "Create a THERUIZ AURA Non-Product-Led Atmosphere image: the product may be absent or appear only as secondary support or a believable daily trace, never as the visual center, primary narrative subject, or e-commerce display.",
-    ...ir.seasonLines,
-    naturalSceneDirection(ir),
-    ir.visualDirection.brandExpression,
-    `${ir.visualDirection.lightDirection} ${ir.visualDirection.compositionDirection}`,
-    objects.length > 0 ? `Keep the object presence minimal and believable, allowing the required spatial evidence to remain visible without turning the frame into a prop arrangement.` : "Keep the scene materially quiet and free of decorative additions.",
-    ir.productPresenceLine,
-    "Product presence is optional and always secondary, incidental, peripheral, and subordinate. Never center, separately light, enlarge, sharpen, or arrange around it. No catalog, product still life, campaign hero, or direct advertisement.",
-    ir.paletteEchoLine,
-    ir.productMayAppear ? "If a product fragment is actually visible, preserve only the visible structure and color from the attached reference without demanding complete product readability." : "No product or footwear.",
+    ...ir.sections.moduleDefinition,
+    ...ir.sections.activeVisualSystem,
+    ...ir.sections.seasonIdentity,
+    ...ir.sections.positiveSeasonCues,
+    ...ir.sections.scene,
+    ...ir.sections.productPresence,
+    ...ir.sections.paletteEcho,
+    ...ir.sections.productTruth,
+    ...ir.sections.composition,
     negatives.join(" ")
   ].join("\n\n");
   if ((prompt.match(/scene/gi) ?? []).length > 12) throw new Image2AtmospherePromptRenderError("MULTIPLE_SCENE_IN_PROVIDER_PROMPT", "Provider Prompt contains competing scene language.");
