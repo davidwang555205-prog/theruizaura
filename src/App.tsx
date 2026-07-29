@@ -26,7 +26,7 @@ import { TEAM_MODEL_OPTIONS } from "./data/teamModelProfiles";
 import { TEAM_MODEL_CONTINUITY_OPTIONS } from "./data/modelContinuityProfiles";
 import { anchorManifest, brandVisualMother, canonicalThemeSpecifications, createVisualValidationWorkspace, productTruthLock, validationCases } from "./visual-system";
 import { compileImage2ThemePrompt } from "./visual-system/image2ThemeAdapter";
-import { assignReferenceRole, bindTaskProductTruth, createTaskReferenceSet, type ReferenceAssetRole } from "./visual-system/taskReferenceBinding";
+import { assignReferenceRole, bindTaskProductTruth, buildReferenceBindingFingerprint, buildReferencePlanDisplayItems, createTaskReferenceSet, isGeneratedPromptStale, referenceRoleLabels, resolvePromptForCopy, type ReferenceAssetRole } from "./visual-system/taskReferenceBinding";
 import comparisonPlanJson from "../visual-system/validation/comparisons/phase-3d-comparison-plan.json";
 import { STUDIO_LAUNCH_PRESET_OPTIONS } from "./data/studioLaunchPresets";
 import { getCompatibleStudioWardrobeOptions, STUDIO_WARDROBE_OPTIONS } from "./data/studioWardrobeLibrary";
@@ -247,7 +247,10 @@ function NonProductAtmosphereWorkspace({
 function App() {
   const [activePage, setActivePage] = useState<"workbench" | "prompt" | "xiaohongshu" | "visual" | "atmosphere">("workbench");
   const [params, setParams] = useState<TeamPromptParams>(initialParams);
+  const paramsRef = useRef<TeamPromptParams>(initialParams);
   const [generatedPrompt, setGeneratedPrompt] = useState(() => initialGeneratedPrompt);
+  const [generatedPromptBindingFingerprint, setGeneratedPromptBindingFingerprint] = useState("");
+  const [isPromptBindingSyncing, setIsPromptBindingSyncing] = useState(false);
   const [copyStatus, setCopyStatus] = useState("");
   const [hasPendingChanges, setHasPendingChanges] = useState(false);
   const [softTopic, setSoftTopic] = useState<SoftSeedingTopic>(softSeedingTopicOptions[0]);
@@ -302,8 +305,15 @@ function App() {
         confirmedByUser: image.role !== "unclassified",
       })),
     });
-    return { referenceSet, ...bindTaskProductTruth(referenceSet) };
+    const binding = bindTaskProductTruth(referenceSet);
+    return { referenceSet, ...binding, fingerprint: buildReferenceBindingFingerprint(referenceSet, binding.productTruth, binding.referencePlan) };
   }, [referenceImages]);
+
+  const referencePlanDisplayItems = useMemo(
+    () => buildReferencePlanDisplayItems(referenceBinding.referenceSet, referenceBinding.referencePlan),
+    [referenceBinding]
+  );
+  const unclassifiedReferenceImages = referenceImages.filter((image) => image.role === "unclassified");
 
   const bindReferenceInputs = (current: TeamPromptParams): TeamPromptParams => ({
     ...current,
@@ -312,33 +322,78 @@ function App() {
     referencePlan: referenceBinding.referencePlan,
   });
 
+  const compileCurrentReferenceBinding = (current: TeamPromptParams) => {
+    const nextParams = bindReferenceInputs({ ...current, generationNonce: current.generationNonce + 1 });
+    return { nextParams, prompt: generatePromptRuntime(nextParams).prompt };
+  };
+
+  useEffect(() => {
+    if (!isGeneratedPromptStale(referenceBinding.fingerprint, generatedPromptBindingFingerprint)) return;
+    setIsPromptBindingSyncing(true);
+    if (referenceImages.length > 0) setImageGenerationStatus("参考图片已更新，正在同步提示词……");
+    const { nextParams, prompt } = compileCurrentReferenceBinding(paramsRef.current);
+    paramsRef.current = nextParams;
+    setParams(nextParams);
+    setGeneratedPrompt(prompt);
+    setGeneratedPromptBindingFingerprint(referenceBinding.fingerprint);
+    setHasPendingChanges(false);
+    setIsPromptBindingSyncing(false);
+    if (referenceImages.length > 0) setImageGenerationStatus("参考图片与建议上传顺序已同步到当前 Prompt；尚未发送任何 Provider Request。");
+  }, [referenceBinding.fingerprint]);
+
   const updateParams = (updater: (current: TeamPromptParams) => TeamPromptParams) => {
-    setParams((current) => updater(current));
+    setParams((current) => {
+      const next = updater(current);
+      paramsRef.current = next;
+      return next;
+    });
     setHasPendingChanges(true);
     setCopyStatus("");
     setSoftCopyStatus("");
   };
 
   const handleGenerate = () => {
-    const nextParams = bindReferenceInputs({ ...params, generationNonce: params.generationNonce + 1 });
+    const { nextParams, prompt } = compileCurrentReferenceBinding(paramsRef.current);
+    paramsRef.current = nextParams;
     setParams(nextParams);
-    setGeneratedPrompt(generatePromptRuntime(nextParams).prompt);
+    setGeneratedPrompt(prompt);
+    setGeneratedPromptBindingFingerprint(referenceBinding.fingerprint);
     setCopyStatus("");
     setHasPendingChanges(false);
   };
 
   const syncPromptParams = () => {
-    if (!hasPendingChanges) return params;
-    const syncedParams = bindReferenceInputs({ ...params, generationNonce: params.generationNonce + 1 });
+    if (!hasPendingChanges && !isGeneratedPromptStale(referenceBinding.fingerprint, generatedPromptBindingFingerprint)) return paramsRef.current;
+    const { nextParams: syncedParams, prompt } = compileCurrentReferenceBinding(paramsRef.current);
+    paramsRef.current = syncedParams;
     setParams(syncedParams);
-    setGeneratedPrompt(generatePromptRuntime(syncedParams).prompt);
+    setGeneratedPrompt(prompt);
+    setGeneratedPromptBindingFingerprint(referenceBinding.fingerprint);
     setHasPendingChanges(false);
     return syncedParams;
   };
 
   const handleCopy = async () => {
-    await navigator.clipboard.writeText(generatedPrompt);
-    setCopyStatus("已复制提示词。");
+    let latestParams: TeamPromptParams | undefined;
+    const resolved = resolvePromptForCopy({
+      currentFingerprint: referenceBinding.fingerprint,
+      generatedFingerprint: generatedPromptBindingFingerprint,
+      generatedPrompt,
+      compileLatest: () => {
+        const compiled = compileCurrentReferenceBinding(paramsRef.current);
+        latestParams = compiled.nextParams;
+        return compiled.prompt;
+      },
+    });
+    if (resolved.recompiled && latestParams) {
+      paramsRef.current = latestParams;
+      setParams(latestParams);
+      setGeneratedPrompt(resolved.prompt);
+      setGeneratedPromptBindingFingerprint(resolved.bindingFingerprint);
+      setHasPendingChanges(false);
+    }
+    await navigator.clipboard.writeText(resolved.prompt);
+    setCopyStatus(resolved.recompiled ? "参考图片已同步，已复制最新提示词。" : "已复制提示词。");
   };
 
   const handleGenerateSoftContent = () => {
@@ -523,8 +578,31 @@ function App() {
         </div>
       )}
 
+      {referencePlanDisplayItems.length > 0 && (
+        <div className="mt-4 rounded-[18px] bg-white/75 p-4 ring-1 ring-aura-beige/70">
+          <h4 className="text-sm font-semibold text-aura-charcoal">外部 Image2 建议上传顺序</h4>
+          <ol className="mt-3 space-y-2">
+            {referencePlanDisplayItems.map((item) => {
+              const image = referenceImages.find((candidate) => candidate.id === item.assetId);
+              return <li key={item.assetId} className="flex items-center gap-3 rounded-xl bg-aura-cream/70 p-2">
+                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-aura-charcoal text-xs font-semibold text-white">{item.index}</span>
+                {image && <img src={image.url} alt="" className="h-10 w-10 rounded-lg object-cover ring-1 ring-aura-beige" />}
+                <span className="min-w-0"><b className="block truncate text-xs text-aura-charcoal">{item.fileName}</b><span className="text-[11px] text-aura-muted">{item.roleLabel}</span></span>
+              </li>;
+            })}
+          </ol>
+          <p className="mt-3 text-xs leading-5 text-aura-muted">复制 Prompt 后，请在外部 Image2 按此顺序上传参考图片。当前建议顺序尚未通过 API 自动执行。</p>
+        </div>
+      )}
+
+      {unclassifiedReferenceImages.length > 0 && (
+        <div className="mt-3 rounded-[18px] bg-aura-cream/70 px-4 py-3 text-xs leading-5 text-aura-muted">
+          <b className="text-aura-charcoal">{referenceRoleLabels.unclassified}</b>：{unclassifiedReferenceImages.map((image) => image.name).join("、")}。这些图片尚未进入 confirmed Reference Plan。
+        </div>
+      )}
+
       <div className="mt-4 rounded-[18px] bg-aura-cream px-4 py-3 text-sm leading-6 text-aura-muted ring-1 ring-aura-beige/70">
-        {imageGenerationStatus || "当前为 Manual / Draft execution：系统只整理参考用途与建议上传顺序，不会自动识别具体产品事实，也不会向 Image2 发送图片。"}
+        {isPromptBindingSyncing ? "参考图片已更新，正在同步提示词……" : imageGenerationStatus || "当前为 Manual / Draft execution：系统只整理参考用途与建议上传顺序，不会自动识别具体产品事实，也不会向 Image2 发送图片。"}
       </div>
       <div className="mt-3 rounded-[18px] bg-white/65 px-4 py-3 text-sm leading-6 text-aura-muted ring-1 ring-aura-beige/70">
         <b>Manual / Draft execution</b> · 已整理参考图片用途，覆盖 {referenceBinding.productTruth.coverage.length}/7 项参考证据。{referenceBinding.referencePlan.referencePlanReady ? " 已生成建议的外部 Image2 手动上传顺序。" : ` ${referenceBinding.referencePlan.diagnostics.join(" · ")}`} 仍需用户复制 Prompt，并在外部 Image2 手动上传图片后生成。当前未提取具体产品事实，未发送 Provider Request，尚非 production-ready。
@@ -845,8 +923,8 @@ function App() {
                 <h2 className="text-xl font-semibold text-aura-charcoal">最终英文提示词</h2>
                 <p className="mt-2 text-sm leading-6 text-aura-muted">Standard 版本，可直接复制使用。</p>
               </div>
-              <button type="button" onClick={handleCopy} className={clayButtonClass}>
-                一键复制
+              <button type="button" onClick={handleCopy} disabled={isPromptBindingSyncing} className={clayButtonClass}>
+                {isPromptBindingSyncing ? "正在同步…" : "一键复制"}
               </button>
             </div>
 

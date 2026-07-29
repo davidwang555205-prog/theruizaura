@@ -84,6 +84,75 @@ export type TaskProductTruth = ProductTruth & {
   createdAt: string;
 };
 
+export const referenceRoleLabels: Record<ReferenceAssetRole, string> = {
+  primary_product_reference: "主参考 / 完整覆盖",
+  full_product_reference: "完整侧面 / 结构",
+  outer_side_reference: "外侧面 / 结构",
+  inner_side_reference: "内侧面 / 结构",
+  top_view_reference: "俯视 / 鞋头",
+  toe_reference: "鞋头 / 结构",
+  heel_reference: "后跟 / 鞋底收口",
+  outsole_reference: "鞋底 / 轮廓",
+  material_reference: "材质 / 工艺细节",
+  color_reference: "配色细节",
+  construction_detail_reference: "结构 / 工艺细节",
+  logo_detail_reference: "Logo 细节",
+  on_foot_reference: "上脚辅助参考",
+  unclassified: "尚未分类",
+};
+
+export type ReferencePlanDisplayItem = {
+  index: number;
+  assetId: string;
+  fileName: string;
+  role: ReferenceAssetRole;
+  roleLabel: string;
+};
+
+export function buildReferencePlanDisplayItems(referenceSet: TaskReferenceSet, referencePlan: Image2ReferencePlan): ReferencePlanDisplayItem[] {
+  const assetById = new Map(referenceSet.assets.map((asset) => [asset.id, asset]));
+  return referencePlan.order.flatMap((assetId, index) => {
+    const asset = assetById.get(assetId);
+    if (!asset?.confirmedByUser || asset.roles.includes("unclassified")) return [];
+    const role = asset.roles[0];
+    return [{ index: index + 1, assetId, fileName: asset.name, role, roleLabel: referenceRoleLabels[role] }];
+  });
+}
+
+export function buildReferenceBindingFingerprint(referenceSet: TaskReferenceSet, productTruth: TaskProductTruth, referencePlan: Image2ReferencePlan): string {
+  return JSON.stringify({
+    assetIds: referenceSet.assetIds,
+    originalUploadOrder: referenceSet.originalUploadOrder,
+    assets: referenceSet.assets.map((asset) => ({
+      id: asset.id,
+      roles: asset.roles,
+      confirmedByUser: asset.confirmedByUser,
+      confirmationStatus: asset.needsConfirmation ? "required" : "confirmed",
+      coverage: asset.coverage,
+    })),
+    referencePlanOrder: referencePlan.order,
+    productTruthMode: productTruth.productTruthMode,
+    referenceEvidenceBound: productTruth.referenceEvidenceBound,
+    referencePlanReady: referencePlan.referencePlanReady,
+  });
+}
+
+export function isGeneratedPromptStale(currentFingerprint: string, generatedFingerprint: string): boolean {
+  return currentFingerprint !== generatedFingerprint;
+}
+
+export function resolvePromptForCopy(input: {
+  currentFingerprint: string;
+  generatedFingerprint: string;
+  generatedPrompt: string;
+  compileLatest: () => string;
+}): { prompt: string; bindingFingerprint: string; recompiled: boolean } {
+  if (!isGeneratedPromptStale(input.currentFingerprint, input.generatedFingerprint)) {
+    return { prompt: input.generatedPrompt, bindingFingerprint: input.generatedFingerprint, recompiled: false };
+  }
+  return { prompt: input.compileLatest(), bindingFingerprint: input.currentFingerprint, recompiled: true };
+}
+
 const requiredCoverage: ProductCoverage[] = ["silhouette", "toe_structure", "side_panel_structure", "heel_structure", "outsole_profile", "color_blocking", "material_evidence"];
 const coverageByRole: Record<ReferenceAssetRole, ProductCoverage[]> = {
   primary_product_reference: ["silhouette", "toe_structure", "side_panel_structure", "heel_structure", "outsole_profile", "color_blocking", "material_evidence"],
