@@ -15,6 +15,7 @@
     "validate:outfits": "node scripts/validateOutfitCombinationDiversity.mjs",
     "validate:production-runtime": "node scripts/validateProductionRuntime.mjs",
     "validate:reference-binding": "node scripts/validateReferenceBinding.mjs",
+    "validate:prompt-audit": "node scripts/validatePromptAudit.mjs",
     "preview": "vite preview"
   },
   "dependencies": {

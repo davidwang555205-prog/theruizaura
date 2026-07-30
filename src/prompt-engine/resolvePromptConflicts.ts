@@ -5,6 +5,9 @@ export function resolvePromptConflicts(rules: PromptRule[]): { kept: PromptRule[
   const kept: PromptRule[] = [];
 
   for (const rule of rules) {
+    // A rule can be inherited by more than one profile path. Keep the first
+    // canonical instance so duplicate traversal never becomes duplicate text.
+    if (kept.some((existing) => existing.id === rule.id)) continue;
     // Check against already-kept rules
     const conflicting = kept.filter(k => k.conflictsWith?.includes(rule.id) || rule.conflictsWith?.includes(k.id));
     if (conflicting.length > 0) {
