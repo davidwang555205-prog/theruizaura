@@ -9,6 +9,7 @@ import { getTeamModelProfile } from "../data/teamModelProfiles";
 import { getActivePromptRegistryEntry } from "../visual-system/activePromptRegistry";
 import { resolveTopicRoute } from "../visual-system/topicRoutingRegistry";
 import { productTruthPromptLines } from "../visual-system/taskReferenceBinding";
+import { cameraPerspectiveLine, resolveCameraPerspectiveProfile } from "../utils/cameraPerspectiveProfiles";
 
 const ACTIVE_ROLE_DIRECTIVES: Record<string, string> = {
   A1: "Active visual role: relaxed daily-life framing with natural body weight, believable daylight, and a readable sneaker inside an ordinary lived-in scene.",
@@ -265,6 +266,22 @@ export function collectPromptRules(input: PromptProfileInput): PromptRule[] {
   }
 
   const peopleImage = ["产品上脚图", "对镜穿搭图", "生活场景图"].includes(input.imageType);
+  if (input.hasShoe && peopleImage) {
+    const cameraProfile = resolveCameraPerspectiveProfile(
+      input.imageType,
+      [input.actionLock, input.userExtraRequirement, input.cardFraming, input.cardOrientation].filter(Boolean).join(" ")
+    );
+    rules.push({
+      id: `camera-perspective-${cameraProfile.id}`,
+      section: "camera",
+      text: cameraPerspectiveLine(cameraProfile),
+      priority: PromptPriority.P5_REALISM_AND_CAMERA,
+      source: "camera-profile",
+      appliesWhen: {},
+      required: true,
+      tags: ["camera", "shoe-scale", cameraProfile.risk]
+    });
+  }
   const identityVisible = !["studioOnFootDetail", "studioLowerThird", "stillLife", "materialDetail", "atmosphere"].includes(input.compositionMode);
   const modelProfile = input.modelChoice ? getTeamModelProfile(input.modelChoice) : null;
   const modelSelectionRule: PromptRule | null = modelProfile ? {

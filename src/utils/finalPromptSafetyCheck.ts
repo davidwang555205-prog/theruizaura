@@ -1,5 +1,6 @@
 import { sensitiveWordReducer } from "./sensitiveWordReducer";
 import type { TeamImageType } from "../types";
+import { cameraPerspectiveLine, resolveCameraPerspectiveProfile } from "./cameraPerspectiveProfiles";
 
 export type FinalPromptSafetyCheckResult = {
   prompt: string;
@@ -269,8 +270,21 @@ function ensureOnFootShoeScale(prompt: string, warnings: string[]) {
   warnings.push("Added on-foot shoe scale line.");
   return appendBeforeNegativeOrUserRequirement(
     prompt,
-    "Keep the sneakers at natural foot scale: readable but not enlarged in the foreground, with a medium-distance 35-50mm perspective, no extreme close-up, low-angle feet shot, wide-angle distortion, or oversized shoe-to-leg scale."
+    "Keep the sneakers at natural foot scale: readable but not enlarged in the foreground, with no extreme close-up, wide-angle distortion, or oversized shoe-to-leg scale."
   );
+}
+
+function ensureCameraPerspectiveProfile(
+  prompt: string,
+  imageType: TeamImageType | undefined,
+  warnings: string[]
+) {
+  const profile = resolveCameraPerspectiveProfile(imageType, prompt);
+  const hasProfile = /Camera perspective profile \(/i.test(prompt);
+  if (hasProfile) return prompt;
+
+  warnings.push(`Added ${profile.id} camera perspective profile.`);
+  return appendBeforeNegativeOrUserRequirement(prompt, cameraPerspectiveLine(profile));
 }
 
 function ensureAuthenticityCoverage(
@@ -348,6 +362,9 @@ export function finalPromptSafetyCheck(
   if (options.hasShoe && options.hasPeople && options.requireFullShoeVisibility !== false) {
     prompt = ensureOnFootShoeFit(prompt, warnings);
     prompt = ensureOnFootShoeScale(prompt, warnings);
+  }
+  if (options.hasShoe && options.hasPeople) {
+    prompt = ensureCameraPerspectiveProfile(prompt, options.imageType, warnings);
   }
   prompt = ensureAuthenticityCoverage(prompt, options, warnings);
   prompt = sensitiveWordReducer(prompt);
