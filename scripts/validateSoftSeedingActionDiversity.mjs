@@ -137,6 +137,7 @@ try {
           .filter((image) => ["产品上脚图", "对镜穿搭图", "生活场景图"].includes(image.params.imageType))
           .map((image) => personActionLibrary.find((action) => action.id === image.params.seriesActionKey))
           .filter(Boolean);
+        const handPlacementZones = selectedPersonActions.map((action) => action.handPlacementZone);
         let minimumPersonDistance = Number.POSITIVE_INFINITY;
         for (let first = 0; first < selectedPersonActions.length; first += 1) {
           for (let second = first + 1; second < selectedPersonActions.length; second += 1) {
@@ -147,6 +148,7 @@ try {
           }
         }
         const requiresPoseCategoryChange = topic !== "棚内上新拍摄" && peoplePoseTypes.length >= 3;
+        const requiresStudioHandCoverage = topic === "棚内上新拍摄" && selectedPersonActions.length >= 5;
 
         if (
           content.images.length !== imageCount ||
@@ -158,7 +160,8 @@ try {
           !promptCoverage ||
           maxSimilarity >= 0.72 ||
           (selectedPersonActions.length >= 2 && minimumPersonDistance < 8) ||
-          (requiresPoseCategoryChange && new Set(peoplePoseTypes).size < 2)
+          (requiresPoseCategoryChange && new Set(peoplePoseTypes).size < 2) ||
+          (requiresStudioHandCoverage && new Set(handPlacementZones).size < 4)
         ) {
           failures.push({
             topic,
@@ -171,6 +174,7 @@ try {
             promptCoverage,
             maxSimilarity: Number(maxSimilarity.toFixed(3)),
             uniquePeoplePoseTypes: new Set(peoplePoseTypes).size,
+            uniqueHandPlacementZones: new Set(handPlacementZones).size,
             minimumPersonDistance
           });
         }
