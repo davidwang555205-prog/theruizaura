@@ -191,6 +191,7 @@ export type PromptProfileInput = {
   isMultiImage: boolean;
   seriesImageIndex?: number;
   seriesImageCount?: number;
+  seriesFaceVariation?: { id: string; line: string };
   studioShotIndex?: number;
   hasUserClothing?: boolean;
   hasUserHandheld?: boolean;

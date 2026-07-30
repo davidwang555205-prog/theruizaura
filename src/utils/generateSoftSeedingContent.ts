@@ -3240,6 +3240,14 @@ const stylingSolutionExpressionBeats = [
   "If the face is visible, capture a fleeting relaxed look after the action, such as a soft exhale or incidental half-turn, different from the other cards."
 ];
 
+const stylingSolutionFaceVariationPlan = [
+  { id: "camera-adjacent-smile", line: "Use a three-quarter head angle with eyes briefly meeting a nearby camera, relaxed open eyelids, and a faint asymmetric smile." },
+  { id: "path-focused-rest", line: "Turn the head slightly toward the next movement, keep the gaze on the walking path, and use relaxed lips with softer eyelid tension." },
+  { id: "downward-task-focus", line: "Angle the head gently downward toward the garment or sneakers, with a purposeful gaze and a small natural brow response." },
+  { id: "scene-detail-reaction", line: "Turn subtly toward one real scene detail, with the nearer eye slightly more engaged and an unforced resting mouth." },
+  { id: "after-action-exhale", line: "Use an incidental half-turn after the action with a soft exhale, lowered facial tension, and a distinct mouth state from the other cards." }
+];
+
 const lifestyleExpressionBeats = [
   "Head-and-face beat for this card: a soft three-quarter head turn with eyes briefly meeting the camera, a faint asymmetric smile, catchlights alive and visibly different from the other cards.",
   "Head-and-face beat for this card: head tilted slightly toward the walking direction while the eyes track the path ahead, relaxed mouth, jaw naturally soft, no camera-facing performance.",
@@ -3491,6 +3499,10 @@ function buildImagePlan(
     seriesActionFamily: seriesActionBeat.family ?? seriesActionBeat.key,
     seriesActionDirective: seriesActionBeat.directive,
     seriesActionBodyOrientation: seriesActionBeat.bodyOrientation,
+    seriesFaceVariation:
+      topic === "穿搭解决方案" && shouldInheritBaseGarmentType(draft.imageType)
+        ? stylingSolutionFaceVariationPlan[index % stylingSolutionFaceVariationPlan.length]
+        : undefined,
     seriesPoseType: seriesActionBeat.poseType,
     studioLaunchShotIndex: draft.studioLaunchShotIndex,
     studioSetNonce:

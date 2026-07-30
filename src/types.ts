@@ -324,6 +324,7 @@ export type TeamPromptParams = {
   forceGeneratedOutfitSelection?: boolean;
   forceNoHandheldObject?: boolean;
   seriesActionBodyOrientation?: string;
+  seriesFaceVariation?: { id: string; line: string };
   selectedProductTruth?: ProductTruth;
   productTruthAssetIds?: string[];
   referencePlan?: Image2ReferencePlan;

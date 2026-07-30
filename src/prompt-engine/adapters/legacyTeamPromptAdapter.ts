@@ -84,6 +84,7 @@ export function buildPromptProfileInput(
     isMultiImage: !!params.seriesImageCount && params.seriesImageCount >= 2,
     seriesImageIndex: params.seriesImageIndex,
     seriesImageCount: params.seriesImageCount,
+    seriesFaceVariation: params.seriesFaceVariation,
     studioShotIndex: params.studioLaunchShotIndex,
     generationNonce: params.generationNonce,
     selectedProductTruth: params.selectedProductTruth,
