@@ -88,10 +88,13 @@ export function buildPromptProfileInput(
     generationNonce: params.generationNonce,
     selectedProductTruth: params.selectedProductTruth,
     productTruthProvenance: params.productTruthAssetIds
-      ? { source: "current_task_uploaded_images", assetIds: params.productTruthAssetIds }
+      ? { source: "current_task_uploaded_images", assetIds: params.productTruthAssetIds, referenceSetId: params.referencePlan?.referenceSetId, taskProductTruthId: (params.selectedProductTruth as { taskProductTruthId?: string } | undefined)?.taskProductTruthId, version: (params.selectedProductTruth as { version?: string } | undefined)?.version }
       : undefined,
     referencePlan: params.referencePlan,
     strictProduction: params.strictProduction,
+    atmosphereProductPresenceMode: params.atmosphereProductPresenceMode,
+    atmosphereProductPaletteEchoMode: params.atmosphereProductPaletteEchoMode,
+    atmosphereProductPaletteClass: params.atmosphereProductPaletteClass,
     cardRole: params.seriesActionFamily,
     cardFraming: params.seriesPoseType,
     cardOrientation: params.seriesActionBodyOrientation,

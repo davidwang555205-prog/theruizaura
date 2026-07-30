@@ -1,4 +1,5 @@
 import type { ProductTruth } from "./visual-system/types";
+import type { Image2ReferencePlan } from "./visual-system/taskReferenceBinding";
 
 export type AppTab = "product" | "atmosphere" | "templates";
 
@@ -325,10 +326,13 @@ export type TeamPromptParams = {
   seriesActionBodyOrientation?: string;
   selectedProductTruth?: ProductTruth;
   productTruthAssetIds?: string[];
-  referencePlan?: { assetIds: string[]; order: string[] };
+  referencePlan?: Image2ReferencePlan;
   strictProduction?: boolean;
   topicId?: string;
   activeVisualRoleId?: import("./visual-system/activePromptRegistry").ThemePromptRole;
+  atmosphereProductPresenceMode?: import("./non-product-atmosphere/seasonSemanticProfiles").ProductPresenceMode;
+  atmosphereProductPaletteEchoMode?: import("./non-product-atmosphere/seasonSemanticProfiles").ProductPaletteEchoMode;
+  atmosphereProductPaletteClass?: import("./non-product-atmosphere/seasonSemanticProfiles").ProductPaletteClass;
 };
 
 export type TeamPromptOutput = {

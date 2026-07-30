@@ -3,11 +3,12 @@ import { PromptPriority } from "./contracts";
 import { COMPOSITION_PROFILES } from "./profiles/compositionProfiles";
 import { IMAGE_TYPE_PROFILES } from "./profiles/imageTypeProfiles";
 import { SCENE_PROFILES } from "./profiles/sceneProfiles";
-import { resolveNonProductAtmospherePromptParts } from "../data/nonProductAtmosphereSceneLines";
+import { buildNonProductAtmospherePlan } from "../non-product-atmosphere";
 import { getTheruizAuraRealismRules } from "./profiles/theruizAuraRealismProfiles";
 import { getTeamModelProfile } from "../data/teamModelProfiles";
 import { getActivePromptRegistryEntry } from "../visual-system/activePromptRegistry";
 import { resolveTopicRoute } from "../visual-system/topicRoutingRegistry";
+import { productTruthPromptLines } from "../visual-system/taskReferenceBinding";
 
 const ACTIVE_ROLE_DIRECTIVES: Record<string, string> = {
   A1: "Active visual role: relaxed daily-life framing with natural body weight, believable daylight, and a readable sneaker inside an ordinary lived-in scene.",
@@ -24,16 +25,6 @@ const ACTIVE_ROLE_DIRECTIVES: Record<string, string> = {
 
 // ─── Global hard rules (P0-P2) ──────────────────────────────
 const GLOBAL_HARD_RULES: PromptRule[] = [
-  {
-    id: "product-accuracy-uploaded-reference",
-    section: "product",
-    text: "Use uploaded sneaker reference as strict source: low-cut German trainer silhouette, rounded toe box, slim outsole, panels, tongue, stitching, material, color, and proportions.",
-    priority: PromptPriority.P1_PRODUCT_HARD_LOCK,
-    source: "product-profile",
-    appliesWhen: { hasShoe: true },
-    required: true,
-    tags: ["product", "accuracy"],
-  },
   {
     id: "shoe-visibility-at-least-one",
     section: "product",
@@ -228,7 +219,35 @@ const GLOBAL_NEGATIVE_RULES: PromptRule[] = [
 ];
 
 export function collectPromptRules(input: PromptProfileInput): PromptRule[] {
+  if (input.brandId === "theruiz_aura" && input.imageType === "非产品氛围图") {
+    const atmosphere = buildNonProductAtmospherePlan({
+      quantity: 1,
+      generationNonce: input.generationNonce,
+      season: input.season,
+      scenePreference: input.scenePreference,
+      taskId: `prompt-builder-${input.generationNonce}`,
+      referenceAssetIds: input.productTruthProvenance?.assetIds ?? [],
+      referenceImageCount: input.productTruthProvenance?.assetIds.length ?? 0,
+      previewWithoutReference: true,
+      productPresenceMode: input.atmosphereProductPresenceMode,
+      productPaletteEchoMode: input.atmosphereProductPaletteEchoMode,
+      productPaletteClass: input.atmosphereProductPaletteClass,
+      sceneDirective: input.actionLock,
+    });
+    return [{
+      id: "theruiz-atmosphere-shared-compiler",
+      section: "scene",
+      text: atmosphere.images[0].prompt,
+      priority: PromptPriority.P0_USER_SPECIFIED,
+      source: "brand-profile",
+      appliesWhen: {},
+      required: true,
+      tags: ["theruiz-aura", "atmosphere", "shared-compiler", "image2"]
+    }];
+  }
   const rules: PromptRule[] = [];
+
+  if (input.hasShoe) rules.push({ id: "product-accuracy-current-task-reference", section: "product", text: productTruthPromptLines(input.selectedProductTruth).join(" "), priority: PromptPriority.P1_PRODUCT_HARD_LOCK, source: "product-profile", appliesWhen: {}, required: true, tags: ["product", "accuracy", "current-task"] });
 
   if (input.topicId) resolveTopicRoute(input.topicId === "studio_launch_shoot" ? "棚内上新拍摄" : input.topicId === "lifestyle_soft_seeding" ? "生活场景软种草" : input.topicId);
   if (input.activeVisualRoleId) {
@@ -301,51 +320,6 @@ export function collectPromptRules(input: PromptProfileInput): PromptRule[] {
         if (matchesPredicate(rule.appliesWhen, input)) rules.push(rule);
       }
     }
-  }
-
-  // 2d. Non-product atmosphere uses its full scene registry and a deterministic
-  // moment rotation instead of collapsing unmatched scenes into one fallback.
-  if (input.imageType === "非产品氛围图") {
-    const atmosphere = resolveNonProductAtmospherePromptParts(
-      input.scenePreference,
-      input.season,
-      input.generationNonce
-    );
-    if (!atmosphere.sceneLine || !atmosphere.variation) {
-      throw new Error("NON_PRODUCT_ATMOSPHERE_MAPPING_MISSING");
-    }
-    rules.push({
-      id: `atmosphere-scene-${atmosphere.resolvedScene}`,
-      section: "scene",
-      text: atmosphere.sceneLine,
-      priority: PromptPriority.P3_COMPOSITION_AND_VISIBILITY,
-      source: "scene-profile",
-      appliesWhen: {},
-      required: true,
-      tags: ["atmosphere", "scene", "deterministic"]
-    });
-    if (!input.isMultiImage) {
-      rules.push({
-        id: `atmosphere-variation-${atmosphere.variation.key}`,
-        section: "action",
-        text: atmosphere.variation.directive,
-        priority: PromptPriority.P4_SCENE_AND_ACTION,
-        source: "action-profile",
-        appliesWhen: {},
-        required: true,
-        tags: ["atmosphere", "variation", "deterministic"]
-      });
-    }
-    rules.push({
-      id: `atmosphere-season-${input.season}`,
-      section: "lighting",
-      text: atmosphere.seasonLine,
-      priority: PromptPriority.P5_REALISM_AND_CAMERA,
-      source: "lighting-profile",
-      appliesWhen: {},
-      required: true,
-      tags: ["atmosphere", "season"]
-    });
   }
 
   // 3. Global negative rules

@@ -17,7 +17,11 @@ export type PromptRuntimeDiagnostics = {
   validationReport?: CompiledPromptResult["validationReport"];
   diffSummary?: string;
   strictProduction: boolean;
-  productTruthBound: boolean;
+  productTruthBound: boolean | "partial";
+  referenceEvidenceBound: boolean;
+  structuredFactsExtracted: boolean;
+  manualExecutionReady: boolean;
+  providerExecutionReady: boolean;
   productionReady: boolean;
   productionDiagnostics: string[];
 };
@@ -48,7 +52,7 @@ export function generatePromptRuntime(params: TeamPromptParams): PromptRuntimeRe
   const config = getPromptEngineConfig();
   if (config.mode === "legacy") {
     const legacy = legacyGenerateTeamPrompt(params);
-    return { prompt: legacy.prompt, selectedOutfitLine: legacy.selectedOutfitLine, diagnostics: { mode: "legacy", legacyWordCount: countWords(legacy.prompt), strictProduction: false, productTruthBound: false, productionReady: false, productionDiagnostics: ["LEGACY_RUNTIME_NOT_PRODUCTION_READY"] } };
+    return { prompt: legacy.prompt, selectedOutfitLine: legacy.selectedOutfitLine, diagnostics: { mode: "legacy", legacyWordCount: countWords(legacy.prompt), strictProduction: false, productTruthBound: false, referenceEvidenceBound: false, structuredFactsExtracted: false, manualExecutionReady: false, providerExecutionReady: false, productionReady: false, productionDiagnostics: ["LEGACY_RUNTIME_NOT_PRODUCTION_READY"] } };
   }
 
   // The structured compiler owns final prompt assembly, while the established
@@ -70,6 +74,10 @@ export function generatePromptRuntime(params: TeamPromptParams): PromptRuntimeRe
     validationReport: compiled.validationReport,
     strictProduction: compiled.metadata?.strictProduction ?? false,
     productTruthBound: compiled.metadata?.productTruthBound ?? false,
+    referenceEvidenceBound: compiled.metadata?.referenceEvidenceBound ?? false,
+    structuredFactsExtracted: compiled.metadata?.structuredFactsExtracted ?? false,
+    manualExecutionReady: compiled.metadata?.manualExecutionReady ?? false,
+    providerExecutionReady: compiled.metadata?.providerExecutionReady ?? false,
     productionReady: compiled.metadata?.productionReady ?? false,
     productionDiagnostics: compiled.metadata?.diagnostics ?? [],
   } satisfies PromptRuntimeDiagnostics;

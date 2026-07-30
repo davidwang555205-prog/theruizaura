@@ -71,7 +71,7 @@ export const COMPOSITION_PROFILES: Record<CompositionMode, { label: string; rule
   atmosphere: {
     label: "Atmosphere",
     rules: [
-      { id: "comp-atmosphere-no-product", section: "product", text: "The sneaker is secondary or optional. Express quiet order, warm restraint, calm negative space, and refined lifestyle atmosphere.", priority: PromptPriority.P3_COMPOSITION_AND_VISIBILITY, source: "composition-profile", appliesWhen: {}, required: true, tags: ["composition"], conflictsWith: ["product-accuracy-uploaded-reference"] },
+      { id: "comp-atmosphere-no-product", section: "product", text: "Product presence is optional. If present, keep it secondary, incidental, peripheral, and subordinate to the life moment: never centered, separately lit, largest, sharpest, or arranged as a catalog, still-life, campaign-hero, or direct-advertising subject.", priority: PromptPriority.P3_COMPOSITION_AND_VISIBILITY, source: "composition-profile", appliesWhen: {}, required: true, tags: ["composition"], conflictsWith: ["product-accuracy-uploaded-reference"] },
       { id: "comp-atmosphere-no-person", section: "model", text: "No person, model, face, or portrait rules. Express the scene through still-life details, spatial cues, objects, and quiet daily traces.", priority: PromptPriority.P3_COMPOSITION_AND_VISIBILITY, source: "composition-profile", appliesWhen: {}, required: true, tags: ["composition"], conflictsWith: ["model-identity-real-person"] },
     ],
   },
