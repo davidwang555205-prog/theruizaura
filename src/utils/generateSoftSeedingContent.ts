@@ -67,6 +67,7 @@ export type SoftSeedingContent = {
   images: SoftSeedingImagePlan[];
   tags: string[];
   note: string;
+  outfitRotationId: string | null;
 };
 
 type SoftSeedingInput = {
@@ -76,6 +77,7 @@ type SoftSeedingInput = {
   dailySlot?: SoftSeedingDailySlot;
   date?: Date;
   variantOffset?: number;
+  previousOutfitId?: string | null;
 };
 
 type SoftSeedingImageDraft = {
@@ -3516,11 +3518,12 @@ function buildSoftSeedingImagePlans(
   drafts: SoftSeedingImageDraft[],
   topic: SoftSeedingTopic,
   variantIndex: number,
-  imageCount: SoftSeedingImageCount
+  imageCount: SoftSeedingImageCount,
+  previousOutfitId?: string | null
 ) {
   const roleBundle = resolveTopicRoleBundle(topic, imageCount);
   const firstPersonDraft = drafts.find((draft) => shouldInheritBaseGarmentType(draft.imageType));
-  const initialSetOutfit = firstPersonDraft && topic !== "棚内上新拍摄"
+  const initialSetSelection = firstPersonDraft
     ? choosePerSceneOutfitLine({
         scenePreference: "自动匹配",
         season: resolveBaseSeason(baseParams.season, firstPersonDraft.season),
@@ -3528,10 +3531,12 @@ function buildSoftSeedingImagePlans(
         imageType: firstPersonDraft.imageType,
         garmentTypePreference: resolveSoftSeedingGarmentType(baseParams, firstPersonDraft),
         userExtraRequirement: "",
-        generationNonce: baseParams.generationNonce + variantIndex + 1
-      }).selectedPerSceneOutfitLine
-    : "";
-  let sharedOutfitLine = initialSetOutfit ?? "";
+        generationNonce: baseParams.generationNonce + variantIndex + 1,
+        previousOutfitId: previousOutfitId ?? undefined
+      })
+    : null;
+  let sharedOutfitLine = initialSetSelection?.selectedPerSceneOutfitLine ?? "";
+  const outfitRotationId = initialSetSelection?.selectedOutfitId ?? null;
   const selectedPersonActions = selectDiversePersonActions({
     cards: drafts.map((draft) => ({
       imageType: draft.imageType,
@@ -3543,7 +3548,7 @@ function buildSoftSeedingImagePlans(
     generationNonce: baseParams.generationNonce
   });
 
-  return drafts.map((draft, index) => {
+  const plans = drafts.map((draft, index) => {
     const selectedPersonAction = selectedPersonActions[index];
     const seriesActionBeat: SeriesActionBeat = selectedPersonAction
       ? {
@@ -3596,6 +3601,7 @@ function buildSoftSeedingImagePlans(
       }
     };
   });
+  return { plans, outfitRotationId };
 }
 
 function normalizeSoftSeedingImageCount(
@@ -3619,6 +3625,15 @@ export function generateSoftSeedingContent(input: SoftSeedingInput): SoftSeeding
   const selectedImageDrafts = selectSoftSeedingImageDrafts(topic, variantIndex, imageCount, input.baseParams.season);
   const copy = buildCopyFromKit(topic, variantIndex, selectedImageDrafts);
 
+  const imagePlanResult = buildSoftSeedingImagePlans(
+    input.baseParams,
+    selectedImageDrafts,
+    topic,
+    variantIndex,
+    imageCount,
+    input.previousOutfitId
+  );
+
   return {
     topic,
     dateKey,
@@ -3628,9 +3643,10 @@ export function generateSoftSeedingContent(input: SoftSeedingInput): SoftSeeding
     variantLabel: `第 ${variantIndex + 1} / ${variantCount} 版`,
     titles: copy.titles,
     body: copy.body,
-    images: buildSoftSeedingImagePlans(input.baseParams, selectedImageDrafts, topic, variantIndex, imageCount),
+    images: imagePlanResult.plans,
     tags: copy.tags,
-    note: copy.note
+    note: copy.note,
+    outfitRotationId: imagePlanResult.outfitRotationId
   };
 }
 
