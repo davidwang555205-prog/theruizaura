@@ -37,6 +37,7 @@ export function personActionSemanticDistance(
   if (first.footwork !== second.footwork) distance += 3;
   if (first.movementPhase !== second.movementPhase) distance += 2;
   if (first.handTask !== second.handTask) distance += 3;
+  if (first.handPlacementZone !== second.handPlacementZone) distance += 4;
   if (first.framing !== second.framing) distance += 2;
   if (first.poseType !== second.poseType) distance += 3;
   return distance;
@@ -97,6 +98,10 @@ function chooseCandidate(
     const firstFamilyUsed = selected.some((item) => item.diversityFamily === first.diversityFamily);
     const secondFamilyUsed = selected.some((item) => item.diversityFamily === second.diversityFamily);
     if (firstFamilyUsed !== secondFamilyUsed) return Number(firstFamilyUsed) - Number(secondFamilyUsed);
+
+    const firstHandZoneUsed = selected.some((item) => item.handPlacementZone === first.handPlacementZone);
+    const secondHandZoneUsed = selected.some((item) => item.handPlacementZone === second.handPlacementZone);
+    if (firstHandZoneUsed !== secondHandZoneUsed) return Number(firstHandZoneUsed) - Number(secondHandZoneUsed);
 
     return stableHash(`${seed}:${first.id}`) - stableHash(`${seed}:${second.id}`);
   })[0] ?? null;

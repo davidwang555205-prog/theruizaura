@@ -14,6 +14,7 @@ export type PersonActionHandTask =
   | "phone"
   | "seatSupport";
 export type PersonActionFraming = "fullFigure" | "threeQuarterFigure" | "waistToFloor" | "onFootDetail";
+export type PersonActionHandPlacementZone = "bySide" | "shoulder" | "lapel" | "cuff" | "hem" | "pocket" | "environment" | "phone" | "seatEdge" | "outsideFrame";
 
 export type PersonActionDefinition = {
   id: string;
@@ -25,6 +26,7 @@ export type PersonActionDefinition = {
   footwork: PersonActionFootwork;
   movementPhase: PersonActionMovementPhase;
   handTask: PersonActionHandTask;
+  handPlacementZone: PersonActionHandPlacementZone;
   framing: PersonActionFraming;
   compatibleImageTypes: TeamImageType[];
   compatibleScenes?: TeamScenePreference[];
@@ -92,6 +94,17 @@ const handTaskText: Record<PersonActionHandTask, string> = {
   seatSupport: "one hand resting lightly near the thigh or seat edge while the other remains relaxed"
 };
 
+const handPlacementByTask: Record<PersonActionHandTask, PersonActionHandPlacementZone> = {
+  emptyRelaxed: "bySide",
+  sleeve: "cuff",
+  lapel: "lapel",
+  hem: "hem",
+  pocketEdge: "pocket",
+  environmentCue: "environment",
+  phone: "phone",
+  seatSupport: "seatEdge"
+};
+
 const framingText: Record<PersonActionFraming, string> = {
   fullFigure: "full-figure framing",
   threeQuarterFigure: "three-quarter-figure framing",
@@ -150,6 +163,7 @@ function buildActionFamily(spec: ActionFactorySpec): PersonActionDefinition[] {
       footwork,
       movementPhase,
       handTask,
+      handPlacementZone: handPlacementByTask[handTask],
       framing,
       compatibleImageTypes: spec.compatibleImageTypes,
       compatibleScenes: spec.requiresSeat ? SEATED_SCENES : undefined,
@@ -371,6 +385,7 @@ const mirrorActions: PersonActionDefinition[] = Array.from({ length: 24 }, (_, i
     footwork: footworks[subfamilyIndex],
     movementPhase: subfamilyIndex === 3 ? "settling" : subfamilyIndex >= 4 && subfamilyIndex <= 6 ? "task" : "still",
     handTask: handTasks[subfamilyIndex],
+    handPlacementZone: handPlacementByTask[handTasks[subfamilyIndex]],
     framing: variant === 0 ? "fullFigure" : variant === 1 ? "threeQuarterFigure" : "waistToFloor",
     compatibleImageTypes: MIRROR_IMAGE_TYPES,
     handheldPolicy: "phoneOnly",
@@ -417,6 +432,7 @@ const studioActions: PersonActionDefinition[] = Array.from({ length: 32 }, (_, i
     handTask: studioShotIndex <= 3
       ? variant === 3 ? "lapel" : variant === 2 ? "sleeve" : "emptyRelaxed"
       : variant === 2 ? "hem" : "emptyRelaxed",
+    handPlacementZone: studioShotIndex >= 4 ? "outsideFrame" : studioShotIndex === 0 && variant >= 2 ? "lapel" : studioShotIndex === 1 && variant >= 2 ? "shoulder" : studioShotIndex === 2 && variant >= 2 ? "cuff" : studioShotIndex === 3 && variant >= 2 ? "hem" : "bySide",
     framing: studioShotIndex <= 3 ? "fullFigure" : studioShotIndex <= 5 ? "waistToFloor" : "onFootDetail",
     compatibleImageTypes: ["产品上脚图"],
     studioShotIndex,
