@@ -1,0 +1,315 @@
+# Phase 2 A/B Prompts
+
+Use the same uploaded reference images in the same order for A and B. Generate two images per version. Do not change the product, model, season, scene, or reference order between versions.
+
+## P2-01-product-studio-hero
+
+- Test goal: hero_product studio launch
+- Product role: hero_product
+- Human role: full_person
+- Season: 春
+- Action: balanced studio stance
+- Composition: fullFigure
+- Reference order: shoe-front → shoe-side
+- Upload roles: primary product view; secondary product view
+- Recommended generation count: 2 per version
+
+### A Prompt — PRE-AUDIT (4190 chars)
+
+```text
+Use the uploaded footwear references as the only product source. Preserve only product features visibly confirmed by the current reference set; do not infer missing shape, material, color, construction, or branding details. Keep at least one sneaker fully visible from toe to heel, with the second clearly readable and grounded. Keep the foot seated inside the shoe; ankle, garment hem, collar, tongue, tied laces, outsole, and floor stay separate and readable with no clipping or fabric fusion. When worn, allow only subtle forefoot upper flex, gentle collar compression, settled laces, and grounded contact shadow; never let the foot, pose, or fabric reshape the toe box, panels, outsole, or silhouette. THERUIZ AURA German trainer as the main product reference. The sneaker must be the visual anchor of the image while keeping the person and scene natural. Present the preserved sneaker as part of a believable worn look rather than a rigid product-display task. Do not arrange both shoes in a perfect symmetrical showcase position. Match body weight to the selected action phase, with believable knee direction, hip balance, garment tension and folds corresponding to the movement, outsole pressure, and grounded contact shadow. Hands must make real contact with sleeves, bags, coats, doors, or furniture when the action requires it; do not use hovering or decorative hand gestures. Use one real-looking Asian or subtle Asian mixed-heritage woman aged 30–45, with natural dark hair, slight facial asymmetry, normal skin and under-eye texture, light daily makeup, realistic proportions, and calm real-camera urban presence. Keep her like a real tasteful customer, not European-looking, Western-dominant, blonde, doll-like, or professional-campaign-faced. Make the selected person feel real and unperformed in a controlled professional studio. Keep natural facial tension, subtle hair and fabric texture, relaxed shoulders, believable body asymmetry, and a calm expression responding to the pose rather than performing for the lens. Direct eye contact may appear when the selected studio role requires it, but avoid mannequin-like stillness or campaign-face perfection. Frame the full body from head to toe with natural proportions, one foot slightly forward, both sneakers clearly grounded and readable. Camera profile (standard): keep the established lens and camera distance, preserve the image-type composition and series lens continuity, and avoid wide-angle shoe enlargement. Use natural and physically believable light with a clear source, realistic falloff, soft local shadows, and normal exposure differences across the space. Allow the face to sit slightly below the brightest area when appropriate, and allow indoor-outdoor brightness differences or mild tonal imbalance. Keep physically distinct surface response across skin, hair, clothing, accessories, confirmed product surfaces, and the studio or environmental materials. Do not let unrelated surfaces share identical smoothness, sharpness, or reflectivity. Preserve subtle depth-of-field and edge softness where the lens would naturally create it, but do not hide anatomy or product errors through blur, noise, or low resolution. Avoid model identity inconsistent with the selected 30–45 customer profile, European-looking model, Western-dominant face, blonde model, non-Asian casting, age drift outside 30–45, overly youthful campaign casting. Avoid overly centered composition, symmetrical full-body catalog posing, rigid front-facing stance, mannequin-like stillness, static product-display foot placement, overly smooth skin, synthetic hair edges, identical sharpness across all materials, perfectly even lighting across face, outfit, shoes, and background, decorative but semantically weak objects, template-like cafe or studio environments, full-frame perfection, floating feet, weightless posture, hovering hands, garment-shoe fusion, duplicated shoe details, inconsistent left-right shoe structure, unstable laces, distorted outsole, generic catalog cutout, and artificial AI-style lifestyle-advertising perfection. Do not use blur, noise, metadata changes, or degraded image quality to conceal structural errors.
+```
+
+### B Prompt — POST-AUDIT (4190 chars)
+
+```text
+Use the uploaded footwear references as the only product source. Preserve only product features visibly confirmed by the current reference set; do not infer missing shape, material, color, construction, or branding details. Keep at least one sneaker fully visible from toe to heel, with the second clearly readable and grounded. Keep the foot seated inside the shoe; ankle, garment hem, collar, tongue, tied laces, outsole, and floor stay separate and readable with no clipping or fabric fusion. When worn, allow only subtle forefoot upper flex, gentle collar compression, settled laces, and grounded contact shadow; never let the foot, pose, or fabric reshape the toe box, panels, outsole, or silhouette. THERUIZ AURA German trainer as the main product reference. The sneaker must be the visual anchor of the image while keeping the person and scene natural. Present the preserved sneaker as part of a believable worn look rather than a rigid product-display task. Do not arrange both shoes in a perfect symmetrical showcase position. Match body weight to the selected action phase, with believable knee direction, hip balance, garment tension and folds corresponding to the movement, outsole pressure, and grounded contact shadow. Hands must make real contact with sleeves, bags, coats, doors, or furniture when the action requires it; do not use hovering or decorative hand gestures. Use one real-looking Asian or subtle Asian mixed-heritage woman aged 30–45, with natural dark hair, slight facial asymmetry, normal skin and under-eye texture, light daily makeup, realistic proportions, and calm real-camera urban presence. Keep her like a real tasteful customer, not European-looking, Western-dominant, blonde, doll-like, or professional-campaign-faced. Make the selected person feel real and unperformed in a controlled professional studio. Keep natural facial tension, subtle hair and fabric texture, relaxed shoulders, believable body asymmetry, and a calm expression responding to the pose rather than performing for the lens. Direct eye contact may appear when the selected studio role requires it, but avoid mannequin-like stillness or campaign-face perfection. Frame the full body from head to toe with natural proportions, one foot slightly forward, both sneakers clearly grounded and readable. Camera profile (standard): keep the established lens and camera distance, preserve the image-type composition and series lens continuity, and avoid wide-angle shoe enlargement. Use natural and physically believable light with a clear source, realistic falloff, soft local shadows, and normal exposure differences across the space. Allow the face to sit slightly below the brightest area when appropriate, and allow indoor-outdoor brightness differences or mild tonal imbalance. Keep physically distinct surface response across skin, hair, clothing, accessories, confirmed product surfaces, and the studio or environmental materials. Do not let unrelated surfaces share identical smoothness, sharpness, or reflectivity. Preserve subtle depth-of-field and edge softness where the lens would naturally create it, but do not hide anatomy or product errors through blur, noise, or low resolution. Avoid model identity inconsistent with the selected 30–45 customer profile, European-looking model, Western-dominant face, blonde model, non-Asian casting, age drift outside 30–45, overly youthful campaign casting. Avoid overly centered composition, symmetrical full-body catalog posing, rigid front-facing stance, mannequin-like stillness, static product-display foot placement, overly smooth skin, synthetic hair edges, identical sharpness across all materials, perfectly even lighting across face, outfit, shoes, and background, decorative but semantically weak objects, template-like cafe or studio environments, full-frame perfection, floating feet, weightless posture, hovering hands, garment-shoe fusion, duplicated shoe details, inconsistent left-right shoe structure, unstable laces, distorted outsole, generic catalog cutout, and artificial AI-style lifestyle-advertising perfection. Do not use blur, noise, metadata changes, or degraded image quality to conceal structural errors.
+```
+
+Execution note: compare product truth, physical integrity, composition, action, brand expression, and artifacts. Do not score a missing human category when the case has no person.
+
+## P2-02-model-on-foot-studio
+
+- Test goal: shoe-to-foot physical integrity
+- Product role: hero_product
+- Human role: partial_person
+- Season: 夏
+- Action: one foot slightly forward
+- Composition: studioOnFootDetail
+- Reference order: shoe-front → shoe-side
+- Upload roles: primary product view; secondary product view
+- Recommended generation count: 2 per version
+
+### A Prompt — PRE-AUDIT (2234 chars)
+
+```text
+Use the uploaded footwear references as the only product source. Preserve only product features visibly confirmed by the current reference set; do not infer missing shape, material, color, construction, or branding details. Keep at least one sneaker fully visible from toe to heel, with the second clearly readable and grounded. Keep the foot seated inside the shoe; ankle, garment hem, collar, tongue, tied laces, outsole, and floor stay separate and readable with no clipping or fabric fusion. THERUIZ AURA German trainer as the main product reference. The sneaker must be the visual anchor of the image while keeping the person and scene natural. Present the preserved sneaker as part of a believable worn look rather than a rigid product-display task. Do not arrange both shoes in a perfect symmetrical showcase position. Match body weight to the selected action phase, with believable knee direction, hip balance, garment tension and folds corresponding to the movement, outsole pressure, and grounded contact shadow. Hands must make real contact with sleeves, bags, coats, doors, or furniture when the action requires it; do not use hovering or decorative hand gestures. Person identity, face, hairstyle, and expression rules are excluded. Keep both hands outside the frame. Camera profile (standard): keep the established lens and camera distance, preserve the image-type composition and series lens continuity, and avoid wide-angle shoe enlargement. Avoid overly centered composition, symmetrical full-body catalog posing, rigid front-facing stance, mannequin-like stillness, static product-display foot placement, overly smooth skin, synthetic hair edges, identical sharpness across all materials, perfectly even lighting across face, outfit, shoes, and background, decorative but semantically weak objects, template-like cafe or studio environments, full-frame perfection, floating feet, weightless posture, hovering hands, garment-shoe fusion, duplicated shoe details, inconsistent left-right shoe structure, unstable laces, distorted outsole, generic catalog cutout, and artificial AI-style lifestyle-advertising perfection. Do not use blur, noise, metadata changes, or degraded image quality to conceal structural errors.
+```
+
+### B Prompt — POST-AUDIT (2234 chars)
+
+```text
+Use the uploaded footwear references as the only product source. Preserve only product features visibly confirmed by the current reference set; do not infer missing shape, material, color, construction, or branding details. Keep at least one sneaker fully visible from toe to heel, with the second clearly readable and grounded. Keep the foot seated inside the shoe; ankle, garment hem, collar, tongue, tied laces, outsole, and floor stay separate and readable with no clipping or fabric fusion. THERUIZ AURA German trainer as the main product reference. The sneaker must be the visual anchor of the image while keeping the person and scene natural. Present the preserved sneaker as part of a believable worn look rather than a rigid product-display task. Do not arrange both shoes in a perfect symmetrical showcase position. Match body weight to the selected action phase, with believable knee direction, hip balance, garment tension and folds corresponding to the movement, outsole pressure, and grounded contact shadow. Hands must make real contact with sleeves, bags, coats, doors, or furniture when the action requires it; do not use hovering or decorative hand gestures. Person identity, face, hairstyle, and expression rules are excluded. Keep both hands outside the frame. Camera profile (standard): keep the established lens and camera distance, preserve the image-type composition and series lens continuity, and avoid wide-angle shoe enlargement. Avoid overly centered composition, symmetrical full-body catalog posing, rigid front-facing stance, mannequin-like stillness, static product-display foot placement, overly smooth skin, synthetic hair edges, identical sharpness across all materials, perfectly even lighting across face, outfit, shoes, and background, decorative but semantically weak objects, template-like cafe or studio environments, full-frame perfection, floating feet, weightless posture, hovering hands, garment-shoe fusion, duplicated shoe details, inconsistent left-right shoe structure, unstable laces, distorted outsole, generic catalog cutout, and artificial AI-style lifestyle-advertising perfection. Do not use blur, noise, metadata changes, or degraded image quality to conceal structural errors.
+```
+
+Execution note: compare product truth, physical integrity, composition, action, brand expression, and artifacts. Do not score a missing human category when the case has no person.
+
+## P2-03-lifestyle-city-walking
+
+- Test goal: walking action without shoe deformation
+- Product role: visible_supporting_product
+- Human role: full_person
+- Season: 春
+- Action: slow daily walk
+- Composition: onFootLifestyle
+- Reference order: shoe-front → shoe-side
+- Upload roles: primary product view; secondary product view
+- Recommended generation count: 2 per version
+
+### A Prompt — PRE-AUDIT (6162 chars)
+
+```text
+Use the uploaded footwear references as the only product source. Preserve only product features visibly confirmed by the current reference set; do not infer missing shape, material, color, construction, or branding details. Keep at least one sneaker fully visible from toe to heel, with the second clearly readable and grounded. Keep the foot seated inside the shoe; ankle, garment hem, collar, tongue, tied laces, outsole, and floor stay separate and readable with no clipping or fabric fusion. When worn, allow only subtle forefoot upper flex, gentle collar compression, settled laces, and grounded contact shadow; never let the foot, pose, or fabric reshape the toe box, panels, outsole, or silhouette. Present the preserved sneaker as part of a believable worn look rather than a rigid product-display task. Do not arrange both shoes in a perfect symmetrical showcase position. Match body weight to the selected action phase, with believable knee direction, hip balance, garment tension and folds corresponding to the movement, outsole pressure, and grounded contact shadow. Hands must make real contact with sleeves, bags, coats, doors, or furniture when the action requires it; do not use hovering or decorative hand gestures. Use one real-looking Asian or subtle Asian mixed-heritage woman aged 30–45, with natural dark hair, slight facial asymmetry, normal skin and under-eye texture, light daily makeup, realistic proportions, and calm real-camera urban presence. Keep her like a real tasteful customer, not European-looking, Western-dominant, blonde, doll-like, or professional-campaign-faced. Make the woman feel like a real mature urban person caught in a lived moment, not a mannequin, fashion dummy, plastic model, over-posed influencer, showroom character, or standard commercial model waiting for the camera. Prefer a natural side glance, downward gaze, slight turn, walking transition, arrival pause, or quiet moment between actions. Keep believable body asymmetry, relaxed shoulders, natural facial tension, realistic hair texture, a few subtle flyaway hairs, slight fabric movement, believable bag weight, natural hand position, and normal daily imperfection. Her expression should respond to the place or action rather than perform for the lens. Direct eye contact may appear occasionally when the theme genuinely needs it, but it must not be the default. Give the action a clear everyday reason and capture one stable phase of that action. Prefer walking through an entrance, pausing briefly after arriving, preparing to continue forward, turning slightly near a doorway or architectural edge, adjusting a sleeve, coat hem, or bag strap with real contact, or shifting weight naturally before a step. The action must create believable weight distribution, garment tension, hand contact, and shoe-floor pressure. Avoid static poses disguised as natural movement and avoid foot placement arranged only to display the product. Use the visual language of real commercial lifestyle photography rather than a synthetic catalog composition. Prefer off-center framing, natural asymmetry, architectural framing, environmental layers, and a stable moment that feels observed rather than arranged. Allow a doorway, column, wall edge, glass panel, step, table edge, flowers, or a soft foreground element to interrupt the frame naturally without blocking essential Product Truth evidence. Keep a clear visual hierarchy; the face, outfit, shoes, and background must not all be equally dominant or equally sharp. Avoid centered full-body symmetry and rigid front-facing catalog layouts. Build a spatially real and functionally believable environment with clear architecture, natural movement routes, and a reason for the woman to be there. Favor building entrances, lobby thresholds, flower shop fronts, hotel entrances, gallery or bookstore circulation spaces, residential entry areas, quiet business-district walkways, and indoor-outdoor transitions. Use a small number of specific functional details instead of many decorative objects. Keep doors, floors, steps, glass, walls, furniture, signage, distant people, or vehicles logically placed and physically consistent. Avoid empty template sets and decorative lifestyle backgrounds with weak or ambiguous object details. Camera profile (standard): keep the established lens and camera distance, preserve the image-type composition and series lens continuity, and avoid wide-angle shoe enlargement. Use natural and physically believable light with a clear source, realistic falloff, soft local shadows, and normal exposure differences across the space. Allow the face to sit slightly below the brightest area when appropriate, and allow indoor-outdoor brightness differences or mild tonal imbalance. Keep physically distinct surface response across skin, hair, clothing, accessories, confirmed product surfaces, and the studio or environmental materials. Do not let unrelated surfaces share identical smoothness, sharpness, or reflectivity. Preserve subtle depth-of-field and edge softness where the lens would naturally create it, but do not hide anatomy or product errors through blur, noise, or low resolution. Avoid model identity inconsistent with the selected 30–45 customer profile, European-looking model, Western-dominant face, blonde model, non-Asian casting, age drift outside 30–45, overly youthful campaign casting. Avoid overly centered composition, symmetrical full-body catalog posing, rigid front-facing stance, mannequin-like stillness, static product-display foot placement, overly smooth skin, synthetic hair edges, identical sharpness across all materials, perfectly even lighting across face, outfit, shoes, and background, decorative but semantically weak objects, template-like cafe or studio environments, full-frame perfection, floating feet, weightless posture, hovering hands, garment-shoe fusion, duplicated shoe details, inconsistent left-right shoe structure, unstable laces, distorted outsole, generic catalog cutout, and artificial AI-style lifestyle-advertising perfection. Do not use blur, noise, metadata changes, or degraded image quality to conceal structural errors.
+```
+
+### B Prompt — POST-AUDIT (6162 chars)
+
+```text
+Use the uploaded footwear references as the only product source. Preserve only product features visibly confirmed by the current reference set; do not infer missing shape, material, color, construction, or branding details. Keep at least one sneaker fully visible from toe to heel, with the second clearly readable and grounded. Keep the foot seated inside the shoe; ankle, garment hem, collar, tongue, tied laces, outsole, and floor stay separate and readable with no clipping or fabric fusion. When worn, allow only subtle forefoot upper flex, gentle collar compression, settled laces, and grounded contact shadow; never let the foot, pose, or fabric reshape the toe box, panels, outsole, or silhouette. Present the preserved sneaker as part of a believable worn look rather than a rigid product-display task. Do not arrange both shoes in a perfect symmetrical showcase position. Match body weight to the selected action phase, with believable knee direction, hip balance, garment tension and folds corresponding to the movement, outsole pressure, and grounded contact shadow. Hands must make real contact with sleeves, bags, coats, doors, or furniture when the action requires it; do not use hovering or decorative hand gestures. Use one real-looking Asian or subtle Asian mixed-heritage woman aged 30–45, with natural dark hair, slight facial asymmetry, normal skin and under-eye texture, light daily makeup, realistic proportions, and calm real-camera urban presence. Keep her like a real tasteful customer, not European-looking, Western-dominant, blonde, doll-like, or professional-campaign-faced. Make the woman feel like a real mature urban person caught in a lived moment, not a mannequin, fashion dummy, plastic model, over-posed influencer, showroom character, or standard commercial model waiting for the camera. Prefer a natural side glance, downward gaze, slight turn, walking transition, arrival pause, or quiet moment between actions. Keep believable body asymmetry, relaxed shoulders, natural facial tension, realistic hair texture, a few subtle flyaway hairs, slight fabric movement, believable bag weight, natural hand position, and normal daily imperfection. Her expression should respond to the place or action rather than perform for the lens. Direct eye contact may appear occasionally when the theme genuinely needs it, but it must not be the default. Give the action a clear everyday reason and capture one stable phase of that action. Prefer walking through an entrance, pausing briefly after arriving, preparing to continue forward, turning slightly near a doorway or architectural edge, adjusting a sleeve, coat hem, or bag strap with real contact, or shifting weight naturally before a step. The action must create believable weight distribution, garment tension, hand contact, and shoe-floor pressure. Avoid static poses disguised as natural movement and avoid foot placement arranged only to display the product. Use the visual language of real commercial lifestyle photography rather than a synthetic catalog composition. Prefer off-center framing, natural asymmetry, architectural framing, environmental layers, and a stable moment that feels observed rather than arranged. Allow a doorway, column, wall edge, glass panel, step, table edge, flowers, or a soft foreground element to interrupt the frame naturally without blocking essential Product Truth evidence. Keep a clear visual hierarchy; the face, outfit, shoes, and background must not all be equally dominant or equally sharp. Avoid centered full-body symmetry and rigid front-facing catalog layouts. Build a spatially real and functionally believable environment with clear architecture, natural movement routes, and a reason for the woman to be there. Favor building entrances, lobby thresholds, flower shop fronts, hotel entrances, gallery or bookstore circulation spaces, residential entry areas, quiet business-district walkways, and indoor-outdoor transitions. Use a small number of specific functional details instead of many decorative objects. Keep doors, floors, steps, glass, walls, furniture, signage, distant people, or vehicles logically placed and physically consistent. Avoid empty template sets and decorative lifestyle backgrounds with weak or ambiguous object details. Camera profile (standard): keep the established lens and camera distance, preserve the image-type composition and series lens continuity, and avoid wide-angle shoe enlargement. Use natural and physically believable light with a clear source, realistic falloff, soft local shadows, and normal exposure differences across the space. Allow the face to sit slightly below the brightest area when appropriate, and allow indoor-outdoor brightness differences or mild tonal imbalance. Keep physically distinct surface response across skin, hair, clothing, accessories, confirmed product surfaces, and the studio or environmental materials. Do not let unrelated surfaces share identical smoothness, sharpness, or reflectivity. Preserve subtle depth-of-field and edge softness where the lens would naturally create it, but do not hide anatomy or product errors through blur, noise, or low resolution. Avoid model identity inconsistent with the selected 30–45 customer profile, European-looking model, Western-dominant face, blonde model, non-Asian casting, age drift outside 30–45, overly youthful campaign casting. Avoid overly centered composition, symmetrical full-body catalog posing, rigid front-facing stance, mannequin-like stillness, static product-display foot placement, overly smooth skin, synthetic hair edges, identical sharpness across all materials, perfectly even lighting across face, outfit, shoes, and background, decorative but semantically weak objects, template-like cafe or studio environments, full-frame perfection, floating feet, weightless posture, hovering hands, garment-shoe fusion, duplicated shoe details, inconsistent left-right shoe structure, unstable laces, distorted outsole, generic catalog cutout, and artificial AI-style lifestyle-advertising perfection. Do not use blur, noise, metadata changes, or degraded image quality to conceal structural errors.
+```
+
+Execution note: compare product truth, physical integrity, composition, action, brand expression, and artifacts. Do not score a missing human category when the case has no person.
+
+## P2-04-mirror-full-shoe
+
+- Test goal: mirror geometry and full shoe visibility
+- Product role: visible_supporting_product
+- Human role: no_face
+- Season: 秋
+- Action: mirror outfit check
+- Composition: mirrorFull
+- Reference order: shoe-front → shoe-side
+- Upload roles: primary product view; secondary product view
+- Recommended generation count: 2 per version
+
+### A Prompt — PRE-AUDIT (5630 chars)
+
+```text
+Use the uploaded footwear references as the only product source. Preserve only product features visibly confirmed by the current reference set; do not infer missing shape, material, color, construction, or branding details. Keep at least one sneaker fully visible from toe to heel, with the second clearly readable and grounded. Keep the foot seated inside the shoe; ankle, garment hem, collar, tongue, tied laces, outsole, and floor stay separate and readable with no clipping or fabric fusion. When worn, allow only subtle forefoot upper flex, gentle collar compression, settled laces, and grounded contact shadow; never let the foot, pose, or fabric reshape the toe box, panels, outsole, or silhouette. Present the preserved sneaker as part of a believable worn look rather than a rigid product-display task. Do not arrange both shoes in a perfect symmetrical showcase position. Match body weight to the selected action phase, with believable knee direction, hip balance, garment tension and folds corresponding to the movement, outsole pressure, and grounded contact shadow. Hands must make real contact with sleeves, bags, coats, doors, or furniture when the action requires it; do not use hovering or decorative hand gestures. Use one real-looking Asian or subtle Asian mixed-heritage woman aged 30–45, with natural dark hair, slight facial asymmetry, normal skin and under-eye texture, light daily makeup, realistic proportions, and calm real-camera urban presence. Keep her like a real tasteful customer, not European-looking, Western-dominant, blonde, doll-like, or professional-campaign-faced. Make the woman feel like a real mature urban person caught in a lived moment, not a mannequin, fashion dummy, plastic model, over-posed influencer, showroom character, or standard commercial model waiting for the camera. Prefer a natural side glance, downward gaze, slight turn, walking transition, arrival pause, or quiet moment between actions. Keep believable body asymmetry, relaxed shoulders, natural facial tension, realistic hair texture, a few subtle flyaway hairs, slight fabric movement, believable bag weight, natural hand position, and normal daily imperfection. Her expression should respond to the place or action rather than perform for the lens. Direct eye contact may appear occasionally when the theme genuinely needs it, but it must not be the default. The face is hidden by the phone or cropped. Do not load direct eye contact, catchlight, or facial expression rules. Give the action a clear everyday reason and capture one stable phase of that action. Prefer walking through an entrance, pausing briefly after arriving, preparing to continue forward, turning slightly near a doorway or architectural edge, adjusting a sleeve, coat hem, or bag strap with real contact, or shifting weight naturally before a step. The action must create believable weight distribution, garment tension, hand contact, and shoe-floor pressure. Avoid static poses disguised as natural movement and avoid foot placement arranged only to display the product. Build a spatially real and functionally believable environment with clear architecture, natural movement routes, and a reason for the woman to be there. Favor building entrances, lobby thresholds, flower shop fronts, hotel entrances, gallery or bookstore circulation spaces, residential entry areas, quiet business-district walkways, and indoor-outdoor transitions. Use a small number of specific functional details instead of many decorative objects. Keep doors, floors, steps, glass, walls, furniture, signage, distant people, or vehicles logically placed and physically consistent. Avoid empty template sets and decorative lifestyle backgrounds with weak or ambiguous object details. Camera profile (standard): keep the established lens and camera distance, preserve the image-type composition and series lens continuity, and avoid wide-angle shoe enlargement. Use natural and physically believable light with a clear source, realistic falloff, soft local shadows, and normal exposure differences across the space. Allow the face to sit slightly below the brightest area when appropriate, and allow indoor-outdoor brightness differences or mild tonal imbalance. Keep physically distinct surface response across skin, hair, clothing, accessories, confirmed product surfaces, and the studio or environmental materials. Do not let unrelated surfaces share identical smoothness, sharpness, or reflectivity. Preserve subtle depth-of-field and edge softness where the lens would naturally create it, but do not hide anatomy or product errors through blur, noise, or low resolution. Avoid model identity inconsistent with the selected 30–45 customer profile, European-looking model, Western-dominant face, blonde model, non-Asian casting, age drift outside 30–45, overly youthful campaign casting. Avoid overly centered composition, symmetrical full-body catalog posing, rigid front-facing stance, mannequin-like stillness, static product-display foot placement, overly smooth skin, synthetic hair edges, identical sharpness across all materials, perfectly even lighting across face, outfit, shoes, and background, decorative but semantically weak objects, template-like cafe or studio environments, full-frame perfection, floating feet, weightless posture, hovering hands, garment-shoe fusion, duplicated shoe details, inconsistent left-right shoe structure, unstable laces, distorted outsole, generic catalog cutout, and artificial AI-style lifestyle-advertising perfection. Do not use blur, noise, metadata changes, or degraded image quality to conceal structural errors.
+```
+
+### B Prompt — POST-AUDIT (5630 chars)
+
+```text
+Use the uploaded footwear references as the only product source. Preserve only product features visibly confirmed by the current reference set; do not infer missing shape, material, color, construction, or branding details. Keep at least one sneaker fully visible from toe to heel, with the second clearly readable and grounded. Keep the foot seated inside the shoe; ankle, garment hem, collar, tongue, tied laces, outsole, and floor stay separate and readable with no clipping or fabric fusion. When worn, allow only subtle forefoot upper flex, gentle collar compression, settled laces, and grounded contact shadow; never let the foot, pose, or fabric reshape the toe box, panels, outsole, or silhouette. Present the preserved sneaker as part of a believable worn look rather than a rigid product-display task. Do not arrange both shoes in a perfect symmetrical showcase position. Match body weight to the selected action phase, with believable knee direction, hip balance, garment tension and folds corresponding to the movement, outsole pressure, and grounded contact shadow. Hands must make real contact with sleeves, bags, coats, doors, or furniture when the action requires it; do not use hovering or decorative hand gestures. Use one real-looking Asian or subtle Asian mixed-heritage woman aged 30–45, with natural dark hair, slight facial asymmetry, normal skin and under-eye texture, light daily makeup, realistic proportions, and calm real-camera urban presence. Keep her like a real tasteful customer, not European-looking, Western-dominant, blonde, doll-like, or professional-campaign-faced. Make the woman feel like a real mature urban person caught in a lived moment, not a mannequin, fashion dummy, plastic model, over-posed influencer, showroom character, or standard commercial model waiting for the camera. Prefer a natural side glance, downward gaze, slight turn, walking transition, arrival pause, or quiet moment between actions. Keep believable body asymmetry, relaxed shoulders, natural facial tension, realistic hair texture, a few subtle flyaway hairs, slight fabric movement, believable bag weight, natural hand position, and normal daily imperfection. Her expression should respond to the place or action rather than perform for the lens. Direct eye contact may appear occasionally when the theme genuinely needs it, but it must not be the default. The face is hidden by the phone or cropped. Do not load direct eye contact, catchlight, or facial expression rules. Give the action a clear everyday reason and capture one stable phase of that action. Prefer walking through an entrance, pausing briefly after arriving, preparing to continue forward, turning slightly near a doorway or architectural edge, adjusting a sleeve, coat hem, or bag strap with real contact, or shifting weight naturally before a step. The action must create believable weight distribution, garment tension, hand contact, and shoe-floor pressure. Avoid static poses disguised as natural movement and avoid foot placement arranged only to display the product. Build a spatially real and functionally believable environment with clear architecture, natural movement routes, and a reason for the woman to be there. Favor building entrances, lobby thresholds, flower shop fronts, hotel entrances, gallery or bookstore circulation spaces, residential entry areas, quiet business-district walkways, and indoor-outdoor transitions. Use a small number of specific functional details instead of many decorative objects. Keep doors, floors, steps, glass, walls, furniture, signage, distant people, or vehicles logically placed and physically consistent. Avoid empty template sets and decorative lifestyle backgrounds with weak or ambiguous object details. Camera profile (standard): keep the established lens and camera distance, preserve the image-type composition and series lens continuity, and avoid wide-angle shoe enlargement. Use natural and physically believable light with a clear source, realistic falloff, soft local shadows, and normal exposure differences across the space. Allow the face to sit slightly below the brightest area when appropriate, and allow indoor-outdoor brightness differences or mild tonal imbalance. Keep physically distinct surface response across skin, hair, clothing, accessories, confirmed product surfaces, and the studio or environmental materials. Do not let unrelated surfaces share identical smoothness, sharpness, or reflectivity. Preserve subtle depth-of-field and edge softness where the lens would naturally create it, but do not hide anatomy or product errors through blur, noise, or low resolution. Avoid model identity inconsistent with the selected 30–45 customer profile, European-looking model, Western-dominant face, blonde model, non-Asian casting, age drift outside 30–45, overly youthful campaign casting. Avoid overly centered composition, symmetrical full-body catalog posing, rigid front-facing stance, mannequin-like stillness, static product-display foot placement, overly smooth skin, synthetic hair edges, identical sharpness across all materials, perfectly even lighting across face, outfit, shoes, and background, decorative but semantically weak objects, template-like cafe or studio environments, full-frame perfection, floating feet, weightless posture, hovering hands, garment-shoe fusion, duplicated shoe details, inconsistent left-right shoe structure, unstable laces, distorted outsole, generic catalog cutout, and artificial AI-style lifestyle-advertising perfection. Do not use blur, noise, metadata changes, or degraded image quality to conceal structural errors.
+```
+
+Execution note: compare product truth, physical integrity, composition, action, brand expression, and artifacts. Do not score a missing human category when the case has no person.
+
+## P2-05-craft-closeup
+
+- Test goal: confirmed heel/material detail without full-person leakage
+- Product role: hero_product
+- Human role: no_full_person
+- Season: 冬
+- Action: craft evidence close-up
+- Composition: materialDetail
+- Reference order: shoe-front → shoe-side
+- Upload roles: primary product view; secondary product view
+- Recommended generation count: 2 per version
+
+### A Prompt — PRE-AUDIT (733 chars)
+
+```text
+Use the uploaded footwear references as the only product source. Preserve only product features visibly confirmed by the current reference set; do not infer missing shape, material, color, construction, or branding details. Keep at least one sneaker fully visible from toe to heel, with the second clearly readable and grounded. Keep the foot seated inside the shoe; ankle, garment hem, collar, tongue, tied laces, outsole, and floor stay separate and readable with no clipping or fabric fusion. No person or full-shoe product rules. Focus on the material zone only. Avoid hard flash, flat catalog flash, blown white background, CGI cyclorama, synthetic 3D render, floating feet, floating sneakers, plastic skin, over-smooth AI face.
+```
+
+### B Prompt — POST-AUDIT (733 chars)
+
+```text
+Use the uploaded footwear references as the only product source. Preserve only product features visibly confirmed by the current reference set; do not infer missing shape, material, color, construction, or branding details. Keep at least one sneaker fully visible from toe to heel, with the second clearly readable and grounded. Keep the foot seated inside the shoe; ankle, garment hem, collar, tongue, tied laces, outsole, and floor stay separate and readable with no clipping or fabric fusion. No person or full-shoe product rules. Focus on the material zone only. Avoid hard flash, flat catalog flash, blown white background, CGI cyclorama, synthetic 3D render, floating feet, floating sneakers, plastic skin, over-smooth AI face.
+```
+
+Execution note: compare product truth, physical integrity, composition, action, brand expression, and artifacts. Do not score a missing human category when the case has no person.
+
+## P2-06-subtle-atmosphere
+
+- Test goal: peripheral product trace in wide atmosphere
+- Product role: subtle_supporting_presence
+- Human role: no_person
+- Season: 夏
+- Action: quiet daily trace
+- Composition: atmosphere
+- Reference order: none
+- Upload roles: no product references
+- Recommended generation count: 2 per version
+
+### A Prompt — PRE-AUDIT (2657 chars)
+
+```text
+Generate exactly one standalone 4:5 portrait photograph. Single scene only.
+
+Create a THERUIZ AURA Non-Product-Led Atmosphere image. Product presence is optional; environment and lived moment lead, never e-commerce display.
+
+ACTIVE VISUAL SYSTEM — THERUIZ AURA Brand Visual Mother v1.2 (approved_frozen) is highest authority: Quiet Warm Luxury, low-volume color, sourced light, real materials and physics, mature urban space, observed asymmetry. No sweet, influencer, plastic, juvenile, showroom, or module-specific drift.
+
+SEASON AUTHORITY — summer: clear breathable freshness, air movement. Season outranks product palette.
+
+Scene-aware seasonal cues: cool stone and clear glass surfaces; small paper carrier; daily movement has just cleared the corner. No wardrobe or outfit instruction.
+
+Season-exclusive light and space: cool early-morning natural light; cool shaded urban air. cool restrained neutrals.
+
+Scene: a quiet contemporary city corner. Show building edge with restrained greenery. daily movement has just cleared the corner. mid-morning. use a building edge as foreground obstruction. Objects: small paper carrier.
+
+Product presence mode: subtle supporting presence. Allow only a small peripheral glimpse, never centered, separately lit, fully displayed, or visually anchoring.
+
+Product palette echo from the currently attached product reference: material translation. Use one season-compatible material already in the scene; never translate hue into clothing thickness, temperature, scene, or lifestyle.
+
+Season and scene exclusively control global light, spatial climate, material weight, wardrobe thickness, and season. Product reference may affect only a local accent, reflection, or surface; never global light, season, wardrobe, space, scene, or activity.
+
+Only if a product fragment is actually visible, preserve its visible structure and color from the attached reference without demanding complete product readability.
+
+Use calm negative space, natural cropping, depth, and believable imbalance; no centered hero, flatlay, symmetry, showroom, or advertising hierarchy.
+
+Any product stays incidental and peripheral. Never center, separately light, enlarge, sharpen, or arrange around it. No catalog, product still life, campaign hero, or advertisement.
+
+Exclude conflicting seasonal semantics: coat, wool coat, heavy trench layering, thick outerwear. Keep the setting away from tourism campaign, landmark hero. No person, body part, reflection, silhouette, or human shadow. No collage, triptych, split panel, contact sheet, or multiple scene. Avoid showroom styling, advertising hierarchy, decorative symmetry, and generic moodboards.
+```
+
+### B Prompt — POST-AUDIT (2657 chars)
+
+```text
+Generate exactly one standalone 4:5 portrait photograph. Single scene only.
+
+Create a THERUIZ AURA Non-Product-Led Atmosphere image. Product presence is optional; environment and lived moment lead, never e-commerce display.
+
+ACTIVE VISUAL SYSTEM — THERUIZ AURA Brand Visual Mother v1.2 (approved_frozen) is highest authority: Quiet Warm Luxury, low-volume color, sourced light, real materials and physics, mature urban space, observed asymmetry. No sweet, influencer, plastic, juvenile, showroom, or module-specific drift.
+
+SEASON AUTHORITY — summer: clear breathable freshness, air movement. Season outranks product palette.
+
+Scene-aware seasonal cues: cool stone and clear glass surfaces; small paper carrier; daily movement has just cleared the corner. No wardrobe or outfit instruction.
+
+Season-exclusive light and space: cool early-morning natural light; cool shaded urban air. cool restrained neutrals.
+
+Scene: a quiet contemporary city corner. Show building edge with restrained greenery. daily movement has just cleared the corner. mid-morning. use a building edge as foreground obstruction. Objects: small paper carrier.
+
+Product presence mode: subtle supporting presence. Allow only a small peripheral glimpse, never centered, separately lit, fully displayed, or visually anchoring.
+
+Product palette echo from the currently attached product reference: material translation. Use one season-compatible material already in the scene; never translate hue into clothing thickness, temperature, scene, or lifestyle.
+
+Season and scene exclusively control global light, spatial climate, material weight, wardrobe thickness, and season. Product reference may affect only a local accent, reflection, or surface; never global light, season, wardrobe, space, scene, or activity.
+
+Only if a product fragment is actually visible, preserve its visible structure and color from the attached reference without demanding complete product readability.
+
+Use calm negative space, natural cropping, depth, and believable imbalance; no centered hero, flatlay, symmetry, showroom, or advertising hierarchy.
+
+Any product stays incidental and peripheral. Never center, separately light, enlarge, sharpen, or arrange around it. No catalog, product still life, campaign hero, or advertisement.
+
+Exclude conflicting seasonal semantics: coat, wool coat, heavy trench layering, thick outerwear. Keep the setting away from tourism campaign, landmark hero. No person, body part, reflection, silhouette, or human shadow. No collage, triptych, split panel, contact sheet, or multiple scene. Avoid showroom styling, advertising hierarchy, decorative symmetry, and generic moodboards.
+```
+
+Execution note: compare product truth, physical integrity, composition, action, brand expression, and artifacts. Do not score a missing human category when the case has no person.
+
+## P2-07-no-product-no-person
+
+- Test goal: no_product + no_person exclusion
+- Product role: no_product
+- Human role: no_person
+- Season: 冬
+- Action: still spatial moment
+- Composition: atmosphere
+- Reference order: none
+- Upload roles: no product references
+- Recommended generation count: 2 per version
+
+### A Prompt — PRE-AUDIT (2632 chars)
+
+```text
+Generate exactly one standalone 4:5 portrait photograph. Single scene only.
+
+Create a THERUIZ AURA Non-Product-Led Atmosphere image. Product presence is optional; environment and lived moment lead, never e-commerce display.
+
+ACTIVE VISUAL SYSTEM — THERUIZ AURA Brand Visual Mother v1.2 (approved_frozen) is highest authority: Quiet Warm Luxury, low-volume color, sourced light, real materials and physics, mature urban space, observed asymmetry. No sweet, influencer, plastic, juvenile, showroom, or module-specific drift.
+
+SEASON AUTHORITY — winter: quiet concentration, contained warmth within cool air. Season outranks product palette.
+
+Scene-aware seasonal cues: wool or dark wood tactility; laptop edge; a note has been shifted mid-task. No wardrobe or outfit instruction.
+
+Season-exclusive light and space: cool winter daylight with localized warm light; contained indoor warmth. deep restrained neutrals.
+
+Scene: a pause while organizing daily work notes. Show paper overlap with natural contact. a note has been shifted mid-task. working morning. keep papers irregular and sparse. Objects: laptop edge.
+
+Product presence mode: lifestyle trace presence. Allow a believable partial daily trace at the scene edge, never an advertising still life.
+
+Product palette echo from the currently attached product reference: direct accent. Use its confirmed hue only as one 5–15% season-compatible accent; it cannot set wardrobe weight, temperature, scene, or lifestyle.
+
+Season and scene exclusively control global light, spatial climate, material weight, wardrobe thickness, and season. Product reference may affect only a local accent, reflection, or surface; never global light, season, wardrobe, space, scene, or activity.
+
+Only if a product fragment is actually visible, preserve its visible structure and color from the attached reference without demanding complete product readability.
+
+Use calm negative space, natural cropping, depth, and believable imbalance; no centered hero, flatlay, symmetry, showroom, or advertising hierarchy.
+
+Any product stays incidental and peripheral. Never center, separately light, enlarge, sharpen, or arrange around it. No catalog, product still life, campaign hero, or advertisement.
+
+Exclude conflicting seasonal semantics: tropical summer scene, summer resort, dominant iced drink, open airy summer wardrobe. Keep the setting away from flatlay, office-supply catalog. No person, body part, reflection, silhouette, or human shadow. No collage, triptych, split panel, contact sheet, or multiple scene. Avoid showroom styling, advertising hierarchy, decorative symmetry, and generic moodboards.
+```
+
+### B Prompt — POST-AUDIT (2632 chars)
+
+```text
+Generate exactly one standalone 4:5 portrait photograph. Single scene only.
+
+Create a THERUIZ AURA Non-Product-Led Atmosphere image. Product presence is optional; environment and lived moment lead, never e-commerce display.
+
+ACTIVE VISUAL SYSTEM — THERUIZ AURA Brand Visual Mother v1.2 (approved_frozen) is highest authority: Quiet Warm Luxury, low-volume color, sourced light, real materials and physics, mature urban space, observed asymmetry. No sweet, influencer, plastic, juvenile, showroom, or module-specific drift.
+
+SEASON AUTHORITY — winter: quiet concentration, contained warmth within cool air. Season outranks product palette.
+
+Scene-aware seasonal cues: wool or dark wood tactility; laptop edge; a note has been shifted mid-task. No wardrobe or outfit instruction.
+
+Season-exclusive light and space: cool winter daylight with localized warm light; contained indoor warmth. deep restrained neutrals.
+
+Scene: a pause while organizing daily work notes. Show paper overlap with natural contact. a note has been shifted mid-task. working morning. keep papers irregular and sparse. Objects: laptop edge.
+
+Product presence mode: lifestyle trace presence. Allow a believable partial daily trace at the scene edge, never an advertising still life.
+
+Product palette echo from the currently attached product reference: direct accent. Use its confirmed hue only as one 5–15% season-compatible accent; it cannot set wardrobe weight, temperature, scene, or lifestyle.
+
+Season and scene exclusively control global light, spatial climate, material weight, wardrobe thickness, and season. Product reference may affect only a local accent, reflection, or surface; never global light, season, wardrobe, space, scene, or activity.
+
+Only if a product fragment is actually visible, preserve its visible structure and color from the attached reference without demanding complete product readability.
+
+Use calm negative space, natural cropping, depth, and believable imbalance; no centered hero, flatlay, symmetry, showroom, or advertising hierarchy.
+
+Any product stays incidental and peripheral. Never center, separately light, enlarge, sharpen, or arrange around it. No catalog, product still life, campaign hero, or advertisement.
+
+Exclude conflicting seasonal semantics: tropical summer scene, summer resort, dominant iced drink, open airy summer wardrobe. Keep the setting away from flatlay, office-supply catalog. No person, body part, reflection, silhouette, or human shadow. No collage, triptych, split panel, contact sheet, or multiple scene. Avoid showroom styling, advertising hierarchy, decorative symmetry, and generic moodboards.
+```
+
+Execution note: compare product truth, physical integrity, composition, action, brand expression, and artifacts. Do not score a missing human category when the case has no person.
+
+## P2-08-summer-dark-product
+
+- Test goal: summer semantics with dark confirmed product
+- Product role: hero_product
+- Human role: full_person
+- Season: 夏
+- Action: restrained studio stance
+- Composition: fullFigure
+- Reference order: shoe-front → shoe-side
+- Upload roles: primary product view; secondary product view
+- Recommended generation count: 2 per version
+
+### A Prompt — PRE-AUDIT (4190 chars)
+
+```text
+Use the uploaded footwear references as the only product source. Preserve only product features visibly confirmed by the current reference set; do not infer missing shape, material, color, construction, or branding details. Keep at least one sneaker fully visible from toe to heel, with the second clearly readable and grounded. Keep the foot seated inside the shoe; ankle, garment hem, collar, tongue, tied laces, outsole, and floor stay separate and readable with no clipping or fabric fusion. When worn, allow only subtle forefoot upper flex, gentle collar compression, settled laces, and grounded contact shadow; never let the foot, pose, or fabric reshape the toe box, panels, outsole, or silhouette. THERUIZ AURA German trainer as the main product reference. The sneaker must be the visual anchor of the image while keeping the person and scene natural. Present the preserved sneaker as part of a believable worn look rather than a rigid product-display task. Do not arrange both shoes in a perfect symmetrical showcase position. Match body weight to the selected action phase, with believable knee direction, hip balance, garment tension and folds corresponding to the movement, outsole pressure, and grounded contact shadow. Hands must make real contact with sleeves, bags, coats, doors, or furniture when the action requires it; do not use hovering or decorative hand gestures. Use one real-looking Asian or subtle Asian mixed-heritage woman aged 30–45, with natural dark hair, slight facial asymmetry, normal skin and under-eye texture, light daily makeup, realistic proportions, and calm real-camera urban presence. Keep her like a real tasteful customer, not European-looking, Western-dominant, blonde, doll-like, or professional-campaign-faced. Make the selected person feel real and unperformed in a controlled professional studio. Keep natural facial tension, subtle hair and fabric texture, relaxed shoulders, believable body asymmetry, and a calm expression responding to the pose rather than performing for the lens. Direct eye contact may appear when the selected studio role requires it, but avoid mannequin-like stillness or campaign-face perfection. Frame the full body from head to toe with natural proportions, one foot slightly forward, both sneakers clearly grounded and readable. Camera profile (standard): keep the established lens and camera distance, preserve the image-type composition and series lens continuity, and avoid wide-angle shoe enlargement. Use natural and physically believable light with a clear source, realistic falloff, soft local shadows, and normal exposure differences across the space. Allow the face to sit slightly below the brightest area when appropriate, and allow indoor-outdoor brightness differences or mild tonal imbalance. Keep physically distinct surface response across skin, hair, clothing, accessories, confirmed product surfaces, and the studio or environmental materials. Do not let unrelated surfaces share identical smoothness, sharpness, or reflectivity. Preserve subtle depth-of-field and edge softness where the lens would naturally create it, but do not hide anatomy or product errors through blur, noise, or low resolution. Avoid model identity inconsistent with the selected 30–45 customer profile, European-looking model, Western-dominant face, blonde model, non-Asian casting, age drift outside 30–45, overly youthful campaign casting. Avoid overly centered composition, symmetrical full-body catalog posing, rigid front-facing stance, mannequin-like stillness, static product-display foot placement, overly smooth skin, synthetic hair edges, identical sharpness across all materials, perfectly even lighting across face, outfit, shoes, and background, decorative but semantically weak objects, template-like cafe or studio environments, full-frame perfection, floating feet, weightless posture, hovering hands, garment-shoe fusion, duplicated shoe details, inconsistent left-right shoe structure, unstable laces, distorted outsole, generic catalog cutout, and artificial AI-style lifestyle-advertising perfection. Do not use blur, noise, metadata changes, or degraded image quality to conceal structural errors.
+```
+
+### B Prompt — POST-AUDIT (4190 chars)
+
+```text
+Use the uploaded footwear references as the only product source. Preserve only product features visibly confirmed by the current reference set; do not infer missing shape, material, color, construction, or branding details. Keep at least one sneaker fully visible from toe to heel, with the second clearly readable and grounded. Keep the foot seated inside the shoe; ankle, garment hem, collar, tongue, tied laces, outsole, and floor stay separate and readable with no clipping or fabric fusion. When worn, allow only subtle forefoot upper flex, gentle collar compression, settled laces, and grounded contact shadow; never let the foot, pose, or fabric reshape the toe box, panels, outsole, or silhouette. THERUIZ AURA German trainer as the main product reference. The sneaker must be the visual anchor of the image while keeping the person and scene natural. Present the preserved sneaker as part of a believable worn look rather than a rigid product-display task. Do not arrange both shoes in a perfect symmetrical showcase position. Match body weight to the selected action phase, with believable knee direction, hip balance, garment tension and folds corresponding to the movement, outsole pressure, and grounded contact shadow. Hands must make real contact with sleeves, bags, coats, doors, or furniture when the action requires it; do not use hovering or decorative hand gestures. Use one real-looking Asian or subtle Asian mixed-heritage woman aged 30–45, with natural dark hair, slight facial asymmetry, normal skin and under-eye texture, light daily makeup, realistic proportions, and calm real-camera urban presence. Keep her like a real tasteful customer, not European-looking, Western-dominant, blonde, doll-like, or professional-campaign-faced. Make the selected person feel real and unperformed in a controlled professional studio. Keep natural facial tension, subtle hair and fabric texture, relaxed shoulders, believable body asymmetry, and a calm expression responding to the pose rather than performing for the lens. Direct eye contact may appear when the selected studio role requires it, but avoid mannequin-like stillness or campaign-face perfection. Frame the full body from head to toe with natural proportions, one foot slightly forward, both sneakers clearly grounded and readable. Camera profile (standard): keep the established lens and camera distance, preserve the image-type composition and series lens continuity, and avoid wide-angle shoe enlargement. Use natural and physically believable light with a clear source, realistic falloff, soft local shadows, and normal exposure differences across the space. Allow the face to sit slightly below the brightest area when appropriate, and allow indoor-outdoor brightness differences or mild tonal imbalance. Keep physically distinct surface response across skin, hair, clothing, accessories, confirmed product surfaces, and the studio or environmental materials. Do not let unrelated surfaces share identical smoothness, sharpness, or reflectivity. Preserve subtle depth-of-field and edge softness where the lens would naturally create it, but do not hide anatomy or product errors through blur, noise, or low resolution. Avoid model identity inconsistent with the selected 30–45 customer profile, European-looking model, Western-dominant face, blonde model, non-Asian casting, age drift outside 30–45, overly youthful campaign casting. Avoid overly centered composition, symmetrical full-body catalog posing, rigid front-facing stance, mannequin-like stillness, static product-display foot placement, overly smooth skin, synthetic hair edges, identical sharpness across all materials, perfectly even lighting across face, outfit, shoes, and background, decorative but semantically weak objects, template-like cafe or studio environments, full-frame perfection, floating feet, weightless posture, hovering hands, garment-shoe fusion, duplicated shoe details, inconsistent left-right shoe structure, unstable laces, distorted outsole, generic catalog cutout, and artificial AI-style lifestyle-advertising perfection. Do not use blur, noise, metadata changes, or degraded image quality to conceal structural errors.
+```
+
+Execution note: compare product truth, physical integrity, composition, action, brand expression, and artifacts. Do not score a missing human category when the case has no person.

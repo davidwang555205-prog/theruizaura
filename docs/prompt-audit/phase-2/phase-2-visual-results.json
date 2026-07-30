@@ -1,0 +1,94 @@
+{
+  "phase": "PHASE_2_AB_PREPARATION_READY",
+  "status": "NOT_READY",
+  "results": [
+    {
+      "caseId": "P2-01-product-studio-hero",
+      "humanRole": "full_person",
+      "status": "pending",
+      "conclusion": null,
+      "scores": null,
+      "evidence": "",
+      "failureTypes": [],
+      "recommendOptimization": null,
+      "targetModule": null
+    },
+    {
+      "caseId": "P2-02-model-on-foot-studio",
+      "humanRole": "partial_person",
+      "status": "pending",
+      "conclusion": null,
+      "scores": null,
+      "evidence": "",
+      "failureTypes": [],
+      "recommendOptimization": null,
+      "targetModule": null
+    },
+    {
+      "caseId": "P2-03-lifestyle-city-walking",
+      "humanRole": "full_person",
+      "status": "pending",
+      "conclusion": null,
+      "scores": null,
+      "evidence": "",
+      "failureTypes": [],
+      "recommendOptimization": null,
+      "targetModule": null
+    },
+    {
+      "caseId": "P2-04-mirror-full-shoe",
+      "humanRole": "no_face",
+      "status": "pending",
+      "conclusion": null,
+      "scores": null,
+      "evidence": "",
+      "failureTypes": [],
+      "recommendOptimization": null,
+      "targetModule": null
+    },
+    {
+      "caseId": "P2-05-craft-closeup",
+      "humanRole": "no_full_person",
+      "status": "pending",
+      "conclusion": null,
+      "scores": null,
+      "evidence": "",
+      "failureTypes": [],
+      "recommendOptimization": null,
+      "targetModule": null
+    },
+    {
+      "caseId": "P2-06-subtle-atmosphere",
+      "humanRole": "no_person",
+      "status": "pending",
+      "conclusion": null,
+      "scores": null,
+      "evidence": "",
+      "failureTypes": [],
+      "recommendOptimization": null,
+      "targetModule": null
+    },
+    {
+      "caseId": "P2-07-no-product-no-person",
+      "humanRole": "no_person",
+      "status": "pending",
+      "conclusion": null,
+      "scores": null,
+      "evidence": "",
+      "failureTypes": [],
+      "recommendOptimization": null,
+      "targetModule": null
+    },
+    {
+      "caseId": "P2-08-summer-dark-product",
+      "humanRole": "full_person",
+      "status": "pending",
+      "conclusion": null,
+      "scores": null,
+      "evidence": "",
+      "failureTypes": [],
+      "recommendOptimization": null,
+      "targetModule": null
+    }
+  ]
+}
