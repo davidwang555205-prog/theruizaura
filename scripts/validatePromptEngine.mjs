@@ -104,6 +104,14 @@ ok(req.validationReport.missingRequiredRules.length===0, "No missing required");
 const bud = go("产品上脚图","studioOnFootDetail","棚内上新拍摄",true,13);
 ok(bud.prompt.split(/\s+/).length <= 170, "Budget: on-foot ("+bud.prompt.split(/\s+/).length+"w)");
 
+// 7b. Shoe perspective adapts by risk without replacing the image-type composition goal
+const lowRisk = go("产品上脚图", "fullFigure", "棚内上新拍摄", true, 14);
+has(lowRisk.prompt, "Camera profile (standard", "Low-risk keeps standard camera profile");
+const highRisk = compilePrompt({ imageType:"产品上脚图", compositionMode:"fullFigure", scenePreference:"棚内上新拍摄", sceneKey:"commute", season:"秋", modelChoice:"30–45岁客户画像模特", modelContinuity:"新人物", hasShoe:true, garmentTypePreference:"自动匹配", userExtraRequirement:"Use a raised foot extended toward the camera.", isMultiImage:false, generationNonce:15 });
+has(highRisk.prompt, "Camera profile (shoe-safe", "High-risk uses shoe-safe camera profile");
+has(highRisk.prompt, "move the camera farther back", "High-risk moves camera back");
+has(highRisk.prompt, "series lens continuity", "Camera profile protects series continuity");
+
 // 8. User input preserved
 const usr = compilePrompt({ imageType:"产品上脚图", compositionMode:"fullFigure", scenePreference:"通勤上班", sceneKey:"commute", season:"秋", modelChoice:"30–45岁客户画像模特", modelContinuity:"新人物", hasShoe:true, garmentTypePreference:"自动匹配", userExtraRequirement:"Use a soft cream cardigan.", isMultiImage:false, generationNonce:17 });
 has(usr.prompt,"soft cream cardigan","User input");
