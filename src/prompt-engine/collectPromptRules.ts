@@ -392,6 +392,19 @@ export function collectPromptRules(input: PromptProfileInput): PromptRule[] {
     });
   }
 
+  if (peopleImage && input.seriesFaceVariation?.line) {
+    rules.push({
+      id: `card-face-variation-${input.seriesFaceVariation.id}`,
+      section: "model",
+      text: `Face variation lock for this card (${input.seriesFaceVariation.id}): ${input.seriesFaceVariation.line} Keep the same person identity, but do not reuse the previous face-visible card's gaze target, eyelid tension, mouth state, or head angle.`,
+      priority: PromptPriority.P0_USER_SPECIFIED,
+      source: "theme-card",
+      appliesWhen: {},
+      required: true,
+      tags: ["card", "face-variation", "series"]
+    });
+  }
+
   if (input.actionLock && peopleImage) {
     rules.push({
       id: "card-action-lock",

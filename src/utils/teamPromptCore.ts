@@ -2101,6 +2101,7 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
         gazeSelection.mode === "phoneHiddenFace" || gazeSelection.mode === "noFaceNeeded"
           ? ""
           : getMultiImageExpressionSequenceLine(params),
+        params.seriesFaceVariation?.line ?? "",
         getCompactPoseBodyLine(poseCategory),
         humanRealism.multiImageConsistencyLine
       ]
@@ -2297,7 +2298,8 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
               humanRealism.facialLightingLine,
               gazeSelection.mode === "phoneHiddenFace" || gazeSelection.mode === "noFaceNeeded"
                 ? ""
-                : getMultiImageExpressionSequenceLine(params)
+                : getMultiImageExpressionSequenceLine(params),
+              params.seriesFaceVariation?.line ?? ""
             ].filter(Boolean)
           : [],
         outfitLine: [],

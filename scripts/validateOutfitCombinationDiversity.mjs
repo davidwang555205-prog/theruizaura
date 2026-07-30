@@ -185,6 +185,14 @@ try {
       variantOffset: 1,
       date: new Date("2026-07-20T12:00:00+08:00")
     });
+    if (topic === "穿搭解决方案") {
+      const faceVariationIds = content.images
+        .map((image) => image.params.seriesFaceVariation?.id)
+        .filter(Boolean);
+      if (new Set(faceVariationIds).size !== faceVariationIds.length || faceVariationIds.length < 3) {
+        failures.push({ topic, message: "Styling-solution face variation plan is missing or duplicated." });
+      }
+    }
     for (const image of content.images.filter((item) => personImageTypes.has(item.params.imageType))) {
       const selectedOutfit = generatePromptRuntime(image.params).selectedOutfitLine ?? "";
       if (!selectedOutfit || !image.prompt.includes(selectedOutfit)) {
