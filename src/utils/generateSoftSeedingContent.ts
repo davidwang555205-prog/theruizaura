@@ -2653,7 +2653,7 @@ const topicImageDrafts: Record<SoftSeedingTopic, SoftSeedingImageDraft[]> = {
     }
   ],
   材质工艺认知: [
-    { name: "图1｜结构｜材质工作台", purpose: "讲鞋型与材质细节。", description: "鞋头、鞋带、走线、皮料样同框。", imageType: "拍摄花絮 / 材质图", scenePreference: "材质工作台", garmentTypePreference: "自动匹配", extraRequirement: "Show a precise material table with toe shape reference, shoelaces, stitching samples, leather or suede swatches, and product notes. Use pigskin lining if lining is visible or relevant; do not invent a different lining." },
+    { name: "图1｜结构｜材质工作台", purpose: "讲鞋型与材质细节。", description: "鞋头、鞋带、走线、参考样同框。", imageType: "拍摄花絮 / 材质图", scenePreference: "材质工作台", garmentTypePreference: "自动匹配", extraRequirement: "Show a precise reference table with visible toe shape, shoelaces, stitching samples, confirmed surface details, and product notes. Use lining details only when visibly confirmed; do not invent a different material." },
     { name: "图2｜静物｜棚内细节", purpose: "让工艺细节更清楚。", description: "棚内干净特写，材质和缝线锐利。", imageType: "产品静物图", scenePreference: "棚内上新拍摄", garmentTypePreference: "自动匹配", extraRequirement: "Use a clean studio material detail still life focusing on stitching, laces, tongue, panel transitions, outsole edge, and real material texture. Keep the product structurally accurate." },
     { name: "图3｜幕后｜拍摄花絮", purpose: "用手部整理表达真实工艺感。", description: "手部整理鞋带或检查鞋身。", imageType: "拍摄花絮 / 材质图", scenePreference: "拍摄花絮", garmentTypePreference: "自动匹配", extraRequirement: "Show refined hands gently arranging laces or checking stitching near the product. Keep hand structure natural and avoid messy studio clutter or factory inspection mood." },
     { name: "图4｜认知｜桌边整理", purpose: "做非产品氛围辅助图。", description: "材质卡、纸品、笔记和护理工具。", imageType: "非产品氛围图", scenePreference: "工作台 / 桌边整理", garmentTypePreference: "自动匹配", extraRequirement: "Create a non-product craft cognition atmosphere with material cards, care brush, thread, paper notes, and warm daylight. The shoe can be absent or only a subtle partial detail." },
@@ -2997,7 +2997,7 @@ const topicImageGuides: Record<SoftSeedingTopic, string> = {
   穿搭解决方案:
     "Use concrete styling-solution cues: before-leaving outfit check, downward-looking shoe-and-trouser relationship, cropped waist-or-knee-down outfit reference, readable sneaker scale, trouser/skirt/dress hem relationship, and one practical daily scenario. Do not default to mirror selfie.",
   材质工艺认知:
-    "Use concrete material-learning cues: one precise detail at a time, such as toe shape, outsole edge, stitching route, lace thickness, pigskin lining when relevant, leather texture, panel transition, and clean product readability.",
+    "Use concrete material-learning cues: one visibly confirmed detail at a time, such as toe shape, outsole edge, stitching route, lace thickness, lining only when confirmed, surface texture, panel transition, and clean product readability.",
   品牌审美观点:
     "Use concrete aesthetic-point cues: her wardrobe, desk, book, gallery, quiet city corner, low-saturation personal objects, subtle product presence, and warm negative space.",
   上新活动转化:
@@ -3049,7 +3049,7 @@ const topicVariantVisualCues: Record<SoftSeedingTopic, string[]> = {
     "Visual content angle: teach through one visible detail, such as toe curve, outsole edge, lace route, stitching, or material transition.",
     "Visual content angle: keep the texture honest, with matte surface, natural grain, precise panel structure, and no glossy fake material.",
     "Visual content angle: use a close but not distorted material view, so the sneaker shape stays readable.",
-    "Visual content angle: if lining is relevant or visible, use pigskin lining for current THERUIZ AURA styles and do not invent lambskin lining.",
+    "Visual content angle: if lining is relevant or visible, preserve only the lining detail confirmed by the current reference and do not invent another material.",
     "Visual content angle: make the craft detail easy to understand without turning the image into a sterile product specification."
   ],
   品牌审美观点: [

@@ -9,17 +9,17 @@ export const shoeSpecificAccuracyProfiles: Record<TeamShoe, ShoeSpecificAccuracy
   "Cloud Dancer 云舞者": {
     risk: ["white upper overexposure", "panel detail loss", "generic white sneaker transformation"],
     accuracyLine:
-      "Preserve Cloud Dancer as a refined off-white low-cut German trainer with visible panel structure, natural off-white tone, slim outsole, rounded toe box, and no overexposed white upper."
+      "Preserve Cloud Dancer only as visibly confirmed by the selected footwear reference, including its visible tone and panel structure; avoid overexposure."
   },
   "Sand Dollar 沙钱白": {
     risk: ["beige tone becoming dull", "upper losing softness"],
     accuracyLine:
-      "Preserve Sand Dollar as a soft neutral low-cut German trainer with warm sand-toned depth, clean panel boundaries, slim outsole, and no muddy beige color."
+      "Preserve Sand Dollar only as visibly confirmed by the selected footwear reference, including its visible neutral tone and panel boundaries; avoid muddy color."
   },
   "Cappuccino 卡布奇诺": {
     risk: ["brown becoming muddy", "old-fashioned styling"],
     accuracyLine:
-      "Preserve Cappuccino with warm coffee-brown depth, clean material contrast, refined low-cut German trainer shape, slim outsole, and no muddy or aged brown tone."
+      "Preserve Cappuccino only as visibly confirmed by the selected footwear reference, including visible brown tone and contrast; avoid muddy or aged color."
   },
   "Silver Romance 银色浪漫": {
     risk: ["silver becoming glitter", "mirror-metal shine", "cheap reflective material"],
@@ -29,37 +29,37 @@ export const shoeSpecificAccuracyProfiles: Record<TeamShoe, ShoeSpecificAccuracy
   "Aire 微风": {
     risk: ["becoming running shoe", "mesh texture chaos", "technical sports sneaker transformation"],
     accuracyLine:
-      "Preserve Aire as a breathable mesh low-cut German trainer, not a running shoe or technical sneaker. Keep the mesh panels refined, the outsole slim, the toe rounded, and the trainer shape clean and daily."
+      "Preserve Aire only as visibly confirmed by the selected footwear reference; do not transform it into a running shoe or technical sneaker, and do not infer unconfirmed material or structure."
   },
   "Delphinium Blue 飞燕草蓝": {
     risk: ["blue becoming too saturated", "purple conflict"],
     accuracyLine:
-      "Preserve Delphinium Blue as a low-saturation blue-violet German trainer with clean panel separation, soft material texture, slim outsole, and no bright saturated blue or purple distortion."
+      "Preserve Delphinium Blue only as visibly confirmed by the selected footwear reference, including its visible color relationship and panel separation; avoid saturation distortion."
   },
   "Lemon 柠檬": {
     risk: ["yellow becoming too bright", "childish color"],
     accuracyLine:
-      "Preserve Lemon as a soft low-saturation yellow accent German trainer with clean off-white balance, refined daily color, slim outsole, and no neon yellow or childish candy color."
+      "Preserve Lemon only as visibly confirmed by the selected footwear reference, including its visible accent color; avoid neon or childish color distortion."
   },
   "Maple Grove 枫林": {
     risk: ["autumn color becoming muddy", "too heavy"],
     accuracyLine:
-      "Preserve Maple Grove with warm maple-brown depth, clean material boundaries, low-cut German trainer shape, slim outsole, and no muddy dark color or heavy outdoor-shoe feeling."
+      "Preserve Maple Grove only as visibly confirmed by the selected footwear reference, including visible brown depth and material boundaries; avoid muddy color or heavy reinterpretation."
   },
   "Oreo 奥利奥": {
     risk: ["becoming generic black-white sneaker", "harsh contrast"],
     accuracyLine:
-      "Preserve Oreo as a refined black-white low-cut German trainer with clean contrast, clear panel structure, slim outsole, and no generic skate shoe or chunky sneaker transformation."
+      "Preserve Oreo only as visibly confirmed by the selected footwear reference, including its visible black-white contrast and panel structure; do not transform it into a chunky or skate shoe."
   },
   "Panda 熊猫": {
     risk: ["becoming sporty panda sneaker", "black-white too loud"],
     accuracyLine:
-      "Preserve Panda as a clean black-white low-cut German trainer with refined panel balance, slim outsole, rounded toe box, and no loud sporty sneaker or chunky sole."
+      "Preserve Panda only as visibly confirmed by the selected footwear reference, including its visible black-white balance; do not transform it into a loud sporty or chunky shoe."
   },
   自定义: {
     risk: ["generic sneaker transformation", "shoe detail loss"],
     accuracyLine:
-      "Preserve the selected THERUIZ AURA low-cut German trainer with clean panel structure, slim outsole, rounded toe box, readable tongue, natural laces, and no generic sneaker transformation."
+      "Preserve the selected THERUIZ AURA footwear reference only as visibly confirmed, with readable panels, tongue, laces, and proportions; do not transform it into another shoe category."
   }
 };
 

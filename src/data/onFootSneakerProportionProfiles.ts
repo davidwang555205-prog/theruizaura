@@ -29,10 +29,10 @@ export const mirrorOnFootStabilityLine =
   "In mirror outfit images, keep the sneakers undistorted by mirror perspective. At least one sneaker must be fully visible from toe to heel, the second clearly readable, with no stretched feet, cropped toe box, warped outsole, or long-leg selfie distortion.";
 
 export const gymOnFootSneakerStabilityLine =
-  "In gym or active-lifestyle scenes, keep the sneakers as THERUIZ AURA low-cut German trainers, not running shoes or technical gym shoes. Maintain slim outsole, low profile, clear panels, grounded stance, and realistic foot-to-shoe scale during light gym actions.";
+  "In gym or active-lifestyle scenes, keep the sneakers identical to the uploaded THERUIZ AURA footwear references, not transformed into running shoes or technical gym shoes. Preserve only visibly confirmed details, grounded stance, and realistic foot-to-shoe scale during light gym actions.";
 
 export const outsoleGroundContactLine =
-  "Keep the outsole naturally touching the floor or pavement with correct perspective, soft contact shadows, and no floating, sinking, bending, or warped sole edge. The sole should remain slim, clean, and close to the original German trainer profile.";
+  "Keep the outsole naturally touching the floor or pavement with correct perspective, soft contact shadows, and no floating, sinking, bending, or warped sole edge. Preserve the reference outsole exactly as visibly confirmed.";
 
 export const toeDirectionStabilityLine =
   "Keep the toe box direction aligned with the foot and body stance. Avoid mismatched toe angles, inward-collapsed feet, outward-twisted shoes, duplicated toe shapes, or one shoe appearing from a different camera perspective than the other.";

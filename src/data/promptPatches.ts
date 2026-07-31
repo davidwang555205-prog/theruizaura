@@ -22,11 +22,11 @@ export const promptQualityPatchNotice = `已启用：${promptQualityPatchLabels.
 
 export const promptQualityPatches = {
   sneakerShapeProtection:
-    "Strictly preserve the uploaded THERUIZ AURA sneaker reference: low-cut German trainer silhouette, rounded toe box, slim outsole, original panel structure, tongue shape, stitching, lace thickness, material transitions, color relationship and proportions. Do not redesign the shoe.",
+    "Strictly preserve the uploaded THERUIZ AURA footwear reference: visible silhouette, toe area, outsole, panel structure, tongue, stitching, laces, material transitions, color relationship, and proportions. Do not redesign the shoe or infer missing facts.",
   sneakerVisibility:
     "Keep at least one sneaker fully visible from toe to heel, with the second sneaker clearly readable. Keep garment hems and socks physically separated from the sneakers. The sneaker collar, tongue, tied laces and outsole must remain clear.",
   materialRule:
-    "All current THERUIZ AURA styles use pigskin lining unless manually specified. Keep lining details accurate and secondary to the selected image type.",
+    "Use lining or inner-surface details only when visibly confirmed by the uploaded reference or explicitly specified by the user; otherwise keep them unknown.",
   bodyAndClippingProtection:
     "Keep body scale, leg length, hand size, foot scale and shoe-to-leg relationship realistic. No fabric melting into shoes, no fused legs, no distorted feet, no extra toes, no over-stretched legs, no plastic skin, no mannequin-like stiffness.",
   seasonalOutfitMatch:
@@ -43,13 +43,13 @@ export const promptQualityPatches = {
 
 const compactPatchLines = {
   sneakerShapeProtection:
-    "Preserve the uploaded low-cut German trainer shape, rounded toe box, slim outsole, panels, tongue, stitching, laces, color, material transitions, and proportions; do not redesign it.",
+    "Preserve the uploaded footwear shape, visible toe area, outsole, panels, tongue, stitching, laces, color, material transitions, and proportions; do not redesign it or infer missing details.",
   sneakerVisibility:
     "Keep at least one sneaker fully visible, the second readable, outsole grounded, and keep fabric, socks, collar, tongue, tied laces, and floor contact physically separated.",
   pigskinMaterialRule:
-    "Use pigskin lining for current THERUIZ AURA styles when lining is visible or relevant; keep material details accurate and secondary to the selected image type.",
+    "Use lining details only when visibly confirmed by the uploaded reference; keep unconfirmed material details unknown.",
   standardMaterialRule:
-    "Use pigskin lining for current THERUIZ AURA styles when lining is visible or relevant; keep material details accurate and do not invent a different lining.",
+    "Use only visibly confirmed lining details and do not invent a different material.",
   materialDetailRule:
     "For material or behind-the-scenes images, show only relevant material details, samples, swatches, laces, stitching, notes, or partial product details; do not turn the image into a direct full-shoe product shot unless explicitly requested.",
   bodyAndClippingProtection:
