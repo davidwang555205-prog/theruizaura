@@ -35,7 +35,7 @@ export const promptRepairDictionary: Record<PromptRepairKey, PromptRepair> = {
   shoeDeformationRepair: {
     key: "shoeDeformationRepair",
     line:
-      "Preserve the selected THERUIZ AURA low-cut German trainer shape with a slim outsole, rounded toe box, clear panel structure, readable tongue, natural laces, and no running-shoe or chunky-sole transformation.",
+      "Preserve the selected uploaded THERUIZ AURA footwear reference with its visibly confirmed shape, outsole, panel structure, tongue, and laces; do not transform it into another shoe category.",
     negativePhrases: ["running shoe transformation", "chunky sole", "generic sneaker shape"]
   },
   longLegRepair: {

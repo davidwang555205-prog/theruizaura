@@ -27,10 +27,10 @@ const materialDetailShoeAccuracyLine =
   "If a THERUIZ AURA sneaker sample, shoe part, shoelace, material panel, or partial product detail appears, keep it secondary to the material story. Preserve the uploaded reference color, material texture, panel boundary, stitching, lace thickness, and recognizable trainer structure when visible, but do not turn the image into a full-shoe product shot.";
 
 const uploadedSneakerAccuracyLine =
-  "Use uploaded sneaker reference as strict source: low-cut German trainer silhouette, rounded toe box, slim outsole, panels, tongue, stitching, material, color, and proportions.";
+  "Use uploaded footwear references as the only product source; preserve only visibly confirmed details and do not infer missing product facts.";
 
 const selectedSneakerAccuracyLine =
-  "Preserve the selected THERUIZ AURA German trainer: low-cut silhouette, rounded toe box, slim outsole, panels, tongue, stitching, material, color, and proportions.";
+  "Preserve the selected uploaded footwear reference exactly; do not redesign or infer unconfirmed product features.";
 
 const shoeVisibilityLine =
   "Keep at least one sneaker fully visible from toe to heel, with the second clearly readable and grounded.";
@@ -92,7 +92,7 @@ export function chooseSneakerProtectionLines(input: SneakerProtectionInput): Sne
     input.shoe === "自定义" && !input.customShoe.trim() ? selectedSneakerAccuracyLine : uploadedSneakerAccuracyLine;
   const shoeSpecificAccuracyLine = getShoeSpecificAccuracyLine(input.shoe, true);
   const productLine = [
-    `THERUIZ AURA ${input.shoeDisplayName} German trainer as the main product reference.`,
+    "Use the uploaded footwear references as the only product source and keep the sneaker visually consistent with those references.",
     accuracyLine,
     isWornPeopleImage(input.imageType) ? onFootMaterialResponseLine : "",
     shoeVisibilityLine,

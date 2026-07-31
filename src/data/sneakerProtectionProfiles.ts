@@ -1,5 +1,5 @@
 export const sneakerShapeLockCompact =
-  "The THERUIZ AURA sneaker shape must stay accurate and structurally unchanged. Preserve the original low-cut German trainer silhouette, toe box shape, slim outsole thickness, side panel layout, tongue height, lace thickness, stitching lines, heel curve, material texture, color, and proportions. Do not redesign, simplify, stretch, compress, thicken, or reinterpret the shoe.";
+  "The uploaded footwear reference must stay accurate and structurally unchanged. Preserve only the visible toe area, upper, outsole, panels, tongue, laces, stitching, material response, color, and proportions confirmed by the reference. Do not redesign, simplify, stretch, compress, thicken, or reinterpret the shoe.";
 
 export const sneakerClippingControlCompact =
   "Keep the sneaker clearly separated from the foot, ankle, sock, garment hem, floor, and nearby props. No fabric, skin, shadow, or object should merge into the shoe. The sneaker collar, tongue, laces, toe box, outsole, heel, and side panels must remain readable and structurally clean.";
@@ -17,10 +17,10 @@ export const sockShoeBoundaryCompact =
   "If socks appear, keep them simple, clean, and correctly positioned. Socks should not merge into the shoe collar, cover the tongue, distort the ankle, or create extra fabric lumps. Prefer no-show socks, thin white socks, or clean low socks when appropriate.";
 
 export const outsoleThicknessLockCompact =
-  "Preserve the sneaker’s slim, low-profile outsole. Do not make the sole chunky, platform-like, inflated, thick running-shoe style, or skate-shoe-like. The outsole should stay clean, flat, proportionate, and close to the original German trainer profile.";
+  "Preserve the reference outsole exactly as visibly confirmed. Do not make it chunky, platform-like, inflated, thick, or otherwise different from the uploaded footwear reference.";
 
 export const toeBoxShapeLockCompact =
-  "Preserve the original rounded-low German trainer toe box. Do not make it too wide, too pointed, too bulky, too flat, too high, or running-shoe-like. The toe box should remain elegant, low, and refined.";
+  "Preserve the visible reference toe area exactly. Do not make it wider, narrower, more pointed, bulkier, flatter, higher, or otherwise different from the uploaded footwear reference.";
 
 export const laceTongueClarityCompact =
   "Keep the laces, lace holes, tongue, and lace tension visually clear. The laces should not melt into fingers, trousers, socks, or the shoe upper. The tongue should stay centered and visible, not collapsed, hidden, oversized, or fused with the foot.";
@@ -41,7 +41,7 @@ export const mirrorSneakerAccuracyCompact =
   "In mirror outfit images, keep the sneakers clear, undistorted, and fully readable despite the mirror perspective. Avoid mirror stretching that elongates the feet, warps the outsole, shrinks the shoes, crops the toe box, or makes the shoe shape inconsistent between the two feet.";
 
 export const gymSneakerIdentityCompact =
-  "Even in active or gym-related scenes, the sneaker must remain a THERUIZ AURA German trainer, not a running shoe, training shoe, gym shoe, basketball shoe, tennis shoe, or chunky athletic sneaker. Keep the sole slim, the silhouette low-cut, and the panels refined.";
+  "Even in active or gym-related scenes, keep the footwear identical to the uploaded reference. Do not transform it into a running shoe, training shoe, gym shoe, basketball shoe, tennis shoe, or chunky athletic sneaker.";
 
 export const stillLifeSneakerAccuracyCompact =
   "For product still life images, the shoe must be the main subject and its structure must be precise. Keep the pair or single shoe cleanly arranged with accurate proportions, true color, readable material texture, clear laces, visible outsole profile, and no deformation from camera angle or props.";

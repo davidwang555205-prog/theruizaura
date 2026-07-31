@@ -5,7 +5,7 @@ export const IMAGE_TYPE_PROFILES: Record<string, { label: string; rules: PromptR
   "产品上脚图": {
     label: "Product On-Foot",
     rules: [
-      { id: "img-onfoot-product-primary", section: "product", text: "THERUIZ AURA German trainer as the main product reference. The sneaker must be the visual anchor of the image while keeping the person and scene natural.", priority: PromptPriority.P1_PRODUCT_HARD_LOCK, source: "image-type-profile", appliesWhen: {}, required: true, tags: ["image-type"] },
+      { id: "img-onfoot-product-primary", section: "product", text: "Use uploaded footwear references as the only product source; keep visibly confirmed sneaker details as the visual anchor and do not infer missing facts.", priority: PromptPriority.P1_PRODUCT_HARD_LOCK, source: "image-type-profile", appliesWhen: {}, required: true, tags: ["image-type"] },
       { id: "img-onfoot-laces", section: "product", text: "Keep laces naturally tied, with readable loops, lace ends, eyelets, and tongue.", priority: PromptPriority.P1_PRODUCT_HARD_LOCK, source: "image-type-profile", appliesWhen: {}, tags: ["image-type"] },
     ],
   },

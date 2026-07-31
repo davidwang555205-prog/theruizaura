@@ -207,7 +207,7 @@ export function promptPreflightCheck(input: PromptPreflightInput): PromptPreflig
     ) {
       repair("shoeClippingRepair", "On-foot clipping protection line was missing.");
     }
-    if (!/low-cut German trainer|slim outsole|rounded toe box/i.test(text)) {
+    if (!/uploaded footwear reference|uploaded sneaker reference|preserve .*reference|visibly confirmed/i.test(text)) {
       repair("shoeDeformationRepair", "Shoe shape protection needed reinforcement.");
     }
   }
