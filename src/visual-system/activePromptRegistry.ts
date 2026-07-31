@@ -16,10 +16,10 @@ export type ThemePromptRegistryEntry = {
 };
 
 const selectionByRole: Record<ThemePromptRole, ActivePromptSelection> = {
-  A1: "new", A2: "old", A3: "new", B3: "new", B4: "new", C1: "old", C2: "new", C3: "new", C4: "new", C5: "repaired_new"
+  A1: "new", A2: "new", A3: "new", B3: "new", B4: "new", C1: "new", C2: "new", C3: "new", C4: "new", C5: "repaired_new"
 };
 const validationByRole: Record<ThemePromptRole, ThemePromptRegistryEntry["validationResult"]> = {
-  A1: "NEW_PASS", A2: "OLD_BETTER", A3: "NEW_PASS", B3: "NEW_PASS", B4: "NEW_PASS", C1: "OLD_BETTER", C2: "NEW_PASS", C3: "NEW_PASS", C4: "NEW_PASS", C5: "REPAIR_PASS"
+  A1: "NEW_PASS", A2: "NEW_PASS", A3: "NEW_PASS", B3: "NEW_PASS", B4: "NEW_PASS", C1: "NEW_PASS", C2: "NEW_PASS", C3: "NEW_PASS", C4: "NEW_PASS", C5: "REPAIR_PASS"
 };
 const roles = Object.keys(selectionByRole) as ThemePromptRole[];
 const planByRole = new Map(comparisonPlan.comparisons.map((item) => [item.role as ThemePromptRole, item]));
