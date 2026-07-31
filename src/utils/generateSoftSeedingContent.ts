@@ -18,6 +18,8 @@ import { selectDiversePersonActions } from "./selectDiverseSeriesActions";
 import { choosePerSceneOutfitLine } from "./choosePerSceneOutfitLine";
 import { resolveTopicRoleBundle } from "../visual-system/topicRoutingRegistry";
 import { compileRoutedImage2UserPrompt } from "../visual-system/routedPromptCompiler";
+import { getCompatibleSceneOptions } from "../data/teamSceneOptions";
+import { mapEnglishPromptField } from "../visual-system/englishPromptMappings";
 
 type SoftSeedingCopyTopic =
   | "生活场景软种草"
@@ -3454,6 +3456,40 @@ function joinSoftPromptSentences(...lines: string[]) {
     .join(" ");
 }
 
+function resolveMultiImageScenePreference(
+  topic: SoftSeedingTopic,
+  draft: SoftSeedingImageDraft,
+  index: number,
+  imageCount: SoftSeedingImageCount,
+  variantIndex: number,
+  generationNonce: number,
+  usedScenes?: Set<TeamScenePreference>
+) {
+  if (topic !== "生活场景软种草" && topic !== "穿搭解决方案") return draft.scenePreference;
+
+  const excluded = new Set<TeamScenePreference>([
+    "自动匹配",
+    "棚内上新拍摄",
+    "材质工作台",
+    "拍摄花絮",
+    "工作台 / 桌边整理"
+  ]);
+  const candidates = getCompatibleSceneOptions(draft.imageType).filter((scene) => {
+    if (excluded.has(scene) || scene === draft.scenePreference || usedScenes?.has(scene)) return false;
+    try {
+      mapEnglishPromptField("scene", scene);
+      return true;
+    } catch {
+      return false;
+    }
+  });
+  if (!candidates.length) return draft.scenePreference;
+
+  const stride = Math.max(1, imageCount - 1);
+  const offset = Math.abs(generationNonce + variantIndex * stride + index * 3);
+  return candidates[offset % candidates.length] ?? draft.scenePreference;
+}
+
 function buildImagePlan(
   baseParams: TeamPromptParams,
   draft: SoftSeedingImageDraft,
@@ -3462,7 +3498,8 @@ function buildImagePlan(
   variantIndex: number,
   imageCount: SoftSeedingImageCount,
   seriesActionBeat: SeriesActionBeat,
-  lockedOutfitLine = ""
+  lockedOutfitLine = "",
+  usedScenes?: Set<TeamScenePreference>
 ): Omit<SoftSeedingImagePlan, "visualRoleId" | "activePromptVersionId" | "provenanceDisplay" | "routingProvenance"> {
   const shoeFields = resolveBaseShoe(baseParams);
   const garmentTypePreference = resolveSoftSeedingGarmentType(baseParams, draft);
@@ -3471,7 +3508,15 @@ function buildImagePlan(
     ...baseParams,
     ...shoeFields,
     imageType: draft.imageType,
-    scenePreference: draft.scenePreference,
+    scenePreference: resolveMultiImageScenePreference(
+      topic,
+      draft,
+      index,
+      imageCount,
+      variantIndex,
+      baseParams.generationNonce,
+      usedScenes
+    ),
     topicId: topic === "棚内上新拍摄"
       ? "studio_launch_shoot"
       : topic === "生活场景软种草"
@@ -3560,6 +3605,7 @@ function buildSoftSeedingImagePlans(
     generationNonce: baseParams.generationNonce
   });
 
+  const usedScenes = new Set<TeamScenePreference>();
   const plans = drafts.map((draft, index) => {
     const selectedPersonAction = selectedPersonActions[index];
     const seriesActionBeat: SeriesActionBeat = selectedPersonAction
@@ -3579,8 +3625,10 @@ function buildSoftSeedingImagePlans(
       variantIndex,
       imageCount,
       seriesActionBeat,
-      sharedOutfitLine
+      sharedOutfitLine,
+      usedScenes
     );
+    usedScenes.add(plan.params.scenePreference);
     if (!sharedOutfitLine && shouldInheritBaseGarmentType(draft.imageType)) {
       sharedOutfitLine = generatePromptRuntime(plan.params).selectedOutfitLine ?? "";
     }
@@ -3590,7 +3638,7 @@ function buildSoftSeedingImagePlans(
       basePrompt: plan.prompt,
       topicRoute: roleBundle.route,
       visualRoleId,
-      currentTaskContext: { imageType: draft.imageType, scenePreference: draft.scenePreference, imageIndex: index + 1, imageCount }
+      currentTaskContext: { imageType: draft.imageType, scenePreference: plan.params.scenePreference, imageIndex: index + 1, imageCount }
     });
     return {
       ...plan,
@@ -3599,7 +3647,7 @@ function buildSoftSeedingImagePlans(
       activePromptVersionId,
       provenanceDisplay: {
         topicLabelZh: roleBundle.route.userFacingLabel,
-        sceneLabelZh: draft.scenePreference,
+        sceneLabelZh: plan.params.scenePreference,
         imageTypeLabelZh: draft.imageType,
         sequenceLabelZh: `第 ${index + 1} 张，共 ${imageCount} 张`
       },
