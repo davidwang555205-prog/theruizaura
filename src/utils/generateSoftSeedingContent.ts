@@ -3412,7 +3412,8 @@ function getSoftSeedingExtraRequirement(
   garmentTypePreference: TeamGarmentTypePreference,
   topic: SoftSeedingTopic,
   variantIndex: number,
-  imageCount: SoftSeedingImageCount
+  imageCount: SoftSeedingImageCount,
+  resolvedScene: TeamScenePreference
 ) {
   const themeGuide = topicImageGuides[topic];
   const variantVisualCue = getSoftSeedingVariantVisualCue(topic, variantIndex);
@@ -3426,9 +3427,9 @@ function getSoftSeedingExtraRequirement(
     topic === "棚内上新拍摄" ? getStudioLaunchSetContinuityLine(imageCount) : "";
 
   if (baseParams.garmentTypePreference === "自动匹配" || !shouldInheritBaseGarmentType(draft.imageType)) {
-    return [draft.extraRequirement, studioShotControlLine, themeGuide, variantVisualCue, copyVisualAlignmentCue, stylingSolutionContinuityLine, studioContinuityLine]
+    return alignSoftRequirementToResolvedScene([draft.extraRequirement, studioShotControlLine, themeGuide, variantVisualCue, copyVisualAlignmentCue, stylingSolutionContinuityLine, studioContinuityLine]
       .filter(Boolean)
-      .join(" ");
+      .join(" "), topic, resolvedScene);
   }
 
   const manualControlLine =
@@ -3446,7 +3447,37 @@ function getSoftSeedingExtraRequirement(
     .filter(Boolean)
     .join(" ");
 
-  return sanitizeSoftSeedingExtraRequirementForGarment(combinedRequirement, garmentTypePreference);
+  return alignSoftRequirementToResolvedScene(
+    sanitizeSoftSeedingExtraRequirementForGarment(combinedRequirement, garmentTypePreference),
+    topic,
+    resolvedScene
+  );
+}
+
+function alignSoftRequirementToResolvedScene(
+  requirement: string,
+  topic: SoftSeedingTopic,
+  scene: TeamScenePreference
+) {
+  const sceneText = String(scene);
+  const isLifestyleTopic = topic === "生活场景软种草" || topic === "穿搭解决方案" || topic === "上新活动转化";
+  const forbiddenTokens: string[] = [];
+  if (isLifestyleTopic) {
+    if (!/咖啡|coffee/i.test(sceneText)) forbiddenTokens.push("coffee", "咖啡");
+    if (!/酒店|hotel/i.test(sceneText)) forbiddenTokens.push("hotel", "酒店", "luggage", "行李");
+    if (!/镜|mirror/i.test(sceneText)) forbiddenTokens.push("mirror", "镜前");
+    if (!/棚内|studio|静物|拍摄花絮/i.test(sceneText)) forbiddenTokens.push("studio", "棚内", "behind-the-scenes", "幕后");
+  }
+  if (topic === "棚内上新拍摄") {
+    forbiddenTokens.push("coffee", "咖啡", "hotel", "酒店", "luggage", "行李", "mirror", "镜前", "behind-the-scenes", "幕后");
+  }
+  if (!forbiddenTokens.length) return requirement;
+  const tokenPattern = forbiddenTokens.map((token) => token.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("|");
+  return requirement
+    .split(/(?<=[.!?。！？])\s+/)
+    .filter((sentence) => !new RegExp(tokenPattern, "i").test(sentence))
+    .join(" ")
+    .trim();
 }
 
 function joinSoftPromptSentences(...lines: string[]) {
@@ -3517,19 +3548,20 @@ function buildImagePlan(
   const shoeFields = resolveBaseShoe(baseParams);
   const garmentTypePreference = resolveSoftSeedingGarmentType(baseParams, draft);
   const lifestyleContinuityLine = getLifestyleSoftSeedingContinuityLines(topic, draft, imageCount);
+  const resolvedScene = resolveMultiImageScenePreference(
+    topic,
+    draft,
+    index,
+    imageCount,
+    variantIndex,
+    baseParams.generationNonce,
+    usedScenes
+  );
   const params: TeamPromptParams = {
     ...baseParams,
     ...shoeFields,
     imageType: draft.imageType,
-    scenePreference: resolveMultiImageScenePreference(
-      topic,
-      draft,
-      index,
-      imageCount,
-      variantIndex,
-      baseParams.generationNonce,
-      usedScenes
-    ),
+    scenePreference: resolvedScene,
     topicId: topic === "棚内上新拍摄"
       ? "studio_launch_shoot"
       : topic === "生活场景软种草"
@@ -3547,7 +3579,7 @@ function buildImagePlan(
       topic === "生活场景软种草" ? lifestyleExpressionBeats[index % lifestyleExpressionBeats.length] : "",
       topic === "穿搭解决方案" ? stylingSolutionExpressionBeats[index % stylingSolutionExpressionBeats.length] : "",
       `Treat this as the only primary body action or object-operation moment for this card; do not add another walking, arrival, adjustment, or object-operation action.`,
-      getSoftSeedingExtraRequirement(baseParams, draft, garmentTypePreference, topic, variantIndex, imageCount),
+      getSoftSeedingExtraRequirement(baseParams, draft, garmentTypePreference, topic, variantIndex, imageCount, resolvedScene),
       lifestyleContinuityLine
     ),
     generationNonce: baseParams.generationNonce + variantIndex + index + 1,
