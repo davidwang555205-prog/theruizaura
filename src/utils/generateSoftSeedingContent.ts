@@ -20,6 +20,7 @@ import { resolveTopicRoleBundle } from "../visual-system/topicRoutingRegistry";
 import { compileRoutedImage2UserPrompt } from "../visual-system/routedPromptCompiler";
 import { getCompatibleSceneOptions } from "../data/teamSceneOptions";
 import { mapEnglishPromptField } from "../visual-system/englishPromptMappings";
+import type { ThemePromptRole } from "../visual-system/activePromptRegistry";
 
 type SoftSeedingCopyTopic =
   | "生活场景软种草"
@@ -3490,6 +3491,18 @@ function resolveMultiImageScenePreference(
   return candidates[offset % candidates.length] ?? draft.scenePreference;
 }
 
+function resolveSoftVisualRoleId(
+  topic: SoftSeedingTopic,
+  imageType: TeamImageType,
+  fallbackRoleId: ThemePromptRole,
+  index: number
+) : ThemePromptRole {
+  if (topic !== "生活场景软种草" && topic !== "穿搭解决方案") return fallbackRoleId;
+  if (imageType === "产品静物图" || imageType === "拍摄花絮 / 材质图") return fallbackRoleId;
+  const lifestyleRoles: ThemePromptRole[] = ["A1", "A2", "A3", "C2"];
+  return lifestyleRoles[index % lifestyleRoles.length] ?? fallbackRoleId;
+}
+
 function buildImagePlan(
   baseParams: TeamPromptParams,
   draft: SoftSeedingImageDraft,
@@ -3632,7 +3645,12 @@ function buildSoftSeedingImagePlans(
     if (!sharedOutfitLine && shouldInheritBaseGarmentType(draft.imageType)) {
       sharedOutfitLine = generatePromptRuntime(plan.params).selectedOutfitLine ?? "";
     }
-    const visualRoleId = roleBundle.roleIds[index % roleBundle.roleIds.length];
+    const visualRoleId = resolveSoftVisualRoleId(
+      topic,
+      draft.imageType,
+      roleBundle.roleIds[index % roleBundle.roleIds.length],
+      index
+    );
     const activePromptVersionId = roleBundle.promptVersions[index % roleBundle.promptVersions.length];
     const routedPrompt = compileRoutedImage2UserPrompt({
       basePrompt: plan.prompt,
