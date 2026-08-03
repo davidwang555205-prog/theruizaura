@@ -157,9 +157,18 @@ function greatestCommonDivisor(first: number, second: number): number {
   return a;
 }
 
-function getCombinationStride(capacity: number, layerRadix: number) {
+function getCombinationStride(capacity: number, layerRadix: number, bottomRadix = 1, topRadix = 1) {
   let stride = Math.max(1, Math.floor(capacity * 0.38196601125));
-  while (greatestCommonDivisor(stride, capacity) !== 1 || stride % layerRadix === 0) {
+  // Keep successive combinations moving across layer, bottom, and top lanes.
+  // A stride that only avoids the full-capacity divisor can still repeat one
+  // visible garment lane for several generations, which reads as outfit drift
+  // even though the underlying combination IDs are unique.
+  while (
+    greatestCommonDivisor(stride, capacity) !== 1 ||
+    stride % layerRadix === 0 ||
+    stride % bottomRadix === 0 ||
+    stride % topRadix === 0
+  ) {
     stride += 1;
   }
   return stride;
@@ -175,7 +184,9 @@ export function buildCombinatorialOutfit(input: {
   const layerRadix = pool.layers.length + 1;
   const safeNonce = Number.isFinite(input.generationNonce) ? Math.trunc(input.generationNonce) : 0;
   const normalizedNonce = ((safeNonce % capacity) + capacity) % capacity;
-  const combinationIndex = (normalizedNonce * getCombinationStride(capacity, layerRadix)) % capacity;
+  const combinationIndex = (
+    normalizedNonce * getCombinationStride(capacity, layerRadix, pool.bottoms.length, pool.tops.length)
+  ) % capacity;
   const layerIndex = combinationIndex % layerRadix;
   const bottomIndex = Math.floor(combinationIndex / layerRadix) % pool.bottoms.length;
   const topIndex = Math.floor(combinationIndex / layerRadix / pool.bottoms.length) % pool.tops.length;
