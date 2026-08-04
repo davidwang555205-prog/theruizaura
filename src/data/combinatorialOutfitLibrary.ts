@@ -143,6 +143,50 @@ function inferColorDirection(text: string): SceneOutfitSeed["colorDirection"] {
   return "neutralDaily";
 }
 
+function inferTopVisualFamily(top: string) {
+  if (/\b(cardigan|knit|sweater|polo|mock-neck|turtleneck|cashmere|merino)\b/i.test(top)) return "knit";
+  if (/\b(shirt|blouse|poplin)\b/i.test(top)) return "shirt";
+  if (/\b(tee|t-shirt|sleeveless|vest)\b/i.test(top)) return "tee";
+  return "other-top";
+}
+
+function inferBottomVisualFamily(bottom: string) {
+  if (/\b(skirt)\b/i.test(bottom)) return "skirt";
+  if (/\b(shorts|bermuda)\b/i.test(bottom)) return "shorts";
+  if (/\b(denim|jeans)\b/i.test(bottom)) return "denim";
+  if (/\b(wide-leg|pleated)\b/i.test(bottom)) return "volume-trousers";
+  return "straight-trousers";
+}
+
+function inferLayerVisualFamily(layer?: string) {
+  if (!layer) return "no-layer";
+  if (/\b(coat|trench)\b/i.test(layer)) return "coat";
+  if (/\b(overshirt|shirt jacket|cardigan)\b/i.test(layer)) return "soft-layer";
+  return "jacket";
+}
+
+function getVisualClusterParts(seed: Pick<SceneOutfitSeed, "topCategory" | "bottomCategory" | "outerLayerCategory" | "colorDirection">) {
+  return [
+    inferTopVisualFamily(seed.topCategory),
+    inferBottomVisualFamily(seed.bottomCategory),
+    inferLayerVisualFamily(seed.outerLayerCategory),
+    seed.colorDirection
+  ];
+}
+
+export function getCombinatorialOutfitVisualCluster(seed: Pick<SceneOutfitSeed, "topCategory" | "bottomCategory" | "outerLayerCategory" | "colorDirection">) {
+  return getVisualClusterParts(seed).join("|");
+}
+
+export function getCombinatorialOutfitVisualDistance(
+  first: Pick<SceneOutfitSeed, "topCategory" | "bottomCategory" | "outerLayerCategory" | "colorDirection">,
+  second: Pick<SceneOutfitSeed, "topCategory" | "bottomCategory" | "outerLayerCategory" | "colorDirection">
+) {
+  const firstParts = getVisualClusterParts(first);
+  const secondParts = getVisualClusterParts(second);
+  return firstParts.reduce((distance, part, index) => distance + (part === secondParts[index] ? 0 : 1), 0);
+}
+
 export function getCombinatorialOutfitCapacity(season: CombinatorialSeason) {
   const pool = combinatorialOutfitPools[season];
   return pool.tops.length * pool.bottoms.length * (pool.layers.length + 1);
@@ -174,7 +218,7 @@ function getCombinationStride(capacity: number, layerRadix: number, bottomRadix 
   return stride;
 }
 
-export function buildCombinatorialOutfit(input: {
+function buildCombinatorialOutfitAtNonce(input: {
   season: CombinatorialSeason;
   generationNonce: number;
   sceneKey: string;
@@ -221,6 +265,60 @@ export function buildCombinatorialOutfit(input: {
       "over-styled AI fashion template"
     ]
   };
+}
+
+function rebuildCombinatorialOutfitFromId(outfitId: string | null | undefined, sceneKey: string) {
+  const match = outfitId?.match(/^combo-(spring|summer|autumn|winter)-t(\d+)-b(\d+)-l(\d+)$/);
+  if (!match) return null;
+  const season = match[1] as CombinatorialSeason;
+  const pool = combinatorialOutfitPools[season];
+  const top = pool.tops[Number(match[2])];
+  const bottom = pool.bottoms[Number(match[3])];
+  const layerIndex = Number(match[4]);
+  const layer = layerIndex === 0 ? undefined : pool.layers[layerIndex - 1];
+  if (!top || !bottom || layerIndex > pool.layers.length) return null;
+  const completeOutfit = [top, bottom, layer].filter(Boolean).join(", ");
+  return {
+    topCategory: top,
+    bottomCategory: bottom,
+    outerLayerCategory: layer,
+    colorDirection: inferColorDirection(completeOutfit),
+    sceneKey
+  };
+}
+
+export function buildCombinatorialOutfit(input: {
+  season: CombinatorialSeason;
+  generationNonce: number;
+  sceneKey: string;
+  previousOutfitId?: string | null;
+  recentOutfitIds?: string[];
+}): SceneOutfitSeed {
+  const initial = buildCombinatorialOutfitAtNonce(input);
+  const recentIds = [input.previousOutfitId, ...(input.recentOutfitIds ?? [])].filter(
+    (id): id is string => Boolean(id?.startsWith(`combo-${input.season}-`))
+  );
+  const recent = recentIds
+    .map((id) => rebuildCombinatorialOutfitFromId(id, input.sceneKey))
+    .filter((seed): seed is NonNullable<typeof seed> => Boolean(seed));
+  if (!recent.length) return initial;
+
+  // Manual Image2 execution only sees the copied Prompt, so cross-set variety
+  // must be resolved before copying. Search a small deterministic window and
+  // choose the first maximum-distance visual cluster. Within a 3/5/8 set the
+  // resulting line is still locked by the caller.
+  let selected = initial;
+  let selectedDistance = Math.min(...recent.map((seed) => getCombinatorialOutfitVisualDistance(seed, initial)));
+  for (let offset = 1; offset < 48 && selectedDistance < 4; offset += 1) {
+    const candidate = buildCombinatorialOutfitAtNonce({ ...input, generationNonce: input.generationNonce + offset });
+    if (recentIds.includes(candidate.id)) continue;
+    const distance = Math.min(...recent.map((seed) => getCombinatorialOutfitVisualDistance(seed, candidate)));
+    if (distance > selectedDistance) {
+      selected = candidate;
+      selectedDistance = distance;
+    }
+  }
+  return selected;
 }
 
 for (const season of Object.keys(combinatorialOutfitPools) as CombinatorialSeason[]) {

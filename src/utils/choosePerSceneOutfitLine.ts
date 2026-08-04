@@ -1065,6 +1065,7 @@ export function choosePerSceneOutfitLine(input: ChoosePerSceneOutfitInput): Choo
     cityProfile: input.cityProfile,
     userExtraRequirement: input.userExtraRequirement,
     previousOutfitId: input.previousOutfitId,
+    recentOutfitIds: input.generatedHistory,
     generationNonce: input.generationNonce
   }) : null;
 
