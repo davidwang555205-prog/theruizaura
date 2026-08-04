@@ -1,7 +1,10 @@
 import type { TeamGarmentTypePreference } from "../types";
 import type { ChinaCityProfile } from "../data/chinaUrbanStreetProfiles";
 import { fallbackSafeOutfitTemplates } from "../data/fallbackSafeOutfitTemplates";
-import { buildCombinatorialOutfit } from "../data/combinatorialOutfitLibrary";
+import {
+  buildCombinatorialOutfit,
+  getCombinatorialOutfitVisualDistance
+} from "../data/combinatorialOutfitLibrary";
 import { garmentTypePreferenceMap } from "../data/outfitDiversityRules";
 import {
   sceneOutfitSeedLibrary,
@@ -26,6 +29,7 @@ export type ChooseSmartOutfitInput = {
   cityProfile?: ChinaCityProfile | null;
   userExtraRequirement?: string;
   previousOutfitId?: string | null;
+  recentOutfitIds?: string[];
   generatedHistory?: OutfitGeneratedHistoryEntry[];
   generationNonce?: number;
 };
@@ -47,6 +51,7 @@ export type ChooseSmartOutfitResult = {
 };
 
 let libraryValidated = false;
+const allSceneOutfits = Object.values(sceneOutfitSeedLibrary).flat();
 
 const sensitiveWords = [
   "sexy",
@@ -170,6 +175,7 @@ function isSafeSeed(seed: SceneOutfitSeed, input: ChooseSmartOutfitInput, manual
   const text = seedText(seed);
 
   if (input.previousOutfitId && seed.id === input.previousOutfitId) return false;
+  if (input.recentOutfitIds?.includes(seed.id)) return false;
   if (!seed.season.includes(input.season)) return false;
   if (!seedMatchesImageType(seed, input.imageType)) return false;
   if (!seedMatchesShoe(seed, input.shoe)) return false;
@@ -291,6 +297,29 @@ function selectByGenerationNonce(candidates: SceneOutfitSeed[], generationNonce?
   return candidates[Math.abs(generationNonce + offset) % candidates.length] ?? candidates[0];
 }
 
+function selectAwayFromPreviousVisualCluster(
+  candidates: SceneOutfitSeed[],
+  recentOutfitIds: Array<string | null | undefined>,
+  generationNonce?: number,
+  selectionSalt = ""
+) {
+  if (!recentOutfitIds.some(Boolean) || !candidates.length) {
+    return selectByGenerationNonce(candidates, generationNonce, selectionSalt);
+  }
+  const recent = recentOutfitIds
+    .map((id) => [...allSceneOutfits, ...fallbackSafeOutfitTemplates].find((seed) => seed.id === id))
+    .filter((seed): seed is SceneOutfitSeed => Boolean(seed));
+  if (!recent.length) return selectByGenerationNonce(candidates, generationNonce, selectionSalt);
+
+  const scored = candidates.map((seed) => ({
+    seed,
+    distance: Math.min(...recent.map((previous) => getCombinatorialOutfitVisualDistance(previous, seed)))
+  }));
+  const maximumDistance = Math.max(...scored.map(({ distance }) => distance));
+  const visuallyDistinct = scored.filter(({ distance }) => distance === maximumDistance).map(({ seed }) => seed);
+  return selectByGenerationNonce(visuallyDistinct, generationNonce, `${selectionSalt}|visual-cluster`);
+}
+
 function chooseFallback(input: ChooseSmartOutfitInput, manualGarment: GarmentType | null, history: OutfitGeneratedHistoryEntry[], parsed: ParsedUserOutfitRequirement) {
   const safeFallbacks = fallbackSafeOutfitTemplates.filter((seed) => isSafeSeed(seed, input, manualGarment, parsed));
   const relaxedFallbacks = fallbackSafeOutfitTemplates.filter((seed) => {
@@ -400,7 +429,9 @@ export function chooseSmartOutfit(input: ChooseSmartOutfitInput): ChooseSmartOut
     const combinedOutfit = buildCombinatorialOutfit({
       season: input.season,
       generationNonce: input.generationNonce ?? 0,
-      sceneKey: input.sceneKey
+      sceneKey: input.sceneKey,
+      previousOutfitId: input.previousOutfitId,
+      recentOutfitIds: input.recentOutfitIds
     });
     if (isSafeSeed(combinedOutfit, input, manualGarment, effectiveParsedUserRequirement)) {
       return buildResult({
@@ -417,9 +448,17 @@ export function chooseSmartOutfit(input: ChooseSmartOutfitInput): ChooseSmartOut
   }
 
   const filtered = sceneCandidates.filter((seed) => isSafeSeed(seed, input, manualGarment, effectiveParsedUserRequirement));
+  const crossSceneCompatible = input.previousOutfitId || input.recentOutfitIds?.length
+    ? allSceneOutfits.filter((seed) => isSafeSeed(seed, input, manualGarment, effectiveParsedUserRequirement))
+    : [];
+  const visuallyRotatablePool = crossSceneCompatible.length
+    ? [...new Map([...filtered, ...crossSceneCompatible].map((seed) => [seed.id, seed])).values()]
+    : filtered;
+  const prioritized = simplePrioritySort(applySimpleDedupe(visuallyRotatablePool, history), history, input.season);
   const selected =
-    selectByGenerationNonce(
-      simplePrioritySort(applySimpleDedupe(filtered, history), history, input.season),
+    selectAwayFromPreviousVisualCluster(
+      prioritized,
+      [input.previousOutfitId, ...(input.recentOutfitIds ?? [])],
       input.generationNonce,
       buildSelectionSalt(input)
     ) ??

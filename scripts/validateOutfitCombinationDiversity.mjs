@@ -12,7 +12,7 @@ const bundlePath = join(tempDirectory, "bundle.mjs");
 try {
   await writeFile(
     entryPath,
-    `export { buildCombinatorialOutfit, combinatorialOutfitPools, getCombinatorialOutfitCapacity } from ${JSON.stringify(
+    `export { buildCombinatorialOutfit, combinatorialOutfitPools, getCombinatorialOutfitCapacity, getCombinatorialOutfitVisualDistance } from ${JSON.stringify(
       resolve(projectRoot, "src/data/combinatorialOutfitLibrary.ts")
     )};\nexport { choosePerSceneOutfitLine } from ${JSON.stringify(
       resolve(projectRoot, "src/utils/choosePerSceneOutfitLine.ts")
@@ -36,6 +36,7 @@ try {
     choosePerSceneOutfitLine,
     combinatorialOutfitPools,
     getCombinatorialOutfitCapacity,
+    getCombinatorialOutfitVisualDistance,
     generateSoftSeedingContent,
     generatePromptRuntime
   } = await import(`${pathToFileURL(bundlePath).href}?v=${Date.now()}`);
@@ -111,6 +112,91 @@ try {
         season,
         integratedIds,
         message: "The main outfit selector did not use eight distinct combinatorial outfits."
+      });
+    }
+
+    let previousOutfit = null;
+    const crossSetSelections = Array.from({ length: 12 }, (_, generationNonce) => {
+      const selected = buildCombinatorialOutfit({
+        season,
+        generationNonce,
+        sceneKey: "weekendCityWalk",
+        previousOutfitId: previousOutfit?.id
+      });
+      const visualDistance = previousOutfit
+        ? getCombinatorialOutfitVisualDistance(previousOutfit, selected)
+        : 4;
+      previousOutfit = selected;
+      return { selected, visualDistance };
+    });
+    if (crossSetSelections.slice(1).some(({ visualDistance }) => visualDistance < 3)) {
+      failures.push({
+        season,
+        crossSetSelections: crossSetSelections.map(({ selected, visualDistance }) => ({
+          id: selected.id,
+          visualDistance,
+          top: selected.topCategory,
+          bottom: selected.bottomCategory,
+          layer: selected.outerLayerCategory ?? "no outer layer",
+          colorDirection: selected.colorDirection
+        })),
+        message: "Adjacent manual-workflow sets did not move far enough from the previous visual outfit cluster."
+      });
+    }
+
+    let previousManualWorkflowId = null;
+    let recentManualWorkflowIds = [];
+    const manualWorkflowSamples = Array.from({ length: 4 }, (_, index) => {
+      const content = generateSoftSeedingContent({
+        baseParams: {
+          imageType: "生活场景图",
+          modelChoice: "30–45岁客户画像模特",
+          modelContinuity: "新人物",
+          shoe: "Cloud Dancer 云舞者",
+          customShoe: "",
+          season: seasonLabels[season],
+          scenePreference: "自动匹配",
+          garmentTypePreference: "自动匹配",
+          studioLaunchAnglePreference: "自动匹配",
+          stillLifeStyle: "与主视觉统一",
+          extraRequirement: "",
+          generationNonce: 730
+        },
+        topic: "生活场景软种草",
+        imageCount: 3,
+        variantOffset: index + 1,
+        previousOutfitId: previousManualWorkflowId,
+        recentOutfitIds: recentManualWorkflowIds,
+        date: new Date("2026-07-20T12:00:00+08:00")
+      });
+      const firstPersonImage = content.images.find((image) =>
+        ["产品上脚图", "对镜穿搭图", "生活场景图"].includes(image.params.imageType)
+      );
+      const sample = {
+        outfitId: content.outfitRotationId,
+        copiedPromptOutfit: firstPersonImage
+          ? generatePromptRuntime(firstPersonImage.params).selectedOutfitLine ?? ""
+          : ""
+      };
+      previousManualWorkflowId = content.outfitRotationId;
+      if (content.outfitRotationId) {
+        recentManualWorkflowIds = [
+          content.outfitRotationId,
+          ...recentManualWorkflowIds.filter((id) => id !== content.outfitRotationId)
+        ].slice(0, 6);
+      }
+      return sample;
+    });
+    summary[season].manualWorkflowSamples = manualWorkflowSamples;
+    if (
+      manualWorkflowSamples.some((sample) => !sample.outfitId || !sample.copiedPromptOutfit) ||
+      new Set(manualWorkflowSamples.map((sample) => sample.outfitId)).size !== manualWorkflowSamples.length ||
+      new Set(manualWorkflowSamples.map((sample) => sample.copiedPromptOutfit)).size !== manualWorkflowSamples.length
+    ) {
+      failures.push({
+        season,
+        manualWorkflowSamples,
+        message: "The copied manual-workflow Prompt did not rotate away from the previous set."
       });
     }
 

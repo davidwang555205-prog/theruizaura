@@ -258,6 +258,7 @@ function App() {
   const [softImageCount, setSoftImageCount] = useState<SoftSeedingImageCount>(5);
   const [softGenerationNonce, setSoftGenerationNonce] = useState(0);
   const softPreviousOutfitIdRef = useRef<string | null>(null);
+  const softRecentOutfitIdsRef = useRef<string[]>([]);
   const [softContent, setSoftContent] = useState(() =>
     generateSoftSeedingContent({ baseParams: initialParams, imageCount: 5, topic: softSeedingTopicOptions[0] })
   );
@@ -407,10 +408,17 @@ function App() {
       imageCount: softImageCount,
       topic: softTopic,
       variantOffset: nextSoftGenerationNonce,
-      previousOutfitId: softPreviousOutfitIdRef.current
+      previousOutfitId: softPreviousOutfitIdRef.current,
+      recentOutfitIds: softRecentOutfitIdsRef.current
     });
     setSoftContent(nextContent);
     softPreviousOutfitIdRef.current = nextContent.outfitRotationId;
+    if (nextContent.outfitRotationId) {
+      softRecentOutfitIdsRef.current = [
+        nextContent.outfitRotationId,
+        ...softRecentOutfitIdsRef.current.filter((id) => id !== nextContent.outfitRotationId)
+      ].slice(0, 6);
+    }
     setSoftCopyStatus("");
   };
 

@@ -81,6 +81,7 @@ type SoftSeedingInput = {
   date?: Date;
   variantOffset?: number;
   previousOutfitId?: string | null;
+  recentOutfitIds?: string[];
 };
 
 type SoftSeedingImageDraft = {
@@ -3621,7 +3622,8 @@ function buildSoftSeedingImagePlans(
   topic: SoftSeedingTopic,
   variantIndex: number,
   imageCount: SoftSeedingImageCount,
-  previousOutfitId?: string | null
+  previousOutfitId?: string | null,
+  recentOutfitIds?: string[]
 ) {
   const roleBundle = resolveTopicRoleBundle(topic, imageCount);
   const firstPersonDraft = drafts.find((draft) => shouldInheritBaseGarmentType(draft.imageType));
@@ -3634,7 +3636,8 @@ function buildSoftSeedingImagePlans(
         garmentTypePreference: resolveSoftSeedingGarmentType(baseParams, firstPersonDraft),
         userExtraRequirement: "",
         generationNonce: baseParams.generationNonce + variantIndex + 1,
-        previousOutfitId: previousOutfitId ?? undefined
+        previousOutfitId: previousOutfitId ?? undefined,
+        generatedHistory: recentOutfitIds
       })
     : null;
   let sharedOutfitLine = initialSetSelection?.selectedPerSceneOutfitLine ?? "";
@@ -3741,7 +3744,8 @@ export function generateSoftSeedingContent(input: SoftSeedingInput): SoftSeeding
     topic,
     variantIndex,
     imageCount,
-    input.previousOutfitId
+    input.previousOutfitId,
+    input.recentOutfitIds
   );
 
   return {
