@@ -12,6 +12,10 @@ This report audits deterministic THERUIZ AURA runtime outputs across seven promp
 - PRIORITY_MISSING: 0 cases
 - MODULE_BLUR: 0 confirmed by this deterministic pass
 - DUPLICATE_INJECTION: 0 cases
+- TRUST_ROLE_MISSING: 0 cases
+- TRUST_RULE_MISSING: 0 cases
+- TRUST_DUPLICATE: 0 cases
+- TRUST_ROLE_INCOMPATIBLE: 0 cases
 - Distributed adjective review signals: 21
 
 ## Highest-priority evidence
@@ -20,7 +24,7 @@ No high-priority heuristic findings in the audited cases.
 
 ## Optimization result
 
-The audit adds a repeatable inventory and semantic checks. The resolver now drops duplicate rule IDs deterministically. No Active Prompt Registry version was changed. Product Truth and physical-integrity rules remain hard locks. Camera perspective is centralized in the shared camera profile and is not duplicated in the legacy safety fallback.
+The audit adds repeatable inventory, semantic checks, and Manual Consumer Trust metadata. No Active Prompt Registry version was changed. Product Truth and physical-integrity rules remain hard locks. Camera perspective remains centralized in the shared camera profile.
 
 ## Review boundary
 

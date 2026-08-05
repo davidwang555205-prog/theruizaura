@@ -19,6 +19,12 @@ export type CompositionMode =
   | "materialDetail"
   | "atmosphere";
 
+export type ConsumerTrustRole =
+  | "product_evidence"
+  | "brand_lifestyle_visualization"
+  | "synthetic_ugc_visualization"
+  | "editorial_atmosphere";
+
 // ─── Prompt Priority ─────────────────────────────────────────
 export enum PromptPriority {
   P0_USER_SPECIFIED = 0,
@@ -61,6 +67,7 @@ export type PromptRuleSource =
   | "continuity-profile"
   | "brand-profile"
   | "negative-default"
+  | "consumer-trust-profile"
   | "theme-card";
 
 // ─── Rule Predicate ──────────────────────────────────────────
@@ -170,6 +177,10 @@ export type CompiledPromptResult = {
     productTruthBound: boolean | "partial";
     productionReady: boolean;
     diagnostics: string[];
+    consumerTrustRole?: ConsumerTrustRole;
+    consumerTrustVersion?: "theruiz-manual-v1.1";
+    consumerTrustRuleIds?: string[];
+    manualTrustQaRequired?: boolean;
   };
 };
 
@@ -201,6 +212,7 @@ export type PromptProfileInput = {
   provider?: "image2";
   topicId?: string;
   activeVisualRoleId?: ThemePromptRole;
+  contentTrustRole?: ConsumerTrustRole;
   selectedProductTruth?: ProductTruth;
   productTruthProvenance?: { source: "current_task_uploaded_images"; assetIds: string[]; referenceSetId?: string; taskProductTruthId?: string; version?: string };
   referencePlan?: Image2ReferencePlan;

@@ -5,6 +5,10 @@ import { allocatePromptBudget } from "./allocatePromptBudget";
 import { validateCompiledPrompt } from "./validateCompiledPrompt";
 import type { PromptProfileInput } from "./contracts";
 import { getActivePromptRegistryEntry } from "../visual-system/activePromptRegistry";
+import {
+  resolveTheruizConsumerTrustRole,
+  THERUIZ_CONSUMER_TRUST_VERSION
+} from "./profiles/theruizAuraConsumerTrustProfiles";
 
 export function compilePrompt(input: PromptProfileInput): CompiledPromptResult {
   const taskTruth = input.selectedProductTruth as { status?: "draft" | "blocked"; productTruthMode?: "reference_bound"; referenceEvidenceBound?: boolean; structuredFactsExtracted?: boolean; manualExecutionReady?: boolean; providerExecutionReady?: boolean; productionReady?: boolean } | undefined;
@@ -53,6 +57,9 @@ export function compilePrompt(input: PromptProfileInput): CompiledPromptResult {
   const validationReport = validateCompiledPrompt(prompt, budgeted, budgetReport);
 
   const includedIds = budgeted.map(r => r.id);
+  const consumerTrustRuleIds = budgeted
+    .filter(rule => rule.tags?.includes("consumer-trust"))
+    .map(rule => rule.id);
   const omittedIds = allRules.filter(r => !includedIds.includes(r.id)).map(r => r.id);
   const replacedIds = conflicts.map(c => c.removedRuleId);
 
@@ -114,6 +121,14 @@ export function compilePrompt(input: PromptProfileInput): CompiledPromptResult {
           ? input.referencePlan.diagnostics ?? ["REFERENCE_PLAN_NOT_READY"]
           : []),
       ],
+      consumerTrustRole: input.brandId === "theruiz_aura"
+        ? resolveTheruizConsumerTrustRole(input)
+        : undefined,
+      consumerTrustVersion: input.brandId === "theruiz_aura"
+        ? THERUIZ_CONSUMER_TRUST_VERSION
+        : undefined,
+      consumerTrustRuleIds,
+      manualTrustQaRequired: input.brandId === "theruiz_aura",
     },
   };
 }

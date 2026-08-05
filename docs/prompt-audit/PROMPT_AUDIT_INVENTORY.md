@@ -21,34 +21,34 @@
 
 | Prompt ID | Type | Season | Characters | Words | Rules | Hard rules | Negative | Status |
 |---|---|---:|---:|---:|---:|---:|---:|---|
-| craft_closeup-冬 | craft_closeup | 冬 | 733 | 112 | 5 | 4 | 1 | pass |
-| craft_closeup-夏 | craft_closeup | 夏 | 733 | 112 | 5 | 4 | 1 | pass |
-| craft_closeup-春 | craft_closeup | 春 | 733 | 112 | 5 | 4 | 1 | pass |
-| craft_closeup-秋 | craft_closeup | 秋 | 733 | 112 | 5 | 4 | 1 | pass |
-| lifestyle_city-冬 | lifestyle_city | 冬 | 6162 | 860 | 15 | 6 | 7 | pass |
-| lifestyle_city-夏 | lifestyle_city | 夏 | 6162 | 860 | 15 | 6 | 7 | pass |
-| lifestyle_city-春 | lifestyle_city | 春 | 6162 | 860 | 15 | 6 | 7 | pass |
-| lifestyle_city-秋 | lifestyle_city | 秋 | 6162 | 860 | 15 | 6 | 7 | pass |
-| mirror_selfie-冬 | mirror_selfie | 冬 | 5630 | 789 | 15 | 6 | 6 | pass |
-| mirror_selfie-夏 | mirror_selfie | 夏 | 5630 | 789 | 15 | 6 | 6 | pass |
-| mirror_selfie-春 | mirror_selfie | 春 | 5630 | 789 | 15 | 6 | 6 | pass |
-| mirror_selfie-秋 | mirror_selfie | 秋 | 5630 | 789 | 15 | 6 | 6 | pass |
-| model_on_foot-冬 | model_on_foot | 冬 | 2234 | 313 | 9 | 6 | 2 | pass |
-| model_on_foot-夏 | model_on_foot | 夏 | 2234 | 313 | 9 | 6 | 2 | pass |
-| model_on_foot-春 | model_on_foot | 春 | 2234 | 313 | 9 | 6 | 2 | pass |
-| model_on_foot-秋 | model_on_foot | 秋 | 2234 | 313 | 9 | 6 | 2 | pass |
+| craft_closeup-冬 | craft_closeup | 冬 | 789 | 119 | 6 | 4 | 0 | pass |
+| craft_closeup-夏 | craft_closeup | 夏 | 789 | 119 | 6 | 4 | 0 | pass |
+| craft_closeup-春 | craft_closeup | 春 | 789 | 119 | 6 | 4 | 0 | pass |
+| craft_closeup-秋 | craft_closeup | 秋 | 789 | 119 | 6 | 4 | 0 | pass |
+| lifestyle_city-冬 | lifestyle_city | 冬 | 6389 | 888 | 17 | 6 | 7 | pass |
+| lifestyle_city-夏 | lifestyle_city | 夏 | 6389 | 888 | 17 | 6 | 7 | pass |
+| lifestyle_city-春 | lifestyle_city | 春 | 6389 | 888 | 17 | 6 | 7 | pass |
+| lifestyle_city-秋 | lifestyle_city | 秋 | 6389 | 888 | 17 | 6 | 7 | pass |
+| mirror_selfie-冬 | mirror_selfie | 冬 | 5857 | 817 | 17 | 6 | 6 | pass |
+| mirror_selfie-夏 | mirror_selfie | 夏 | 5857 | 817 | 17 | 6 | 6 | pass |
+| mirror_selfie-春 | mirror_selfie | 春 | 5857 | 817 | 17 | 6 | 6 | pass |
+| mirror_selfie-秋 | mirror_selfie | 秋 | 5857 | 817 | 17 | 6 | 6 | pass |
+| model_on_foot-冬 | model_on_foot | 冬 | 2456 | 341 | 11 | 7 | 2 | pass |
+| model_on_foot-夏 | model_on_foot | 夏 | 2456 | 341 | 11 | 7 | 2 | pass |
+| model_on_foot-春 | model_on_foot | 春 | 2456 | 341 | 11 | 7 | 2 | pass |
+| model_on_foot-秋 | model_on_foot | 秋 | 2456 | 341 | 11 | 7 | 2 | pass |
 | non_product_atmosphere-冬 | non_product_atmosphere | 冬 | 2738 | 365 | 1 | 0 | 1 | pass |
 | non_product_atmosphere-夏 | non_product_atmosphere | 夏 | 2657 | 353 | 1 | 0 | 1 | pass |
 | non_product_atmosphere-春 | non_product_atmosphere | 春 | 2643 | 352 | 1 | 0 | 1 | pass |
 | non_product_atmosphere-秋 | non_product_atmosphere | 秋 | 2694 | 357 | 1 | 0 | 1 | pass |
-| product_studio-冬 | product_studio | 冬 | 4190 | 584 | 14 | 7 | 4 | pass |
-| product_studio-夏 | product_studio | 夏 | 4190 | 584 | 14 | 7 | 4 | pass |
-| product_studio-春 | product_studio | 春 | 4190 | 584 | 14 | 7 | 4 | pass |
-| product_studio-秋 | product_studio | 秋 | 4190 | 584 | 14 | 7 | 4 | pass |
-| still_life-冬 | still_life | 冬 | 964 | 143 | 6 | 5 | 1 | pass |
-| still_life-夏 | still_life | 夏 | 964 | 143 | 6 | 5 | 1 | pass |
-| still_life-春 | still_life | 春 | 964 | 143 | 6 | 5 | 1 | pass |
-| still_life-秋 | still_life | 秋 | 964 | 143 | 6 | 5 | 1 | pass |
+| product_studio-冬 | product_studio | 冬 | 4390 | 609 | 16 | 8 | 4 | pass |
+| product_studio-夏 | product_studio | 夏 | 4390 | 609 | 16 | 8 | 4 | pass |
+| product_studio-春 | product_studio | 春 | 4390 | 609 | 16 | 8 | 4 | pass |
+| product_studio-秋 | product_studio | 秋 | 4390 | 609 | 16 | 8 | 4 | pass |
+| still_life-冬 | still_life | 冬 | 1020 | 150 | 7 | 5 | 0 | pass |
+| still_life-夏 | still_life | 夏 | 1020 | 150 | 7 | 5 | 0 | pass |
+| still_life-春 | still_life | 春 | 1020 | 150 | 7 | 5 | 0 | pass |
+| still_life-秋 | still_life | 秋 | 1020 | 150 | 7 | 5 | 0 | pass |
 
 ## Interpretation
 
