@@ -23,7 +23,7 @@ export const SCENE_PROFILES: Record<string, { label: string; rules: PromptRule[]
   hotelTravel: {
     label: "旅行酒店",
     rules: [
-      { id: "scene-hotel-travel", section: "scene", text: "Use a calm hotel transition space, room doorway, or lobby-to-room passage with soft indoor light, relaxed travel mood, and no luxury-resort advertising.", priority: PromptPriority.P4_SCENE_AND_ACTION, source: "scene-profile", appliesWhen: {}, tags: ["scene"] },
+      { id: "scene-hotel-travel", section: "scene", text: "Use a calm hotel transition space, room doorway, or lobby-to-room passage with soft indoor light, relaxed travel mood, and no luxury-resort advertising. Keep any sleeping area or bed out of frame.", priority: PromptPriority.P4_SCENE_AND_ACTION, source: "scene-profile", appliesWhen: {}, tags: ["scene"] },
     ],
   },
   hotelCafeInterior: {

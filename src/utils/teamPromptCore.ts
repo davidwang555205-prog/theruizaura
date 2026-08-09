@@ -261,7 +261,7 @@ const TEAM_SCENE_TEXT: Record<Exclude<TeamScenePreference, "自动匹配">, stri
   酒店咖啡厅内:
     "Use a daytime hotel cafe beside the lobby with sparse tables and few guests; keep furniture, linens, luggage, props, and guests clear of both sneakers; avoid buffet, banquet, street-cafe, afternoon-tea, and hotel-ad styling.",
   酒店房间:
-    "Use a believable hotel-room setting with calm interior textures, soft natural or ambient light, and a travel-related daily feeling. Avoid luxury-resort advertisement styling.",
+    "Use a believable hotel-room setting with calm interior textures, soft natural or ambient light, and a travel-related daily feeling. Keep the sleeping area and any bed out of frame; avoid luxury-resort advertisement styling.",
   "酒店门口 / 门厅":
     "Use a refined hotel entrance or lobby threshold with a quiet, polished, travel-related mood. Keep the setting believable and mature rather than glamorous.",
   "衣帽间 / 更衣角":
@@ -402,7 +402,7 @@ const SCENE_VARIATION_LINES: Partial<Record<StandardSceneKey, string[]>> = {
     "Use a hotel doorway, quiet lobby cafe, wardrobe area, or suitcase corner with warm neutral walls and quiet travel order.",
     "Set the moment near a room doorway or wardrobe mirror with folded clothing, a travel tote, and soft hotel daylight.",
     "Use a calm hotel entrance threshold with restrained stone texture, no luxury bragging, and believable business-travel movement.",
-    "Place her beside a bed edge or luggage corner before leaving, keeping the room tidy, warm, and refined."
+    "Place her beside a luggage corner or room doorway before leaving; keep any sleeping area out of frame and the room tidy, warm, and refined."
   ],
   mirrorCloset: [
     "Use a full-length mirror near a wardrobe corner with natural daylight, clean floor contact, and practical getting-ready details.",
@@ -572,7 +572,7 @@ const EXPANDED_SCENE_PROPS_LINES: Record<ExpandedLifestyleScene, string> = {
   酒店咖啡厅内:
     "Add at most one quiet hotel-cafe cue: a single coffee cup, room key card, travel handbag, or compact menu with unreadable text. Keep tables sparse, place luggage outside the dining area, and never let tables, chairs, table linens, props, or guests block the sneakers.",
   酒店房间:
-    "Add one subtle hotel-room prop only if natural: a suitcase, folded shirt, travel notebook, tote, or light cotton overshirt. Avoid luxury-hotel flatlay mood and never block the sneakers.",
+    "Add one subtle hotel-room prop only if natural: a suitcase, folded shirt, travel notebook, tote, or light cotton overshirt. Keep the sleeping area and any bed out of frame; avoid luxury-hotel flatlay mood and never block the sneakers.",
   "酒店门口 / 门厅":
     "Add one subtle hotel-entry prop only if natural: luggage, a travel tote, sunglasses, or light outerwear. Avoid glamorous resort-advertising mood and never block the sneakers.",
   "衣帽间 / 更衣角":
