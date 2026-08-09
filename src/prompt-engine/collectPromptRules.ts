@@ -5,6 +5,7 @@ import { IMAGE_TYPE_PROFILES } from "./profiles/imageTypeProfiles";
 import { SCENE_PROFILES } from "./profiles/sceneProfiles";
 import { buildNonProductAtmospherePlan } from "../non-product-atmosphere";
 import { getTheruizAuraRealismRules } from "./profiles/theruizAuraRealismProfiles";
+import { getTheruizAuraConsumerTrustRules } from "./profiles/theruizAuraConsumerTrustProfiles";
 import { getTeamModelProfile } from "../data/teamModelProfiles";
 import { getActivePromptRegistryEntry } from "../visual-system/activePromptRegistry";
 import { resolveTopicRoute } from "../visual-system/topicRoutingRegistry";
@@ -376,6 +377,7 @@ export function collectPromptRules(input: PromptProfileInput): PromptRule[] {
   // Add brand-scoped realism rules after the established blocks so explicit
   // conflicts replace legacy defaults instead of being kept behind them.
   rules.push(...getTheruizAuraRealismRules(input));
+  rules.push(...getTheruizAuraConsumerTrustRules(input));
 
   if (peopleImage && input.seriesImageCount && input.seriesImageCount > 1 && Number.isInteger(input.seriesImageIndex)) {
     const index = input.seriesImageIndex! + 1;
