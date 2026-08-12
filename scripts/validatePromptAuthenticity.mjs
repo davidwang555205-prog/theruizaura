@@ -30,6 +30,7 @@ const cases = [
   ["生活街景", {}, true],
   ["咖啡馆室内", { scenePreference: "咖啡馆内", generationNonce: 1 }, true],
   ["酒店咖啡厅室内", { scenePreference: "酒店咖啡厅内", generationNonce: 8 }, true],
+  ["酒店房间", { scenePreference: "酒店房间", generationNonce: 9 }, true],
   ["对镜穿搭", { imageType: "对镜穿搭图", scenePreference: "居家衣帽间", generationNonce: 2 }, true],
   ["通勤上脚", { imageType: "产品上脚图", scenePreference: "通勤上班", generationNonce: 3 }, true],
   ["棚拍人物", { imageType: "产品上脚图", scenePreference: "棚内上新拍摄", generationNonce: 4 }, true],
@@ -77,13 +78,17 @@ try {
       const hasHotelCafeShoeSafety =
         name !== "酒店咖啡厅室内" ||
         /furniture, linens, luggage, props, and guests clear of both sneakers/i.test(prompt);
+      const hasNoHotelBed =
+        name !== "酒店房间" ||
+        !/(?:beside|on|edge of|sitting on|soft)\s+(?:the\s+)?bed|bed edge|床边|床上|卧室|床品|睡眠区/i.test(prompt);
 
       if (
         !hasAuthenticity ||
         (requiresProductProtection && !hasProductProtection) ||
         !hasAiPerfectionBoundary ||
         !hasHotelCafeIdentity ||
-        !hasHotelCafeShoeSafety
+        !hasHotelCafeShoeSafety ||
+        !hasNoHotelBed
       ) {
         failures.push({
           name,
@@ -92,7 +97,8 @@ try {
           hasProductProtection,
           hasAiPerfectionBoundary,
           hasHotelCafeIdentity,
-          hasHotelCafeShoeSafety
+          hasHotelCafeShoeSafety,
+          hasNoHotelBed
         });
       }
     }

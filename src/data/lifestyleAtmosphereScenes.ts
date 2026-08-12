@@ -78,8 +78,8 @@ export const ATMOSPHERE_SCENES: AtmosphereScene[] = [
     label: "酒店抵达后",
     category: "customer",
     customerExpectation: "出差和旅行也能保持秩序感",
-    compactPrompt: "A refined hotel arrival atmosphere with an open suitcase, folded clothing, tote bag, bed edge, or soft window light. Organized, calm, quietly luxurious, and travel-ready without tourist energy or hotel brochure styling.",
-    prompt: `Create a refined hotel arrival atmosphere image for THERUIZ AURA. Show a warm neutral hotel room or hotel transition moment with an open suitcase, folded clothing, a tote bag, a bed edge, or soft daylight through a window. The image should feel organized, calm, and quietly luxurious, like a woman who travels without losing her sense of order and taste. Avoid tourist energy, dramatic travel imagery, or generic hotel brochure styling.`
+    compactPrompt: "A refined hotel arrival atmosphere with an open suitcase, folded clothing, tote bag, chair edge, or soft window light. Keep the sleeping area out of frame. Organized, calm, quietly luxurious, and travel-ready without tourist energy or hotel brochure styling.",
+    prompt: `Create a refined hotel arrival atmosphere image for THERUIZ AURA. Show a warm neutral hotel transition moment with an open suitcase, folded clothing, a tote bag, a chair edge, or soft daylight through a window. Keep any bed, bedding, and sleeping area out of frame. The image should feel organized, calm, and quietly luxurious, like a woman who travels without losing her sense of order and taste. Avoid tourist energy, dramatic travel imagery, or generic hotel brochure styling.`
   },
   {
     id: "customer-flowers-bakery",

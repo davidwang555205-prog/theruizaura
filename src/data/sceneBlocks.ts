@@ -70,8 +70,8 @@ export const BASIC_SCENE_BLOCKS: SceneBlock[] = [
     shortLabel: "旅行酒店",
     englishLabel: "Travel and hotel packing",
     category: "basic",
-    compactPrompt: "A refined travel or hotel packing scene in a calm warm-neutral room, near a suitcase, travel tote, bed edge, folded clothing, or soft window light. The sneakers should communicate all-day comfort and composed mobility without tourist energy or staged luggage advertising.",
-    prompt: `Create a refined travel lifestyle scene for THERUIZ AURA sneakers. Place the sneakers in a calm hotel room, beside an open suitcase, near a travel tote, on a soft bed with folded clothing, or by a hotel room window. The body movement may include unpacking a suitcase, placing the sneakers beside folded clothes, sitting on the hotel bed while putting on the shoes, picking up a travel tote, or standing near the window before leaving. Expression suggestion: soft, relaxed, lightly content, natural and unforced, like a calm travel moment.`
+    compactPrompt: "A refined travel or hotel packing scene in a calm warm-neutral room, near a suitcase, travel tote, chair edge, folded clothing, or soft window light. Keep the sleeping area out of frame. The sneakers should communicate all-day comfort and composed mobility without tourist energy or staged luggage advertising.",
+    prompt: `Create a refined travel lifestyle scene for THERUIZ AURA sneakers. Place the sneakers in a calm hotel transition space, beside an open suitcase, near a travel tote, at a chair or wardrobe edge, or by a hotel room window. Keep any bed, bedding, and sleeping area out of frame. The body movement may include unpacking a suitcase, placing the sneakers beside folded clothes, checking the outfit near a chair or window, picking up a travel tote, or standing near the window before leaving. Expression suggestion: soft, relaxed, lightly content, natural and unforced, like a calm travel moment.`
   }
 ];
 
@@ -140,7 +140,7 @@ export const AUTO_ACTION_BY_SCENE: Record<string, string[]> = {
   "05": ["静态站立，一脚微微向前", "整理衣架 / 拿衣服", "触摸鞋面"],
   "06": ["静态站立，一脚微微向前", "慢走一步", "坐在沙发边", "整理裤脚"],
   "07": ["手触摸材质", "整理皮料", "拿色卡"],
-  "08": ["坐在床边，双脚自然落地", "打开行李箱"]
+  "08": ["靠近行李箱站立整理", "打开行李箱"]
 };
 
 export const ACTION_SAFETY_LEVEL_LABELS: Record<ActionSafetyLevel, string> = {

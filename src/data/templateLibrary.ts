@@ -310,8 +310,8 @@ export const BUILT_IN_TEMPLATES: TemplateItem[] = [
     }
   },
   {
-    id: "tpl-19-hotel-seated-mirror",
-    name: "模板19：酒店床边坐姿镜拍",
+    id: "tpl-19-hotel-standing-mirror",
+    name: "模板19：酒店行李角站姿镜拍",
     category: "product",
     purpose: "旅行穿搭 / 酒店生活方式 / 小红书配图",
     recommendedPlatform: "小红书 / 旅行生活方式",
@@ -319,11 +319,11 @@ export const BUILT_IN_TEMPLATES: TemplateItem[] = [
       generationMode: "single",
       ageRange: "30-45",
       scenes: ["08"],
-      action: MIRROR_SELFIE_ACTIONS.seated,
+      action: MIRROR_SELFIE_ACTIONS.full,
       people: "model",
       logo: "none",
       colorDescription:
-        "像真实女性出门前在酒店整理穿搭并顺手记录。自动启用酒店镜拍去廉价感补丁，控制空间、光线、背景秩序和整体气质。"
+        "像真实女性出门前在酒店行李角或衣帽区站立整理穿搭并顺手记录。不要出现床、床品或睡眠区；自动启用酒店镜拍去廉价感补丁，控制空间、光线、背景秩序和整体气质。"
     }
   },
   {
