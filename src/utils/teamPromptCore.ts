@@ -703,7 +703,7 @@ const MIRROR_SCENE_VARIATION_LINES: Partial<Record<Exclude<TeamScenePreference, 
   ],
   旅行酒店: [
     "Use a hotel wardrobe mirror or calm room mirror before leaving, with tidy suitcase or folded clothing cues in the background.",
-    "Set the mirror outfit record in a warm neutral hotel room, entryway mirror, or wardrobe corner with clean travel order.",
+    "Set the mirror outfit record in a warm neutral hotel entryway mirror or wardrobe corner with clean travel order; keep any bed, bedding, and sleeping area out of frame.",
     "Use a refined hotel mirror check with soft daylight, quiet luggage detail, and no bathroom-selfie feeling."
   ],
   居家衣帽间: [

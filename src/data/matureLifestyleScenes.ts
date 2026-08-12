@@ -62,7 +62,7 @@ export const MATURE_SCENE_BLOCKS: SceneBlock[] = [
     englishLabel: "Business travel and hotel commute",
     category: "mature",
     compactPrompt: "A refined business travel scene in a hotel lobby, room doorway, quiet hotel cafe, suitcase area, or calm breakfast space. She looks polished, practical, and composed. The sneakers should communicate versatile all-day walking comfort without tourist chaos or luxury bragging.",
-    prompt: `Create a refined business travel scene for THERUIZ AURA sneakers. The setting may include a hotel lobby, hotel room doorway, suitcase beside the bed, a quiet hotel cafe, or business trip breakfast area. The woman should look polished, practical, and calm, wearing travel-ready refined clothing. The sneakers should communicate all-day walking comfort and versatile styling for business travel. Avoid tourist travel, airport chaos, luxury bragging, or staged luggage advertisement.`
+    prompt: `Create a refined business travel scene for THERUIZ AURA sneakers. The setting may include a hotel lobby, hotel room doorway, suitcase at a chair or luggage corner, a quiet hotel cafe, or business trip breakfast area. Keep any bed, bedding, and sleeping area out of frame. The woman should look polished, practical, and calm, wearing travel-ready refined clothing. The sneakers should communicate all-day walking comfort and versatile styling for business travel. Avoid tourist travel, airport chaos, luxury bragging, or staged luggage advertisement.`
   },
   {
     id: "16",
