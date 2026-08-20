@@ -18,6 +18,13 @@ import {
   resolvePerSceneKey
 } from "./outfitLibraryFilters";
 import { sanitizeSeasonalOutfitLine } from "./sanitizeSeasonalOutfitLine";
+import {
+  buildAw26Mix,
+  getAw26SelectionMetadata,
+  getWardrobePersonState,
+  isAw26WardrobeScene,
+  selectAw26Preset
+} from "../data/theruizAuraWardrobeLibrary";
 
 type SummerLifestyleScene =
   | "暑假游乐园"
@@ -1068,6 +1075,69 @@ export function choosePerSceneOutfitLine(input: ChoosePerSceneOutfitInput): Choo
     recentOutfitIds: input.generatedHistory,
     generationNonce: input.generationNonce
   }) : null;
+
+  const rawAw26Season = String(input.season);
+  const aw26Season: "autumn" | "winter" | null = rawAw26Season === "秋" || rawAw26Season === "autumn"
+    ? "autumn"
+    : rawAw26Season === "冬" || rawAw26Season === "winter"
+      ? "winter"
+      : null;
+  const aw26ModeSlot = Math.abs(input.generationNonce ?? 0) % 3;
+  const canUseAw26 = Boolean(
+    smartSelection &&
+    aw26Season &&
+    sceneKey &&
+    isAw26WardrobeScene(sceneKey) &&
+    (input.garmentTypePreference ?? "自动匹配") === "自动匹配" &&
+    ["onFoot", "lifestyle", "mirror"].includes(normalizePerSceneImageType(input.imageType) ?? "") &&
+    aw26ModeSlot !== 2
+  );
+
+  if (canUseAw26 && smartSelection && aw26Season && sceneKey && isAw26WardrobeScene(sceneKey)) {
+    const wardrobeInput = {
+      season: aw26Season,
+      scene: sceneKey,
+      personState: getWardrobePersonState(sceneKey),
+      shoe: normalizePerSceneShoe(input.shoe)
+    };
+    const presetSelection = aw26ModeSlot === 0
+      ? selectAw26Preset({
+          ...wardrobeInput,
+          nonce: input.generationNonce,
+          blockedIds: [input.previousOutfitId, ...(input.generatedHistory ?? [])].filter((id): id is string => Boolean(id))
+        })
+      : null;
+    const mixSelection = aw26ModeSlot === 1
+      ? buildAw26Mix({
+          ...wardrobeInput,
+          nonce: input.generationNonce,
+          coreBasics: {
+            top: smartSelection.selectedTopCategory,
+            bottom: smartSelection.selectedBottomCategory
+          }
+        })
+      : null;
+    const selectedItems = presetSelection?.items ?? mixSelection?.items ?? [];
+    const selectedLine = presetSelection?.prompt_line ?? mixSelection?.prompt_line;
+    const selectedId = presetSelection?.id ?? (mixSelection ? `${mixSelection.id}-${smartSelection.selectedOutfitId}` : null);
+
+    if (selectedLine && selectedId) {
+      const metadata = getAw26SelectionMetadata(selectedItems, smartSelection.selectedGarmentType);
+      return {
+        selectedOutfitId: selectedId,
+        selectedPerSceneOutfitLine: sanitizeSeasonalOutfitLine(selectedLine, input.season),
+        selectedOutfit: null,
+        selectedStylingRealismLine: smartSelection.selectedStylingRealismLine,
+        selectedGarmentType: metadata.garmentType,
+        selectedOutfitStyle: metadata.outfitStyle,
+        selectedColorDirection: metadata.colorDirection,
+        selectedVisualAnchor: metadata.visualAnchor,
+        selectedBagCategory: smartSelection.selectedBagCategory ?? smartSelection.selectedOutfit.bagCategory ?? null,
+        selectedAccessoryCategory: smartSelection.selectedAccessoryCategory ?? smartSelection.selectedOutfit.accessoryCategory ?? null,
+        conflictWarnings: []
+      };
+    }
+  }
 
   if (smartSelection) {
     return {

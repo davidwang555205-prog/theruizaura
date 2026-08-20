@@ -104,14 +104,18 @@ try {
       })
     );
     const integratedIds = integratedSelections.map((selection) => selection.selectedOutfitId ?? "");
-    if (
-      integratedIds.some((id) => !id.startsWith(`combo-${season}-`)) ||
-      countUnique(integratedIds) !== integratedIds.length
-    ) {
+    const followsWardrobeRouting = integratedIds.every((id, generationNonce) => {
+      if (season === "spring" || season === "summer") return id.startsWith(`combo-${season}-`);
+      const modeSlot = generationNonce % 3;
+      if (modeSlot === 0) return id.startsWith("aw26-preset-");
+      if (modeSlot === 1) return id.startsWith("aw26-mix-");
+      return id.startsWith(`combo-${season}-`);
+    });
+    if (!followsWardrobeRouting || countUnique(integratedIds) !== integratedIds.length) {
       failures.push({
         season,
         integratedIds,
-        message: "The main outfit selector did not use eight distinct combinatorial outfits."
+        message: "The main outfit selector did not preserve distinct Core routing in spring/summer or AW26 preset/mix/Core routing in autumn/winter."
       });
     }
 
