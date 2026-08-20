@@ -48,7 +48,30 @@ function buildDiffSummary(legacy: string, current: string) {
   return `text differs; legacy=${legacyWords}w, new=${currentWords}w`;
 }
 
+const RETIRED_HOTEL_SCENES = new Set([
+  "旅行酒店",
+  "酒店咖啡厅内",
+  "酒店房间",
+  "酒店门口 / 门厅",
+  "酒店度假",
+]);
+
+function normalizeRetiredHotelScene(params: TeamPromptParams): TeamPromptParams {
+  const retiredScene = RETIRED_HOTEL_SCENES.has(params.scenePreference);
+  const containsHotelDirection = /hotel|酒店|客房|room card|房卡/i.test(params.extraRequirement);
+  if (!retiredScene && !containsHotelDirection) return params;
+  const scenePreference = params.imageType === "对镜穿搭图" ? "居家衣帽间" : "周末城市散步";
+  return {
+    ...params,
+    scenePreference,
+    extraRequirement: containsHotelDirection
+      ? "Use a quiet non-hotel city or home-transition setting appropriate to the selected image type."
+      : params.extraRequirement,
+  };
+}
+
 export function generatePromptRuntime(params: TeamPromptParams): PromptRuntimeResult {
+  params = normalizeRetiredHotelScene(params);
   const config = getPromptEngineConfig();
   if (config.mode === "legacy") {
     const legacy = legacyGenerateTeamPrompt(params);

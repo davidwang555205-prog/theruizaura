@@ -28,9 +28,10 @@ if (NON_PRODUCT_ATMOSPHERE_PROVIDER !== "image2") fail("provider is not Image2 o
 if (JSON.stringify(NON_PRODUCT_ATMOSPHERE_COUNTS) !== JSON.stringify([1, 3, 5, 8])) fail("quantity registry changed");
 if (JSON.stringify(NON_PRODUCT_ATMOSPHERE_ASPECT_RATIOS) !== JSON.stringify(["4:5", "9:16", "1:1"])) fail("aspect ratio registry changed");
 
-if (ATMOSPHERE_SCENE_ARCHETYPE_IDS.length !== 14 || new Set(ATMOSPHERE_SCENE_ARCHETYPE_IDS).size !== 14) fail("archetype catalog must contain 14 unique ids");
+if (ATMOSPHERE_SCENE_ARCHETYPE_IDS.length !== 13 || new Set(ATMOSPHERE_SCENE_ARCHETYPE_IDS).size !== 13) fail("archetype catalog must contain 13 unique non-hotel ids");
 if (ATMOSPHERE_SCENE_VARIANTS.length < 35 || new Set(ATMOSPHERE_SCENE_VARIANTS.map((item) => item.id)).size !== ATMOSPHERE_SCENE_VARIANTS.length) fail("variant catalog must contain at least 35 unique ids");
-if (LEGACY_SCENE_MIGRATIONS.length !== 35 || new Set(LEGACY_SCENE_MIGRATIONS.map((item) => item.legacyId)).size !== 35) fail("legacy migration must cover 35 unique scenes");
+if (LEGACY_SCENE_MIGRATIONS.length !== 31 || new Set(LEGACY_SCENE_MIGRATIONS.map((item) => item.legacyId)).size !== 31) fail("legacy migration must cover 31 active non-hotel scenes");
+if (ATMOSPHERE_SCENE_ARCHETYPE_IDS.includes("HOTEL_STAY") || ATMOSPHERE_SCENE_VARIANTS.some((item) => /hotel|酒店/i.test(`${item.id} ${item.label} ${item.description}`))) fail("retired hotel scenes remain in the structured atmosphere catalog");
 if (LEGACY_SCENE_MIGRATIONS.some((item) => item.migrationStatus === "fallback" || !ATMOSPHERE_SCENE_ARCHETYPES[item.archetypeId] || !ATMOSPHERE_SCENE_VARIANTS.some((variant) => variant.id === item.variantId))) fail("legacy migration contains fallback or invalid destinations");
 const archetypeDistribution = Object.fromEntries(ATMOSPHERE_SCENE_ARCHETYPE_IDS.map((id) => [id, ATMOSPHERE_SCENE_VARIANTS.filter((item) => item.archetypeId === id).length]));
 if (Object.values(archetypeDistribution).some((count) => count < 2)) fail("every archetype must expose at least two variants for distinction checks");
@@ -84,7 +85,7 @@ for (const [id, season, productPaletteClass, productPresenceMode, productPalette
   if (!image.sceneObjectSelection.colorIndependentSelection) fail(`${id}: product palette selected scene objects`);
   if (image.seasonSemanticProfileId !== seasonId || !image.seasonGate.sceneCandidatePassed || !image.seasonGate.objectsFilteredBeforePrompt) fail(`${id}: season gate metadata missing`);
   if (!image.prompt.includes("ACTIVE VISUAL SYSTEM") || !image.seasonConsistencyQA.passed || !image.productDominanceQA.passed) fail(`${id}: AVS or full Prompt QA missing`);
-  if (!["ENTRYWAY_DEPARTURE", "ENTRYWAY_ARRIVAL", "WARDROBE_PREPARATION", "HOTEL_STAY"].includes(image.sceneFingerprint.id) && /Human trace:/i.test(image.prompt)) fail(`${id}: wardrobe trace entered a no-person scene`);
+  if (!["ENTRYWAY_DEPARTURE", "ENTRYWAY_ARRIVAL", "WARDROBE_PREPARATION"].includes(image.sceneFingerprint.id) && /Human trace:/i.test(image.prompt)) fail(`${id}: wardrobe trace entered a no-person scene`);
   if (/product (is|as) (the )?(hero|visual center|primary subject)/i.test(image.prompt)) fail(`${id}: product became dominant`);
   if (productPresenceMode === "no_product" && /preserve only the visible structure/i.test(image.prompt)) fail(`${id}: Product Truth expanded in no-product mode`);
 }
@@ -154,7 +155,7 @@ for (const archetypeId of ATMOSPHERE_SCENE_ARCHETYPE_IDS) {
     if (image.sceneResolution.usedFallback || image.sceneResolution.resolvedArchetypeId !== archetypeId || !image.seasonConsistencyQA.passed) fail(`${archetypeId}/${seasonId}: season matrix resolution or QA failed`);
     if (seasonId === "summer" && /\bcoat\b|thick knit|wool blanket/i.test(positive)) fail(`${archetypeId}/${seasonId}: winter weight leaked`);
     if (image.sceneFingerprint.indoorOutdoor === "outdoor" && /blanket|indoor reading|residential warmth/i.test(positive)) fail(`${archetypeId}/${seasonId}: indoor semantics leaked outdoors`);
-    if (!["ENTRYWAY_DEPARTURE", "ENTRYWAY_ARRIVAL", "WARDROBE_PREPARATION", "HOTEL_STAY"].includes(archetypeId) && /Human trace:/i.test(positive)) fail(`${archetypeId}/${seasonId}: wardrobe leaked into no-person archetype`);
+    if (!["ENTRYWAY_DEPARTURE", "ENTRYWAY_ARRIVAL", "WARDROBE_PREPARATION"].includes(archetypeId) && /Human trace:/i.test(positive)) fail(`${archetypeId}/${seasonId}: wardrobe leaked into no-person archetype`);
   }
 }
 
@@ -170,7 +171,7 @@ for (const archetypeId of ATMOSPHERE_SCENE_ARCHETYPE_IDS) {
   }
 }
 
-const diversityArchetypes = ["ENTRYWAY_ARRIVAL", "MARKET_RETURN_KITCHEN", "WORKTABLE_PAUSE", "HOTEL_STAY", "CITY_TRANSIT"];
+const diversityArchetypes = ["ENTRYWAY_ARRIVAL", "MARKET_RETURN_KITCHEN", "WORKTABLE_PAUSE", "CAFE_INTERIOR", "CITY_TRANSIT"];
 for (const archetypeId of diversityArchetypes) {
   const variant = ATMOSPHERE_SCENE_VARIANTS.find((item) => item.archetypeId === archetypeId && item.compatibleSeasons === "all") ?? ATMOSPHERE_SCENE_VARIANTS.find((item) => item.archetypeId === archetypeId);
   const seasonId = variant.compatibleSeasons === "all" ? "spring" : variant.compatibleSeasons[0];
@@ -184,7 +185,7 @@ for (const archetypeId of diversityArchetypes) {
 const acceptanceSamples = [
   ["玄关出门","春"], ["回家进门","秋"], ["rainy_city_transition","春"], ["neighborhood_market_return","秋"], ["mixed_weekend_errand_return","夏"],
   ["窗边阅读","春"], ["工作台 / 桌边整理","秋"], ["咖啡店门口","冬"], ["咖啡馆内","夏"], ["书店 / 杂志店门口","秋"],
-  ["旅行酒店","冬"], ["weekend_trip_departure","春"], ["residential_neighborhood_path","冬"], ["commute_to_office","秋"], ["neutral_material_light_study","夏"]
+  ["周末轻旅行出发","冬"], ["weekend_trip_departure","春"], ["residential_neighborhood_path","冬"], ["commute_to_office","秋"], ["neutral_material_light_study","夏"]
 ];
 for (const [scenePreference, season] of acceptanceSamples) {
   const dedicated = buildNonProductAtmospherePlan({ quantity: 1, taskId: `sample-${scenePreference}`, referenceAssetIds: ["sample-ref"], season, scenePreference, productPresenceMode: "subtle_supporting_presence" }).images[0];
@@ -201,6 +202,6 @@ if (/ACTIVE VISUAL SYSTEM|Brand Visual Mother/.test(unbrandedAtmosphere.prompt))
 
 if (failures.length) { console.error(`Non-product atmosphere module failed: ${failures.length}`); for (const failure of failures) console.error(`FAIL: ${failure}`); process.exitCode = 1; } else {
   console.log("Non-product atmosphere structured scene compiler passed.");
-  console.log(JSON.stringify({ legacyScenes: LEGACY_SCENE_MIGRATIONS.length, mappedScenes: LEGACY_SCENE_MIGRATIONS.length, exactMappings: 0, normalizedMappings: LEGACY_SCENE_MIGRATIONS.length, mergedMappings: 0, fallbackMappings: 0, archetypes: ATMOSPHERE_SCENE_ARCHETYPE_IDS.length, variants: ATMOSPHERE_SCENE_VARIANTS.length, archetypeDistribution, seasonMatrix: 56, productPresenceMatrix: 42, seedDiversityPrompts: 100, acceptanceSamples: acceptanceSamples.length }, null, 2));
+  console.log(JSON.stringify({ legacyScenes: LEGACY_SCENE_MIGRATIONS.length, mappedScenes: LEGACY_SCENE_MIGRATIONS.length, exactMappings: 0, normalizedMappings: LEGACY_SCENE_MIGRATIONS.length, mergedMappings: 0, fallbackMappings: 0, archetypes: ATMOSPHERE_SCENE_ARCHETYPE_IDS.length, variants: ATMOSPHERE_SCENE_VARIANTS.length, archetypeDistribution, seasonMatrix: 52, productPresenceMatrix: 39, seedDiversityPrompts: 100, acceptanceSamples: acceptanceSamples.length }, null, 2));
 }
 await rm(dir, { recursive: true, force: true });

@@ -894,7 +894,6 @@ const NON_PRODUCT_AUTO_SCENES: Exclude<TeamScenePreference, "自动匹配">[] = 
   "咖啡馆内",
   "朋友午餐",
   "美术馆",
-  "旅行酒店",
   "居家衣帽间",
   "周末城市散步",
   "通勤上班",
@@ -915,7 +914,31 @@ function getTeamAutoScene(params: TeamPromptParams): Exclude<TeamScenePreference
   return "材质工作台";
 }
 
+const RETIRED_HOTEL_SCENE_VALUES = new Set<TeamScenePreference>([
+  "旅行酒店",
+  "酒店咖啡厅内",
+  "酒店房间",
+  "酒店门口 / 门厅",
+  "酒店度假",
+]);
+
+function normalizeRetiredHotelParams(params: TeamPromptParams): TeamPromptParams {
+  const retiredScene = RETIRED_HOTEL_SCENE_VALUES.has(params.scenePreference);
+  const containsHotelDirection = /hotel|酒店|客房|room card|房卡/i.test(params.extraRequirement);
+  if (!retiredScene && !containsHotelDirection) return params;
+  return {
+    ...params,
+    scenePreference: params.imageType === "对镜穿搭图" ? "居家衣帽间" : "周末城市散步",
+    extraRequirement: containsHotelDirection
+      ? "Use a quiet non-hotel city or home-transition setting appropriate to the selected image type."
+      : params.extraRequirement,
+  };
+}
+
 function resolveTeamScenePreference(params: TeamPromptParams) {
+  if (["旅行酒店", "酒店咖啡厅内", "酒店房间", "酒店门口 / 门厅", "酒店度假"].includes(params.scenePreference)) {
+    return getTeamAutoScene(params);
+  }
   return params.scenePreference === "自动匹配" || !isSceneCompatibleWithImageType(params.imageType, params.scenePreference)
     ? getTeamAutoScene(params)
     : params.scenePreference;
@@ -1652,6 +1675,7 @@ function getProductLine(params: TeamPromptParams, hasShoe: boolean) {
 }
 
 export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
+  params = normalizeRetiredHotelParams(params);
   const hasShoe = resolveTeamHasShoe(params);
   const usesNonProductAtmosphere = isNonProductAtmosphereImage(params.imageType);
   const resolvedScene = resolveTeamScenePreference(params);

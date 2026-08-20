@@ -40,9 +40,6 @@ Use a natural 3/4 mirror selfie composition from upper torso or phone area down 
 export const SEATED_MIRROR_COMPACT = `Seated mirror compact:
 Use a natural seated mirror selfie posture with relaxed body proportions. Clearly show trouser hem, ankle area, and sneakers. Avoid twisted knees, oversized feet, cropped shoes, chair or bed blocking shoes, or stiff seated pose.`;
 
-export const HOTEL_MIRROR_COMPACT = `Hotel mirror compact:
-If in a hotel, use a calm warm-neutral wardrobe mirror, entryway mirror, chair edge, or luggage corner. Keep any bed, bedding, and sleeping area out of frame. Avoid bathroom clutter, harsh yellow light, tourist selfie mood, messy luggage, loud decor, or cheap hotel feeling.`;
-
 export const SHOELACE_COMPACT = `Shoelace compact:
 If hands interact with laces, keep laces correctly threaded through eyelets and lying over the tongue. Fingers must hold laces naturally without clipping, merging, floating, broken loops, chaotic knots, or duplicated lace strands.`;
 

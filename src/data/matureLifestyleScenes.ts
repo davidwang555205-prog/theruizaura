@@ -43,8 +43,8 @@ export const MATURE_SCENE_BLOCKS: SceneBlock[] = [
     shortLabel: "轻商务午餐",
     englishLabel: "Business casual lunch",
     category: "mature",
-    compactPrompt: "A polished but relaxed business-casual lunch scene in a quiet restaurant, hotel cafe, private dining corner, or calm city lunch space. The sneakers should feel suitable for semi-business social life: comfortable, refined, and not overly formal.",
-    prompt: `Create a refined business-casual lunch scene for a mature urban woman wearing THERUIZ AURA sneakers. The setting may be a quiet restaurant, hotel café, private dining corner, or calm city lunch space. She may be seated, walking between tables, holding a small bag, or waiting near a table. The styling should feel polished but relaxed: white shirt, tailored trousers, soft knitwear, light coat, or elegant neutral bag. The sneakers should appear suitable for a woman who wants comfort without losing sophistication in semi-business social situations. Avoid nightlife, luxury-logo display, overly formal suit styling, or influencer restaurant posing.`
+    compactPrompt: "A polished but relaxed business-casual lunch scene in a quiet restaurant, private dining corner, or calm city lunch space. The sneakers should feel suitable for semi-business social life: comfortable, refined, and not overly formal.",
+    prompt: `Create a refined business-casual lunch scene for a mature urban woman wearing THERUIZ AURA sneakers. The setting may be a quiet restaurant, private dining corner, or calm city lunch space. She may be seated, walking between tables, holding a small bag, or waiting near a table. The styling should feel polished but relaxed: white shirt, tailored trousers, soft knitwear, light coat, or elegant neutral bag. The sneakers should appear suitable for a woman who wants comfort without losing sophistication in semi-business social situations. Avoid nightlife, luxury-logo display, overly formal suit styling, or influencer restaurant posing.`
   },
   {
     id: "14",
@@ -57,12 +57,12 @@ export const MATURE_SCENE_BLOCKS: SceneBlock[] = [
   },
   {
     id: "15",
-    label: "出差会议 / 酒店通勤 Business travel and hotel commute",
-    shortLabel: "出差会议 / 酒店通勤",
-    englishLabel: "Business travel and hotel commute",
+    label: "出差会议 / 城市通勤 Business travel and city commute",
+    shortLabel: "出差会议 / 城市通勤",
+    englishLabel: "Business travel and city commute",
     category: "mature",
-    compactPrompt: "A refined business travel scene in a hotel lobby, room doorway, quiet hotel cafe, suitcase area, or calm breakfast space. She looks polished, practical, and composed. The sneakers should communicate versatile all-day walking comfort without tourist chaos or luxury bragging.",
-    prompt: `Create a refined business travel scene for THERUIZ AURA sneakers. The setting may include a hotel lobby, hotel room doorway, suitcase at a chair or luggage corner, a quiet hotel cafe, or business trip breakfast area. Keep any bed, bedding, and sleeping area out of frame. The woman should look polished, practical, and calm, wearing travel-ready refined clothing. The sneakers should communicate all-day walking comfort and versatile styling for business travel. Avoid tourist travel, airport chaos, luxury bragging, or staged luggage advertisement.`
+    compactPrompt: "A refined business travel scene at an office-building entrance, residential threshold, quiet city passage, or curb-side departure point. She looks polished, practical, and composed. The sneakers should communicate versatile daily mobility without tourist chaos or luxury bragging.",
+    prompt: `Create a refined business-trip departure scene for THERUIZ AURA sneakers. The setting may include an office-building entrance, residential threshold, quiet city passage, or curb-side loading point with a compact suitcase kept secondary. The woman should look polished, practical, and calm, wearing travel-ready refined clothing. The sneakers should communicate composed daily mobility and versatile styling. Avoid tourist travel, airport chaos, luxury bragging, or staged luggage advertisement.`
   },
   {
     id: "16",

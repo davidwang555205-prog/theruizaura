@@ -20,18 +20,6 @@ export const SCENE_PROFILES: Record<string, { label: string; rules: PromptRule[]
       { id: "scene-cafe-exterior", section: "scene", text: "Use a refined cafe-front setting with restrained storefront details, outdoor pavement, soft daylight, and a calm weekend city mood.", priority: PromptPriority.P4_SCENE_AND_ACTION, source: "scene-profile", appliesWhen: {}, tags: ["scene"] },
     ],
   },
-  hotelTravel: {
-    label: "旅行酒店",
-    rules: [
-      { id: "scene-hotel-travel", section: "scene", text: "Use a calm hotel transition space, room doorway, or lobby-to-room passage with soft indoor light, relaxed travel mood, and no luxury-resort advertising. Keep any sleeping area or bed out of frame.", priority: PromptPriority.P4_SCENE_AND_ACTION, source: "scene-profile", appliesWhen: {}, tags: ["scene"] },
-    ],
-  },
-  hotelCafeInterior: {
-    label: "酒店咖啡厅内",
-    rules: [
-      { id: "scene-hotel-cafe", section: "scene", text: "Use a daytime hotel cafe beside the lobby with sparse tables and few guests. Keep furniture, linens, and background guests clear of both sneakers. Avoid buffet, banquet, street-cafe, and hotel-ad styling.", priority: PromptPriority.P4_SCENE_AND_ACTION, source: "scene-profile", appliesWhen: {}, tags: ["scene"] },
-    ],
-  },
   weekendCityWalk: {
     label: "周末城市散步",
     rules: [

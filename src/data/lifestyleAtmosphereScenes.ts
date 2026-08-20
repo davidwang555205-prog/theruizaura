@@ -40,8 +40,8 @@ export const ATMOSPHERE_SCENES: AtmosphereScene[] = [
     id: "brand-city-path",
     label: "城市路径",
     category: "brand",
-    compactPrompt: "A quiet refined city path such as a light stone sidewalk, calm office entrance, cafe exterior, hotel doorway, parking-to-elevator walkway, or pale wall with natural shadows. Avoid noisy streets, strong colors, or tourist mood.",
-    prompt: `Create a quiet urban atmosphere image for THERUIZ AURA. No product as the main subject. Show a refined city path such as a light stone sidewalk, calm office entrance, café exterior, hotel doorway, soft parking-to-elevator walkway, or pale wall with natural shadows. Avoid tourist street photography, noisy urban clutter, strong colors, or influencer check-in feeling.`
+    compactPrompt: "A quiet refined city path such as a light stone sidewalk, calm office entrance, cafe exterior, residential doorway, parking-to-elevator walkway, or pale wall with natural shadows. Avoid noisy streets, strong colors, or tourist mood.",
+    prompt: `Create a quiet urban atmosphere image for THERUIZ AURA. No product as the main subject. Show a refined city path such as a light stone sidewalk, calm office entrance, café exterior, residential doorway, soft parking-to-elevator walkway, or pale wall with natural shadows. Avoid tourist street photography, noisy urban clutter, strong colors, or influencer check-in feeling.`
   },
   {
     id: "brand-paper-detail",
@@ -74,12 +74,12 @@ export const ATMOSPHERE_SCENES: AtmosphereScene[] = [
     prompt: `Create a warm window-side reading atmosphere image for THERUIZ AURA. Show a soft interior corner with a chair or sofa edge, a book or magazine, a mug, linen curtains, and gentle daylight. The image should feel quiet, reflective, and personal, expressing a refined woman's private moment of calm. Avoid staged influencer reading scenes, excessive props, or cold empty interiors.`
   },
   {
-    id: "customer-hotel-arrival",
-    label: "酒店抵达后",
+    id: "customer-weekend-departure",
+    label: "周末轻旅行出发",
     category: "customer",
     customerExpectation: "出差和旅行也能保持秩序感",
-    compactPrompt: "A refined hotel arrival atmosphere with an open suitcase, folded clothing, tote bag, chair edge, or soft window light. Keep the sleeping area out of frame. Organized, calm, quietly luxurious, and travel-ready without tourist energy or hotel brochure styling.",
-    prompt: `Create a refined hotel arrival atmosphere image for THERUIZ AURA. Show a warm neutral hotel transition moment with an open suitcase, folded clothing, a tote bag, a chair edge, or soft daylight through a window. Keep any bed, bedding, and sleeping area out of frame. The image should feel organized, calm, and quietly luxurious, like a woman who travels without losing her sense of order and taste. Avoid tourist energy, dramatic travel imagery, or generic hotel brochure styling.`
+    compactPrompt: "A refined weekend-departure atmosphere with a compact suitcase, folded clothing, tote bag, residential threshold, or soft doorway light. Organized, calm, and travel-ready without tourist energy or staged luggage styling.",
+    prompt: `Create a refined weekend-trip departure atmosphere image for THERUIZ AURA. Show a warm neutral residential or building threshold with a compact suitcase, folded clothing, a tote bag, and soft doorway light. The image should feel organized and calm, like a woman beginning a short trip without losing her sense of order and taste. Avoid tourist energy, dramatic travel imagery, or staged luggage advertising.`
   },
   {
     id: "customer-flowers-bakery",

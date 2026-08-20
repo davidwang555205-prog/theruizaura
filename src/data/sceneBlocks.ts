@@ -34,8 +34,8 @@ export const BASIC_SCENE_BLOCKS: SceneBlock[] = [
     shortLabel: "居家衣帽间",
     englishLabel: "Morning wardrobe moment",
     category: "basic",
-    compactPrompt: "A quiet wardrobe or home morning moment before leaving. Use a bedroom, wardrobe corner, sofa edge, mirror area, or bed-side setting. Focus on outfit relationship, trouser hem, and sneakers on foot, with calm natural light and private daily ease.",
-    prompt: `Create a calm morning wardrobe scene with THERUIZ AURA sneakers. Show the woman in a getting-ready room, wardrobe corner, sofa edge, mirror area, or beside a bed as she gets ready for the day. The movement may include sitting on the edge of a bed while putting on the sneakers, slipping one foot into the shoe, tying shoelaces, adjusting trouser cuffs, reaching for a white shirt, checking the outfit in a mirror, or picking up a tote bag. Expression suggestion: quiet, personally focused, natural and relaxed, like a calm moment before leaving home.`
+    compactPrompt: "A quiet wardrobe or home morning moment before leaving. Use a wardrobe corner, sofa edge, mirror area, or residential entryway. Focus on outfit relationship, trouser hem, and sneakers on foot, with calm natural light and private daily ease.",
+    prompt: `Create a calm morning wardrobe scene with THERUIZ AURA sneakers. Show the woman in a getting-ready room, wardrobe corner, sofa edge, mirror area, or residential entryway as she gets ready for the day. The movement may include sitting on a sofa edge with both shoes already worn, adjusting trouser cuffs, reaching for a white shirt, checking the outfit in a mirror, or picking up a tote bag. Expression suggestion: quiet, personally focused, natural and relaxed, like a calm moment before leaving home.`
   },
   {
     id: "05",
@@ -66,12 +66,12 @@ export const BASIC_SCENE_BLOCKS: SceneBlock[] = [
   },
   {
     id: "08",
-    label: "旅行酒店 Travel and hotel packing",
-    shortLabel: "旅行酒店",
-    englishLabel: "Travel and hotel packing",
+    label: "周末轻旅行出发 Weekend trip departure",
+    shortLabel: "周末轻旅行出发",
+    englishLabel: "Weekend trip departure",
     category: "basic",
-    compactPrompt: "A refined travel or hotel packing scene in a calm warm-neutral room, near a suitcase, travel tote, chair edge, folded clothing, or soft window light. Keep the sleeping area out of frame. The sneakers should communicate all-day comfort and composed mobility without tourist energy or staged luggage advertising.",
-    prompt: `Create a refined travel lifestyle scene for THERUIZ AURA sneakers. Place the sneakers in a calm hotel transition space, beside an open suitcase, near a travel tote, at a chair or wardrobe edge, or by a hotel room window. Keep any bed, bedding, and sleeping area out of frame. The body movement may include unpacking a suitcase, placing the sneakers beside folded clothes, checking the outfit near a chair or window, picking up a travel tote, or standing near the window before leaving. Expression suggestion: soft, relaxed, lightly content, natural and unforced, like a calm travel moment.`
+    compactPrompt: "A refined weekend-trip departure at a residential or building threshold, near a compact suitcase, travel tote, folded clothing, or doorway light. The sneakers should communicate composed mobility without tourist energy or staged luggage advertising.",
+    prompt: `Create a refined weekend-trip departure scene for THERUIZ AURA sneakers. Place the woman at a residential entryway, building threshold, or quiet curb-side loading point beside a compact suitcase or travel tote. The body movement may include checking a folded itinerary, closing a compact case, picking up a travel tote, or pausing before leaving. Expression suggestion: soft, relaxed, lightly focused, natural and unforced, like a calm short-trip departure.`
   }
 ];
 
@@ -103,7 +103,6 @@ export const ACTION_OPTIONS = [
   "玄关站立准备出门",
   "推门出门",
   "坐在沙发边",
-  "坐在床边，双脚自然落地",
   "靠墙自然站立",
   "慢走一步",
   "下车动作",
@@ -119,7 +118,6 @@ export const ACTION_OPTIONS = [
   "打开行李箱",
   "站在电梯口等待",
   "轻微转身",
-  "坐在床边穿鞋",
   "大幅弯腰",
   "扶墙穿鞋",
   "大步走路",
@@ -136,7 +134,7 @@ export const AUTO_ACTION_BY_SCENE: Record<string, string[]> = {
   "01": ["慢走一步", "靠墙自然站立", "拿包准备出门", "整理裤脚"],
   "02": ["牵小朋友手", "弯腰拿儿童书包"],
   "03": ["拿咖啡慢走", "坐在咖啡店外"],
-  "04": ["静态站立，一脚微微向前", "坐在床边，双脚自然落地", "镜前检查穿搭"],
+  "04": ["静态站立，一脚微微向前", "坐在沙发边", "镜前检查穿搭"],
   "05": ["静态站立，一脚微微向前", "整理衣架 / 拿衣服", "触摸鞋面"],
   "06": ["静态站立，一脚微微向前", "慢走一步", "坐在沙发边", "整理裤脚"],
   "07": ["手触摸材质", "整理皮料", "拿色卡"],
@@ -155,7 +153,6 @@ export const ACTION_SAFETY_LEVELS: Record<string, ActionSafetyLevel> = {
   "靠墙自然站立": "A",
   "慢走一步": "A",
   "坐在沙发边": "A",
-  "坐在床边，双脚自然落地": "A",
   [MIRROR_SELFIE_ACTIONS.full]: "A",
   [MIRROR_SELFIE_ACTIONS.threeQuarter]: "A",
   "玄关站立准备出门": "A",
@@ -181,7 +178,6 @@ export const ACTION_SAFETY_LEVELS: Record<string, ActionSafetyLevel> = {
   "轻微转身": "B",
   "系鞋带": "C",
   "半穿鞋": "C",
-  "坐在床边穿鞋": "C",
   "弯腰拿儿童书包": "C",
   "蹲下拿儿童书包": "C",
   "大幅弯腰": "C",
@@ -196,9 +192,8 @@ export const ACTION_SAFETY_LEVELS: Record<string, ActionSafetyLevel> = {
 };
 
 export const ACTION_REPLACEMENT_SUGGESTIONS: Record<string, string> = {
-  "系鞋带": "坐在床边，手靠近鞋带但不真正拉扯",
-  "半穿鞋": "坐在床边，鞋已穿好，手整理裤脚",
-  "坐在床边穿鞋": "坐在床边，双脚自然落地，手整理裤脚",
+  "系鞋带": "坐在沙发边，手靠近鞋带但不真正拉扯",
+  "半穿鞋": "坐在沙发边，鞋已穿好，手整理裤脚",
   "弯腰拿儿童书包": "站立拿起小书包，鞋保持稳定",
   "蹲下拿儿童书包": "站立拿起小书包，鞋保持稳定",
   "下车动作": "站在车边，一脚自然向前",
@@ -222,7 +217,6 @@ export const ACTION_COMPACT_PROMPTS: Record<string, string> = {
   "玄关站立准备出门": "She stands calmly in an entryway before leaving, with stable foot placement and the sneakers clearly shown.",
   "推门出门": "She opens or passes through a door with a small controlled movement, keeping shoe-ground contact stable and the footwear readable.",
   "坐在沙发边": "She sits on the sofa edge with both feet naturally on the floor, showing trouser hem, ankle area, and sneakers clearly.",
-  "坐在床边，双脚自然落地": "She sits on the bed edge with both feet naturally on the floor, keeping shoes stable, readable, and correctly worn.",
   "靠墙自然站立": "She leans or stands lightly near a wall with a relaxed posture and clear shoe visibility.",
   "慢走一步": "A small natural walking step with stable shoe-ground contact, no motion blur, no stretched foot, and no distorted shoe.",
   "下车动作": "Simplify the car-side movement so one foot is stable on the ground and the sneaker shape remains clean.",
@@ -238,7 +232,6 @@ export const ACTION_COMPACT_PROMPTS: Record<string, string> = {
   "打开行李箱": "She opens or arranges a suitcase in a calm travel moment, keeping shoes visible and avoiding luggage clutter.",
   "站在电梯口等待": "She waits quietly near an elevator with relaxed posture, stable feet, and clear shoe visibility.",
   "轻微转身": "She makes only a small gentle turn, preserving natural body proportion and clean sneaker shape.",
-  "坐在床边穿鞋": "Use a safer seated shoe-ready moment with the shoe already worn or nearly stable, avoiding foot-entry clipping.",
   "大幅弯腰": "Simplify the bend into a calmer slight forward movement so the shoes are not hidden, compressed, or distorted.",
   "扶墙穿鞋": "Simplify into a stable standing or seated shoe-adjusting moment with no foot pushing through the shoe.",
   "大步走路": "Reduce to a small slow walking step with no motion blur, no stretched legs, and no deformed sneaker.",

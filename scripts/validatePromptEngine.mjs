@@ -81,7 +81,8 @@ const explicitScenePrompts = NON_PRODUCT_ATMOSPHERE_SCENES.map((scenePreference)
   no(prompt, NON_PRODUCT_ATMOSPHERE_SCENE_LINES[scenePreference], `Atmosphere scene does not inject raw legacy line: ${scenePreference}`);
   return prompt;
 });
-ok(NON_PRODUCT_ATMOSPHERE_SCENES.length === 35, "Atmosphere registry exposes all 35 explicit scenes");
+ok(NON_PRODUCT_ATMOSPHERE_SCENES.length === 31, "Atmosphere registry exposes all 31 active non-hotel scenes");
+ok(!NON_PRODUCT_ATMOSPHERE_SCENES.some((scene) => /hotel|酒店/i.test(scene)), "Atmosphere registry excludes every retired hotel scene");
 ok(new Set(explicitScenePrompts).size >= 8, "Explicit atmosphere scenes resolve through structured archetypes");
 
 const automaticAtmospherePrompts = Array.from({length:32}, (_, generationNonce) =>

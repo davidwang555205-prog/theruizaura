@@ -41,7 +41,7 @@ const COMPOSITION_STATE: PromptRule = {
 const SCENE_STATE: PromptRule = {
   id: "theruiz-scene-functionally-believable",
   section: "scene",
-  text: "Build a spatially real and functionally believable environment with clear architecture, natural movement routes, and a reason for the woman to be there. Favor building entrances, lobby thresholds, flower shop fronts, hotel entrances, gallery or bookstore circulation spaces, residential entry areas, quiet business-district walkways, and indoor-outdoor transitions. Use a small number of specific functional details instead of many decorative objects. Keep doors, floors, steps, glass, walls, furniture, signage, distant people, or vehicles logically placed and physically consistent. Avoid empty template sets and decorative lifestyle backgrounds with weak or ambiguous object details.",
+  text: "Build a spatially real and functionally believable environment with clear architecture, natural movement routes, and a reason for the woman to be there. Favor ordinary building entrances, residential lobby thresholds, flower shop fronts, gallery or bookstore circulation spaces, residential entry areas, quiet business-district walkways, and indoor-outdoor transitions. Use a small number of specific functional details instead of many decorative objects. Keep doors, floors, steps, glass, walls, furniture, signage, distant people, or vehicles logically placed and physically consistent. Avoid empty template sets and decorative lifestyle backgrounds with weak or ambiguous object details.",
   priority: PromptPriority.P3_COMPOSITION_AND_VISIBILITY,
   source: "realism-profile",
   appliesWhen: { compositionModes: ["fullFigure", "studioThreeQuarter", "mirrorFull", "mirrorThreeQuarter", "mirrorSeated", "onFootLifestyle"] },

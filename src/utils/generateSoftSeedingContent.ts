@@ -266,12 +266,10 @@ function getReaderSceneName(draft: SoftSeedingImageDraft | undefined) {
     写字楼门口: "写字楼门口",
     咖啡店门口: "咖啡店门口",
     咖啡馆内: "咖啡馆内",
-    酒店咖啡厅内: "酒店咖啡厅内",
     朋友午餐: "朋友午餐",
     "书店 / 杂志店门口": "书店门口",
     "花店 / 买花": "花店门口",
     "城市街角 / 安静街区": "安静街区",
-    酒店房间: "酒店房间",
     材质工作台: "材质工作台",
     拍摄花絮: "拍摄现场",
     棚内上新拍摄: "棚内上新",
@@ -631,11 +629,11 @@ const stylingSolutionSceneTemplates: StylingSolutionSceneTemplate[] = [
       ])
   },
   {
-    titles: ["旅行里，鞋子要少一点存在感", "酒店出门前最能判断一双鞋", "行李箱旁边看鞋，反而真实"],
+    titles: ["短途出门，鞋子要少一点存在感", "出发前最能判断一双鞋", "门边看鞋，反而真实"],
     body: () =>
       formatBodyParagraphs([
         "旅行里对鞋子的要求会更直接一点。",
-        "在酒店换好衣服准备出门的时候，行李箱还摊在门边，裤脚落下来刚好碰到鞋面。那一下其实最能判断一双鞋适不适合带出来。",
+        "换好衣服准备出门的时候，站在门边看一眼裤脚和鞋面的关系，最能判断一双鞋适不适合带出去。",
         "它不能太抢，也不能太累，最好是你不用再专门为它重新想一套衣服。",
         "照片里它不是最先跳出来的，但真的走出去以后，会发现整天都没怎么想起它。",
         "对一双日常鞋来说，这反而是很高的评价。"
@@ -1001,21 +999,21 @@ const lifestyleNaturalNoteKits: Partial<Record<TeamScenePreference, LifestyleNat
       "它不需要制造亮点，能把一身衣服接顺就很好。"
     ]
   },
-  酒店房间: {
+  周末轻旅行出发: {
     starts: [
       "短途出门时，我会特别在意鞋子能不能少带一双。",
-      "酒店房间镜前这类图很实用，能看出鞋子到底好不好搭。",
+      "出发前的全身记录很实用，能看出鞋子到底好不好搭。",
       "出差或旅行时，鞋子最好别让穿衣服变复杂。",
       "整理好行李准备出门时，最能看出一双鞋是不是省心。",
       "我不太喜欢很游客感的旅行穿搭，干净舒服就够了。",
-      "酒店里随手拍一张，比单独说百搭更有说服力。"
+      "门边随手拍一张，比单独说百搭更有说服力。"
     ],
     sceneMoments: [
-      "镜子里能看清鞋子和行李里那几件衣服是不是接得上。",
-      "房间光线比较干净，鞋型和整个人比例会更容易判断。",
-      "坐在床边或站在镜前，鞋子都没有被行李和衣服挡住。",
-      "这个场景不豪华也没关系，整齐、安静、能出门就好。",
-      "行李角落只露出一点，重点还是她准备出门的状态。",
+      "全身画面能看清鞋子和当天衣服是不是接得上。",
+      "门边光线比较干净，鞋型和整个人比例会更容易判断。",
+      "站在玄关或住宅门厅，鞋子没有被衣服和杂物挡住。",
+      "这个场景简单就好，整齐、安静、能出门就够了。",
+      "背景只保留少量日常痕迹，重点还是她准备出门的状态。",
       "短途旅行的衣服有限，鞋子能不能多搭几套会很明显。"
     ],
     shoeFeelings: [
@@ -1024,20 +1022,20 @@ const lifestyleNaturalNoteKits: Partial<Record<TeamScenePreference, LifestyleNat
       "鞋子完整露出来，才看得出它是不是真的适合带出门。",
       "它不是很强的旅行单品，更像能自然跟着走几天的鞋。",
       "脚下比例顺，镜前整理行李那一刻就会安心很多。",
-      "这种低调鞋型，在酒店房间里看也不会像临时凑的。"
+      "这种低调鞋型，放在真实出发状态里也不会像临时凑的。"
     ],
     realDetails: [
-      "行李打开一点点，状态还是整齐的。",
-      "床边、衣架和窗光保持干净，画面会更有秩序感。",
+      "随身物品只出现一点点，状态还是整齐的。",
+      "门边、衣架和自然光保持干净，画面会更有秩序感。",
       "脸被手机挡住也不影响判断，鞋子和衣服比例是清楚的。",
-      "酒店没有被拍成浮夸打卡照，安静一点更像真实出门前。",
+      "住宅门厅没有被拍成浮夸打卡照，安静一点更像真实出门前。",
       "衣服放得比较整齐，鞋子会更像整个行程里的稳定项。",
       "背景带一点生活痕迹，但没有乱到分散注意力。"
     ],
     closings: [
       "这种能陪我从白天走到晚上的鞋，旅行时会更想带。",
       "它不是为了拍旅行大片，是为了让出门少一点纠结。",
-      "如果酒店镜前都看顺，我会觉得它真的能省行李。",
+      "如果出发前全身比例都看顺，我会觉得它真的能省心。",
       "这种稳定的好搭感，对短途出门很重要。",
       "一双鞋能接住几套衣服，比单独好看更有用。",
       "它最像那种被默默放进行李箱的日常鞋。"
@@ -1183,7 +1181,7 @@ const bodyHumanizerReplacements: Array<[RegExp, string]> = [
   [/衣帽间和安静街角能看出这个颜色是不是真的能进入日常。/g, "放到衣帽间和安静街角里看，更容易判断这个颜色日常不日常。"],
   [/如果整身已经有重量，鞋子就要留一点呼吸感。/g, "如果整身已经偏重，鞋子这里就要轻一点。"],
   [/这种记忆点不用大声推，颜色自己会慢慢留下来。/g, "这种颜色不用大声推，看久了会自己留下印象。"],
-  [/朋友午餐、酒店房间和城市街角这些地方，能让穿搭从图片回到真实生活。/g, "朋友午餐、酒店房间、城市街角这些地方，会让穿搭更像真的要穿出去。"],
+  [/朋友午餐、住宅门厅和城市街角这些地方，能让穿搭从图片回到真实生活。/g, "朋友午餐、住宅门厅、城市街角这些地方，会让穿搭更像真的要穿出去。"],
   [/这类穿搭最后还是要回到：明天能不能用。/g, "说到底，明天能不能照着穿才重要。"],
   [/工艺笔记最好让人知道怎么判断，而不是只觉得品牌很会说。/g, "细节笔记最好教人看哪里，不要只让人觉得品牌很会说。"],
   [/细节笔记最好让人知道怎么判断，而不是只觉得品牌很会说。/g, "细节这里要讲得具体一点，不要只让人觉得品牌很会说。"],
@@ -1310,7 +1308,7 @@ function softenParagraphFlow(paragraphs: string[]) {
       .replace(/。厚衣服已经有重量了/g, "。毕竟厚衣服已经有重量了")
       .replace(/。放到衣帽间和安静街角里看/g, "。再放到衣帽间和安静街角里看")
       .replace(/。如果整身已经偏重/g, "。如果整身已经偏重")
-      .replace(/。朋友午餐、酒店房间、城市街角这些地方/g, "。换到朋友午餐、酒店房间、城市街角这些地方")
+      .replace(/。朋友午餐、住宅门厅、城市街角这些地方/g, "。换到朋友午餐、住宅门厅、城市街角这些地方")
       .replace(/。比例顺了/g, "。比例顺了以后")
       .replace(/。鞋带如果太假/g, "。但鞋带如果太假")
       .replace(/。细节这里要讲得具体一点/g, "。所以细节这里要讲得具体一点")
@@ -1484,7 +1482,7 @@ const readerBodyKits: Record<SoftSeedingCopyTopic, ReaderBodyKit> = {
       "一杯咖啡、一本书、一个包就够了，道具太多会把日常感冲淡。",
       "下班后在写字楼门口停一下，这种图比刻意摆拍更像真实反馈。",
       "周末去买花、逛书店、顺路喝咖啡，鞋子能自然出现就很好。",
-      "旅行酒店镜前那种图也有用，因为能看出一双鞋能不能省行李。",
+      "周末出发前的全身图也有用，因为能看出一双鞋能不能减少搭配负担。",
       "如果是在社区步道或安静街角，背景有一点生活痕迹会更像买家秀。"
     ],
     smallDetails: [
@@ -1611,7 +1609,7 @@ const readerBodyKits: Record<SoftSeedingCopyTopic, ReaderBodyKit> = {
     ],
     sceneNotes: [
       "入户镜前能看完整搭配，写字楼门口能看通勤，咖啡馆里能看松弛感。",
-      "朋友午餐、酒店房间和城市街角这些地方，能让穿搭从图片回到真实生活。",
+      "朋友午餐、住宅门厅和城市街角这些地方，能让穿搭从图片回到真实生活。",
       "每张图最好只解决一个问题：鞋子怎么露、裙摆怎么落、裤脚怎么停。",
       "如果一套穿着只能站着好看，出门参考价值就会少很多。"
     ],
@@ -1923,12 +1921,12 @@ const topicCopyKits: Record<SoftSeedingCopyTopic, TopicCopyKit> = {
     observations: [
       "白衬衫、针织、直筒裤、半裙、连衣裙和轻外套，都需要一双不抢风格的鞋。",
       "THERUIZ AURA 的重点不是把人打扮得很用力，而是让整个人看起来干净、体面、舒服。",
-      "真正的百搭要看场景：办公室、咖啡馆、酒店房间和城市街角都能成立。",
+      "真正的百搭要看场景：办公室、咖啡馆、住宅门厅和城市街角都能成立。",
       "如果鞋子让裤脚、裙摆和比例都变得清楚，整套搭配就更容易被参考。"
     ],
     scenes: [
       "入户镜前适合做完整穿搭记录，通勤路上适合证明它能走。",
-      "咖啡馆内和酒店房间可以呈现轻松状态，不需要强行摆拍。",
+      "咖啡馆内和住宅门厅可以呈现轻松状态，不需要强行摆拍。",
       "衣帽间画面适合讲一鞋多搭，但不要像服装搭配教程。",
       "每张图都要让鞋子和穿着关系清楚，而不是只拍上半身氛围。"
     ],
@@ -2133,7 +2131,7 @@ const topicCopyKitEnhancements = {
     scenes: [
       "可以是一张入户镜前的记录，也可以是咖啡店门口停下来的几秒钟。",
       "她不需要一直看镜头，偶尔自然看过来、低头整理衣服、走过街角都可以。",
-      "如果鞋子出现在普通街道、书店门口或酒店房间里，种草感会比纯摆拍更轻。",
+      "如果鞋子出现在普通街道、书店门口或住宅门厅里，种草感会比纯摆拍更轻。",
       "画面最好像朋友帮忙拍的一张，但审美和比例仍然是被控制过的。",
       "生活场景里不要塞太多道具，一杯咖啡、一本书、一个托特包就够了。"
     ],
@@ -2297,7 +2295,7 @@ const topicCopyKitEnhancements = {
     ],
     scenes: [
       "入户镜前适合看完整比例，写字楼门口适合看真实通勤状态。",
-      "咖啡馆内、朋友午餐和酒店房间，可以让穿搭看起来更生活化。",
+      "咖啡馆内、朋友午餐和住宅门厅，可以让穿搭看起来更生活化。",
       "如果是裙装或短裤，鞋子一定要完整露出，不然参考价值会变低。",
       "每张图最好只解决一个穿搭问题，不要把所有信息塞在一起。",
       "场景可以换，但穿着逻辑要一直清楚。"
@@ -2619,7 +2617,7 @@ const topicImageDrafts: Record<SoftSeedingTopic, SoftSeedingImageDraft[]> = {
       purpose: "判断连衣裙下摆和德训鞋是否接得顺。",
       description: "连衣裙下摆、腿部自然比例、鞋子完整清楚。",
       imageType: "产品上脚图",
-      scenePreference: "酒店房间",
+      scenePreference: "美术馆",
       garmentTypePreference: "连衣裙",
       tags: ["proof", "lowerBody", "dress"],
       composition: "lowerBody",
@@ -3007,7 +3005,7 @@ const topicImageGuides: Record<SoftSeedingTopic, string> = {
   上新活动转化:
     "Use concrete soft-launch cues: clean product readability, one on-foot styling proof, one material proof, one lifestyle proof, clear color and shape, and a calm reason to consider the new arrival.",
   棚内上新拍摄:
-    "Person-only studio launch rule: every card must show the same real person wearing the same complete outfit and the same THERUIZ AURA sneakers inside one unchanged professional launch studio. No still life, mirror, street, home, cafe, hotel, atmosphere, behind-the-scenes, product-only frame, or lifestyle location."
+    "Person-only studio launch rule: every card must show the same real person wearing the same complete outfit and the same THERUIZ AURA sneakers inside one unchanged professional launch studio. No still life, mirror, street, home, cafe, atmosphere, behind-the-scenes, product-only frame, or lifestyle location."
 };
 
 const topicVariantVisualCues: Record<SoftSeedingTopic, string[]> = {
@@ -3047,7 +3045,7 @@ const topicVariantVisualCues: Record<SoftSeedingTopic, string[]> = {
     "Visual content angle: use a restrained outfit still life only when useful: sneaker, folded refined trousers or denim, white shirt, tote edge, and muted color relationship.",
     "Visual content angle: if a mirror card appears, keep it supporting rather than default; no phone blocking the styling, no face-centered posed record, and never fixed as the first image.",
     "Visual content angle: make this a useful outfit reference, not influencer posing, not a fashion tutorial, not a full-body campaign shot.",
-    "Visual content angle: for hotel-room leaving moments, include suitcase edge, clean sneaker proportion, and calm travel order without mirror-selfie framing."
+    "Visual content angle: use a quiet residential departure or city-transition moment with clean sneaker proportion and calm daily order without mirror-selfie framing."
   ],
   材质工艺认知: [
     "Visual content angle: teach through one visible detail, such as toe curve, outsole edge, lace route, stitching, or material transition.",
@@ -3086,7 +3084,7 @@ const lifestyleBuyerFeedbackAlignmentCues = [
   "Copy-image alignment: keep the scene, styling, and shoe visibility consistent with this card's purpose and the copy's daily-wear feedback point.",
   "Copy-image alignment: emphasize readable on-foot proof, normal clothing, visible trouser, skirt, or dress relationship, and believable walking, standing, or sitting posture.",
   "Copy-image alignment: the visual should support buyer-show feedback about daily usability, not just show a pretty lifestyle background.",
-  "Copy-image alignment: use only ordinary tasteful objects that fit this image card, such as coffee, book, tote, flowers, paper bag, street shadow, office entrance, or quiet hotel mirror.",
+  "Copy-image alignment: use only ordinary tasteful objects that fit this image card, such as coffee, book, tote, flowers, paper bag, street shadow, office entrance, or a quiet residential doorway.",
   "Copy-image alignment: keep this image and the body copy centered on one buyer feedback point, not multiple unrelated selling points.",
   "Copy-image alignment: make the image feel saveable as a real user try-on reference for Xiaohongshu while staying loyal to this card's scene."
 ];
@@ -3233,7 +3231,7 @@ const lifestyleMirrorPhoneContinuityLine =
   "Mirror-card handheld rule: use the same simple no-logo phone as the only handheld object, with a natural grip and no second prop in either hand.";
 
 function getStudioLaunchSetContinuityLine(imageCount: SoftSeedingImageCount) {
-  return `${imageCount}-shot person-only studio continuity: treat all cards as one continuous launch shoot. Keep the exact same real person, facial identity, age impression, hairstyle, hair color, makeup, body silhouette, complete outfit, garment layers, colors, materials, hem lengths, wearable accessories, and THERUIZ AURA sneakers. Keep the exact same seamless backdrop, floor material, light direction, key-light softness, fill ratio, contact-shadow character, white balance, exposure, and color grade. Only the specified shot framing, body orientation, compact pose, gaze, and subtle expression may change. Both hands must stay empty. Never generate a still life, product-only frame, mirror image, street, home, cafe, hotel, atmosphere image, behind-the-scenes image, prop-led image, or any non-studio location.`;
+  return `${imageCount}-shot person-only studio continuity: treat all cards as one continuous launch shoot. Keep the exact same real person, facial identity, age impression, hairstyle, hair color, makeup, body silhouette, complete outfit, garment layers, colors, materials, hem lengths, wearable accessories, and THERUIZ AURA sneakers. Keep the exact same seamless backdrop, floor material, light direction, key-light softness, fill ratio, contact-shadow character, white balance, exposure, and color grade. Only the specified shot framing, body orientation, compact pose, gaze, and subtle expression may change. Both hands must stay empty. Never generate a still life, product-only frame, mirror image, street, home, cafe, atmosphere image, behind-the-scenes image, prop-led image, or any non-studio location.`;
 }
 
 const stylingSolutionExpressionBeats = [
