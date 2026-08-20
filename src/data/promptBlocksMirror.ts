@@ -13,7 +13,7 @@ The image should emphasize:
 - a believable everyday mirror selfie moment
 - calm and tasteful personal style
 
-Use a clean mirror, warm neutral interior, natural daylight, and a refined home, wardrobe, hotel, or quiet lifestyle setting.
+Use a clean mirror, warm neutral interior, natural daylight, and a refined home, wardrobe, residential entryway, or quiet lifestyle setting.
 
 The body posture should be natural:
 - standing naturally
@@ -197,11 +197,9 @@ The woman is seated in a natural daily setting while photographing her outfit in
 The image should feel like a real and tasteful daily outfit record, not influencer content or vanity posing.
 
 The seated posture should feel relaxed and believable, such as:
-- sitting on the edge of a bed
 - sitting on a sofa edge
 - sitting on a bench
 - sitting on a low chair
-- sitting on a hotel chair or stool
 - sitting in a wardrobe corner
 
 The composition should clearly show:
@@ -255,7 +253,7 @@ The framing should clearly include:
 - the relationship between the seated posture and the sneakers
 
 Do not crop through the shoes.
-Do not hide the shoes behind chair legs, bed edge, sofa fabric, tote bags, or mirror frame.
+Do not hide the shoes behind chair legs, sofa fabric, tote bags, or mirror frame.
 Do not let the seated pose reduce the sneakers to tiny background details.
 
 The sneakers should preserve the uploaded THERUIZ AURA sneaker's real toe shape, outsole thickness, lace thickness, material texture, and correct proportion.`;
@@ -276,119 +274,6 @@ Avoid:
 - upper-body-only seated selfie
 - phone dominating the frame
 - mirror frame cutting through the shoes`;
-
-export const HOTEL_MIRROR_SELFIE_ANTI_CHEAPNESS_CONTROL = `Hotel mirror selfie anti-cheapness control:
-When the mirror selfie takes place in a hotel setting, the environment must feel refined, calm, clean, and quietly luxurious.
-
-The hotel should not feel flashy, touristy, overly decorative, or cheap.
-
-Prefer a warm neutral hotel room, wardrobe area, entryway mirror, calm bedroom corner, or elegant hotel passage area.
-
-Avoid low-end hotel visual cues such as:
-- cluttered bathroom counters
-- cheap vanity lights
-- messy towels
-- obvious toilet area
-- loud marble pattern
-- harsh yellow lighting
-- tourist luggage mess
-- strong logo hotel branding
-- messy minibar clutter
-- cheap mirror frame
-- flashy carpet pattern
-- loud hotel décor
-
-The image should feel like a refined woman quietly recording her outfit in a temporary but tasteful space.
-
-The mood should express:
-- calm travel rhythm
-- quiet order
-- understated elegance
-- clean daily movement
-- comfort without sloppiness
-- mobility with personal taste`;
-
-export const HOTEL_SPACE_SELECTION_CONTROL = `Hotel space selection control:
-Prefer the most refined hotel selfie zones:
-- a calm room mirror
-- a wardrobe mirror
-- an entryway mirror
-- a bedroom corner mirror
-- a subtle full-length mirror near soft daylight
-- a full-length mirror in a hotel room entry or wardrobe corner if appropriate
-
-Avoid defaulting to:
-- messy bathroom sink mirror
-- toilet-side mirror
-- harsh vanity mirror
-- loud hotel lobby selfie
-- gym mirror
-- elevator mirror
-- public restaurant or cafe mirror
-
-The hotel setting should support the outfit and shoes, not overwhelm them.`;
-
-export const HOTEL_LIGHTING_REFINEMENT_CONTROL = `Hotel lighting refinement control:
-Use soft hotel daylight or soft warm-neutral ambient light.
-
-Avoid:
-- strong yellow light
-- fluorescent bathroom light
-- harsh downlight shadows
-- uneven mixed lighting
-- mirror glare
-- overexposed lamp hotspots
-- dark muddy corners
-- dramatic night-club hotel lighting
-
-The hotel mirror selfie should look soft, breathable, and premium, with clean skin tone, refined outfit color, and readable shoe details.`;
-
-export const HOTEL_BACKGROUND_ORDER_CONTROL = `Hotel background order control:
-Keep the hotel background visually quiet and organized.
-
-Allowed subtle background details:
-- a neatly placed suitcase
-- folded clothing
-- a tote bag
-- a chair
-- a bed edge
-- a curtain
-- a warm neutral wall
-- a clean console
-- a subtle lamp
-- a tidy shoe or garment area
-
-Avoid:
-- open messy luggage explosion
-- clothes scattered everywhere
-- takeaway trash
-- random shopping bags
-- tangled chargers
-- too many personal items
-- visual clutter on tables
-- bathroom product clutter
-- messy towel stacks
-
-The background should suggest movement and travel, but still feel calm and controlled.`;
-
-export const HOTEL_MIRROR_SELFIE_MOOD_CONTROL = `Hotel mirror selfie mood control:
-The hotel mirror selfie should feel like a refined woman maintaining her personal style while traveling.
-
-It should not feel like:
-- a tourist photo
-- a vacation-content selfie
-- a hotel influencer check-in
-- a luxury bragging moment
-- a flashy mirror outfit post
-- a posed selfie in a hotel bathroom
-
-It should feel like:
-- a calm travel outfit check
-- a quiet before-going-out moment
-- a practical but beautiful daily record
-- understated confidence
-- tasteful mobility
-- quiet luxury in movement`;
 
 export const MIRROR_SELFIE_EXPRESSION_DE_EMPHASIS = `Expression de-emphasis for mirror selfie:
 Because the face is hidden or not the main focus, do not overemphasize facial expression.

@@ -30,7 +30,7 @@ function mapSceneToKey(scene: string): string {
   const sceneKeyMap: Record<string, string> = {
     "通勤上班": "commute", "商务区转角": "commute", "写字楼门口": "commute",
     "咖啡馆内": "cafeInterior", "咖啡店门口": "cafeExterior",
-    "旅行酒店": "hotelTravel", "酒店咖啡厅内": "hotelCafeInterior", "酒店房间": "hotelTravel", "酒店门口 / 门厅": "hotelTravel",
+    "旅行酒店": "weekendCityWalk", "酒店咖啡厅内": "cafeInterior", "酒店房间": "weekendCityWalk", "酒店门口 / 门厅": "weekendCityWalk",
     "周末城市散步": "weekendCityWalk", "精品超市 / 日常采购": "premiumErrands",
     "玄关出门": "entrywayDeparture", "回家进门": "entrywayDeparture",
     "美术馆": "galleryExhibition", "书店 / 杂志店门口": "bookstoreMagazine",

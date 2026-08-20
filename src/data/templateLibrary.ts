@@ -242,8 +242,8 @@ export const BUILT_IN_TEMPLATES: TemplateItem[] = [
     }
   },
   {
-    id: "tpl-15-hotel-full-mirror",
-    name: "模板15：酒店镜前穿搭记录",
+    id: "tpl-15-trip-departure-full-mirror",
+    name: "模板15：轻旅行出发镜前记录",
     category: "product",
     purpose: "旅行穿搭 / 生活方式内容 / 社交媒体配图",
     recommendedPlatform: "小红书 / 旅行穿搭内容",
@@ -255,7 +255,7 @@ export const BUILT_IN_TEMPLATES: TemplateItem[] = [
       people: "model",
       logo: "none",
       colorDescription:
-        "强调移动中的体面、秩序感和轻松穿搭状态，鞋子必须完整露出。自动启用酒店镜拍去廉价感补丁，控制空间、光线、背景秩序和整体气质。"
+        "强调短途出发时的体面、秩序感和轻松穿搭状态，使用住宅玄关或衣帽区，鞋子必须完整露出。"
     }
   },
   {
@@ -310,10 +310,10 @@ export const BUILT_IN_TEMPLATES: TemplateItem[] = [
     }
   },
   {
-    id: "tpl-19-hotel-standing-mirror",
-    name: "模板19：酒店行李角站姿镜拍",
+    id: "tpl-19-trip-departure-standing-mirror",
+    name: "模板19：轻旅行出发站姿镜拍",
     category: "product",
-    purpose: "旅行穿搭 / 酒店生活方式 / 小红书配图",
+    purpose: "旅行穿搭 / 出发前生活方式 / 小红书配图",
     recommendedPlatform: "小红书 / 旅行生活方式",
     productParams: {
       generationMode: "single",
@@ -323,7 +323,7 @@ export const BUILT_IN_TEMPLATES: TemplateItem[] = [
       people: "model",
       logo: "none",
       colorDescription:
-        "像真实女性出门前在酒店行李角或衣帽区站立整理穿搭并顺手记录。不要出现床、床品或睡眠区；自动启用酒店镜拍去廉价感补丁，控制空间、光线、背景秩序和整体气质。"
+        "像真实女性短途出发前在住宅玄关或衣帽区站立整理穿搭并顺手记录，控制空间、光线、背景秩序和整体气质。"
     }
   },
   {

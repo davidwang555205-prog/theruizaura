@@ -29,8 +29,8 @@ const baseParams = {
 const cases = [
   ["生活街景", {}, true],
   ["咖啡馆室内", { scenePreference: "咖啡馆内", generationNonce: 1 }, true],
-  ["酒店咖啡厅室内", { scenePreference: "酒店咖啡厅内", generationNonce: 8 }, true],
-  ["酒店房间", { scenePreference: "酒店房间", generationNonce: 9 }, true],
+  ["已下线酒店咖啡厅", { scenePreference: "酒店咖啡厅内", generationNonce: 8 }, true],
+  ["已下线酒店房间", { scenePreference: "酒店房间", generationNonce: 9 }, true],
   ["对镜穿搭", { imageType: "对镜穿搭图", scenePreference: "居家衣帽间", generationNonce: 2 }, true],
   ["通勤上脚", { imageType: "产品上脚图", scenePreference: "通勤上班", generationNonce: 3 }, true],
   ["棚拍人物", { imageType: "产品上脚图", scenePreference: "棚内上新拍摄", generationNonce: 4 }, true],
@@ -47,7 +47,10 @@ const productProtectionPattern =
 try {
   await writeFile(
     entryPath,
-    `export { generateTeamPrompt } from ${JSON.stringify(resolve(projectRoot, "src/utils/generatePrompt.ts"))};\n`
+    `export { generateTeamPrompt } from ${JSON.stringify(resolve(projectRoot, "src/utils/generatePrompt.ts"))};\n` +
+    `export { generateSoftSeedingContent, softSeedingTopicOptions } from ${JSON.stringify(resolve(projectRoot, "src/utils/generateSoftSeedingContent.ts"))};\n` +
+    `export { TEAM_SCENE_OPTIONS_BY_IMAGE_TYPE } from ${JSON.stringify(resolve(projectRoot, "src/data/teamSceneOptions.ts"))};\n` +
+    `export { lifestyleSoftSeedingScenePool } from ${JSON.stringify(resolve(projectRoot, "src/data/lifestyleSoftSeedingScenePool.ts"))};\n`
   );
   await build({
     entryPoints: [entryPath],
@@ -58,8 +61,23 @@ try {
     logLevel: "silent"
   });
 
-  const { generateTeamPrompt } = await import(`${pathToFileURL(bundlePath).href}?v=${Date.now()}`);
+  const {
+    generateTeamPrompt,
+    generateSoftSeedingContent,
+    softSeedingTopicOptions,
+    TEAM_SCENE_OPTIONS_BY_IMAGE_TYPE,
+    lifestyleSoftSeedingScenePool
+  } = await import(`${pathToFileURL(bundlePath).href}?v=${Date.now()}`);
   const failures = [];
+  const retiredHotelPattern = /hotel|酒店|客房|room card|房卡/i;
+  const activeBedActionPattern = /sitting on (?:the )?(?:edge of )?a bed|beside a bed|坐在床边|床边穿鞋/i;
+
+  if (
+    retiredHotelPattern.test(JSON.stringify(TEAM_SCENE_OPTIONS_BY_IMAGE_TYPE)) ||
+    retiredHotelPattern.test(JSON.stringify(lifestyleSoftSeedingScenePool))
+  ) {
+    failures.push({ name: "active-scene-catalog", hasNoRetiredHotelScene: false });
+  }
 
   for (const [name, overrides, requiresProductProtection] of cases) {
     for (let variant = 0; variant < 3; variant += 1) {
@@ -71,24 +89,15 @@ try {
         /over-clean AI lifestyle template|not overly polished|showroom-perfect|sterile showroom perfection|fake CGI|CGI product render/i.test(
           prompt
         );
-      const hasHotelCafeIdentity =
-        name !== "酒店咖啡厅室内" ||
-        (/hotel cafe|hotel-cafe/i.test(prompt) &&
-          !/hotel corridor|hotel-corridor|street cafe substitution/i.test(prompt.replace(/Avoid street-cafe substitution/gi, "")));
-      const hasHotelCafeShoeSafety =
-        name !== "酒店咖啡厅室内" ||
-        /furniture, linens, luggage, props, and guests clear of both sneakers/i.test(prompt);
-      const hasNoHotelBed =
-        name !== "酒店房间" ||
-        !/(?:beside|on|edge of|sitting on|soft)\s+(?:the\s+)?bed|bed edge|床边|床上|卧室|床品|睡眠区/i.test(prompt);
+      const isRetiredHotelCase = name.startsWith("已下线酒店");
+      const hasNoRetiredHotelScene =
+        !isRetiredHotelCase || !/hotel|酒店|客房|room card|房卡/i.test(prompt);
 
       if (
         !hasAuthenticity ||
         (requiresProductProtection && !hasProductProtection) ||
         !hasAiPerfectionBoundary ||
-        !hasHotelCafeIdentity ||
-        !hasHotelCafeShoeSafety ||
-        !hasNoHotelBed
+        !hasNoRetiredHotelScene
       ) {
         failures.push({
           name,
@@ -96,11 +105,28 @@ try {
           hasAuthenticity,
           hasProductProtection,
           hasAiPerfectionBoundary,
-          hasHotelCafeIdentity,
-          hasHotelCafeShoeSafety,
-          hasNoHotelBed
+          hasNoRetiredHotelScene
         });
       }
+    }
+  }
+
+  for (const topic of softSeedingTopicOptions) {
+    for (const imageCount of [3, 5, 8]) {
+      const content = generateSoftSeedingContent({
+        baseParams: { ...baseParams, generationNonce: imageCount * 31 },
+        topic,
+        imageCount,
+        variantOffset: imageCount,
+        date: new Date("2026-07-20T12:00:00+08:00")
+      });
+      const invalidImages = content.images
+        .filter((image) =>
+          retiredHotelPattern.test(`${image.name} ${image.description} ${image.params.scenePreference} ${image.params.extraRequirement} ${image.prompt}`) ||
+          activeBedActionPattern.test(image.prompt)
+        )
+        .map((image) => image.name);
+      if (invalidImages.length) failures.push({ name: `${topic}/${imageCount}`, invalidImages });
     }
   }
 
@@ -108,7 +134,7 @@ try {
     console.error("Prompt authenticity validation failed:", JSON.stringify(failures, null, 2));
     process.exitCode = 1;
   } else {
-    console.log(`Prompt authenticity validation passed for ${cases.length * 3} samples across ${cases.length} representative scenarios.`);
+    console.log(`Prompt authenticity validation passed for ${cases.length * 3} direct samples plus ${softSeedingTopicOptions.length * 3} generated 3/5/8 sets.`);
   }
 } finally {
   await rm(tempDirectory, { recursive: true, force: true });
