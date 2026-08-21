@@ -114,6 +114,7 @@ export function getTheruizAuraRealismRules(input: PromptProfileInput): PromptRul
         }
       : rule)
     .filter((rule) => {
+      if (input.actionLock && rule.id === ACTION_STATE.id) return false;
       const modes = rule.appliesWhen.compositionModes;
       return !modes || modes.includes(input.compositionMode);
     });

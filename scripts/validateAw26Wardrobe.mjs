@@ -18,7 +18,8 @@ try {
     entryPath,
     `export * from ${JSON.stringify(resolve(projectRoot, "src/data/theruizAuraWardrobeLibrary.ts"))};\n` +
     `export { choosePerSceneOutfitLine } from ${JSON.stringify(resolve(projectRoot, "src/utils/choosePerSceneOutfitLine.ts"))};\n` +
-    `export { generatePromptRuntime } from ${JSON.stringify(resolve(projectRoot, "src/prompt-engine/runtime.ts"))};\n`
+    `export { generatePromptRuntime } from ${JSON.stringify(resolve(projectRoot, "src/prompt-engine/runtime.ts"))};\n` +
+    `export { generateSoftSeedingContent } from ${JSON.stringify(resolve(projectRoot, "src/utils/generateSoftSeedingContent.ts"))};\n`
   );
   await build({
     entryPoints: [entryPath],
@@ -35,6 +36,8 @@ try {
     buildAw26Mix,
     choosePerSceneOutfitLine,
     generatePromptRuntime,
+    generateSoftSeedingContent,
+    getWardrobePersonState,
     selectAw26Preset,
     theruizAuraWardrobeLibrary,
     validateWardrobeCombination
@@ -104,7 +107,7 @@ try {
     nonce: 13
   });
   assert(colorfulPreset, "Colorful-shoe preset selection returned no safe candidate");
-  assert(colorfulPreset.items.every((entry) => entry.color_family !== "muted_accent"), "Colorful shoes must force neutral AW26 clothing");
+  assert(colorfulPreset.items.every((entry) => ["neutral_light", "neutral_dark"].includes(entry.color_family)), "Colorful shoes must force strictly neutral AW26 clothing");
   const colorfulMix = buildAw26Mix({
     season: "autumn",
     scene: "weekendCityWalk",
@@ -128,6 +131,52 @@ try {
   assert(directModes[0].selectedOutfitId?.startsWith("aw26-preset-"), "Preset mode is not reachable from the main selector");
   assert(directModes[1].selectedOutfitId?.startsWith("aw26-mix-"), "Core + AW26 mix mode is not reachable from the main selector");
   assert(directModes[2].selectedOutfitId?.startsWith("combo-autumn-"), "Original Core combinatorial wardrobe is no longer reachable");
+
+  const requestedTrousers = choosePerSceneOutfitLine({
+    scenePreference: "周末城市散步", season: "autumn", shoe: "Cloud Dancer",
+    imageType: "生活场景图", garmentTypePreference: "裤装", generationNonce: 0
+  });
+  const requestedSkirt = choosePerSceneOutfitLine({
+    scenePreference: "周末城市散步", season: "autumn", shoe: "Cloud Dancer",
+    imageType: "生活场景图", garmentTypePreference: "裙装", generationNonce: 0
+  });
+  assert(requestedTrousers.selectedOutfitId?.startsWith("aw26-preset-") && /trouser|denim/i.test(requestedTrousers.selectedPerSceneOutfitLine), "AW26 did not respect an explicit trousers category");
+  assert(requestedSkirt.selectedOutfitId?.startsWith("aw26-preset-") && /skirt/i.test(requestedSkirt.selectedPerSceneOutfitLine), "AW26 did not respect an explicit skirt category");
+
+  const integratedPresetIds = new Set();
+  for (let generationNonce = 0; generationNonce < 90; generationNonce += 3) {
+    const selection = choosePerSceneOutfitLine({
+      scenePreference: "通勤上班", season: "winter", shoe: "Cloud Dancer",
+      imageType: "产品上脚图", garmentTypePreference: "自动匹配", generationNonce
+    });
+    if (selection.selectedOutfitId?.startsWith("aw26-preset-")) integratedPresetIds.add(selection.selectedOutfitId);
+  }
+  assert(integratedPresetIds.size >= 15, `Integrated preset rotation collapsed to ${integratedPresetIds.size} reachable commute presets`);
+
+  const shenzhenWinter = choosePerSceneOutfitLine({
+    scenePreference: "通勤上班", season: "winter", shoe: "Cloud Dancer",
+    imageType: "产品上脚图", garmentTypePreference: "自动匹配", cityProfile: "Shenzhen", generationNonce: 0
+  });
+  const beijingWinter = choosePerSceneOutfitLine({
+    scenePreference: "通勤上班", season: "winter", shoe: "Cloud Dancer",
+    imageType: "产品上脚图", garmentTypePreference: "自动匹配", cityProfile: "Beijing", generationNonce: 0
+  });
+  assert(!/long coat|shawl/i.test(shenzhenWinter.selectedPerSceneOutfitLine), "Shenzhen winter received a heavy coat or shawl");
+  assert(shenzhenWinter.selectedOutfitId !== beijingWinter.selectedOutfitId, "Warm and cold city profiles resolved to the same first AW26 preset");
+
+  const callablePresetIds = new Set();
+  for (const presetEntry of aw26OutfitPresets) {
+    const scene = presetEntry.scene_compatibility.find((candidate) =>
+      presetEntry.person_state_compatibility.includes(getWardrobePersonState(candidate))
+    );
+    assert(scene, `${presetEntry.id} has no runtime-reachable scene/person-state pair`);
+    const personState = getWardrobePersonState(scene);
+    for (let nonce = 0; nonce < 90; nonce += 1) {
+      const selected = selectAw26Preset({ season: "winter", scene, personState, shoe: "Cloud Dancer", nonce });
+      if (selected?.id === presetEntry.id) callablePresetIds.add(selected.id);
+    }
+  }
+  assert(callablePresetIds.size === 30, `Only ${callablePresetIds.size}/30 AW26 presets are callable through preset mode`);
 
   const baseParams = {
     imageType: "生活场景图",
@@ -160,7 +209,28 @@ try {
     assert(!productionText.includes(brandName), `Production Prompt leaks inspiration brand: ${brandName}`);
   }
 
-  console.log("AW26 wardrobe validation passed: 34 items, 30 presets, main-selector preset/mix/core reachability, conflict rejection, person-state compatibility, colorful-shoe neutrality, runtime Prompt binding, and brand redaction.");
+  const webBaseParams = { ...baseParams, generationNonce: 730 };
+  for (const topic of ["生活场景软种草", "穿搭解决方案", "上新活动转化"]) {
+    const sampled = Array.from({ length: 30 }, (_, variantOffset) => generateSoftSeedingContent({
+      baseParams: webBaseParams,
+      topic,
+      imageCount: 3,
+      variantOffset,
+      date: new Date("2026-07-20T12:00:00+08:00")
+    }));
+    const aw26Sets = sampled.filter((content) => content.outfitRotationId?.startsWith("aw26-"));
+    assert(aw26Sets.length >= 8, `${topic} reached AW26 in only ${aw26Sets.length}/30 web-entry samples`);
+    assert(
+      sampled.every((content) => content.images.every((image) => !/Keep it suitable for/i.test(image.params.lockedOutfitLine ?? ""))),
+      `${topic} leaked a single-scene suitability tail into a shared outfit`
+    );
+    assert(
+      sampled.every((content) => content.images.every((image) => !(image.prompt.includes("Action Lock:") && image.prompt.includes("Prefer walking through an entrance")))),
+      `${topic} kept generic action candidates beside its Action Lock`
+    );
+  }
+
+  console.log("AW26 wardrobe validation passed: 34 items, 30 callable presets, web-entry preset/mix/Core reachability, cross-scene sharing, city climate, action-lock isolation, strict colorful-shoe neutrality, runtime Prompt binding, and brand redaction.");
 } finally {
   await rm(tempDirectory, { recursive: true, force: true });
 }
