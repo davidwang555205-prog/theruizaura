@@ -16,6 +16,8 @@ import { NON_PRODUCT_ATMOSPHERE_VARIATIONS } from "../data/nonProductAtmosphereS
 import { generatePromptRuntime } from "../prompt-engine/runtime";
 import { selectDiversePersonActions } from "./selectDiverseSeriesActions";
 import { choosePerSceneOutfitLine } from "./choosePerSceneOutfitLine";
+import { resolvePerSceneKey } from "./outfitLibraryFilters";
+import { selectCityProfileForScene } from "./selectCityProfileForScene";
 import { resolveTopicRoleBundle } from "../visual-system/topicRoutingRegistry";
 import { compileRoutedImage2UserPrompt } from "../visual-system/routedPromptCompiler";
 import { getCompatibleSceneOptions } from "../data/teamSceneOptions";
@@ -3542,12 +3544,13 @@ function buildImagePlan(
   imageCount: SoftSeedingImageCount,
   seriesActionBeat: SeriesActionBeat,
   lockedOutfitLine = "",
-  usedScenes?: Set<TeamScenePreference>
+  usedScenes?: Set<TeamScenePreference>,
+  resolvedSceneOverride?: TeamScenePreference
 ): Omit<SoftSeedingImagePlan, "visualRoleId" | "activePromptVersionId" | "provenanceDisplay" | "routingProvenance"> {
   const shoeFields = resolveBaseShoe(baseParams);
   const garmentTypePreference = resolveSoftSeedingGarmentType(baseParams, draft);
   const lifestyleContinuityLine = getLifestyleSoftSeedingContinuityLines(topic, draft, imageCount);
-  const resolvedScene = resolveMultiImageScenePreference(
+  const resolvedScene = resolvedSceneOverride ?? resolveMultiImageScenePreference(
     topic,
     draft,
     index,
@@ -3614,6 +3617,13 @@ function buildImagePlan(
   };
 }
 
+function sanitizeSharedOutfitLine(line: string) {
+  return line
+    .replace(/\s*Keep it suitable for [^.]+(?:, with clear sneaker readability)?\./gi, "")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
 function buildSoftSeedingImagePlans(
   baseParams: TeamPromptParams,
   drafts: SoftSeedingImageDraft[],
@@ -3624,21 +3634,57 @@ function buildSoftSeedingImagePlans(
   recentOutfitIds?: string[]
 ) {
   const roleBundle = resolveTopicRoleBundle(topic, imageCount);
-  const firstPersonDraft = drafts.find((draft) => shouldInheritBaseGarmentType(draft.imageType));
+  const plannedSceneHistory = new Set<TeamScenePreference>();
+  const plannedScenes = drafts.map((draft, index) => {
+    const scene = resolveMultiImageScenePreference(
+      topic,
+      draft,
+      index,
+      imageCount,
+      variantIndex,
+      baseParams.generationNonce,
+      plannedSceneHistory
+    );
+    plannedSceneHistory.add(scene);
+    return scene;
+  });
+  const firstPersonIndex = drafts.findIndex((draft) => shouldInheritBaseGarmentType(draft.imageType));
+  const firstPersonDraft = firstPersonIndex >= 0 ? drafts[firstPersonIndex] : undefined;
+  const personAw26Contexts = drafts.flatMap((draft, index) => {
+    if (!shouldInheritBaseGarmentType(draft.imageType)) return [];
+    const sceneKey = resolvePerSceneKey({
+      scenePreference: plannedScenes[index],
+      imageType: draft.imageType,
+      userExtraRequirement: draft.extraRequirement
+    });
+    if (!sceneKey) return [];
+    return [{
+      sceneKey,
+      cityProfile: selectCityProfileForScene({
+        imageType: draft.imageType,
+        sceneKey,
+        userExtraRequirement: baseParams.extraRequirement,
+        generationNonce: baseParams.generationNonce + variantIndex + index + 1
+      })
+    }];
+  });
+  const firstAw26Context = personAw26Contexts[0];
   const initialSetSelection = firstPersonDraft
     ? choosePerSceneOutfitLine({
-        scenePreference: "自动匹配",
+        scenePreference: plannedScenes[firstPersonIndex],
         season: resolveBaseSeason(baseParams.season, firstPersonDraft.season),
         shoe: baseParams.shoe,
         imageType: firstPersonDraft.imageType,
         garmentTypePreference: resolveSoftSeedingGarmentType(baseParams, firstPersonDraft),
         userExtraRequirement: "",
+        cityProfile: firstAw26Context?.cityProfile,
+        requiredAw26Contexts: personAw26Contexts.slice(1),
         generationNonce: baseParams.generationNonce + variantIndex + 1,
         previousOutfitId: previousOutfitId ?? undefined,
         generatedHistory: recentOutfitIds
       })
     : null;
-  let sharedOutfitLine = initialSetSelection?.selectedPerSceneOutfitLine ?? "";
+  let sharedOutfitLine = sanitizeSharedOutfitLine(initialSetSelection?.selectedPerSceneOutfitLine ?? "");
   const outfitRotationId = initialSetSelection?.selectedOutfitId ?? null;
   const selectedPersonActions = selectDiversePersonActions({
     cards: drafts.map((draft) => ({
@@ -3672,11 +3718,12 @@ function buildSoftSeedingImagePlans(
       imageCount,
       seriesActionBeat,
       sharedOutfitLine,
-      usedScenes
+      usedScenes,
+      plannedScenes[index]
     );
     usedScenes.add(plan.params.scenePreference);
     if (!sharedOutfitLine && shouldInheritBaseGarmentType(draft.imageType)) {
-      sharedOutfitLine = generatePromptRuntime(plan.params).selectedOutfitLine ?? "";
+      sharedOutfitLine = sanitizeSharedOutfitLine(generatePromptRuntime(plan.params).selectedOutfitLine ?? "");
     }
     const visualRoleId = resolveSoftVisualRoleId(
       topic,

@@ -928,6 +928,10 @@ type ChoosePerSceneOutfitInput = {
   generatedHistory?: string[];
   garmentTypePreference?: TeamGarmentTypePreference;
   cityProfile?: ChinaCityProfile | null;
+  requiredAw26Contexts?: Array<{
+    sceneKey: string;
+    cityProfile?: ChinaCityProfile | null;
+  }>;
   generationNonce?: number;
 };
 
@@ -1083,12 +1087,26 @@ export function choosePerSceneOutfitLine(input: ChoosePerSceneOutfitInput): Choo
       ? "winter"
       : null;
   const aw26ModeSlot = Math.abs(input.generationNonce ?? 0) % 3;
+  const aw26RotationNonce = Math.floor(Math.abs(input.generationNonce ?? 0) / 3);
+  const requestedBottomCategory = input.garmentTypePreference === "裤装"
+    ? "trousers" as const
+    : input.garmentTypePreference === "裙装"
+      ? "skirt" as const
+      : undefined;
+  const supportsAw26Garment = ["自动匹配", "裤装", "裙装"].includes(input.garmentTypePreference ?? "自动匹配");
+  const requiredAw26Contexts = (input.requiredAw26Contexts ?? [])
+    .filter((context) => isAw26WardrobeScene(context.sceneKey))
+    .map((context) => ({
+      scene: context.sceneKey as Parameters<typeof getWardrobePersonState>[0],
+      personState: getWardrobePersonState(context.sceneKey as Parameters<typeof getWardrobePersonState>[0]),
+      cityProfile: context.cityProfile
+    }));
   const canUseAw26 = Boolean(
     smartSelection &&
     aw26Season &&
     sceneKey &&
     isAw26WardrobeScene(sceneKey) &&
-    (input.garmentTypePreference ?? "自动匹配") === "自动匹配" &&
+    supportsAw26Garment &&
     ["onFoot", "lifestyle", "mirror"].includes(normalizePerSceneImageType(input.imageType) ?? "") &&
     aw26ModeSlot !== 2
   );
@@ -1098,19 +1116,22 @@ export function choosePerSceneOutfitLine(input: ChoosePerSceneOutfitInput): Choo
       season: aw26Season,
       scene: sceneKey,
       personState: getWardrobePersonState(sceneKey),
-      shoe: normalizePerSceneShoe(input.shoe)
+      shoe: normalizePerSceneShoe(input.shoe),
+      cityProfile: input.cityProfile,
+      requiredContexts: requiredAw26Contexts
     };
     const presetSelection = aw26ModeSlot === 0
       ? selectAw26Preset({
           ...wardrobeInput,
-          nonce: input.generationNonce,
+          nonce: aw26RotationNonce,
+          requestedBottomCategory,
           blockedIds: [input.previousOutfitId, ...(input.generatedHistory ?? [])].filter((id): id is string => Boolean(id))
         })
       : null;
     const mixSelection = aw26ModeSlot === 1
       ? buildAw26Mix({
           ...wardrobeInput,
-          nonce: input.generationNonce,
+          nonce: aw26RotationNonce,
           coreBasics: {
             top: smartSelection.selectedTopCategory,
             bottom: smartSelection.selectedBottomCategory

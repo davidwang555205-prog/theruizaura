@@ -1,4 +1,6 @@
 import type { ColorDirection, GarmentType, OutfitStyle } from "./sceneOutfitSeedLibrary";
+import type { ChinaCityProfile } from "./chinaUrbanStreetProfiles";
+import { getCitySeasonClimateProfile } from "./citySeasonClimateProfiles";
 
 export type WardrobeRole = "hero" | "basic" | "accent";
 export type WardrobeCategory = "outerwear" | "knitwear" | "blazer" | "top" | "trousers" | "skirt";
@@ -198,20 +200,53 @@ export type WardrobeValidationInput = {
   scene: WardrobeScene;
   personState: WardrobePersonState;
   shoe: string;
+  cityProfile?: ChinaCityProfile | null;
+  requiredContexts?: Array<{
+    scene: WardrobeScene;
+    personState: WardrobePersonState;
+    cityProfile?: ChinaCityProfile | null;
+  }>;
 };
+
+function maxWarmthForCity(input: WardrobeValidationInput, cityProfile?: ChinaCityProfile | null) {
+  const climate = getCitySeasonClimateProfile(cityProfile);
+  const layerWeight = input.season === "autumn" ? climate.autumnLayerWeight : climate.winterLayerWeight;
+  if (layerWeight === "coldLayer") return 5;
+  if (String(layerWeight).includes("mediumLayer") || String(layerWeight).includes("warmLayer")) return 4;
+  return 3;
+}
+
+function isCityClimateCompatible(entry: WardrobeItem, input: WardrobeValidationInput, cityProfile?: ChinaCityProfile | null) {
+  if (!cityProfile) return true;
+  if (entry.warmth > maxWarmthForCity(input, cityProfile)) return false;
+  const forbidden = getCitySeasonClimateProfile(cityProfile).forbidden.join("|");
+  if (/heavy wool coat/i.test(forbidden) && entry.category === "outerwear" && entry.warmth >= 4 && /wool|cashmere/i.test(entry.material)) return false;
+  if (/scarf-heavy outfit|thick scarf/i.test(forbidden) && entry.fashion_element === "shawl") return false;
+  if (/overly formal winter coat/i.test(forbidden) && entry.category === "outerwear" && entry.formality === "tailored" && entry.warmth >= 4) return false;
+  return true;
+}
+
+function validationContexts(input: WardrobeValidationInput) {
+  return [
+    { scene: input.scene, personState: input.personState, cityProfile: input.cityProfile },
+    ...(input.requiredContexts ?? [])
+  ];
+}
 
 export function validateWardrobeCombination(items: WardrobeItem[], input: WardrobeValidationInput) {
   const reasons: string[] = [];
+  const contexts = validationContexts(input);
   if (!items.length) reasons.push("empty combination");
   if (items.some((entry) => !entry.season.includes(input.season))) reasons.push("season mismatch");
-  if (items.some((entry) => !entry.scene_compatibility.includes(input.scene))) reasons.push("scene mismatch");
-  if (items.some((entry) => !entry.person_state_compatibility.includes(input.personState))) reasons.push("person-state mismatch");
+  if (contexts.some((context) => items.some((entry) => !entry.scene_compatibility.includes(context.scene)))) reasons.push("scene mismatch");
+  if (contexts.some((context) => items.some((entry) => !entry.person_state_compatibility.includes(context.personState)))) reasons.push("person-state mismatch");
+  if (contexts.some((context) => items.some((entry) => !isCityClimateCompatible(entry, input, context.cityProfile)))) reasons.push("city-climate mismatch");
   if (items.filter((entry) => entry.role === "hero").length > 1) reasons.push("more than one hero fashion element");
   if (items.filter((entry) => entry.fashion_element && highConflictElements.has(entry.fashion_element)).length > 1) reasons.push("high-conflict fashion elements");
   if (items.filter((entry) => /cashmere|shearling|tweed|suede|corduroy/i.test(entry.material)).length > 2) reasons.push("material overload");
   if (items.some((entry) => entry.footwear_visibility !== "high")) reasons.push("insufficient footwear visibility");
   if (items.filter((entry) => entry.color_family === "muted_accent").length > 1) reasons.push("color overload");
-  if (colorfulShoes.test(input.shoe) && items.some((entry) => entry.color_family === "muted_accent")) reasons.push("colorful shoe requires neutral clothing");
+  if (colorfulShoes.test(input.shoe) && items.some((entry) => !["neutral_light", "neutral_dark"].includes(entry.color_family))) reasons.push("colorful shoe requires neutral clothing");
   return { valid: reasons.length === 0, reasons };
 }
 
@@ -219,11 +254,17 @@ function resolvePresetItems(presetEntry: Aw26OutfitPreset) {
   return presetEntry.item_ids.map((id) => byId.get(id)).filter((entry): entry is WardrobeItem => Boolean(entry));
 }
 
-export function selectAw26Preset(input: WardrobeValidationInput & { nonce?: number; blockedIds?: string[] }) {
+export function selectAw26Preset(input: WardrobeValidationInput & {
+  nonce?: number;
+  blockedIds?: string[];
+  requestedBottomCategory?: "trousers" | "skirt";
+}) {
   const blocked = new Set(input.blockedIds ?? []);
   const candidates = aw26OutfitPresets.filter((entry) => {
-    if (blocked.has(entry.id) || !entry.scene_compatibility.includes(input.scene) || !entry.person_state_compatibility.includes(input.personState)) return false;
-    return validateWardrobeCombination(resolvePresetItems(entry), input).valid;
+    const items = resolvePresetItems(entry);
+    if (blocked.has(entry.id)) return false;
+    if (input.requestedBottomCategory && !items.some((item) => item.category === input.requestedBottomCategory)) return false;
+    return validateWardrobeCombination(items, input).valid;
   });
   if (!candidates.length) return null;
   const selected = candidates[Math.abs(input.nonce ?? 0) % candidates.length];
@@ -247,7 +288,7 @@ export function buildAw26Mix(input: WardrobeValidationInput & {
     entry.scene_compatibility.includes(input.scene) &&
     entry.person_state_compatibility.includes(input.personState) &&
     ["outerwear", "blazer", "knitwear"].includes(entry.category) &&
-    (!requiresNeutralCore || entry.color_family !== "muted_accent") &&
+    (!requiresNeutralCore || ["neutral_light", "neutral_dark"].includes(entry.color_family)) &&
     (!coreHasAccent || entry.color_family !== "muted_accent") &&
     (!coreHasHeroTexture || entry.role !== "hero") &&
     coreMaterialLoad + (/cashmere|shearling|tweed|suede|corduroy/i.test(entry.material) ? 1 : 0) <= 2

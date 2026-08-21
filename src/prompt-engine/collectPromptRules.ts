@@ -154,7 +154,7 @@ const COMPOSITION_RULES: Record<string, PromptRule[]> = {
     {
       id: "material-detail-no-person",
       section: "model",
-      text: "Do not load any person, face, or full-shoe product rules. Focus on the specific material zone: suede, leather, mesh, stitching, or panel transition.",
+      text: "Do not load any person, face, or full-shoe product rules. Focus on the exact material zone, surface finish, stitching relationship, and panel transition shown in the confirmed references.",
       priority: PromptPriority.P3_COMPOSITION_AND_VISIBILITY,
       source: "composition-profile",
       appliesWhen: { compositionModes: ["materialDetail"] },
@@ -418,6 +418,17 @@ export function collectPromptRules(input: PromptProfileInput): PromptRule[] {
       required: true,
       tags: ["card", "action-lock"]
     });
+  } else if (input.actionLock && input.compositionMode !== "atmosphere") {
+    rules.push({
+      id: "card-non-person-directive",
+      section: "scene",
+      text: `Non-person card directive: ${sanitizeNonPersonDirective(input.actionLock, input.compositionMode)} Treat this as the only card-specific composition or material-operation variation; do not add a competing operation.`,
+      priority: PromptPriority.P0_USER_SPECIFIED,
+      source: "theme-card",
+      appliesWhen: {},
+      required: true,
+      tags: ["card", "non-person-directive"]
+    });
   }
 
   if (input.sceneLock) {
@@ -434,6 +445,15 @@ export function collectPromptRules(input: PromptProfileInput): PromptRule[] {
   }
 
   return rules;
+}
+
+function sanitizeNonPersonDirective(directive: string, compositionMode: PromptProfileInput["compositionMode"]): string {
+  if (compositionMode !== "materialDetail") return directive;
+
+  const materialNames = "leather|suede|mesh|canvas|knit|nubuck";
+  return directive
+    .replace(new RegExp(`\\b(?:${materialNames})(?:\\s+or\\s+(?:${materialNames}))+\\b`, "gi"), "confirmed reference material")
+    .replace(new RegExp(`\\b(?:${materialNames})\\b`, "gi"), "reference-bound material");
 }
 
 function matchesPredicate(pred: RulePredicate, input: PromptProfileInput): boolean {
