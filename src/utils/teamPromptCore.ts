@@ -1053,7 +1053,7 @@ function getSceneVariationLine(
   return lines[nonce % lines.length];
 }
 
-function getStudioLaunchAngleLine(params: TeamPromptParams, resolvedScene: Exclude<TeamScenePreference, "自动匹配">, hasShoe: boolean) {
+export function getStudioLaunchAngleLine(params: TeamPromptParams, resolvedScene: Exclude<TeamScenePreference, "自动匹配">, hasShoe: boolean) {
   if (resolvedScene !== "棚内上新拍摄" || !hasShoe || !shouldUsePeopleStyling(params.imageType)) return "";
 
   const lines = params.imageType === "对镜穿搭图" ? STUDIO_LAUNCH_MIRROR_ANGLE_LINES : STUDIO_LAUNCH_ON_FOOT_ANGLE_LINES;

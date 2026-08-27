@@ -39,6 +39,9 @@ import {
   type NonProductAtmosphereCount,
   type NonProductAtmospherePlan
 } from "./non-product-atmosphere";
+import { compileSeedanceVideoScript, type VideoScriptDuration } from "./video-script/compileSeedanceVideoScript";
+
+type PromptOutputMode = "image" | "video";
 
 const imageTypeOptions: TeamImageType[] = [
   "产品上脚图",
@@ -250,10 +253,16 @@ function App() {
   const [params, setParams] = useState<TeamPromptParams>(initialParams);
   const paramsRef = useRef<TeamPromptParams>(initialParams);
   const [generatedPrompt, setGeneratedPrompt] = useState(() => initialGeneratedPrompt);
+  const [promptOutputMode, setPromptOutputMode] = useState<PromptOutputMode>("image");
+  const [videoDuration, setVideoDuration] = useState<VideoScriptDuration>(10);
+  const [generatedVideoScript, setGeneratedVideoScript] = useState(() =>
+    compileSeedanceVideoScript({ params: initialParams, duration: 10 }).script
+  );
   const [generatedPromptBindingFingerprint, setGeneratedPromptBindingFingerprint] = useState("");
   const [isPromptBindingSyncing, setIsPromptBindingSyncing] = useState(false);
   const [copyStatus, setCopyStatus] = useState("");
   const [hasPendingChanges, setHasPendingChanges] = useState(false);
+  const [hasPendingVideoChanges, setHasPendingVideoChanges] = useState(false);
   const [softTopic, setSoftTopic] = useState<SoftSeedingTopic>(softSeedingTopicOptions[0]);
   const [softImageCount, setSoftImageCount] = useState<SoftSeedingImageCount>(5);
   const [softGenerationNonce, setSoftGenerationNonce] = useState(0);
@@ -338,8 +347,10 @@ function App() {
     paramsRef.current = nextParams;
     setParams(nextParams);
     setGeneratedPrompt(prompt);
+    setGeneratedVideoScript(compileSeedanceVideoScript({ params: nextParams, duration: videoDuration }).script);
     setGeneratedPromptBindingFingerprint(referenceBinding.fingerprint);
     setHasPendingChanges(false);
+    setHasPendingVideoChanges(false);
     setIsPromptBindingSyncing(false);
     if (referenceImages.length > 0) setImageGenerationStatus("参考图片与建议上传顺序已同步到当前 Prompt；尚未发送任何 Provider Request。");
   }, [referenceBinding.fingerprint]);
@@ -351,6 +362,7 @@ function App() {
       return next;
     });
     setHasPendingChanges(true);
+    setHasPendingVideoChanges(true);
     setCopyStatus("");
     setSoftCopyStatus("");
   };
@@ -363,6 +375,24 @@ function App() {
     setGeneratedPromptBindingFingerprint(referenceBinding.fingerprint);
     setCopyStatus("");
     setHasPendingChanges(false);
+  };
+
+  const compileCurrentVideoScript = (current: TeamPromptParams, duration: VideoScriptDuration) => {
+    const nextParams = bindReferenceInputs(current);
+    return { nextParams, script: compileSeedanceVideoScript({ params: nextParams, duration }).script };
+  };
+
+  const handleGenerateOutput = () => {
+    if (promptOutputMode === "image") {
+      handleGenerate();
+      return;
+    }
+    const { nextParams, script } = compileCurrentVideoScript(paramsRef.current, videoDuration);
+    paramsRef.current = nextParams;
+    setParams(nextParams);
+    setGeneratedVideoScript(script);
+    setCopyStatus("");
+    setHasPendingVideoChanges(false);
   };
 
   const syncPromptParams = () => {
@@ -397,6 +427,20 @@ function App() {
     }
     await navigator.clipboard.writeText(resolved.prompt);
     setCopyStatus(resolved.recompiled ? "参考图片已同步，已复制最新提示词。" : "已复制提示词。");
+  };
+
+  const handleCopyOutput = async () => {
+    if (promptOutputMode === "image") {
+      await handleCopy();
+      return;
+    }
+    const { nextParams, script } = compileCurrentVideoScript(paramsRef.current, videoDuration);
+    paramsRef.current = nextParams;
+    setParams(nextParams);
+    setGeneratedVideoScript(script);
+    setHasPendingVideoChanges(false);
+    const mode = await copyWithFallback(script);
+    setCopyStatus(`已复制最新 ${videoDuration} 秒 Seedance2.5 视频脚本${mode === "fallback" ? "（兼容模式）" : ""}。`);
   };
 
   const handleGenerateSoftContent = () => {
@@ -636,6 +680,8 @@ function App() {
     </div>
   );
 
+  const outputHasPendingChanges = promptOutputMode === "video" ? hasPendingVideoChanges : hasPendingChanges;
+
   return (
     <main className="ui-app-shell">
       <aside className="ui-sidebar"><div className="ui-brand">THERUIZ AURA<small>BRAND CONTENT PLATFORM</small></div><nav aria-label="平台导航">
@@ -665,6 +711,52 @@ function App() {
             </div>
 
             <div className="space-y-5">
+              <fieldset className="rounded-[18px] bg-aura-cream/70 p-3 ring-1 ring-aura-beige/70">
+                <legend className="px-1 text-sm font-medium text-aura-charcoal">输出模式</legend>
+                <div className="grid grid-cols-2 gap-2">
+                  {(["image", "video"] as PromptOutputMode[]).map((mode) => (
+                    <button
+                      key={mode}
+                      type="button"
+                      aria-pressed={promptOutputMode === mode}
+                      onClick={() => {
+                        setPromptOutputMode(mode);
+                        setCopyStatus("");
+                        if (mode === "video") {
+                          const compiled = compileCurrentVideoScript(paramsRef.current, videoDuration);
+                          setGeneratedVideoScript(compiled.script);
+                          setHasPendingVideoChanges(false);
+                        }
+                      }}
+                      className={`rounded-[14px] px-3 py-2 text-xs font-medium transition ${promptOutputMode === mode ? "bg-aura-charcoal text-white" : "bg-white/80 text-aura-muted"}`}
+                    >
+                      {mode === "image" ? "图片 Prompt" : "视频脚本"}
+                    </button>
+                  ))}
+                </div>
+                {promptOutputMode === "video" && (
+                  <label className="mt-3 block space-y-2">
+                    <span className="text-xs font-medium text-aura-charcoal">Seedance2.5 时长</span>
+                    <select
+                      aria-label="Seedance2.5 视频时长"
+                      className={inputClass}
+                      value={videoDuration}
+                      onChange={(event) => {
+                        const duration = Number(event.target.value) as VideoScriptDuration;
+                        setVideoDuration(duration);
+                        setGeneratedVideoScript(compileCurrentVideoScript(paramsRef.current, duration).script);
+                        setHasPendingVideoChanges(false);
+                        setCopyStatus("");
+                      }}
+                    >
+                      <option value={10}>10 秒 · 独立三节奏</option>
+                      <option value={15}>15 秒 · 独立四节奏</option>
+                    </select>
+                    <span className="block text-xs leading-5 text-aura-muted">仅生成可复制脚本；仍需在外部 Seedance2.5 手动上传参考图并生成视频。</span>
+                  </label>
+                )}
+              </fieldset>
+
               <label className="block space-y-2">
                 <span className="text-sm font-medium text-aura-charcoal">图片类型</span>
                 <select
@@ -917,14 +1009,16 @@ function App() {
                 </span>
               </label>
 
-              {hasPendingChanges && (
+              {outputHasPendingChanges && (
                 <p className="rounded-[16px] bg-aura-cream px-4 py-3 text-sm leading-6 text-aura-muted ring-1 ring-aura-beige/70">
-                  参数已更改，请点击“生成提示词”刷新右侧结果，或直接生成小红书内容自动同步。
+                  参数已更改，请点击“{promptOutputMode === "video" ? "生成视频脚本" : "生成提示词"}”刷新右侧结果，或直接复制时自动同步。
                 </p>
               )}
 
-              <button type="button" onClick={handleGenerate} className={`w-full ${primaryButtonClass}`}>
-                {hasPendingChanges ? "重新生成提示词" : "生成提示词"}
+              <button type="button" onClick={handleGenerateOutput} className={`w-full ${primaryButtonClass}`}>
+                {promptOutputMode === "video"
+                  ? `${outputHasPendingChanges ? "重新生成" : "生成"}${videoDuration}秒视频脚本`
+                  : outputHasPendingChanges ? "重新生成提示词" : "生成提示词"}
               </button>
             </div>
           </div>
@@ -932,22 +1026,24 @@ function App() {
           <aside className="rounded-[28px] bg-aura-porcelain/95 p-6 shadow-aura ring-1 ring-aura-beige/70">
             <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <div>
-                <h2 className="text-xl font-semibold text-aura-charcoal">最终英文提示词</h2>
-                <p className="mt-2 text-sm leading-6 text-aura-muted">Standard 版本，可直接复制使用。</p>
+                <h2 className="text-xl font-semibold text-aura-charcoal">{promptOutputMode === "video" ? `Seedance2.5 ${videoDuration}秒视频脚本` : "最终英文提示词"}</h2>
+                <p className="mt-2 text-sm leading-6 text-aura-muted">{promptOutputMode === "video" ? "Manual / Draft 结构化脚本，可复制到外部 Seedance2.5 使用。" : "Standard 版本，可直接复制使用。"}</p>
               </div>
-              <button type="button" onClick={handleCopy} disabled={isPromptBindingSyncing} className={clayButtonClass}>
+              <button type="button" onClick={handleCopyOutput} disabled={isPromptBindingSyncing} className={clayButtonClass}>
                 {isPromptBindingSyncing ? "正在同步…" : "一键复制"}
               </button>
             </div>
 
             {imageGenerationPanel}
 
-            <div data-testid="generated-prompt" className="aura-scrollbar min-h-[430px] whitespace-pre-wrap rounded-[22px] border border-aura-beige bg-white/75 p-5 text-sm leading-7 text-aura-charcoal shadow-inner lg:max-h-[610px] lg:overflow-y-auto">
-              {generatedPrompt}
+            <div data-testid={promptOutputMode === "video" ? "generated-video-script" : "generated-prompt"} className="aura-scrollbar min-h-[430px] whitespace-pre-wrap rounded-[22px] border border-aura-beige bg-white/75 p-5 text-sm leading-7 text-aura-charcoal shadow-inner lg:max-h-[610px] lg:overflow-y-auto">
+              {promptOutputMode === "video" ? generatedVideoScript : generatedPrompt}
             </div>
 
             <p role="status" className="mt-3 rounded-[18px] bg-aura-cream px-4 py-3 text-sm leading-6 text-aura-muted ring-1 ring-aura-beige/70">
-              Manual / Draft execution：当前绑定参考图片用途、证据覆盖和建议上传顺序，但不提取具体材质、颜色或结构事实。Prompt 可复制到外部 Image2 手动执行；Provider API 未接入，当前不是 production-ready。
+              {promptOutputMode === "video"
+                ? "Manual / Draft execution：当前只生成 Seedance2.5 视频脚本和参考图手动映射说明；未发送 API 请求、未自动生成视频，也没有 Provider、Polling、Video QC 或 OSS 生产链路。"
+                : "Manual / Draft execution：当前绑定参考图片用途、证据覆盖和建议上传顺序，但不提取具体材质、颜色或结构事实。Prompt 可复制到外部 Image2 手动执行；Provider API 未接入，当前不是 production-ready。"}
             </p>
 
             {copyStatus && <p className="mt-3 text-sm text-aura-muted">{copyStatus}</p>}
