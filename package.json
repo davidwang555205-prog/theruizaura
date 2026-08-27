@@ -18,6 +18,7 @@
     "validate:reference-binding": "node scripts/validateReferenceBinding.mjs",
     "validate:prompt-audit": "node scripts/validatePromptAudit.mjs",
     "validate:consumer-trust": "node scripts/validateConsumerTrustLayer.mjs",
+    "validate:video-script": "node scripts/validateVideoScriptIsolation.mjs",
     "prepare:prompt-visual-ab": "node scripts/preparePromptVisualAb.mjs",
     "validate:prompt-visual-ab": "node scripts/validatePromptVisualAb.mjs",
     "preview": "vite preview"
