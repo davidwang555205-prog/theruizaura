@@ -64,11 +64,11 @@ function buildReferenceMapping(params: TeamPromptParams, protection: ProductProt
 
 function formatBrandVisualLines() {
   return [
-    `ACTIVE VISUAL SYSTEM — THERUIZ AURA Brand Visual Mother v${brandVisualMother.version} (${brandVisualMother.status}) is the highest visual authority.`,
+    `ACTIVE VISUAL SYSTEM — THERUIZ AURA Brand Visual Mother v${brandVisualMother.version} (${brandVisualMother.status}) is the highest visual authority for aesthetic direction.`,
     `Core positioning: ${brandVisualMother.core_positioning}.`,
-    `Core traits: ${brandVisualMother.core_traits.join(", ")}.`,
-    `Fixed boundaries: ${brandVisualMother.fixed_rules.join("; ")}.`,
-    "Keep color low-volume, light visibly sourced, materials tactile and physically real, space mature and urban, composition observed rather than staged, and the lived moment more important than commercial posing.",
+    `Default brand audience range is ${brandVisualMother.audience_visual_age_range.min}–${brandVisualMother.audience_visual_age_range.max}; when the user has explicitly selected a person profile, preserve that explicit person selection instead of silently rerouting identity by product.`,
+    "The product is not the visual director. Keep color low-volume, light warm but visibly sourced, materials tactile and physically real, space mature and urban, composition observed rather than staged, and the lived moment more important than commercial posing.",
+    "Product truth remains controlled only by the current task uploaded product references; brand visual language must never invent product facts.",
   ];
 }
 
