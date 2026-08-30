@@ -33,7 +33,7 @@ type SoftSeedingCopyTopic =
   | "品牌审美观点"
   | "上新活动转化";
 export type SoftSeedingTopic = SoftSeedingCopyTopic | "棚内上新拍摄";
-export type SoftSeedingImageCount = 3 | 5 | 8;
+export type SoftSeedingImageCount = 1 | 3 | 5 | 8;
 export type SoftSeedingDailySlot = 1 | 2;
 
 export type SoftSeedingImagePlan = {

@@ -1,11 +1,13 @@
-import type { TeamPromptParams } from "../types";
-import { resolveVideoCreativeContext, type ResolvedVideoCreativeContext } from "./resolveVideoCreativeContext";
+import type { TeamPromptParams, TeamSeason } from "../types";
+import type { NonProductAtmosphereImagePlan } from "../non-product-atmosphere";
+import { buildPromptProfileInput } from "../prompt-engine/adapters/legacyTeamPromptAdapter";
+import { resolveVideoBrandVisual, resolveVideoCreativeContext, type ResolvedVideoCreativeContext } from "./resolveVideoCreativeContext";
 
 export type VideoScriptDuration = 10 | 15;
 
 export type SceneSpec = {
   imageType: TeamPromptParams["imageType"];
-  scene: TeamPromptParams["scenePreference"];
+  scene: string;
   season: TeamPromptParams["season"];
   subjectMode: "person_with_product" | "product_only" | "non_product_atmosphere";
   model: TeamPromptParams["modelChoice"] | null;
@@ -242,11 +244,15 @@ function buildFifteenSecondBeats(scene: SceneSpec, evidenceDirection: string): F
       productPriority: productPriority(scene, "supporting"),
     },
     {
-      id: "15s-product-evidence",
+      id: scene.subjectMode === "non_product_atmosphere" ? "15s-atmosphere-evidence" : "15s-product-evidence",
       startSecond: 8,
       endSecond: 12,
       purpose: scene.subjectMode === "non_product_atmosphere" ? "Reveal the defining atmospheric detail without introducing product dominance." : `Deliver one Product Evidence beat inside the same scene context. ${evidenceDirection}`,
-      action: scene.subjectMode === "person_with_product" ? "Let the resolved scene action settle so the confirmed reference-bound footwear form becomes stably readable without posing toward the lens or switching to an isolated product advertisement." : "Keep the product stable inside the same scene as the camera reads only its confirmed reference-bound form.",
+      action: scene.subjectMode === "person_with_product"
+        ? "Let the resolved scene action settle so the confirmed reference-bound footwear form becomes stably readable without posing toward the lens or switching to an isolated product advertisement."
+        : scene.subjectMode === "non_product_atmosphere"
+          ? "Keep the scene person-free and let one resolved life trace, light transition, or material relationship become readable without introducing a hero product."
+          : "Keep the product stable inside the same scene as the camera reads only its confirmed reference-bound form.",
       camera: "Refine the framing gradually; never move unusually close or switch to an extreme angle.",
       productPriority: productPriority(scene, "hero"),
     },
@@ -342,6 +348,74 @@ export function compileSeedanceVideoScript(input: {
     productProtection: buildProductProtection(scene),
     referenceMapping: buildReferenceMapping(input.params, scene),
     beats: input.duration === 10 ? buildTenSecondBeats(scene) : buildFifteenSecondBeats(scene, evidenceDirection),
+  };
+  return { filmSpec, script: renderFilmSpec(filmSpec) };
+}
+
+export function compileSeedanceAtmosphereVideoScript(input: {
+  image: NonProductAtmosphereImagePlan;
+  season: TeamSeason;
+  duration: VideoScriptDuration;
+  referenceCount?: number;
+}): CompiledVideoScript {
+  const { image } = input;
+  const profileInput = buildPromptProfileInput({
+    imageType: "非产品氛围图",
+    modelChoice: "30–45岁客户画像模特",
+    modelContinuity: "新人物",
+    shoe: "自定义",
+    customShoe: "",
+    season: input.season,
+    scenePreference: "自动匹配",
+    garmentTypePreference: "自动匹配",
+    studioLaunchAnglePreference: "自动匹配",
+    studioLaunchPreset: "auto",
+    studioWardrobePreference: "auto",
+    stillLifeStyle: "与主视觉统一",
+    extraRequirement: "",
+    generationNonce: image.index,
+  }, "");
+  const brandVisual = resolveVideoBrandVisual(profileInput);
+  const presenceDirection = image.productPresenceMode === "no_product"
+    ? "No footwear or product may appear."
+    : image.productPresenceMode === "subtle_supporting_presence"
+      ? "Any product presence must remain secondary environmental support and must never become the visual center."
+      : "Any product presence may appear only as a quiet lifestyle trace and must never become a product showcase.";
+  const scene: SceneSpec = {
+    imageType: "非产品氛围图",
+    scene: image.slot.sceneLabel,
+    season: input.season,
+    subjectMode: "non_product_atmosphere",
+    model: null,
+    wardrobePreference: null,
+    selectedOutfitLine: null,
+    resolvedLocationDirection: `Preserve the resolved ${image.sceneResolution.resolvedArchetypeId} / ${image.sceneResolution.resolvedVariantId} setting: ${image.slot.sceneLine}. ${image.sceneVariantContent.spatialCue}. Composition remains ${image.sceneVariantContent.compositionCue}.`,
+    resolvedActionDirection: `Keep the frame person-free. Preserve this resolved life trace: ${image.sceneVariantContent.primaryTrace}. Supporting objects: ${image.sceneVariantContent.supportingObjects.join(", ") || image.slot.objectCue}. ${presenceDirection}`,
+    seasonalLightDirection: `${input.season} seasonal continuity${image.sceneVariantContent.timeOfDay ? ` at ${image.sceneVariantContent.timeOfDay}` : ""}; do not substitute another season or time-of-day logic.`,
+    seasonalMoodDirection: `Preserve ${image.seasonSemanticProfileId} atmosphere semantics and the resolved ${image.visualGrammar.valueStructure} value structure.`,
+    brandVisualPositioning: brandVisual.positioning,
+    brandVisualDirectingRules: [...brandVisual.authoritativeRules, ...brandVisual.directingRules],
+    studioContext: null,
+    extraRequirement: `Product presence: ${image.productPresenceMode}. Product Echo: ${image.productEchoRoute.primaryChannel} via ${image.productEchoRoute.selectedCarrierCategory}; use reference assets only for visual echo extraction, never as a product hero.`,
+  };
+  const referenceCount = Math.max(0, input.referenceCount ?? image.promptPackage.referenceAssetIds.length);
+  const filmSpec: FilmSpec = {
+    format: "Seedance2.5 manual video script",
+    durationSeconds: input.duration,
+    rhythm: input.duration === 10 ? "independent_three_beat" : "independent_four_beat",
+    scene,
+    motion: buildMotion(scene),
+    camera: buildCamera(scene),
+    productProtection: buildProductProtection(scene),
+    referenceMapping: {
+      mode: "not_applicable",
+      confirmedReferenceCount: referenceCount,
+      planReady: true,
+      instruction: referenceCount > 0
+        ? `Manually attach the ${referenceCount} current-task reference${referenceCount === 1 ? "" : "s"} in Seedance2.5 only when Product Echo is required. Use them for restrained visual echo extraction, not Product Truth reconstruction or hero-product generation.`
+        : "No product reference is required for this preview atmosphere script. Do not invent a footwear product.",
+    },
+    beats: input.duration === 10 ? buildTenSecondBeats(scene) : buildFifteenSecondBeats(scene, ""),
   };
   return { filmSpec, script: renderFilmSpec(filmSpec) };
 }

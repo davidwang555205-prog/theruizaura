@@ -40,6 +40,12 @@ import {
   type NonProductAtmospherePlan
 } from "./non-product-atmosphere";
 import { compileSeedanceVideoScript, type VideoScriptDuration } from "./video-script/compileSeedanceVideoScript";
+import {
+  compileAtmosphereVideoScriptBatch,
+  compileSoftSeedingVideoScriptBatch,
+  formatVideoScriptBatch,
+  type CompiledVideoScriptBatchItem,
+} from "./video-script/compileSeedanceVideoScriptBatch";
 
 type PromptOutputMode = "image" | "video";
 
@@ -204,6 +210,11 @@ function NonProductAtmosphereWorkspace({
   onAspectRatioChange,
   onGenerate,
   onCopyPrompt,
+  videoDuration,
+  videoScripts,
+  onVideoDurationChange,
+  onCopyVideoScript,
+  onCopyAllVideoScripts,
   onUploadReferences
 }: {
   plan: NonProductAtmospherePlan | null;
@@ -217,6 +228,11 @@ function NonProductAtmosphereWorkspace({
   onAspectRatioChange: (value: NonProductAtmosphereAspectRatio) => void;
   onGenerate: () => void;
   onCopyPrompt: (prompt: string, label: string) => void;
+  videoDuration: VideoScriptDuration;
+  videoScripts: CompiledVideoScriptBatchItem[];
+  onVideoDurationChange: (value: VideoScriptDuration) => void;
+  onCopyVideoScript: (script: string, label: string) => void;
+  onCopyAllVideoScripts: () => void;
   onUploadReferences: (event: ChangeEvent<HTMLInputElement>) => void;
 }) {
   return <section className="space-y-6">
@@ -231,18 +247,19 @@ function NonProductAtmosphereWorkspace({
         <div><h2 className="text-lg font-semibold text-aura-charcoal">生成设置</h2><p className="mt-1 text-xs text-aura-muted">系统自动编排场景、生活痕迹、构图与 Product Echo；本模块不开放场景或风格参数。</p></div>
         <span className={softStatusPillClass}>Image2 only · {NON_PRODUCT_ATMOSPHERE_CONTENT_TYPE}</span>
       </div>
-      <div className="mt-4 grid gap-4 md:grid-cols-2 lg:grid-cols-4 lg:items-end">
+      <div className="mt-4 grid gap-4 md:grid-cols-2 lg:grid-cols-5 lg:items-end">
         <label className="block space-y-2"><span className="text-sm font-medium text-aura-charcoal">生成数量</span><select aria-label="非产品氛围图生成数量" className={inputClass} value={quantity} onChange={(event) => onQuantityChange(Number(event.target.value) as NonProductAtmosphereCount)}>{NON_PRODUCT_ATMOSPHERE_COUNTS.map((count) => <option key={count} value={count}>{count}张</option>)}</select></label>
         <label className="block space-y-2"><span className="text-sm font-medium text-aura-charcoal">季节</span><select aria-label="非产品氛围图季节" className={inputClass} value={season} onChange={(event) => onSeasonChange(event.target.value as TeamSeason)}>{seasonOptions.map((option) => <option key={option} value={option}>{option}</option>)}</select></label>
         <label className="block space-y-2"><span className="text-sm font-medium text-aura-charcoal">画幅比例</span><select aria-label="非产品氛围图画幅比例" className={inputClass} value={aspectRatio} onChange={(event) => onAspectRatioChange(event.target.value as NonProductAtmosphereAspectRatio)}>{NON_PRODUCT_ATMOSPHERE_ASPECT_RATIOS.map((ratio) => <option key={ratio} value={ratio}>{ratio}{ratio === "4:5" ? "（推荐）" : ""}</option>)}</select></label>
         <label className="block space-y-2"><span className="text-sm font-medium text-aura-charcoal">API 预留参考图</span><span className="flex min-h-[48px] items-center rounded-[18px] bg-white/70 px-4 text-sm text-aura-muted ring-1 ring-aura-beige/70">已上传 {referenceImages.length} 张 · 当前复制 Prompt 不读取</span></label>
-        <button type="button" onClick={onGenerate} className={`${clayButtonClass} lg:col-start-4`}>生成非产品氛围图</button>
+        <label className="block space-y-2"><span className="text-sm font-medium text-aura-charcoal">Seedance 时长</span><select aria-label="非产品氛围图视频时长" className={inputClass} value={videoDuration} onChange={(event) => onVideoDurationChange(Number(event.target.value) as VideoScriptDuration)}><option value={10}>10 秒</option><option value={15}>15 秒</option></select></label>
+        <button type="button" onClick={onGenerate} className={clayButtonClass}>生成非产品氛围图</button>
       </div>
       <label className="mt-4 block rounded-[18px] border border-dashed border-aura-beige bg-white/50 px-4 py-3 text-xs text-aura-muted">上传参考图（服务器 / API 接入后启用；当前复制 Prompt 请在外部生图工具中附加实际参考图）<input aria-label="上传非产品氛围图 API 预留参考图" type="file" accept="image/*" multiple className="mt-2 block w-full text-xs" onChange={onUploadReferences} /></label>
       <div className="mt-4 grid gap-2 sm:grid-cols-3">{["产品角色：缺席 / 陪衬 / 生活痕迹", "产品主导性：禁止", "人物 / 穿搭 / 上脚：禁用"].map((text) => <span key={text} className="rounded-[14px] bg-aura-cream px-3 py-2 text-xs text-aura-muted">{text}</span>)}</div>
     </section>
     <section className="rounded-[24px] bg-aura-porcelain/95 p-5 ring-1 ring-aura-beige/70">
-      {plan ? <><div className="flex flex-wrap items-center justify-between gap-3"><div><h2 className="text-lg font-semibold text-aura-charcoal">Provider-ready Prompt 计划</h2><p className="mt-1 text-xs text-aura-muted">{plan.promptVersion} · {plan.images.length} 份独立 Prompt · {plan.aspectRatio} · {season} · {plan.referenceAssetIds.length > 0 ? "当前任务参考图已锁定" : "预览模式：未进行 Product Echo 分析"}</p></div><button type="button" onClick={() => onCopyPrompt(plan.images.map((image) => `Image ${image.index}:\n${image.prompt}`).join("\n\n"), "全部非产品氛围图 Prompt")} className={imageToolButtonClass}>复制全部 Prompt</button></div><div className="mt-4 space-y-3">{plan.images.map((image) => <article key={image.id} className="rounded-[18px] bg-white/70 p-4 ring-1 ring-aura-beige/70"><div className="flex flex-wrap items-center justify-between gap-2"><div><b>Image {image.index} · {image.slot.sceneLabel}</b><p className="mt-1 text-xs text-aura-muted">Scene：{image.sceneResolution.resolvedArchetypeId} · Variant：{image.sceneResolution.resolvedVariantId}</p><p className="mt-1 text-xs text-aura-muted">{image.sceneResolution.usedFallback ? `Fallback：${image.sceneResolution.fallbackReason}` : "Fallback：否"} · {image.sceneFingerprint.dominantPlane} / {image.sceneFingerprint.cameraHeight} / {image.sceneFingerprint.depthPattern}</p><p className="mt-1 text-xs text-aura-muted">Product role：{image.productPresenceMode} · Palette echo：{image.productPaletteEchoMode} · Prompt-level QA：{image.seasonConsistencyQA.passed && image.productDominanceQA.passed ? "PASS（仍需人工看图）" : "CHECK"}</p></div><button type="button" onClick={() => onCopyPrompt(image.prompt, `Image ${image.index} Prompt`)} className={imageToolButtonClass}>复制这张 Prompt</button></div><details className="mt-3 rounded-[14px] bg-aura-cream/60 p-3"><summary className="cursor-pointer text-xs font-medium">查看完整 Image2 Prompt</summary><pre data-testid={`atmosphere-prompt-${image.index}`} className="mt-3 max-h-80 overflow-auto whitespace-pre-wrap text-xs leading-5 text-aura-charcoal">{image.prompt}</pre></details></article>)}</div></> : <p className="mt-4 rounded-[18px] bg-aura-cream px-4 py-3 text-sm leading-6 text-aura-muted">尚未编译 Prompt。</p>}
+      {plan ? <><div className="flex flex-wrap items-center justify-between gap-3"><div><h2 className="text-lg font-semibold text-aura-charcoal">Prompt 与 Seedance2.5 计划</h2><p className="mt-1 text-xs text-aura-muted">{plan.promptVersion} · {plan.images.length} 份独立 Prompt / 视频脚本 · {plan.aspectRatio} · {season} · {plan.referenceAssetIds.length > 0 ? "当前任务参考图已锁定" : "预览模式：未进行 Product Echo 分析"}</p></div><div className="flex flex-wrap gap-2"><button type="button" onClick={() => onCopyPrompt(plan.images.map((image) => `Image ${image.index}:\n${image.prompt}`).join("\n\n"), "全部非产品氛围图 Prompt")} className={imageToolButtonClass}>复制全部图片 Prompt</button><button type="button" onClick={onCopyAllVideoScripts} className={imageToolButtonClass}>复制全部 {videoDuration}s 视频脚本</button></div></div><p className="mt-3 rounded-[14px] bg-aura-cream px-3 py-2 text-xs leading-5 text-aura-muted">Seedance2.5 Manual / Draft：每张图片卡片对应一份独立视频脚本。尚未发送任何 API 请求；请复制后到外部 Seedance2.5 手动执行。</p><div className="mt-4 space-y-3">{plan.images.map((image, index) => { const video = videoScripts[index]; return <article key={image.id} className="rounded-[18px] bg-white/70 p-4 ring-1 ring-aura-beige/70"><div className="flex flex-wrap items-center justify-between gap-2"><div><b>Image {image.index} · {image.slot.sceneLabel}</b><p className="mt-1 text-xs text-aura-muted">Scene：{image.sceneResolution.resolvedArchetypeId} · Variant：{image.sceneResolution.resolvedVariantId}</p><p className="mt-1 text-xs text-aura-muted">{image.sceneResolution.usedFallback ? `Fallback：${image.sceneResolution.fallbackReason}` : "Fallback：否"} · {image.sceneFingerprint.dominantPlane} / {image.sceneFingerprint.cameraHeight} / {image.sceneFingerprint.depthPattern}</p><p className="mt-1 text-xs text-aura-muted">Product role：{image.productPresenceMode} · Palette echo：{image.productPaletteEchoMode} · Prompt-level QA：{image.seasonConsistencyQA.passed && image.productDominanceQA.passed ? "PASS（仍需人工看图）" : "CHECK"}</p></div><div className="flex flex-wrap gap-2"><button type="button" onClick={() => onCopyPrompt(image.prompt, `Image ${image.index} Prompt`)} className={imageToolButtonClass}>复制图片 Prompt</button><button type="button" onClick={() => video && onCopyVideoScript(video.script, `Image ${image.index} ${videoDuration}s 视频脚本`)} disabled={!video} className={imageToolButtonClass}>复制 {videoDuration}s 视频脚本</button></div></div><details className="mt-3 rounded-[14px] bg-aura-cream/60 p-3"><summary className="cursor-pointer text-xs font-medium">查看完整 Image2 Prompt</summary><pre data-testid={`atmosphere-prompt-${image.index}`} className="mt-3 max-h-80 overflow-auto whitespace-pre-wrap text-xs leading-5 text-aura-charcoal">{image.prompt}</pre></details>{video && <details className="mt-3 rounded-[14px] bg-aura-cream/60 p-3"><summary className="cursor-pointer text-xs font-medium">查看完整 Seedance2.5 视频脚本</summary><pre data-testid={`atmosphere-video-script-${image.index}`} className="mt-3 max-h-80 overflow-auto whitespace-pre-wrap text-xs leading-5 text-aura-charcoal">{video.script}</pre></details>}</article>; })}</div></> : <p className="mt-4 rounded-[18px] bg-aura-cream px-4 py-3 text-sm leading-6 text-aura-muted">尚未编译 Prompt。</p>}
       {copyStatus && <p role="status" className="mt-4 text-sm text-aura-muted">{copyStatus}</p>}
     </section>
   </section>;
@@ -271,6 +288,7 @@ function App() {
   const [softContent, setSoftContent] = useState(() =>
     generateSoftSeedingContent({ baseParams: initialParams, imageCount: 5, topic: softSeedingTopicOptions[0] })
   );
+  const [softVideoDuration, setSoftVideoDuration] = useState<VideoScriptDuration>(10);
   const [softCopyStatus, setSoftCopyStatus] = useState("");
   const [referenceImages, setReferenceImages] = useState<ReferenceImage[]>([]);
   const referenceImagesRef = useRef<ReferenceImage[]>([]);
@@ -282,6 +300,7 @@ function App() {
   const [atmosphereSeason, setAtmosphereSeason] = useState<TeamSeason>(initialParams.season);
   const [atmosphereAspectRatio, setAtmosphereAspectRatio] = useState<NonProductAtmosphereAspectRatio>("4:5");
   const [atmosphereGenerationNonce, setAtmosphereGenerationNonce] = useState(0);
+  const [atmosphereVideoDuration, setAtmosphereVideoDuration] = useState<VideoScriptDuration>(10);
   const [atmosphereCopyStatus, setAtmosphereCopyStatus] = useState("");
   const [atmospherePlan, setAtmospherePlan] = useState<NonProductAtmospherePlan | null>(() => buildNonProductAtmospherePlan({ quantity: 5, referenceImageCount: 0, referenceAssetIds: [], taskId: "preview", previewWithoutReference: true, season: initialParams.season, aspectRatio: "4:5" }));
 
@@ -333,6 +352,24 @@ function App() {
     productTruthAssetIds: referenceBinding.referencePlan.assetIds,
     referencePlan: referenceBinding.referencePlan,
   });
+
+  const softVideoScripts = useMemo(() => compileSoftSeedingVideoScriptBatch(
+    softContent.images.map((image) => ({
+      ...image,
+      params: {
+        ...image.params,
+        selectedProductTruth: referenceBinding.productTruth,
+        productTruthAssetIds: referenceBinding.referencePlan.assetIds,
+        referencePlan: referenceBinding.referencePlan,
+      },
+    })),
+    softVideoDuration
+  ), [softContent, softVideoDuration, referenceBinding]);
+
+  const atmosphereVideoScripts = useMemo(
+    () => atmospherePlan ? compileAtmosphereVideoScriptBatch(atmospherePlan, atmosphereSeason, atmosphereVideoDuration) : [],
+    [atmospherePlan, atmosphereSeason, atmosphereVideoDuration]
+  );
 
   const compileCurrentReferenceBinding = (current: TeamPromptParams) => {
     const nextParams = bindReferenceInputs({ ...current, generationNonce: current.generationNonce + 1 });
@@ -476,6 +513,16 @@ function App() {
     setSoftCopyStatus(`已复制 ${name} 的 Image 2.0 提示词。`);
   };
 
+  const handleCopySoftVideoScript = async (script: string, name: string) => {
+    const mode = await copyWithFallback(script);
+    setSoftCopyStatus(`已复制 ${name} 的 ${softVideoDuration} 秒 Seedance2.5 视频脚本${mode === "fallback" ? "（兼容模式）" : ""}。`);
+  };
+
+  const handleCopyAllSoftVideoScripts = async () => {
+    const mode = await copyWithFallback(formatVideoScriptBatch(softVideoScripts));
+    setSoftCopyStatus(`已复制 ${softVideoScripts.length} 份 ${softVideoDuration} 秒 Seedance2.5 视频脚本${mode === "fallback" ? "（兼容模式）" : ""}。`);
+  };
+
   const handleGenerateAtmosphere = () => {
     const nextNonce = atmosphereGenerationNonce + 1;
     setAtmosphereGenerationNonce(nextNonce);
@@ -495,6 +542,10 @@ function App() {
     } catch (error) {
       setAtmosphereCopyStatus(error instanceof Error ? error.message : "复制失败，请展开 Prompt 后手动复制。");
     }
+  };
+
+  const handleCopyAllAtmosphereVideoScripts = async () => {
+    await handleCopyAtmospherePrompt(formatVideoScriptBatch(atmosphereVideoScripts), `${atmosphereVideoScripts.length} 份 ${atmosphereVideoDuration}s Seedance2.5 视频脚本`);
   };
 
   const handleReferenceImagesUpload = async (event: ChangeEvent<HTMLInputElement>) => {
@@ -690,7 +741,7 @@ function App() {
         <p>品牌基础</p><button onClick={() => setActivePage('visual')}>◈ <span>视觉母体验证<small>Visual System QA</small></span></button><button onClick={() => setImageGenerationStatus('资产库将在后续阶段接入。')}>◇ <span>资产库<small>Asset Library</small></span></button>
       </nav><div className="ui-sidebar-foot">团队空间<br /><strong>THERUIZ AURA 团队</strong></div></aside>
       <div className="ui-main"><header className="ui-topbar"><div className="ui-project">项目 / <strong>THERUIZ AURA 主项目</strong>⌄</div><div className="ui-top-actions"><span>◉ 9,842 积分</span><input aria-label="搜索" placeholder="搜索内容、Prompt、素材…" /><span>♧</span><b>TA</b><span>Theruiz Team⌄</span></div></header><div className="ui-content">
-            {activePage === 'workbench' ? dashboard : activePage === 'visual' ? <VisualSystemWorkspace /> : activePage === 'atmosphere' ? <NonProductAtmosphereWorkspace plan={atmospherePlan} quantity={atmosphereQuantity} season={atmosphereSeason} aspectRatio={atmosphereAspectRatio} referenceImages={referenceImages} copyStatus={atmosphereCopyStatus} onQuantityChange={setAtmosphereQuantity} onSeasonChange={setAtmosphereSeason} onAspectRatioChange={setAtmosphereAspectRatio} onGenerate={handleGenerateAtmosphere} onCopyPrompt={handleCopyAtmospherePrompt} onUploadReferences={handleReferenceImagesUpload} /> : <>
+            {activePage === 'workbench' ? dashboard : activePage === 'visual' ? <VisualSystemWorkspace /> : activePage === 'atmosphere' ? <NonProductAtmosphereWorkspace plan={atmospherePlan} quantity={atmosphereQuantity} season={atmosphereSeason} aspectRatio={atmosphereAspectRatio} referenceImages={referenceImages} copyStatus={atmosphereCopyStatus} onQuantityChange={setAtmosphereQuantity} onSeasonChange={setAtmosphereSeason} onAspectRatioChange={setAtmosphereAspectRatio} onGenerate={handleGenerateAtmosphere} onCopyPrompt={handleCopyAtmospherePrompt} videoDuration={atmosphereVideoDuration} videoScripts={atmosphereVideoScripts} onVideoDurationChange={setAtmosphereVideoDuration} onCopyVideoScript={handleCopyAtmospherePrompt} onCopyAllVideoScripts={handleCopyAllAtmosphereVideoScripts} onUploadReferences={handleReferenceImagesUpload} /> : <>
         <header className="max-w-3xl space-y-3">
           <p className="text-xs uppercase tracking-[0.28em] text-aura-muted">Standard accurate team mode</p>
           <h1 className="text-3xl font-semibold tracking-tight text-aura-charcoal sm:text-4xl">
@@ -1080,7 +1131,7 @@ function App() {
             </div>
 
             <div className={softControlPanelClass}>
-              <div className="grid gap-4 md:grid-cols-[1.2fr_0.7fr] xl:grid-cols-[1.2fr_0.7fr_auto] xl:items-end">
+              <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-[1.2fr_0.7fr_0.7fr_auto] xl:items-end">
                 <label className="block space-y-2">
                   <span className="text-sm font-medium text-aura-charcoal">内容主题</span>
                   <select
@@ -1113,24 +1164,44 @@ function App() {
                       setSoftCopyStatus("");
                     }}
                   >
+                    <option value={1}>1 张</option>
                     <option value={3}>3 张</option>
                     <option value={5}>5 张</option>
                     <option value={8}>8 张</option>
                   </select>
                 </label>
 
-                <div className="grid gap-3 sm:grid-cols-2 xl:min-w-[220px] xl:grid-cols-1">
+                <label className="block space-y-2">
+                  <span className="text-sm font-medium text-aura-charcoal">Seedance 时长</span>
+                  <select
+                    aria-label="小红书视频时长"
+                    className={inputClass}
+                    value={softVideoDuration}
+                    onChange={(event) => {
+                      setSoftVideoDuration(Number(event.target.value) as VideoScriptDuration);
+                      setSoftCopyStatus("");
+                    }}
+                  >
+                    <option value={10}>10 秒</option>
+                    <option value={15}>15 秒</option>
+                  </select>
+                </label>
+
+                <div className="grid gap-3 sm:grid-cols-3 xl:min-w-[240px] xl:grid-cols-1">
                   <button type="button" onClick={handleGenerateSoftContent} className={primaryButtonClass}>
                     生成小红书内容
                   </button>
                   <button type="button" onClick={handleCopySoftContent} className={clayButtonClass}>
                     复制全部生图 Prompt
                   </button>
+                  <button type="button" onClick={handleCopyAllSoftVideoScripts} className={imageToolButtonClass}>
+                    复制全部 {softVideoDuration}s 视频脚本
+                  </button>
                 </div>
               </div>
 
               <p className="mt-4 text-xs leading-5 text-aura-muted">
-                每次生成会围绕当前主题重新选择内容主线，并让标题、正文和配图 Prompt 保持一致。
+                每次生成会围绕当前主题重新选择内容主线，并让标题、正文、配图 Prompt 和对应视频脚本保持一致。Seedance2.5 为 Manual / Draft，尚未发送任何 API 请求。
               </p>
             </div>
           </div>
@@ -1169,20 +1240,19 @@ function App() {
                 </p>
               </div>
 
-              {softContent.images.map((image) => (
+              {softContent.images.map((image, index) => {
+                const video = softVideoScripts[index];
+                return (
                 <article key={image.name} className="rounded-[22px] bg-white/70 p-5 ring-1 ring-aura-beige/70">
                   <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                     <div>
                       <h3 className="text-base font-semibold text-aura-charcoal">{image.name}</h3>
                       <p className="mt-2 text-sm leading-6 text-aura-muted">{image.purpose}</p>
                     </div>
-                    <button
-                      type="button"
-                      onClick={() => handleCopyImagePrompt(image.prompt, image.name)}
-                      className="shrink-0 rounded-[16px] bg-aura-clay px-4 py-2 text-xs font-medium text-white transition hover:bg-aura-charcoal"
-                    >
-                      复制这张 Prompt
-                    </button>
+                    <div className="flex shrink-0 flex-wrap gap-2">
+                      <button type="button" onClick={() => handleCopyImagePrompt(image.prompt, image.name)} className="rounded-[16px] bg-aura-clay px-4 py-2 text-xs font-medium text-white transition hover:bg-aura-charcoal">复制图片 Prompt</button>
+                      <button type="button" onClick={() => video && handleCopySoftVideoScript(video.script, image.name)} disabled={!video} className={imageToolButtonClass}>复制 {softVideoDuration}s 视频脚本</button>
+                    </div>
                   </div>
 
                   <p className="mt-4 rounded-[18px] bg-aura-cream px-4 py-3 text-sm leading-6 text-aura-charcoal ring-1 ring-aura-beige/70">
@@ -1215,8 +1285,13 @@ function App() {
                       <span data-testid={`soft-prompt-${softContent.images.indexOf(image)}`}>{image.prompt}</span>
                     </div>
                   </details>
+                  {video && <details className="mt-4 rounded-[18px] bg-white/75 p-4 ring-1 ring-aura-beige/70">
+                    <summary className="cursor-pointer text-sm font-medium text-aura-charcoal">查看完整 Seedance2.5 视频脚本</summary>
+                    <pre data-testid={`soft-video-script-${index}`} className="aura-scrollbar mt-4 max-h-[360px] overflow-auto whitespace-pre-wrap text-sm leading-7 text-aura-charcoal">{video.script}</pre>
+                  </details>}
                 </article>
-              ))}
+                );
+              })}
 
               {softCopyStatus && <p className="text-sm text-aura-muted">{softCopyStatus}</p>}
             </div>

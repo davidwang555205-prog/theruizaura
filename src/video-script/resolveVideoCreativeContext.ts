@@ -83,7 +83,7 @@ function resolveSceneBlock(scene: Exclude<TeamScenePreference, "自动匹配">) 
   return BASIC_SCENE_BLOCKS.find((item) => item.shortLabel === scene);
 }
 
-function resolveBrandVisual(profileInput: PromptProfileInput): ResolvedBrandVisualContext {
+export function resolveVideoBrandVisual(profileInput: PromptProfileInput): ResolvedBrandVisualContext {
   const directingRules = getTheruizAuraRealismRules(profileInput)
     .filter((rule) => [
       "theruiz-human-state-real-mature-urban",
@@ -167,7 +167,7 @@ export function resolveVideoCreativeContext(params: TeamPromptParams): ResolvedV
     params,
     selectedOutfitLine,
     profileInput,
-    brandVisual: resolveBrandVisual(profileInput),
+    brandVisual: resolveVideoBrandVisual(profileInput),
     scene: {
       scenePreference,
       sceneKey,
