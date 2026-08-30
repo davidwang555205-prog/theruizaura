@@ -20,8 +20,6 @@ import { resolvePerSceneKey } from "./outfitLibraryFilters";
 import { selectCityProfileForScene } from "./selectCityProfileForScene";
 import { resolveTopicRoleBundle } from "../visual-system/topicRoutingRegistry";
 import { compileRoutedImage2UserPrompt } from "../visual-system/routedPromptCompiler";
-import { getCompatibleSceneOptions } from "../data/teamSceneOptions";
-import { mapEnglishPromptField } from "../visual-system/englishPromptMappings";
 import type { ThemePromptRole } from "../visual-system/activePromptRegistry";
 
 type SoftSeedingCopyTopic =
@@ -3416,9 +3414,15 @@ function getSoftSeedingExtraRequirement(
   imageCount: SoftSeedingImageCount,
   resolvedScene: TeamScenePreference
 ) {
-  const themeGuide = topicImageGuides[topic];
-  const variantVisualCue = getSoftSeedingVariantVisualCue(topic, variantIndex);
-  const copyVisualAlignmentCue = getSoftSeedingCopyVisualAlignmentCue(topic, variantIndex);
+  const usesCuratedSceneTruth = topic === "生活场景软种草" || topic === "穿搭解决方案";
+  const themeGuide = usesCuratedSceneTruth
+    ? "Treat the selected scene on this card as the single authoritative location. Preserve the card's content purpose, image type, person, outfit, season, and product evidence without introducing or naming any second location."
+    : topicImageGuides[topic];
+  const rawVariantVisualCue = usesCuratedSceneTruth ? "" : getSoftSeedingVariantVisualCue(topic, variantIndex);
+  const variantVisualCue = topic === "棚内上新拍摄"
+    ? rawVariantVisualCue.replace("all eight cards", `all ${imageCount} cards`)
+    : rawVariantVisualCue;
+  const copyVisualAlignmentCue = usesCuratedSceneTruth ? "" : getSoftSeedingCopyVisualAlignmentCue(topic, variantIndex);
   const stylingSolutionContinuityLine = getStylingSolutionContinuityLines(topic, draft);
   const studioShotControlLine =
     topic === "棚内上新拍摄" && typeof draft.studioLaunchShotIndex === "number"
@@ -3492,35 +3496,19 @@ function joinSoftPromptSentences(...lines: string[]) {
 function resolveMultiImageScenePreference(
   topic: SoftSeedingTopic,
   draft: SoftSeedingImageDraft,
-  index: number,
-  imageCount: SoftSeedingImageCount,
-  variantIndex: number,
-  generationNonce: number,
-  usedScenes?: Set<TeamScenePreference>
+  _index: number,
+  _imageCount: SoftSeedingImageCount,
+  _variantIndex: number,
+  _generationNonce: number,
+  _usedScenes?: Set<TeamScenePreference>
 ) {
   if (topic !== "生活场景软种草" && topic !== "穿搭解决方案") return draft.scenePreference;
 
-  const excluded = new Set<TeamScenePreference>([
-    "自动匹配",
-    "棚内上新拍摄",
-    "材质工作台",
-    "拍摄花絮",
-    "工作台 / 桌边整理"
-  ]);
-  const candidates = getCompatibleSceneOptions(draft.imageType).filter((scene) => {
-    if (excluded.has(scene) || scene === draft.scenePreference || usedScenes?.has(scene)) return false;
-    try {
-      mapEnglishPromptField("scene", scene);
-      return true;
-    } catch {
-      return false;
-    }
-  });
-  if (!candidates.length) return draft.scenePreference;
-
-  const stride = Math.max(1, imageCount - 1);
-  const offset = Math.abs(generationNonce + variantIndex * stride + index * 3);
-  return candidates[offset % candidates.length] ?? draft.scenePreference;
+  // These drafts are curated scene units: their label, purpose, composition and
+  // extra requirement were authored for this exact location. Replacing only the
+  // scenePreference created two competing locations in both Image2 and Seedance
+  // output. Scene variety belongs to draft selection, not a second scene reroll.
+  return draft.scenePreference;
 }
 
 function resolveSoftVisualRoleId(

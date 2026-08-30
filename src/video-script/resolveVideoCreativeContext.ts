@@ -39,6 +39,9 @@ export type ResolvedStudioVideoContext = {
   resolvedPreset: StudioLaunchPresetDefinition | null;
   wardrobePreference: TeamPromptParams["studioWardrobePreference"];
   resolvedWardrobeLine: string | null;
+  seriesImageCount: number | null;
+  seriesImageIndex: number | null;
+  shotIndex: TeamPromptParams["studioLaunchShotIndex"] | null;
 };
 
 export type ResolvedVideoCreativeContext = {
@@ -83,7 +86,7 @@ function resolveSceneBlock(scene: Exclude<TeamScenePreference, "自动匹配">) 
   return BASIC_SCENE_BLOCKS.find((item) => item.shortLabel === scene);
 }
 
-export function resolveVideoBrandVisual(profileInput: PromptProfileInput): ResolvedBrandVisualContext {
+export function resolveVideoBrandVisual(profileInput: PromptProfileInput, studioMode = false): ResolvedBrandVisualContext {
   const directingRules = getTheruizAuraRealismRules(profileInput)
     .filter((rule) => [
       "theruiz-human-state-real-mature-urban",
@@ -94,7 +97,14 @@ export function resolveVideoBrandVisual(profileInput: PromptProfileInput): Resol
       "theruiz-product-presentation-worn-readable",
       "theruiz-physical-integrity-grounding",
     ].includes(rule.id))
-    .map((rule) => rule.text);
+    .map((rule) => rule.text)
+    .filter((rule) => !studioMode || !/doorway|column|wall edge|glass panel|step|table edge|flowers|architectural framing|environmental layers/i.test(rule));
+  if (studioMode) {
+    directingRules.push(
+      "Use a clean professional seamless studio only; exclude all non-studio architecture, furniture, decorative props, visual obstructions, and environmental storytelling layers.",
+      "Preserve restrained asymmetry through the person's weight, arm spacing, gaze, and garment fall while keeping the assigned studio framing and seamless floor fully readable."
+    );
+  }
   return {
     positioning: brandVisualMother.core_positioning,
     authoritativeRules: brandVisualMother.fixed_rules.map((rule) => fixedRuleTranslations[rule] ?? rule),
@@ -114,6 +124,9 @@ function resolveStudioContext(params: TeamPromptParams, scenePreference: Exclude
       resolvedPreset: null,
       wardrobePreference: params.studioWardrobePreference,
       resolvedWardrobeLine: null,
+      seriesImageCount: null,
+      seriesImageIndex: null,
+      shotIndex: null,
     };
   }
   const nonce = params.studioSetNonce ?? params.generationNonce;
@@ -124,6 +137,16 @@ function resolveStudioContext(params: TeamPromptParams, scenePreference: Exclude
     season: params.season,
     nonce,
   });
+  const resolvedShotIndex = params.studioLaunchShotIndex
+    ?? (params.studioLaunchAnglePreference === "全身棚拍角度"
+      ? 0
+      : params.studioLaunchAnglePreference === "下半身1/3角度"
+        ? 4
+        : params.studioLaunchAnglePreference === "鞋子上脚特写角度"
+          ? 6
+          : params.studioLaunchAnglePreference === "3/4侧前方上脚角度"
+            ? 7
+            : 0);
   return {
     enabled: true,
     anglePreference: params.studioLaunchAnglePreference,
@@ -132,14 +155,38 @@ function resolveStudioContext(params: TeamPromptParams, scenePreference: Exclude
     resolvedPreset: preset,
     wardrobePreference: params.studioWardrobePreference,
     resolvedWardrobeLine: wardrobe?.wardrobeLine ?? null,
+    seriesImageCount: params.seriesImageCount ?? null,
+    seriesImageIndex: params.seriesImageIndex ?? null,
+    shotIndex: resolvedShotIndex,
   };
+}
+
+function resolveStudioVideoAction(params: TeamPromptParams, resolvedShotIndex: ResolvedStudioVideoContext["shotIndex"]) {
+  const actions = [
+    "Begin in the assigned full-front reference stance. Make one small sleeve-or-cardigan-edge adjustment, then let both arms separate and settle naturally. Keep both feet grounded at believable human scale.",
+    "Begin in the assigned full-body three-quarter stance. Complete one restrained weight shift with a small responsive head turn, then settle both feet without crossing or advancing toward the lens.",
+    "Begin in the assigned side-oriented full-body stance. Turn the head gently toward the light while one shoe rotates only a few degrees to reveal its side profile, then settle the heel on the studio floor.",
+    "Complete one compact rear three-quarter turn, let the visible heel settle on the studio floor, and finish with one brief natural glance back. Do not walk or introduce a second action.",
+    "Hold the assigned waist-to-floor front framing. Make one small, natural weight transfer so one shoe becomes clearly readable, then return to a stable grounded lower-body stance.",
+    "Hold the assigned waist-to-floor three-quarter framing. Offset one foot only slightly, rotate it a few degrees for side-panel evidence, and settle without enlarging it toward the lens.",
+    "Keep the assigned on-foot front detail physically stable. Use only a minimal ankle-weight settling action; preserve left-right structure, toe direction, laces, outsole, and studio-floor contact.",
+    "Keep the assigned on-foot three-quarter detail physically stable. Rotate the nearer shoe only a few degrees, settle the outsole fully, and hold the confirmed reference-bound form without moving toward the lens."
+  ];
+  return actions[resolvedShotIndex ?? params.studioLaunchShotIndex ?? 0]
+    ?? actions[0]
+    ?? "Hold the assigned studio stance with grounded footwear and one restrained natural action.";
 }
 
 export function resolveVideoCreativeContext(params: TeamPromptParams): ResolvedVideoCreativeContext {
   const imageRuntime = generatePromptRuntime(params);
-  const selectedOutfitLine = imageRuntime.selectedOutfitLine?.trim() ?? "";
+  const imageSelectedOutfitLine = imageRuntime.selectedOutfitLine?.trim() ?? "";
+  const initialProfileInput = buildPromptProfileInput(params, imageSelectedOutfitLine);
+  const scenePreference = resolveScenePreference(params, initialProfileInput);
+  const studio = resolveStudioContext(params, scenePreference);
+  const selectedOutfitLine = studio.enabled && studio.resolvedWardrobeLine
+    ? studio.resolvedWardrobeLine
+    : imageSelectedOutfitLine;
   const profileInput = buildPromptProfileInput(params, selectedOutfitLine);
-  const scenePreference = resolveScenePreference(params, profileInput);
   const sceneKey = profileInput.sceneKey ?? "weekendCityWalk";
   const seasonContext = chooseSeasonCityVisualContext({
     season: params.season,
@@ -167,18 +214,18 @@ export function resolveVideoCreativeContext(params: TeamPromptParams): ResolvedV
     params,
     selectedOutfitLine,
     profileInput,
-    brandVisual: resolveVideoBrandVisual(profileInput),
+    brandVisual: resolveVideoBrandVisual(profileInput, studio.enabled),
     scene: {
       scenePreference,
       sceneKey,
       compositionMode: profileInput.compositionMode,
       activeVisualRoleId: profileInput.activeVisualRoleId,
       locationDirection: sceneBlock?.compactPrompt ?? `Use the existing THERUIZ AURA ${scenePreference} scene context without substituting another location category.`,
-      actionDirection: action.line,
+      actionDirection: studio.enabled ? resolveStudioVideoAction(params, studio.shotIndex) : action.line,
       actionSupport: action.supportLine,
       seasonalLightDirection: seasonContext.seasonalLightLine,
       seasonalMoodDirection: seasonContext.citySeasonMoodLine,
     },
-    studio: resolveStudioContext(params, scenePreference),
+    studio,
   };
 }

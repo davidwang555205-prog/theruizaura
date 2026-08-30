@@ -1073,9 +1073,10 @@ export function getStudioLaunchAngleLine(params: TeamPromptParams, resolvedScene
 
   if (typeof params.studioLaunchShotIndex === "number") {
     const line = STUDIO_LAUNCH_SERIES_SHOT_LINES[params.studioLaunchShotIndex];
-    return params.seriesImageCount
-      ? line.replace("of 8", `of ${params.seriesImageCount}`)
-      : line;
+    if (!params.seriesImageCount) return line;
+    return line
+      .replace("of 8", `of ${params.seriesImageCount}`)
+      .replace("shots 2–8", `shots 2–${params.seriesImageCount}`);
   }
 
   const nonce = Math.max(0, params.generationNonce ?? 0);

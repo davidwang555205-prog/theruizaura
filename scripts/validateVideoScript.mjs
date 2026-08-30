@@ -107,10 +107,16 @@ try {
   };
   const studioImage = generatePromptRuntime(studioParams);
   const studioVideo = compileSeedanceVideoScript({ params: studioParams, duration: 15 });
-  assert(studioVideo.filmSpec.scene.selectedOutfitLine === studioImage.selectedOutfitLine, "Studio video wardrobe drifted from Image Runtime");
+  assert(Boolean(studioImage.selectedOutfitLine), "Studio Image Runtime must still resolve its existing image wardrobe");
+  assert(studioVideo.filmSpec.scene.selectedOutfitLine === studioVideo.filmSpec.scene.studioContext?.resolvedWardrobeLine, "Studio video must use its resolved studio wardrobe as the single wardrobe authority");
+  assert((studioVideo.script.match(/^- Resolved wardrobe:/gm) ?? []).length === 1, "Studio video must render exactly one resolved wardrobe");
+  assert(!/Studio wardrobe resolution:/.test(studioVideo.script), "Studio video rendered a competing wardrobe source");
   assert(studioVideo.filmSpec.scene.studioContext?.anglePreference === "3/4侧前方上脚角度", "Studio angle preference was lost");
   assert(/3\/4 front-side/i.test(studioVideo.filmSpec.scene.studioContext?.angleDirection ?? ""), "Resolved studio angle direction was lost");
+  assert(studioVideo.filmSpec.scene.studioContext?.shotIndex === 7, "Manual 3/4 studio angle did not resolve to the matching on-foot video action role");
+  assert(/few degrees|outsole/i.test(studioVideo.filmSpec.scene.resolvedActionDirection), "Manual 3/4 studio angle retained a front-reference action");
   assert(Boolean(studioVideo.filmSpec.scene.studioContext?.resolvedPreset), "Resolved studio preset was lost");
+  assert(!/pavement|doorway|column|wall edge|glass panel|flowers|cafe|street/i.test(studioVideo.script), "Studio video retained non-studio scene language");
 
   const atmosphere = compileSeedanceVideoScript({ params: { ...baseParams, imageType: "非产品氛围图" }, duration: 10 });
   assert(!atmosphere.filmSpec.productProtection.enabled, "Non-product atmosphere must not enable product protection");
@@ -131,9 +137,98 @@ try {
       const source = softContent.images[index];
       assert(script.filmSpec.scene.season === source.params.season, "Xiaohongshu video season drifted from its image card");
       assert(script.filmSpec.scene.scene === source.params.scenePreference, "Xiaohongshu video scene drifted from its image card");
-      assert(script.filmSpec.scene.selectedOutfitLine === generatePromptRuntime(source.params).selectedOutfitLine, "Xiaohongshu video outfit was reselected outside the image runtime decision");
+      const expectedOutfit = script.filmSpec.scene.studioContext?.resolvedWardrobeLine
+        ?? generatePromptRuntime(source.params).selectedOutfitLine;
+      assert(script.filmSpec.scene.selectedOutfitLine === expectedOutfit, "Xiaohongshu video outfit was reselected outside its authoritative image/studio runtime decision");
     });
     assert(formatVideoScriptBatch(scripts).match(/SEEDANCE 2\.5 — MANUAL VIDEO SCRIPT/g)?.length === count, "Formatted Xiaohongshu batch lost a script");
+  }
+
+  for (const count of [3, 5, 8]) {
+    const studioContent = generateSoftSeedingContent({
+      baseParams: { ...baseParams, season: "秋", generationNonce: 140 + count },
+      imageCount: count,
+      topic: "棚内上新拍摄",
+      variantOffset: count,
+    });
+    for (const duration of [10, 15]) {
+      const scripts = compileSoftSeedingVideoScriptBatch(studioContent.images, duration);
+      assert(scripts.length === count, `Studio ${count}-card ${duration}s mode lost a script`);
+      scripts.forEach((script, index) => {
+        const scene = script.filmSpec.scene;
+        const studio = scene.studioContext;
+        assert(Boolean(studio), "Studio batch script lost studio context");
+        assert(studio?.seriesImageCount === count, "Studio batch script lost the selected series count");
+        assert(studio?.seriesImageIndex === index, "Studio batch script lost the selected series index");
+        assert(scene.selectedOutfitLine === studio?.resolvedWardrobeLine, "Studio batch emitted competing wardrobe decisions");
+        assert((script.script.match(/^- Resolved wardrobe:/gm) ?? []).length === 1, "Studio batch must render exactly one wardrobe line");
+        assert(!/Studio wardrobe resolution:/.test(script.script), "Studio batch rendered a second wardrobe source");
+        assert(script.script.includes(`shot ${index + 1} of ${count}`), "Studio script angle text lost the selected count");
+        for (const otherCount of [3, 5, 8].filter((value) => value !== count)) {
+          assert(!script.script.includes(`shot ${index + 1} of ${otherCount}`), "Studio script retained another series count");
+        }
+        if (index === 0) {
+          assert(script.script.includes(`shots 2–${count}`), "Studio reference card retained a stale continuation range");
+        }
+        if (count !== 8) {
+          assert(!/shots 2–8|all eight cards/i.test(script.script), "Studio non-eight-card mode retained eight-card language");
+        }
+        assert(!/pavement|doorway|column|wall edge|glass panel|flowers|cafe|street/i.test(script.script), "Studio batch retained non-studio scene language");
+        assert((script.script.match(/Primary camera move:/g) ?? []).length === 1, "Studio script must declare exactly one primary camera move");
+        assert(!/slow push|slow push-in|very slow, natural-perspective entry|refine the framing gradually/i.test(script.script), "Studio script retained push-in or zoom-led evidence language");
+        if (duration === 15) {
+          const evidenceBeat = script.filmSpec.beats.find((beat) => beat.id === "15s-studio-product-evidence");
+          const finalBeat = script.filmSpec.beats.find((beat) => beat.id === "15s-studio-brand-resolve");
+          assert(Boolean(evidenceBeat), "Studio 15s script lost its independent Product Evidence phase");
+          assert(/foot|shoe|heel|ankle|outsole|weight/i.test(evidenceBeat?.action ?? ""), "Studio Product Evidence is not produced through a physical foot or weight state");
+          assert(/rather than camera enlargement/i.test(evidenceBeat?.purpose ?? ""), "Studio Product Evidence did not reject camera-led enlargement");
+          assert(/last 1\.5 seconds/i.test(`${finalBeat?.action} ${finalBeat?.camera}`), "Studio final hold duration is not explicit");
+          if ((studio?.shotIndex ?? 0) <= 3) {
+            assert(/full-body|near-full-body/i.test(finalBeat?.action ?? ""), "Studio full-body card did not preserve person and outfit hierarchy through the final frame");
+          }
+        }
+      });
+    }
+  }
+
+  const sceneTruthTopics = ["生活场景软种草", "穿搭解决方案"];
+  const sceneMarkers = [
+    ["写字楼门口", /写字楼门口|office entrance|business district/i],
+    ["咖啡店门口", /咖啡店门口|cafe storefront|coffee shop entrance/i],
+    ["咖啡馆内", /咖啡馆内|cafe interior/i],
+    ["美术馆", /美术馆|art museum|gallery/i],
+    ["入户镜前", /入户镜前|entryway mirror/i],
+    ["书店 / 杂志店门口", /书店|杂志店|bookstore|magazine shop/i],
+    ["花店 / 买花", /花店|买花|flower shop/i],
+    ["城市街角 / 安静街区", /城市街角|安静街区|quiet city|street corner/i],
+  ];
+  for (const topic of sceneTruthTopics) {
+    for (const count of [1, 3, 5, 8]) {
+      for (const variantOffset of [0, 7, 19]) {
+        const input = { baseParams: { ...baseParams, generationNonce: 60 + variantOffset }, imageCount: count, topic, variantOffset };
+        const content = generateSoftSeedingContent(input);
+        const rerun = generateSoftSeedingContent({ ...input, baseParams: { ...input.baseParams, generationNonce: input.baseParams.generationNonce + 97 } });
+        assert(
+          JSON.stringify(content.images.map((image) => image.params.scenePreference)) === JSON.stringify(rerun.images.map((image) => image.params.scenePreference)),
+          `${topic} ${count}-card scene truth must not be rerolled independently from its curated draft`
+        );
+        const scripts = compileSoftSeedingVideoScriptBatch(content.images, 10);
+        scripts.forEach((script, index) => {
+          const image = content.images[index];
+          assert(script.filmSpec.scene.scene === image.params.scenePreference, `${topic} video scene drifted from its authoritative image-card scene`);
+          assert(script.sourceLabel === image.name, `${topic} video label drifted from its authoritative image-card label`);
+          const detectedLabelScenes = sceneMarkers.filter(([, pattern]) => pattern.test(image.name)).map(([scene]) => scene);
+          assert(
+            detectedLabelScenes.length === 0 || detectedLabelScenes.includes(image.params.scenePreference),
+            `${topic} card label names a different location from its authoritative scene: ${image.name} -> ${image.params.scenePreference}`
+          );
+          assert(
+            /single authoritative location/i.test(image.params.extraRequirement),
+            `${topic} card is missing the single-authoritative-location guard`
+          );
+        });
+      }
+    }
   }
 
   for (const count of [1, 3, 5, 8]) {
@@ -171,7 +266,7 @@ try {
   assert(staleScriptA.sourceId !== staleScriptB.sourceId, "Regenerated atmosphere plans must not share a stale video source id");
   assert(staleScriptA.script !== staleScriptB.script, "Regenerated atmosphere plans must produce current resolved video semantics");
 
-  console.log("Seedance2.5 manual video script validation passed: Prompt Builder plus Xiaohongshu/atmosphere 1/3/5/8 batches, independent rhythms, reference-bound protection, atmosphere semantics, stale-plan separation, and no runtime leakage.");
+  console.log("Seedance2.5 manual video script validation passed: Prompt Builder plus Xiaohongshu/atmosphere 1/3/5/8 batches, authoritative lifestyle/styling scenes, independent rhythms, reference-bound protection, atmosphere semantics, stale-plan separation, and no runtime leakage.");
 } finally {
   await rm(tempDirectory, { recursive: true, force: true });
 }
