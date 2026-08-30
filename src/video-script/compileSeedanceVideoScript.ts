@@ -131,6 +131,28 @@ function buildMotion(scene: SceneSpec): Motion {
 
 function buildCamera(scene: SceneSpec): Camera {
   const studioAngle = scene.studioContext?.angleDirection;
+  if (scene.studioContext) {
+    const shotIndex = scene.studioContext.shotIndex ?? 0;
+    const movements = [
+      "Primary camera move: locked-off for the entire clip; permit only natural human micro-movement.",
+      "Primary camera move: one very gentle lateral drift matching the three-quarter orientation; stop before the final hold.",
+      "Primary camera move: one very gentle lateral drift parallel to the side profile; stop before the final hold.",
+      "Primary camera move: locked-off for the entire compact turn; do not chase the subject.",
+      "Primary camera move: one small vertical reframe within the assigned waist-to-floor crop; never push toward the shoes.",
+      "Primary camera move: one very gentle lateral drift within the assigned waist-to-floor crop; never move closer.",
+      "Primary camera move: locked-off within the assigned on-foot detail; no zoom or camera advance.",
+      "Primary camera move: one very gentle lateral drift within the assigned on-foot detail; no zoom or camera advance."
+    ];
+    const isFullBody = shotIndex <= 3;
+    return {
+      framing: studioAngle ?? "",
+      movement: movements[shotIndex] ?? movements[0] ?? "Primary camera move: locked-off for the entire clip.",
+      distanceRule: isFullBody
+        ? "Preserve the assigned full-body or near-full-body framing from head to shoes through the final frame; never convert this card into a footwear close-up."
+        : "Preserve the assigned lower-body or on-foot crop through the final frame; do not move closer than that card's intended evidence scale.",
+      lensSafety: "Use one natural-perspective lens and fixed working distance; avoid zooming, ultra-wide perspective, low-angle enlargement, foreground shoe exaggeration, and perspective stretching.",
+    };
+  }
   const productFraming = scene.subjectMode === "product_only"
     ? "Begin with scene context, then move to a clean product-readable framing without extreme macro distortion."
     : scene.subjectMode === "person_with_product"
@@ -142,6 +164,60 @@ function buildCamera(scene: SceneSpec): Camera {
     distanceRule: "Maintain a natural working distance and do not move the camera unusually close to the feet or product.",
     lensSafety: "Use a natural-perspective lens treatment; avoid ultra-wide, fisheye, low-angle enlargement, and perspective stretching.",
   };
+}
+
+function buildStudioProductEvidenceAction(scene: SceneSpec) {
+  const shotIndex = scene.studioContext?.shotIndex ?? 0;
+  const actions = [
+    "As the sleeve-or-cardigan adjustment settles, allow one small weight transfer and rotate the lead shoe only a few degrees so its side relationship and grounded outsole become readable; keep the full figure in frame.",
+    "Let the three-quarter weight shift finish through the ankles so both shoes remain complete, separated, and grounded without stepping toward the lens.",
+    "Let the side-profile shoe rotation finish and place the heel fully on the studio floor so the side panel and outsole line hold steadily.",
+    "Let the rear three-quarter turn finish through one grounded heel-settle while at least one complete sneaker remains unobstructed at natural scale.",
+    "Complete one small lower-body weight transfer so toe direction, laces, garment hem separation, outsole, and floor contact are readable without changing the crop.",
+    "Complete the slight foot offset and small outward rotation, then hold both shoes at realistic scale with no foreground enlargement.",
+    "Use only minimal ankle-pressure settling while both shoes retain identical left-right structure and stable studio-floor contact.",
+    "Finish the few-degree shoe rotation, settle the outsole, and hold the confirmed reference-bound toe, side-panel, lace, and outsole relationships without deformation."
+  ];
+  return actions[shotIndex] ?? actions[0];
+}
+
+function buildStudioFinalAction(scene: SceneSpec) {
+  const shotIndex = scene.studioContext?.shotIndex ?? 0;
+  return shotIndex <= 3
+    ? "Hold a calm final full-body or near-full-body composition for at least the last 1.5 seconds. Keep the face, complete outfit, both grounded shoes, and studio continuity readable; introduce no new action."
+    : "Hold the assigned lower-body or on-foot evidence composition for at least the last 1.5 seconds with stable shoe scale, structure, ground contact, perspective, and exposure; introduce no new action.";
+}
+
+function buildStudioTenSecondBeats(scene: SceneSpec): FilmBeat[] {
+  return [
+    {
+      id: "10s-studio-assigned-establish",
+      startSecond: 0,
+      endSecond: 3,
+      purpose: "Establish the assigned studio card framing, same person, authoritative studio wardrobe, footwear, seamless floor, and light before any action begins.",
+      action: "Hold the assigned starting orientation with natural breathing and no garment or foot action yet.",
+      camera: "Begin in the assigned composition and obey the single primary camera-move budget; no push-in.",
+      productPriority: "supporting",
+    },
+    {
+      id: "10s-studio-action-evidence",
+      startSecond: 3,
+      endSecond: 7,
+      purpose: "Complete one restrained human action and one connected footwear-evidence phase without changing location, lens, or framing class.",
+      action: `${scene.resolvedActionDirection} ${buildStudioProductEvidenceAction(scene)}`,
+      camera: "Use only the declared primary camera move, if any; never zoom or advance toward the shoes.",
+      productPriority: "hero",
+    },
+    {
+      id: "10s-studio-stable-resolve",
+      startSecond: 7,
+      endSecond: 10,
+      purpose: "Resolve the assigned studio card into a stable commercially usable final frame.",
+      action: buildStudioFinalAction(scene),
+      camera: "Stop the declared move and lock the final framing, perspective, and exposure.",
+      productPriority: "hero",
+    },
+  ];
 }
 
 function hasBoundProductReferences(params: TeamPromptParams): boolean {
@@ -192,6 +268,7 @@ function productPriority(scene: SceneSpec, requested: FilmBeat["productPriority"
 }
 
 function buildTenSecondBeats(scene: SceneSpec): FilmBeat[] {
+  if (scene.studioContext) return buildStudioTenSecondBeats(scene);
   return [
     {
       id: "10s-context-entry",
@@ -223,7 +300,49 @@ function buildTenSecondBeats(scene: SceneSpec): FilmBeat[] {
   ];
 }
 
+function buildStudioFifteenSecondBeats(scene: SceneSpec, evidenceDirection: string): FilmBeat[] {
+  return [
+    {
+      id: "15s-studio-assigned-establish",
+      startSecond: 0,
+      endSecond: 4,
+      purpose: "Establish the assigned studio card framing, same person, authoritative studio wardrobe, footwear, seamless floor, and light with clear breathing room.",
+      action: "Hold the assigned starting orientation with natural breathing, alive eyes when visible, and no garment or foot action yet.",
+      camera: "Begin in the assigned composition at a fixed natural working distance; no push-in or shoe-led reframing.",
+      productPriority: "supporting",
+    },
+    {
+      id: "15s-studio-human-action",
+      startSecond: 4,
+      endSecond: 8,
+      purpose: "Develop exactly one restrained human action while preserving the assigned studio framing, person, wardrobe, and footwear continuity.",
+      action: scene.resolvedActionDirection,
+      camera: "Use only the declared primary camera move, if any, in one coherent direction; do not zoom or change framing class.",
+      productPriority: "supporting",
+    },
+    {
+      id: "15s-studio-product-evidence",
+      startSecond: 8,
+      endSecond: 12,
+      purpose: `Deliver an independent Product Evidence phase through connected foot pressure, orientation, and stable floor contact rather than camera enlargement. ${evidenceDirection}`,
+      action: buildStudioProductEvidenceAction(scene),
+      camera: "Maintain the same lens and working distance. Continue only the already-declared move or remain locked; never push, zoom, or crop tighter toward the shoes.",
+      productPriority: "hero",
+    },
+    {
+      id: "15s-studio-brand-resolve",
+      startSecond: 12,
+      endSecond: 15,
+      purpose: "Close on the assigned studio card's calm, commercially usable final composition without losing its intended person-to-product hierarchy.",
+      action: buildStudioFinalAction(scene),
+      camera: "Stop all camera movement and hold the final composition for at least the last 1.5 seconds; no final zoom, crop, or reframing change.",
+      productPriority: "hero",
+    },
+  ];
+}
+
 function buildFifteenSecondBeats(scene: SceneSpec, evidenceDirection: string): FilmBeat[] {
+  if (scene.studioContext) return buildStudioFifteenSecondBeats(scene, evidenceDirection);
   return [
     {
       id: "15s-world-establish",
@@ -283,7 +402,6 @@ function renderFilmSpec(spec: FilmSpec): string {
     `- Seasonal mood: ${spec.scene.seasonalMoodDirection}`,
     spec.scene.studioContext ? `- Studio angle: ${spec.scene.studioContext.anglePreference}. ${spec.scene.studioContext.angleDirection}` : null,
     spec.scene.studioContext?.resolvedPreset ? `- Studio preset: ${spec.scene.studioContext.resolvedPreset.label}. ${spec.scene.studioContext.resolvedPreset.backgroundLine} ${spec.scene.studioContext.resolvedPreset.lightingLine}` : null,
-    spec.scene.studioContext?.resolvedWardrobeLine ? `- Studio wardrobe resolution: ${spec.scene.studioContext.resolvedWardrobeLine}` : null,
     spec.scene.extraRequirement ? `- Additional user requirement: ${spec.scene.extraRequirement}` : null,
   ].filter(Boolean);
   const beatLines = spec.beats.flatMap((beat, index) => [
