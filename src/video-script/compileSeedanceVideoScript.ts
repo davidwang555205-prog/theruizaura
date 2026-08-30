@@ -24,7 +24,7 @@ export type SceneSpec = {
 };
 
 export type Motion = {
-  level: "locked" | "minimal" | "restrained";
+  level: "locked" | "minimal" | "restrained" | "controlled";
   direction: string;
   prohibited: string[];
 };
@@ -122,8 +122,14 @@ function buildMotion(scene: SceneSpec): Motion {
       prohibited: ["product morphing", "floating product", "fast rotation", "shape-changing transition"],
     };
   }
+  const studioShotIndex = scene.studioContext?.shotIndex;
+  const dynamicStudioShot = studioShotIndex === 1
+    || studioShotIndex === 2
+    || studioShotIndex === 3
+    || studioShotIndex === 4
+    || studioShotIndex === 7;
   return {
-    level: "restrained",
+    level: dynamicStudioShot ? "controlled" : "restrained",
     direction: scene.resolvedActionDirection || "Use one natural, low-amplitude action with stable foot placement and believable weight transfer.",
     prohibited: ["running", "jumping", "spinning", "kicking toward camera", "crossing feet close to a wide-angle lens"],
   };
@@ -135,13 +141,13 @@ function buildCamera(scene: SceneSpec): Camera {
     const shotIndex = scene.studioContext.shotIndex ?? 0;
     const movements = [
       "Primary camera move: locked-off for the entire clip; permit only natural human micro-movement.",
-      "Primary camera move: one very gentle lateral drift matching the three-quarter orientation; stop before the final hold.",
-      "Primary camera move: one very gentle lateral drift parallel to the side profile; stop before the final hold.",
-      "Primary camera move: locked-off for the entire compact turn; do not chase the subject.",
-      "Primary camera move: one small vertical reframe within the assigned waist-to-floor crop; never push toward the shoes.",
+      "Primary camera move: locked-off while the person completes the shallow diagonal two-step entry; keep the full path inside the assigned frame.",
+      "Primary camera move: locked-off while the person completes the two-to-three-step lateral walk across the frame; compose enough side space for the full path and keep a fixed working distance.",
+      "Primary camera move: locked-off while the person completes the two-step walk and connected turn; do not chase the subject.",
+      "Primary camera move: locked-off within the assigned waist-to-floor crop while one complete step crosses the frame; never push toward the shoes.",
       "Primary camera move: one very gentle lateral drift within the assigned waist-to-floor crop; never move closer.",
       "Primary camera move: locked-off within the assigned on-foot detail; no zoom or camera advance.",
-      "Primary camera move: one very gentle lateral drift within the assigned on-foot detail; no zoom or camera advance."
+      "Primary camera move: locked-off within the assigned on-foot detail while the controlled lateral step crosses the crop; no zoom or camera advance."
     ];
     const isFullBody = shotIndex <= 3;
     return {
@@ -170,13 +176,13 @@ function buildStudioProductEvidenceAction(scene: SceneSpec) {
   const shotIndex = scene.studioContext?.shotIndex ?? 0;
   const actions = [
     "As the sleeve-or-cardigan adjustment settles, allow one small weight transfer and rotate the lead shoe only a few degrees so its side relationship and grounded outsole become readable; keep the full figure in frame.",
-    "Let the three-quarter weight shift finish through the ankles so both shoes remain complete, separated, and grounded without stepping toward the lens.",
-    "Let the side-profile shoe rotation finish and place the heel fully on the studio floor so the side panel and outsole line hold steadily.",
-    "Let the rear three-quarter turn finish through one grounded heel-settle while at least one complete sneaker remains unobstructed at natural scale.",
-    "Complete one small lower-body weight transfer so toe direction, laces, garment hem separation, outsole, and floor contact are readable without changing the crop.",
+    "Let the second diagonal step complete through heel contact, natural mid-foot loading, and a stable outsole settle so both shoes remain complete and separated at natural scale.",
+    "Use the final lateral step as the evidence phase: preserve heel contact, forefoot roll, side-panel shape, outsole line, and a clean stop on the studio floor.",
+    "Let the second lateral step decelerate into the connected turn and finish through one grounded heel-settle while at least one complete sneaker remains unobstructed at natural scale.",
+    "Complete the single step through heel contact, natural weight transfer, forefoot roll, and stable floor contact so toe direction, laces, garment hem separation, and outsole remain readable without changing the crop.",
     "Complete the slight foot offset and small outward rotation, then hold both shoes at realistic scale with no foreground enlargement.",
     "Use only minimal ankle-pressure settling while both shoes retain identical left-right structure and stable studio-floor contact.",
-    "Finish the few-degree shoe rotation, settle the outsole, and hold the confirmed reference-bound toe, side-panel, lace, and outsole relationships without deformation."
+    "Complete the lateral step through heel contact and stable outsole settlement, then hold the confirmed reference-bound toe, side-panel, lace, and outsole relationships without deformation."
   ];
   return actions[shotIndex] ?? actions[0];
 }
@@ -315,7 +321,7 @@ function buildStudioFifteenSecondBeats(scene: SceneSpec, evidenceDirection: stri
       id: "15s-studio-human-action",
       startSecond: 4,
       endSecond: 8,
-      purpose: "Develop exactly one restrained human action while preserving the assigned studio framing, person, wardrobe, and footwear continuity.",
+      purpose: "Develop exactly one assigned studio choreography phrase, using controlled locomotion where this card requires it, while preserving person, wardrobe, footwear, and framing continuity.",
       action: scene.resolvedActionDirection,
       camera: "Use only the declared primary camera move, if any, in one coherent direction; do not zoom or change framing class.",
       productPriority: "supporting",

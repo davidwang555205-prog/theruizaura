@@ -154,6 +154,13 @@ try {
     for (const duration of [10, 15]) {
       const scripts = compileSoftSeedingVideoScriptBatch(studioContent.images, duration);
       assert(scripts.length === count, `Studio ${count}-card ${duration}s mode lost a script`);
+      const dynamicScenes = scripts.filter((script) => script.filmSpec.motion.level === "controlled");
+      const minimumDynamicCount = count === 3 ? 2 : count === 5 ? 4 : 5;
+      assert(dynamicScenes.length >= minimumDynamicCount, `Studio ${count}-card mode did not assign enough controlled locomotion cards`);
+      assert(new Set(dynamicScenes.map((script) => script.filmSpec.scene.resolvedActionDirection)).size === dynamicScenes.length, `Studio ${count}-card mode repeated a controlled choreography`);
+      assert(dynamicScenes.every((script) => /step|walk/i.test(script.filmSpec.scene.resolvedActionDirection)), `Studio ${count}-card controlled motion is missing an explicit step or walk`);
+      assert(dynamicScenes.every((script) => !/do not walk|feet still/i.test(script.script)), `Studio ${count}-card controlled motion retained a static-action prohibition`);
+      assert(scripts.some((script) => script.filmSpec.motion.level === "restrained"), `Studio ${count}-card mode lost every stable reference or evidence card`);
       scripts.forEach((script, index) => {
         const scene = script.filmSpec.scene;
         const studio = scene.studioContext;
@@ -175,6 +182,10 @@ try {
         }
         assert(!/pavement|doorway|column|wall edge|glass panel|flowers|cafe|street/i.test(script.script), "Studio batch retained non-studio scene language");
         assert((script.script.match(/Primary camera move:/g) ?? []).length === 1, "Studio script must declare exactly one primary camera move");
+        if (script.filmSpec.motion.level === "controlled") {
+          assert(/camera plane|lateral|parallel/i.test(`${scene.resolvedActionDirection} ${script.filmSpec.camera.movement}`), "Studio controlled motion lacks a lens-safe path across the camera plane");
+          assert(/fixed subject distance|locked-off|never push|without moving toward|never toward|not approaching|without approaching/i.test(script.script), "Studio controlled motion lacks a fixed-distance or no-approach safety rule");
+        }
         assert(!/slow push|slow push-in|very slow, natural-perspective entry|refine the framing gradually/i.test(script.script), "Studio script retained push-in or zoom-led evidence language");
         if (duration === 15) {
           const evidenceBeat = script.filmSpec.beats.find((beat) => beat.id === "15s-studio-product-evidence");
@@ -266,7 +277,7 @@ try {
   assert(staleScriptA.sourceId !== staleScriptB.sourceId, "Regenerated atmosphere plans must not share a stale video source id");
   assert(staleScriptA.script !== staleScriptB.script, "Regenerated atmosphere plans must produce current resolved video semantics");
 
-  console.log("Seedance2.5 manual video script validation passed: Prompt Builder plus Xiaohongshu/atmosphere 1/3/5/8 batches, authoritative lifestyle/styling scenes, independent rhythms, reference-bound protection, atmosphere semantics, stale-plan separation, and no runtime leakage.");
+  console.log("Seedance2.5 manual video script validation passed: Prompt Builder plus Xiaohongshu/atmosphere 1/3/5/8 batches, studio controlled-motion coverage (3→2, 5→4, 8→5) with unique lens-safe paths, authoritative lifestyle/styling scenes, independent rhythms, reference-bound protection, atmosphere semantics, stale-plan separation, and no runtime leakage.");
 } finally {
   await rm(tempDirectory, { recursive: true, force: true });
 }

@@ -164,13 +164,13 @@ function resolveStudioContext(params: TeamPromptParams, scenePreference: Exclude
 function resolveStudioVideoAction(params: TeamPromptParams, resolvedShotIndex: ResolvedStudioVideoContext["shotIndex"]) {
   const actions = [
     "Begin in the assigned full-front reference stance. Make one small sleeve-or-cardigan-edge adjustment, then let both arms separate and settle naturally. Keep both feet grounded at believable human scale.",
-    "Begin in the assigned full-body three-quarter stance. Complete one restrained weight shift with a small responsive head turn, then settle both feet without crossing or advancing toward the lens.",
-    "Begin in the assigned side-oriented full-body stance. Turn the head gently toward the light while one shoe rotates only a few degrees to reveal its side profile, then settle the heel on the studio floor.",
-    "Complete one compact rear three-quarter turn, let the visible heel settle on the studio floor, and finish with one brief natural glance back. Do not walk or introduce a second action.",
-    "Hold the assigned waist-to-floor front framing. Make one small, natural weight transfer so one shoe becomes clearly readable, then return to a stable grounded lower-body stance.",
+    "Enter from a shallow side-diagonal mark and complete exactly two natural studio steps across the camera plane, never toward the lens. Let the arms swing lightly, then settle into the assigned full-body three-quarter stance with a responsive head turn.",
+    "Complete one continuous two-to-three-step lateral walk through the assigned full-body side profile. Show natural arm swing and a readable heel-contact-to-push-off gait cycle, then stop on the final side-oriented mark without approaching the lens.",
+    "Take exactly two controlled lateral studio steps, decelerate on the assigned mark, and continue the same movement into one restrained rear three-quarter turn with a brief natural glance back. Do not add a second walk or spin.",
+    "Within the assigned waist-to-floor front framing, complete one full controlled step across a shallow path parallel to the camera plane. Show heel contact, natural weight transfer, and forefoot roll before returning to a stable grounded stance.",
     "Hold the assigned waist-to-floor three-quarter framing. Offset one foot only slightly, rotate it a few degrees for side-panel evidence, and settle without enlarging it toward the lens.",
     "Keep the assigned on-foot front detail physically stable. Use only a minimal ankle-weight settling action; preserve left-right structure, toe direction, laces, outsole, and studio-floor contact.",
-    "Keep the assigned on-foot three-quarter detail physically stable. Rotate the nearer shoe only a few degrees, settle the outsole fully, and hold the confirmed reference-bound form without moving toward the lens."
+    "Within the assigned on-foot three-quarter detail, complete one controlled lateral step into the final mark. Show a clear heel contact and stable outsole settlement, then hold the confirmed reference-bound form without moving toward the lens."
   ];
   return actions[resolvedShotIndex ?? params.studioLaunchShotIndex ?? 0]
     ?? actions[0]
