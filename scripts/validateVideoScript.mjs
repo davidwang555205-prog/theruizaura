@@ -39,10 +39,21 @@ try {
   await writeFile(
     entryPath,
     `export * from ${JSON.stringify(resolve(projectRoot, "src/video-script/compileSeedanceVideoScript.ts"))};\n` +
+    `export * from ${JSON.stringify(resolve(projectRoot, "src/video-script/compileSeedanceVideoScriptBatch.ts"))};\n` +
+    `export { generateSoftSeedingContent } from ${JSON.stringify(resolve(projectRoot, "src/utils/generateSoftSeedingContent.ts"))};\n` +
+    `export { buildNonProductAtmospherePlan } from ${JSON.stringify(resolve(projectRoot, "src/non-product-atmosphere/index.ts"))};\n` +
     `export { generatePromptRuntime } from ${JSON.stringify(resolve(projectRoot, "src/prompt-engine/runtime.ts"))};\n`
   );
   await build({ entryPoints: [entryPath], bundle: true, format: "esm", platform: "node", outfile: bundlePath, logLevel: "silent" });
-  const { compileSeedanceVideoScript, generatePromptRuntime } = await import(`${pathToFileURL(bundlePath).href}?v=${Date.now()}`);
+  const {
+    buildNonProductAtmospherePlan,
+    compileAtmosphereVideoScriptBatch,
+    compileSeedanceVideoScript,
+    compileSoftSeedingVideoScriptBatch,
+    formatVideoScriptBatch,
+    generatePromptRuntime,
+    generateSoftSeedingContent,
+  } = await import(`${pathToFileURL(bundlePath).href}?v=${Date.now()}`);
 
   const ten = compileSeedanceVideoScript({ params: baseParams, duration: 10 });
   const fifteen = compileSeedanceVideoScript({ params: baseParams, duration: 15 });
@@ -106,7 +117,61 @@ try {
   assert(atmosphere.filmSpec.beats.every((beat) => beat.productPriority === "none"), "Non-product atmosphere must not introduce a product hero beat");
   assert(atmosphere.filmSpec.referenceMapping.mode === "not_applicable", "Non-product atmosphere must not require product reference mapping");
 
-  console.log("Seedance2.5 manual video script validation passed: independent 10s/15s rhythms, reference-bound protection, neutral facts, and no runtime leakage.");
+  for (const count of [1, 3, 5, 8]) {
+    const softContent = generateSoftSeedingContent({
+      baseParams,
+      imageCount: count,
+      topic: count === 8 ? "棚内上新拍摄" : "生活场景软种草",
+      variantOffset: count,
+    });
+    const scripts = compileSoftSeedingVideoScriptBatch(softContent.images, 10);
+    assert(softContent.images.length === count, `Xiaohongshu ${count}-card mode did not return ${count} image plans`);
+    assert(scripts.length === count, `Xiaohongshu ${count}-card mode did not return ${count} video scripts`);
+    scripts.forEach((script, index) => {
+      const source = softContent.images[index];
+      assert(script.filmSpec.scene.season === source.params.season, "Xiaohongshu video season drifted from its image card");
+      assert(script.filmSpec.scene.scene === source.params.scenePreference, "Xiaohongshu video scene drifted from its image card");
+      assert(script.filmSpec.scene.selectedOutfitLine === generatePromptRuntime(source.params).selectedOutfitLine, "Xiaohongshu video outfit was reselected outside the image runtime decision");
+    });
+    assert(formatVideoScriptBatch(scripts).match(/SEEDANCE 2\.5 — MANUAL VIDEO SCRIPT/g)?.length === count, "Formatted Xiaohongshu batch lost a script");
+  }
+
+  for (const count of [1, 3, 5, 8]) {
+    const plan = buildNonProductAtmospherePlan({
+      quantity: count,
+      generationNonce: count,
+      referenceImageCount: 0,
+      referenceAssetIds: [],
+      taskId: "preview",
+      previewWithoutReference: true,
+      season: "秋",
+      aspectRatio: "4:5",
+    });
+    const scripts = compileAtmosphereVideoScriptBatch(plan, "秋", 15);
+    assert(scripts.length === count, `Atmosphere ${count}-card mode did not return ${count} video scripts`);
+    scripts.forEach((script, index) => {
+      const source = plan.images[index];
+      assert(script.filmSpec.scene.scene === source.slot.sceneLabel, "Atmosphere scene label drifted from the resolved card");
+      assert(script.script.includes(source.sceneResolution.resolvedArchetypeId), "Atmosphere archetype did not reach the video script");
+      assert(script.script.includes(source.sceneResolution.resolvedVariantId), "Atmosphere variant did not reach the video script");
+      assert(script.script.includes(source.sceneVariantContent.primaryTrace), "Atmosphere life trace did not reach the video script");
+      assert(script.script.includes(source.productPresenceMode), "Atmosphere product presence mode did not reach the video script");
+      assert(script.filmSpec.beats.some((beat) => beat.id === "15s-atmosphere-evidence"), "Atmosphere 15s script is missing its independent evidence beat");
+      assert(!script.filmSpec.beats.some((beat) => beat.id === "15s-product-evidence"), "Atmosphere script retained a product-evidence beat");
+      assert(script.filmSpec.beats.every((beat) => beat.productPriority === "none"), "Atmosphere script introduced product priority");
+      assert(!/keep the product stable/i.test(script.script), "Atmosphere script retained product-only action language");
+      assert(/person-free/i.test(script.script), "Atmosphere script lost the no-person rule");
+    });
+  }
+
+  const stalePlanA = buildNonProductAtmospherePlan({ quantity: 1, generationNonce: 40, referenceAssetIds: [], previewWithoutReference: true, season: "春" });
+  const stalePlanB = buildNonProductAtmospherePlan({ quantity: 1, generationNonce: 41, referenceAssetIds: [], previewWithoutReference: true, season: "春" });
+  const staleScriptA = compileAtmosphereVideoScriptBatch(stalePlanA, "春", 10)[0];
+  const staleScriptB = compileAtmosphereVideoScriptBatch(stalePlanB, "春", 10)[0];
+  assert(staleScriptA.sourceId !== staleScriptB.sourceId, "Regenerated atmosphere plans must not share a stale video source id");
+  assert(staleScriptA.script !== staleScriptB.script, "Regenerated atmosphere plans must produce current resolved video semantics");
+
+  console.log("Seedance2.5 manual video script validation passed: Prompt Builder plus Xiaohongshu/atmosphere 1/3/5/8 batches, independent rhythms, reference-bound protection, atmosphere semantics, stale-plan separation, and no runtime leakage.");
 } finally {
   await rm(tempDirectory, { recursive: true, force: true });
 }
