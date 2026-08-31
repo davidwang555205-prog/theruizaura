@@ -40,6 +40,7 @@ try {
     entryPath,
     `export * from ${JSON.stringify(resolve(projectRoot, "src/video-script/compileSeedanceVideoScript.ts"))};\n` +
     `export * from ${JSON.stringify(resolve(projectRoot, "src/video-script/compileSeedanceVideoScriptBatch.ts"))};\n` +
+    `export * from ${JSON.stringify(resolve(projectRoot, "src/video-script/compileSeedanceThemeVideoScript.ts"))};\n` +
     `export { generateSoftSeedingContent } from ${JSON.stringify(resolve(projectRoot, "src/utils/generateSoftSeedingContent.ts"))};\n` +
     `export { buildNonProductAtmospherePlan } from ${JSON.stringify(resolve(projectRoot, "src/non-product-atmosphere/index.ts"))};\n` +
     `export { generatePromptRuntime } from ${JSON.stringify(resolve(projectRoot, "src/prompt-engine/runtime.ts"))};\n`
@@ -48,7 +49,9 @@ try {
   const {
     buildNonProductAtmospherePlan,
     compileAtmosphereVideoScriptBatch,
+    compileAtmosphereThemeVideoScript,
     compileSeedanceVideoScript,
+    compileSoftSeedingThemeVideoScript,
     compileSoftSeedingVideoScriptBatch,
     formatVideoScriptBatch,
     generatePromptRuntime,
@@ -142,6 +145,44 @@ try {
       assert(script.filmSpec.scene.selectedOutfitLine === expectedOutfit, "Xiaohongshu video outfit was reselected outside its authoritative image/studio runtime decision");
     });
     assert(formatVideoScriptBatch(scripts).match(/SEEDANCE 2\.5 — MANUAL VIDEO SCRIPT/g)?.length === count, "Formatted Xiaohongshu batch lost a script");
+  }
+
+  const allTopics = ["生活场景软种草", "产品开发幕后", "秋冬配色实验室", "穿搭解决方案", "材质工艺认知", "品牌审美观点", "上新活动转化", "棚内上新拍摄"];
+  for (const topic of allTopics) {
+    for (const count of [1, 3, 5, 8]) {
+      const content = generateSoftSeedingContent({ baseParams: { ...baseParams, generationNonce: 310 + count }, imageCount: count, topic, variantOffset: count });
+      for (const duration of [10, 15]) {
+        const unified = compileSoftSeedingThemeVideoScript({ images: content.images, topic, duration });
+        const expectedScenes = count <= 3 ? count : Math.min(count, duration === 10 ? 4 : 5);
+        assert(unified.sourceCount === count, `${topic} ${count}-card unified script lost its source plan`);
+        assert(unified.sceneCount === expectedScenes, `${topic} ${count}-card ${duration}s unified script has an unsafe scene count`);
+        assert(unified.selectedSourceIndices[0] === 1 && unified.selectedSourceIndices.at(-1) === count, `${topic} unified selection must preserve the opening and closing source roles`);
+        assert((unified.script.match(/SEEDANCE 2\.5 — UNIFIED THEME VIDEO SCRIPT/g) ?? []).length === 1, `${topic} did not compile exactly one unified video task`);
+        assert(unified.script.includes("This is one unified Seedance2.5 video task"), `${topic} unified manual execution semantics are missing`);
+        assert(!/VIDEO 2 —|========================================/.test(unified.script), `${topic} unified script concatenated independent video scripts`);
+        assert((unified.script.match(/\[PRODUCT PROTECTION\]/g) ?? []).length === 1, `${topic} unified script repeated Product Protection`);
+        assert((unified.script.match(/\[REFERENCE MAPPING\]/g) ?? []).length === 1, `${topic} unified script repeated Reference Mapping`);
+        assert(unified.script.includes("Use the uploaded footwear references as the only product source."), `${topic} unified script lost uploaded references as product authority`);
+        assert(!/internal-a|internal-b|confidence|diagnostics|providerExecutionReady|productionReady/.test(unified.script), `${topic} unified script leaked internal fields`);
+        assert(!/hotel room|bedside|on the bed|hotel bed/i.test(unified.script), `${topic} unified script reintroduced a removed hotel or bed scene`);
+        if (topic === "棚内上新拍摄") {
+          assert(/one studio, one lighting setup, one model, one wardrobe and one lens family/i.test(unified.script), "Studio unified script lost its single-world continuity lock");
+          assert(!/pavement|doorway|cafe|street|hotel/i.test(unified.script), "Studio unified script drifted outside the studio");
+        }
+      }
+    }
+  }
+
+  for (const count of [1, 3, 5, 8]) {
+    const atmospherePlan = buildNonProductAtmospherePlan({ quantity: count, generationNonce: 500 + count, referenceImageCount: 2, referenceAssetIds: ["hidden-a", "hidden-b"], taskId: "validation", previewWithoutReference: false, season: "秋", aspectRatio: "4:5" });
+    for (const duration of [10, 15]) {
+      const unified = compileAtmosphereThemeVideoScript({ plan: atmospherePlan, season: "秋", duration });
+      assert((unified.script.match(/SEEDANCE 2\.5 — UNIFIED THEME VIDEO SCRIPT/g) ?? []).length === 1, "Atmosphere plan did not compile one unified task");
+      assert(/person-free atmosphere film/i.test(unified.script), "Atmosphere unified narrative lost its person-free authority");
+      assert(!/Product priority: (supporting|hero)/.test(unified.script), "Atmosphere unified script introduced product dominance");
+      assert(/Product Echo only/i.test(unified.script), "Atmosphere references are not restricted to Product Echo");
+      assert(!/hidden-a|hidden-b/.test(unified.script), "Atmosphere unified script leaked internal reference ids");
+    }
   }
 
   for (const count of [3, 5, 8]) {
@@ -277,7 +318,7 @@ try {
   assert(staleScriptA.sourceId !== staleScriptB.sourceId, "Regenerated atmosphere plans must not share a stale video source id");
   assert(staleScriptA.script !== staleScriptB.script, "Regenerated atmosphere plans must produce current resolved video semantics");
 
-  console.log("Seedance2.5 manual video script validation passed: Prompt Builder plus Xiaohongshu/atmosphere 1/3/5/8 batches, studio controlled-motion coverage (3→2, 5→4, 8→5) with unique lens-safe paths, authoritative lifestyle/styling scenes, independent rhythms, reference-bound protection, atmosphere semantics, stale-plan separation, and no runtime leakage.");
+  console.log("Seedance2.5 manual video script validation passed: Prompt Builder plus independent card scripts and unified Xiaohongshu/atmosphere 1/3/5/8 theme films, safe 10s/15s scene budgets, studio controlled-motion coverage (3→2, 5→4, 8→5), reference-bound product protection, Product Echo-only atmosphere semantics, and no runtime leakage.");
 } finally {
   await rm(tempDirectory, { recursive: true, force: true });
 }
