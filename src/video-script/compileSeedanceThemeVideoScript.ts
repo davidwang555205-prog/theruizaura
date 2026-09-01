@@ -55,7 +55,7 @@ function topicDirection(topic: SoftSeedingTopic) {
     "产品开发幕后": "Build one coherent behind-the-scenes process film in a single working-world logic, moving from context to making evidence to a resolved product-aware finish.",
     "秋冬配色实验室": "Build one autumn-winter color-study film whose palette relationships develop across the selected scenes without changing season or product truth.",
     "材质工艺认知": "Build one material-and-craft observation film. Reveal only visible reference-bound surface and construction relationships; never name an unconfirmed material.",
-    "品牌审美观点": "Build one quiet editorial point-of-view film with coherent visual grammar, restrained movement and a stable brand-led conclusion.",
+    "品牌审美观点": "Build one quiet editorial point-of-view film with coherent visual grammar, visually restrained direction, real-time movement and a stable brand-led conclusion.",
   };
   return directions[topic];
 }
@@ -94,7 +94,7 @@ function sceneAction(source: ThemeSource, isFinal: boolean, atmosphere: boolean)
   const evidence = spec.beats.find((beat) => /product-evidence|product-read|action-evidence/.test(beat.id));
   const action = scene.resolvedActionDirection || spec.motion.direction;
   if (atmosphere) return `${action} Preserve the resolved life trace and environmental movement; keep the frame person-free and product priority none.`;
-  if (isFinal) return `${action} Then settle into a stable final state with at least one complete referenced shoe naturally readable at believable human scale.`;
+  if (isFinal) return `${action} Complete the behavior at ordinary real-world speed, then use only the final brief moment to keep at least one complete referenced shoe naturally readable at believable human scale.`;
   return `${action} ${evidence?.action ?? "Keep the referenced footwear coherent, grounded and naturally integrated."}`;
 }
 
@@ -145,7 +145,8 @@ function renderUnifiedScript(input: {
     "",
     "[MOTION]",
     "Use only the actions assigned to each timeline scene. Connect cuts through believable body, object or environmental motion; do not invent an unrelated performance.",
-    "Avoid running, jumping, abrupt speed ramps, morphing transitions, floating feet and repeated identical gestures.",
+    "Render human and environmental movement in real time at approximately 1x playback. Visual restraint does not mean temporal slowness: use ordinary human cadence, believable momentum and complete action chains.",
+    "Avoid slow motion, time stretching, dreamy suspended movement, prolonged micro-gestures, artificial deceleration, running, jumping, abrupt speed ramps, morphing transitions, floating feet and repeated identical gestures.",
     "",
     "[CAMERA]",
     "Preserve each source image's composition objective while keeping one compatible natural-perspective lens family across the group.",

@@ -163,10 +163,10 @@ function resolveStudioContext(params: TeamPromptParams, scenePreference: Exclude
 
 function resolveStudioVideoAction(params: TeamPromptParams, resolvedShotIndex: ResolvedStudioVideoContext["shotIndex"]) {
   const actions = [
-    "Begin in the assigned full-front reference stance. Make one small sleeve-or-cardigan-edge adjustment, then let both arms separate and settle naturally. Keep both feet grounded at believable human scale.",
-    "Enter from a shallow side-diagonal mark and complete exactly two natural studio steps across the camera plane, never toward the lens. Let the arms swing lightly, then settle into the assigned full-body three-quarter stance with a responsive head turn.",
+    "At ordinary human speed, enter the assigned full-front reference stance while making one practical sleeve-or-cardigan-edge adjustment, release both arms naturally, shift weight once, and remain ready to continue rather than freezing. Keep both feet grounded at believable human scale.",
+    "At ordinary walking cadence, enter from a shallow side-diagonal mark and complete exactly two natural studio steps across the camera plane, never toward the lens. Let the arms swing with the gait and connect the second step directly into the assigned full-body three-quarter orientation with a responsive head turn.",
     "Complete one continuous two-to-three-step lateral walk through the assigned full-body side profile. Show natural arm swing and a readable heel-contact-to-push-off gait cycle, then stop on the final side-oriented mark without approaching the lens.",
-    "Take exactly two controlled lateral studio steps, decelerate on the assigned mark, and continue the same movement into one restrained rear three-quarter turn with a brief natural glance back. Do not add a second walk or spin.",
+    "At ordinary walking cadence, take exactly two controlled lateral studio steps and continue their momentum directly into one restrained rear three-quarter turn with a brief natural glance back. Do not add a second walk, artificial deceleration, or spin.",
     "Within the assigned waist-to-floor front framing, complete one full controlled step across a shallow path parallel to the camera plane. Show heel contact, natural weight transfer, and forefoot roll before returning to a stable grounded stance.",
     "Hold the assigned waist-to-floor three-quarter framing. Offset one foot only slightly, rotate it a few degrees for side-panel evidence, and settle without enlarging it toward the lens.",
     "Keep the assigned on-foot front detail physically stable. Use only a minimal ankle-weight settling action; preserve left-right structure, toe direction, laces, outsole, and studio-floor contact.",

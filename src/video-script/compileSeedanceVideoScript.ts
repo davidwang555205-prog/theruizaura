@@ -25,6 +25,7 @@ export type SceneSpec = {
 
 export type Motion = {
   level: "locked" | "minimal" | "restrained" | "controlled";
+  temporalCadence: "real_time" | "physically_static";
   direction: string;
   prohibited: string[];
 };
@@ -111,13 +112,15 @@ function buildMotion(scene: SceneSpec): Motion {
   if (scene.subjectMode === "non_product_atmosphere") {
     return {
       level: "minimal",
-      direction: "Use only subtle environmental movement that belongs naturally to the selected scene.",
-      prohibited: ["performative character action", "dramatic speed ramp", "abrupt direction change"],
+      temporalCadence: "real_time",
+      direction: "Let environmental movement occur at ordinary real-world timing: natural light changes, fabric response, passing shadows, steam, leaves, or handled objects must move with believable momentum rather than dreamy suspension.",
+      prohibited: ["performative character action", "slow motion", "time stretching", "dramatic speed ramp", "abrupt direction change"],
     };
   }
   if (scene.subjectMode === "product_only") {
     return {
       level: "locked",
+      temporalCadence: "physically_static",
       direction: "Keep the product physically still; create motion only through a controlled camera move or a very small natural material response.",
       prohibited: ["product morphing", "floating product", "fast rotation", "shape-changing transition"],
     };
@@ -130,8 +133,9 @@ function buildMotion(scene: SceneSpec): Motion {
     || studioShotIndex === 7;
   return {
     level: dynamicStudioShot ? "controlled" : "restrained",
-    direction: scene.resolvedActionDirection || "Use one natural, low-amplitude action with stable foot placement and believable weight transfer.",
-    prohibited: ["running", "jumping", "spinning", "kicking toward camera", "crossing feet close to a wide-angle lens"],
+    temporalCadence: "real_time",
+    direction: `Perform at normal real-world speed and cadence, approximately 1x playback. ${scene.resolvedActionDirection || "Complete one motivated everyday action with stable foot placement and believable weight transfer."}`,
+    prohibited: ["slow motion", "time stretching", "dreamy suspended movement", "prolonged micro-gesture", "artificial deceleration", "running", "jumping", "spinning", "kicking toward camera", "crossing feet close to a wide-angle lens"],
   };
 }
 
@@ -145,7 +149,7 @@ function buildCamera(scene: SceneSpec): Camera {
       "Primary camera move: locked-off while the person completes the two-to-three-step lateral walk across the frame; compose enough side space for the full path and keep a fixed working distance.",
       "Primary camera move: locked-off while the person completes the two-step walk and connected turn; do not chase the subject.",
       "Primary camera move: locked-off within the assigned waist-to-floor crop while one complete step crosses the frame; never push toward the shoes.",
-      "Primary camera move: one very gentle lateral drift within the assigned waist-to-floor crop; never move closer.",
+      "Primary camera move: one short lateral reframe at normal operator speed within the assigned waist-to-floor crop; never move closer.",
       "Primary camera move: locked-off within the assigned on-foot detail; no zoom or camera advance.",
       "Primary camera move: locked-off within the assigned on-foot detail while the controlled lateral step crosses the crop; no zoom or camera advance."
     ];
@@ -166,7 +170,7 @@ function buildCamera(scene: SceneSpec): Camera {
       : "Preserve the selected atmosphere composition without turning any product into the visual center.";
   return {
     framing: [productFraming, studioAngle].filter(Boolean).join(" "),
-    movement: "Static hold, slow push-in, or gentle lateral drift only; use one coherent camera direction across the clip.",
+    movement: "Use one observational camera behavior at normal documentary timing: a brief locked observation, responsive pan, short handheld follow, or parallel lateral track selected to match the subject action. The camera responds to the action and never forces slow motion.",
     distanceRule: "Maintain a natural working distance and do not move the camera unusually close to the feet or product.",
     lensSafety: "Use a natural-perspective lens treatment; avoid ultra-wide, fisheye, low-angle enlargement, and perspective stretching.",
   };
@@ -190,8 +194,8 @@ function buildStudioProductEvidenceAction(scene: SceneSpec) {
 function buildStudioFinalAction(scene: SceneSpec) {
   const shotIndex = scene.studioContext?.shotIndex ?? 0;
   return shotIndex <= 3
-    ? "Hold a calm final full-body or near-full-body composition for at least the last 1.5 seconds. Keep the face, complete outfit, both grounded shoes, and studio continuity readable; introduce no new action."
-    : "Hold the assigned lower-body or on-foot evidence composition for at least the last 1.5 seconds with stable shoe scale, structure, ground contact, perspective, and exposure; introduce no new action.";
+    ? "Finish in a readable full-body or near-full-body composition for only the last 0.7 seconds. Keep the face, complete outfit, and both grounded shoes readable without freezing early or introducing a new action."
+    : "Finish in the assigned lower-body or on-foot evidence composition for only the last 0.7 seconds with stable shoe scale, structure, ground contact, perspective, and exposure; do not freeze early.";
 }
 
 function buildStudioTenSecondBeats(scene: SceneSpec): FilmBeat[] {
@@ -199,24 +203,24 @@ function buildStudioTenSecondBeats(scene: SceneSpec): FilmBeat[] {
     {
       id: "10s-studio-assigned-establish",
       startSecond: 0,
-      endSecond: 3,
-      purpose: "Establish the assigned studio card framing, same person, authoritative studio wardrobe, footwear, seamless floor, and light before any action begins.",
-      action: "Hold the assigned starting orientation with natural breathing and no garment or foot action yet.",
+      endSecond: 1.5,
+      purpose: "Establish the assigned studio card framing, same person, authoritative studio wardrobe, footwear, seamless floor, and light immediately.",
+      action: "Enter the assigned starting orientation already alive and ready; do not spend the opening waiting, breathing in place, or preparing in slow motion.",
       camera: "Begin in the assigned composition and obey the single primary camera-move budget; no push-in.",
       productPriority: "supporting",
     },
     {
       id: "10s-studio-action-evidence",
-      startSecond: 3,
-      endSecond: 7,
-      purpose: "Complete one restrained human action and one connected footwear-evidence phase without changing location, lens, or framing class.",
+      startSecond: 1.5,
+      endSecond: 9.3,
+      purpose: "Complete one continuous real-time choreography phrase and its connected footwear-evidence phase without changing location, lens, or framing class.",
       action: `${scene.resolvedActionDirection} ${buildStudioProductEvidenceAction(scene)}`,
       camera: "Use only the declared primary camera move, if any; never zoom or advance toward the shoes.",
       productPriority: "hero",
     },
     {
       id: "10s-studio-stable-resolve",
-      startSecond: 7,
+      startSecond: 9.3,
       endSecond: 10,
       purpose: "Resolve the assigned studio card into a stable commercially usable final frame.",
       action: buildStudioFinalAction(scene),
@@ -279,28 +283,28 @@ function buildTenSecondBeats(scene: SceneSpec): FilmBeat[] {
     {
       id: "10s-context-entry",
       startSecond: 0,
-      endSecond: 3,
+      endSecond: 1.5,
       purpose: `Establish this resolved scene context immediately: ${scene.resolvedLocationDirection}`,
-      action: scene.subjectMode === "person_with_product" ? scene.resolvedActionDirection : "Hold a calm, readable scene with only minimal natural movement.",
-      camera: "Stable establishing frame with a very slow, natural-perspective entry.",
+      action: scene.subjectMode === "person_with_product" ? `Begin the resolved action immediately at ordinary human speed: ${scene.resolvedActionDirection}` : "Establish the scene immediately through one believable real-time environmental change.",
+      camera: "Establish promptly at a natural working distance with normal documentary timing and no camera advance.",
       productPriority: productPriority(scene, "supporting"),
     },
     {
       id: "10s-product-read",
-      startSecond: 3,
-      endSecond: 7,
+      startSecond: 1.5,
+      endSecond: 9.3,
       purpose: scene.subjectMode === "non_product_atmosphere" ? "Reveal one meaningful atmospheric detail." : "Create one clear product-readable moment without interrupting natural behavior.",
-      action: scene.subjectMode === "person_with_product" ? "Complete the single low-risk action while both shoes remain coherent and visible." : "Let the scene or product remain physically stable while the camera reveals detail.",
-      camera: "One restrained push or lateral drift; no lens or direction change.",
+      action: scene.subjectMode === "person_with_product" ? "Complete the motivated action as one continuous real-time behavior chain while both shoes remain coherent and naturally readable within movement." : "Let one real-time environmental or object response reveal the detail without artificial temporal stretching.",
+      camera: "Use one responsive observation, pan, short follow, or parallel track; no lens or direction change and no slow push.",
       productPriority: productPriority(scene, "hero"),
     },
     {
       id: "10s-stable-resolve",
-      startSecond: 7,
+      startSecond: 9.3,
       endSecond: 10,
       purpose: "Resolve into a clean final frame that can hold without visual instability.",
-      action: "Settle all movement naturally and preserve continuity through the last frame.",
-      camera: "Decelerate into a stable hold; no final zoom burst, morph, or reframing jump.",
+      action: "Complete the action at normal speed and leave only a brief readable end state; do not freeze early.",
+      camera: "Finish cleanly into a brief 0.7-second readable frame; no artificial deceleration, zoom burst, morph, or reframing jump.",
       productPriority: productPriority(scene, "hero"),
     },
   ];
@@ -311,25 +315,25 @@ function buildStudioFifteenSecondBeats(scene: SceneSpec, evidenceDirection: stri
     {
       id: "15s-studio-assigned-establish",
       startSecond: 0,
-      endSecond: 4,
+      endSecond: 2,
       purpose: "Establish the assigned studio card framing, same person, authoritative studio wardrobe, footwear, seamless floor, and light with clear breathing room.",
-      action: "Hold the assigned starting orientation with natural breathing, alive eyes when visible, and no garment or foot action yet.",
+      action: "Establish the assigned orientation immediately with alive eyes and normal body readiness; do not wait in place or perform prolonged micro-movement.",
       camera: "Begin in the assigned composition at a fixed natural working distance; no push-in or shoe-led reframing.",
       productPriority: "supporting",
     },
     {
       id: "15s-studio-human-action",
-      startSecond: 4,
-      endSecond: 8,
-      purpose: "Develop exactly one assigned studio choreography phrase, using controlled locomotion where this card requires it, while preserving person, wardrobe, footwear, and framing continuity.",
+      startSecond: 2,
+      endSecond: 7,
+      purpose: "Develop exactly one assigned studio choreography phrase at normal real-world cadence, using controlled locomotion where this card requires it, while preserving person, wardrobe, footwear, and framing continuity.",
       action: scene.resolvedActionDirection,
       camera: "Use only the declared primary camera move, if any, in one coherent direction; do not zoom or change framing class.",
       productPriority: "supporting",
     },
     {
       id: "15s-studio-product-evidence",
-      startSecond: 8,
-      endSecond: 12,
+      startSecond: 7,
+      endSecond: 14.3,
       purpose: `Deliver an independent Product Evidence phase through connected foot pressure, orientation, and stable floor contact rather than camera enlargement. ${evidenceDirection}`,
       action: buildStudioProductEvidenceAction(scene),
       camera: "Maintain the same lens and working distance. Continue only the already-declared move or remain locked; never push, zoom, or crop tighter toward the shoes.",
@@ -337,11 +341,11 @@ function buildStudioFifteenSecondBeats(scene: SceneSpec, evidenceDirection: stri
     },
     {
       id: "15s-studio-brand-resolve",
-      startSecond: 12,
+      startSecond: 14.3,
       endSecond: 15,
       purpose: "Close on the assigned studio card's calm, commercially usable final composition without losing its intended person-to-product hierarchy.",
       action: buildStudioFinalAction(scene),
-      camera: "Stop all camera movement and hold the final composition for at least the last 1.5 seconds; no final zoom, crop, or reframing change.",
+      camera: "Finish into the final composition for only the last 0.7 seconds; no early freeze, final zoom, crop, or reframing change.",
       productPriority: "hero",
     },
   ];
@@ -353,41 +357,41 @@ function buildFifteenSecondBeats(scene: SceneSpec, evidenceDirection: string): F
     {
       id: "15s-world-establish",
       startSecond: 0,
-      endSecond: 4,
+      endSecond: 2,
       purpose: `Establish the resolved world, season, and subject state with breathing room: ${scene.resolvedLocationDirection}`,
-      action: "Begin from a composed, believable moment before the main action develops.",
+      action: "Establish the composed, believable moment immediately; the subject is already engaged with the next action rather than waiting for direction.",
       camera: "Stable wide or medium-wide establishment at a natural working distance.",
       productPriority: productPriority(scene, "supporting"),
     },
     {
       id: "15s-natural-development",
-      startSecond: 4,
+      startSecond: 2,
       endSecond: 8,
-      purpose: "Develop one restrained action while preserving spatial and body continuity.",
-      action: scene.subjectMode === "person_with_product" ? scene.resolvedActionDirection : "Introduce one subtle environmental or camera-led change without moving the product unnaturally.",
-      camera: "Continue in the same direction with a slow push or gentle lateral drift.",
+      purpose: "Develop one motivated real-time behavior chain while preserving spatial and body continuity.",
+      action: scene.subjectMode === "person_with_product" ? `Perform at ordinary human speed without posing between phases: ${scene.resolvedActionDirection}` : "Introduce one believable real-time environmental or camera-responsive change without moving the product unnaturally.",
+      camera: "Continue with one normal-timing observational behavior: responsive pan, short follow, parallel track, or locked observation.",
       productPriority: productPriority(scene, "supporting"),
     },
     {
       id: scene.subjectMode === "non_product_atmosphere" ? "15s-atmosphere-evidence" : "15s-product-evidence",
       startSecond: 8,
-      endSecond: 12,
+      endSecond: 14.3,
       purpose: scene.subjectMode === "non_product_atmosphere" ? "Reveal the defining atmospheric detail without introducing product dominance." : `Deliver one Product Evidence beat inside the same scene context. ${evidenceDirection}`,
       action: scene.subjectMode === "person_with_product"
-        ? "Let the resolved scene action settle so the confirmed reference-bound footwear form becomes stably readable without posing toward the lens or switching to an isolated product advertisement."
+        ? "Let normal weight transfer, heel contact, forefoot roll, a seated foot placement, or an ordinary directional change make the confirmed reference-bound footwear readable inside the continuing action; do not stop and pose toward the lens."
         : scene.subjectMode === "non_product_atmosphere"
           ? "Keep the scene person-free and let one resolved life trace, light transition, or material relationship become readable without introducing a hero product."
           : "Keep the product stable inside the same scene as the camera reads only its confirmed reference-bound form.",
-      camera: "Refine the framing gradually; never move unusually close or switch to an extreme angle.",
+      camera: "Reframe responsively at normal documentary speed; never move unusually close or switch to an extreme angle.",
       productPriority: productPriority(scene, "hero"),
     },
     {
       id: "15s-brand-resolve",
-      startSecond: 12,
+      startSecond: 14.3,
       endSecond: 15,
       purpose: "Close on a calm, commercially usable final composition.",
-      action: "Finish the motion and hold a stable final state with no new action introduced.",
-      camera: "Ease into a locked final frame with continuous perspective and exposure.",
+      action: "Complete the behavior naturally and preserve only a brief readable final state; do not freeze early or add a new action.",
+      camera: "Finish with continuous perspective and exposure, allowing only the final 0.7 seconds as a readable hold.",
       productPriority: productPriority(scene, "hero"),
     },
   ];
@@ -435,6 +439,7 @@ function renderFilmSpec(spec: FilmSpec): string {
     "",
     "[MOTION]",
     `Level: ${spec.motion.level}`,
+    `Temporal cadence: ${spec.motion.temporalCadence}`,
     spec.motion.direction,
     `Avoid: ${spec.motion.prohibited.join(", ")}.`,
     "",

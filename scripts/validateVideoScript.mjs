@@ -23,7 +23,7 @@ const baseParams = {
   studioLaunchPreset: "auto",
   studioWardrobePreference: "auto",
   stillLifeStyle: "与主视觉统一",
-  extraRequirement: "Keep the pace calm.",
+  extraRequirement: "Keep the visual tone calm while all movement remains real-time.",
   generationNonce: 0,
   selectedProductTruth: { referenceEvidenceBound: true, structuredFactsExtracted: false, productTruthMode: "reference_bound" },
   referencePlan: { referencePlanReady: true, order: ["internal-a", "internal-b"] },
@@ -67,6 +67,8 @@ try {
   assert(fifteen.filmSpec.beats.length === 4, "15s must contain exactly four beats");
   assertContinuous(ten.filmSpec.beats, 10);
   assertContinuous(fifteen.filmSpec.beats, 15);
+  assert(ten.filmSpec.beats[0].endSecond === 1.5 && ten.filmSpec.beats.at(-1).startSecond === 9.3, "10s real-time rhythm must reserve 7.8 seconds for active development and only 0.7 seconds for the final read");
+  assert(fifteen.filmSpec.beats[0].endSecond === 2 && fifteen.filmSpec.beats.at(-1).startSecond === 14.3, "15s real-time rhythm must begin action by 2 seconds and reserve only 0.7 seconds for the final read");
   assert(ten.filmSpec.beats.every((beat) => beat.id.startsWith("10s-")), "10s beat identities must be duration-specific");
   assert(fifteen.filmSpec.beats.every((beat) => beat.id.startsWith("15s-")), "15s beat identities must be duration-specific");
 
@@ -82,6 +84,9 @@ try {
     assert(!/\b(leather|suede|mesh|canvas|knit|nubuck)\b/i.test(productSection), "Unconfirmed product material leaked into Product Protection");
     assert(/Quiet Warm Luxury/.test(output.script), "Video script lost the Brand Visual positioning");
     assert(/low-saturation/.test(output.script) && /natural asymmetry/.test(output.script), "Video script lost Brand Visual directing rules");
+    assert(/Temporal cadence: real_time/.test(output.script), "Person video script lost its explicit real-time cadence");
+    assert(/approximately 1x playback|ordinary human speed/i.test(output.script), "Person video script does not explicitly require real-time human motion");
+    assert(!/slow push-in|very slow, natural-perspective entry|gentle lateral drift|refine the framing gradually/i.test(output.script), "Person video script retained slow-motion camera language");
   }
 
   const imageRuntime = generatePromptRuntime(baseParams);
@@ -143,6 +148,7 @@ try {
       const expectedOutfit = script.filmSpec.scene.studioContext?.resolvedWardrobeLine
         ?? generatePromptRuntime(source.params).selectedOutfitLine;
       assert(script.filmSpec.scene.selectedOutfitLine === expectedOutfit, "Xiaohongshu video outfit was reselected outside its authoritative image/studio runtime decision");
+      assert(script.filmSpec.motion.temporalCadence === "real_time", "Xiaohongshu person script lost real-time cadence");
     });
     assert(formatVideoScriptBatch(scripts).match(/SEEDANCE 2\.5 — MANUAL VIDEO SCRIPT/g)?.length === count, "Formatted Xiaohongshu batch lost a script");
   }
@@ -163,6 +169,8 @@ try {
         assert((unified.script.match(/\[PRODUCT PROTECTION\]/g) ?? []).length === 1, `${topic} unified script repeated Product Protection`);
         assert((unified.script.match(/\[REFERENCE MAPPING\]/g) ?? []).length === 1, `${topic} unified script repeated Reference Mapping`);
         assert(unified.script.includes("Use the uploaded footwear references as the only product source."), `${topic} unified script lost uploaded references as product authority`);
+        assert(/approximately 1x playback/.test(unified.script), `${topic} unified script lost real-time playback authority`);
+        assert(/Visual restraint does not mean temporal slowness/.test(unified.script), `${topic} unified script conflated brand restraint with slow motion`);
         assert(!/internal-a|internal-b|confidence|diagnostics|providerExecutionReady|productionReady/.test(unified.script), `${topic} unified script leaked internal fields`);
         assert(!/hotel room|bedside|on the bed|hotel bed/i.test(unified.script), `${topic} unified script reintroduced a removed hotel or bed scene`);
         if (topic === "棚内上新拍摄") {
@@ -234,7 +242,7 @@ try {
           assert(Boolean(evidenceBeat), "Studio 15s script lost its independent Product Evidence phase");
           assert(/foot|shoe|heel|ankle|outsole|weight/i.test(evidenceBeat?.action ?? ""), "Studio Product Evidence is not produced through a physical foot or weight state");
           assert(/rather than camera enlargement/i.test(evidenceBeat?.purpose ?? ""), "Studio Product Evidence did not reject camera-led enlargement");
-          assert(/last 1\.5 seconds/i.test(`${finalBeat?.action} ${finalBeat?.camera}`), "Studio final hold duration is not explicit");
+          assert(/last 0\.7 seconds|only the last 0\.7 seconds/i.test(`${finalBeat?.action} ${finalBeat?.camera}`), "Studio final hold duration is not explicitly brief");
           if ((studio?.shotIndex ?? 0) <= 3) {
             assert(/full-body|near-full-body/i.test(finalBeat?.action ?? ""), "Studio full-body card did not preserve person and outfit hierarchy through the final frame");
           }
@@ -306,6 +314,7 @@ try {
       assert(script.filmSpec.beats.some((beat) => beat.id === "15s-atmosphere-evidence"), "Atmosphere 15s script is missing its independent evidence beat");
       assert(!script.filmSpec.beats.some((beat) => beat.id === "15s-product-evidence"), "Atmosphere script retained a product-evidence beat");
       assert(script.filmSpec.beats.every((beat) => beat.productPriority === "none"), "Atmosphere script introduced product priority");
+      assert(script.filmSpec.motion.temporalCadence === "real_time", "Atmosphere script lost real-time environmental cadence");
       assert(!/keep the product stable/i.test(script.script), "Atmosphere script retained product-only action language");
       assert(/person-free/i.test(script.script), "Atmosphere script lost the no-person rule");
     });
@@ -318,7 +327,7 @@ try {
   assert(staleScriptA.sourceId !== staleScriptB.sourceId, "Regenerated atmosphere plans must not share a stale video source id");
   assert(staleScriptA.script !== staleScriptB.script, "Regenerated atmosphere plans must produce current resolved video semantics");
 
-  console.log("Seedance2.5 manual video script validation passed: Prompt Builder plus independent card scripts and unified Xiaohongshu/atmosphere 1/3/5/8 theme films, safe 10s/15s scene budgets, studio controlled-motion coverage (3→2, 5→4, 8→5), reference-bound product protection, Product Echo-only atmosphere semantics, and no runtime leakage.");
+  console.log("Seedance2.5 manual video script validation passed: Prompt Builder plus independent card scripts and unified Xiaohongshu/atmosphere 1/3/5/8 theme films, explicit real-time 1x cadence, 10s/15s active-motion budgets with 0.7s final reads, studio controlled-motion coverage (3→2, 5→4, 8→5), reference-bound product protection, Product Echo-only atmosphere semantics, and no runtime leakage.");
 } finally {
   await rm(tempDirectory, { recursive: true, force: true });
 }
