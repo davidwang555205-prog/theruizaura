@@ -20,6 +20,10 @@ export const fmcgReferenceRoleLabels: Record<FmcgReferenceRole, string> = {
   secondary_packaging_reference: "外盒 / 次级包装参考",
   scale_reference: "产品尺度参考",
   usage_reference: "真实使用方式参考",
+  vessel_profile_reference: "杯型 / 杯壁参考",
+  rim_lid_reference: "杯口 / 杯盖 / 吸管参考",
+  handle_reference: "杯把参考",
+  base_reference: "杯底参考",
   unclassified: "未分类",
 };
 
@@ -27,10 +31,12 @@ const allCoverage: FmcgCoverage[] = [
   "overall_package_silhouette", "front_panel_layout", "side_panel_layout", "back_panel_layout",
   "closure_structure", "dispenser_structure", "label_relationship", "logo_relationship",
   "color_blocking", "visible_content_state", "secondary_packaging_relationship", "product_scale",
+  "vessel_profile", "rim_wall_relationship", "handle_relationship", "base_relationship",
+  "lid_straw_relationship", "transparency_relationship", "decoration_placement",
 ];
 
 const coverageByRole: Record<FmcgReferenceRole, FmcgCoverage[]> = {
-  primary_product_reference: ["overall_package_silhouette", "front_panel_layout", "closure_structure", "label_relationship", "logo_relationship", "color_blocking", "product_scale"],
+  primary_product_reference: ["overall_package_silhouette", "front_panel_layout", "closure_structure", "label_relationship", "logo_relationship", "color_blocking", "product_scale", "vessel_profile", "rim_wall_relationship", "handle_relationship", "lid_straw_relationship", "transparency_relationship", "decoration_placement"],
   front_packaging_reference: ["overall_package_silhouette", "front_panel_layout", "label_relationship", "logo_relationship", "color_blocking"],
   side_packaging_reference: ["side_panel_layout", "overall_package_silhouette", "color_blocking"],
   back_packaging_reference: ["back_panel_layout", "overall_package_silhouette", "color_blocking"],
@@ -42,20 +48,44 @@ const coverageByRole: Record<FmcgReferenceRole, FmcgCoverage[]> = {
   secondary_packaging_reference: ["secondary_packaging_relationship"],
   scale_reference: ["product_scale"],
   usage_reference: ["product_scale"],
+  vessel_profile_reference: ["vessel_profile", "rim_wall_relationship", "transparency_relationship", "color_blocking"],
+  rim_lid_reference: ["rim_wall_relationship", "lid_straw_relationship", "closure_structure"],
+  handle_reference: ["handle_relationship", "product_scale"],
+  base_reference: ["base_relationship", "overall_package_silhouette"],
   unclassified: [],
 };
+
+const sharedReferenceRoles: FmcgReferenceRole[] = [
+  "primary_product_reference", "front_packaging_reference", "side_packaging_reference",
+  "back_packaging_reference", "closure_reference", "dispenser_reference", "label_reference",
+  "logo_reference", "content_reference", "secondary_packaging_reference", "scale_reference",
+  "usage_reference", "unclassified",
+];
+
+const drinkwareReferenceRoles: FmcgReferenceRole[] = [
+  "primary_product_reference", "vessel_profile_reference", "rim_lid_reference",
+  "handle_reference", "base_reference", "logo_reference", "secondary_packaging_reference",
+  "scale_reference", "usage_reference", "unclassified",
+];
+
+export function getFmcgReferenceRoles(category: FmcgCategory): FmcgReferenceRole[] {
+  return category === "home_kitchen_drinkware" ? drinkwareReferenceRoles : sharedReferenceRoles;
+}
 
 const priorityByRole: Record<FmcgReferenceRole, number> = {
   primary_product_reference: 1, front_packaging_reference: 2, side_packaging_reference: 3,
   back_packaging_reference: 4, closure_reference: 5, dispenser_reference: 5,
   label_reference: 6, logo_reference: 6, content_reference: 7,
-  secondary_packaging_reference: 8, scale_reference: 9, usage_reference: 10, unclassified: 99,
+  secondary_packaging_reference: 8, scale_reference: 9, usage_reference: 10,
+  vessel_profile_reference: 3, rim_lid_reference: 4, handle_reference: 5, base_reference: 6,
+  unclassified: 99,
 };
 
 function requiredCoverage(category: FmcgCategory): FmcgCoverage[] {
   const base: FmcgCoverage[] = ["overall_package_silhouette", "front_panel_layout", "label_relationship", "color_blocking", "product_scale"];
   if (category === "fragrance") return [...base, "closure_structure"];
   if (category === "beauty_skincare" || category === "personal_care" || category === "household_cleaning") return [...base, "closure_structure"];
+  if (category === "home_kitchen_drinkware") return ["overall_package_silhouette", "product_scale", "vessel_profile", "rim_wall_relationship", "base_relationship"];
   return base;
 }
 

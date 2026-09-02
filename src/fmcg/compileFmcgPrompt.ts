@@ -1,4 +1,4 @@
-import { fmcgCategoryLabels, fmcgCategoryProtection, fmcgThemeCards, fmcgTopicLabels } from "./catalog";
+import { fmcgCategoryLabels, fmcgCategoryProtection, fmcgTopicLabels, getFmcgThemeCards } from "./catalog";
 import type { FmcgCompiledSet, FmcgPromptInput, FmcgThemeCard } from "./types";
 
 function rotate<T>(items: T[], offset: number): T[] {
@@ -8,7 +8,7 @@ function rotate<T>(items: T[], offset: number): T[] {
 }
 
 function selectCards(input: FmcgPromptInput): FmcgThemeCard[] {
-  return rotate(fmcgThemeCards[input.topicId], input.generationNonce).slice(0, input.imageCount);
+  return rotate(getFmcgThemeCards(input.fmcgCategory, input.topicId), input.generationNonce).slice(0, input.imageCount);
 }
 
 function clean(value: string): string {
@@ -20,15 +20,18 @@ function compileCard(input: FmcgPromptInput, card: FmcgThemeCard, index: number)
   const confirmedClaims = clean(input.confirmedClaims);
   const brandVisual = clean(input.brandVisual);
   const extraRequirement = clean(input.extraRequirement);
+  const isDrinkware = input.fmcgCategory === "home_kitchen_drinkware";
   const referenceInstruction = input.referencePlan.order.length
-    ? `Upload the confirmed product references in the displayed Reference Plan order. Use them as the only source for package appearance and product identity.`
-    : "No confirmed product references are currently bound. Keep this as a draft plan and do not invent package appearance.";
+    ? `Upload the confirmed product references in the displayed Reference Plan order. Use them as the only source for ${isDrinkware ? "drinkware" : "package"} appearance and product identity.`
+    : `No confirmed product references are currently bound. Keep this as a draft plan and do not invent ${isDrinkware ? "drinkware" : "package"} appearance.`;
   return [
     `IMAGE ${index + 1} — ${card.title}`,
     "PRODUCT",
     `Create one ${fmcgCategoryLabels[input.fmcgCategory]} product image for the THERUIZ AURA ${fmcgTopicLabels[input.topicId]} content theme.`,
     input.productName.trim() ? `User-confirmed product name: ${clean(input.productName)}.` : "Treat the product name as unspecified.",
-    confirmedDescription ? `User-confirmed product description: ${confirmedDescription}.` : "Do not infer package material, product contents, ingredients, flavor, fragrance, capacity, efficacy, claims, or readable packaging copy.",
+    confirmedDescription ? `User-confirmed product description: ${confirmedDescription}.` : isDrinkware
+      ? "Do not infer vessel material, capacity, thermal performance, food safety, insulation, leak resistance, included liquid, optional lid or straw, decoration wording, or other unconfirmed features."
+      : "Do not infer package material, product contents, ingredients, flavor, fragrance, capacity, efficacy, claims, or readable packaging copy.",
     confirmedClaims ? `Only these user-confirmed claims may appear as semantic direction: ${confirmedClaims}. Do not create additional claims.` : "No product claims are confirmed; do not add efficacy, ingredient, health, environmental, promotional, or compliance claims.",
     `Product protection: ${fmcgCategoryProtection[input.fmcgCategory].join(" ")}. Preserve only what is visibly confirmed by the uploaded references.`,
     "SCENE",
@@ -46,7 +49,9 @@ function compileCard(input: FmcgPromptInput, card: FmcgThemeCard, index: number)
     "REFERENCE MAPPING",
     referenceInstruction,
     "NEGATIVE",
-    "No invented package geometry, no altered closure or dispenser, no extra product units, no fabricated logo, no random readable text, no invented claims, no floating product, no plastic-looking surfaces, no impossible reflections, no malformed hands, and no unrelated product category cues.",
+    isDrinkware
+      ? "No invented vessel geometry, no altered rim, wall, base, handle, lid, or straw, no added optional components, no extra product units, no fabricated logo, no random readable text, no invented capacity or performance claims, no floating vessel, no false transparency, no impossible reflections, no malformed hands, and no packaging-container substitution."
+      : "No invented package geometry, no altered closure or dispenser, no extra product units, no fabricated logo, no random readable text, no invented claims, no floating product, no plastic-looking surfaces, no impossible reflections, no malformed hands, and no unrelated product category cues.",
   ].filter(Boolean).join("\n\n");
 }
 
