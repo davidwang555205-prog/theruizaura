@@ -30,6 +30,9 @@ for (const fact of Object.values(binding.productTruth.facts)) assert(fact.value 
 
 const topics = Object.keys(fmcg.fmcgTopicLabels);
 assert(topics.length === 8, "expected eight FMCG themes");
+assert(fmcg.fmcgCategoryLabels.home_kitchen_drinkware === "家居餐厨 / 饮具", "drinkware category is missing");
+assert(fmcg.getFmcgReferenceRoles("home_kitchen_drinkware").includes("base_reference"), "drinkware reference roles are unavailable");
+assert(!fmcg.getFmcgReferenceRoles("beverage").includes("base_reference"), "drinkware role leaked into beverage roles");
 const footwearTerms = ["toe structure", "outsole", "heel structure", "laces", "on-foot", "footwear visibility", "trouser hem above the sneakers", "grounded feet inside shoes"];
 for (const topicId of topics) {
   for (const imageCount of [1, 3, 5, 8]) {
@@ -53,6 +56,51 @@ for (const topicId of topics) {
   }
 }
 
+const drinkwareBinding = fmcg.bindFmcgProductTruth("home_kitchen_drinkware", [
+  { id: "cup-primary", name: "cup-primary.jpg", originalUploadIndex: 0, role: "primary_product_reference", confirmedByUser: true },
+  { id: "cup-profile", name: "cup-profile.jpg", originalUploadIndex: 1, role: "vessel_profile_reference", confirmedByUser: true },
+  { id: "cup-base", name: "cup-base.jpg", originalUploadIndex: 2, role: "base_reference", confirmedByUser: true },
+]);
+assert(drinkwareBinding.productTruth.referenceEvidenceBound === true, "complete drinkware evidence did not bind");
+assert(drinkwareBinding.productTruth.structuredFactsExtracted === false, "drinkware references fabricated structured facts");
+assert(drinkwareBinding.productTruth.facts.vessel_profile.value === "unknown", "drinkware profile role became a product fact");
+assert(drinkwareBinding.productTruth.providerExecutionReady === false && drinkwareBinding.productTruth.productionReady === false, "drinkware enabled provider execution");
+const incompleteDrinkware = fmcg.bindFmcgProductTruth("home_kitchen_drinkware", [
+  { id: "cup-primary-only", name: "cup-primary-only.jpg", originalUploadIndex: 0, role: "primary_product_reference", confirmedByUser: true },
+]);
+assert(incompleteDrinkware.productTruth.referenceEvidenceBound === false && incompleteDrinkware.productTruth.missingCoverage.includes("base_relationship"), "drinkware base evidence did not fail closed");
+const drinkwareInput = {
+  fmcgCategory: "home_kitchen_drinkware", topicId: "lifestyle_soft_seeding", imageCount: 8, season: "秋", productName: "User-confirmed cup",
+  confirmedProductDescription: "", confirmedClaims: "", brandVisual: "Quiet warm realism", extraRequirement: "", generationNonce: 2,
+  productTruth: drinkwareBinding.productTruth, referencePlan: drinkwareBinding.referencePlan,
+};
+const drinkwareSet = fmcg.compileFmcgPromptSet(drinkwareInput);
+const drinkwarePrompt = fmcg.formatFmcgPromptSet(drinkwareSet).toLowerCase();
+for (const required of ["vessel silhouette", "rim diameter", "wall taper", "base geometry", "handle shape", "transparency or opacity", "decoration placement", "real hand-to-vessel scale"]) {
+  assert(drinkwarePrompt.includes(required), `drinkware protection is missing: ${required}`);
+}
+for (const contamination of ["shoe", "sneaker", "outsole", "heel structure", "on-foot", "front-panel", "side-panel", "back-panel", "closure-area", "upper-package"]) {
+  assert(!drinkwarePrompt.includes(contamination), `drinkware prompt contains incompatible semantics: ${contamination}`);
+}
+const drinkwareVideo = fmcg.compileFmcgVideoScript(drinkwareInput, drinkwareSet, 15).toLowerCase();
+assert(drinkwareVideo.includes("confirmed vessel") && drinkwareVideo.includes("independent four-beat"), "drinkware video did not use vessel-specific FilmSpec");
+for (const topicId of topics) {
+  for (const imageCount of [1, 3, 5, 8]) {
+    const input = { ...drinkwareInput, topicId, imageCount, generationNonce: imageCount + 1 };
+    const set = fmcg.compileFmcgPromptSet(input);
+    const compiledText = fmcg.formatFmcgPromptSet(set).toLowerCase();
+    assert(set.cards.length === imageCount, `${topicId} did not compile ${imageCount} drinkware cards`);
+    for (const contamination of ["shoe", "sneaker", "outsole", "heel structure", "on-foot", "front-panel", "side-panel", "back-panel", "closure-area", "upper-package"]) {
+      assert(!compiledText.includes(contamination), `${topicId} drinkware prompt contains incompatible semantics: ${contamination}`);
+    }
+    for (const duration of [10, 15]) {
+      const video = fmcg.compileFmcgVideoScript(input, set, duration).toLowerCase();
+      assert(video.includes("confirmed vessel"), `${topicId} ${duration}s video lost drinkware semantics`);
+      for (const term of footwearTerms) assert(!video.includes(term), `${topicId} ${duration}s drinkware video leaked footwear term: ${term}`);
+    }
+  }
+}
+
 let mismatch = "";
 try {
   fmcg.compileFmcgPromptSet({ fmcgCategory: "beverage", topicId: "launch_conversion", imageCount: 1, season: "夏", productName: "", confirmedProductDescription: "", confirmedClaims: "", brandVisual: "", extraRequirement: "", generationNonce: 0, productTruth: { ...binding.productTruth, productCategory: "footwear" }, referencePlan: binding.referencePlan });
@@ -70,5 +118,5 @@ for (const file of footwearFiles) {
   assert(!source.includes("./fmcg") && !source.includes("../fmcg"), `${file} imports FMCG runtime`);
 }
 
-console.log("FMCG validation passed: isolated reference binding, eight themes, 1/3/5/8 cards, independent 10s/15s scripts, fail-closed routing, and zero footwear-runtime imports.");
+console.log("FMCG validation passed: isolated drinkware protection, category-scoped reference roles, eight themes, 1/3/5/8 cards, independent 10s/15s scripts, fail-closed routing, and zero footwear-runtime imports.");
 await rm(temp, { recursive: true, force: true });

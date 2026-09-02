@@ -6,7 +6,8 @@ export type FmcgCategory =
   | "food_snack"
   | "personal_care"
   | "household_cleaning"
-  | "fragrance";
+  | "fragrance"
+  | "home_kitchen_drinkware";
 
 export type FmcgTopicId =
   | "lifestyle_soft_seeding"
@@ -34,6 +35,10 @@ export type FmcgReferenceRole =
   | "secondary_packaging_reference"
   | "scale_reference"
   | "usage_reference"
+  | "vessel_profile_reference"
+  | "rim_lid_reference"
+  | "handle_reference"
+  | "base_reference"
   | "unclassified";
 
 export type FmcgCoverage =
@@ -48,7 +53,14 @@ export type FmcgCoverage =
   | "color_blocking"
   | "visible_content_state"
   | "secondary_packaging_relationship"
-  | "product_scale";
+  | "product_scale"
+  | "vessel_profile"
+  | "rim_wall_relationship"
+  | "handle_relationship"
+  | "base_relationship"
+  | "lid_straw_relationship"
+  | "transparency_relationship"
+  | "decoration_placement";
 
 export type FmcgReferenceAsset = {
   id: string;

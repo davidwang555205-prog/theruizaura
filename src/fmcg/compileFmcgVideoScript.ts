@@ -15,14 +15,15 @@ function selectedCards(set: FmcgCompiledSet, duration: FmcgVideoDuration) {
 export function compileFmcgVideoScript(input: FmcgPromptInput, set: FmcgCompiledSet, duration: FmcgVideoDuration): string {
   if (set.productCategory !== "fmcg" || input.productTruth.productCategory !== "fmcg") throw new Error("FMCG_VIDEO_CATEGORY_MISMATCH");
   const cards = selectedCards(set, duration);
+  const productForm = input.fmcgCategory === "home_kitchen_drinkware" ? "vessel" : "package";
   const beats = duration === 10
     ? [
-        `0–1.5s / ESTABLISH: ${cards[0]?.scene ?? "Establish the selected setting"}. Show the complete confirmed package at a readable natural scale.`,
+        `0–1.5s / ESTABLISH: ${cards[0]?.scene ?? "Establish the selected setting"}. Show the complete confirmed ${productForm} at a readable natural scale.`,
         `1.5–9.3s / REAL-TIME USE AND EVIDENCE: ${cards.map((card) => `${card.action}; preserve ${card.evidenceRole}`).join(" Then ")}. Complete the behavior at ordinary 1x timing.`,
         `9.3–10s / RESOLVE: Hold one clear final view of the unchanged product for 0.7 seconds.`,
       ]
     : [
-        `0–2s / ESTABLISH: ${cards[0]?.scene ?? "Establish the selected setting"}. Introduce the complete confirmed package and its real scale.`,
+        `0–2s / ESTABLISH: ${cards[0]?.scene ?? "Establish the selected setting"}. Introduce the complete confirmed ${productForm} and its real scale.`,
         `2–8s / BEHAVIOR: ${cards.slice(0, 2).map((card) => card.action).join(" Then ")}. Use ordinary 1x timing and one coherent action chain.`,
         `8–14.3s / PRODUCT EVIDENCE: ${cards.slice(2).map((card) => `${card.action}; make ${card.evidenceRole} readable`).join(" Then ") || "Show the confirmed package relationships through normal handling."}. This is an independent evidence beat, not a slowed repeat.`,
         `14.3–15s / RESOLVE: Hold one stable final product view for 0.7 seconds.`,

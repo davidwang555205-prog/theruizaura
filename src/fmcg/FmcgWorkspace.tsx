@@ -2,7 +2,7 @@ import { useMemo, useState, type ChangeEvent } from "react";
 import { fmcgCategoryLabels, fmcgTopicLabels } from "./catalog";
 import { compileFmcgPromptSet, formatFmcgPromptSet } from "./compileFmcgPrompt";
 import { compileFmcgVideoScript, type FmcgVideoDuration } from "./compileFmcgVideoScript";
-import { bindFmcgProductTruth, fmcgReferenceRoleLabels } from "./referenceBinding";
+import { bindFmcgProductTruth, fmcgReferenceRoleLabels, getFmcgReferenceRoles } from "./referenceBinding";
 import type { FmcgCategory, FmcgImageCount, FmcgReferenceAsset, FmcgReferenceRole, FmcgSeason, FmcgTopicId } from "./types";
 
 const inputClass = "w-full rounded-[18px] border border-aura-beige bg-white/75 px-4 py-3 text-sm text-aura-charcoal outline-none transition focus:border-aura-clay";
@@ -27,6 +27,7 @@ export function FmcgWorkspace() {
   const [nonce, setNonce] = useState(0);
   const [duration, setDuration] = useState<FmcgVideoDuration>(10);
   const [status, setStatus] = useState("");
+  const availableReferenceRoles = useMemo(() => getFmcgReferenceRoles(category), [category]);
 
   const binding = useMemo(() => bindFmcgProductTruth(category, assets), [category, assets]);
   const input = useMemo(() => ({
@@ -57,14 +58,14 @@ export function FmcgWorkspace() {
 
   return <section className="space-y-6">
     <header className="max-w-3xl space-y-3">
-      <p className="text-xs uppercase tracking-[0.28em] text-aura-muted">FMCG / ISOLATED CATEGORY RUNTIME</p>
-      <h1 className="text-3xl font-semibold text-aura-charcoal">快消品 Prompt Builder</h1>
-      <p className="text-sm leading-6 text-aura-muted">独立快消品 Product Truth、Reference Plan、图片 Prompt 与 Seedance 2.5 脚本。不会调用鞋履 Prompt、鞋履参考角色或上脚保护规则。</p>
+      <p className="text-xs uppercase tracking-[0.28em] text-aura-muted">CONSUMER PRODUCT / ISOLATED CATEGORY RUNTIME</p>
+      <h1 className="text-3xl font-semibold text-aura-charcoal">消费品 Prompt Builder</h1>
+      <p className="text-sm leading-6 text-aura-muted">独立快消品与家居饮具 Product Truth、Reference Plan、图片 Prompt 与 Seedance 2.5 脚本。不会调用鞋履 Prompt、鞋履参考角色或上脚保护规则。</p>
     </header>
 
     <div className="grid gap-6 xl:grid-cols-[360px_minmax(0,1fr)]">
       <div className="space-y-5 rounded-[28px] bg-aura-porcelain/95 p-6 shadow-aura ring-1 ring-aura-beige/70">
-        <label className="block space-y-2"><span className="text-sm font-medium">快消品子品类</span><select className={inputClass} value={category} onChange={(event) => { setCategory(event.target.value as FmcgCategory); setAssets([]); }}>
+        <label className="block space-y-2"><span className="text-sm font-medium">产品子品类</span><select className={inputClass} value={category} onChange={(event) => { setCategory(event.target.value as FmcgCategory); setAssets([]); }}>
           {Object.entries(fmcgCategoryLabels).map(([value, label]) => <option key={value} value={value}>{label}</option>)}
         </select></label>
         <label className="block space-y-2"><span className="text-sm font-medium">内容主题</span><select className={inputClass} value={topicId} onChange={(event) => setTopicId(event.target.value as FmcgTopicId)}>
@@ -84,8 +85,8 @@ export function FmcgWorkspace() {
 
       <div className="space-y-5">
         <section className="rounded-[24px] bg-white/70 p-5 ring-1 ring-aura-beige/70">
-          <div className="flex flex-wrap items-center justify-between gap-3"><div><h2 className="text-lg font-semibold">快消品参考图</h2><p className="mt-1 text-xs text-aura-muted">上传顺序与建议 Reference Plan 顺序分别保存。</p></div><label className={copyClass}>上传参考图<input type="file" accept="image/*" multiple className="hidden" onChange={upload} /></label></div>
-          <div className="mt-4 space-y-3">{assets.map((asset) => <div key={asset.id} className="grid gap-2 rounded-[16px] bg-aura-cream/70 p-3 sm:grid-cols-[1fr_220px]"><div><b className="text-sm">#{asset.originalUploadIndex + 1} {asset.name}</b><p className="text-xs text-aura-muted">{asset.confirmedByUser ? "用途已确认" : "等待确认"}</p></div><select aria-label={`${asset.name} 快消品参考角色`} className={inputClass} value={asset.role} onChange={(event) => setRole(asset.id, event.target.value as FmcgReferenceRole)}>{Object.entries(fmcgReferenceRoleLabels).map(([value,label]) => <option key={value} value={value}>{label}</option>)}</select></div>)}</div>
+          <div className="flex flex-wrap items-center justify-between gap-3"><div><h2 className="text-lg font-semibold">产品参考图</h2><p className="mt-1 text-xs text-aura-muted">上传顺序与建议 Reference Plan 顺序分别保存。</p></div><label className={copyClass}>上传参考图<input type="file" accept="image/*" multiple className="hidden" onChange={upload} /></label></div>
+          <div className="mt-4 space-y-3">{assets.map((asset) => <div key={asset.id} className="grid gap-2 rounded-[16px] bg-aura-cream/70 p-3 sm:grid-cols-[1fr_220px]"><div><b className="text-sm">#{asset.originalUploadIndex + 1} {asset.name}</b><p className="text-xs text-aura-muted">{asset.confirmedByUser ? "用途已确认" : "等待确认"}</p></div><select aria-label={`${asset.name} 产品参考角色`} className={inputClass} value={asset.role} onChange={(event) => setRole(asset.id, event.target.value as FmcgReferenceRole)}>{availableReferenceRoles.map((value) => <option key={value} value={value}>{fmcgReferenceRoleLabels[value]}</option>)}</select></div>)}</div>
           <div className="mt-4 rounded-[16px] bg-aura-cream p-4 text-xs leading-5 text-aura-muted"><b className="text-aura-charcoal">外部 Image2 建议顺序：</b> {binding.referencePlan.order.length ? binding.referencePlan.orderedAssets.map((item, index) => `${index + 1}. ${assets.find((asset) => asset.id === item.assetId)?.name ?? "reference"}`).join(" → ") : "尚未形成"}<br />覆盖 {binding.productTruth.coverage.length} 项；structuredFactsExtracted=false；providerExecutionReady=false；productionReady=false。</div>
         </section>
 

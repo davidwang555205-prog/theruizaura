@@ -7,6 +7,7 @@ export const fmcgCategoryLabels: Record<FmcgCategory, string> = {
   personal_care: "洗护用品",
   household_cleaning: "家庭清洁",
   fragrance: "香氛",
+  home_kitchen_drinkware: "家居餐厨 / 饮具",
 };
 
 export const fmcgTopicLabels: Record<FmcgTopicId, string> = {
@@ -113,4 +114,65 @@ export const fmcgCategoryProtection: Record<FmcgCategory, string[]> = {
   personal_care: ["preserve the confirmed container proportions, cap or dispenser, label placement, and visible product state"],
   household_cleaning: ["preserve the confirmed container, handle, cap or sprayer, label placement, grip direction, and product scale"],
   fragrance: ["preserve the confirmed bottle silhouette, cap, sprayer, label placement, visible contents state, and bottle-to-box relationship"],
+  home_kitchen_drinkware: ["preserve the exact confirmed vessel silhouette and proportions, rim diameter, wall taper and thickness, base geometry, handle shape and attachment points when present, lid and straw relationships when present, transparency or opacity, surface response, decoration placement, and real hand-to-vessel scale"],
 };
+
+const drinkwareReplacements: Array<[RegExp, string]> = [
+  [/package graphics placement/gi, "decoration or print placement"],
+  [/packaging text/gi, "printed decoration or text"],
+  [/packaging color/gi, "vessel color"],
+  [/packaging surface/gi, "vessel surface"],
+  [/packaging relationship/gi, "vessel relationship"],
+  [/package appearance/gi, "drinkware appearance"],
+  [/package identity/gi, "drinkware identity"],
+  [/package integrity/gi, "vessel structural integrity"],
+  [/package silhouette/gi, "vessel silhouette"],
+  [/package structure/gi, "vessel structure"],
+  [/package geometry/gi, "vessel geometry"],
+  [/package color/gi, "vessel color"],
+  [/package orientation/gi, "vessel orientation"],
+  [/package proportions/gi, "vessel proportions"],
+  [/package and use/gi, "vessel and use"],
+  [/package and/gi, "vessel and"],
+  [/package at/gi, "vessel at"],
+  [/package against/gi, "vessel against"],
+  [/package\b/gi, "vessel"],
+  [/front-panel/gi, "primary visible face"],
+  [/front panel/gi, "primary visible face"],
+  [/side-panel/gi, "side-profile"],
+  [/side panel/gi, "side profile"],
+  [/back-panel/gi, "reverse-face"],
+  [/back view/gi, "reverse-face view"],
+  [/label-zone/gi, "decoration-zone"],
+  [/label area/gi, "decoration area"],
+  [/label relationship/gi, "decoration placement"],
+  [/label placement/gi, "decoration placement"],
+  [/closure-area/gi, "rim-and-lid area"],
+  [/closure structure/gi, "rim, lid, and straw relationship when present"],
+  [/closure state/gi, "lid state when present"],
+  [/closure/gi, "lid or opening"],
+  [/dispenser/gi, "lid or straw"],
+  [/upper-package/gi, "rim-and-lid"],
+  [/visible contents state/gi, "interior or contained-liquid state only when confirmed"],
+  [/primary-secondary package relationship/gi, "vessel-to-retail-box relationship when a confirmed box exists"],
+  [/primary and secondary packages/gi, "vessel and confirmed retail box"],
+  [/supporting packages/gi, "supporting confirmed drinkware pieces"],
+  [/secondary packaging/gi, "confirmed retail box"],
+];
+
+function adaptDrinkwareText(value: string): string {
+  return drinkwareReplacements.reduce((result, [pattern, replacement]) => result.replace(pattern, replacement), value);
+}
+
+export function getFmcgThemeCards(category: FmcgCategory, topic: FmcgTopicId): FmcgThemeCard[] {
+  const source = fmcgThemeCards[topic];
+  if (category !== "home_kitchen_drinkware") return source;
+  return source.map((card) => ({
+    ...card,
+    purpose: adaptDrinkwareText(card.purpose),
+    scene: adaptDrinkwareText(card.scene),
+    composition: adaptDrinkwareText(card.composition),
+    action: adaptDrinkwareText(card.action),
+    evidenceRole: adaptDrinkwareText(card.evidenceRole),
+  }));
+}
