@@ -19,6 +19,7 @@
     "validate:prompt-audit": "node scripts/validatePromptAudit.mjs",
     "validate:consumer-trust": "node scripts/validateConsumerTrustLayer.mjs",
     "validate:video-script": "node scripts/validateVideoScript.mjs",
+    "validate:fmcg": "node scripts/validateFmcgCategory.mjs",
     "prepare:prompt-visual-ab": "node scripts/preparePromptVisualAb.mjs",
     "validate:prompt-visual-ab": "node scripts/validatePromptVisualAb.mjs",
     "preview": "vite preview"

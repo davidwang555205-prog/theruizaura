@@ -50,6 +50,7 @@ import {
   compileSoftSeedingThemeVideoScript,
   type CompiledThemeVideoScript,
 } from "./video-script/compileSeedanceThemeVideoScript";
+import { FmcgWorkspace } from "./fmcg/FmcgWorkspace";
 
 type PromptOutputMode = "image" | "video";
 
@@ -272,7 +273,7 @@ function NonProductAtmosphereWorkspace({
 }
 
 function App() {
-  const [activePage, setActivePage] = useState<"workbench" | "prompt" | "xiaohongshu" | "visual" | "atmosphere">("workbench");
+  const [activePage, setActivePage] = useState<"workbench" | "prompt" | "xiaohongshu" | "visual" | "atmosphere" | "fmcg">("workbench");
   const [params, setParams] = useState<TeamPromptParams>(initialParams);
   const paramsRef = useRef<TeamPromptParams>(initialParams);
   const [generatedPrompt, setGeneratedPrompt] = useState(() => initialGeneratedPrompt);
@@ -757,11 +758,11 @@ function App() {
     <main className="ui-app-shell">
       <aside className="ui-sidebar"><div className="ui-brand">THERUIZ AURA<small>BRAND CONTENT PLATFORM</small></div><nav aria-label="平台导航">
         <button className={activePage === 'workbench' ? 'active' : ''} onClick={() => setActivePage('workbench')}>⌂ <span>工作台<small>Workbench</small></span></button>
-        <p>内容生产</p><button className={activePage === 'prompt' ? 'active' : ''} onClick={() => setActivePage('prompt')}>◌ <span>Prompt 构建器<small>Prompt Builder</small></span></button><button className={activePage === 'xiaohongshu' ? 'active' : ''} onClick={() => setActivePage('xiaohongshu')}>▧ <span>小红书内容<small>Xiaohongshu Content</small></span></button><button className={activePage === 'atmosphere' ? 'active' : ''} onClick={() => setActivePage('atmosphere')}>◌ <span>非产品氛围图<small>Non-Product-Led Atmosphere</small></span></button><button onClick={() => setImageGenerationStatus('图片生成 API 尚未接入。')}>▣ <span>图片生成<small>Image Generation</small></span></button>
+        <p>内容生产</p><button className={activePage === 'prompt' ? 'active' : ''} onClick={() => setActivePage('prompt')}>◌ <span>Prompt 构建器<small>Prompt Builder</small></span></button><button className={activePage === 'xiaohongshu' ? 'active' : ''} onClick={() => setActivePage('xiaohongshu')}>▧ <span>小红书内容<small>Xiaohongshu Content</small></span></button><button className={activePage === 'fmcg' ? 'active' : ''} onClick={() => setActivePage('fmcg')}>◇ <span>快消品内容<small>FMCG Content</small></span></button><button className={activePage === 'atmosphere' ? 'active' : ''} onClick={() => setActivePage('atmosphere')}>◌ <span>非产品氛围图<small>Non-Product-Led Atmosphere</small></span></button><button onClick={() => setImageGenerationStatus('图片生成 API 尚未接入。')}>▣ <span>图片生成<small>Image Generation</small></span></button>
         <p>品牌基础</p><button onClick={() => setActivePage('visual')}>◈ <span>视觉母体验证<small>Visual System QA</small></span></button><button onClick={() => setImageGenerationStatus('资产库将在后续阶段接入。')}>◇ <span>资产库<small>Asset Library</small></span></button>
       </nav><div className="ui-sidebar-foot">团队空间<br /><strong>THERUIZ AURA 团队</strong></div></aside>
       <div className="ui-main"><header className="ui-topbar"><div className="ui-project">项目 / <strong>THERUIZ AURA 主项目</strong>⌄</div><div className="ui-top-actions"><span>◉ 9,842 积分</span><input aria-label="搜索" placeholder="搜索内容、Prompt、素材…" /><span>♧</span><b>TA</b><span>Theruiz Team⌄</span></div></header><div className="ui-content">
-            {activePage === 'workbench' ? dashboard : activePage === 'visual' ? <VisualSystemWorkspace /> : activePage === 'atmosphere' ? <NonProductAtmosphereWorkspace plan={atmospherePlan} quantity={atmosphereQuantity} season={atmosphereSeason} aspectRatio={atmosphereAspectRatio} referenceImages={referenceImages} copyStatus={atmosphereCopyStatus} onQuantityChange={setAtmosphereQuantity} onSeasonChange={setAtmosphereSeason} onAspectRatioChange={setAtmosphereAspectRatio} onGenerate={handleGenerateAtmosphere} onCopyPrompt={handleCopyAtmospherePrompt} videoDuration={atmosphereVideoDuration} videoScripts={atmosphereVideoScripts} unifiedVideoScript={atmosphereUnifiedVideoScript} onVideoDurationChange={setAtmosphereVideoDuration} onCopyVideoScript={handleCopyAtmospherePrompt} onCopyAllVideoScripts={handleCopyAllAtmosphereVideoScripts} onUploadReferences={handleReferenceImagesUpload} /> : <>
+            {activePage === 'workbench' ? dashboard : activePage === 'visual' ? <VisualSystemWorkspace /> : activePage === 'fmcg' ? <FmcgWorkspace /> : activePage === 'atmosphere' ? <NonProductAtmosphereWorkspace plan={atmospherePlan} quantity={atmosphereQuantity} season={atmosphereSeason} aspectRatio={atmosphereAspectRatio} referenceImages={referenceImages} copyStatus={atmosphereCopyStatus} onQuantityChange={setAtmosphereQuantity} onSeasonChange={setAtmosphereSeason} onAspectRatioChange={setAtmosphereAspectRatio} onGenerate={handleGenerateAtmosphere} onCopyPrompt={handleCopyAtmospherePrompt} videoDuration={atmosphereVideoDuration} videoScripts={atmosphereVideoScripts} unifiedVideoScript={atmosphereUnifiedVideoScript} onVideoDurationChange={setAtmosphereVideoDuration} onCopyVideoScript={handleCopyAtmospherePrompt} onCopyAllVideoScripts={handleCopyAllAtmosphereVideoScripts} onUploadReferences={handleReferenceImagesUpload} /> : <>
         <header className="max-w-3xl space-y-3">
           <p className="text-xs uppercase tracking-[0.28em] text-aura-muted">Standard accurate team mode</p>
           <h1 className="text-3xl font-semibold tracking-tight text-aura-charcoal sm:text-4xl">
