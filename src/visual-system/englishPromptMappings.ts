@@ -46,6 +46,14 @@ const mappings: Record<EnglishPromptField, Record<string, string>> = {
     "社区市集 / 精品买菜": "community market or premium grocery visit",
     "社区步道": "community walking path",
     "精品超市 / 日常采购": "premium grocery or daily shopping",
+    "雨天街角": "quiet street corner after light rain",
+    "暑假游乐园": "summer amusement park walkway",
+    "海边度假": "quiet inhabited seaside promenade",
+    "草原野餐": "restrained near-city grass picnic",
+    "亲子自驾出行": "short local family drive arrival",
+    "暑假外出后回家": "returning home after an ordinary summer outing",
+    "去运动的路上": "on the way to a light exercise session",
+    "健身房内": "gym entrance or transition zone",
     "产品静物图": "product still life"
   }
 };
