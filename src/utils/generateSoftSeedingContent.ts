@@ -2867,27 +2867,40 @@ function selectStylingSolutionImageDrafts(variantIndex: number, imageCount: Soft
 const lifestyleThreeImageFamilyPatterns: LifestyleSoftSceneFamily[][] = [
   ["departure", "commute", "social"],
   ["commute", "culture", "community"],
-  ["departure", "social", "travel"],
-  ["commute", "community", "travel"],
+  ["home", "commute", "social"],
+  ["departure", "weather", "community"],
+  ["commute", "culture", "home"],
+  ["community", "social", "active_daily"],
   ["departure", "culture", "social"],
-  ["social", "culture", "community"]
+  ["home", "community", "travel"]
 ];
 
 const lifestyleFiveImageFamilyPatterns: LifestyleSoftSceneFamily[][] = [
-  ["departure", "commute", "social", "culture", "community"],
-  ["commute", "departure", "culture", "community", "travel"],
-  ["social", "commute", "departure", "culture", "travel"],
-  ["departure", "social", "culture", "travel", "community"],
-  ["commute", "social", "community", "departure", "travel"],
-  ["culture", "commute", "social", "community", "travel"]
+  ["departure", "commute", "social", "culture", "home"],
+  ["commute", "home", "culture", "community", "weather"],
+  ["social", "commute", "departure", "culture", "active_daily"],
+  ["home", "social", "culture", "community", "seasonal"],
+  ["commute", "social", "community", "departure", "brand_process"],
+  ["culture", "commute", "social", "home", "travel"],
+  ["departure", "weather", "community", "culture", "active_daily"],
+  ["home", "commute", "social", "seasonal", "travel"]
 ];
 
 const lifestyleEightImageFamilyPatterns: LifestyleSoftSceneFamily[][] = [
-  ["departure", "commute", "social", "culture", "community", "travel", "commute", "culture"],
-  ["commute", "departure", "culture", "community", "travel", "social", "commute", "community"],
-  ["social", "commute", "departure", "culture", "travel", "community", "social", "culture"],
-  ["departure", "social", "culture", "travel", "community", "commute", "departure", "social"]
+  ["departure", "commute", "social", "culture", "community", "home", "weather", "active_daily"],
+  ["commute", "departure", "culture", "community", "home", "social", "brand_process", "seasonal"],
+  ["social", "commute", "departure", "culture", "home", "community", "active_daily", "travel"],
+  ["departure", "social", "culture", "home", "community", "commute", "weather", "seasonal"],
+  ["home", "commute", "social", "culture", "community", "active_daily", "brand_process", "travel"],
+  ["departure", "home", "commute", "social", "culture", "community", "seasonal", "weather"]
 ];
+
+const lifestyleRestrictedFamilyCaps: Partial<Record<LifestyleSoftSceneFamily, number>> = {
+  travel: 1,
+  active_daily: 1,
+  brand_process: 1,
+  seasonal: 1
+};
 
 function pickRotatingLifestyleDraft(
   candidates: SoftSeedingImageDraft[],
@@ -2927,6 +2940,12 @@ function selectLifestyleSoftSeedingImageDrafts(
   const familyPattern = patterns[normalized % patterns.length];
   const selected: SoftSeedingImageDraft[] = [];
 
+  const canSelectFamily = (family?: LifestyleSoftSceneFamily) => {
+    if (!family) return true;
+    const cap = lifestyleRestrictedFamilyCaps[family];
+    return cap === undefined || selected.filter((draft) => draft.family === family).length < cap;
+  };
+
   familyPattern.forEach((family, familyIndex) => {
     const alreadyHasMirror = selected.some((draft) => draft.imageType === "对镜穿搭图");
     let candidates = topicImageDrafts["生活场景软种草"].filter(
@@ -2946,10 +2965,28 @@ function selectLifestyleSoftSeedingImageDrafts(
         stableCandidates[(startIndex + offset) % stableCandidates.length]
       ).find((candidate) => !selected.some((draft) => draft.id === candidate?.id));
     }
-    if (selectedDraft && !selected.some((draft) => draft.id === selectedDraft.id)) {
+    if (selectedDraft && canSelectFamily(selectedDraft.family) && !selected.some((draft) => draft.id === selectedDraft.id)) {
       selected.push(selectedDraft);
     }
   });
+
+  if (selected.length < imageCount) {
+    const eligible = topicImageDrafts["生活场景软种草"].filter(
+      (draft) => (!draft.supportedSeasons || draft.supportedSeasons.includes(season)) && !selected.some((item) => item.id === draft.id)
+    );
+    const safeFamilies: LifestyleSoftSceneFamily[] = ["home", "departure", "commute", "social", "culture", "community", "weather"];
+    const orderedFallbacks = [...eligible].sort((a, b) => {
+      const aRank = safeFamilies.indexOf(a.family ?? "community");
+      const bRank = safeFamilies.indexOf(b.family ?? "community");
+      return (aRank < 0 ? 99 : aRank) - (bRank < 0 ? 99 : bRank) || (a.id ?? a.name).localeCompare(b.id ?? b.name);
+    });
+    for (let offset = 0; selected.length < imageCount && offset < orderedFallbacks.length; offset += 1) {
+      const candidate = orderedFallbacks[(normalized + offset) % orderedFallbacks.length];
+      if (!candidate || selected.some((draft) => draft.id === candidate.id) || !canSelectFamily(candidate.family)) continue;
+      if (candidate.imageType === "对镜穿搭图" && selected.some((draft) => draft.imageType === "对镜穿搭图")) continue;
+      selected.push(candidate);
+    }
+  }
 
   return selected.slice(0, imageCount);
 }

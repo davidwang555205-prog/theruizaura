@@ -130,11 +130,57 @@ try {
     }
   }
 
+  const lifestyleSceneIds = new Set(lifestyleSoftSeedingScenePool.map((scene) => scene.id));
+  const reachedLifestyleSceneIds = new Set();
+  const restrictedFamilies = new Set(["travel", "active_daily", "brand_process", "seasonal"]);
+  const sceneByPreference = new Map(lifestyleSoftSeedingScenePool.map((scene) => [scene.scenePreference, scene]));
+  const travelSets = { 3: 0, 5: 0, 8: 0 };
+  const sampledSets = { 3: 0, 5: 0, 8: 0 };
+  for (const season of ["春", "夏", "秋", "冬"]) {
+    for (const imageCount of [3, 5, 8]) {
+      for (let variantOffset = 0; variantOffset < 120; variantOffset += 1) {
+        const content = generateSoftSeedingContent({
+          baseParams: { ...baseParams, season, generationNonce: variantOffset },
+          topic: "生活场景软种草",
+          imageCount,
+          variantOffset,
+          date: new Date("2026-07-20T12:00:00+08:00")
+        });
+        sampledSets[imageCount] += 1;
+        const ids = content.images.map((image) => sceneByPreference.get(image.params.scenePreference)?.id).filter(Boolean);
+        const families = content.images.map((image) => sceneByPreference.get(image.params.scenePreference)?.family).filter(Boolean);
+        ids.forEach((id) => reachedLifestyleSceneIds.add(id));
+        if (ids.length !== imageCount || new Set(ids).size !== imageCount) {
+          failures.push({ name: `lifestyle-scene-count-${season}-${imageCount}-${variantOffset}`, ids });
+          continue;
+        }
+        if (families.includes("travel")) travelSets[imageCount] += 1;
+        for (const family of restrictedFamilies) {
+          if (families.filter((item) => item === family).length > 1) {
+            failures.push({ name: `lifestyle-family-cap-${season}-${imageCount}-${variantOffset}`, family, families });
+          }
+        }
+        for (const image of content.images) {
+          const source = sceneByPreference.get(image.params.scenePreference);
+          if (source && !source.supportedSeasons.includes(season)) {
+            failures.push({ name: `lifestyle-season-${season}-${imageCount}-${variantOffset}`, scene: source.scenePreference });
+          }
+        }
+      }
+    }
+  }
+  const unreachableLifestyleScenes = [...lifestyleSceneIds].filter((id) => !reachedLifestyleSceneIds.has(id));
+  if (unreachableLifestyleScenes.length) failures.push({ name: "lifestyle-scene-reachability", unreachableLifestyleScenes });
+  const travelRates = Object.fromEntries([3, 5, 8].map((count) => [count, travelSets[count] / sampledSets[count]]));
+  if (travelRates[3] > 0.2 || travelRates[5] > 0.35 || travelRates[8] > 0.5) {
+    failures.push({ name: "lifestyle-travel-frequency", travelRates });
+  }
+
   if (failures.length) {
     console.error("Prompt authenticity validation failed:", JSON.stringify(failures, null, 2));
     process.exitCode = 1;
   } else {
-    console.log(`Prompt authenticity validation passed for ${cases.length * 3} direct samples plus ${softSeedingTopicOptions.length * 3} generated 3/5/8 sets.`);
+    console.log(`Prompt authenticity validation passed for ${cases.length * 3} direct samples, ${softSeedingTopicOptions.length * 3} generated topic sets, and 1,440 seasonal lifestyle scene sets. Travel rates: ${JSON.stringify(travelRates)}.`);
   }
 } finally {
   await rm(tempDirectory, { recursive: true, force: true });
