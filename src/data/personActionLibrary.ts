@@ -20,6 +20,14 @@ export type PersonActionKneeState = "softEven" | "leadSoft" | "rearSoft" | "seat
 export type PersonActionTravelDirection = "stationary" | "forward" | "diagonal" | "lateral" | "turning" | "seated";
 export type PersonActionHeelState = "bothGrounded" | "leadContact" | "rearLifted" | "settling";
 export type PersonActionFootSpacing = "narrow" | "natural" | "open";
+export type PersonActionVisualLegPoseFamily =
+  | "grounded-parallel"
+  | "offset-standing"
+  | "forward-step"
+  | "arrival-settle"
+  | "lateral-step"
+  | "turning-settle"
+  | "seated-grounded";
 
 export type PersonActionDefinition = {
   id: string;
@@ -40,6 +48,8 @@ export type PersonActionDefinition = {
   footSpacing: PersonActionFootSpacing;
   legActionSignature: string;
   legActionLine: string;
+  visualLegPoseFamily: PersonActionVisualLegPoseFamily;
+  visualLegPoseLine: string;
   compatibleImageTypes: TeamImageType[];
   compatibleScenes?: TeamScenePreference[];
   requiresSeat?: boolean;
@@ -193,6 +203,28 @@ function buildLegActionProfile(
     rearLifted: "the rear heel naturally lifted",
     settling: "the offset heel visibly settling"
   };
+  const visualLegPoseFamily: PersonActionVisualLegPoseFamily = poseType === "seated"
+    ? "seated-grounded"
+    : travelDirection === "turning"
+      ? "turning-settle"
+      : travelDirection === "lateral"
+        ? "lateral-step"
+        : footwork === "parallel"
+          ? "grounded-parallel"
+          : footwork === "split"
+            ? "offset-standing"
+            : footwork === "stepFinish"
+              ? "arrival-settle"
+              : "forward-step";
+  const visualLegPoseLines: Record<PersonActionVisualLegPoseFamily, string> = {
+    "grounded-parallel": "Visual leg-pose lock: use a stationary planted stance with both soles grounded, parallel or only slightly open, and no walking stride or lifted trailing foot.",
+    "offset-standing": "Visual leg-pose lock: use an asymmetric stationary weight shift with both soles grounded and a clear offset between the feet; do not turn it into a forward walking stride.",
+    "forward-step": "Visual leg-pose lock: show one compact forward step with short travel, stable body height, and no long fashion-walk stride.",
+    "arrival-settle": "Visual leg-pose lock: show the end of one step after the lead foot has settled, with the rear foot near the ground; do not show a mid-walk or airborne trailing-foot pose.",
+    "lateral-step": "Visual leg-pose lock: show a shallow side-step across the camera plane with sideward travel; never replace it with a front-to-back walking stride.",
+    "turning-settle": "Visual leg-pose lock: use a compact pivoted stance with the feet changing direction close to the ground; do not turn it into a forward walking frame.",
+    "seated-grounded": "Visual leg-pose lock: keep both feet grounded beneath a relaxed seated posture with natural knee spacing and no crossed legs."
+  };
   return {
     supportLeg,
     kneeState,
@@ -200,7 +232,9 @@ function buildLegActionProfile(
     heelState,
     footSpacing,
     legActionSignature: [poseType, bodyOrientation, supportLeg, kneeState, travelDirection, heelState, footSpacing].join("|"),
-    legActionLine: `Leg action lock: use ${directionText[travelDirection]} with ${supportText}, ${kneeText[kneeState]}, ${heelText[heelState]}, and ${footSpacing} foot spacing.`
+    legActionLine: `Leg action lock: use ${directionText[travelDirection]} with ${supportText}, ${kneeText[kneeState]}, ${heelText[heelState]}, and ${footSpacing} foot spacing.`,
+    visualLegPoseFamily,
+    visualLegPoseLine: visualLegPoseLines[visualLegPoseFamily]
   };
 }
 
