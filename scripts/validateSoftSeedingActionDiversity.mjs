@@ -147,6 +147,12 @@ try {
         const peoplePrompts = content.images.filter((image) =>
           ["产品上脚图", "对镜穿搭图", "生活场景图"].includes(image.params.imageType)
         );
+        const singlePrimaryActionAuthority = peoplePrompts.every((image) => {
+          const actionExclusivityInstructions = image.prompt.match(
+            /(?:This is the only primary body action for this card; do not add another walking, arrival, adjustment, or object-operation action\.|Treat this as the only primary body action or object-operation moment for this card; do not add another walking, arrival, adjustment, or object-operation action\.)/g
+          ) ?? [];
+          return actionExclusivityInstructions.length === 1;
+        });
         const singleLegAuthority = peoplePrompts.every((image) =>
           (image.prompt.match(/Leg action lock:/g) ?? []).length === 1 &&
           !/(Use a stable straight standing pose|Use a natural split stance|Use a small step-standing pose|Keep the walking step short and stable|Use a pause-between-steps stance)/i.test(image.prompt)
@@ -181,6 +187,7 @@ try {
             new Set(visualLegPoseFamilies).size < Math.min(selectedPersonActions.length, 6)) ||
           (topic === "生活场景软种草" &&
             visualLegPoseFamilies.filter((family) => family === "forward-step").length > 1) ||
+          !singlePrimaryActionAuthority ||
           !singleLegAuthority ||
           !visualLegPoseAuthority ||
           (requiresPoseCategoryChange && new Set(peoplePoseTypes).size < 2) ||
@@ -200,6 +207,7 @@ try {
             uniqueHandPlacementZones: new Set(handPlacementZones).size,
             uniqueLegActionSignatures: new Set(legActionSignatures).size,
             visualLegPoseFamilies,
+            singlePrimaryActionAuthority,
             singleLegAuthority,
             visualLegPoseAuthority,
             minimumPersonDistance
