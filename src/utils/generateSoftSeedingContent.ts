@@ -3584,6 +3584,9 @@ function buildImagePlan(
     baseParams.generationNonce,
     usedScenes
   );
+  const hasAuthoritativePersonActionLock =
+    ["产品上脚图", "生活场景图", "对镜穿搭图"].includes(draft.imageType) &&
+    Boolean(seriesActionBeat.directive);
   const params: TeamPromptParams = {
     ...baseParams,
     ...shoeFields,
@@ -3605,7 +3608,9 @@ function buildImagePlan(
     extraRequirement: joinSoftPromptSentences(
       topic === "生活场景软种草" ? lifestyleExpressionBeats[index % lifestyleExpressionBeats.length] : "",
       topic === "穿搭解决方案" ? stylingSolutionExpressionBeats[index % stylingSolutionExpressionBeats.length] : "",
-      `Treat this as the only primary body action or object-operation moment for this card; do not add another walking, arrival, adjustment, or object-operation action.`,
+      hasAuthoritativePersonActionLock
+        ? ""
+        : "Treat this as the only primary body action or object-operation moment for this card; do not add another walking, arrival, adjustment, or object-operation action.",
       getSoftSeedingExtraRequirement(baseParams, draft, garmentTypePreference, topic, variantIndex, imageCount, resolvedScene),
       lifestyleContinuityLine
     ),
