@@ -3712,9 +3712,9 @@ function buildSoftSeedingImagePlans(
   let sharedOutfitLine = sanitizeSharedOutfitLine(initialSetSelection?.selectedPerSceneOutfitLine ?? "");
   const outfitRotationId = initialSetSelection?.selectedOutfitId ?? null;
   const selectedPersonActions = selectDiversePersonActions({
-    cards: drafts.map((draft) => ({
+    cards: drafts.map((draft, index) => ({
       imageType: draft.imageType,
-      scenePreference: draft.scenePreference,
+      scenePreference: plannedScenes[index],
       studioLaunchShotIndex: draft.studioLaunchShotIndex
     })),
     topic,

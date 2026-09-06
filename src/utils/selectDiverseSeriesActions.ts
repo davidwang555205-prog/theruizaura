@@ -32,7 +32,13 @@ export function personActionSemanticDistance(
 ) {
   if (first.id === second.id) return 0;
   let distance = 0;
-  if (first.diversityFamily !== second.diversityFamily) distance += 8;
+  if (first.legActionSignature !== second.legActionSignature) distance += 12;
+  if (first.supportLeg !== second.supportLeg) distance += 5;
+  if (first.travelDirection !== second.travelDirection) distance += 5;
+  if (first.heelState !== second.heelState) distance += 4;
+  if (first.kneeState !== second.kneeState) distance += 3;
+  if (first.footSpacing !== second.footSpacing) distance += 2;
+  if (first.diversityFamily !== second.diversityFamily) distance += 6;
   if (first.bodyOrientation !== second.bodyOrientation) distance += 3;
   if (first.footwork !== second.footwork) distance += 3;
   if (first.movementPhase !== second.movementPhase) distance += 2;
@@ -87,6 +93,14 @@ function chooseCandidate(
   if (!pool.length) return null;
 
   return [...pool].sort((first, second) => {
+    const firstLegSignatureUsed = selected.some((item) => item.legActionSignature === first.legActionSignature);
+    const secondLegSignatureUsed = selected.some((item) => item.legActionSignature === second.legActionSignature);
+    if (firstLegSignatureUsed !== secondLegSignatureUsed) return Number(firstLegSignatureUsed) - Number(secondLegSignatureUsed);
+
+    const firstFootworkUsed = selected.some((item) => item.footwork === first.footwork);
+    const secondFootworkUsed = selected.some((item) => item.footwork === second.footwork);
+    if (firstFootworkUsed !== secondFootworkUsed) return Number(firstFootworkUsed) - Number(secondFootworkUsed);
+
     const firstMinimumDistance = selected.length
       ? Math.min(...selected.map((item) => personActionSemanticDistance(first, item)))
       : 0;
@@ -115,11 +129,22 @@ export function selectDiversePersonActions({
 }: SelectDiversePersonActionsInput) {
   const selected: PersonActionDefinition[] = [];
   return cards.map((card, cardIndex) => {
-    const action = chooseCandidate(
-      eligibleActions(card, topic),
-      selected,
-      `${topic}:${variantIndex}:${generationNonce}:${cardIndex}`
-    );
+    const candidates = eligibleActions(card, topic);
+    const action = topic === "棚内上新拍摄" && candidates.length
+      ? (() => {
+          const start = Math.abs(generationNonce + variantIndex + cardIndex) % candidates.length;
+          const rotated = [...candidates.slice(start), ...candidates.slice(0, start)];
+          return rotated.find((candidate) =>
+            !selected.some((item) => item.legActionSignature === candidate.legActionSignature)
+          ) ?? rotated[0];
+        })()
+      : selected.length === 0 && candidates.length
+        ? candidates[Math.abs(generationNonce + variantIndex) % candidates.length]
+      : chooseCandidate(
+          candidates,
+          selected,
+          `${topic}:${variantIndex}:${generationNonce}:${cardIndex}`
+        );
     if (action) selected.push(action);
     return action;
   });

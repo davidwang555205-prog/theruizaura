@@ -89,7 +89,11 @@ try {
     new Set(actionDirectives).size !== PERSON_ACTION_LIBRARY_EXPECTED_COUNT ||
     personActionLibrary.some((action) =>
       !action.id || !action.diversityFamily || !action.bodyOrientation || !action.footwork ||
-      !action.movementPhase || !action.handTask || !action.framing || !action.poseType
+      !action.movementPhase || !action.handTask || !action.framing || !action.poseType ||
+      !action.supportLeg || !action.kneeState || !action.travelDirection ||
+      !action.heelState || !action.footSpacing || !action.legActionSignature ||
+      !action.legActionLine ||
+      !action.directive.includes("Leg action lock:")
     )
   ) {
     failures.push({
@@ -138,6 +142,14 @@ try {
           .map((image) => personActionLibrary.find((action) => action.id === image.params.seriesActionKey))
           .filter(Boolean);
         const handPlacementZones = selectedPersonActions.map((action) => action.handPlacementZone);
+        const legActionSignatures = selectedPersonActions.map((action) => action.legActionSignature);
+        const peoplePrompts = content.images.filter((image) =>
+          ["产品上脚图", "对镜穿搭图", "生活场景图"].includes(image.params.imageType)
+        );
+        const singleLegAuthority = peoplePrompts.every((image) =>
+          (image.prompt.match(/Leg action lock:/g) ?? []).length === 1 &&
+          !/(Use a stable straight standing pose|Use a natural split stance|Use a small step-standing pose|Keep the walking step short and stable|Use a pause-between-steps stance)/i.test(image.prompt)
+        );
         let minimumPersonDistance = Number.POSITIVE_INFINITY;
         for (let first = 0; first < selectedPersonActions.length; first += 1) {
           for (let second = first + 1; second < selectedPersonActions.length; second += 1) {
@@ -160,6 +172,8 @@ try {
           !promptCoverage ||
           maxSimilarity >= 0.72 ||
           (selectedPersonActions.length >= 2 && minimumPersonDistance < 8) ||
+          new Set(legActionSignatures).size !== legActionSignatures.length ||
+          !singleLegAuthority ||
           (requiresPoseCategoryChange && new Set(peoplePoseTypes).size < 2) ||
           (requiresStudioHandCoverage && new Set(handPlacementZones).size < 4)
         ) {
@@ -175,8 +189,47 @@ try {
             maxSimilarity: Number(maxSimilarity.toFixed(3)),
             uniquePeoplePoseTypes: new Set(peoplePoseTypes).size,
             uniqueHandPlacementZones: new Set(handPlacementZones).size,
+            uniqueLegActionSignatures: new Set(legActionSignatures).size,
+            singleLegAuthority,
             minimumPersonDistance
           });
+        }
+      }
+    }
+  }
+
+  let consecutiveCheckedSets = 0;
+  for (const topic of ["生活场景软种草", "穿搭解决方案", "棚内上新拍摄"]) {
+    for (const imageCount of counts) {
+      let previousSignatureSet = null;
+      for (let nonce = 0; nonce < 32; nonce += 1) {
+        const content = generateSoftSeedingContent({
+          baseParams: { ...baseParams, generationNonce: nonce },
+          topic,
+          imageCount,
+          variantOffset: 0,
+          date: new Date("2026-07-20T12:00:00+08:00")
+        });
+        const signatureSet = content.images
+          .map((image) => personActionLibrary.find((action) => action.id === image.params.seriesActionKey)?.legActionSignature)
+          .filter(Boolean);
+        if (signatureSet.length >= 2) {
+          consecutiveCheckedSets += 1;
+          if (
+            new Set(signatureSet).size !== signatureSet.length ||
+            (previousSignatureSet && signatureSet.join(";") === previousSignatureSet.join(";"))
+          ) {
+            failures.push({
+              topic,
+              imageCount,
+              nonce,
+              message: "Consecutive generated sets must not repeat the same leg-action signature plan.",
+              signatureSet,
+              previousSignatureSet
+            });
+            break;
+          }
+          previousSignatureSet = signatureSet;
         }
       }
     }
@@ -201,8 +254,14 @@ try {
         minimumDistance = Math.min(minimumDistance, personActionSemanticDistance(selected[first], selected[second]));
       }
     }
-    if (selected.length !== 8 || new Set(selected.map((action) => action.id)).size !== 8 || minimumDistance < 8) {
-      failures.push({ stressIndex: index, selected: selected.map((action) => action.id), minimumDistance });
+    const legActionSignatures = selected.map((action) => action.legActionSignature);
+    if (
+      selected.length !== 8 ||
+      new Set(selected.map((action) => action.id)).size !== 8 ||
+      new Set(legActionSignatures).size !== 8 ||
+      minimumDistance < 8
+    ) {
+      failures.push({ stressIndex: index, selected: selected.map((action) => action.id), legActionSignatures, minimumDistance });
       break;
     }
   }
@@ -212,7 +271,7 @@ try {
     process.exitCode = 1;
   } else {
     console.log(
-      `Soft-seeding action diversity passed: ${PERSON_ACTION_LIBRARY_EXPECTED_COUNT} unique tagged actions, ${checkedSets} generated sets / ${checkedImages} prompts, and ${stressCheckedSets} eight-image stress sets.`
+      `Soft-seeding action diversity passed: ${PERSON_ACTION_LIBRARY_EXPECTED_COUNT} unique tagged actions, ${checkedSets} generated sets / ${checkedImages} prompts, ${consecutiveCheckedSets} consecutive-rotation sets, and ${stressCheckedSets} eight-image stress sets.`
     );
   }
 } finally {
