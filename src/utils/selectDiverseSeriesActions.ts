@@ -33,6 +33,7 @@ export function personActionSemanticDistance(
   if (first.id === second.id) return 0;
   let distance = 0;
   if (first.legActionSignature !== second.legActionSignature) distance += 12;
+  if (first.visualLegPoseFamily !== second.visualLegPoseFamily) distance += 18;
   if (first.supportLeg !== second.supportLeg) distance += 5;
   if (first.travelDirection !== second.travelDirection) distance += 5;
   if (first.heelState !== second.heelState) distance += 4;
@@ -47,6 +48,50 @@ export function personActionSemanticDistance(
   if (first.framing !== second.framing) distance += 2;
   if (first.poseType !== second.poseType) distance += 3;
   return distance;
+}
+
+function chooseLifestyleSoftSeedingCandidate(
+  candidates: PersonActionDefinition[],
+  selected: PersonActionDefinition[],
+  seed: string
+) {
+  const unused = candidates.filter((candidate) => !selected.some((item) => item.id === candidate.id));
+  const basePool = unused.length ? unused : candidates;
+  if (!basePool.length) return null;
+
+  const usedLegSignatures = new Set(selected.map((item) => item.legActionSignature));
+  const uniqueLegPool = basePool.filter((candidate) => !usedLegSignatures.has(candidate.legActionSignature));
+  const signatureSafePool = uniqueLegPool.length ? uniqueLegPool : basePool;
+
+  // The external image model tends to render every short-step synonym as the
+  // same front-to-back fashion stride. Keep that silhouette to one card and
+  // choose visibly different leg families before returning to one family.
+  const forwardStepAlreadyUsed = selected.some((item) => item.visualLegPoseFamily === "forward-step");
+  const noRepeatedForwardStep = forwardStepAlreadyUsed
+    ? signatureSafePool.filter((candidate) => candidate.visualLegPoseFamily !== "forward-step")
+    : signatureSafePool;
+  const safePool = noRepeatedForwardStep.length ? noRepeatedForwardStep : signatureSafePool;
+  const hasWalkingPose = selected.some((item) => item.poseType === "walking");
+  const nonForwardWalkingPool = safePool.filter(
+    (candidate) => candidate.poseType === "walking" && candidate.visualLegPoseFamily !== "forward-step"
+  );
+  const walkingPool = nonForwardWalkingPool.length
+    ? nonForwardWalkingPool
+    : safePool.filter((candidate) => candidate.poseType === "walking");
+  const poseBalancedPool = selected.length >= 1 && !hasWalkingPose && walkingPool.length
+    ? walkingPool
+    : safePool;
+  const usedFamilies = new Set(selected.map((item) => item.visualLegPoseFamily));
+  const unusedFamilyPool = poseBalancedPool.filter((candidate) => !usedFamilies.has(candidate.visualLegPoseFamily));
+  const visualPool = unusedFamilyPool.length ? unusedFamilyPool : poseBalancedPool;
+  const families = [...new Set(visualPool.map((candidate) => candidate.visualLegPoseFamily))].sort();
+  const preferredFamily = families[stableHash(seed) % families.length];
+  const familyPool = visualPool.filter((candidate) => candidate.visualLegPoseFamily === preferredFamily);
+  const candidatePool = familyPool.length ? familyPool : visualPool;
+
+  return [...candidatePool].sort(
+    (first, second) => stableHash(`${seed}:${first.id}`) - stableHash(`${seed}:${second.id}`)
+  )[0] ?? null;
 }
 
 function eligibleActions(card: SeriesActionCardInput, topic: string) {
@@ -130,7 +175,7 @@ export function selectDiversePersonActions({
   const selected: PersonActionDefinition[] = [];
   return cards.map((card, cardIndex) => {
     const candidates = eligibleActions(card, topic);
-    const action = topic === "棚内上新拍摄" && candidates.length
+    const selectedAction = topic === "棚内上新拍摄" && candidates.length
       ? (() => {
           const start = Math.abs(generationNonce + variantIndex + cardIndex) % candidates.length;
           const rotated = [...candidates.slice(start), ...candidates.slice(0, start)];
@@ -138,6 +183,12 @@ export function selectDiversePersonActions({
             !selected.some((item) => item.legActionSignature === candidate.legActionSignature)
           ) ?? rotated[0];
         })()
+      : topic === "生活场景软种草" && candidates.length
+        ? chooseLifestyleSoftSeedingCandidate(
+            candidates,
+            selected,
+            `${topic}:${variantIndex}:${generationNonce}:${cardIndex}`
+          )
       : selected.length === 0 && candidates.length
         ? candidates[Math.abs(generationNonce + variantIndex) % candidates.length]
       : chooseCandidate(
@@ -145,6 +196,12 @@ export function selectDiversePersonActions({
           selected,
           `${topic}:${variantIndex}:${generationNonce}:${cardIndex}`
         );
+    const action = topic === "生活场景软种草" && selectedAction
+      ? {
+          ...selectedAction,
+          directive: `${selectedAction.directive} ${selectedAction.visualLegPoseLine}`
+        }
+      : selectedAction;
     if (action) selected.push(action);
     return action;
   });

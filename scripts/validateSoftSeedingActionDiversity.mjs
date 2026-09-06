@@ -92,7 +92,7 @@ try {
       !action.movementPhase || !action.handTask || !action.framing || !action.poseType ||
       !action.supportLeg || !action.kneeState || !action.travelDirection ||
       !action.heelState || !action.footSpacing || !action.legActionSignature ||
-      !action.legActionLine ||
+      !action.legActionLine || !action.visualLegPoseFamily || !action.visualLegPoseLine ||
       !action.directive.includes("Leg action lock:")
     )
   ) {
@@ -143,12 +143,16 @@ try {
           .filter(Boolean);
         const handPlacementZones = selectedPersonActions.map((action) => action.handPlacementZone);
         const legActionSignatures = selectedPersonActions.map((action) => action.legActionSignature);
+        const visualLegPoseFamilies = selectedPersonActions.map((action) => action.visualLegPoseFamily);
         const peoplePrompts = content.images.filter((image) =>
           ["产品上脚图", "对镜穿搭图", "生活场景图"].includes(image.params.imageType)
         );
         const singleLegAuthority = peoplePrompts.every((image) =>
           (image.prompt.match(/Leg action lock:/g) ?? []).length === 1 &&
           !/(Use a stable straight standing pose|Use a natural split stance|Use a small step-standing pose|Keep the walking step short and stable|Use a pause-between-steps stance)/i.test(image.prompt)
+        );
+        const visualLegPoseAuthority = topic !== "生活场景软种草" || peoplePrompts.every((image) =>
+          (image.prompt.match(/Visual leg-pose lock:/g) ?? []).length === 1
         );
         let minimumPersonDistance = Number.POSITIVE_INFINITY;
         for (let first = 0; first < selectedPersonActions.length; first += 1) {
@@ -173,7 +177,12 @@ try {
           maxSimilarity >= 0.72 ||
           (selectedPersonActions.length >= 2 && minimumPersonDistance < 8) ||
           new Set(legActionSignatures).size !== legActionSignatures.length ||
+          (topic === "生活场景软种草" && selectedPersonActions.length >= 2 &&
+            new Set(visualLegPoseFamilies).size < Math.min(selectedPersonActions.length, 6)) ||
+          (topic === "生活场景软种草" &&
+            visualLegPoseFamilies.filter((family) => family === "forward-step").length > 1) ||
           !singleLegAuthority ||
+          !visualLegPoseAuthority ||
           (requiresPoseCategoryChange && new Set(peoplePoseTypes).size < 2) ||
           (requiresStudioHandCoverage && new Set(handPlacementZones).size < 4)
         ) {
@@ -190,7 +199,9 @@ try {
             uniquePeoplePoseTypes: new Set(peoplePoseTypes).size,
             uniqueHandPlacementZones: new Set(handPlacementZones).size,
             uniqueLegActionSignatures: new Set(legActionSignatures).size,
+            visualLegPoseFamilies,
             singleLegAuthority,
+            visualLegPoseAuthority,
             minimumPersonDistance
           });
         }
@@ -255,13 +266,16 @@ try {
       }
     }
     const legActionSignatures = selected.map((action) => action.legActionSignature);
+    const visualLegPoseFamilies = selected.map((action) => action.visualLegPoseFamily);
     if (
       selected.length !== 8 ||
       new Set(selected.map((action) => action.id)).size !== 8 ||
       new Set(legActionSignatures).size !== 8 ||
+      new Set(visualLegPoseFamilies).size < 6 ||
+      visualLegPoseFamilies.filter((family) => family === "forward-step").length > 1 ||
       minimumDistance < 8
     ) {
-      failures.push({ stressIndex: index, selected: selected.map((action) => action.id), legActionSignatures, minimumDistance });
+      failures.push({ stressIndex: index, selected: selected.map((action) => action.id), legActionSignatures, visualLegPoseFamilies, minimumDistance });
       break;
     }
   }
