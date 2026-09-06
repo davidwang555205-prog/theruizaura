@@ -15,6 +15,11 @@ export type PersonActionHandTask =
   | "seatSupport";
 export type PersonActionFraming = "fullFigure" | "threeQuarterFigure" | "waistToFloor" | "onFootDetail";
 export type PersonActionHandPlacementZone = "bySide" | "shoulder" | "lapel" | "cuff" | "hem" | "pocket" | "environment" | "phone" | "seatEdge" | "outsideFrame";
+export type PersonActionSupportLeg = "balanced" | "left" | "right";
+export type PersonActionKneeState = "softEven" | "leadSoft" | "rearSoft" | "seatedAsymmetric";
+export type PersonActionTravelDirection = "stationary" | "forward" | "diagonal" | "lateral" | "turning" | "seated";
+export type PersonActionHeelState = "bothGrounded" | "leadContact" | "rearLifted" | "settling";
+export type PersonActionFootSpacing = "narrow" | "natural" | "open";
 
 export type PersonActionDefinition = {
   id: string;
@@ -28,6 +33,13 @@ export type PersonActionDefinition = {
   handTask: PersonActionHandTask;
   handPlacementZone: PersonActionHandPlacementZone;
   framing: PersonActionFraming;
+  supportLeg: PersonActionSupportLeg;
+  kneeState: PersonActionKneeState;
+  travelDirection: PersonActionTravelDirection;
+  heelState: PersonActionHeelState;
+  footSpacing: PersonActionFootSpacing;
+  legActionSignature: string;
+  legActionLine: string;
   compatibleImageTypes: TeamImageType[];
   compatibleScenes?: TeamScenePreference[];
   requiresSeat?: boolean;
@@ -135,6 +147,63 @@ function dimension<T>(items: T[], index: number, stride: number) {
   return items[Math.floor(index / stride) % items.length] ?? items[0];
 }
 
+function buildLegActionProfile(
+  footwork: PersonActionFootwork,
+  bodyOrientation: PersonActionOrientation,
+  index: number,
+  poseType: TeamPoseType
+) {
+  const supportLeg: PersonActionSupportLeg = footwork === "parallel"
+    ? "balanced"
+    : index % 2 === 0 ? "left" : "right";
+  const kneeState: PersonActionKneeState = footwork === "seatedGrounded"
+    ? "seatedAsymmetric"
+    : footwork === "stepStart" || footwork === "midStep"
+      ? "leadSoft"
+      : footwork === "stepFinish" ? "rearSoft" : "softEven";
+  const travelDirection: PersonActionTravelDirection = poseType === "seated"
+    ? "seated"
+    : poseType === "walking"
+      ? bodyOrientation === "side" ? "lateral" : bodyOrientation === "rearThreeQuarter" ? "turning" : bodyOrientation === "threeQuarter" ? "diagonal" : "forward"
+      : bodyOrientation === "rearThreeQuarter" ? "turning" : "stationary";
+  const heelState: PersonActionHeelState = footwork === "stepStart" || footwork === "midStep"
+    ? "rearLifted"
+    : footwork === "stepFinish" ? "leadContact" : footwork === "split" ? "settling" : "bothGrounded";
+  const footSpacing: PersonActionFootSpacing = footwork === "parallel"
+    ? index % 3 === 0 ? "narrow" : "natural"
+    : footwork === "split" ? index % 3 === 0 ? "open" : "natural" : "natural";
+  const supportText = supportLeg === "balanced" ? "balanced weight across both legs" : `the ${supportLeg} leg clearly carrying the main body weight`;
+  const directionText: Record<PersonActionTravelDirection, string> = {
+    stationary: "a stationary leg line",
+    forward: "a forward-moving leg line",
+    diagonal: "a shallow diagonal leg line across the frame",
+    lateral: "a lateral leg line across the camera plane",
+    turning: "a turning leg line with the feet changing direction together",
+    seated: "an asymmetric seated leg line"
+  };
+  const kneeText: Record<PersonActionKneeState, string> = {
+    softEven: "both knees softly unlocked",
+    leadSoft: "the leading knee softly flexed",
+    rearSoft: "the rear knee softly released",
+    seatedAsymmetric: "one knee slightly ahead of the other without crossing"
+  };
+  const heelText: Record<PersonActionHeelState, string> = {
+    bothGrounded: "both heels grounded",
+    leadContact: "the lead heel completing contact",
+    rearLifted: "the rear heel naturally lifted",
+    settling: "the offset heel visibly settling"
+  };
+  return {
+    supportLeg,
+    kneeState,
+    travelDirection,
+    heelState,
+    footSpacing,
+    legActionSignature: [poseType, bodyOrientation, supportLeg, kneeState, travelDirection, heelState, footSpacing].join("|"),
+    legActionLine: `Leg action lock: use ${directionText[travelDirection]} with ${supportText}, ${kneeText[kneeState]}, ${heelText[heelState]}, and ${footSpacing} foot spacing.`
+  };
+}
+
 function buildActionFamily(spec: ActionFactorySpec): PersonActionDefinition[] {
   return Array.from({ length: spec.count }, (_, index) => {
     const bodyOrientation = dimension(spec.orientations, index, 1);
@@ -145,9 +214,11 @@ function buildActionFamily(spec: ActionFactorySpec): PersonActionDefinition[] {
     const actionCore = dimension(spec.actionCores, index, 2);
     const microBodyCue = microBodyCues[index % microBodyCues.length];
     const spatialCue = spatialCues[Math.floor(index / microBodyCues.length) % spatialCues.length];
+    const legAction = buildLegActionProfile(footwork, bodyOrientation, index, spec.poseType);
     const directive = [
       `Person action lock: ${actionCore}`,
       `Use a ${orientationText[bodyOrientation]} with ${footworkText[footwork]}.`,
+      legAction.legActionLine,
       `${handTaskText[handTask]}.`,
       `${microBodyCue}. ${spatialCue}.`,
       `Compose it as ${framingText[framing]}; keep the movement anatomically safe, the action visually distinct, and the sneakers readable.`
@@ -165,6 +236,7 @@ function buildActionFamily(spec: ActionFactorySpec): PersonActionDefinition[] {
       handTask,
       handPlacementZone: handPlacementByTask[handTask],
       framing,
+      ...legAction,
       compatibleImageTypes: spec.compatibleImageTypes,
       compatibleScenes: spec.requiresSeat ? SEATED_SCENES : undefined,
       requiresSeat: spec.requiresSeat,
@@ -370,6 +442,7 @@ const mirrorActions: PersonActionDefinition[] = Array.from({ length: 24 }, (_, i
     "look down while checking the garment hem with the free hand",
     "finish the mirror check and let the shoulders and free arm relax"
   ];
+  const legAction = buildLegActionProfile(footworks[subfamilyIndex], orientations[subfamilyIndex], index, "mirror");
   const endings = [
     "Keep the phone at face level and the free hand quiet.",
     "Keep the phone slightly off-center and preserve realistic leg length.",
@@ -378,7 +451,7 @@ const mirrorActions: PersonActionDefinition[] = Array.from({ length: 24 }, (_, i
   return {
     id: `${mirrorSubfamilies[subfamilyIndex]}-${variant + 1}`,
     category: "mirror",
-    directive: `Person action lock: ${cores[subfamilyIndex]}. ${endings[variant]} Keep the phone as the only handheld object, maintain grounded feet, and make this mirror action visibly different from the other cards.`,
+    directive: `Person action lock: ${cores[subfamilyIndex]}. ${legAction.legActionLine} ${endings[variant]} Keep the phone as the only handheld object, maintain grounded feet, and make this mirror action visibly different from the other cards.`,
     poseType: "mirror",
     diversityFamily: mirrorSubfamilies[subfamilyIndex],
     bodyOrientation: orientations[subfamilyIndex],
@@ -387,6 +460,7 @@ const mirrorActions: PersonActionDefinition[] = Array.from({ length: 24 }, (_, i
     handTask: handTasks[subfamilyIndex],
     handPlacementZone: handPlacementByTask[handTasks[subfamilyIndex]],
     framing: variant === 0 ? "fullFigure" : variant === 1 ? "threeQuarterFigure" : "waistToFloor",
+    ...legAction,
     compatibleImageTypes: MIRROR_IMAGE_TYPES,
     handheldPolicy: "phoneOnly",
     shoeVisibilityRisk: "low",
@@ -409,7 +483,17 @@ const studioActions: PersonActionDefinition[] = Array.from({ length: 32 }, (_, i
   const studioShotIndex = (index % studioSubfamilies.length) as 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7;
   const variant = Math.floor(index / studioSubfamilies.length);
   const orientation: PersonActionOrientation[] = ["front", "threeQuarter", "side", "rearThreeQuarter", "front", "threeQuarter", "side", "threeQuarter"];
-  const footwork: PersonActionFootwork[] = ["parallel", "split", "split", "stepFinish", "parallel", "split", "split", "stepFinish"];
+  const footworkVariants: PersonActionFootwork[][] = [
+    ["parallel", "split", "parallel", "split"],
+    ["split", "stepStart", "split", "stepFinish"],
+    ["split", "stepFinish", "parallel", "stepStart"],
+    ["stepFinish", "midStep", "stepStart", "split"],
+    ["parallel", "split", "stepStart", "stepFinish"],
+    ["stepStart", "stepFinish", "split", "midStep"],
+    ["split", "parallel", "stepFinish", "stepStart"],
+    ["stepFinish", "midStep", "stepStart", "split"]
+  ];
+  const selectedFootwork = footworkVariants[studioShotIndex][variant];
   const cores = [
     "hold the full-front reference stance",
     "use a full-body three-quarter weight shift",
@@ -420,20 +504,30 @@ const studioActions: PersonActionDefinition[] = Array.from({ length: 32 }, (_, i
     "hold a tight on-foot side stance focused on the shoe profile",
     "finish one tiny controlled step in a tight on-foot frame"
   ];
+  const studioPoseType: TeamPoseType = ["stepStart", "midStep", "stepFinish"].includes(selectedFootwork) ? "walking" : "standing";
+  const studioMovementPhase: PersonActionMovementPhase = selectedFootwork === "stepStart"
+    ? "preparing"
+    : selectedFootwork === "midStep"
+      ? "moving"
+      : selectedFootwork === "stepFinish" || selectedFootwork === "split"
+        ? "settling"
+        : "still";
+  const legAction = buildLegActionProfile(selectedFootwork, orientation[studioShotIndex], index, studioPoseType);
   return {
     id: `${studioSubfamilies[studioShotIndex]}-${variant + 1}`,
     category: "studio",
-    directive: `Person action lock: ${cores[studioShotIndex]}. ${variant === 0 ? "Keep both empty hands relaxed and the pose neutral." : variant === 1 ? "Use a slightly softer weight transfer and a more incidental finish than the first studio version." : variant === 2 ? "Add a subtle garment adjustment to the hand action while keeping the body orientation and foot placement unchanged." : "Add a lapel-settling movement to the hand action while keeping the body orientation unchanged."} Preserve the exact studio continuity and do not repeat another shot's body orientation or foot placement.`,
-    poseType: studioShotIndex === 7 ? "walking" : "standing",
+    directive: `Person action lock: ${cores[studioShotIndex]}. ${legAction.legActionLine} ${variant === 0 ? "Keep both empty hands relaxed and the pose neutral." : variant === 1 ? "Use a softer weight transfer and a more incidental finish than the first studio version." : variant === 2 ? "Add a subtle garment adjustment while preserving the assigned leg action." : "Add a lapel-settling hand movement while preserving the assigned leg action."} Preserve the exact studio continuity and do not repeat another shot's leg silhouette.`,
+    poseType: studioPoseType,
     diversityFamily: studioSubfamilies[studioShotIndex],
     bodyOrientation: orientation[studioShotIndex],
-    footwork: footwork[studioShotIndex],
-    movementPhase: studioShotIndex === 3 || studioShotIndex === 7 ? "settling" : "still",
+    footwork: selectedFootwork,
+    movementPhase: studioMovementPhase,
     handTask: studioShotIndex <= 3
       ? variant === 3 ? "lapel" : variant === 2 ? "sleeve" : "emptyRelaxed"
       : variant === 2 ? "hem" : "emptyRelaxed",
     handPlacementZone: studioShotIndex >= 4 ? "outsideFrame" : studioShotIndex === 0 && variant >= 2 ? "lapel" : studioShotIndex === 1 && variant >= 2 ? "shoulder" : studioShotIndex === 2 && variant >= 2 ? "cuff" : studioShotIndex === 3 && variant >= 2 ? "hem" : "bySide",
     framing: studioShotIndex <= 3 ? "fullFigure" : studioShotIndex <= 5 ? "waistToFloor" : "onFootDetail",
+    ...legAction,
     compatibleImageTypes: ["产品上脚图"],
     studioShotIndex,
     handheldPolicy: "none",

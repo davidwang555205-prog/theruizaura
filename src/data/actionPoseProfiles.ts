@@ -193,6 +193,10 @@ function chooseFootPoseLine(input: ActionPoseInput, poseType: TeamPoseType) {
     input.imageType === "产品上脚图" || input.imageType === "生活场景图" || input.imageType === "对镜穿搭图";
   if (!isPeopleImage || input.scenePreference === "健身房内") return "";
   if (poseType === "none" || poseType === "handsOnly" || poseType === "seated" || poseType === "active") return "";
+  // A series action already owns the exact leg geometry. Adding a second random
+  // foot-pose instruction here can collapse distinct actions back into the same
+  // safe stance or create contradictory leg directions in the provider prompt.
+  if (input.seriesActionDirective) return "";
 
   const pool = poseType === "mirror" ? mirrorFootPoseLines : poseType === "walking" ? walkingFootPoseLines : footPoseActionLines;
   const seed = [
