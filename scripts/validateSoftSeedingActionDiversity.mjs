@@ -53,6 +53,8 @@ try {
       resolve(projectRoot, "src/utils/generateSoftSeedingContent.ts")
     )};\nexport { personActionLibrary, PERSON_ACTION_LIBRARY_EXPECTED_COUNT } from ${JSON.stringify(
       resolve(projectRoot, "src/data/personActionLibrary.ts")
+    )};\nexport { lifestyleSoftSeedingScenePool } from ${JSON.stringify(
+      resolve(projectRoot, "src/data/lifestyleSoftSeedingScenePool.ts")
     )};\nexport { personActionSemanticDistance, selectDiversePersonActions } from ${JSON.stringify(
       resolve(projectRoot, "src/utils/selectDiverseSeriesActions.ts")
     )};\n`
@@ -71,6 +73,7 @@ try {
     softSeedingTopicOptions,
     personActionLibrary,
     PERSON_ACTION_LIBRARY_EXPECTED_COUNT,
+    lifestyleSoftSeedingScenePool,
     personActionSemanticDistance,
     selectDiversePersonActions
   } = await import(
@@ -79,6 +82,19 @@ try {
   const failures = [];
   let checkedSets = 0;
   let checkedImages = 0;
+  let rainFreeCheckedSets = 0;
+
+  const rainSemanticPattern = /雨天街角|雨后|下雨|\brainy\b|\blight rain\b|\bdamp pavement\b|\bwet pavement\b|\bfolded umbrella\b|\bholding (?:an )?umbrella\b/i;
+  if (lifestyleSoftSeedingScenePool.some((scene) => rainSemanticPattern.test([
+    scene.id,
+    scene.name,
+    scene.purpose,
+    scene.description,
+    scene.scenePreference,
+    scene.extraRequirement
+  ].join(" ")))) {
+    failures.push({ message: "Footwear lifestyle soft-seeding pool must not retain a rainy auto-selection scene." });
+  }
 
   const actionIds = personActionLibrary.map((action) => action.id);
   const actionDirectives = personActionLibrary.map((action) => action.directive);
@@ -102,6 +118,39 @@ try {
       uniqueDirectives: new Set(actionDirectives).size,
       message: `The person action library must contain ${PERSON_ACTION_LIBRARY_EXPECTED_COUNT} unique, fully tagged actions.`
     });
+  }
+
+  for (const season of ["春", "夏", "秋", "冬"]) {
+    for (const imageCount of counts) {
+      for (let variantOffset = 0; variantOffset < 32; variantOffset += 1) {
+        rainFreeCheckedSets += 1;
+        const content = generateSoftSeedingContent({
+          baseParams: { ...baseParams, season, generationNonce: variantOffset * 17 },
+          topic: "生活场景软种草",
+          imageCount,
+          variantOffset,
+          date: new Date("2026-07-20T12:00:00+08:00")
+        });
+        const rainyCard = content.images.find((image) =>
+          rainSemanticPattern.test([
+            image.name,
+            image.params.scenePreference,
+            image.params.extraRequirement,
+            image.prompt
+          ].join(" "))
+        );
+        if (rainyCard) {
+          failures.push({
+            season,
+            imageCount,
+            variantOffset,
+            message: "Footwear lifestyle soft-seeding output must not emit a rainy scene.",
+            rainyCard: { name: rainyCard.name, scene: rainyCard.params.scenePreference }
+          });
+          break;
+        }
+      }
+    }
   }
 
   for (const topic of softSeedingTopicOptions) {
@@ -293,7 +342,7 @@ try {
     process.exitCode = 1;
   } else {
     console.log(
-      `Soft-seeding action diversity passed: ${PERSON_ACTION_LIBRARY_EXPECTED_COUNT} unique tagged actions, ${checkedSets} generated sets / ${checkedImages} prompts, ${consecutiveCheckedSets} consecutive-rotation sets, and ${stressCheckedSets} eight-image stress sets.`
+      `Soft-seeding action diversity passed: ${PERSON_ACTION_LIBRARY_EXPECTED_COUNT} unique tagged actions, ${checkedSets} generated sets / ${checkedImages} prompts, ${rainFreeCheckedSets} four-season rain-free lifestyle sets, ${consecutiveCheckedSets} consecutive-rotation sets, and ${stressCheckedSets} eight-image stress sets.`
     );
   }
 } finally {

@@ -12,7 +12,6 @@ export type LifestyleSoftSceneFamily =
   | "culture"
   | "community"
   | "home"
-  | "weather"
   | "active_daily"
   | "brand_process"
   | "seasonal"
@@ -358,20 +357,6 @@ export const lifestyleSoftSeedingScenePool: LifestyleSoftSceneEntry[] = [
     supportedSeasons: ["春", "夏", "秋"],
     handheldPolicy: "none",
     weight: 5
-  },
-  {
-    id: "lifestyle-rainy-corner",
-    name: "图｜天气｜雨天街角",
-    purpose: "补充真实天气中的日常穿着状态。",
-    description: "雨后安静街角短暂停留，地面微湿但鞋面保持干净。",
-    imageType: "生活场景图",
-    scenePreference: "雨天街角",
-    garmentTypePreference: "裤装",
-    extraRequirement: "Use a real quiet street corner just after light rain, with physically coherent damp pavement, a short safe step, clean unchanged sneakers, no storm drama, and no travel narrative.",
-    family: "weather",
-    supportedSeasons: ["春", "夏", "秋"],
-    handheldPolicy: "none",
-    weight: 4
   },
   {
     id: "lifestyle-home-wardrobe",
