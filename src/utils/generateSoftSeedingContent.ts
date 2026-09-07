@@ -2868,7 +2868,7 @@ const lifestyleThreeImageFamilyPatterns: LifestyleSoftSceneFamily[][] = [
   ["departure", "commute", "social"],
   ["commute", "culture", "community"],
   ["home", "commute", "social"],
-  ["departure", "weather", "community"],
+  ["departure", "culture", "community"],
   ["commute", "culture", "home"],
   ["community", "social", "active_daily"],
   ["departure", "culture", "social"],
@@ -2877,22 +2877,22 @@ const lifestyleThreeImageFamilyPatterns: LifestyleSoftSceneFamily[][] = [
 
 const lifestyleFiveImageFamilyPatterns: LifestyleSoftSceneFamily[][] = [
   ["departure", "commute", "social", "culture", "home"],
-  ["commute", "home", "culture", "community", "weather"],
+  ["commute", "home", "culture", "community", "departure"],
   ["social", "commute", "departure", "culture", "active_daily"],
   ["home", "social", "culture", "community", "seasonal"],
   ["commute", "social", "community", "departure", "brand_process"],
   ["culture", "commute", "social", "home", "travel"],
-  ["departure", "weather", "community", "culture", "active_daily"],
+  ["departure", "home", "community", "culture", "active_daily"],
   ["home", "commute", "social", "seasonal", "travel"]
 ];
 
 const lifestyleEightImageFamilyPatterns: LifestyleSoftSceneFamily[][] = [
-  ["departure", "commute", "social", "culture", "community", "home", "weather", "active_daily"],
+  ["departure", "commute", "social", "culture", "community", "home", "seasonal", "active_daily"],
   ["commute", "departure", "culture", "community", "home", "social", "brand_process", "seasonal"],
   ["social", "commute", "departure", "culture", "home", "community", "active_daily", "travel"],
-  ["departure", "social", "culture", "home", "community", "commute", "weather", "seasonal"],
+  ["departure", "social", "culture", "home", "community", "commute", "active_daily", "seasonal"],
   ["home", "commute", "social", "culture", "community", "active_daily", "brand_process", "travel"],
-  ["departure", "home", "commute", "social", "culture", "community", "seasonal", "weather"]
+  ["departure", "home", "commute", "social", "culture", "community", "seasonal", "brand_process"]
 ];
 
 const lifestyleRestrictedFamilyCaps: Partial<Record<LifestyleSoftSceneFamily, number>> = {
@@ -2974,7 +2974,7 @@ function selectLifestyleSoftSeedingImageDrafts(
     const eligible = topicImageDrafts["生活场景软种草"].filter(
       (draft) => (!draft.supportedSeasons || draft.supportedSeasons.includes(season)) && !selected.some((item) => item.id === draft.id)
     );
-    const safeFamilies: LifestyleSoftSceneFamily[] = ["home", "departure", "commute", "social", "culture", "community", "weather"];
+    const safeFamilies: LifestyleSoftSceneFamily[] = ["home", "departure", "commute", "social", "culture", "community"];
     const orderedFallbacks = [...eligible].sort((a, b) => {
       const aRank = safeFamilies.indexOf(a.family ?? "community");
       const bRank = safeFamilies.indexOf(b.family ?? "community");
