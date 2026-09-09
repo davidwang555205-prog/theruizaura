@@ -17,6 +17,7 @@
     "validate:production-runtime": "node scripts/validateProductionRuntime.mjs",
     "validate:reference-binding": "node scripts/validateReferenceBinding.mjs",
     "validate:prompt-audit": "node scripts/validatePromptAudit.mjs",
+    "validate:prompt-compression": "node scripts/validatePromptCompression.mjs",
     "validate:consumer-trust": "node scripts/validateConsumerTrustLayer.mjs",
     "validate:video-script": "node scripts/validateVideoScript.mjs",
     "validate:fmcg": "node scripts/validateFmcgCategory.mjs",
