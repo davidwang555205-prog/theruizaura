@@ -6,7 +6,7 @@ export const THERUIZ_AURA_BRAND_ID = "theruiz_aura" as const;
 const HUMAN_STATE: PromptRule = {
   id: "theruiz-human-state-real-mature-urban",
   section: "model",
-  text: "Make the woman feel like a real mature urban person caught in a lived moment, not a mannequin, fashion dummy, plastic model, over-posed influencer, showroom character, or standard commercial model waiting for the camera. Prefer a natural side glance, downward gaze, slight turn, walking transition, arrival pause, or quiet moment between actions. Keep believable body asymmetry, relaxed shoulders, natural facial tension, realistic hair texture, a few subtle flyaway hairs, slight fabric movement, believable bag weight, natural hand position, and normal daily imperfection. Her expression should respond to the place or action rather than perform for the lens. Direct eye contact may appear occasionally when the theme genuinely needs it, but it must not be the default.",
+  text: "Make the woman read as a real mature urban person in a lived moment: natural asymmetry, relaxed shoulders, realistic skin and hair texture, slight fabric movement, natural hands and bag weight, and an expression tied to the action. Prefer side or downward gaze; direct eye contact is occasional, not default. Avoid mannequin, influencer, or campaign posing.",
   priority: PromptPriority.P1_PRODUCT_HARD_LOCK,
   source: "realism-profile",
   appliesWhen: { compositionModes: ["fullFigure", "studioLowerThird", "studioThreeQuarter", "mirrorFull", "mirrorThreeQuarter", "mirrorSeated", "onFootLifestyle"] },
@@ -18,7 +18,7 @@ const HUMAN_STATE: PromptRule = {
 const ACTION_STATE: PromptRule = {
   id: "theruiz-action-reason-phase-weight",
   section: "action",
-  text: "Give the action a clear everyday reason and capture one stable phase of that action. Prefer walking through an entrance, pausing briefly after arriving, preparing to continue forward, turning slightly near a doorway or architectural edge, adjusting a sleeve, coat hem, or bag strap with real contact, or shifting weight naturally before a step. The action must create believable weight distribution, garment tension, hand contact, and shoe-floor pressure. Avoid static poses disguised as natural movement and avoid foot placement arranged only to display the product.",
+  text: "Capture one stable everyday action phase with believable weight transfer, garment tension, hand contact, and shoe-floor pressure. Use only the selected action; avoid display-driven foot placement or staged pseudo-movement.",
   priority: PromptPriority.P3_COMPOSITION_AND_VISIBILITY,
   source: "realism-profile",
   appliesWhen: { compositionModes: ["fullFigure", "studioThreeQuarter", "mirrorFull", "mirrorThreeQuarter", "mirrorSeated", "onFootLifestyle"] },
@@ -29,7 +29,7 @@ const ACTION_STATE: PromptRule = {
 const COMPOSITION_STATE: PromptRule = {
   id: "theruiz-composition-observed-asymmetric",
   section: "scene",
-  text: "Use the visual language of real commercial lifestyle photography rather than a synthetic catalog composition. Prefer off-center framing, natural asymmetry, architectural framing, environmental layers, and a stable moment that feels observed rather than arranged. Allow a doorway, column, wall edge, glass panel, step, table edge, flowers, or a soft foreground element to interrupt the frame naturally without blocking essential Product Truth evidence. Keep a clear visual hierarchy; the face, outfit, shoes, and background must not all be equally dominant or equally sharp. Avoid centered full-body symmetry and rigid front-facing catalog layouts.",
+  text: "Use observed, off-center lifestyle framing with natural asymmetry, architectural depth, and clear visual hierarchy. Foreground or structural elements may interrupt the frame without blocking Product Truth. Avoid centered catalog symmetry or rigid front-facing layouts.",
   priority: PromptPriority.P3_COMPOSITION_AND_VISIBILITY,
   source: "realism-profile",
   appliesWhen: { compositionModes: ["fullFigure", "studioThreeQuarter", "mirrorFull", "mirrorThreeQuarter", "mirrorSeated", "onFootLifestyle"] },
@@ -41,7 +41,7 @@ const COMPOSITION_STATE: PromptRule = {
 const SCENE_STATE: PromptRule = {
   id: "theruiz-scene-functionally-believable",
   section: "scene",
-  text: "Build a spatially real and functionally believable environment with clear architecture, natural movement routes, and a reason for the woman to be there. Favor ordinary building entrances, residential lobby thresholds, flower shop fronts, gallery or bookstore circulation spaces, residential entry areas, quiet business-district walkways, and indoor-outdoor transitions. Use a small number of specific functional details instead of many decorative objects. Keep doors, floors, steps, glass, walls, furniture, signage, distant people, or vehicles logically placed and physically consistent. Avoid empty template sets and decorative lifestyle backgrounds with weak or ambiguous object details.",
+  text: "Use a spatially real, functional environment with coherent architecture, movement routes, and only a few specific daily-life details. Keep doors, floors, steps, glass, furniture, signage, people, and vehicles physically consistent; avoid empty template sets or decorative clutter.",
   priority: PromptPriority.P3_COMPOSITION_AND_VISIBILITY,
   source: "realism-profile",
   appliesWhen: { compositionModes: ["fullFigure", "studioThreeQuarter", "mirrorFull", "mirrorThreeQuarter", "mirrorSeated", "onFootLifestyle"] },
@@ -52,7 +52,7 @@ const SCENE_STATE: PromptRule = {
 const LIGHTING_STATE: PromptRule = {
   id: "theruiz-lighting-source-falloff-material-response",
   section: "lighting",
-  text: "Use natural and physically believable light with a clear source, realistic falloff, soft local shadows, and normal exposure differences across the space. Allow the face to sit slightly below the brightest area when appropriate, and allow indoor-outdoor brightness differences or mild tonal imbalance. Keep physically distinct surface response across skin, hair, clothing, accessories, confirmed product surfaces, and the studio or environmental materials. Do not let unrelated surfaces share identical smoothness, sharpness, or reflectivity. Preserve subtle depth-of-field and edge softness where the lens would naturally create it, but do not hide anatomy or product errors through blur, noise, or low resolution.",
+  text: "Use believable sourced light, realistic falloff, local shadows, normal exposure variation, and physically distinct response across skin, hair, clothing, accessories, confirmed product surfaces, and the environment. Keep natural depth-of-field; never use blur, noise, or low resolution to hide errors.",
   priority: PromptPriority.P5_REALISM_AND_CAMERA,
   source: "realism-profile",
   appliesWhen: { compositionModes: ["fullFigure", "studioLowerThird", "studioThreeQuarter", "mirrorFull", "mirrorThreeQuarter", "mirrorSeated", "onFootLifestyle", "stillLife", "materialDetail"] },
@@ -63,7 +63,7 @@ const LIGHTING_STATE: PromptRule = {
 const PRODUCT_PRESENTATION: PromptRule = {
   id: "theruiz-product-presentation-worn-readable",
   section: "product",
-  text: "Present the preserved sneaker as part of a believable worn look rather than a rigid product-display task. Do not arrange both shoes in a perfect symmetrical showcase position.",
+  text: "Keep the preserved sneaker naturally worn, not arranged as a rigid or symmetrical product display.",
   priority: PromptPriority.P1_PRODUCT_HARD_LOCK,
   source: "realism-profile",
   appliesWhen: { hasShoe: true },
@@ -75,7 +75,7 @@ const PRODUCT_PRESENTATION: PromptRule = {
 const PHYSICAL_INTEGRITY: PromptRule = {
   id: "theruiz-physical-integrity-grounding",
   section: "product",
-  text: "Match body weight to the selected action phase, with believable knee direction, hip balance, garment tension and folds corresponding to the movement, outsole pressure, and grounded contact shadow. Hands must make real contact with sleeves, bags, coats, doors, or furniture when the action requires it; do not use hovering or decorative hand gestures.",
+  text: "Match body weight, knee and hip direction, garment tension, outsole pressure, and contact shadow to the selected action. Required hand-object interactions must show real contact; no hovering gestures.",
   priority: PromptPriority.P1_PRODUCT_HARD_LOCK,
   source: "realism-profile",
   appliesWhen: { hasShoe: true },
@@ -86,7 +86,7 @@ const PHYSICAL_INTEGRITY: PromptRule = {
 const NEGATIVE_RISK: PromptRule = {
   id: "theruiz-negative-anti-ai-realism-risk",
   section: "negative",
-  text: "Avoid overly centered composition, symmetrical full-body catalog posing, rigid front-facing stance, mannequin-like stillness, static product-display foot placement, overly smooth skin, synthetic hair edges, identical sharpness across all materials, perfectly even lighting across face, outfit, shoes, and background, decorative but semantically weak objects, template-like cafe or studio environments, full-frame perfection, floating feet, weightless posture, hovering hands, garment-shoe fusion, duplicated shoe details, inconsistent left-right shoe structure, unstable laces, distorted outsole, generic catalog cutout, and artificial AI-style lifestyle-advertising perfection. Do not use blur, noise, metadata changes, or degraded image quality to conceal structural errors.",
+  text: "Avoid catalog symmetry, rigid or mannequin posing, plastic skin or hair, uniform sharpness or lighting, template-like sets, floating feet, hovering hands, garment-shoe fusion, duplicated or left-right-inconsistent shoe details, unstable laces, distorted outsoles, generic cutouts, or CGI-like perfection.",
   priority: PromptPriority.P7_LOW_PRIORITY_NEGATIVE,
   source: "realism-profile",
   appliesWhen: {},
@@ -110,7 +110,7 @@ export function getTheruizAuraRealismRules(input: PromptProfileInput): PromptRul
     .map((rule) => isStudio && rule.id === HUMAN_STATE.id
       ? {
           ...rule,
-          text: "Make the selected person feel real and unperformed in a controlled professional studio. Keep natural facial tension, subtle hair and fabric texture, relaxed shoulders, believable body asymmetry, and a calm expression responding to the pose rather than performing for the lens. Direct eye contact may appear when the selected studio role requires it, but avoid mannequin-like stillness or campaign-face perfection."
+          text: "Keep the selected person real and unperformed in the studio: natural facial tension, hair and fabric texture, relaxed shoulders, believable asymmetry, and a calm expression tied to the pose. Use eye contact only when the selected studio role requires it; avoid mannequin or campaign-face perfection."
         }
       : rule)
     .filter((rule) => {
