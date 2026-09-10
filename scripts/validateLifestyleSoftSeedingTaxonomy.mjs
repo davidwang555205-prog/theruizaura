@@ -68,6 +68,9 @@ try {
               expect(cameraMatches.length === 1, `Telephoto must emit exactly one telephoto camera profile for ${image.name}`, image.prompt);
               expect(!/Camera profile \((?:stabilized|shoe-safe)\):/.test(image.prompt), `Telephoto must not emit a competing shoe camera profile for ${image.name}`, image.prompt);
               expect(!/站姐|fansite|paparazzi|celebrity airport|celebrity street photo/i.test(image.prompt), `Telephoto prompt uses prohibited framing language for ${image.name}`, image.prompt);
+              expect(!/Direct eye contact may appear|eyes briefly meeting the camera|camera-facing performance|straight-ahead relaxed pause/i.test(image.prompt), `Telephoto prompt retained direct-camera gaze language for ${image.name}`, image.prompt);
+              expect(/off-camera|rather than the lens|never toward the lens/i.test(image.prompt), `Telephoto prompt lost directional gaze protection for ${image.name}`, image.prompt);
+              expect(!/scene continuity/i.test(image.prompt), `Unscoped scene continuity leaked into ${image.name}`, image.prompt);
               expect(!/raised foot|extended foot|sole toward|low angle|foreground foot|close to camera/i.test(image.params.seriesActionDirective ?? ""), `Telephoto selected a high-risk shoe action for ${image.name}`, image.params.seriesActionDirective);
               expect(/uploaded reference set|uploaded footwear references/i.test(image.prompt), `Telephoto lost Product Truth binding for ${image.name}`, image.prompt);
               expect(image.params.referencePlan?.order?.join(",") === "reference-overall", `Telephoto lost Reference Plan order for ${image.name}`, image.params.referencePlan);

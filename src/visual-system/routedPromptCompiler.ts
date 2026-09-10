@@ -1,21 +1,8 @@
 import { getActivePromptRegistryEntry, type ThemePromptRegistryEntry, type ThemePromptRole } from "./activePromptRegistry";
 import type { TopicRoute } from "./topicRoutingRegistry";
-import { assertEnglishPrompt, mapEnglishPromptField } from "./englishPromptMappings";
+import { assertEnglishPrompt } from "./englishPromptMappings";
 
-export const ROUTED_IMAGE2_PROMPT_COMPILER_VERSION = "routed-image2-user-prompt-v1";
-
-const roleLanguage: Record<ThemePromptRole, string> = {
-  A1: "Visual role: relaxed daily-life framing, natural body weight, believable daylight, and a readable sneaker inside an ordinary lived-in scene.",
-  A2: "Visual role: transitional urban movement near a threshold, with credible weight transfer, architectural depth, and an observational rather than performed composition.",
-  A3: "Visual role: interior daily-life moment with tactile relationships between person, clothing, furniture, and product, plus one believable small action.",
-  B3: "Visual role: official studio front full-body composition, calm presence, clean silhouette separation, natural scale, readable floor contact, and restrained warm-grey light.",
-  B4: "Visual role: official studio three-quarter composition with relaxed weight transfer, complete outfit balance, and a structurally readable sneaker silhouette.",
-  C1: "Visual role: complete lateral product profile with toe-to-heel structure, quiet pale surface, and a physically plausible contact shadow.",
-  C2: "Visual role: natural on-foot detail with clear shoe-to-floor and garment relationships; do not invent unsupported product evidence.",
-  C3: "Visual role: restrained paired-product still life with accurate scale, deliberate spacing, tactile material contrast, and grounded contact shadows.",
-  C4: "Visual role: material-craft close-up focused on the relevant heel, collar, stitching, material boundary, and outsole termination without invented construction.",
-  C5: "Visual role: true overhead top-down product evidence with toe box, tongue, settled laces, panel geometry, and consistent material detail fully readable."
-};
+export const ROUTED_IMAGE2_PROMPT_COMPILER_VERSION = "routed-image2-user-prompt-v2";
 
 export type RoutedImage2PromptInput = {
   basePrompt: string;
@@ -35,23 +22,14 @@ export function compileRoutedImage2UserPrompt(input: RoutedImage2PromptInput): s
   if (/theme validation|visual validation case|burgundy and ivory/i.test(input.basePrompt)) {
     throw new Error("Validation fixture language cannot enter the user-facing runtime Prompt.");
   }
-  const topic = mapEnglishPromptField("topic", input.topicRoute.userFacingLabel);
-  const imageType = input.currentTaskContext ? mapEnglishPromptField("imageType", input.currentTaskContext.imageType) : "";
-  const scene = input.currentTaskContext ? mapEnglishPromptField("scene", input.currentTaskContext.scenePreference) : "";
   const imageIndex = input.currentTaskContext?.imageIndex ?? 0;
   const imageCount = input.currentTaskContext?.imageCount ?? 0;
   if (!Number.isInteger(imageIndex) || !Number.isInteger(imageCount) || imageIndex < 1 || imageCount < imageIndex) {
     throw new Error("ENGLISH_PROMPT_MAPPING_MISSING:invalid_image_sequence");
   }
 
-  const prompt = [
-    input.basePrompt.trim(),
-    `Active Prompt Registry: ${entry.activeVersionId}.`,
-    `Image2 provider boundary: use Image2 only; this is a user-facing production Prompt, not an internal validation task.`,
-    `Topic responsibility: ${input.topicRoute.topicId} (${topic}); preserve the original Topic provenance and do not silently substitute another Topic.`,
-    roleLanguage[input.visualRoleId],
-    "Product Truth protection: use only the current task's selected or uploaded product truth. Brand visual language and anchors provide composition, camera, light, human state, material treatment, and negative visual constraints only; never invent or replace SKU color, shape, material, logo, or construction.",
-    `Current task context: ${imageType}, ${scene}, image ${imageIndex} of ${imageCount}.`
-  ].filter((value): value is string => Boolean(value)).join(" ");
-  return assertEnglishPrompt(prompt);
+  // The base prompt is the single provider-facing source of visual rules. Role,
+  // Product Truth, scene, and camera directives are assembled upstream by the
+  // prompt engine; route metadata stays in routingProvenance/UI only.
+  return assertEnglishPrompt(input.basePrompt.trim());
 }

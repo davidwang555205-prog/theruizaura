@@ -99,6 +99,7 @@ export function getTheruizAuraRealismRules(input: PromptProfileInput): PromptRul
   const isStillLife = input.compositionMode === "stillLife" || input.compositionMode === "materialDetail";
   const isAtmosphere = input.compositionMode === "atmosphere" || input.imageType === "非产品氛围图";
   const isStudio = input.scenePreference === "棚内上新拍摄";
+  const isTelephotoCandid = input.captureStyle === "telephoto_candid";
   const rules = isAtmosphere
     ? []
     : isStillLife
@@ -107,12 +108,21 @@ export function getTheruizAuraRealismRules(input: PromptProfileInput): PromptRul
         ? [HUMAN_STATE, COMPOSITION_STATE, LIGHTING_STATE, PRODUCT_PRESENTATION, PHYSICAL_INTEGRITY, NEGATIVE_RISK]
         : [HUMAN_STATE, ACTION_STATE, COMPOSITION_STATE, SCENE_STATE, LIGHTING_STATE, PRODUCT_PRESENTATION, PHYSICAL_INTEGRITY, NEGATIVE_RISK];
   return rules
-    .map((rule) => isStudio && rule.id === HUMAN_STATE.id
-      ? {
+    .map((rule) => {
+      if (isStudio && rule.id === HUMAN_STATE.id) {
+        return {
           ...rule,
           text: "Make the selected person feel real and unperformed in a controlled professional studio. Keep natural facial tension, subtle hair and fabric texture, relaxed shoulders, believable body asymmetry, and a calm expression responding to the pose rather than performing for the lens. Direct eye contact may appear when the selected studio role requires it, but avoid mannequin-like stillness or campaign-face perfection."
-        }
-      : rule)
+        };
+      }
+      if (isTelephotoCandid && rule.id === HUMAN_STATE.id) {
+        return {
+          ...rule,
+          text: "Make the woman feel real and unperformed in a physically farther telephoto candid observation. Prefer a directional or off-camera gaze toward a practical scene detail, path, companion, or task; do not use direct eye contact with the lens. Keep natural facial tension, subtle hair and fabric texture, relaxed shoulders, believable body asymmetry, and an expression responding to the place or action rather than performing for the camera."
+        };
+      }
+      return rule;
+    })
     .filter((rule) => {
       if (input.actionLock && rule.id === ACTION_STATE.id) return false;
       const modes = rule.appliesWhen.compositionModes;

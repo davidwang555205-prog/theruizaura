@@ -386,7 +386,7 @@ export function collectPromptRules(input: PromptProfileInput): PromptRule[] {
     rules.push({
       id: "card-series-context",
       section: "continuity",
-      text: `This is image ${index} of ${count}. Preserve the same selected person, outfit, sneaker, and ${input.sceneLock ? "locked scene" : "scene continuity"}; vary only the card-specific framing, orientation, action phase, gaze, and expression.`,
+      text: `This is image ${index} of ${count}. Preserve the same selected person, outfit, sneaker, hair or makeup treatment, and color grade. ${input.sceneLock ? "Keep the locked scene consistent across the series." : "Use this card's selected scene independently; do not reuse, blend, or inherit another card's location, architecture, props, or background."} Vary the card-specific framing, orientation, action phase, gaze, and expression.`,
       priority: PromptPriority.P0_USER_SPECIFIED,
       source: "theme-card",
       appliesWhen: {},

@@ -16,6 +16,7 @@
     "validate:outfits": "node scripts/validateOutfitCombinationDiversity.mjs",
     "validate:aw26-wardrobe": "node scripts/validateAw26Wardrobe.mjs",
     "validate:production-runtime": "node scripts/validateProductionRuntime.mjs",
+    "validate:prompt-compiler": "node scripts/validatePromptCompilerSanitization.mjs",
     "validate:reference-binding": "node scripts/validateReferenceBinding.mjs",
     "validate:prompt-audit": "node scripts/validatePromptAudit.mjs",
     "validate:consumer-trust": "node scripts/validateConsumerTrustLayer.mjs",
