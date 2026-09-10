@@ -27,7 +27,7 @@ const report = (label, params, runtime) => {
   assert(compiled.metadata, `${label} missing metadata`);
   assert(compiled.validationReport.totalErrors === 0, `${label} validation errors`);
   assert(compiled.validationReport.conflictingRules.length === 0, `${label} unresolved conflicts`);
-  assert(!/^Active Prompt Registry:|Topic responsibility:|Current task context:/m.test(compiled.prompt), `${label} leaked internal metadata`);
+  assert(!/(?:Active Prompt Registry:|Topic responsibility:|Current task context:|Image2 provider boundary:|Product Truth protection:)/i.test(compiled.prompt), `${label} leaked internal metadata`);
   results.push({ label, params, runtime });
 };
 

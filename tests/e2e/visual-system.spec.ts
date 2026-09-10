@@ -122,14 +122,14 @@ test('user-facing soft-seeding prompts use active registry routing for display a
   await page.getByRole('button', { name: /▧ 小红书内容/ }).click();
 
   const samples = [
-    { topic: '生活场景软种草', topicId: 'lifestyle_soft_seeding', count: 3, role: 'A1', marker: 'Active Prompt Registry: image2-cmp-01-new-v1.' },
-    { topic: '穿搭解决方案', topicId: 'styling_solution', count: 5, role: 'A1', marker: 'Active Prompt Registry:' },
-    { topic: '棚内上新拍摄', topicId: 'studio_launch_shoot', count: 5, role: 'B3', marker: 'Active Prompt Registry:' },
-    { topic: '材质工艺认知', topicId: 'material_craft_education', count: 3, role: 'C4', marker: 'Active Prompt Registry:' },
-    { topic: '秋冬配色实验室', topicId: 'autumn_winter_color_lab', count: 5, role: 'C3', marker: 'Active Prompt Registry:' },
-    { topic: '产品开发幕后', topicId: 'product_development_behind_the_scenes', count: 3, role: 'C4', marker: 'Active Prompt Registry:' },
-    { topic: '品牌审美观点', topicId: 'brand_aesthetic_viewpoint', count: 5, role: 'A2', marker: 'Active Prompt Registry:' },
-    { topic: '上新活动转化', topicId: 'launch_conversion', count: 5, role: 'B3', marker: 'Active Prompt Registry:' }
+    { topic: '生活场景软种草', topicId: 'lifestyle_soft_seeding', count: 3, role: 'A1' },
+    { topic: '穿搭解决方案', topicId: 'styling_solution', count: 5, role: 'A1' },
+    { topic: '棚内上新拍摄', topicId: 'studio_launch_shoot', count: 5, role: 'B3' },
+    { topic: '材质工艺认知', topicId: 'material_craft_education', count: 3, role: 'C4' },
+    { topic: '秋冬配色实验室', topicId: 'autumn_winter_color_lab', count: 5, role: 'C3' },
+    { topic: '产品开发幕后', topicId: 'product_development_behind_the_scenes', count: 3, role: 'C4' },
+    { topic: '品牌审美观点', topicId: 'brand_aesthetic_viewpoint', count: 5, role: 'A2' },
+    { topic: '上新活动转化', topicId: 'launch_conversion', count: 5, role: 'B3' }
   ];
 
   for (const sample of samples) {
@@ -145,19 +145,15 @@ test('user-facing soft-seeding prompts use active registry routing for display a
     await expect(provenance).toContainText('图片类型：');
     await expect(provenance).toContainText('图片序列：第 1 张，共 ' + sample.count + ' 张');
     expect(await provenance.textContent()).not.toContain('任务上下文：');
-    expect(firstPrompt).toContain(sample.marker);
-    expect(firstPrompt).toMatch(/Topic responsibility: [a-z0-9_]+ \([a-z -]+\)/);
-    expect(firstPrompt).toContain(`image 1 of ${sample.count}`);
-    expect(firstPrompt).toContain('Image2 provider boundary');
-    expect(firstPrompt).toContain('Product Truth protection');
+    expect(firstPrompt).not.toMatch(/Active Prompt Registry:|Topic responsibility:|Current task context:|Image2 provider boundary:|Product Truth protection:/);
+    expect((firstPrompt?.match(/Active visual role:/g) ?? []).length).toBeLessThanOrEqual(1);
     const allPrompts = await prompts.allTextContents();
     for (const prompt of allPrompts) {
       expect(prompt).not.toMatch(/theme validation|visual validation case|burgundy and ivory/i);
-      expect(prompt).toContain('provider boundary: use Image2 only');
+      expect(prompt).not.toMatch(/Active Prompt Registry:|Topic responsibility:|Current task context:|Image2 provider boundary:|Product Truth protection:/);
     }
-    if (sample.topic === '产品开发幕后') expect(allPrompts.join('\n')).toContain('image2-cmp-09-repaired_new-v1');
-    if (sample.topic === '品牌审美观点') expect(allPrompts.join('\n')).toContain('image2-cmp-02-old-v1');
-    await page.getByRole('button', { name: '复制这张 Prompt' }).first().click();
+    expect(allPrompts.join('\n')).not.toMatch(/image2-cmp-[a-z0-9_-]+/i);
+    await page.getByRole('button', { name: '复制图片 Prompt' }).first().click();
     await expect.poll(() => page.evaluate(() => navigator.clipboard.readText())).toBe(firstPrompt);
     await page.getByRole('button', { name: '复制全部生图 Prompt' }).click();
     const allCopied = await page.evaluate(() => navigator.clipboard.readText());

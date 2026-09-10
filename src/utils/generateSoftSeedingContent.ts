@@ -3331,6 +3331,19 @@ const lifestyleExpressionBeats = [
   "Head-and-face beat for this card: a quiet straight-ahead relaxed pause after a small action, head aligned with shoulders but differently from the other cards, eyes and mouth soft and unforced."
 ];
 
+const lifestyleTelephotoExpressionBeats = [
+  "Head-and-face beat for this card: a soft three-quarter head turn with eyes resting on a practical scene detail to the side, a faint asymmetric smile, and no eye contact with the lens.",
+  "Head-and-face beat for this card: head tilted slightly toward the walking direction while the eyes track the path ahead rather than the lens, relaxed mouth, jaw naturally soft.",
+  "Head-and-face beat for this card: head angled gently downward as the eyes check the sneakers or garment hem, brows relaxed, a genuine task-focused expression rather than a pose.",
+  "Head-and-face beat for this card: head turning subtly toward a scene detail or shop window with a small brow response, natural catchlights, and an off-camera gaze.",
+  "Head-and-face beat for this card: a quiet pause after a small action, head aligned with the shoulders while the eyes rest just beyond the walking path, never toward the lens."
+];
+
+function resolveLifestyleExpressionBeat(captureStyle: LifestyleSoftCaptureStyle | undefined, index: number) {
+  const beats = captureStyle === "telephoto_candid" ? lifestyleTelephotoExpressionBeats : lifestyleExpressionBeats;
+  return beats[index % beats.length];
+}
+
 type SeriesActionBeat = {
   key: string;
   family?: string;
@@ -3643,7 +3656,7 @@ function buildImagePlan(
     studioLaunchAnglePreference: "自动匹配",
     stillLifeStyle: "与主视觉统一",
     extraRequirement: joinSoftPromptSentences(
-      topic === "生活场景软种草" ? lifestyleExpressionBeats[index % lifestyleExpressionBeats.length] : "",
+      topic === "生活场景软种草" ? resolveLifestyleExpressionBeat(lifestyleSelection?.captureStyle, index) : "",
       topic === "穿搭解决方案" ? stylingSolutionExpressionBeats[index % stylingSolutionExpressionBeats.length] : "",
       hasAuthoritativePersonActionLock
         ? ""
