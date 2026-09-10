@@ -86,6 +86,8 @@ export function buildPromptProfileInput(
     seriesImageCount: params.seriesImageCount,
     seriesFaceVariation: params.seriesFaceVariation,
     studioShotIndex: params.studioLaunchShotIndex,
+    contentCategory: params.contentCategory,
+    captureStyle: params.captureStyle,
     generationNonce: params.generationNonce,
     selectedProductTruth: params.selectedProductTruth,
     productTruthProvenance: params.productTruthAssetIds

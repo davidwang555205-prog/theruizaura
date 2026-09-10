@@ -1,9 +1,13 @@
 import type { TeamImageType } from "../types";
+import {
+  lifestyleSoftCaptureStyleProfiles,
+  type LifestyleSoftCaptureStyle
+} from "../data/lifestyleSoftSeedingCaptureStyles";
 
 export type ShoePerspectiveRisk = "low" | "medium" | "high";
 
 export type CameraPerspectiveProfile = {
-  id: "standard" | "stabilized" | "shoe-safe";
+  id: "standard" | "stabilized" | "shoe-safe" | "telephoto-candid";
   focalRange: string;
   distanceLine: string;
   risk: ShoePerspectiveRisk;
@@ -12,7 +16,7 @@ export type CameraPerspectiveProfile = {
 const highRiskPattern = /抬脚|前伸脚|鞋底朝向|鞋底对镜|低机位|低角度|贴近镜头|脚靠近镜头|踮脚|raised foot|extended foot|sole toward|low angle|low-angle|foreground foot|close to camera/i;
 const mediumRiskPattern = /迈步|走路|交叉腿|侧身|坐姿|屈膝|step|walking|crossed legs|side profile|seated|bent knee/i;
 
-function detectRisk(prompt: string): ShoePerspectiveRisk {
+export function detectShoePerspectiveRisk(prompt: string): ShoePerspectiveRisk {
   if (highRiskPattern.test(prompt)) return "high";
   if (mediumRiskPattern.test(prompt)) return "medium";
   return "low";
@@ -20,9 +24,23 @@ function detectRisk(prompt: string): ShoePerspectiveRisk {
 
 export function resolveCameraPerspectiveProfile(
   imageType: TeamImageType | undefined,
-  prompt: string
+  prompt: string,
+  options?: { captureStyle?: LifestyleSoftCaptureStyle }
 ): CameraPerspectiveProfile {
-  const risk = detectRisk(prompt);
+  const risk = detectShoePerspectiveRisk(prompt);
+
+  // Product-scale protection outranks an optional capture request. The
+  // lifestyle selector filters these actions before compilation, so this is a
+  // defensive last guard rather than a silent normal path.
+  if (options?.captureStyle === "telephoto_candid" && risk !== "high") {
+    return {
+      id: "telephoto-candid",
+      focalRange: "a restrained 105-180mm full-frame equivalent perspective",
+      distanceLine:
+        "Place the camera physically farther back at natural standing height, retain enough scene for an observational candid frame, and preserve natural shoe-to-leg scale without a foreground shoe showcase.",
+      risk
+    };
+  }
 
   if (risk === "high") {
     return {
@@ -63,6 +81,10 @@ export function resolveCameraPerspectiveProfile(
 }
 
 export function cameraPerspectiveLine(profile: CameraPerspectiveProfile): string {
+  if (profile.id === "telephoto-candid") {
+    const capture = lifestyleSoftCaptureStyleProfiles.telephoto_candid;
+    return `Camera profile (telephoto-candid): ${capture.positiveLine} ${capture.negativeLine}`;
+  }
   if (profile.id === "shoe-safe") {
     return "Camera profile (shoe-safe): use a restrained 60-85mm perspective, move the camera farther back, preserve the image-type composition and series lens continuity, and avoid foreground shoe enlargement.";
   }

@@ -3,6 +3,8 @@ import {
   type PersonActionDefinition
 } from "../data/personActionLibrary";
 import type { TeamImageType, TeamScenePreference } from "../types";
+import type { LifestyleSoftCaptureStyle } from "../data/lifestyleSoftSeedingCaptureStyles";
+import { detectShoePerspectiveRisk } from "./cameraPerspectiveProfiles";
 
 export type SeriesActionCardInput = {
   imageType: TeamImageType;
@@ -15,6 +17,7 @@ type SelectDiversePersonActionsInput = {
   topic: string;
   variantIndex: number;
   generationNonce: number;
+  captureStyle?: LifestyleSoftCaptureStyle;
 };
 
 function stableHash(value: string) {
@@ -170,11 +173,20 @@ export function selectDiversePersonActions({
   cards,
   topic,
   variantIndex,
-  generationNonce
+  generationNonce,
+  captureStyle = "standard"
 }: SelectDiversePersonActionsInput) {
   const selected: PersonActionDefinition[] = [];
   return cards.map((card, cardIndex) => {
-    const candidates = eligibleActions(card, topic);
+    const baseCandidates = eligibleActions(card, topic);
+    // A long observational lens never receives an action whose shoe geometry
+    // already needs the stronger shoe-safe profile. This preserves product
+    // truth rather than trying to resolve competing camera instructions later.
+    const candidates = captureStyle === "telephoto_candid"
+      ? baseCandidates.filter((action) =>
+          detectShoePerspectiveRisk(`${action.directive} ${action.visualLegPoseLine}`) !== "high"
+        )
+      : baseCandidates;
     const selectedAction = topic === "棚内上新拍摄" && candidates.length
       ? (() => {
           const start = Math.abs(generationNonce + variantIndex + cardIndex) % candidates.length;
