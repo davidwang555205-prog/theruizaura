@@ -4,6 +4,10 @@ import type {
   TeamScenePreference,
   TeamSeason
 } from "../types";
+import type {
+  LifestyleSoftCaptureStyle,
+  LifestyleSoftContentCategory
+} from "./lifestyleSoftSeedingCaptureStyles";
 
 export type LifestyleSoftSceneFamily =
   | "departure"
@@ -28,6 +32,8 @@ export type LifestyleSoftSceneEntry = {
   garmentTypePreference: TeamGarmentTypePreference;
   extraRequirement: string;
   family: LifestyleSoftSceneFamily;
+  contentCategory: LifestyleSoftContentCategory;
+  supportedCaptureStyles: LifestyleSoftCaptureStyle[];
   supportedSeasons: TeamSeason[];
   handheldPolicy: LifestyleSoftHandheldPolicy;
   weight: number;
@@ -35,7 +41,10 @@ export type LifestyleSoftSceneEntry = {
 
 const ALL_SEASONS: TeamSeason[] = ["春", "夏", "秋", "冬"];
 
-export const lifestyleSoftSeedingScenePool: LifestyleSoftSceneEntry[] = [
+const lifestyleSoftSeedingScenePoolBase: Omit<
+  LifestyleSoftSceneEntry,
+  "contentCategory" | "supportedCaptureStyles"
+>[] = [
   {
     id: "lifestyle-entryway-mirror",
     name: "图｜出门前｜入户镜前",
@@ -415,34 +424,6 @@ export const lifestyleSoftSeedingScenePool: LifestyleSoftSceneEntry[] = [
     weight: 3
   },
   {
-    id: "lifestyle-worktable-organizing",
-    name: "图｜品牌日常｜工作台整理",
-    purpose: "低频补充真实品牌工作过程。",
-    description: "工作台边整理纸张与鞋履资料，产品仍为视觉核心。",
-    imageType: "拍摄花絮 / 材质图",
-    scenePreference: "工作台 / 桌边整理",
-    garmentTypePreference: "自动匹配",
-    extraRequirement: "Show one quiet desk-side footwear work moment with restrained paper notes and reference materials, one clear product responsibility, no decorative moodboard clutter, and no travel props.",
-    family: "brand_process",
-    supportedSeasons: ALL_SEASONS,
-    handheldPolicy: "none",
-    weight: 1
-  },
-  {
-    id: "lifestyle-studio-launch",
-    name: "图｜品牌日常｜棚内上新",
-    purpose: "低频补充鞋履上新拍摄过程。",
-    description: "克制棚内全身上脚展示，动作自然且鞋型准确。",
-    imageType: "产品上脚图",
-    scenePreference: "棚内上新拍摄",
-    garmentTypePreference: "自动匹配",
-    extraRequirement: "Use one restrained studio on-foot frame inside a wider lifestyle set, with a natural standing transition or short lateral step, accurate shoe scale, and no static catalog repetition.",
-    family: "brand_process",
-    supportedSeasons: ALL_SEASONS,
-    handheldPolicy: "none",
-    weight: 1
-  },
-  {
     id: "lifestyle-summer-amusement",
     name: "图｜夏日｜游乐园",
     purpose: "仅在夏季低频呈现轻松家庭外出。",
@@ -569,3 +550,51 @@ export const lifestyleSoftSeedingScenePool: LifestyleSoftSceneEntry[] = [
     weight: 4
   }
 ];
+
+const lifestyleSceneTaxonomy: Record<string, {
+  contentCategory: LifestyleSoftContentCategory;
+  supportedCaptureStyles: LifestyleSoftCaptureStyle[];
+}> = {
+  "lifestyle-entryway-mirror": { contentCategory: "natural_life", supportedCaptureStyles: ["standard"] },
+  "lifestyle-entryway-departure": { contentCategory: "natural_life", supportedCaptureStyles: ["standard"] },
+  "lifestyle-returning-home": { contentCategory: "natural_life", supportedCaptureStyles: ["standard"] },
+  "lifestyle-commute-general": { contentCategory: "urban_commute", supportedCaptureStyles: ["standard", "telephoto_candid"] },
+  "lifestyle-business-corner": { contentCategory: "urban_commute", supportedCaptureStyles: ["standard", "telephoto_candid"] },
+  "lifestyle-office-entrance": { contentCategory: "urban_commute", supportedCaptureStyles: ["standard", "telephoto_candid"] },
+  "lifestyle-parking-to-office": { contentCategory: "urban_commute", supportedCaptureStyles: ["standard", "telephoto_candid"] },
+  "lifestyle-metro-passage": { contentCategory: "urban_commute", supportedCaptureStyles: ["standard", "telephoto_candid"] },
+  "lifestyle-parking-elevator": { contentCategory: "urban_commute", supportedCaptureStyles: ["standard", "telephoto_candid"] },
+  "lifestyle-weekend-city-walk": { contentCategory: "natural_life", supportedCaptureStyles: ["standard", "telephoto_candid"] },
+  "lifestyle-takeaway-stop": { contentCategory: "urban_commute", supportedCaptureStyles: ["standard", "telephoto_candid"] },
+  "lifestyle-cafe-exterior": { contentCategory: "natural_life", supportedCaptureStyles: ["standard", "telephoto_candid"] },
+  "lifestyle-cafe-interior": { contentCategory: "natural_life", supportedCaptureStyles: ["standard", "telephoto_candid"] },
+  "lifestyle-friend-lunch": { contentCategory: "natural_life", supportedCaptureStyles: ["standard", "telephoto_candid"] },
+  "lifestyle-gallery": { contentCategory: "natural_life", supportedCaptureStyles: ["standard", "telephoto_candid"] },
+  "lifestyle-bookstore": { contentCategory: "natural_life", supportedCaptureStyles: ["standard", "telephoto_candid"] },
+  "lifestyle-flower-shop": { contentCategory: "natural_life", supportedCaptureStyles: ["standard", "telephoto_candid"] },
+  "lifestyle-city-corner": { contentCategory: "natural_life", supportedCaptureStyles: ["standard", "telephoto_candid"] },
+  "lifestyle-premium-grocery": { contentCategory: "natural_life", supportedCaptureStyles: ["standard", "telephoto_candid"] },
+  "lifestyle-community-market": { contentCategory: "natural_life", supportedCaptureStyles: ["standard", "telephoto_candid"] },
+  "lifestyle-light-shopping": { contentCategory: "natural_life", supportedCaptureStyles: ["standard", "telephoto_candid"] },
+  "lifestyle-park-walk": { contentCategory: "natural_life", supportedCaptureStyles: ["standard", "telephoto_candid"] },
+  "lifestyle-community-path": { contentCategory: "natural_life", supportedCaptureStyles: ["standard", "telephoto_candid"] },
+  "lifestyle-home-wardrobe": { contentCategory: "natural_life", supportedCaptureStyles: ["standard"] },
+  "lifestyle-dressing-corner": { contentCategory: "natural_life", supportedCaptureStyles: ["standard"] },
+  "lifestyle-window-reading": { contentCategory: "natural_life", supportedCaptureStyles: ["standard"] },
+  "lifestyle-window-reading-corner": { contentCategory: "natural_life", supportedCaptureStyles: ["standard"] },
+  "lifestyle-summer-amusement": { contentCategory: "natural_life", supportedCaptureStyles: ["standard", "telephoto_candid"] },
+  "lifestyle-seaside": { contentCategory: "natural_life", supportedCaptureStyles: ["standard", "telephoto_candid"] },
+  "lifestyle-grassland-picnic": { contentCategory: "natural_life", supportedCaptureStyles: ["standard", "telephoto_candid"] },
+  "lifestyle-family-drive": { contentCategory: "natural_life", supportedCaptureStyles: ["standard", "telephoto_candid"] },
+  "lifestyle-summer-return": { contentCategory: "natural_life", supportedCaptureStyles: ["standard"] },
+  "lifestyle-gym-commute": { contentCategory: "urban_commute", supportedCaptureStyles: ["standard", "telephoto_candid"] },
+  "lifestyle-gym-interior": { contentCategory: "natural_life", supportedCaptureStyles: ["standard"] },
+  "lifestyle-pilates-entrance": { contentCategory: "urban_commute", supportedCaptureStyles: ["standard", "telephoto_candid"] },
+  "lifestyle-weekend-trip-start": { contentCategory: "natural_life", supportedCaptureStyles: ["standard", "telephoto_candid"] }
+};
+
+export const lifestyleSoftSeedingScenePool: LifestyleSoftSceneEntry[] = lifestyleSoftSeedingScenePoolBase.map((scene) => {
+  const taxonomy = lifestyleSceneTaxonomy[scene.id];
+  if (!taxonomy) throw new Error(`LIFESTYLE_SCENE_TAXONOMY_MISSING:${scene.id}`);
+  return { ...scene, ...taxonomy };
+});

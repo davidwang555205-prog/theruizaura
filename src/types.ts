@@ -312,6 +312,10 @@ export type TeamPromptParams = {
   stillLifeStyle: TeamStillLifeStyle;
   extraRequirement: string;
   generationNonce: number;
+  /** Lifestyle Soft Seeding only. Undefined keeps the historic mixed pool. */
+  contentCategory?: "natural_life" | "urban_commute";
+  /** Lifestyle Soft Seeding only. Undefined is the established standard capture. */
+  captureStyle?: "standard" | "telephoto_candid";
   seriesImageCount?: number;
   seriesImageIndex?: number;
   seriesActionKey?: string;

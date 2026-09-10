@@ -270,7 +270,8 @@ export function collectPromptRules(input: PromptProfileInput): PromptRule[] {
   if (input.hasShoe && peopleImage) {
     const cameraProfile = resolveCameraPerspectiveProfile(
       input.imageType,
-      [input.actionLock, input.userExtraRequirement, input.cardFraming, input.cardOrientation].filter(Boolean).join(" ")
+      [input.actionLock, input.userExtraRequirement, input.cardFraming, input.cardOrientation].filter(Boolean).join(" "),
+      { captureStyle: input.captureStyle }
     );
     rules.push({
       id: `camera-perspective-${cameraProfile.id}`,

@@ -4,6 +4,7 @@ import type { ProductTruth } from "../visual-system/types";
 import type { ThemePromptRole } from "../visual-system/activePromptRegistry";
 import type { Image2ReferencePlan } from "../visual-system/taskReferenceBinding";
 import type { ProductPaletteClass, ProductPaletteEchoMode, ProductPresenceMode } from "../non-product-atmosphere/seasonSemanticProfiles";
+import type { LifestyleSoftCaptureStyle, LifestyleSoftContentCategory } from "../data/lifestyleSoftSeedingCaptureStyles";
 
 // ─── Composition Mode ────────────────────────────────────────
 export type CompositionMode =
@@ -208,6 +209,8 @@ export type PromptProfileInput = {
   hasUserHandheld?: boolean;
   studioLaunchPreset?: string;
   studioWardrobePreference?: string;
+  contentCategory?: LifestyleSoftContentCategory;
+  captureStyle?: LifestyleSoftCaptureStyle;
   generationNonce: number;
   provider?: "image2";
   topicId?: string;

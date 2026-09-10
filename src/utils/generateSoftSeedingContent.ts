@@ -12,6 +12,12 @@ import {
   type LifestyleSoftHandheldPolicy,
   type LifestyleSoftSceneFamily
 } from "../data/lifestyleSoftSeedingScenePool";
+import {
+  lifestyleSoftCaptureStyleLabels,
+  lifestyleSoftContentCategoryLabels,
+  type LifestyleSoftCaptureStyle,
+  type LifestyleSoftContentCategory
+} from "../data/lifestyleSoftSeedingCaptureStyles";
 import { NON_PRODUCT_ATMOSPHERE_VARIATIONS } from "../data/nonProductAtmosphereSceneLines";
 import { generatePromptRuntime } from "../prompt-engine/runtime";
 import { selectDiversePersonActions } from "./selectDiverseSeriesActions";
@@ -47,6 +53,8 @@ export type SoftSeedingImagePlan = {
     sceneLabelZh: string;
     imageTypeLabelZh: string;
     sequenceLabelZh: string;
+    contentCategoryLabelZh?: string;
+    captureStyleLabelZh?: string;
   };
   routingProvenance: {
     originalUserTopicId: string;
@@ -71,9 +79,11 @@ export type SoftSeedingContent = {
   tags: string[];
   note: string;
   outfitRotationId: string | null;
+  contentCategory?: LifestyleSoftContentCategory;
+  captureStyle: LifestyleSoftCaptureStyle;
 };
 
-type SoftSeedingInput = {
+export type SoftSeedingInput = {
   baseParams: TeamPromptParams;
   imageCount?: SoftSeedingImageCount;
   topic?: SoftSeedingTopic;
@@ -82,6 +92,10 @@ type SoftSeedingInput = {
   variantOffset?: number;
   previousOutfitId?: string | null;
   recentOutfitIds?: string[];
+  /** Lifestyle Soft Seeding only; undefined preserves the legacy mixed pool. */
+  contentCategory?: LifestyleSoftContentCategory;
+  /** Lifestyle Soft Seeding only; undefined is the standard capture. */
+  captureStyle?: LifestyleSoftCaptureStyle;
 };
 
 type SoftSeedingImageDraft = {
@@ -100,6 +114,8 @@ type SoftSeedingImageDraft = {
   family?: LifestyleSoftSceneFamily;
   supportedSeasons?: TeamSeason[];
   handheldPolicy?: LifestyleSoftHandheldPolicy;
+  contentCategory?: LifestyleSoftContentCategory;
+  supportedCaptureStyles?: LifestyleSoftCaptureStyle[];
   studioLaunchShotIndex?: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7;
 };
 
@@ -2880,7 +2896,7 @@ const lifestyleFiveImageFamilyPatterns: LifestyleSoftSceneFamily[][] = [
   ["commute", "home", "culture", "community", "departure"],
   ["social", "commute", "departure", "culture", "active_daily"],
   ["home", "social", "culture", "community", "seasonal"],
-  ["commute", "social", "community", "departure", "brand_process"],
+  ["commute", "social", "community", "departure", "active_daily"],
   ["culture", "commute", "social", "home", "travel"],
   ["departure", "home", "community", "culture", "active_daily"],
   ["home", "commute", "social", "seasonal", "travel"]
@@ -2888,29 +2904,32 @@ const lifestyleFiveImageFamilyPatterns: LifestyleSoftSceneFamily[][] = [
 
 const lifestyleEightImageFamilyPatterns: LifestyleSoftSceneFamily[][] = [
   ["departure", "commute", "social", "culture", "community", "home", "seasonal", "active_daily"],
-  ["commute", "departure", "culture", "community", "home", "social", "brand_process", "seasonal"],
+  ["commute", "departure", "culture", "community", "home", "social", "active_daily", "seasonal"],
   ["social", "commute", "departure", "culture", "home", "community", "active_daily", "travel"],
   ["departure", "social", "culture", "home", "community", "commute", "active_daily", "seasonal"],
-  ["home", "commute", "social", "culture", "community", "active_daily", "brand_process", "travel"],
-  ["departure", "home", "commute", "social", "culture", "community", "seasonal", "brand_process"]
+  ["home", "commute", "social", "culture", "community", "active_daily", "departure", "travel"],
+  ["departure", "home", "commute", "social", "culture", "community", "seasonal", "active_daily"]
 ];
 
 const lifestyleRestrictedFamilyCaps: Partial<Record<LifestyleSoftSceneFamily, number>> = {
   travel: 1,
   active_daily: 1,
-  brand_process: 1,
   seasonal: 1
 };
 
 function pickRotatingLifestyleDraft(
   candidates: SoftSeedingImageDraft[],
   familyOccurrenceIndex: number,
-  familyIndex: number
+  familyIndex: number,
+  weighted = false
 ) {
   const stableCandidates = [...candidates].sort((a, b) => (a.id ?? a.name).localeCompare(b.id ?? b.name));
   if (!stableCandidates.length) return undefined;
-  const index = Math.abs(familyOccurrenceIndex + familyIndex) % stableCandidates.length;
-  return stableCandidates[index];
+  const rotatingCandidates = weighted
+    ? stableCandidates.flatMap((candidate) => Array.from({ length: Math.max(1, candidate.weight ?? 1) }, () => candidate))
+    : stableCandidates;
+  const index = Math.abs(familyOccurrenceIndex + familyIndex) % rotatingCandidates.length;
+  return rotatingCandidates[index];
 }
 
 function countPriorLifestyleFamilyOccurrences(
@@ -2928,7 +2947,11 @@ function countPriorLifestyleFamilyOccurrences(
 function selectLifestyleSoftSeedingImageDrafts(
   variantIndex: number,
   imageCount: SoftSeedingImageCount,
-  season: TeamSeason
+  season: TeamSeason,
+  options: {
+    contentCategory?: LifestyleSoftContentCategory;
+    captureStyle: LifestyleSoftCaptureStyle;
+  }
 ) {
   const patterns =
     imageCount === 3
@@ -2939,6 +2962,10 @@ function selectLifestyleSoftSeedingImageDrafts(
   const normalized = normalizeSoftVariantIndex(variantIndex, getTopicVariantCount("生活场景软种草"));
   const familyPattern = patterns[normalized % patterns.length];
   const selected: SoftSeedingImageDraft[] = [];
+  const isEligible = (draft: SoftSeedingImageDraft) =>
+    (!draft.supportedSeasons || draft.supportedSeasons.includes(season)) &&
+    (!options.contentCategory || draft.contentCategory === options.contentCategory) &&
+    (options.captureStyle === "standard" || draft.supportedCaptureStyles?.includes(options.captureStyle));
 
   const canSelectFamily = (family?: LifestyleSoftSceneFamily) => {
     if (!family) return true;
@@ -2949,7 +2976,7 @@ function selectLifestyleSoftSeedingImageDrafts(
   familyPattern.forEach((family, familyIndex) => {
     const alreadyHasMirror = selected.some((draft) => draft.imageType === "对镜穿搭图");
     let candidates = topicImageDrafts["生活场景软种草"].filter(
-      (draft) => draft.family === family && (!draft.supportedSeasons || draft.supportedSeasons.includes(season))
+      (draft) => draft.family === family && isEligible(draft)
     );
 
     if (alreadyHasMirror) {
@@ -2957,12 +2984,20 @@ function selectLifestyleSoftSeedingImageDrafts(
     }
 
     const familyOccurrenceIndex = countPriorLifestyleFamilyOccurrences(patterns, normalized, family);
-    let selectedDraft = pickRotatingLifestyleDraft(candidates, familyOccurrenceIndex, familyIndex);
+    let selectedDraft = pickRotatingLifestyleDraft(
+      candidates,
+      familyOccurrenceIndex,
+      familyIndex,
+      Boolean(options.contentCategory)
+    );
     if (selectedDraft && selected.some((draft) => draft.id === selectedDraft?.id)) {
       const stableCandidates = [...candidates].sort((a, b) => (a.id ?? a.name).localeCompare(b.id ?? b.name));
-      const startIndex = Math.abs(familyOccurrenceIndex + familyIndex) % Math.max(1, stableCandidates.length);
-      selectedDraft = Array.from({ length: stableCandidates.length }, (_, offset) =>
-        stableCandidates[(startIndex + offset) % stableCandidates.length]
+      const rotatingCandidates = options.contentCategory
+        ? stableCandidates.flatMap((candidate) => Array.from({ length: Math.max(1, candidate.weight ?? 1) }, () => candidate))
+        : stableCandidates;
+      const startIndex = Math.abs(familyOccurrenceIndex + familyIndex) % Math.max(1, rotatingCandidates.length);
+      selectedDraft = Array.from({ length: rotatingCandidates.length }, (_, offset) =>
+        rotatingCandidates[(startIndex + offset) % rotatingCandidates.length]
       ).find((candidate) => !selected.some((draft) => draft.id === candidate?.id));
     }
     if (selectedDraft && canSelectFamily(selectedDraft.family) && !selected.some((draft) => draft.id === selectedDraft.id)) {
@@ -2972,7 +3007,7 @@ function selectLifestyleSoftSeedingImageDrafts(
 
   if (selected.length < imageCount) {
     const eligible = topicImageDrafts["生活场景软种草"].filter(
-      (draft) => (!draft.supportedSeasons || draft.supportedSeasons.includes(season)) && !selected.some((item) => item.id === draft.id)
+      (draft) => isEligible(draft) && !selected.some((item) => item.id === draft.id)
     );
     const safeFamilies: LifestyleSoftSceneFamily[] = ["home", "departure", "commute", "social", "culture", "community"];
     const orderedFallbacks = [...eligible].sort((a, b) => {
@@ -2995,10 +3030,11 @@ function selectSoftSeedingImageDrafts(
   topic: SoftSeedingTopic,
   variantIndex: number,
   imageCount: SoftSeedingImageCount,
-  season: TeamSeason
+  season: TeamSeason,
+  options: { contentCategory?: LifestyleSoftContentCategory; captureStyle: LifestyleSoftCaptureStyle }
 ) {
   if (topic === "生活场景软种草") {
-    return selectLifestyleSoftSeedingImageDrafts(variantIndex, imageCount, season);
+    return selectLifestyleSoftSeedingImageDrafts(variantIndex, imageCount, season, options);
   }
 
   if (topic === "穿搭解决方案") {
@@ -3570,7 +3606,8 @@ function buildImagePlan(
   seriesActionBeat: SeriesActionBeat,
   lockedOutfitLine = "",
   usedScenes?: Set<TeamScenePreference>,
-  resolvedSceneOverride?: TeamScenePreference
+  resolvedSceneOverride?: TeamScenePreference,
+  lifestyleSelection?: { contentCategory?: LifestyleSoftContentCategory; captureStyle: LifestyleSoftCaptureStyle }
 ): Omit<SoftSeedingImagePlan, "visualRoleId" | "activePromptVersionId" | "provenanceDisplay" | "routingProvenance"> {
   const shoeFields = resolveBaseShoe(baseParams);
   const garmentTypePreference = resolveSoftSeedingGarmentType(baseParams, draft);
@@ -3615,6 +3652,8 @@ function buildImagePlan(
       lifestyleContinuityLine
     ),
     generationNonce: baseParams.generationNonce + variantIndex + index + 1,
+    contentCategory: topic === "生活场景软种草" ? lifestyleSelection?.contentCategory : undefined,
+    captureStyle: topic === "生活场景软种草" ? lifestyleSelection?.captureStyle : undefined,
     seriesImageCount: imageCount,
     seriesImageIndex: index,
     seriesActionKey: seriesActionBeat.key,
@@ -3661,7 +3700,8 @@ function buildSoftSeedingImagePlans(
   variantIndex: number,
   imageCount: SoftSeedingImageCount,
   previousOutfitId?: string | null,
-  recentOutfitIds?: string[]
+  recentOutfitIds?: string[],
+  lifestyleSelection: { contentCategory?: LifestyleSoftContentCategory; captureStyle: LifestyleSoftCaptureStyle } = { captureStyle: "standard" }
 ) {
   const roleBundle = resolveTopicRoleBundle(topic, imageCount);
   const plannedSceneHistory = new Set<TeamScenePreference>();
@@ -3724,7 +3764,8 @@ function buildSoftSeedingImagePlans(
     })),
     topic,
     variantIndex,
-    generationNonce: baseParams.generationNonce
+    generationNonce: baseParams.generationNonce,
+    captureStyle: topic === "生活场景软种草" ? lifestyleSelection.captureStyle : "standard"
   });
 
   const usedScenes = new Set<TeamScenePreference>();
@@ -3749,7 +3790,8 @@ function buildSoftSeedingImagePlans(
       seriesActionBeat,
       sharedOutfitLine,
       usedScenes,
-      plannedScenes[index]
+      plannedScenes[index],
+      lifestyleSelection
     );
     usedScenes.add(plan.params.scenePreference);
     if (!sharedOutfitLine && shouldInheritBaseGarmentType(draft.imageType)) {
@@ -3777,7 +3819,13 @@ function buildSoftSeedingImagePlans(
         topicLabelZh: roleBundle.route.userFacingLabel,
         sceneLabelZh: plan.params.scenePreference,
         imageTypeLabelZh: draft.imageType,
-        sequenceLabelZh: `第 ${index + 1} 张，共 ${imageCount} 张`
+        sequenceLabelZh: `第 ${index + 1} 张，共 ${imageCount} 张`,
+        contentCategoryLabelZh: topic === "生活场景软种草" && lifestyleSelection.contentCategory
+          ? lifestyleSoftContentCategoryLabels[lifestyleSelection.contentCategory]
+          : undefined,
+        captureStyleLabelZh: topic === "生活场景软种草"
+          ? lifestyleSoftCaptureStyleLabels[lifestyleSelection.captureStyle]
+          : undefined
       },
       routingProvenance: {
         originalUserTopicId: roleBundle.route.topicId,
@@ -3810,7 +3858,14 @@ export function generateSoftSeedingContent(input: SoftSeedingInput): SoftSeeding
   const variantIndex = (basePostIndex + variantOffset) % variantCount;
   const requestedImageCount = input.imageCount ?? (topic === "棚内上新拍摄" ? 8 : 5);
   const imageCount = normalizeSoftSeedingImageCount(topic, requestedImageCount);
-  const selectedImageDrafts = selectSoftSeedingImageDrafts(topic, variantIndex, imageCount, input.baseParams.season);
+  const contentCategory = topic === "生活场景软种草" ? input.contentCategory : undefined;
+  const captureStyle: LifestyleSoftCaptureStyle = topic === "生活场景软种草"
+    ? (input.captureStyle ?? "standard")
+    : "standard";
+  const selectedImageDrafts = selectSoftSeedingImageDrafts(topic, variantIndex, imageCount, input.baseParams.season, {
+    contentCategory,
+    captureStyle
+  });
   const copy = buildCopyFromKit(topic, variantIndex, selectedImageDrafts);
 
   const imagePlanResult = buildSoftSeedingImagePlans(
@@ -3820,7 +3875,8 @@ export function generateSoftSeedingContent(input: SoftSeedingInput): SoftSeeding
     variantIndex,
     imageCount,
     input.previousOutfitId,
-    input.recentOutfitIds
+    input.recentOutfitIds,
+    { contentCategory, captureStyle }
   );
 
   return {
@@ -3835,7 +3891,9 @@ export function generateSoftSeedingContent(input: SoftSeedingInput): SoftSeeding
     images: imagePlanResult.plans,
     tags: copy.tags,
     note: copy.note,
-    outfitRotationId: imagePlanResult.outfitRotationId
+    outfitRotationId: imagePlanResult.outfitRotationId,
+    contentCategory,
+    captureStyle
   };
 }
 

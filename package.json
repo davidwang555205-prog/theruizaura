@@ -12,6 +12,7 @@
     "validate:engine": "node scripts/validatePromptEngine.mjs",
     "validate:atmosphere": "node scripts/validateNonProductAtmosphereModule.mjs",
     "validate:actions": "node scripts/validateSoftSeedingActionDiversity.mjs",
+    "validate:lifestyle-taxonomy": "node scripts/validateLifestyleSoftSeedingTaxonomy.mjs",
     "validate:outfits": "node scripts/validateOutfitCombinationDiversity.mjs",
     "validate:aw26-wardrobe": "node scripts/validateAw26Wardrobe.mjs",
     "validate:production-runtime": "node scripts/validateProductionRuntime.mjs",

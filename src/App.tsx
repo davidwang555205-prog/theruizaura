@@ -51,6 +51,12 @@ import {
   type CompiledThemeVideoScript,
 } from "./video-script/compileSeedanceThemeVideoScript";
 import { FmcgWorkspace } from "./fmcg/FmcgWorkspace";
+import {
+  lifestyleSoftCaptureStyleLabels,
+  lifestyleSoftContentCategoryLabels,
+  type LifestyleSoftCaptureStyle,
+  type LifestyleSoftContentCategory
+} from "./data/lifestyleSoftSeedingCaptureStyles";
 
 type PromptOutputMode = "image" | "video";
 
@@ -289,11 +295,19 @@ function App() {
   const [hasPendingVideoChanges, setHasPendingVideoChanges] = useState(false);
   const [softTopic, setSoftTopic] = useState<SoftSeedingTopic>(softSeedingTopicOptions[0]);
   const [softImageCount, setSoftImageCount] = useState<SoftSeedingImageCount>(5);
+  const [softContentCategory, setSoftContentCategory] = useState<LifestyleSoftContentCategory>("natural_life");
+  const [softCaptureStyle, setSoftCaptureStyle] = useState<LifestyleSoftCaptureStyle>("standard");
   const [softGenerationNonce, setSoftGenerationNonce] = useState(0);
   const softPreviousOutfitIdRef = useRef<string | null>(null);
   const softRecentOutfitIdsRef = useRef<string[]>([]);
   const [softContent, setSoftContent] = useState(() =>
-    generateSoftSeedingContent({ baseParams: initialParams, imageCount: 5, topic: softSeedingTopicOptions[0] })
+    generateSoftSeedingContent({
+      baseParams: initialParams,
+      imageCount: 5,
+      topic: softSeedingTopicOptions[0],
+      contentCategory: "natural_life",
+      captureStyle: "standard"
+    })
   );
   const [softVideoDuration, setSoftVideoDuration] = useState<VideoScriptDuration>(10);
   const [softCopyStatus, setSoftCopyStatus] = useState("");
@@ -510,7 +524,9 @@ function App() {
       topic: softTopic,
       variantOffset: nextSoftGenerationNonce,
       previousOutfitId: softPreviousOutfitIdRef.current,
-      recentOutfitIds: softRecentOutfitIdsRef.current
+      recentOutfitIds: softRecentOutfitIdsRef.current,
+      contentCategory: softTopic === "生活场景软种草" ? softContentCategory : undefined,
+      captureStyle: softTopic === "生活场景软种草" ? softCaptureStyle : undefined
     });
     setSoftContent(nextContent);
     softPreviousOutfitIdRef.current = nextContent.outfitRotationId;
@@ -1192,6 +1208,42 @@ function App() {
                   </select>
                 </label>
 
+                {softTopic === "生活场景软种草" && <>
+                  <label className="block space-y-2">
+                    <span className="text-sm font-medium text-aura-charcoal">生活内容分类</span>
+                    <select
+                      aria-label="生活场景软种草内容分类"
+                      className={inputClass}
+                      value={softContentCategory}
+                      onChange={(event) => {
+                        setSoftContentCategory(event.target.value as LifestyleSoftContentCategory);
+                        setSoftCopyStatus("");
+                      }}
+                    >
+                      {Object.entries(lifestyleSoftContentCategoryLabels).map(([value, label]) => (
+                        <option key={value} value={value}>{label}</option>
+                      ))}
+                    </select>
+                  </label>
+
+                  <label className="block space-y-2">
+                    <span className="text-sm font-medium text-aura-charcoal">拍摄方式</span>
+                    <select
+                      aria-label="生活场景软种草拍摄方式"
+                      className={inputClass}
+                      value={softCaptureStyle}
+                      onChange={(event) => {
+                        setSoftCaptureStyle(event.target.value as LifestyleSoftCaptureStyle);
+                        setSoftCopyStatus("");
+                      }}
+                    >
+                      {Object.entries(lifestyleSoftCaptureStyleLabels).map(([value, label]) => (
+                        <option key={value} value={value}>{label}</option>
+                      ))}
+                    </select>
+                  </label>
+                </>}
+
                 <label className="block space-y-2">
                   <span className="text-sm font-medium text-aura-charcoal">Seedance 时长</span>
                   <select
@@ -1289,6 +1341,8 @@ function App() {
                     <div>场景：{image.provenanceDisplay.sceneLabelZh}</div>
                     <div>图片类型：{image.provenanceDisplay.imageTypeLabelZh}</div>
                     <div>图片序列：{image.provenanceDisplay.sequenceLabelZh}</div>
+                    {image.provenanceDisplay.contentCategoryLabelZh && <div>内容分类：{image.provenanceDisplay.contentCategoryLabelZh}</div>}
+                    {image.provenanceDisplay.captureStyleLabelZh && <div>拍摄方式：{image.provenanceDisplay.captureStyleLabelZh}</div>}
                   </div>
 
                   <div className="mt-4 flex flex-wrap gap-2 text-xs leading-5 text-aura-muted">
