@@ -105,6 +105,13 @@ const noWalkingScenePreferences = new Set([
   "楼下便利店 / 咖啡外带"
 ]);
 
+function stripNegatedCameraAwareness(text) {
+  return text.replace(
+    /\b(?:no|without|never|do not)\s+(?:direct\s+)?(?:camera acknowledgement|eye contact with the lens)\b/gi,
+    ""
+  );
+}
+
 try {
   await writeFile(entry, [
     `export { generateSoftSeedingContent } from ${JSON.stringify(resolve(root, "src/utils/generateSoftSeedingContent.ts"))};`,
@@ -214,7 +221,8 @@ try {
         }
 
         if (captureStyle === "telephoto_candid") {
-          expect(!/camera acknowledgement|eye contact with the lens/i.test(fullLockText), `${label}/${image.name}: telephoto face lock became camera-aware.`, fullLockText);
+          const affirmativeCameraAwarenessText = stripNegatedCameraAwareness(fullLockText);
+          expect(!/camera acknowledgement|eye contact with the lens/i.test(affirmativeCameraAwarenessText), `${label}/${image.name}: telephoto face lock became camera-aware.`, fullLockText);
           expect(/off-camera|rather than the lens|never toward the lens|no eye contact with the lens|no camera awareness|outside the frame/i.test(fullLockText), `${label}/${image.name}: telephoto gaze boundary missing.`, fullLockText);
         } else if (lockId !== "lifestyle-face-camera-acknowledgement") {
           expect(/off-camera|away from the lens|fully off-camera|outside the frame|never on the lens|do not acknowledge the camera|do not redirect the eyes toward the lens/i.test(fullLockText), `${label}/${image.name}: non-primary standard face beat may still drift back to camera acknowledgement.`, fullLockText);
