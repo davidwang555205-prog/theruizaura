@@ -185,9 +185,14 @@ try {
 
       const faceVariationIds = [];
       for (const image of content.images) {
-        const locks = [...image.prompt.matchAll(/Face variation lock for this card \(([^)]+)\):/g)];
-        expect(locks.length === 1, `${label}/${image.name}: expected exactly one structured Face Variation Lock.`, image.prompt);
-        if (locks[0]?.[1]) faceVariationIds.push(locks[0][1]);
+        const lockHeaders = [...image.prompt.matchAll(/Face variation lock for this card \(([^)]+)\):/g)];
+        const fullLockMatches = [...image.prompt.matchAll(/Face variation lock for this card \(([^)]+)\):([\s\S]*?)(?=Keep the same person identity)/g)];
+        const lockId = lockHeaders[0]?.[1];
+        const fullLockText = fullLockMatches[0]?.[0] ?? "";
+
+        expect(lockHeaders.length === 1, `${label}/${image.name}: expected exactly one structured Face Variation Lock.`, image.prompt);
+        expect(fullLockMatches.length === 1, `${label}/${image.name}: expected one complete Face Variation Lock rule block.`, image.prompt);
+        if (lockId) faceVariationIds.push(lockId);
         expect(!/Head-and-face beat for this card:/i.test(image.prompt), `${label}/${image.name}: legacy face beat still competes with the structured face lock.`, image.prompt);
         expect(
           /do not reuse the previous face-visible card's gaze target, eyelid tension, mouth state, or head angle/i.test(image.prompt),
@@ -209,10 +214,10 @@ try {
         }
 
         if (captureStyle === "telephoto_candid") {
-          expect(!/camera acknowledgement|eye contact with the lens/i.test(locks[0]?.[0] ?? ""), `${label}/${image.name}: telephoto face lock became camera-aware.`, locks[0]?.[0]);
-          expect(/off-camera|rather than the lens|never toward the lens|no eye contact with the lens|no camera awareness|outside the frame/i.test(image.prompt), `${label}/${image.name}: telephoto gaze boundary missing.`, image.prompt);
-        } else if (locks[0]?.[1] !== "lifestyle-face-camera-acknowledgement") {
-          expect(/off-camera|away from the lens|fully off-camera|outside the frame|never on the lens|do not acknowledge the camera|do not redirect the eyes toward the lens/i.test(locks[0]?.[0] ?? ""), `${label}/${image.name}: non-primary standard face beat may still drift back to camera acknowledgement.`, locks[0]?.[0]);
+          expect(!/camera acknowledgement|eye contact with the lens/i.test(fullLockText), `${label}/${image.name}: telephoto face lock became camera-aware.`, fullLockText);
+          expect(/off-camera|rather than the lens|never toward the lens|no eye contact with the lens|no camera awareness|outside the frame/i.test(fullLockText), `${label}/${image.name}: telephoto gaze boundary missing.`, fullLockText);
+        } else if (lockId !== "lifestyle-face-camera-acknowledgement") {
+          expect(/off-camera|away from the lens|fully off-camera|outside the frame|never on the lens|do not acknowledge the camera|do not redirect the eyes toward the lens/i.test(fullLockText), `${label}/${image.name}: non-primary standard face beat may still drift back to camera acknowledgement.`, fullLockText);
         }
       }
 
