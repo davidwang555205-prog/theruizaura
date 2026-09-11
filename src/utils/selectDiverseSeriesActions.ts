@@ -29,28 +29,84 @@ function stableHash(value: string) {
   return hash >>> 0;
 }
 
+export function personActionVisualSignature(action: PersonActionDefinition) {
+  return [
+    action.diversityFamily,
+    action.poseType,
+    action.bodyOrientation,
+    action.movementPhase,
+    action.handTask,
+    action.handPlacementZone,
+    action.visualLegPoseFamily,
+    action.legActionSignature
+  ].join("|");
+}
+
 export function personActionSemanticDistance(
   first: PersonActionDefinition,
   second: PersonActionDefinition
 ) {
   if (first.id === second.id) return 0;
   let distance = 0;
-  if (first.legActionSignature !== second.legActionSignature) distance += 12;
-  if (first.visualLegPoseFamily !== second.visualLegPoseFamily) distance += 18;
-  if (first.supportLeg !== second.supportLeg) distance += 5;
+
+  // Full-body action semantics matter more than small leg-parameter changes.
+  // Image models often collapse synonymous short-step instructions into the
+  // same visible pose, so family / hand task / phase / orientation must carry
+  // meaningful weight in the diversity score.
+  if (first.diversityFamily !== second.diversityFamily) distance += 18;
+  if (first.visualLegPoseFamily !== second.visualLegPoseFamily) distance += 16;
+  if (first.handTask !== second.handTask) distance += 10;
+  if (first.handPlacementZone !== second.handPlacementZone) distance += 8;
+  if (first.movementPhase !== second.movementPhase) distance += 8;
+  if (first.bodyOrientation !== second.bodyOrientation) distance += 7;
+  if (first.poseType !== second.poseType) distance += 7;
+  if (first.legActionSignature !== second.legActionSignature) distance += 10;
+  if (first.footwork !== second.footwork) distance += 5;
   if (first.travelDirection !== second.travelDirection) distance += 5;
-  if (first.heelState !== second.heelState) distance += 4;
-  if (first.kneeState !== second.kneeState) distance += 3;
+  if (first.supportLeg !== second.supportLeg) distance += 3;
+  if (first.heelState !== second.heelState) distance += 3;
+  if (first.kneeState !== second.kneeState) distance += 2;
   if (first.footSpacing !== second.footSpacing) distance += 2;
-  if (first.diversityFamily !== second.diversityFamily) distance += 6;
-  if (first.bodyOrientation !== second.bodyOrientation) distance += 3;
-  if (first.footwork !== second.footwork) distance += 3;
-  if (first.movementPhase !== second.movementPhase) distance += 2;
-  if (first.handTask !== second.handTask) distance += 3;
-  if (first.handPlacementZone !== second.handPlacementZone) distance += 4;
   if (first.framing !== second.framing) distance += 2;
-  if (first.poseType !== second.poseType) distance += 3;
   return distance;
+}
+
+function lifestyleNoveltyScore(
+  candidate: PersonActionDefinition,
+  selected: PersonActionDefinition[]
+) {
+  if (!selected.length) return 0;
+
+  const usedVisualLegFamilies = new Set(selected.map((item) => item.visualLegPoseFamily));
+  const usedActionFamilies = new Set(selected.map((item) => item.diversityFamily));
+  const usedHandTasks = new Set(selected.map((item) => item.handTask));
+  const usedHandZones = new Set(selected.map((item) => item.handPlacementZone));
+  const usedMovementPhases = new Set(selected.map((item) => item.movementPhase));
+  const usedOrientations = new Set(selected.map((item) => item.bodyOrientation));
+  const usedPoseTypes = new Set(selected.map((item) => item.poseType));
+  const usedFootwork = new Set(selected.map((item) => item.footwork));
+
+  const minimumDistance = Math.min(
+    ...selected.map((item) => personActionSemanticDistance(candidate, item))
+  );
+
+  let score = Math.min(minimumDistance, 80);
+  if (!usedActionFamilies.has(candidate.diversityFamily)) score += 90;
+  if (!usedVisualLegFamilies.has(candidate.visualLegPoseFamily)) score += 80;
+  if (!usedHandTasks.has(candidate.handTask)) score += 34;
+  if (!usedMovementPhases.has(candidate.movementPhase)) score += 30;
+  if (!usedOrientations.has(candidate.bodyOrientation)) score += 24;
+  if (!usedHandZones.has(candidate.handPlacementZone)) score += 20;
+  if (!usedPoseTypes.has(candidate.poseType)) score += 18;
+  if (!usedFootwork.has(candidate.footwork)) score += 16;
+
+  // Keep at least one genuine movement card in a lifestyle set, but do not let
+  // walking dominate the series after it has been represented once.
+  const walkingAlreadyUsed = selected.some((item) => item.poseType === "walking");
+  if (!walkingAlreadyUsed && candidate.poseType === "walking") score += 28;
+  if (walkingAlreadyUsed && candidate.poseType === "walking") score -= 10;
+
+  return score;
 }
 
 function chooseLifestyleSoftSeedingCandidate(
@@ -67,34 +123,37 @@ function chooseLifestyleSoftSeedingCandidate(
   const signatureSafePool = uniqueLegPool.length ? uniqueLegPool : basePool;
 
   // The external image model tends to render every short-step synonym as the
-  // same front-to-back fashion stride. Keep that silhouette to one card and
-  // choose visibly different leg families before returning to one family.
+  // same front-to-back fashion stride. Keep that silhouette to one card.
   const forwardStepAlreadyUsed = selected.some((item) => item.visualLegPoseFamily === "forward-step");
   const noRepeatedForwardStep = forwardStepAlreadyUsed
     ? signatureSafePool.filter((candidate) => candidate.visualLegPoseFamily !== "forward-step")
     : signatureSafePool;
   const safePool = noRepeatedForwardStep.length ? noRepeatedForwardStep : signatureSafePool;
-  const hasWalkingPose = selected.some((item) => item.poseType === "walking");
-  const nonForwardWalkingPool = safePool.filter(
-    (candidate) => candidate.poseType === "walking" && candidate.visualLegPoseFamily !== "forward-step"
-  );
-  const walkingPool = nonForwardWalkingPool.length
-    ? nonForwardWalkingPool
-    : safePool.filter((candidate) => candidate.poseType === "walking");
-  const poseBalancedPool = selected.length >= 1 && !hasWalkingPose && walkingPool.length
-    ? walkingPool
-    : safePool;
-  const usedFamilies = new Set(selected.map((item) => item.visualLegPoseFamily));
-  const unusedFamilyPool = poseBalancedPool.filter((candidate) => !usedFamilies.has(candidate.visualLegPoseFamily));
-  const visualPool = unusedFamilyPool.length ? unusedFamilyPool : poseBalancedPool;
-  const families = [...new Set(visualPool.map((candidate) => candidate.visualLegPoseFamily))].sort();
-  const preferredFamily = families[stableHash(seed) % families.length];
-  const familyPool = visualPool.filter((candidate) => candidate.visualLegPoseFamily === preferredFamily);
-  const candidatePool = familyPool.length ? familyPool : visualPool;
 
-  return [...candidatePool].sort(
-    (first, second) => stableHash(`${seed}:${first.id}`) - stableHash(`${seed}:${second.id}`)
-  )[0] ?? null;
+  // Visual leg-pose diversity is a hard gate while an unused family is still
+  // available for this card. The novelty score remains useful only inside that
+  // safe subset; it must never trade away a fresh silhouette for a new action
+  // family or hand task.
+  const usedVisualLegFamilies = new Set(selected.map((item) => item.visualLegPoseFamily));
+  const unusedVisualLegFamilyPool = safePool.filter(
+    (candidate) => !usedVisualLegFamilies.has(candidate.visualLegPoseFamily)
+  );
+  const visualPool = unusedVisualLegFamilyPool.length ? unusedVisualLegFamilyPool : safePool;
+
+  // Prefer a genuinely new action family after the visual leg-pose constraint
+  // has been satisfied. This prevents five variants of the same walk / pause
+  // without weakening the established silhouette-diversity contract.
+  const usedActionFamilies = new Set(selected.map((item) => item.diversityFamily));
+  const unusedActionFamilyPool = visualPool.filter(
+    (candidate) => !usedActionFamilies.has(candidate.diversityFamily)
+  );
+  const semanticPool = unusedActionFamilyPool.length ? unusedActionFamilyPool : visualPool;
+
+  return [...semanticPool].sort((first, second) => {
+    const scoreDifference = lifestyleNoveltyScore(second, selected) - lifestyleNoveltyScore(first, selected);
+    if (scoreDifference !== 0) return scoreDifference;
+    return stableHash(`${seed}:${first.id}`) - stableHash(`${seed}:${second.id}`);
+  })[0] ?? null;
 }
 
 function eligibleActions(card: SeriesActionCardInput, topic: string) {
@@ -129,6 +188,17 @@ function eligibleActions(card: SeriesActionCardInput, topic: string) {
     ? candidates.filter((action) => !/mirror|selfie|phone|mirror check|outfit check/i.test(action.directive))
     : candidates;
   return sceneSafeCandidates.length >= 3 ? sceneSafeCandidates : candidates;
+}
+
+function filterCaptureStyleCandidates(
+  candidates: PersonActionDefinition[],
+  captureStyle: LifestyleSoftCaptureStyle
+) {
+  return captureStyle === "telephoto_candid"
+    ? candidates.filter((action) =>
+        detectShoePerspectiveRisk(`${action.directive} ${action.visualLegPoseLine}`) !== "high"
+      )
+    : candidates;
 }
 
 function chooseCandidate(
@@ -177,16 +247,47 @@ export function selectDiversePersonActions({
   captureStyle = "standard"
 }: SelectDiversePersonActionsInput) {
   const selected: PersonActionDefinition[] = [];
+
+  if (topic === "生活场景软种草") {
+    const candidatePools = cards.map((card) =>
+      filterCaptureStyleCandidates(eligibleActions(card, topic), captureStyle)
+    );
+    const results: Array<PersonActionDefinition | null> = Array.from({ length: cards.length }, () => null);
+
+    // Choose the most constrained cards first. Mirror cards expose only a few
+    // leg-pose families; assigning them after broad general cards can consume
+    // all of their unique silhouette options and force a duplicate on card 5.
+    const selectionOrder = cards
+      .map((_, cardIndex) => ({
+        cardIndex,
+        familyCount: new Set(candidatePools[cardIndex].map((action) => action.visualLegPoseFamily)).size,
+        candidateCount: candidatePools[cardIndex].length
+      }))
+      .sort((first, second) =>
+        first.familyCount - second.familyCount ||
+        first.candidateCount - second.candidateCount ||
+        first.cardIndex - second.cardIndex
+      );
+
+    for (const { cardIndex } of selectionOrder) {
+      const selectedAction = chooseLifestyleSoftSeedingCandidate(
+        candidatePools[cardIndex],
+        selected,
+        `${topic}:${variantIndex}:${generationNonce}:${cardIndex}`
+      );
+      if (!selectedAction) continue;
+      selected.push(selectedAction);
+      results[cardIndex] = {
+        ...selectedAction,
+        directive: `${selectedAction.directive} ${selectedAction.visualLegPoseLine}`
+      };
+    }
+
+    return results;
+  }
+
   return cards.map((card, cardIndex) => {
-    const baseCandidates = eligibleActions(card, topic);
-    // A long observational lens never receives an action whose shoe geometry
-    // already needs the stronger shoe-safe profile. This preserves product
-    // truth rather than trying to resolve competing camera instructions later.
-    const candidates = captureStyle === "telephoto_candid"
-      ? baseCandidates.filter((action) =>
-          detectShoePerspectiveRisk(`${action.directive} ${action.visualLegPoseLine}`) !== "high"
-        )
-      : baseCandidates;
+    const candidates = filterCaptureStyleCandidates(eligibleActions(card, topic), captureStyle);
     const selectedAction = topic === "棚内上新拍摄" && candidates.length
       ? (() => {
           const start = Math.abs(generationNonce + variantIndex + cardIndex) % candidates.length;
@@ -195,26 +296,14 @@ export function selectDiversePersonActions({
             !selected.some((item) => item.legActionSignature === candidate.legActionSignature)
           ) ?? rotated[0];
         })()
-      : topic === "生活场景软种草" && candidates.length
-        ? chooseLifestyleSoftSeedingCandidate(
+      : selected.length === 0 && candidates.length
+        ? candidates[Math.abs(generationNonce + variantIndex) % candidates.length]
+        : chooseCandidate(
             candidates,
             selected,
             `${topic}:${variantIndex}:${generationNonce}:${cardIndex}`
-          )
-      : selected.length === 0 && candidates.length
-        ? candidates[Math.abs(generationNonce + variantIndex) % candidates.length]
-      : chooseCandidate(
-          candidates,
-          selected,
-          `${topic}:${variantIndex}:${generationNonce}:${cardIndex}`
-        );
-    const action = topic === "生活场景软种草" && selectedAction
-      ? {
-          ...selectedAction,
-          directive: `${selectedAction.directive} ${selectedAction.visualLegPoseLine}`
-        }
-      : selectedAction;
-    if (action) selected.push(action);
-    return action;
+          );
+    if (selectedAction) selected.push(selectedAction);
+    return selectedAction;
   });
 }
