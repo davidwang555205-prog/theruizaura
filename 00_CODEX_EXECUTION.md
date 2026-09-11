@@ -1,371 +1,376 @@
-# CODEX 执行任务｜THERUIZ AURA Phase 3-A 前视觉系统验证
+# CODEX 执行入口｜THERUIZ AURA Current Main
 
-## 0. 强制范围
+更新日期：2026-09-11
 
-你当前只处理 **THERUIZ AURA** 项目。
+本文件是 Codex 进入 THERUIZ AURA 仓库后的当前执行基线。
 
-除非当前工作区本身就是 THERUIZ AURA 根目录，否则先定位名称明确包含 `THERUIZ_AURA` 或 `theruizaura` 的项目目录，并仅在该目录内修改。
+## 0. 项目范围
 
-禁止修改：
-
-- Black Mirror / BM 项目；
-- 其他品牌项目；
-- 共用基础设施；
-- 真实 Provider 接入；
-- Phase 3-A 及之后的用途适配器。
-
-本任务的最终停止点是：
-
-> 完成 Phase 3-A 之前的品牌视觉系统落盘、机器可读化、视觉验证工作台和验证报告模板。
-
-完成后停止并等待品牌方人工确认。
-
----
-
-# 1. 先读取的文件
-
-按以下顺序完整读取：
-
-1. `visual-system/docs/01_视觉系统升级项目说明_v1.0.md`
-2. `visual-system/docs/02_视觉规则盘点与品牌视觉母体_v1.0.md`
-3. `visual-system/docs/03_品牌视觉母体执行化_v1.0.md`
-4. `visual-system/docs/04_正式视觉参考锚点定义_v1.0.md`
-5. `visual-system/docs/05_品牌视觉母体_v1.2_修订冻结版.md`
-6. `visual-system/docs/06_上传驱动_Product_Truth_规则_v1.0.md`
-7. `visual-system/validation/07_视觉验证执行方案_v1.0.md`
-8. `visual-system/config/*.json`
-9. `visual-system/anchors/*`
-
-优先级：
+只处理：
 
 ```text
-品牌视觉母体 v1.2
->
-上传驱动 Product Truth 规则
->
-正式视觉锚点
->
-旧规则盘点与执行化说明
+THERUIZ AURA
+https://github.com/davidwang555205-prog/theruizaura
 ```
 
-发现旧文档与 v1.2 冲突时，以 v1.2 为准，不得自行折中。
+禁止：
+
+- 修改 Black Mirror / BM 项目；
+- 把 BM 的 Topic、Prompt、路由或 Product Truth 逻辑迁入本仓库；
+- 新建平行 Prompt Engine；
+- 新建平行 Action Library；
+- 新建平行 Product Truth 系统；
+- 为了让测试通过而降低 validator 门槛。
 
 ---
 
-# 2. 需要落地的目录结构
+## 1. 开始任务前先读
 
-确保 THERUIZ AURA 项目中存在：
+按以下顺序：
+
+1. `README.md`
+2. `docs/PROJECT_STATUS.md`
+3. `package.json`
+4. 与任务直接相关的源码和 validator
+5. `git status`
+6. 当前 `main` 最新提交
+
+不要根据旧对话或旧 Phase 文档假设当前代码状态。
+
+---
+
+## 2. 当前架构事实
+
+### Prompt Engine
+
+生产默认：
 
 ```text
-visual-system/
-├── README.md
-├── docs/
-├── anchors/
-├── config/
-├── validation/
-│   ├── cases/
-│   ├── results/
-│   └── reports/
-└── runtime/
-    ├── brandVisualMother.*
-    ├── anchorManifest.*
-    ├── uploadProductTruth.*
-    ├── qaRubric.*
-    └── validationCases.*
+mode = "new"
 ```
 
-文件扩展名根据当前项目技术栈决定：
+Structured Prompt Engine 是正式 Prompt 组装入口。
 
-- TypeScript 项目优先 `.ts`;
-- Python 项目优先 `.py`;
-- 纯内容项目可以使用 JSON / YAML;
-- 不要为了本任务引入第二套框架。
+`legacy` / `compare` 只用于诊断、回滚与兼容边界，不要把新功能只写进 legacy generator。
 
----
+### 顶层 Topic
 
-# 3. 第一步｜项目扫描与基线确认
+当前固定 8 个：
 
-先检查：
+1. 生活场景软种草
+2. 产品开发幕后
+3. 秋冬配色实验室
+4. 穿搭解决方案
+5. 材质工艺认知
+6. 品牌审美观点
+7. 上新活动转化
+8. 棚内上新拍摄
 
-- 当前项目技术栈；
-- 是否已有 Prompt Builder；
-- 是否已有视觉规则、动作库、场景库、模特库；
-- 是否已有本地生成任务页；
-- 是否已有图片上传与结果回传；
-- 是否已有 QA 页面或数据模型。
+不要新增第 9 个 Topic，除非品牌方明确批准顶层信息架构变更。
 
-输出一份：
+### 生活场景软种草
 
-`visual-system/validation/reports/00_existing-integration-audit.md`
-
-内容必须明确：
-
-- 可直接复用的能力；
-- 需要新增的最小能力；
-- 不应重复建设的能力；
-- 本任务计划修改的文件；
-- 不会修改的范围。
-
-不要先写大量代码再补审计。
-
----
-
-# 4. 第二步｜将冻结规则转成机器可读运行时
-
-将以下 JSON 转为当前项目可直接调用的类型安全结构：
-
-- `brand-visual-mother-v1.2.json`
-- `anchor-manifest.json`
-- `qa-rubric.json`
-- `pre-phase-3a-validation-cases.json`
-
-要求：
-
-1. 有明确类型；
-2. 有运行时校验；
-3. 版本号可读取；
-4. `approved_frozen` 状态不可被普通任务覆盖；
-5. 明确区分：
-   - 品牌规则；
-   - 产品上传证据；
-   - 未来用途适配；
-   - 系统编排；
-6. 明确编码：
-   - 产品不是视觉导演；
-   - 禁止按 SKU 匹配年龄、场景和调性；
-   - 当前上传图片是任务唯一产品事实来源；
-   - 人物范围为 25—46 岁。
-
-至少编写以下断言或测试：
-
-- 产品名称不能返回年龄；
-- 产品颜色不能返回场景；
-- 产品材质不能返回人物；
-- 锚点文件不可作为当前产品 Product Truth；
-- 缺少上传证据时必须返回 missing evidence，而不是自动补全。
-
----
-
-# 5. 第三步｜建立视觉参考锚点浏览与规则映射
-
-在现有内部工具中增加一个 **仅内部使用** 的“视觉母体验证”入口。
-
-不要做最终客户页面。
-
-页面或工作区至少包含三个分组：
-
-- A｜生活方式母体锚点；
-- B｜官方棚内人物锚点；
-- C｜产品呈现与材质锚点。
-
-每张锚点必须显示：
-
-- 编号；
-- 图片；
-- 角色；
-- 定义的视觉规则；
-- 它不负责定义什么；
-- 可继承项；
-- 禁止机械复制项。
-
-必须明确显示：
-
-> 品牌锚点定义画面语言，不定义当前上传产品的真实鞋型。
-
----
-
-# 6. 第四步｜建立上传驱动 Product Truth 验证入口
-
-复用项目已有上传能力。没有上传能力时，只建立本地内部验证上传，不做正式客户流程。
-
-用户/内部操作员上传一组产品图片后，系统自动将图片标记为可能的证据角色：
-
-- 整体结构；
-- 俯视 / 前部；
-- 后跟 / 侧后；
-- 材质 / 工艺；
-- 上脚（可选）。
-
-允许人工修正识别角色，但不得要求填写复杂产品表格。
-
-系统输出：
-
-- 当前任务 Product Truth；
-- 证据完整度；
-- 缺失证据；
-- Product Truth 置信度：
-  - High
-  - Medium
-  - Low
-  - Blocked
-
-规则：
-
-- Low / Blocked 不得进入完整验证生成；
-- 不可见结构不得猜测；
-- 只提示最少补充图片。
-
----
-
-# 7. 第五步｜生成 13 个视觉验证任务
-
-读取：
-
-`visual-system/validation/cases/pre-phase-3a-validation-cases.json`
-
-为 A1—C5 共 13 个角色生成内部任务卡。
-
-每张卡包含：
-
-- 角色编号；
-- 角色目标；
-- 推荐比例；
-- 产品视觉权重；
-- 必须出现的品牌证据；
-- 必须绑定的产品上传证据；
-- 禁止事项；
-- Provider-ready Prompt；
-- Reference Plan；
-- 复制按钮；
-- 结果上传位；
-- QA 评分位；
-- 通过 / 修复 / 淘汰状态。
-
-重要：
-
-- 13 个任务是视觉母体验证，不是官方 8 图组；
-- 不得自动排序成正式交付；
-- 不得调用 Phase 3-A 逻辑；
-- Prompt 不得机械复刻锚点人物、产品、咖啡馆或具体穿搭；
-- Prompt 必须继承锚点的抽象视觉证据。
-
----
-
-# 8. 第六步｜Manual Provider Bridge 验证流程
-
-当前阶段不要接入真实生图 API。
-
-实现或复用以下流程：
+内容分类：
 
 ```text
-选择 / 上传产品参考图
-→ 建立 Product Truth
-→ 生成 13 个 Provider-ready Prompt 和 Reference Plan
-→ 人工复制至外部模型生成
-→ 回传结果
-→ 单图 QA
-→ 整体品牌一致性检查
-→ 输出验证报告
+natural_life   = 自然生活
+urban_commute  = 都市通勤
 ```
 
-允许支持 Image2、Nano Banana、FLUX、Seedream 的已有 Prompt Adapter，但本任务不新增模型架构。
+拍摄方式：
 
-若已有 Adapter：
+```text
+standard           = 标准记录
+telephoto_candid   = 长焦随拍
+```
 
-- 复用；
-- 确保品牌母体只有一个语义来源；
-- 不允许四个模型拥有四套不同品牌风格。
+内容分类与拍摄方式是两个独立维度。
+
+`telephoto_candid` 不是第三个内容分类。
+
+### Action Library
+
+唯一动作源：
+
+```text
+src/data/personActionLibrary.ts
+```
+
+当前期望数量：318。
+
+生活场景多图必须兼顾：
+
+- action semantic family
+- visual leg-pose family
+- leg-action signature
+- hand task
+- movement phase
+- body orientation
+- pose type
+
+不要通过复制 action 文本制造假的多样性。
+
+### Face Variation
+
+生活场景 5 图 / 多图已接入 structured `seriesFaceVariation`。
+
+必须保持同一人物身份，同时显式改变：
+
+- gaze target
+- head angle
+- eyelid tension
+- mouth state
+- subtle facial response
+
+不要重新退回普通 `extraRequirement` 文本作为唯一脸部差异控制。
+
+### Product Truth
+
+当前任务上传参考图是产品事实来源。
+
+品牌视觉、场景、动作、服装、镜头都不能改写 Product Truth。
+
+不得推断：
+
+- 不可见鞋型结构
+- 未确认材质
+- 未确认颜色
+- 未确认品牌细节
+- 未确认工艺
+
+Product Truth 与 Reference Plan 必须保留 provenance。
+
+### Camera
+
+`telephoto_candid` 使用独立 camera profile。
+
+长焦任务不得同时输出：
+
+- telephoto-candid
+- stabilized 50–70mm
+- shoe-safe 60–85mm
+
+必须只有一个 authoritative camera perspective profile。
 
 ---
 
-# 9. 第七步｜QA 与验证报告
+## 3. 修改原则
 
-每张结果按 100 分评分：
+优先顺序：
 
-- 产品真实性：30
-- 人物母体：15
-- 色彩与光线：15
-- 材质真实：10
-- 产品参与方式：10
-- 构图与留白：10
-- 品牌锚点完成度：10
+```text
+Product Truth
+>
+用户明确选择
+>
+结构化 Topic / Category / Capture Style / Action / Face fields
+>
+品牌视觉与真实性规则
+>
+普通 extraRequirement
+>
+低优先级 negative
+```
 
-硬性淘汰项直接阻断通过。
+遇到冲突时：
 
-自动生成：
-
-`visual-system/validation/reports/pre-phase-3a-validation-report.md`
-
-报告必须包含：
-
-- 使用的产品上传证据；
-- Product Truth 置信度；
-- 13 个任务的缩略图 / 文件引用；
-- 单图评分；
-- 硬性错误；
-- 品牌偏移原因；
-- 是否机械复制锚点；
-- A、B、C 三组是否属于同一品牌；
-- 年龄范围是否保持品牌气质；
-- 建议冻结、修订或淘汰的规则；
-- 最终结论：
-  - PASS
-  - PARTIAL
-  - FAIL
-
-不得在没有真实回传图的情况下写 PASS。
+1. 找到 authoritative source；
+2. 删除或中和重复控制；
+3. 不要继续追加另一句 Prompt 盖住旧句；
+4. 增加 validator 防止回归。
 
 ---
 
-# 10. 验收标准
+## 4. 生活场景相关开发要求
 
-必须全部满足：
+如果任务涉及 `生活场景软种草`：
 
-1. 所有 Phase 3-A 前文档已进入 THERUIZ AURA 目录；
-2. 13 张正式锚点可浏览；
-3. 品牌母体 v1.2 已机器可读；
-4. 产品 / SKU 不可驱动年龄、场景和调性；
-5. 当次上传图是产品事实来源；
-6. 可创建 13 个视觉验证任务；
-7. 支持手动回传生成结果；
-8. 支持 Product Truth、品牌与角色 QA；
-9. 可输出真实验证报告；
-10. 项目原有测试、类型检查和构建通过；
-11. 未实现 Phase 3-A；
-12. 未修改 BM 或其他品牌项目。
+- 保留现有 `family`，它仍用于场景 diversity；
+- `natural_life / urban_commute` 是独立 content category；
+- `standard / telephoto_candid` 是 capture style；
+- 场景只负责“在哪里发生”；
+- Action Planner 负责“人物主要在做什么”；
+- Face Variation 负责“脸和视线怎么变化”；
+- Camera Profile 负责“怎么拍”；
+- 不要让 scene extraRequirement 重复定义主要动作。
+
+如果 5 图看起来仍重复，优先排查：
+
+```text
+selector output
+→ action family
+→ visual leg-pose family
+→ hand task
+→ movement phase
+→ face variation
+→ final compiled Prompt
+→ Provider visual convergence
+```
+
+不要第一反应扩充动作库数量。
 
 ---
 
-# 11. 最终汇报格式
+## 5. 开发后最低验证
 
-完成后只汇报：
+任何影响 Prompt Runtime、生活场景、动作、微表情、Product Truth 或 Camera 的修改，至少运行：
 
-## A. 变更摘要
+```bash
+npm run typecheck
+npm run build
+npm run validate:actions
+npm run validate:lifestyle-taxonomy
+npm run validate:lifestyle-action-face
+npm run validate:production-runtime
+```
 
-- 修改和新增了什么；
-- 复用了什么；
-- 没有做什么。
+涉及 Prompt Engine 时补：
 
-## B. 文件清单
+```bash
+npm run validate:engine
+npm run validate:prompt-compiler
+npm run validate:reference-binding
+npm run validate:prompt-audit
+npm run validate:consumer-trust
+```
 
-列出实际文件路径。
+涉及穿搭 / 棚拍时补：
 
-## C. 验证结果
+```bash
+npm run validate:outfits
+npm run validate:aw26-wardrobe
+npm run validate:studio
+```
 
-- 测试；
-- typecheck；
-- build；
-- 浏览器流程；
-- 仍需人工执行的外部生图步骤。
+涉及非产品氛围时补：
 
-## D. 当前状态
+```bash
+npm run validate:atmosphere
+```
 
-只能使用：
+失败即停止，不要跳过失败继续宣布 PASS。
 
-- `READY_FOR_VISUAL_VALIDATION`
-- `PARTIAL`
-- `BLOCKED`
+---
 
-没有完成 13 张真实结果回传和人工确认前，不得写：
+## 6. 当前已验证基线
 
-- VERIFIED
-- COMPLETE
-- READY_FOR_PHASE_3A
+基于 2026-09-11 最新一轮本地验证：
 
-## E. 停止
+```text
+npm run typecheck                      PASS
+npm run build                          PASS
+npm run validate:actions               PASS
+npm run validate:lifestyle-taxonomy    PASS
+npm run validate:lifestyle-action-face PASS
+npm run validate:production-runtime    PASS
+```
 
-完成后停止，不要继续做 Phase 3-A。
+覆盖：
 
-等待品牌方明确输入：
+- 318 个动作
+- 72 组 action generation sets
+- 384 条 Prompt
+- 10,000 组 8 图 action stress test
+- 1,693 项 lifestyle taxonomy checks
+- 901 项 lifestyle action / face checks
 
-> Phase 3-A 可以开始
+这是代码 / Prompt / Runtime 验证基线。
+
+---
+
+## 7. Provider E2E 边界
+
+必须明确区分：
+
+```text
+CODE VALIDATION = PASS
+PROMPT / RUNTIME VALIDATION = PASS
+REAL PROVIDER E2E = NOT PROVEN BY STATIC VALIDATORS
+```
+
+当 validator fixture 没有绑定真实 Product Truth 与真实 Provider 时：
+
+```text
+providerExecutionReady: false
+productionReady: false
+```
+
+是正确状态。
+
+不得把静态 validator PASS 写成：
+
+```text
+PROVIDER E2E VERIFIED
+REAL IMAGE QUALITY VERIFIED
+PRODUCTION IMAGE OUTPUT VERIFIED
+```
+
+下一阶段需要真实鞋款参考图与真实 Provider 输出做视觉验收。
+
+---
+
+## 8. Git 工作流
+
+推荐：
+
+1. 从最新 `main` 创建任务分支；
+2. 做最小范围修改；
+3. 运行与任务匹配的 validator；
+4. 输出 diff / validation result；
+5. 建 PR；
+6. 没有明确批准时不要自动 merge。
+
+文档-only 修改可以简化验证，但必须确认引用的架构事实来自当前代码。
+
+---
+
+## 9. 最终汇报格式
+
+开发任务完成后输出：
+
+### A. Root Cause / Goal
+
+说明为什么改。
+
+### B. Files Changed
+
+列出实际修改文件。
+
+### C. Architecture Decision
+
+说明 authoritative source 放在哪里，避免平行系统。
+
+### D. Validation
+
+逐条列出 PASS / FAIL / NOT RUN。
+
+### E. Known Gaps
+
+尤其说明真实 Provider E2E 是否执行。
+
+### F. Git Status
+
+- branch
+- commit
+- PR
+- merged / not merged
+
+---
+
+## 10. 当前下一步
+
+代码层动作与微表情多样性已经验证通过。
+
+下一阶段优先事项：
+
+> 使用真实 THERUIZ AURA 鞋履参考图，分别测试自然生活 / 都市通勤 × 标准记录 / 长焦随拍的 5 图与 8 图真实 Provider 输出，并做视觉验收。
+
+重点看：
+
+- 动作是否肉眼不同
+- 微表情是否真实不同
+- 鞋型是否稳定
+- 长焦是否保持鞋履可读性
+- Provider 是否把不同 Prompt 收敛成相似画面
+
+真实视觉验收完成前，不继续通过堆 Prompt 限制词解决模型层问题。
