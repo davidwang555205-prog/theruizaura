@@ -69,35 +69,35 @@ type FaceVariation = NonNullable<TeamPromptParams["seriesFaceVariation"]>;
 const lifestyleStandardFaceVariations: FaceVariation[] = [
   {
     id: "lifestyle-face-camera-acknowledgement",
-    line: "Use a soft three-quarter head angle with one brief friendly camera acknowledgement, relaxed eyelids, a faint asymmetric smile, and natural catchlights."
+    line: "Use a soft three-quarter head angle with one brief friendly camera acknowledgement, relaxed eyelids, a faint asymmetric smile, and natural catchlights. This is the only standard-series face beat that may acknowledge the lens."
   },
   {
     id: "lifestyle-face-path-focus",
-    line: "Let the head follow the walking or movement direction while the eyes track the real path ahead, with a relaxed brow and resting lips."
+    line: "Let the head follow the walking or movement direction while the eyes track the real path ahead, with a relaxed brow and resting lips. Keep the gaze away from the lens and do not acknowledge the camera."
   },
   {
     id: "lifestyle-face-downward-check",
-    line: "Angle the head slightly downward and let the eyes check the sneaker, garment hem, or immediate floor path, with relaxed brows and a quiet neutral mouth."
+    line: "Angle the head slightly downward and let the eyes check the sneaker, garment hem, or immediate floor path, with relaxed brows and a quiet neutral mouth. Keep the gaze fully off-camera."
   },
   {
     id: "lifestyle-face-scene-response",
-    line: "Turn the head toward one real scene detail with an off-camera gaze, a small natural brow response, and an unforced mouth shape."
+    line: "Turn the head toward one real scene detail with an off-camera gaze, a small natural brow response, and an unforced mouth shape. Do not redirect the eyes toward the lens."
   },
   {
     id: "lifestyle-face-post-action-release",
-    line: "Capture the face just after the body action settles, with a soft exhale, relaxed eyelids, subtly parted or resting lips, and gaze continuing beyond the action path."
+    line: "Capture the face just after the body action settles, with a soft exhale, relaxed eyelids, subtly parted or resting lips, and gaze continuing beyond the action path. Keep the gaze outside the frame and do not turn back to re-acknowledge the camera."
   },
   {
     id: "lifestyle-face-listening-side",
-    line: "Use a quiet listening-like side attention toward a nearby person or environmental cue, with one eye slightly nearer the camera, a calm jaw, and no held portrait smile."
+    line: "Use a quiet listening-like side attention toward a nearby person or environmental cue, with one eye slightly nearer the camera, a calm jaw, and no held portrait smile. The attention stays on the scene, never on the lens."
   },
   {
     id: "lifestyle-face-light-response",
-    line: "Let the face respond subtly to changing daylight or reflection, with a slight squint or eyelid adjustment, relaxed lips, and the head remaining secondary to the body action."
+    line: "Let the face respond subtly to changing daylight or reflection, with a slight squint or eyelid adjustment, relaxed lips, and the head remaining secondary to the body action. Keep the eyes off-camera."
   },
   {
     id: "lifestyle-face-transition-glance",
-    line: "Use a fleeting glance toward the next practical destination during the transition, with a small head turn, neutral brow, and an expression that feels unfinished rather than posed."
+    line: "Use a fleeting glance toward the next practical destination during the transition, with a small head turn, neutral brow, and an expression that feels unfinished rather than posed. Do not acknowledge the camera."
   }
 ];
 
@@ -152,18 +152,23 @@ function resolveLifestyleSeriesFaceVariation(
   return plan[params.seriesImageIndex % plan.length];
 }
 
-const generatedLifestyleActionHintReplacements: Array<[RegExp, string]> = [
-  [/\bshort natural step or quiet pause\b/gi, "natural everyday presence"],
-  [/\bsmall natural step\b/gi, "natural everyday presence"],
-  [/\bnatural walking posture or a short waiting pause\b/gi, "natural everyday presence"],
-  [/\bshort safe step\b/gi, "natural everyday movement"],
-  [/\bcompact walking step\b/gi, "natural everyday movement"],
-  [/\bshort natural stride\b/gi, "natural everyday movement"],
-  [/\bseated or standing pause\b/gi, "natural everyday presence"],
-  [/\bwalking or standing moment\b/gi, "natural everyday presence"],
-  [/\bgallery walking or standing moment\b/gi, "gallery visit moment"],
-  [/\bsmall clothing adjustment\b/gi, "natural garment behavior"],
-  [/\bsubtle turn toward a friend\b/gi, "natural engagement with a nearby friend"]
+const generatedLifestyleActionPhrasePatterns: Array<[RegExp, string]> = [
+  [
+    /\bwith\s+(?:a|one)?\s*(?:(?:short|small|compact|safe|natural|quiet|soft|calm|restrained|believable|ordinary)\s+)*(?:(?:walking|standing|waiting)\s+)?(?:step|stride|pause|transition|posture|moment)\b(?:\s+or\s+(?:a|one)?\s*(?:(?:short|small|compact|safe|natural|quiet|soft|calm|restrained)\s+)*(?:(?:walking|standing|waiting)\s+)?(?:step|stride|pause|moment))?/gi,
+    "with believable scene context"
+  ],
+  [/\b(?:seated|standing|walking)\s+or\s+(?:seated|standing|walking)\s+(?:pause|moment)\b/gi, "daily-life context"],
+  [/\b(?:natural\s+)?standing pause or short walk\b/gi, "believable daily-life context"],
+  [/\b(?:one\s+)?(?:safe\s+)?standing or walking moment\b/gi, "believable daily-life context"],
+  [/\b(?:short\s+)?natural walking pause\b/gi, "believable daily-life context"],
+  [/\b(?:one\s+)?natural sit-to-stand or settling pause\b/gi, "believable furniture relationship"],
+  [/\bstanding or seated rest(?: only)?\b/gi, "quiet transition context"],
+  [/\bquiet standing transition\b/gi, "quiet arrival context"],
+  [/\b(?:gallery\s+)?walking or standing moment\b/gi, "gallery visit context"],
+  [/\b(?:one\s+)?(?:small|natural)\s+(?:clothing|garment)\s+adjustment\b/gi, "wearable garment state"],
+  [/\bsubtle turn toward a friend\b/gi, "believable nearby-friend context"],
+  [/\bnatural seated posture\b/gi, "believable furniture relationship"],
+  [/\bnatural walking posture(?:\s+or\s+(?:a\s+)?(?:short|quiet|soft)\s+(?:waiting\s+)?pause)?\b/gi, "believable daily-life context"]
 ];
 
 function sanitizeLifestyleGeneratedRequirement(
@@ -179,15 +184,20 @@ function sanitizeLifestyleGeneratedRequirement(
   // so remove the legacy beat to avoid two competing facial instructions.
   let next = params.extraRequirement.replace(/Head-and-face beat for this card:[^.]*\./gi, " ");
 
-  // Scene entries should describe where the image happens, while actionLock is
-  // the single authority for what the body is doing. Neutralize only the known
-  // generated action phrases from the scene library; do not strip arbitrary
-  // user-authored action requests.
-  for (const [pattern, replacement] of generatedLifestyleActionHintReplacements) {
+  // Once an authoritative Action Lock exists, generated scene prose may own
+  // only location, atmosphere, object placement, and product readability. Use
+  // semantic action classes rather than a synonym-by-synonym blacklist so new
+  // variants such as "short natural walking step" cannot leak a second body
+  // instruction back into the Provider prompt. User-authored requirements are
+  // otherwise preserved.
+  for (const [pattern, replacement] of generatedLifestyleActionPhrasePatterns) {
     next = next.replace(pattern, replacement);
   }
 
-  return next.replace(/\s{2,}/g, " ").trim();
+  return next
+    .replace(/\bwith believable scene context,?\s*with\b/gi, "with")
+    .replace(/\s{2,}/g, " ")
+    .trim();
 }
 
 export function buildPromptProfileInput(
