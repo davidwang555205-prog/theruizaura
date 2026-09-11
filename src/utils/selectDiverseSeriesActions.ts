@@ -130,15 +130,24 @@ function chooseLifestyleSoftSeedingCandidate(
     : signatureSafePool;
   const safePool = noRepeatedForwardStep.length ? noRepeatedForwardStep : signatureSafePool;
 
-  // Prefer a genuinely new action family before using another member of the
-  // same family. This is the key difference from the previous selector, which
-  // could pass validation with different leg signatures while still looking
-  // like five variants of the same walk / pause.
+  // Visual leg-pose diversity is a hard gate while an unused family is still
+  // available for this card. The novelty score remains useful only inside that
+  // safe subset; it must never trade away a fresh silhouette for a new action
+  // family or hand task.
+  const usedVisualLegFamilies = new Set(selected.map((item) => item.visualLegPoseFamily));
+  const unusedVisualLegFamilyPool = safePool.filter(
+    (candidate) => !usedVisualLegFamilies.has(candidate.visualLegPoseFamily)
+  );
+  const visualPool = unusedVisualLegFamilyPool.length ? unusedVisualLegFamilyPool : safePool;
+
+  // Prefer a genuinely new action family after the visual leg-pose constraint
+  // has been satisfied. This prevents five variants of the same walk / pause
+  // without weakening the established silhouette-diversity contract.
   const usedActionFamilies = new Set(selected.map((item) => item.diversityFamily));
-  const unusedActionFamilyPool = safePool.filter(
+  const unusedActionFamilyPool = visualPool.filter(
     (candidate) => !usedActionFamilies.has(candidate.diversityFamily)
   );
-  const semanticPool = unusedActionFamilyPool.length ? unusedActionFamilyPool : safePool;
+  const semanticPool = unusedActionFamilyPool.length ? unusedActionFamilyPool : visualPool;
 
   return [...semanticPool].sort((first, second) => {
     const scoreDifference = lifestyleNoveltyScore(second, selected) - lifestyleNoveltyScore(first, selected);
@@ -179,6 +188,17 @@ function eligibleActions(card: SeriesActionCardInput, topic: string) {
     ? candidates.filter((action) => !/mirror|selfie|phone|mirror check|outfit check/i.test(action.directive))
     : candidates;
   return sceneSafeCandidates.length >= 3 ? sceneSafeCandidates : candidates;
+}
+
+function filterCaptureStyleCandidates(
+  candidates: PersonActionDefinition[],
+  captureStyle: LifestyleSoftCaptureStyle
+) {
+  return captureStyle === "telephoto_candid"
+    ? candidates.filter((action) =>
+        detectShoePerspectiveRisk(`${action.directive} ${action.visualLegPoseLine}`) !== "high"
+      )
+    : candidates;
 }
 
 function chooseCandidate(
@@ -227,16 +247,47 @@ export function selectDiversePersonActions({
   captureStyle = "standard"
 }: SelectDiversePersonActionsInput) {
   const selected: PersonActionDefinition[] = [];
+
+  if (topic === "生活场景软种草") {
+    const candidatePools = cards.map((card) =>
+      filterCaptureStyleCandidates(eligibleActions(card, topic), captureStyle)
+    );
+    const results: Array<PersonActionDefinition | null> = Array.from({ length: cards.length }, () => null);
+
+    // Choose the most constrained cards first. Mirror cards expose only a few
+    // leg-pose families; assigning them after broad general cards can consume
+    // all of their unique silhouette options and force a duplicate on card 5.
+    const selectionOrder = cards
+      .map((_, cardIndex) => ({
+        cardIndex,
+        familyCount: new Set(candidatePools[cardIndex].map((action) => action.visualLegPoseFamily)).size,
+        candidateCount: candidatePools[cardIndex].length
+      }))
+      .sort((first, second) =>
+        first.familyCount - second.familyCount ||
+        first.candidateCount - second.candidateCount ||
+        first.cardIndex - second.cardIndex
+      );
+
+    for (const { cardIndex } of selectionOrder) {
+      const selectedAction = chooseLifestyleSoftSeedingCandidate(
+        candidatePools[cardIndex],
+        selected,
+        `${topic}:${variantIndex}:${generationNonce}:${cardIndex}`
+      );
+      if (!selectedAction) continue;
+      selected.push(selectedAction);
+      results[cardIndex] = {
+        ...selectedAction,
+        directive: `${selectedAction.directive} ${selectedAction.visualLegPoseLine}`
+      };
+    }
+
+    return results;
+  }
+
   return cards.map((card, cardIndex) => {
-    const baseCandidates = eligibleActions(card, topic);
-    // A long observational lens never receives an action whose shoe geometry
-    // already needs the stronger shoe-safe profile. This preserves product
-    // truth rather than trying to resolve competing camera instructions later.
-    const candidates = captureStyle === "telephoto_candid"
-      ? baseCandidates.filter((action) =>
-          detectShoePerspectiveRisk(`${action.directive} ${action.visualLegPoseLine}`) !== "high"
-        )
-      : baseCandidates;
+    const candidates = filterCaptureStyleCandidates(eligibleActions(card, topic), captureStyle);
     const selectedAction = topic === "棚内上新拍摄" && candidates.length
       ? (() => {
           const start = Math.abs(generationNonce + variantIndex + cardIndex) % candidates.length;
@@ -245,26 +296,14 @@ export function selectDiversePersonActions({
             !selected.some((item) => item.legActionSignature === candidate.legActionSignature)
           ) ?? rotated[0];
         })()
-      : topic === "生活场景软种草" && candidates.length
-        ? chooseLifestyleSoftSeedingCandidate(
+      : selected.length === 0 && candidates.length
+        ? candidates[Math.abs(generationNonce + variantIndex) % candidates.length]
+        : chooseCandidate(
             candidates,
             selected,
             `${topic}:${variantIndex}:${generationNonce}:${cardIndex}`
-          )
-      : selected.length === 0 && candidates.length
-        ? candidates[Math.abs(generationNonce + variantIndex) % candidates.length]
-      : chooseCandidate(
-          candidates,
-          selected,
-          `${topic}:${variantIndex}:${generationNonce}:${cardIndex}`
-        );
-    const action = topic === "生活场景软种草" && selectedAction
-      ? {
-          ...selectedAction,
-          directive: `${selectedAction.directive} ${selectedAction.visualLegPoseLine}`
-        }
-      : selectedAction;
-    if (action) selected.push(action);
-    return action;
+          );
+    if (selectedAction) selected.push(selectedAction);
+    return selectedAction;
   });
 }
