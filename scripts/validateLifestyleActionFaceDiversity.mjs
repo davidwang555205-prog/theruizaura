@@ -76,22 +76,47 @@ const baseParams = {
   }
 };
 
-const staleSceneActionPatterns = [
-  /short natural step or quiet pause/i,
-  /small natural step/i,
-  /natural walking posture or a short waiting pause/i,
-  /short safe step/i,
-  /compact walking step/i,
-  /short natural stride/i,
-  /gallery walking or standing moment/i,
-  /small clothing adjustment/i,
-  /subtle turn toward a friend/i
+const sceneActionLeakPatterns = [
+  /\bshort natural walking step\b/i,
+  /\bshort natural step or quiet pause\b/i,
+  /\bsmall natural step\b/i,
+  /\bnatural walking posture or a short waiting pause\b/i,
+  /\bshort safe step\b/i,
+  /\bcompact walking step\b/i,
+  /\bshort natural stride\b/i,
+  /\bcompact step or soft standing pause\b/i,
+  /\bnatural standing pause or short walk\b/i,
+  /\bwalking or standing moment\b/i,
+  /\bgallery walking or standing moment\b/i,
+  /\bsmall natural garment adjustment\b/i,
+  /\bsmall clothing adjustment\b/i,
+  /\bsubtle turn toward a friend\b/i,
+  /\bnatural seated posture\b/i,
+  /\bsit-to-stand or settling pause\b/i
 ];
+
+const noWalkingScenePreferences = new Set([
+  "朋友午餐",
+  "咖啡馆内",
+  "窗边阅读",
+  "衣帽间 / 更衣角",
+  "健身房内",
+  "停车场到电梯口",
+  "楼下便利店 / 咖啡外带"
+]);
+
+function stripNegatedCameraAwareness(text) {
+  return text.replace(
+    /\b(?:no|without|never|do not)\s+(?:direct\s+)?(?:camera acknowledgement|eye contact with the lens)\b/gi,
+    ""
+  );
+}
 
 try {
   await writeFile(entry, [
     `export { generateSoftSeedingContent } from ${JSON.stringify(resolve(root, "src/utils/generateSoftSeedingContent.ts"))};`,
     `export { personActionLibrary, PERSON_ACTION_LIBRARY_EXPECTED_COUNT } from ${JSON.stringify(resolve(root, "src/data/personActionLibrary.ts"))};`,
+    `export { selectDiversePersonActions } from ${JSON.stringify(resolve(root, "src/utils/selectDiverseSeriesActions.ts"))};`,
     `export { setPromptEngineConfig } from ${JSON.stringify(resolve(root, "src/prompt-engine/promptFeatureFlags.ts"))};`
   ].join("\n"));
 
@@ -109,6 +134,7 @@ try {
     generateSoftSeedingContent,
     personActionLibrary,
     PERSON_ACTION_LIBRARY_EXPECTED_COUNT,
+    selectDiversePersonActions,
     setPromptEngineConfig
   } = await import(`${pathToFileURL(bundle).href}?v=${Date.now()}`);
 
@@ -160,14 +186,20 @@ try {
       expect(new Set(actionFamilies).size >= 4, `${label}: too many cards reuse the same action semantic family.`, actionFamilies);
       expect(new Set(visualLegFamilies).size === 5, `${label}: five-card leg silhouettes are not visually distinct.`, visualLegFamilies);
       expect(new Set(handTasks).size >= 3, `${label}: hand tasks are too repetitive.`, handTasks);
+      expect(handTasks.filter((task) => task === "pocketEdge").length <= 1, `${label}: pocket-edge cue repeats and may collapse into the same visible pose.`, handTasks);
       expect(new Set(movementPhases).size >= 3, `${label}: movement phases are too repetitive.`, movementPhases);
       expect(new Set(orientations).size >= 2, `${label}: body orientation is too repetitive.`, orientations);
 
       const faceVariationIds = [];
       for (const image of content.images) {
-        const locks = [...image.prompt.matchAll(/Face variation lock for this card \(([^)]+)\):/g)];
-        expect(locks.length === 1, `${label}/${image.name}: expected exactly one structured Face Variation Lock.`, image.prompt);
-        if (locks[0]?.[1]) faceVariationIds.push(locks[0][1]);
+        const lockHeaders = [...image.prompt.matchAll(/Face variation lock for this card \(([^)]+)\):/g)];
+        const fullLockMatches = [...image.prompt.matchAll(/Face variation lock for this card \(([^)]+)\):([\s\S]*?)(?=Keep the same person identity)/g)];
+        const lockId = lockHeaders[0]?.[1];
+        const fullLockText = fullLockMatches[0]?.[0] ?? "";
+
+        expect(lockHeaders.length === 1, `${label}/${image.name}: expected exactly one structured Face Variation Lock.`, image.prompt);
+        expect(fullLockMatches.length === 1, `${label}/${image.name}: expected one complete Face Variation Lock rule block.`, image.prompt);
+        if (lockId) faceVariationIds.push(lockId);
         expect(!/Head-and-face beat for this card:/i.test(image.prompt), `${label}/${image.name}: legacy face beat still competes with the structured face lock.`, image.prompt);
         expect(
           /do not reuse the previous face-visible card's gaze target, eyelid tension, mouth state, or head angle/i.test(image.prompt),
@@ -175,22 +207,54 @@ try {
           image.prompt
         );
         expect(
-          !staleSceneActionPatterns.some((pattern) => pattern.test(image.prompt)),
-          `${label}/${image.name}: scene-level action hint still competes with the action planner.`,
+          !sceneActionLeakPatterns.some((pattern) => pattern.test(image.prompt)),
+          `${label}/${image.name}: scene-level action language still competes with the action planner.`,
           image.prompt
         );
         expect((image.prompt.match(/Person action lock:/g) ?? []).length === 1, `${label}/${image.name}: expected one primary Person action lock.`, image.prompt);
         expect(!/\b(undefined|null)\b/i.test(image.prompt), `${label}/${image.name}: unresolved token in prompt.`, image.prompt);
 
+        const action = personActionLibrary.find((item) => item.id === image.params.seriesActionKey);
+        if (action && noWalkingScenePreferences.has(image.params.scenePreference)) {
+          expect(action.poseType !== "walking", `${label}/${image.name}: stationary/social scene received a walking pose.`, { scene: image.params.scenePreference, action });
+          expect(!["forward", "diagonal", "lateral"].includes(action.travelDirection), `${label}/${image.name}: stationary/social scene received travel movement.`, { scene: image.params.scenePreference, action });
+        }
+
         if (captureStyle === "telephoto_candid") {
-          expect(!/camera acknowledgement|eye contact with the lens/i.test(locks[0]?.[0] ?? ""), `${label}/${image.name}: telephoto face lock became camera-aware.`, locks[0]?.[0]);
-          expect(/off-camera|rather than the lens|never toward the lens|no eye contact with the lens|no camera awareness|outside the frame/i.test(image.prompt), `${label}/${image.name}: telephoto gaze boundary missing.`, image.prompt);
+          const affirmativeCameraAwarenessText = stripNegatedCameraAwareness(fullLockText);
+          expect(!/camera acknowledgement|eye contact with the lens/i.test(affirmativeCameraAwarenessText), `${label}/${image.name}: telephoto face lock became camera-aware.`, fullLockText);
+          expect(/off-camera|rather than the lens|never toward the lens|no eye contact with the lens|no camera awareness|outside the frame/i.test(fullLockText), `${label}/${image.name}: telephoto gaze boundary missing.`, fullLockText);
+        } else if (lockId !== "lifestyle-face-camera-acknowledgement") {
+          expect(/off-camera|away from the lens|fully off-camera|outside the frame|never on the lens|do not acknowledge the camera|do not redirect the eyes toward the lens/i.test(fullLockText), `${label}/${image.name}: non-primary standard face beat may still drift back to camera acknowledgement.`, fullLockText);
         }
       }
 
       expect(new Set(faceVariationIds).size === 5, `${label}: five cards reused a face-variation id.`, faceVariationIds);
     }
   }
+
+  const compatibilityCards = [
+    { imageType: "生活场景图", scenePreference: "朋友午餐" },
+    { imageType: "生活场景图", scenePreference: "咖啡馆内" },
+    { imageType: "生活场景图", scenePreference: "窗边阅读" },
+    { imageType: "生活场景图", scenePreference: "衣帽间 / 更衣角" },
+    { imageType: "生活场景图", scenePreference: "健身房内" }
+  ];
+  const compatibilityActions = selectDiversePersonActions({
+    cards: compatibilityCards,
+    topic: "生活场景软种草",
+    variantIndex: 51,
+    generationNonce: 511,
+    captureStyle: "standard"
+  });
+
+  compatibilityActions.forEach((action, index) => {
+    const scenePreference = compatibilityCards[index].scenePreference;
+    expect(!!action, `compatibility/${scenePreference}: expected an action.`, action);
+    if (!action) return;
+    expect(action.poseType !== "walking", `compatibility/${scenePreference}: walking action leaked into a no-walking scene.`, action);
+    expect(!["forward", "diagonal", "lateral"].includes(action.travelDirection), `compatibility/${scenePreference}: travel direction leaked into a no-walking scene.`, action);
+  });
 
   if (failures.length) {
     console.error("Lifestyle action/face diversity validation failed:", JSON.stringify({ checks, failures: failures.slice(0, 50) }, null, 2));

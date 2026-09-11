@@ -20,6 +20,22 @@ type SelectDiversePersonActionsInput = {
   captureStyle?: LifestyleSoftCaptureStyle;
 };
 
+const LIFESTYLE_NO_WALKING_SCENES = new Set<TeamScenePreference>([
+  "朋友午餐",
+  "咖啡馆内",
+  "窗边阅读",
+  "衣帽间 / 更衣角",
+  "健身房内",
+  "停车场到电梯口",
+  "楼下便利店 / 咖啡外带"
+]);
+
+const LIFESTYLE_SEATED_OR_STATIONARY_SCENES = new Set<TeamScenePreference>([
+  "朋友午餐",
+  "咖啡馆内",
+  "窗边阅读"
+]);
+
 function stableHash(value: string) {
   let hash = 2166136261;
   for (let index = 0; index < value.length; index += 1) {
@@ -93,7 +109,8 @@ function lifestyleNoveltyScore(
   let score = Math.min(minimumDistance, 80);
   if (!usedActionFamilies.has(candidate.diversityFamily)) score += 90;
   if (!usedVisualLegFamilies.has(candidate.visualLegPoseFamily)) score += 80;
-  if (!usedHandTasks.has(candidate.handTask)) score += 34;
+  if (!usedHandTasks.has(candidate.handTask)) score += 50;
+  if (usedHandTasks.has(candidate.handTask)) score -= 18;
   if (!usedMovementPhases.has(candidate.movementPhase)) score += 30;
   if (!usedOrientations.has(candidate.bodyOrientation)) score += 24;
   if (!usedHandZones.has(candidate.handPlacementZone)) score += 20;
@@ -130,15 +147,24 @@ function chooseLifestyleSoftSeedingCandidate(
     : signatureSafePool;
   const safePool = noRepeatedForwardStep.length ? noRepeatedForwardStep : signatureSafePool;
 
+  // Keep pocket-edge behavior to one card when another valid hand task exists.
+  // Image models often exaggerate repeated pocket cues into the same pose even
+  // when the rest of the action definition differs.
+  const pocketEdgeAlreadyUsed = selected.some((item) => item.handTask === "pocketEdge");
+  const handSafePool = pocketEdgeAlreadyUsed
+    ? safePool.filter((candidate) => candidate.handTask !== "pocketEdge")
+    : safePool;
+  const handPool = handSafePool.length ? handSafePool : safePool;
+
   // Visual leg-pose diversity is a hard gate while an unused family is still
   // available for this card. The novelty score remains useful only inside that
   // safe subset; it must never trade away a fresh silhouette for a new action
   // family or hand task.
   const usedVisualLegFamilies = new Set(selected.map((item) => item.visualLegPoseFamily));
-  const unusedVisualLegFamilyPool = safePool.filter(
+  const unusedVisualLegFamilyPool = handPool.filter(
     (candidate) => !usedVisualLegFamilies.has(candidate.visualLegPoseFamily)
   );
-  const visualPool = unusedVisualLegFamilyPool.length ? unusedVisualLegFamilyPool : safePool;
+  const visualPool = unusedVisualLegFamilyPool.length ? unusedVisualLegFamilyPool : handPool;
 
   // Prefer a genuinely new action family after the visual leg-pose constraint
   // has been satisfied. This prevents five variants of the same walk / pause
@@ -188,6 +214,38 @@ function eligibleActions(card: SeriesActionCardInput, topic: string) {
     ? candidates.filter((action) => !/mirror|selfie|phone|mirror check|outfit check/i.test(action.directive))
     : candidates;
   return sceneSafeCandidates.length >= 3 ? sceneSafeCandidates : candidates;
+}
+
+function isLifestyleActionSceneCompatible(
+  card: SeriesActionCardInput,
+  action: PersonActionDefinition
+) {
+  if (!LIFESTYLE_NO_WALKING_SCENES.has(card.scenePreference)) return true;
+
+  if (action.poseType === "walking") return false;
+  if (["forward", "diagonal", "lateral"].includes(action.travelDirection)) return false;
+  if (["stepStart", "midStep"].includes(action.footwork)) return false;
+
+  if (LIFESTYLE_SEATED_OR_STATIONARY_SCENES.has(card.scenePreference)) {
+    return action.category === "seated" ||
+      action.travelDirection === "stationary" ||
+      action.movementPhase === "still" ||
+      action.movementPhase === "settling" ||
+      action.movementPhase === "task";
+  }
+
+  return true;
+}
+
+function filterSceneActionCompatibilityCandidates(
+  candidates: PersonActionDefinition[],
+  card: SeriesActionCardInput
+) {
+  const compatible = candidates.filter((action) => isLifestyleActionSceneCompatible(card, action));
+  // Preserve enough choice for series-level leg-pose diversity. If a future
+  // scene has too few compatible actions, fall back rather than silently
+  // returning no action at all; the validator will expose the coverage gap.
+  return compatible.length >= 3 ? compatible : candidates;
 }
 
 function filterCaptureStyleCandidates(
@@ -250,7 +308,10 @@ export function selectDiversePersonActions({
 
   if (topic === "生活场景软种草") {
     const candidatePools = cards.map((card) =>
-      filterCaptureStyleCandidates(eligibleActions(card, topic), captureStyle)
+      filterCaptureStyleCandidates(
+        filterSceneActionCompatibilityCandidates(eligibleActions(card, topic), card),
+        captureStyle
+      )
     );
     const results: Array<PersonActionDefinition | null> = Array.from({ length: cards.length }, () => null);
 
