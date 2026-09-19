@@ -105,6 +105,7 @@ try {
     new Set(actionDirectives).size !== PERSON_ACTION_LIBRARY_EXPECTED_COUNT ||
     personActionLibrary.some((action) =>
       !action.id || !action.diversityFamily || !action.bodyOrientation || !action.footwork ||
+      !action.macroActionGroup ||
       !action.movementPhase || !action.handTask || !action.framing || !action.poseType ||
       !action.supportLeg || !action.kneeState || !action.travelDirection ||
       !action.heelState || !action.footSpacing || !action.legActionSignature ||

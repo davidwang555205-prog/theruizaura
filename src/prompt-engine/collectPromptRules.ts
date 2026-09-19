@@ -386,7 +386,7 @@ export function collectPromptRules(input: PromptProfileInput): PromptRule[] {
     rules.push({
       id: "card-series-context",
       section: "continuity",
-      text: `This is image ${index} of ${count}. Preserve the same selected person, outfit, sneaker, hair or makeup treatment, and color grade. ${input.sceneLock ? "Keep the locked scene consistent across the series." : "Use this card's selected scene independently; do not reuse, blend, or inherit another card's location, architecture, props, or background."} Vary the card-specific framing, orientation, action phase, gaze, and expression.`,
+      text: `This is image ${index} of ${count}. Preserve the same selected person, outfit, sneaker, hair or makeup treatment, and color grade. ${input.sceneLock ? "Keep the locked scene consistent across the series." : "Use this card's selected scene independently; do not reuse, blend, or inherit another card's location, architecture, props, or background."} Vary the card-specific framing, orientation, action phase, whole-body silhouette, leg stance, and hand task; do not repeat the same full-body pose.`,
       priority: PromptPriority.P0_USER_SPECIFIED,
       source: "theme-card",
       appliesWhen: {},
@@ -399,7 +399,7 @@ export function collectPromptRules(input: PromptProfileInput): PromptRule[] {
     rules.push({
       id: `card-face-variation-${input.seriesFaceVariation.id}`,
       section: "model",
-      text: `Face variation lock for this card (${input.seriesFaceVariation.id}): ${input.seriesFaceVariation.line} Keep the same person identity, but do not reuse the previous face-visible card's gaze target, eyelid tension, mouth state, or head angle.`,
+      text: `Face variation lock for this card (${input.seriesFaceVariation.id}): ${input.seriesFaceVariation.line} Keep the same person identity, but make this card's head angle, gaze direction, eyelid openness, brow height, and mouth shape visibly different from every other face-visible card; do not repeat a straight neutral face. Keep both eyes visibly open with clearly separated upper and lower eyelids, visible iris and pupil, and natural catchlights; never render closed eyes, sleepy half-closed eyes, or a squint.`,
       priority: PromptPriority.P0_USER_SPECIFIED,
       source: "theme-card",
       appliesWhen: {},

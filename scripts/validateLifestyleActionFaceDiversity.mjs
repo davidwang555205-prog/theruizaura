@@ -105,13 +105,6 @@ const noWalkingScenePreferences = new Set([
   "楼下便利店 / 咖啡外带"
 ]);
 
-function stripNegatedCameraAwareness(text) {
-  return text.replace(
-    /\b(?:no|without|never|do not)\s+(?:direct\s+)?(?:camera acknowledgement|eye contact with the lens)\b/gi,
-    ""
-  );
-}
-
 try {
   await writeFile(entry, [
     `export { generateSoftSeedingContent } from ${JSON.stringify(resolve(root, "src/utils/generateSoftSeedingContent.ts"))};`,
@@ -191,6 +184,7 @@ try {
       expect(new Set(orientations).size >= 2, `${label}: body orientation is too repetitive.`, orientations);
 
       const faceVariationIds = [];
+      let cameraGazeCount = 0;
       for (const image of content.images) {
         const lockHeaders = [...image.prompt.matchAll(/Face variation lock for this card \(([^)]+)\):/g)];
         const fullLockMatches = [...image.prompt.matchAll(/Face variation lock for this card \(([^)]+)\):([\s\S]*?)(?=Keep the same person identity)/g)];
@@ -202,8 +196,18 @@ try {
         if (lockId) faceVariationIds.push(lockId);
         expect(!/Head-and-face beat for this card:/i.test(image.prompt), `${label}/${image.name}: legacy face beat still competes with the structured face lock.`, image.prompt);
         expect(
-          /do not reuse the previous face-visible card's gaze target, eyelid tension, mouth state, or head angle/i.test(image.prompt),
+          /visibly different from every other face-visible card/i.test(image.prompt),
           `${label}/${image.name}: face anti-repeat boundary missing.`,
+          image.prompt
+        );
+        expect(
+          /Keep both eyes visibly open with clearly separated upper and lower eyelids/i.test(image.prompt),
+          `${label}/${image.name}: open-eye boundary missing.`,
+          image.prompt
+        );
+        expect(
+          !/narrow the eyelids|lowered eyelid tension/i.test(image.prompt),
+          `${label}/${image.name}: closed-eye language found.`,
           image.prompt
         );
         expect(
@@ -221,15 +225,24 @@ try {
         }
 
         if (captureStyle === "telephoto_candid") {
-          const affirmativeCameraAwarenessText = stripNegatedCameraAwareness(fullLockText);
-          expect(!/camera acknowledgement|eye contact with the lens/i.test(affirmativeCameraAwarenessText), `${label}/${image.name}: telephoto face lock became camera-aware.`, fullLockText);
-          expect(/off-camera|rather than the lens|never toward the lens|no eye contact with the lens|no camera awareness|outside the frame/i.test(fullLockText), `${label}/${image.name}: telephoto gaze boundary missing.`, fullLockText);
-        } else if (lockId !== "lifestyle-face-camera-acknowledgement") {
-          expect(/off-camera|away from the lens|fully off-camera|outside the frame|never on the lens|do not acknowledge the camera|do not redirect the eyes toward the lens/i.test(fullLockText), `${label}/${image.name}: non-primary standard face beat may still drift back to camera acknowledgement.`, fullLockText);
+          if (lockId === "lifestyle-telephoto-face-camera-glance") {
+            cameraGazeCount += 1;
+            expect(/look into the lens/i.test(fullLockText), `${label}/${image.name}: telephoto camera-glance card missing lens gaze.`, fullLockText);
+          } else {
+            expect(!/camera acknowledgement|eye contact with the lens/i.test(fullLockText), `${label}/${image.name}: telephoto face lock became camera-aware.`, fullLockText);
+            expect(/off-camera|rather than the lens|never toward the lens|no eye contact with the lens|no camera awareness|outside the frame/i.test(fullLockText), `${label}/${image.name}: telephoto gaze boundary missing.`, fullLockText);
+          }
+        } else {
+          if (lockId === "lifestyle-face-camera-acknowledgement") {
+            cameraGazeCount += 1;
+          } else {
+            expect(/off-camera|away from the lens|fully off-camera|outside the frame|never on the lens|do not acknowledge the camera|do not redirect the eyes toward the lens/i.test(fullLockText), `${label}/${image.name}: non-primary standard face beat may still drift back to camera acknowledgement.`, fullLockText);
+          }
         }
       }
 
       expect(new Set(faceVariationIds).size === 5, `${label}: five cards reused a face-variation id.`, faceVariationIds);
+      expect(cameraGazeCount === 1, `${label}: multi-image set must contain exactly one camera-gaze card.`, cameraGazeCount);
     }
   }
 

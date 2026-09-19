@@ -5,6 +5,7 @@ import { getPromptEngineConfig, recordCompareResult } from "../promptFeatureFlag
 import { logDiagnostics } from "../diagnostics";
 import { generateTeamPrompt as legacyGenerateTeamPrompt } from "../../utils/generatePrompt";
 import { resolveProductPresence } from "../normalizePromptProfileInput";
+import { resolveLifestyleFaceVariationForCard } from "../../data/lifestyleFaceVariationPlans";
 
 function resolveCompositionMode(params: TeamPromptParams): CompositionMode {
   if (params.imageType === "产品静物图") return "stillLife";
@@ -64,92 +65,26 @@ function resolveTopicId(params: TeamPromptParams) {
       : undefined);
 }
 
-type FaceVariation = NonNullable<TeamPromptParams["seriesFaceVariation"]>;
-
-const lifestyleStandardFaceVariations: FaceVariation[] = [
-  {
-    id: "lifestyle-face-camera-acknowledgement",
-    line: "Use a soft three-quarter head angle with one brief friendly camera acknowledgement, relaxed eyelids, a faint asymmetric smile, and natural catchlights. This is the only standard-series face beat that may acknowledge the lens."
-  },
-  {
-    id: "lifestyle-face-path-focus",
-    line: "Let the head follow the walking or movement direction while the eyes track the real path ahead, with a relaxed brow and resting lips. Keep the gaze away from the lens and do not acknowledge the camera."
-  },
-  {
-    id: "lifestyle-face-downward-check",
-    line: "Angle the head slightly downward and let the eyes check the sneaker, garment hem, or immediate floor path, with relaxed brows and a quiet neutral mouth. Keep the gaze fully off-camera."
-  },
-  {
-    id: "lifestyle-face-scene-response",
-    line: "Turn the head toward one real scene detail with an off-camera gaze, a small natural brow response, and an unforced mouth shape. Do not redirect the eyes toward the lens."
-  },
-  {
-    id: "lifestyle-face-post-action-release",
-    line: "Capture the face just after the body action settles, with a soft exhale, relaxed eyelids, subtly parted or resting lips, and gaze continuing beyond the action path. Keep the gaze outside the frame and do not turn back to re-acknowledge the camera."
-  },
-  {
-    id: "lifestyle-face-listening-side",
-    line: "Use a quiet listening-like side attention toward a nearby person or environmental cue, with one eye slightly nearer the camera, a calm jaw, and no held portrait smile. The attention stays on the scene, never on the lens."
-  },
-  {
-    id: "lifestyle-face-light-response",
-    line: "Let the face respond subtly to changing daylight or reflection, with a slight squint or eyelid adjustment, relaxed lips, and the head remaining secondary to the body action. Keep the eyes off-camera."
-  },
-  {
-    id: "lifestyle-face-transition-glance",
-    line: "Use a fleeting glance toward the next practical destination during the transition, with a small head turn, neutral brow, and an expression that feels unfinished rather than posed. Do not acknowledge the camera."
-  }
-];
-
-const lifestyleTelephotoFaceVariations: FaceVariation[] = [
-  {
-    id: "lifestyle-telephoto-face-side-detail",
-    line: "Use a soft three-quarter head angle with the eyes resting on a practical scene detail to the side, a faint asymmetric smile, and no eye contact with the lens."
-  },
-  {
-    id: "lifestyle-telephoto-face-path-focus",
-    line: "Let the head follow the movement direction while the eyes track the path ahead rather than the lens, with relaxed eyelids, a soft jaw, and resting lips."
-  },
-  {
-    id: "lifestyle-telephoto-face-downward-check",
-    line: "Angle the head slightly downward and let the eyes check the sneaker, garment hem, or immediate floor path, with relaxed brows and no camera awareness."
-  },
-  {
-    id: "lifestyle-telephoto-face-window-response",
-    line: "Turn the head subtly toward architecture, a storefront, artwork, or another real scene cue, with an off-camera gaze, a small brow response, and natural catchlights."
-  },
-  {
-    id: "lifestyle-telephoto-face-post-action-release",
-    line: "Capture a quiet face just after the action settles, with a soft exhale, relaxed eyelids, resting lips, and the gaze placed just beyond the walking path, never toward the lens."
-  },
-  {
-    id: "lifestyle-telephoto-face-companion-attention",
-    line: "Use a brief listening-like attention toward a nearby companion or practical destination outside the frame, with a calm jaw, slight head turn, and no direct camera acknowledgement."
-  },
-  {
-    id: "lifestyle-telephoto-face-light-response",
-    line: "Let the eyes and eyelids respond subtly to real daylight or reflection while the head remains aligned with the action, with relaxed lips and an entirely off-camera gaze."
-  },
-  {
-    id: "lifestyle-telephoto-face-transition-glance",
-    line: "Use a fleeting off-camera glance toward the next destination during movement, with a small unfinished head turn, neutral brow, and no portrait-like facial hold."
-  }
-];
-
 function resolveLifestyleSeriesFaceVariation(
   params: TeamPromptParams,
   topicId: string | undefined
-): FaceVariation | undefined {
+): NonNullable<TeamPromptParams["seriesFaceVariation"]> | undefined {
   if (params.seriesFaceVariation) return params.seriesFaceVariation;
   if (topicId !== "lifestyle_soft_seeding") return undefined;
   if (!params.seriesImageCount || params.seriesImageCount < 2 || typeof params.seriesImageIndex !== "number") {
     return undefined;
   }
 
-  const plan = params.captureStyle === "telephoto_candid"
-    ? lifestyleTelephotoFaceVariations
-    : lifestyleStandardFaceVariations;
-  return plan[params.seriesImageIndex % plan.length];
+  const cameraCardIndex = params.imageType === "对镜穿搭图"
+    ? -1
+    : Math.abs(params.generationNonce + params.seriesImageCount) % params.seriesImageCount;
+  return resolveLifestyleFaceVariationForCard({
+    captureStyle: params.captureStyle ?? "standard",
+    index: params.seriesImageIndex,
+    bodyOrientation: params.seriesActionBodyOrientation,
+    cameraCardIndex,
+    rotationIndex: params.seriesImageIndex
+  });
 }
 
 const generatedLifestyleActionPhrasePatterns: Array<[RegExp, string]> = [
@@ -168,7 +103,9 @@ const generatedLifestyleActionPhrasePatterns: Array<[RegExp, string]> = [
   [/\b(?:one\s+)?(?:small|natural)\s+(?:clothing|garment)\s+adjustment\b/gi, "wearable garment state"],
   [/\bsubtle turn toward a friend\b/gi, "believable nearby-friend context"],
   [/\bnatural seated posture\b/gi, "believable furniture relationship"],
-  [/\bnatural walking posture(?:\s+or\s+(?:a\s+)?(?:short|quiet|soft)\s+(?:waiting\s+)?pause)?\b/gi, "believable daily-life context"]
+  [/\bnatural walking posture(?:\s+or\s+(?:a\s+)?(?:short|quiet|soft)\s+(?:waiting\s+)?pause)?\b/gi, "believable daily-life context"],
+  [/\b(?:parking-to-office\s+)?walking transition\b/gi, "believable scene context"],
+  [/\bstable posture\b/gi, "believable scene context"]
 ];
 
 function sanitizeLifestyleGeneratedRequirement(

@@ -30,8 +30,8 @@ export const lifestyleSoftCaptureStyleProfiles: Record<LifestyleSoftCaptureStyle
     id: "telephoto_candid",
     labelZh: lifestyleSoftCaptureStyleLabels.telephoto_candid,
     cameraProfileId: "telephoto-candid",
-    positiveLine: "Observe from a physically farther standing-height camera position with a restrained 105-180mm full-frame-equivalent perspective, natural compression, plausible shallow depth of field, enough of the real scene to read, a directional or off-camera gaze, and a mid-action moment with slightly imperfect but balanced framing. Keep the product readable with at least one complete sneaker visible, without turning it into a deliberate shoe showcase.",
-    negativeLine: "Avoid runway posing, influencer stare, beauty-ad eye contact, extreme creamy blur, portrait-cutout halo, artificial motion blur, exaggerated compression, oversized foreground shoes, low-angle distortion, symmetrical shoe display, retouching, and sharpening."
+    positiveLine: "Observe from a physically farther standing-height camera position with a restrained 105-180mm full-frame-equivalent perspective, natural compression, plausible shallow depth of field, enough scene to read, and the card's assigned action phase with balanced framing; do not impose a generic mid-action hold. Keep both feet in nearly the same depth plane and at least one complete sneaker readable.",
+    negativeLine: "Avoid runway posing, influencer stare, beauty-ad eye contact, extreme creamy blur, portrait-cutout halo, artificial motion blur, exaggerated compression, oversized foreground shoes, unequal shoe size, one shoe larger than the other, low-angle distortion, symmetrical shoe display, retouching, and sharpening."
   }
 };
 

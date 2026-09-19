@@ -3,6 +3,21 @@ import { PromptPriority } from "../contracts";
 
 export const THERUIZ_AURA_BRAND_ID = "theruiz_aura" as const;
 
+const SHOE_SCALE_LOCK_BASE =
+  "Shoe scale lock: keep the sneaker length and volume proportional to the visible anatomy in frame. Keep the ankle alignment natural, the garment hem clear of the tongue and laces, and both feet grounded.";
+
+const TELEPHOTO_SHOE_SCALE_SUPPLEMENT =
+  "Do not let telephoto compression enlarge or shrink the sneaker. Keep both shoes at nearly the same camera distance and equal visible scale.";
+
+const SHOE_SCALE_FRAMING_LINES = {
+  fullFigure:
+    "In full-figure framing, keep each sneaker clearly smaller than the head and about 5-7% of image width.",
+  threeQuarterFigure:
+    "In three-quarter framing, keep each sneaker about 7-10% of image width.",
+  lowerBody:
+    "In lower-body framing, keep each sneaker proportional to the visible ankle and calf; do not fill more than 45% of crop width."
+} as const;
+
 const HUMAN_STATE: PromptRule = {
   id: "theruiz-human-state-real-mature-urban",
   section: "model",
@@ -29,7 +44,7 @@ const ACTION_STATE: PromptRule = {
 const COMPOSITION_STATE: PromptRule = {
   id: "theruiz-composition-observed-asymmetric",
   section: "scene",
-  text: "Use the visual language of real commercial lifestyle photography rather than a synthetic catalog composition. Prefer off-center framing, natural asymmetry, architectural framing, environmental layers, and a stable moment that feels observed rather than arranged. Allow a doorway, column, wall edge, glass panel, step, table edge, flowers, or a soft foreground element to interrupt the frame naturally without blocking essential Product Truth evidence. Keep a clear visual hierarchy; the face, outfit, shoes, and background must not all be equally dominant or equally sharp. Avoid centered full-body symmetry and rigid front-facing catalog layouts.",
+  text: "Use observed commercial lifestyle photography with off-center framing, natural asymmetry, environmental depth, and a clear visual hierarchy. Avoid centered rigid catalog symmetry.",
   priority: PromptPriority.P3_COMPOSITION_AND_VISIBILITY,
   source: "realism-profile",
   appliesWhen: { compositionModes: ["fullFigure", "studioThreeQuarter", "mirrorFull", "mirrorThreeQuarter", "mirrorSeated", "onFootLifestyle"] },
@@ -41,7 +56,7 @@ const COMPOSITION_STATE: PromptRule = {
 const SCENE_STATE: PromptRule = {
   id: "theruiz-scene-functionally-believable",
   section: "scene",
-  text: "Build a spatially real and functionally believable environment with clear architecture, natural movement routes, and a reason for the woman to be there. Favor ordinary building entrances, residential lobby thresholds, flower shop fronts, gallery or bookstore circulation spaces, residential entry areas, quiet business-district walkways, and indoor-outdoor transitions. Use a small number of specific functional details instead of many decorative objects. Keep doors, floors, steps, glass, walls, furniture, signage, distant people, or vehicles logically placed and physically consistent. Avoid empty template sets and decorative lifestyle backgrounds with weak or ambiguous object details.",
+  text: "Build a spatially real environment with functional architecture, a natural movement route, and a few specific details. Avoid empty template sets and ambiguous decorative backgrounds.",
   priority: PromptPriority.P3_COMPOSITION_AND_VISIBILITY,
   source: "realism-profile",
   appliesWhen: { compositionModes: ["fullFigure", "studioThreeQuarter", "mirrorFull", "mirrorThreeQuarter", "mirrorSeated", "onFootLifestyle"] },
@@ -52,7 +67,7 @@ const SCENE_STATE: PromptRule = {
 const LIGHTING_STATE: PromptRule = {
   id: "theruiz-lighting-source-falloff-material-response",
   section: "lighting",
-  text: "Use natural and physically believable light with a clear source, realistic falloff, soft local shadows, and normal exposure differences across the space. Allow the face to sit slightly below the brightest area when appropriate, and allow indoor-outdoor brightness differences or mild tonal imbalance. Keep physically distinct surface response across skin, hair, clothing, accessories, confirmed product surfaces, and the studio or environmental materials. Do not let unrelated surfaces share identical smoothness, sharpness, or reflectivity. Preserve subtle depth-of-field and edge softness where the lens would naturally create it, but do not hide anatomy or product errors through blur, noise, or low resolution.",
+  text: "Use physically believable light with one clear source, realistic falloff, soft local shadows, and distinct material response. Keep natural depth-of-field without hiding anatomy or product errors.",
   priority: PromptPriority.P5_REALISM_AND_CAMERA,
   source: "realism-profile",
   appliesWhen: { compositionModes: ["fullFigure", "studioLowerThird", "studioThreeQuarter", "mirrorFull", "mirrorThreeQuarter", "mirrorSeated", "onFootLifestyle", "stillLife", "materialDetail"] },
@@ -86,13 +101,73 @@ const PHYSICAL_INTEGRITY: PromptRule = {
 const NEGATIVE_RISK: PromptRule = {
   id: "theruiz-negative-anti-ai-realism-risk",
   section: "negative",
-  text: "Avoid overly centered composition, symmetrical full-body catalog posing, rigid front-facing stance, mannequin-like stillness, static product-display foot placement, overly smooth skin, synthetic hair edges, identical sharpness across all materials, perfectly even lighting across face, outfit, shoes, and background, decorative but semantically weak objects, template-like cafe or studio environments, full-frame perfection, floating feet, weightless posture, hovering hands, garment-shoe fusion, duplicated shoe details, inconsistent left-right shoe structure, unstable laces, distorted outsole, generic catalog cutout, and artificial AI-style lifestyle-advertising perfection. Do not use blur, noise, metadata changes, or degraded image quality to conceal structural errors.",
+  text: "Avoid centered catalog symmetry, mannequin stillness, plastic skin, synthetic hair edges, identical sharpness, floating feet, weightless posture, hovering hands, garment-shoe fusion, distorted product structure, and generic AI advertising perfection. Do not use blur, noise, or degraded quality to conceal errors.",
   priority: PromptPriority.P7_LOW_PRIORITY_NEGATIVE,
   source: "realism-profile",
   appliesWhen: {},
   required: true,
   tags: ["theruiz-aura", "negative", "anti-ai"]
 };
+
+function buildOnFootShoeScaleRule(input: PromptProfileInput): PromptRule | null {
+  if (!input.hasShoe) return null;
+  const personWornModes = new Set([
+    "fullFigure",
+    "studioLowerThird",
+    "studioThreeQuarter",
+    "studioOnFootDetail",
+    "mirrorFull",
+    "mirrorThreeQuarter",
+    "mirrorSeated",
+    "onFootLifestyle"
+  ]);
+  if (!personWornModes.has(input.compositionMode)) return null;
+
+  const actionLockText = input.actionLock ?? "";
+  const framingLine = /lower-body or on-foot framing|waist-to-floor framing/i.test(actionLockText)
+    ? SHOE_SCALE_FRAMING_LINES.lowerBody
+    : /three-quarter-figure framing/i.test(actionLockText)
+      ? SHOE_SCALE_FRAMING_LINES.threeQuarterFigure
+      : SHOE_SCALE_FRAMING_LINES.fullFigure;
+  const telephotoLine = input.captureStyle === "telephoto_candid"
+    ? TELEPHOTO_SHOE_SCALE_SUPPLEMENT
+    : "";
+  const continuityLine = input.isMultiImage
+    ? "Keep the same shoe-to-body scale in every image."
+    : "";
+
+  return {
+    id: "theruiz-on-foot-shoe-scale-lock",
+    section: "product",
+    text: [
+      SHOE_SCALE_LOCK_BASE,
+      framingLine,
+      telephotoLine,
+      continuityLine
+    ].filter(Boolean).join(" "),
+    priority: PromptPriority.P1_PRODUCT_HARD_LOCK,
+    source: "realism-profile",
+    appliesWhen: { hasShoe: true, compositionModes: [...personWornModes] as PromptProfileInput["compositionMode"][] },
+    required: true,
+    tags: ["product-truth", "shoe-scale", "on-foot", "telephoto"]
+  };
+}
+
+function buildTelephotoBaseGazeRule(input: PromptProfileInput): PromptRule | null {
+  if (input.captureStyle !== "telephoto_candid") return null;
+  if (input.seriesImageCount && input.seriesImageCount >= 2) return null;
+
+  return {
+    id: "theruiz-telephoto-base-gaze-boundary",
+    section: "model",
+    text: "Keep the gaze directional and off-camera unless the selected card explicitly specifies another practical target.",
+    priority: PromptPriority.P0_USER_SPECIFIED,
+    source: "realism-profile",
+    appliesWhen: {},
+    required: true,
+    tags: ["telephoto", "gaze", "base-boundary"]
+  };
+}
 
 export function getTheruizAuraRealismRules(input: PromptProfileInput): PromptRule[] {
   if (input.brandId !== THERUIZ_AURA_BRAND_ID) return [];
@@ -107,6 +182,10 @@ export function getTheruizAuraRealismRules(input: PromptProfileInput): PromptRul
       : isStudio
         ? [HUMAN_STATE, COMPOSITION_STATE, LIGHTING_STATE, PRODUCT_PRESENTATION, PHYSICAL_INTEGRITY, NEGATIVE_RISK]
         : [HUMAN_STATE, ACTION_STATE, COMPOSITION_STATE, SCENE_STATE, LIGHTING_STATE, PRODUCT_PRESENTATION, PHYSICAL_INTEGRITY, NEGATIVE_RISK];
+  const shoeScaleRule = buildOnFootShoeScaleRule(input);
+  const telephotoBaseGazeRule = buildTelephotoBaseGazeRule(input);
+  if (shoeScaleRule) rules.push(shoeScaleRule);
+  if (telephotoBaseGazeRule) rules.push(telephotoBaseGazeRule);
   return rules
     .map((rule) => {
       if (isStudio && rule.id === HUMAN_STATE.id) {
@@ -118,7 +197,7 @@ export function getTheruizAuraRealismRules(input: PromptProfileInput): PromptRul
       if (isTelephotoCandid && rule.id === HUMAN_STATE.id) {
         return {
           ...rule,
-          text: "Make the woman feel real and unperformed in a physically farther telephoto candid observation. Prefer a directional or off-camera gaze toward a practical scene detail, path, companion, or task; do not use direct eye contact with the lens. Keep natural facial tension, subtle hair and fabric texture, relaxed shoulders, believable body asymmetry, and an expression responding to the place or action rather than performing for the camera."
+          text: "Make the woman feel real and unperformed in a physically farther telephoto candid observation. Keep natural facial tension, subtle hair and fabric texture, relaxed shoulders, believable body asymmetry, and an expression responding to the place or action rather than performing for the camera."
         };
       }
       return rule;

@@ -29,12 +29,23 @@ export type PersonActionVisualLegPoseFamily =
   | "turning-settle"
   | "seated-grounded";
 
+export type PersonActionMacroGroup =
+  | "standStill"
+  | "walkTransition"
+  | "turnOrArrival"
+  | "seatedOrGrounded"
+  | "clothingTask"
+  | "environmentTask"
+  | "onFootPlacement"
+  | "mirrorAction";
+
 export type PersonActionDefinition = {
   id: string;
   category: PersonActionCategory;
   directive: string;
   poseType: TeamPoseType;
   diversityFamily: string;
+  macroActionGroup: PersonActionMacroGroup;
   bodyOrientation: PersonActionOrientation;
   footwork: PersonActionFootwork;
   movementPhase: PersonActionMovementPhase;
@@ -238,6 +249,18 @@ function buildLegActionProfile(
   };
 }
 
+const familyMacroActionGroups: Record<string, PersonActionMacroGroup> = {
+  standing: "standStill",
+  walking: "walkTransition",
+  transition: "turnOrArrival",
+  turning: "turnOrArrival",
+  "garment-task": "clothingTask",
+  "scene-interaction": "environmentTask",
+  "environment-response": "environmentTask",
+  "on-foot": "onFootPlacement",
+  seated: "seatedOrGrounded"
+};
+
 function buildActionFamily(spec: ActionFactorySpec): PersonActionDefinition[] {
   return Array.from({ length: spec.count }, (_, index) => {
     const bodyOrientation = dimension(spec.orientations, index, 1);
@@ -264,6 +287,7 @@ function buildActionFamily(spec: ActionFactorySpec): PersonActionDefinition[] {
       directive,
       poseType: spec.poseType,
       diversityFamily: spec.family,
+      macroActionGroup: familyMacroActionGroups[spec.family] ?? "standStill",
       bodyOrientation,
       footwork,
       movementPhase,
@@ -488,6 +512,7 @@ const mirrorActions: PersonActionDefinition[] = Array.from({ length: 24 }, (_, i
     directive: `Person action lock: ${cores[subfamilyIndex]}. ${legAction.legActionLine} ${endings[variant]} Keep the phone as the only handheld object, maintain grounded feet, and make this mirror action visibly different from the other cards.`,
     poseType: "mirror",
     diversityFamily: mirrorSubfamilies[subfamilyIndex],
+    macroActionGroup: "mirrorAction",
     bodyOrientation: orientations[subfamilyIndex],
     footwork: footworks[subfamilyIndex],
     movementPhase: subfamilyIndex === 3 ? "settling" : subfamilyIndex >= 4 && subfamilyIndex <= 6 ? "task" : "still",
@@ -553,6 +578,13 @@ const studioActions: PersonActionDefinition[] = Array.from({ length: 32 }, (_, i
     directive: `Person action lock: ${cores[studioShotIndex]}. ${legAction.legActionLine} ${variant === 0 ? "Keep both empty hands relaxed and the pose neutral." : variant === 1 ? "Use a softer weight transfer and a more incidental finish than the first studio version." : variant === 2 ? "Add a subtle garment adjustment while preserving the assigned leg action." : "Add a lapel-settling hand movement while preserving the assigned leg action."} Preserve the exact studio continuity and do not repeat another shot's leg silhouette.`,
     poseType: studioPoseType,
     diversityFamily: studioSubfamilies[studioShotIndex],
+    macroActionGroup: studioShotIndex === 7
+      ? "walkTransition"
+      : studioShotIndex === 3
+        ? "turnOrArrival"
+        : studioShotIndex >= 4
+          ? "onFootPlacement"
+          : "standStill",
     bodyOrientation: orientation[studioShotIndex],
     footwork: selectedFootwork,
     movementPhase: studioMovementPhase,

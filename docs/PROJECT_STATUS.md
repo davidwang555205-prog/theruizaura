@@ -125,7 +125,7 @@ Five-card output can explicitly vary:
 
 Identity continuity remains locked while facial presentation changes.
 
-For `telephoto_candid`, face variation remains off-camera / directional and avoids direct camera awareness.
+For `telephoto_candid`, face variation remains off-camera / directional except for exactly one brief friendly camera glance per multi-image set.
 
 ## 7. Camera system
 
