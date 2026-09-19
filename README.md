@@ -99,7 +99,7 @@ THERUIZ AURA 当前聚焦鞋履，尤其是德训鞋相关的品牌电商内容�
 - 摄影师与人物保持真实距离
 - 自然透视压缩
 - 合理浅景深，而不是人工奶油虚化
-- 人物以 off-camera / directional gaze 为主
+- 人物以 off-camera / directional gaze 为主，每组多图允许且仅允许一张短暂、友好的镜头对视
 - 捕捉动作中间态，而不是完成式 fashion pose
 - 至少一只鞋完整可读
 

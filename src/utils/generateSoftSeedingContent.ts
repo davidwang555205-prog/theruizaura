@@ -18,6 +18,7 @@ import {
   type LifestyleSoftCaptureStyle,
   type LifestyleSoftContentCategory
 } from "../data/lifestyleSoftSeedingCaptureStyles";
+import { resolveLifestyleFaceVariationForCard } from "../data/lifestyleFaceVariationPlans";
 import { NON_PRODUCT_ATMOSPHERE_VARIATIONS } from "../data/nonProductAtmosphereSceneLines";
 import { generatePromptRuntime } from "../prompt-engine/runtime";
 import { selectDiversePersonActions } from "./selectDiverseSeriesActions";
@@ -3294,9 +3295,6 @@ const stylingSolutionSetContinuityLine =
 const stylingSolutionFaceContinuityLine =
   "If more than one card shows the face, keep the exact same person across the set: same face, same age impression, same hairstyle, same hair color, same makeup or grooming, same facial structure, same body silhouette, and the same quiet daily temperament. Let the gaze direction and subtle expression vary naturally with each card's body angle and action so the eyes feel alive rather than cloned across frames. Generate the full-figure reference first and use it as the person and styling reference for the following image cards.";
 
-const lifestyleSoftSeedingSetContinuityLine =
-  "Lifestyle buyer-show set continuity: treat all cards as one coherent buyer-show series in the same real contemporary Chinese city or its restrained short-trip context. Keep the exact same person identity, face structure, age impression, outfit, shoe, hairstyle, makeup, color palette, and overall styling across the set. For every face-visible card, visibly vary at least one of head angle, gaze direction, eyelid tension, mouth shape, or subtle facial response; do not repeat the same frontal face, gaze, or expression across cards. Keep identity stable while facial presentation changes naturally with each scene and action. Location, pose, framing, and camera distance follow each card's scene naturally.";
-
 const lifestyleEmptyHandsContinuityLine =
   "Multi-image handheld continuity: keep both hands naturally empty in this card. Scene objects may remain placed in the environment, but do not put coffee, books, flowers, shopping bags, luggage, umbrellas, bottles, or other props in either hand.";
 
@@ -3322,27 +3320,6 @@ const stylingSolutionFaceVariationPlan = [
   { id: "scene-detail-reaction", line: "Turn subtly toward one real scene detail, with the nearer eye slightly more engaged and an unforced resting mouth." },
   { id: "after-action-exhale", line: "Use an incidental half-turn after the action with a soft exhale, lowered facial tension, and a distinct mouth state from the other cards." }
 ];
-
-const lifestyleExpressionBeats = [
-  "Head-and-face beat for this card: a soft three-quarter head turn with eyes briefly meeting the camera, a faint asymmetric smile, catchlights alive and visibly different from the other cards.",
-  "Head-and-face beat for this card: head tilted slightly toward the walking direction while the eyes track the path ahead, relaxed mouth, jaw naturally soft, no camera-facing performance.",
-  "Head-and-face beat for this card: head angled gently downward as the eyes check the sneakers or garment hem, brows relaxed, a genuine task-focused expression rather than a pose.",
-  "Head-and-face beat for this card: head turning subtly toward a scene detail or shop window with a small brow response, natural catchlights, one eye slightly nearer the camera than the other.",
-  "Head-and-face beat for this card: a quiet straight-ahead relaxed pause after a small action, head aligned with shoulders but differently from the other cards, eyes and mouth soft and unforced."
-];
-
-const lifestyleTelephotoExpressionBeats = [
-  "Head-and-face beat for this card: a soft three-quarter head turn with eyes resting on a practical scene detail to the side, a faint asymmetric smile, and no eye contact with the lens.",
-  "Head-and-face beat for this card: head tilted slightly toward the walking direction while the eyes track the path ahead rather than the lens, relaxed mouth, jaw naturally soft.",
-  "Head-and-face beat for this card: head angled gently downward as the eyes check the sneakers or garment hem, brows relaxed, a genuine task-focused expression rather than a pose.",
-  "Head-and-face beat for this card: head turning subtly toward a scene detail or shop window with a small brow response, natural catchlights, and an off-camera gaze.",
-  "Head-and-face beat for this card: a quiet pause after a small action, head aligned with the shoulders while the eyes rest just beyond the walking path, never toward the lens."
-];
-
-function resolveLifestyleExpressionBeat(captureStyle: LifestyleSoftCaptureStyle | undefined, index: number) {
-  const beats = captureStyle === "telephoto_candid" ? lifestyleTelephotoExpressionBeats : lifestyleExpressionBeats;
-  return beats[index % beats.length];
-}
 
 type SeriesActionBeat = {
   key: string;
@@ -3488,7 +3465,7 @@ function getLifestyleSoftSeedingContinuityLines(
       ? lifestyleEmptyHandsContinuityLine
       : "";
 
-  return [lifestyleSoftSeedingSetContinuityLine, handheldLine].filter(Boolean).join(" ");
+  return handheldLine;
 }
 
 function getSoftSeedingExtraRequirement(
@@ -3620,7 +3597,11 @@ function buildImagePlan(
   lockedOutfitLine = "",
   usedScenes?: Set<TeamScenePreference>,
   resolvedSceneOverride?: TeamScenePreference,
-  lifestyleSelection?: { contentCategory?: LifestyleSoftContentCategory; captureStyle: LifestyleSoftCaptureStyle }
+  lifestyleSelection?: {
+    contentCategory?: LifestyleSoftContentCategory;
+    captureStyle: LifestyleSoftCaptureStyle;
+    faceVariation?: { id: string; line: string };
+  }
 ): Omit<SoftSeedingImagePlan, "visualRoleId" | "activePromptVersionId" | "provenanceDisplay" | "routingProvenance"> {
   const shoeFields = resolveBaseShoe(baseParams);
   const garmentTypePreference = resolveSoftSeedingGarmentType(baseParams, draft);
@@ -3656,7 +3637,6 @@ function buildImagePlan(
     studioLaunchAnglePreference: "自动匹配",
     stillLifeStyle: "与主视觉统一",
     extraRequirement: joinSoftPromptSentences(
-      topic === "生活场景软种草" ? resolveLifestyleExpressionBeat(lifestyleSelection?.captureStyle, index) : "",
       topic === "穿搭解决方案" ? stylingSolutionExpressionBeats[index % stylingSolutionExpressionBeats.length] : "",
       hasAuthoritativePersonActionLock
         ? ""
@@ -3676,6 +3656,8 @@ function buildImagePlan(
     seriesFaceVariation:
       topic === "穿搭解决方案" && shouldInheritBaseGarmentType(draft.imageType)
         ? stylingSolutionFaceVariationPlan[index % stylingSolutionFaceVariationPlan.length]
+        : topic === "生活场景软种草"
+          ? lifestyleSelection?.faceVariation
         : undefined,
     seriesPoseType: seriesActionBeat.poseType,
     studioLaunchShotIndex: draft.studioLaunchShotIndex,
@@ -3781,6 +3763,32 @@ function buildSoftSeedingImagePlans(
     captureStyle: topic === "生活场景软种草" ? lifestyleSelection.captureStyle : "standard"
   });
 
+  const faceVisibleIndices = drafts
+    .map((draft, index) => ({ draft, index }))
+    .filter(({ draft }) => draft.imageType !== "对镜穿搭图")
+    .map(({ index }) => index);
+  const cameraCardIndex = topic === "生活场景软种草" && imageCount > 1 && faceVisibleIndices.length
+    ? faceVisibleIndices[Math.abs(baseParams.generationNonce + variantIndex) % faceVisibleIndices.length]
+    : -1;
+  let nonCameraFaceRotation = 0;
+  const usedLifestyleFaceVariationIds = new Set<string>();
+  const lifestyleFaceVariations = topic === "生活场景软种草" && imageCount > 1
+    ? drafts.map((draft, index) => {
+        const isCameraCard = draft.imageType !== "对镜穿搭图" && index === cameraCardIndex;
+        const faceVariation = resolveLifestyleFaceVariationForCard({
+          captureStyle: lifestyleSelection.captureStyle,
+          index,
+          bodyOrientation: selectedPersonActions[index]?.bodyOrientation,
+          cameraCardIndex: isCameraCard ? index : -1,
+          rotationIndex: nonCameraFaceRotation,
+          usedIds: usedLifestyleFaceVariationIds
+        });
+        if (faceVariation) usedLifestyleFaceVariationIds.add(faceVariation.id);
+        if (!isCameraCard) nonCameraFaceRotation += 1;
+        return faceVariation;
+      })
+    : [];
+
   const usedScenes = new Set<TeamScenePreference>();
   const plans = drafts.map((draft, index) => {
     const selectedPersonAction = selectedPersonActions[index];
@@ -3804,7 +3812,9 @@ function buildSoftSeedingImagePlans(
       sharedOutfitLine,
       usedScenes,
       plannedScenes[index],
-      lifestyleSelection
+      topic === "生活场景软种草"
+        ? { ...lifestyleSelection, faceVariation: lifestyleFaceVariations[index] }
+        : lifestyleSelection
     );
     usedScenes.add(plan.params.scenePreference);
     if (!sharedOutfitLine && shouldInheritBaseGarmentType(draft.imageType)) {

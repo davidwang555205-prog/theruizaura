@@ -63,18 +63,27 @@ try {
           expect(content.images.every((image) => !/雨天|rainy|wet pavement/i.test(`${image.name} ${image.prompt}`)), `${season}/${imageCount}/${contentCategory}/${captureStyle}: rainy output`);
           expect(content.images.every((image) => !/\b(null|undefined)\b/i.test(image.prompt)), `${season}/${imageCount}/${contentCategory}/${captureStyle}: unresolved value`);
           if (captureStyle === "telephoto_candid") {
+            let cameraGazeCount = 0;
             for (const image of content.images) {
               const cameraMatches = image.prompt.match(/Camera profile \(telephoto-candid\):/g) ?? [];
               expect(cameraMatches.length === 1, `Telephoto must emit exactly one telephoto camera profile for ${image.name}`, image.prompt);
               expect(!/Camera profile \((?:stabilized|shoe-safe)\):/.test(image.prompt), `Telephoto must not emit a competing shoe camera profile for ${image.name}`, image.prompt);
               expect(!/站姐|fansite|paparazzi|celebrity airport|celebrity street photo/i.test(image.prompt), `Telephoto prompt uses prohibited framing language for ${image.name}`, image.prompt);
-              expect(!/Direct eye contact may appear|eyes briefly meeting the camera|camera-facing performance|straight-ahead relaxed pause/i.test(image.prompt), `Telephoto prompt retained direct-camera gaze language for ${image.name}`, image.prompt);
-              expect(/off-camera|rather than the lens|never toward the lens/i.test(image.prompt), `Telephoto prompt lost directional gaze protection for ${image.name}`, image.prompt);
+              const isCameraGazeCard = /look into the lens|eyes briefly meeting the camera/i.test(image.prompt);
+              if (isCameraGazeCard) {
+                cameraGazeCount += 1;
+              } else {
+                expect(!/Direct eye contact may appear|eyes briefly meeting the camera|camera-facing performance|straight-ahead relaxed pause/i.test(image.prompt), `Telephoto prompt retained direct-camera gaze language for ${image.name}`, image.prompt);
+                expect(/off-camera|rather than the lens|never toward the lens|outside the frame|nose line off the lens axis|no camera awareness/i.test(image.prompt), `Telephoto prompt lost directional gaze protection for ${image.name}`, image.prompt);
+              }
               expect(!/scene continuity/i.test(image.prompt), `Unscoped scene continuity leaked into ${image.name}`, image.prompt);
               expect(!/raised foot|extended foot|sole toward|low angle|foreground foot|close to camera/i.test(image.params.seriesActionDirective ?? ""), `Telephoto selected a high-risk shoe action for ${image.name}`, image.params.seriesActionDirective);
               expect(/uploaded reference set|uploaded footwear references/i.test(image.prompt), `Telephoto lost Product Truth binding for ${image.name}`, image.prompt);
               expect(image.params.referencePlan?.order?.join(",") === "reference-overall", `Telephoto lost Reference Plan order for ${image.name}`, image.params.referencePlan);
               expect(/complete readable sneaker|complete sneaker/i.test(image.prompt), `Telephoto lost footwear visibility protection for ${image.name}`, image.prompt);
+            }
+            if (imageCount > 1) {
+              expect(cameraGazeCount === 1, `${season}/${imageCount}/${contentCategory}/${captureStyle}: telephoto multi-image set must contain exactly one camera-gaze card.`, cameraGazeCount);
             }
           }
         }

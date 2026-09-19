@@ -556,8 +556,8 @@ const lifestyleSceneTaxonomy: Record<string, {
   supportedCaptureStyles: LifestyleSoftCaptureStyle[];
 }> = {
   "lifestyle-entryway-mirror": { contentCategory: "natural_life", supportedCaptureStyles: ["standard"] },
-  "lifestyle-entryway-departure": { contentCategory: "natural_life", supportedCaptureStyles: ["standard"] },
-  "lifestyle-returning-home": { contentCategory: "natural_life", supportedCaptureStyles: ["standard"] },
+  "lifestyle-entryway-departure": { contentCategory: "natural_life", supportedCaptureStyles: ["standard", "telephoto_candid"] },
+  "lifestyle-returning-home": { contentCategory: "natural_life", supportedCaptureStyles: ["standard", "telephoto_candid"] },
   "lifestyle-commute-general": { contentCategory: "urban_commute", supportedCaptureStyles: ["standard", "telephoto_candid"] },
   "lifestyle-business-corner": { contentCategory: "urban_commute", supportedCaptureStyles: ["standard", "telephoto_candid"] },
   "lifestyle-office-entrance": { contentCategory: "urban_commute", supportedCaptureStyles: ["standard", "telephoto_candid"] },
@@ -580,8 +580,8 @@ const lifestyleSceneTaxonomy: Record<string, {
   "lifestyle-community-path": { contentCategory: "natural_life", supportedCaptureStyles: ["standard", "telephoto_candid"] },
   "lifestyle-home-wardrobe": { contentCategory: "natural_life", supportedCaptureStyles: ["standard"] },
   "lifestyle-dressing-corner": { contentCategory: "natural_life", supportedCaptureStyles: ["standard"] },
-  "lifestyle-window-reading": { contentCategory: "natural_life", supportedCaptureStyles: ["standard"] },
-  "lifestyle-window-reading-corner": { contentCategory: "natural_life", supportedCaptureStyles: ["standard"] },
+  "lifestyle-window-reading": { contentCategory: "natural_life", supportedCaptureStyles: ["standard", "telephoto_candid"] },
+  "lifestyle-window-reading-corner": { contentCategory: "natural_life", supportedCaptureStyles: ["standard", "telephoto_candid"] },
   "lifestyle-summer-amusement": { contentCategory: "natural_life", supportedCaptureStyles: ["standard", "telephoto_candid"] },
   "lifestyle-seaside": { contentCategory: "natural_life", supportedCaptureStyles: ["standard", "telephoto_candid"] },
   "lifestyle-grassland-picnic": { contentCategory: "natural_life", supportedCaptureStyles: ["standard", "telephoto_candid"] },
