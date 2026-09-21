@@ -199,7 +199,7 @@ try {
         );
         const singlePrimaryActionAuthority = peoplePrompts.every((image) => {
           const actionExclusivityInstructions = image.prompt.match(
-            /(?:This is the only primary body action for this card; do not add another walking, arrival, adjustment, or object-operation action\.|Treat this as the only primary body action or object-operation moment for this card; do not add another walking, arrival, adjustment, or object-operation action\.)/g
+            /(?:Keep this as the primary action beat, but capture it as a believable in-between moment|Treat this as the primary body action or object-operation moment, but keep it in a believable in-between state)/g
           ) ?? [];
           return actionExclusivityInstructions.length === 1;
         });

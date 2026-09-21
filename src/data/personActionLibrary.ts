@@ -146,6 +146,9 @@ const framingText: Record<PersonActionFraming, string> = {
 };
 
 const microBodyCues = [
+  "Let one side of the body lead the movement and the other follow a fraction later",
+  "Keep a small unfinished weight transfer instead of freezing every joint at once",
+  "Show the instant before or after the action completes, not a held final pose",
   "Let the shoulder line settle a fraction before the feet",
   "Keep the pelvis stable while the ribcage responds softly",
   "Let the rear heel carry the final trace of weight transfer",
@@ -228,13 +231,13 @@ function buildLegActionProfile(
               ? "arrival-settle"
               : "forward-step";
   const visualLegPoseLines: Record<PersonActionVisualLegPoseFamily, string> = {
-    "grounded-parallel": "Visual leg-pose lock: use a stationary planted stance with both soles grounded, parallel or only slightly open, and no walking stride or lifted trailing foot.",
-    "offset-standing": "Visual leg-pose lock: use an asymmetric stationary weight shift with both soles grounded and a clear offset between the feet; do not turn it into a forward walking stride.",
-    "forward-step": "Visual leg-pose lock: show one compact forward step with short travel, stable body height, and no long fashion-walk stride.",
-    "arrival-settle": "Visual leg-pose lock: show the end of one step after the lead foot has settled, with the rear foot near the ground; do not show a mid-walk or airborne trailing-foot pose.",
-    "lateral-step": "Visual leg-pose lock: show a shallow side-step across the camera plane with sideward travel; never replace it with a front-to-back walking stride.",
-    "turning-settle": "Visual leg-pose lock: use a compact pivoted stance with the feet changing direction close to the ground; do not turn it into a forward walking frame.",
-    "seated-grounded": "Visual leg-pose lock: keep both feet grounded beneath a relaxed seated posture with natural knee spacing and no crossed legs."
+    "grounded-parallel": "Visual leg-pose lock: use a relaxed planted stance with subtle weight transfer, both soles grounded, one knee softer than the other, and natural asymmetry; avoid a rigid symmetrical freeze.",
+    "offset-standing": "Visual leg-pose lock: use an asymmetric weight shift with both soles grounded, hips and shoulders offset, and one heel more loaded; keep the transfer slightly unfinished instead of locking.",
+    "forward-step": "Visual leg-pose lock: show a natural forward step in progress with visible anticipation and follow-through, short travel, and stable body height; avoid fashion-walk exaggeration.",
+    "arrival-settle": "Visual leg-pose lock: show the arrival as an unfinished in-between moment, with the lead foot settling and the rear foot still finishing contact; keep a trace of motion in the hips.",
+    "lateral-step": "Visual leg-pose lock: show a shallow side-step with one side of the body leading and the other following; keep the movement close to the ground and naturally unfinished.",
+    "turning-settle": "Visual leg-pose lock: use a compact pivot with the body still mid-transfer, feet changing direction close to the ground, and a slight residual rotation in the shoulders.",
+    "seated-grounded": "Visual leg-pose lock: keep a relaxed asymmetrical seated posture with one side of the body responding first, natural knee spacing, and feet grounded without locking the spine."
   };
   return {
     supportLeg,

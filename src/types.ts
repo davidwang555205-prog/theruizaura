@@ -338,6 +338,7 @@ export type TeamPromptParams = {
     headPitch?: "level" | "downward" | "slightly-upward";
     pitchDegrees?: number;
     gazeTarget?: "camera" | "path" | "shoe-or-hem" | "scene" | "beyond-frame" | "companion";
+    viewBand?: "clear-three-quarter" | "pronounced-three-quarter" | "near-profile-three-quarter";
     signature?: string;
   };
   selectedProductTruth?: ProductTruth;

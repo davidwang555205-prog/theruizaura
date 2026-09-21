@@ -196,7 +196,27 @@ try {
           expect(lockHeaders.length === 1, `${label}/${image.name}: expected exactly one structured Face Variation Lock.`, image.prompt);
           expect(fullLockMatches.length === 1, `${label}/${image.name}: expected one complete Face Variation Lock rule block.`, image.prompt);
           if (lockId) faceVariationIds.push(lockId);
-          expect(/Face orientation lock: turn about \d+ degrees camera-(?:left|right)/i.test(fullLockText), `${label}/${image.name}: resolved face angle missing.`, fullLockText);
+          expect(
+            /Face orientation lock \(hard\): compose a whole-body turn into a (?:clear|pronounced|near-profile) three-quarter view, with the face plane about \d+ degrees off the lens axis/i.test(fullLockText),
+            `${label}/${image.name}: resolved visual face angle missing.`,
+            fullLockText
+          );
+          expect(
+            /torso angle must support the head direction|do not keep a square frontal torso/i.test(fullLockText),
+            `${label}/${image.name}: whole-body head/torso coordination missing.`,
+            fullLockText
+          );
+          expect(
+            /nose and face plane point decisively toward frame-(?:left|right)/i.test(fullLockText),
+            `${label}/${image.name}: frame-relative face direction missing.`,
+            fullLockText
+          );
+          expect(
+            /far cheek and jawline are clearly visible/i.test(fullLockText) &&
+              /must not read as a frontal portrait/i.test(fullLockText),
+            `${label}/${image.name}: anti-frontal face geometry missing.`,
+            fullLockText
+          );
           expect(/visibly different from every other face-visible card/i.test(image.prompt), `${label}/${image.name}: face anti-repeat boundary missing.`, image.prompt);
           expect(/Keep both eyes visibly open with clearly separated upper and lower eyelids/i.test(image.prompt), `${label}/${image.name}: open-eye boundary missing.`, image.prompt);
           expect(!/narrow the eyelids|lowered eyelid tension/i.test(image.prompt), `${label}/${image.name}: closed-eye language found.`, image.prompt);
@@ -271,6 +291,11 @@ try {
       const signatures = faceCards.map((image) => image.params.seriesFaceVariation.signature);
       const yaws = faceCards.map((image) => image.params.seriesFaceVariation.headYaw);
       const yawDegrees = faceCards.map((image) => image.params.seriesFaceVariation.yawDegrees);
+      const viewBands = faceCards.map((image) => image.params.seriesFaceVariation.viewBand);
+      const directionViewKeys = faceCards.map((image) => [
+        image.params.seriesFaceVariation.headYaw,
+        image.params.seriesFaceVariation.viewBand
+      ].join("|"));
       const cameraCards = faceCards.filter((image) => image.params.seriesFaceVariation.cameraAware);
       const label = `${scenario.topic}/${scenario.captureStyle}/series-${imageCount}/seed-${seed}`;
 
@@ -278,8 +303,41 @@ try {
       expect(faceCards.length > 0, `${label}: expected at least one visible-face card.`, content.images.map((image) => image.name));
       expect(new Set(signatures).size === signatures.length, `${label}: face orientation signatures repeated.`, signatures);
       expect(cameraCards.length === 1, `${label}: exactly one face card may acknowledge the camera.`, cameraCards.map((image) => image.params.seriesFaceVariation));
-      expect(yawDegrees.every((angle) => Number.isInteger(angle) && angle >= 10 && angle <= 42), `${label}: sampled yaw angle is invalid.`, yawDegrees);
-      expect(faceCards.every((image) => /Face orientation lock: turn about \d+ degrees camera-(?:left|right)/i.test(image.prompt)), `${label}: resolved directional face lock missing from prompt.`, faceCards.map((image) => image.prompt));
+      expect(viewBands.every(Boolean), `${label}: resolved face view band missing.`, viewBands);
+      expect(yawDegrees.every((angle) => Number.isInteger(angle) && angle >= 18 && angle <= 42), `${label}: sampled yaw angle is invalid.`, yawDegrees);
+      expect(
+        faceCards.every((image) => /Face orientation lock \(hard\): compose a whole-body turn into a (?:clear|pronounced|near-profile) three-quarter view/i.test(image.prompt)),
+        `${label}: resolved visual face lock missing from prompt.`,
+        faceCards.map((image) => image.prompt)
+      );
+      expect(
+        faceCards.every((image) => /whole-body turn|torso angle must support the head direction|do not keep a square frontal torso/i.test(image.prompt)),
+        `${label}: whole-body head/torso coordination missing from prompt.`,
+        faceCards.map((image) => image.prompt)
+      );
+      expect(
+        faceCards.every((image) => /nose and face plane point decisively toward frame-(?:left|right)/i.test(image.prompt)),
+        `${label}: frame-relative directional face lock missing from prompt.`,
+        faceCards.map((image) => image.prompt)
+      );
+      if (faceCards.length >= 3) {
+        expect(new Set(viewBands).size >= 3, `${label}: fewer than three visual face-angle bands in a multi-card set.`, viewBands);
+        const bandCounts = [...new Set(viewBands)].map((band) => viewBands.filter((value) => value === band).length);
+        expect(Math.max(...bandCounts) - Math.min(...bandCounts) <= 1, `${label}: visual face-angle bands are imbalanced.`, bandCounts);
+      }
+      const leftCount = yaws.filter((value) => value === "camera-left").length;
+      const rightCount = yaws.filter((value) => value === "camera-right").length;
+      expect(Math.abs(leftCount - rightCount) <= 1, `${label}: face directions are concentrated on one side.`, { leftCount, rightCount, yaws });
+      expect(
+        directionViewKeys.every((key, index) => index === 0 || key !== directionViewKeys[index - 1]),
+        `${label}: adjacent face cards repeat the same direction and view band.`,
+        directionViewKeys
+      );
+      if (faceCards.length <= 6) {
+        expect(new Set(directionViewKeys).size === directionViewKeys.length, `${label}: direction and view band repeated inside the set.`, directionViewKeys);
+      } else {
+        expect(new Set(directionViewKeys).size >= 6, `${label}: direction and view band coverage is too narrow.`, directionViewKeys);
+      }
       expect(faceCards.filter((image) => !image.params.seriesFaceVariation.cameraAware).every((image) => !/only card allowed to briefly acknowledge the lens/i.test(image.prompt)), `${label}: an off-camera card inherited lens permission.`, faceCards.map((image) => image.prompt));
       expect(faceCards.every((image) => !forbiddenFaceCompetition.test(image.prompt)), `${label}: a generic gaze rule competes with the Face Variation Lock.`, faceCards.map((image) => image.prompt));
       expect(nonFaceCards.every((image) => !/Face (?:variation|orientation) lock/i.test(image.prompt) && !image.params.seriesFaceVariation), `${label}: hidden/cropped/non-person card received face control.`, nonFaceCards.map((image) => ({ name: image.name, prompt: image.prompt, face: image.params.seriesFaceVariation })));

@@ -412,7 +412,7 @@ export function collectPromptRules(input: PromptProfileInput): PromptRule[] {
     rules.push({
       id: "card-action-lock",
       section: "action",
-      text: `Action Lock: ${input.actionLock} This is the only primary body action for this card; do not add another walking, arrival, adjustment, or object-operation action.`,
+      text: `Action Lock: ${input.actionLock} Keep this as the primary action beat, but capture it as a believable in-between moment with anticipation, weight transfer, follow-through, and a small unfinished movement. Do not add a second unrelated action, and do not freeze the body into a completed mannequin pose.`,
       priority: PromptPriority.P0_USER_SPECIFIED,
       source: "theme-card",
       appliesWhen: {},

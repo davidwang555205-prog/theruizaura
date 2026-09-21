@@ -18,7 +18,12 @@ import {
   type LifestyleSoftCaptureStyle,
   type LifestyleSoftContentCategory
 } from "../data/lifestyleSoftSeedingCaptureStyles";
-import { resolveLifestyleFaceVariationForCard } from "../data/lifestyleFaceVariationPlans";
+import {
+  planLifestyleFaceGeometrySeries,
+  resolveLifestyleFaceVariationForCard,
+  type LifestyleFaceViewBand,
+  type LifestyleHeadYaw
+} from "../data/lifestyleFaceVariationPlans";
 import { NON_PRODUCT_ATMOSPHERE_VARIATIONS } from "../data/nonProductAtmosphereSceneLines";
 import { generatePromptRuntime } from "../prompt-engine/runtime";
 import { selectDiversePersonActions } from "./selectDiverseSeriesActions";
@@ -3630,7 +3635,7 @@ function buildImagePlan(
     extraRequirement: joinSoftPromptSentences(
       hasAuthoritativePersonActionLock
         ? ""
-        : "Treat this as the only primary body action or object-operation moment for this card; do not add another walking, arrival, adjustment, or object-operation action.",
+        : "Treat this as the primary body action or object-operation moment, but keep it in a believable in-between state rather than a completed pose; do not add a second unrelated action.",
       getSoftSeedingExtraRequirement(baseParams, draft, garmentTypePreference, topic, variantIndex, imageCount, resolvedScene),
       lifestyleContinuityLine
     ),
@@ -3761,13 +3766,28 @@ function buildSoftSeedingImagePlans(
   const cameraCardIndex = supportsSeriesFacePlanning && imageCount > 1 && faceVisibleIndices.length
     ? faceVisibleIndices[Math.abs(baseParams.generationNonce + variantIndex) % faceVisibleIndices.length]
     : -1;
+  const lifestyleFaceGeometryPlan = supportsSeriesFacePlanning && imageCount > 1
+    ? planLifestyleFaceGeometrySeries(
+        faceVisibleIndices.length,
+        baseParams.generationNonce + variantIndex,
+        faceVisibleIndices.indexOf(cameraCardIndex)
+      )
+    : [];
   let nonCameraFaceRotation = 0;
   const usedLifestyleFaceVariationIds = new Set<string>();
   const usedLifestyleFaceSignatures = new Set<string>();
+  const usedLifestyleHeadYawCounts = new Map<LifestyleHeadYaw, number>();
+  const usedLifestyleFaceViewBandCounts = new Map<LifestyleFaceViewBand, number>();
+  const usedLifestyleDirectionViewBandCounts = new Map<string, number>();
+  let previousLifestyleDirectionViewBandKey: string | undefined;
   const lifestyleFaceVariations = supportsSeriesFacePlanning && imageCount > 1
     ? drafts.map((draft, index) => {
         if (!shouldPlanVisibleFace(draft)) return undefined;
         const isCameraCard = index === cameraCardIndex;
+        const faceSlotIndex = faceVisibleIndices.indexOf(index);
+        const plannedGeometry = faceSlotIndex >= 0
+          ? lifestyleFaceGeometryPlan[faceSlotIndex]
+          : undefined;
         const faceVariation = resolveLifestyleFaceVariationForCard({
           captureStyle: topic === "生活场景软种草" ? lifestyleSelection.captureStyle : "standard",
           index,
@@ -3776,10 +3796,35 @@ function buildSoftSeedingImagePlans(
           rotationIndex: nonCameraFaceRotation,
           usedIds: usedLifestyleFaceVariationIds,
           usedSignatures: usedLifestyleFaceSignatures,
+          usedHeadYawCounts: usedLifestyleHeadYawCounts,
+          usedViewBandCounts: usedLifestyleFaceViewBandCounts,
+          usedDirectionViewBandCounts: usedLifestyleDirectionViewBandCounts,
+          previousDirectionViewBandKey: previousLifestyleDirectionViewBandKey,
+          plannedGeometry,
           batchSeed: baseParams.generationNonce + variantIndex
         });
         if (faceVariation) usedLifestyleFaceVariationIds.add(faceVariation.id);
         if (faceVariation?.signature) usedLifestyleFaceSignatures.add(faceVariation.signature);
+        if (faceVariation?.headYaw) {
+          usedLifestyleHeadYawCounts.set(
+            faceVariation.headYaw,
+            (usedLifestyleHeadYawCounts.get(faceVariation.headYaw) ?? 0) + 1
+          );
+        }
+        if (faceVariation?.viewBand) {
+          usedLifestyleFaceViewBandCounts.set(
+            faceVariation.viewBand,
+            (usedLifestyleFaceViewBandCounts.get(faceVariation.viewBand) ?? 0) + 1
+          );
+        }
+        if (faceVariation?.headYaw && faceVariation.viewBand) {
+          const directionViewBandKey = `${faceVariation.headYaw}|${faceVariation.viewBand}`;
+          usedLifestyleDirectionViewBandCounts.set(
+            directionViewBandKey,
+            (usedLifestyleDirectionViewBandCounts.get(directionViewBandKey) ?? 0) + 1
+          );
+          previousLifestyleDirectionViewBandKey = directionViewBandKey;
+        }
         if (!isCameraCard) nonCameraFaceRotation += 1;
         return faceVariation;
       })
