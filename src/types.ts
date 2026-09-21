@@ -328,7 +328,18 @@ export type TeamPromptParams = {
   forceGeneratedOutfitSelection?: boolean;
   forceNoHandheldObject?: boolean;
   seriesActionBodyOrientation?: string;
-  seriesFaceVariation?: { id: string; line: string };
+  seriesFaceEligible?: boolean;
+  seriesFaceVariation?: {
+    id: string;
+    line: string;
+    cameraAware?: boolean;
+    headYaw?: "camera-left" | "camera-right";
+    yawDegrees?: number;
+    headPitch?: "level" | "downward" | "slightly-upward";
+    pitchDegrees?: number;
+    gazeTarget?: "camera" | "path" | "shoe-or-hem" | "scene" | "beyond-frame" | "companion";
+    signature?: string;
+  };
   selectedProductTruth?: ProductTruth;
   productTruthAssetIds?: string[];
   referencePlan?: Image2ReferencePlan;

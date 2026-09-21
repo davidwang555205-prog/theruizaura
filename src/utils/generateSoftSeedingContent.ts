@@ -3305,22 +3305,6 @@ function getStudioLaunchSetContinuityLine(imageCount: SoftSeedingImageCount) {
   return `${imageCount}-shot person-only studio continuity: treat all cards as one continuous launch shoot. Keep the exact same real person, facial identity, age impression, hairstyle, hair color, makeup, body silhouette, complete outfit, garment layers, colors, materials, hem lengths, wearable accessories, and THERUIZ AURA sneakers. Keep the exact same seamless backdrop, floor material, light direction, key-light softness, fill ratio, contact-shadow character, white balance, exposure, and color grade. Only the specified shot framing, assigned short movement path or final pose, body orientation, gaze, and subtle expression may change. Both hands must stay empty. Never generate a still life, product-only frame, mirror image, street, home, cafe, atmosphere image, behind-the-scenes image, prop-led image, or any non-studio location.`;
 }
 
-const stylingSolutionExpressionBeats = [
-  "If the face is visible, capture a brief friendly in-between response with focused catchlights, relaxed eyelids, and a faint asymmetric smile, not a posed portrait expression.",
-  "If the face is visible, let the eyes focus naturally on the next movement or nearby point, with relaxed lips and no vacant fashion-model stare.",
-  "If the face is visible, use a purposeful downward glance toward the garment or sneakers, with facial muscles responding naturally to the small task.",
-  "If the face is visible, show a subtle reaction to one real scene detail, with a tiny brow response and an unforced mouth shape.",
-  "If the face is visible, capture a fleeting relaxed look after the action, such as a soft exhale or incidental half-turn, different from the other cards."
-];
-
-const stylingSolutionFaceVariationPlan = [
-  { id: "camera-adjacent-smile", line: "Use a three-quarter head angle with eyes briefly meeting a nearby camera, relaxed open eyelids, and a faint asymmetric smile." },
-  { id: "path-focused-rest", line: "Turn the head slightly toward the next movement, keep the gaze on the walking path, and use relaxed lips with softer eyelid tension." },
-  { id: "downward-task-focus", line: "Angle the head gently downward toward the garment or sneakers, with a purposeful gaze and a small natural brow response." },
-  { id: "scene-detail-reaction", line: "Turn subtly toward one real scene detail, with the nearer eye slightly more engaged and an unforced resting mouth." },
-  { id: "after-action-exhale", line: "Use an incidental half-turn after the action with a soft exhale, lowered facial tension, and a distinct mouth state from the other cards." }
-];
-
 type SeriesActionBeat = {
   key: string;
   family?: string;
@@ -3466,6 +3450,13 @@ function getLifestyleSoftSeedingContinuityLines(
       : "";
 
   return handheldLine;
+}
+
+function shouldPlanVisibleFace(draft: SoftSeedingImageDraft) {
+  if (!["产品上脚图", "生活场景图"].includes(draft.imageType)) return false;
+  if (["lowerBody", "stillLife", "mirror", "seated"].includes(draft.composition ?? "")) return false;
+  if (/no face needed|face (?:softly )?hidden|不露脸|遮脸/i.test(draft.extraRequirement)) return false;
+  return true;
 }
 
 function getSoftSeedingExtraRequirement(
@@ -3637,7 +3628,6 @@ function buildImagePlan(
     studioLaunchAnglePreference: "自动匹配",
     stillLifeStyle: "与主视觉统一",
     extraRequirement: joinSoftPromptSentences(
-      topic === "穿搭解决方案" ? stylingSolutionExpressionBeats[index % stylingSolutionExpressionBeats.length] : "",
       hasAuthoritativePersonActionLock
         ? ""
         : "Treat this as the only primary body action or object-operation moment for this card; do not add another walking, arrival, adjustment, or object-operation action.",
@@ -3653,12 +3643,12 @@ function buildImagePlan(
     seriesActionFamily: seriesActionBeat.family ?? seriesActionBeat.key,
     seriesActionDirective: seriesActionBeat.directive,
     seriesActionBodyOrientation: seriesActionBeat.bodyOrientation,
-    seriesFaceVariation:
-      topic === "穿搭解决方案" && shouldInheritBaseGarmentType(draft.imageType)
-        ? stylingSolutionFaceVariationPlan[index % stylingSolutionFaceVariationPlan.length]
-        : topic === "生活场景软种草"
-          ? lifestyleSelection?.faceVariation
-        : undefined,
+    seriesFaceEligible: topic === "穿搭解决方案" || topic === "生活场景软种草"
+      ? shouldPlanVisibleFace(draft)
+      : undefined,
+    seriesFaceVariation: topic === "穿搭解决方案" || topic === "生活场景软种草"
+      ? lifestyleSelection?.faceVariation
+      : undefined,
     seriesPoseType: seriesActionBeat.poseType,
     studioLaunchShotIndex: draft.studioLaunchShotIndex,
     studioSetNonce:
@@ -3763,27 +3753,33 @@ function buildSoftSeedingImagePlans(
     captureStyle: topic === "生活场景软种草" ? lifestyleSelection.captureStyle : "standard"
   });
 
+  const supportsSeriesFacePlanning = topic === "生活场景软种草" || topic === "穿搭解决方案";
   const faceVisibleIndices = drafts
     .map((draft, index) => ({ draft, index }))
-    .filter(({ draft }) => draft.imageType !== "对镜穿搭图")
+    .filter(({ draft }) => shouldPlanVisibleFace(draft))
     .map(({ index }) => index);
-  const cameraCardIndex = topic === "生活场景软种草" && imageCount > 1 && faceVisibleIndices.length
+  const cameraCardIndex = supportsSeriesFacePlanning && imageCount > 1 && faceVisibleIndices.length
     ? faceVisibleIndices[Math.abs(baseParams.generationNonce + variantIndex) % faceVisibleIndices.length]
     : -1;
   let nonCameraFaceRotation = 0;
   const usedLifestyleFaceVariationIds = new Set<string>();
-  const lifestyleFaceVariations = topic === "生活场景软种草" && imageCount > 1
+  const usedLifestyleFaceSignatures = new Set<string>();
+  const lifestyleFaceVariations = supportsSeriesFacePlanning && imageCount > 1
     ? drafts.map((draft, index) => {
-        const isCameraCard = draft.imageType !== "对镜穿搭图" && index === cameraCardIndex;
+        if (!shouldPlanVisibleFace(draft)) return undefined;
+        const isCameraCard = index === cameraCardIndex;
         const faceVariation = resolveLifestyleFaceVariationForCard({
-          captureStyle: lifestyleSelection.captureStyle,
+          captureStyle: topic === "生活场景软种草" ? lifestyleSelection.captureStyle : "standard",
           index,
           bodyOrientation: selectedPersonActions[index]?.bodyOrientation,
           cameraCardIndex: isCameraCard ? index : -1,
           rotationIndex: nonCameraFaceRotation,
-          usedIds: usedLifestyleFaceVariationIds
+          usedIds: usedLifestyleFaceVariationIds,
+          usedSignatures: usedLifestyleFaceSignatures,
+          batchSeed: baseParams.generationNonce + variantIndex
         });
         if (faceVariation) usedLifestyleFaceVariationIds.add(faceVariation.id);
+        if (faceVariation?.signature) usedLifestyleFaceSignatures.add(faceVariation.signature);
         if (!isCameraCard) nonCameraFaceRotation += 1;
         return faceVariation;
       })
@@ -3812,7 +3808,7 @@ function buildSoftSeedingImagePlans(
       sharedOutfitLine,
       usedScenes,
       plannedScenes[index],
-      topic === "生活场景软种草"
+      supportsSeriesFacePlanning
         ? { ...lifestyleSelection, faceVariation: lifestyleFaceVariations[index] }
         : lifestyleSelection
     );

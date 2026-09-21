@@ -1993,10 +1993,19 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
     bodyOrientation: resolvedBodyOrientation,
     generationNonce: params.generationNonce
   });
+  const authoritativeFaceGazeMode = params.seriesFaceVariation
+    ? params.seriesFaceVariation.cameraAware
+      ? "lookAtCamera"
+      : params.seriesFaceVariation.gazeTarget === "shoe-or-hem"
+        ? "downwardGaze"
+        : "softOffCamera"
+    : undefined;
+  const effectiveGazeMode = authoritativeFaceGazeMode ?? gazeSelection.mode;
+  const faceIntentionallyUnavailable = params.seriesFaceEligible === false;
   const actionSelection = chooseActionLine({
     imageType: params.imageType,
     scenePreference: resolvedScene,
-    selectedGazeMode: gazeSelection.mode || getTeamGazeMode(params, sceneKey),
+    selectedGazeMode: effectiveGazeMode || getTeamGazeMode(params, sceneKey),
     selectedOutfitLine: preAccessoryOutfitLine,
     timeOfDay: seasonCityVisualContext.timeOfDay,
     userExtraRequirement: params.extraRequirement,
@@ -2103,7 +2112,7 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
     hasShoe,
     multiImageMode: imageCountIntent !== "singleImage",
     bodyOrientation: resolvedBodyOrientation,
-    gazeMode: gazeSelection.mode,
+    gazeMode: effectiveGazeMode,
     promptMode: TEAM_PROMPT_MODE
   });
   const sceneRealismLine = getSceneRealismLine({
@@ -2120,10 +2129,14 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
         getModelContinuityLine(params.modelContinuity, params.modelChoice),
         getModelLine(params),
         getTeamModelConsistencyLine(params.modelChoice, imageCountIntent),
-        [gazeSelection.line, humanRealism.expressionGazeLine].filter(Boolean).join(" "),
-        humanRealism.facialLightingLine,
-        humanRealismLine,
-        gazeSelection.mode === "phoneHiddenFace" || gazeSelection.mode === "noFaceNeeded"
+        params.seriesFaceVariation
+          ? ""
+          : faceIntentionallyUnavailable
+            ? gazeSelection.line
+          : [gazeSelection.line, humanRealism.expressionGazeLine].filter(Boolean).join(" "),
+        faceIntentionallyUnavailable ? "" : humanRealism.facialLightingLine,
+        faceIntentionallyUnavailable ? "" : humanRealismLine,
+        params.seriesFaceVariation || faceIntentionallyUnavailable || gazeSelection.mode === "phoneHiddenFace" || gazeSelection.mode === "noFaceNeeded"
           ? ""
           : getMultiImageExpressionSequenceLine(params),
         params.seriesFaceVariation?.line ?? "",
@@ -2273,7 +2286,7 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
       ...(shouldUsePeopleStyling(params.imageType) ? extractAvoidPhrases(`Avoid ${footPlacementNegativeLine}.`) : []),
       ...extractAvoidPhrases(`Avoid ${effectiveImageTemplateNegativeLine}.`),
       ...extractAvoidPhrases(cameraSelection.cameraNegativeLine),
-      ...(usesNonProductAtmosphere ? [] : extractAvoidPhrases(`Avoid ${gazeSelection.negative}.`)),
+      ...(usesNonProductAtmosphere || params.seriesFaceVariation || faceIntentionallyUnavailable ? [] : extractAvoidPhrases(`Avoid ${gazeSelection.negative}.`)),
       ...extractAvoidPhrases(isNonProductAtmosphereImage(params.imageType) ? nonProductAtmosphereNegativeLine : ""),
       ...promptQualityPatchLines.negativePhrases,
       ...photoRealityPatchLines.negativePhrases,
@@ -2319,9 +2332,9 @@ export function generateTeamPrompt(params: TeamPromptParams): TeamPromptOutput {
         modelLine: shouldUsePeopleStyling(params.imageType)
           ? [
               bodyProportionLine,
-              humanRealism.expressionGazeLine,
-              humanRealism.facialLightingLine,
-              gazeSelection.mode === "phoneHiddenFace" || gazeSelection.mode === "noFaceNeeded"
+              params.seriesFaceVariation || faceIntentionallyUnavailable ? "" : humanRealism.expressionGazeLine,
+              faceIntentionallyUnavailable ? "" : humanRealism.facialLightingLine,
+              params.seriesFaceVariation || faceIntentionallyUnavailable || gazeSelection.mode === "phoneHiddenFace" || gazeSelection.mode === "noFaceNeeded"
                 ? ""
                 : getMultiImageExpressionSequenceLine(params),
               params.seriesFaceVariation?.line ?? ""

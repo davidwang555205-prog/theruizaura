@@ -215,16 +215,24 @@ try {
                 `${label}/${image.name}: whole-body anti-repeat boundary missing.`,
                 image.prompt
               );
-              expect(
-                /visibly different from every other face-visible card/i.test(image.prompt),
-                `${label}/${image.name}: mandatory cross-card face difference boundary missing.`,
-                image.prompt
-              );
-              expect(
-                /Keep both eyes visibly open with clearly separated upper and lower eyelids/i.test(image.prompt),
-                `${label}/${image.name}: open-eye boundary missing.`,
-                image.prompt
-              );
+              if (image.params.seriesFaceEligible === true) {
+                expect(
+                  /visibly different from every other face-visible card/i.test(image.prompt),
+                  `${label}/${image.name}: mandatory cross-card face difference boundary missing.`,
+                  image.prompt
+                );
+                expect(
+                  /Keep both eyes visibly open with clearly separated upper and lower eyelids/i.test(image.prompt),
+                  `${label}/${image.name}: open-eye boundary missing.`,
+                  image.prompt
+                );
+              } else {
+                expect(
+                  !/Face (?:variation|orientation) lock/i.test(image.prompt),
+                  `${label}/${image.name}: hidden/cropped face card received face control.`,
+                  image.prompt
+                );
+              }
               expect(
                 !/narrow the eyelids|lowered eyelid tension/i.test(image.prompt),
                 `${label}/${image.name}: closed-eye language found.`,

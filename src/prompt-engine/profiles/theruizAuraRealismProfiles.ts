@@ -188,6 +188,18 @@ export function getTheruizAuraRealismRules(input: PromptProfileInput): PromptRul
   if (telephotoBaseGazeRule) rules.push(telephotoBaseGazeRule);
   return rules
     .map((rule) => {
+      if (input.seriesFaceEligible === false && rule.id === HUMAN_STATE.id) {
+        return {
+          ...rule,
+          text: "Keep the selected person's visible body, hair, clothing, posture, and proportions realistic and unperformed. The face is intentionally hidden or outside the useful crop; do not introduce eye contact, catchlights, facial-expression direction, or a competing head pose."
+        };
+      }
+      if (input.seriesFaceVariation && rule.id === HUMAN_STATE.id) {
+        return {
+          ...rule,
+          text: "Make the selected woman feel real and unperformed, with natural facial tension, realistic skin and hair texture, relaxed shoulders, believable body asymmetry, and ordinary daily imperfection. The assigned Face Variation Lock is the only authority for head direction and gaze; do not introduce any additional camera acknowledgement, eye direction, head turn, or generic facial pose."
+        };
+      }
       if (isStudio && rule.id === HUMAN_STATE.id) {
         return {
           ...rule,

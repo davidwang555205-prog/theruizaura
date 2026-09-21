@@ -203,7 +203,18 @@ export type PromptProfileInput = {
   isMultiImage: boolean;
   seriesImageIndex?: number;
   seriesImageCount?: number;
-  seriesFaceVariation?: { id: string; line: string };
+  seriesFaceEligible?: boolean;
+  seriesFaceVariation?: {
+    id: string;
+    line: string;
+    cameraAware?: boolean;
+    headYaw?: "camera-left" | "camera-right";
+    yawDegrees?: number;
+    headPitch?: "level" | "downward" | "slightly-upward";
+    pitchDegrees?: number;
+    gazeTarget?: "camera" | "path" | "shoe-or-hem" | "scene" | "beyond-frame" | "companion";
+    signature?: string;
+  };
   studioShotIndex?: number;
   hasUserClothing?: boolean;
   hasUserHandheld?: boolean;

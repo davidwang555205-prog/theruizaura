@@ -4,7 +4,93 @@ export type LifestyleFaceVariation = {
   id: string;
   line: string;
   cameraAware?: boolean;
+  /** Resolved per batch; never use a card number as the face-direction source. */
+  headYaw?: "camera-left" | "camera-right";
+  yawDegrees?: number;
+  headPitch?: "level" | "downward" | "slightly-upward";
+  pitchDegrees?: number;
+  gazeTarget?: "camera" | "path" | "shoe-or-hem" | "scene" | "beyond-frame" | "companion";
+  signature?: string;
 };
+
+type FaceGeometry = {
+  yawRange: readonly [number, number];
+  pitch: NonNullable<LifestyleFaceVariation["headPitch"]>;
+  gazeTarget: NonNullable<LifestyleFaceVariation["gazeTarget"]>;
+};
+
+// The semantic face card remains stable, but its left/right presentation is
+// resolved from the batch seed. This protects within-series variety without
+// making a card position permanently face the same direction across requests.
+const FACE_GEOMETRY_BY_ID: Record<string, FaceGeometry> = {
+  "camera-acknowledgement": { yawRange: [24, 38], pitch: "level", gazeTarget: "camera" },
+  "camera-glance": { yawRange: [24, 38], pitch: "level", gazeTarget: "camera" },
+  "path-focus": { yawRange: [18, 32], pitch: "level", gazeTarget: "path" },
+  "downward-check": { yawRange: [12, 25], pitch: "downward", gazeTarget: "shoe-or-hem" },
+  "scene-response": { yawRange: [28, 42], pitch: "level", gazeTarget: "scene" },
+  "window-response": { yawRange: [28, 42], pitch: "slightly-upward", gazeTarget: "scene" },
+  "post-action-release": { yawRange: [22, 36], pitch: "level", gazeTarget: "beyond-frame" },
+  "listening-side": { yawRange: [25, 40], pitch: "level", gazeTarget: "companion" },
+  "companion-attention": { yawRange: [25, 40], pitch: "level", gazeTarget: "companion" },
+  "light-response": { yawRange: [10, 22], pitch: "slightly-upward", gazeTarget: "scene" },
+  "transition-glance": { yawRange: [18, 30], pitch: "level", gazeTarget: "path" },
+  "side-detail": { yawRange: [30, 42], pitch: "level", gazeTarget: "scene" }
+};
+
+function geometryFor(variation: LifestyleFaceVariation): FaceGeometry {
+  const match = Object.keys(FACE_GEOMETRY_BY_ID).find((key) => variation.id.endsWith(key));
+  return match ? FACE_GEOMETRY_BY_ID[match] : { yawRange: [18, 30], pitch: "level", gazeTarget: "scene" };
+}
+
+function stableFaceHash(value: string) {
+  let hash = 2166136261;
+  for (let index = 0; index < value.length; index += 1) {
+    hash ^= value.charCodeAt(index);
+    hash = Math.imul(hash, 16777619);
+  }
+  return hash >>> 0;
+}
+
+function resolveVariationForBatch(
+  variation: LifestyleFaceVariation,
+  batchSeed: number,
+  index: number
+): LifestyleFaceVariation {
+  const geometry = geometryFor(variation);
+  // Resolve both side and actual angle from the full batch seed. This produces
+  // more than an odd/even mirror pair and avoids a forced left-right zig-zag.
+  const sideHash = stableFaceHash(`${batchSeed}|${index}|${variation.id}|side`);
+  const angleHash = stableFaceHash(`${batchSeed}|${index}|${variation.id}|angle`);
+  const pitchHash = stableFaceHash(`${batchSeed}|${index}|${variation.id}|pitch`);
+  const headYaw: NonNullable<LifestyleFaceVariation["headYaw"]> = sideHash % 2 === 0 ? "camera-left" : "camera-right";
+  const [minimum, maximum] = geometry.yawRange;
+  const yawDegrees = minimum + (angleHash % (maximum - minimum + 1));
+  const direction = headYaw === "camera-left" ? "camera-left" : "camera-right";
+  const pitchDegrees = geometry.pitch === "downward"
+    ? 12 + (pitchHash % 11)
+    : geometry.pitch === "slightly-upward"
+      ? 6 + (pitchHash % 7)
+      : 0;
+  const pitch = geometry.pitch === "downward"
+    ? `with a natural ${pitchDegrees}-degree downward pitch`
+    : geometry.pitch === "slightly-upward"
+      ? `with a restrained ${pitchDegrees}-degree upward response`
+      : "with a level, relaxed head";
+  const gaze = geometry.gazeTarget === "camera"
+    ? "Make this the only card allowed to briefly acknowledge the lens."
+    : `Look only toward the assigned ${geometry.gazeTarget.replace(/-/g, " ")}, never toward the lens.`;
+  const orientationLine = `Face orientation lock: turn about ${yawDegrees} degrees ${direction}, keep the nose line off the lens axis, ${pitch}. ${gaze} Do not use a frontal face or reuse another card's face-direction signature.`;
+  return {
+    ...variation,
+    line: `${variation.line} ${orientationLine}`,
+    headYaw,
+    yawDegrees,
+    headPitch: geometry.pitch,
+    pitchDegrees,
+    gazeTarget: geometry.gazeTarget,
+    signature: `${headYaw}|yaw-${yawDegrees}|${geometry.pitch}-${pitchDegrees}|${geometry.gazeTarget}`
+  };
+}
 
 export const lifestyleStandardFaceVariations: LifestyleFaceVariation[] = [
   {
@@ -94,7 +180,9 @@ export function resolveLifestyleFaceVariationForCard({
   bodyOrientation,
   cameraCardIndex,
   rotationIndex,
-  usedIds
+  usedIds,
+  usedSignatures,
+  batchSeed = 0
 }: {
   captureStyle: LifestyleSoftCaptureStyle;
   index: number;
@@ -102,10 +190,13 @@ export function resolveLifestyleFaceVariationForCard({
   cameraCardIndex: number;
   rotationIndex: number;
   usedIds?: Set<string>;
+  usedSignatures?: Set<string>;
+  batchSeed?: number;
 }): LifestyleFaceVariation | undefined {
   const plan = getLifestyleFaceVariationPlan(captureStyle);
   if (index === cameraCardIndex) {
-    return plan.find((item) => item.cameraAware);
+    const cameraVariation = plan.find((item) => item.cameraAware);
+    return cameraVariation ? resolveVariationForBatch(cameraVariation, batchSeed, index) : undefined;
   }
 
   const offCamera = plan.filter((item) => !item.cameraAware);
@@ -123,5 +214,11 @@ export function resolveLifestyleFaceVariationForCard({
   const unusedAll = offCamera.filter((item) => !usedIds?.has(item.id));
   const pool = unusedPreferred.length ? unusedPreferred : unusedAll.length ? unusedAll : offCamera;
   const offset = Math.abs(rotationIndex) % pool.length;
-  return pool[offset];
+  const orderedPool = pool.map((_, candidateIndex) => pool[(offset + candidateIndex) % pool.length]);
+  const unusedSignatureVariation = orderedPool
+    .map((candidate) => resolveVariationForBatch(candidate, batchSeed, index))
+    .find((candidate) => !usedSignatures?.has(candidate.signature ?? ""));
+  return unusedSignatureVariation ?? (orderedPool[0]
+    ? resolveVariationForBatch(orderedPool[0], batchSeed, index)
+    : undefined);
 }
