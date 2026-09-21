@@ -276,10 +276,19 @@ try {
       date: new Date("2026-07-20T12:00:00+08:00")
     });
     if (topic === "穿搭解决方案") {
-      const faceVariationIds = content.images
-        .map((image) => image.params.seriesFaceVariation?.id)
-        .filter(Boolean);
-      if (new Set(faceVariationIds).size !== faceVariationIds.length || faceVariationIds.length < 3) {
+      const faceEligibleImages = content.images.filter((image) => image.params.seriesFaceEligible === true);
+      const faceVariationIds = faceEligibleImages.map((image) => image.params.seriesFaceVariation?.id).filter(Boolean);
+      const invalidHiddenFaceControl = content.images.some((image) =>
+        image.params.seriesFaceEligible === false && Boolean(image.params.seriesFaceVariation)
+      );
+      const cameraAwareCount = faceEligibleImages.filter((image) => image.params.seriesFaceVariation?.cameraAware).length;
+      if (
+        faceEligibleImages.length === 0 ||
+        faceVariationIds.length !== faceEligibleImages.length ||
+        new Set(faceVariationIds).size !== faceVariationIds.length ||
+        cameraAwareCount !== 1 ||
+        invalidHiddenFaceControl
+      ) {
         failures.push({ topic, message: "Styling-solution face variation plan is missing or duplicated." });
       }
     }

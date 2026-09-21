@@ -71,19 +71,19 @@ function resolveLifestyleSeriesFaceVariation(
 ): NonNullable<TeamPromptParams["seriesFaceVariation"]> | undefined {
   if (params.seriesFaceVariation) return params.seriesFaceVariation;
   if (topicId !== "lifestyle_soft_seeding") return undefined;
+  if (params.seriesFaceEligible === false || params.imageType === "对镜穿搭图") return undefined;
   if (!params.seriesImageCount || params.seriesImageCount < 2 || typeof params.seriesImageIndex !== "number") {
     return undefined;
   }
 
-  const cameraCardIndex = params.imageType === "对镜穿搭图"
-    ? -1
-    : Math.abs(params.generationNonce + params.seriesImageCount) % params.seriesImageCount;
+  const cameraCardIndex = Math.abs(params.generationNonce + params.seriesImageCount) % params.seriesImageCount;
   return resolveLifestyleFaceVariationForCard({
     captureStyle: params.captureStyle ?? "standard",
     index: params.seriesImageIndex,
     bodyOrientation: params.seriesActionBodyOrientation,
     cameraCardIndex,
-    rotationIndex: params.seriesImageIndex
+    rotationIndex: params.seriesImageIndex,
+    batchSeed: params.generationNonce
   });
 }
 
@@ -162,6 +162,7 @@ export function buildPromptProfileInput(
     isMultiImage: !!params.seriesImageCount && params.seriesImageCount >= 2,
     seriesImageIndex: params.seriesImageIndex,
     seriesImageCount: params.seriesImageCount,
+    seriesFaceEligible: params.seriesFaceEligible,
     seriesFaceVariation: resolveLifestyleSeriesFaceVariation(params, topicId),
     studioShotIndex: params.studioLaunchShotIndex,
     contentCategory: params.contentCategory,

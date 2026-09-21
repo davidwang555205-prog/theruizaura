@@ -186,30 +186,25 @@ try {
       const faceVariationIds = [];
       let cameraGazeCount = 0;
       for (const image of content.images) {
+        const expectsVisibleFace = image.params.seriesFaceEligible === true;
         const lockHeaders = [...image.prompt.matchAll(/Face variation lock for this card \(([^)]+)\):/g)];
         const fullLockMatches = [...image.prompt.matchAll(/Face variation lock for this card \(([^)]+)\):([\s\S]*?)(?=Keep the same person identity)/g)];
         const lockId = lockHeaders[0]?.[1];
         const fullLockText = fullLockMatches[0]?.[0] ?? "";
 
-        expect(lockHeaders.length === 1, `${label}/${image.name}: expected exactly one structured Face Variation Lock.`, image.prompt);
-        expect(fullLockMatches.length === 1, `${label}/${image.name}: expected one complete Face Variation Lock rule block.`, image.prompt);
-        if (lockId) faceVariationIds.push(lockId);
+        if (expectsVisibleFace) {
+          expect(lockHeaders.length === 1, `${label}/${image.name}: expected exactly one structured Face Variation Lock.`, image.prompt);
+          expect(fullLockMatches.length === 1, `${label}/${image.name}: expected one complete Face Variation Lock rule block.`, image.prompt);
+          if (lockId) faceVariationIds.push(lockId);
+          expect(/Face orientation lock: turn about \d+ degrees camera-(?:left|right)/i.test(fullLockText), `${label}/${image.name}: resolved face angle missing.`, fullLockText);
+          expect(/visibly different from every other face-visible card/i.test(image.prompt), `${label}/${image.name}: face anti-repeat boundary missing.`, image.prompt);
+          expect(/Keep both eyes visibly open with clearly separated upper and lower eyelids/i.test(image.prompt), `${label}/${image.name}: open-eye boundary missing.`, image.prompt);
+          expect(!/narrow the eyelids|lowered eyelid tension/i.test(image.prompt), `${label}/${image.name}: closed-eye language found.`, image.prompt);
+        } else {
+          expect(lockHeaders.length === 0, `${label}/${image.name}: hidden/cropped face card received a Face Variation Lock.`, image.prompt);
+          expect(!image.params.seriesFaceVariation, `${label}/${image.name}: hidden/cropped face card retained face metadata.`, image.params.seriesFaceVariation);
+        }
         expect(!/Head-and-face beat for this card:/i.test(image.prompt), `${label}/${image.name}: legacy face beat still competes with the structured face lock.`, image.prompt);
-        expect(
-          /visibly different from every other face-visible card/i.test(image.prompt),
-          `${label}/${image.name}: face anti-repeat boundary missing.`,
-          image.prompt
-        );
-        expect(
-          /Keep both eyes visibly open with clearly separated upper and lower eyelids/i.test(image.prompt),
-          `${label}/${image.name}: open-eye boundary missing.`,
-          image.prompt
-        );
-        expect(
-          !/narrow the eyelids|lowered eyelid tension/i.test(image.prompt),
-          `${label}/${image.name}: closed-eye language found.`,
-          image.prompt
-        );
         expect(
           !sceneActionLeakPatterns.some((pattern) => pattern.test(image.prompt)),
           `${label}/${image.name}: scene-level action language still competes with the action planner.`,
@@ -224,6 +219,7 @@ try {
           expect(!["forward", "diagonal", "lateral"].includes(action.travelDirection), `${label}/${image.name}: stationary/social scene received travel movement.`, { scene: image.params.scenePreference, action });
         }
 
+        if (!expectsVisibleFace) continue;
         if (captureStyle === "telephoto_candid") {
           if (lockId === "lifestyle-telephoto-face-camera-glance") {
             cameraGazeCount += 1;
@@ -241,8 +237,58 @@ try {
         }
       }
 
-      expect(new Set(faceVariationIds).size === 5, `${label}: five cards reused a face-variation id.`, faceVariationIds);
-      expect(cameraGazeCount === 1, `${label}: multi-image set must contain exactly one camera-gaze card.`, cameraGazeCount);
+      expect(new Set(faceVariationIds).size === faceVariationIds.length, `${label}: visible cards reused a face-variation id.`, faceVariationIds);
+      expect(cameraGazeCount === (faceVariationIds.length ? 1 : 0), `${label}: visible-card set must contain exactly one camera-gaze card.`, cameraGazeCount);
+    }
+  }
+
+  // Face direction is a batch-level contract, not a fixed five-card script.
+  // Sample all supported series sizes and several seeds so 3/5/8 remain
+  // internally diverse while the same card position does not stay fixed across
+  // separate generation batches.
+  const facePlanningScenarios = [
+    { topic: "生活场景软种草", contentCategory: "natural_life", captureStyle: "standard" },
+    { topic: "生活场景软种草", contentCategory: "urban_commute", captureStyle: "telephoto_candid" },
+    { topic: "穿搭解决方案", contentCategory: undefined, captureStyle: "standard" }
+  ];
+  const forbiddenFaceCompetition = /Direct eye contact may appear|Prefer a natural side glance|do not force avoidance of the camera|either naturally toward the camera|brief camera glance remains possible/i;
+  for (const scenario of facePlanningScenarios) {
+    for (const imageCount of [3, 5, 8]) {
+      const signaturesBySeed = new Map();
+      const yawPlansBySeed = new Map();
+      for (const seed of [101, 202, 303, 404, 505, 606, 707, 808]) {
+      const content = generateSoftSeedingContent({
+        baseParams: { ...baseParams, generationNonce: seed },
+        topic: scenario.topic,
+        imageCount,
+        contentCategory: scenario.contentCategory,
+        captureStyle: scenario.captureStyle,
+        date: new Date("2026-09-11T00:00:00.000Z"),
+        variantOffset: 0
+      });
+      const faceCards = content.images.filter((image) => image.params.seriesFaceVariation?.signature);
+      const nonFaceCards = content.images.filter((image) => image.params.seriesFaceEligible === false);
+      const signatures = faceCards.map((image) => image.params.seriesFaceVariation.signature);
+      const yaws = faceCards.map((image) => image.params.seriesFaceVariation.headYaw);
+      const yawDegrees = faceCards.map((image) => image.params.seriesFaceVariation.yawDegrees);
+      const cameraCards = faceCards.filter((image) => image.params.seriesFaceVariation.cameraAware);
+      const label = `${scenario.topic}/${scenario.captureStyle}/series-${imageCount}/seed-${seed}`;
+
+      expect(faceCards.length === content.images.filter((image) => image.params.seriesFaceEligible === true).length, `${label}: visible-face eligibility and plans diverged.`, content.images.map((image) => ({ name: image.name, eligible: image.params.seriesFaceEligible, face: image.params.seriesFaceVariation })));
+      expect(faceCards.length > 0, `${label}: expected at least one visible-face card.`, content.images.map((image) => image.name));
+      expect(new Set(signatures).size === signatures.length, `${label}: face orientation signatures repeated.`, signatures);
+      expect(cameraCards.length === 1, `${label}: exactly one face card may acknowledge the camera.`, cameraCards.map((image) => image.params.seriesFaceVariation));
+      expect(yawDegrees.every((angle) => Number.isInteger(angle) && angle >= 10 && angle <= 42), `${label}: sampled yaw angle is invalid.`, yawDegrees);
+      expect(faceCards.every((image) => /Face orientation lock: turn about \d+ degrees camera-(?:left|right)/i.test(image.prompt)), `${label}: resolved directional face lock missing from prompt.`, faceCards.map((image) => image.prompt));
+      expect(faceCards.filter((image) => !image.params.seriesFaceVariation.cameraAware).every((image) => !/only card allowed to briefly acknowledge the lens/i.test(image.prompt)), `${label}: an off-camera card inherited lens permission.`, faceCards.map((image) => image.prompt));
+      expect(faceCards.every((image) => !forbiddenFaceCompetition.test(image.prompt)), `${label}: a generic gaze rule competes with the Face Variation Lock.`, faceCards.map((image) => image.prompt));
+      expect(nonFaceCards.every((image) => !/Face (?:variation|orientation) lock/i.test(image.prompt) && !image.params.seriesFaceVariation), `${label}: hidden/cropped/non-person card received face control.`, nonFaceCards.map((image) => ({ name: image.name, prompt: image.prompt, face: image.params.seriesFaceVariation })));
+      signaturesBySeed.set(seed, signatures.join(","));
+      yawPlansBySeed.set(seed, `${yaws.join(",")}|${yawDegrees.join(",")}`);
+    }
+      const scenarioLabel = `${scenario.topic}/${scenario.captureStyle}/series-${imageCount}`;
+      expect(new Set(signaturesBySeed.values()).size >= 4, `${scenarioLabel}: too few distinct face plans across batch seeds.`, Object.fromEntries(signaturesBySeed));
+      expect(new Set(yawPlansBySeed.values()).size >= 4, `${scenarioLabel}: yaw sides/angles stayed effectively fixed across batches.`, Object.fromEntries(yawPlansBySeed));
     }
   }
 
