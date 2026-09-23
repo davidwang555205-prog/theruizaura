@@ -1,0 +1,971 @@
+{
+  "schemaVersion": "commercial-film/visual-acceptance-v1.3-final",
+  "controlContract": {
+    "sameProduct": true,
+    "sameReferenceSet": true,
+    "sameSeedanceModelVersion": true,
+    "sameDuration": true,
+    "sameAspectRatio": true,
+    "sameGenerationSettingsWherePossible": true,
+    "canonicalTextOnly": true,
+    "noPerCasePromptEditing": true,
+    "noBestOfSelection": true,
+    "attemptsMustBeRecorded": true,
+    "visualReviewerMustNotSeeDebugMetadata": true,
+    "providerExecutionByHarness": false
+  },
+  "cases": [
+    {
+      "caseId": "case-01",
+      "group": "A",
+      "intent": "QUIET_LUXURY",
+      "directorConceptId": "STATIC_CAMERA_FILM",
+      "cinematicDevice": "Static Camera Film",
+      "generationNonce": 0,
+      "duration": 15,
+      "aspectRatio": "9:16",
+      "canonicalCompiledText": "SEEDANCE — COMMERCIAL FILM\n15 seconds · one person · one continuous commercial idea\n\n[FILM IDEA]\nThe person takes a brief pause inside a calm private space; In this film, the product's role is defined by the selected commercial expression; the details read as refined because nothing is over-explained. Exact product identity is supplied later by the external video-generation references. The film should let the material and proportion become meaningful through a private, restrained moment.\nA private pause makes material and proportion perceptible through stillness rather than explanation.\nCinematic rule: The camera never follows the subject; every composition is already waiting before the action begins.\n\n[CHARACTER / WORLD]\nAge: 33-37\nVisible appearance: 亚裔\nWorld: 衣帽间 / 更衣角 → 窗边阅读角 → 居家衣帽间 · 秋\nOne primary character. Background life may remain distant and secondary. Natural expression, task-driven movement, no performance toward camera, same person and wardrobe throughout.\n\n[TIMING]\nShot 1: 0.0-4.4s\nShot 2: 4.4-7.3s\nShot 3: 7.3-8.6s\nShot 4: 8.6-12.0s\nShot 5: 12.0-15.0s\n\nSHOT 1 — WORLD\nTime: 0.0-4.4s\nAction: She stands by the window with most of her weight settled on the rear leg. The film enters the room before it asks the viewer to notice the product.\nCamera: partial interior frame with foreground occlusion; natural eye level; fixed observation. Keep the complete product view temporarily out of frame while preserving physical and commercial clarity. Keep the complete product view temporarily outside the frame without breaking physical plausibility. Keep each camera position fixed and let human movement, world movement, and editing provide the energy.\nProduct: Product not visible; crop, foreground, seating, or occlusion must physically prevent footwear exposure.\nTransition: The cut moves into the next part of the same believable place. Exit with product understanding still incomplete until the reveal beat.\n\nSHOT 2 — WEAR\nTime: 4.4-7.3s\nAction: She makes one small standing adjustment that changes the body line. The private pause naturally produces a small change in weight distribution.\nCamera: medium body line with room and texture visible; natural eye level; fixed observation. Keep a natural observational distance and let the person behave independently of the camera. Let the person enter, cross, or act independently inside a quiet observational frame. Keep each camera position fixed and let human movement, world movement, and editing provide the energy. Build clear internal geometry inside a fixed frame; use negative space and unequal subject placement rather than centered presentation.\nProduct: Product secondary within the worn look.\nTransition: The cut arrives as the current physical action completes. Exit with product understanding still incomplete until the reveal beat.\n\nSHOT 3 — DETAIL\nTime: 7.3-8.6s\nAction: She holds the pause and lets her weight settle through the ankle and heel while side light defines the lower silhouette. The body shift creates a natural moment where one material relationship can be seen.\nCamera: medium composition with the product relationship inside the body frame; natural chest height; controlled detail framing. Use one short detail to interrupt the wider action, then return to the human situation without becoming a product beauty shot. Interrupt the wider action briefly for one confirmed detail, then return to the human continuity. Keep each camera position fixed and let human movement, world movement, and editing provide the energy. Build clear internal geometry inside a fixed frame; use negative space and unequal subject placement rather than centered presentation.\nProduct: Observe the proportion and natural side-light relationship from the external footwear references through natural use; do not default to a full-shoe close-up.\nTransition: The cut follows new, reference-supported product information. Leave as the action reaches its natural completion so hero inherits the movement.\n\nSHOT 4 — HERO\nTime: 8.6-12.0s\nAction: She shifts her weight once and holds the complete worn line in the private light. The earlier pause and material observation culminate in a completed understanding.\nCamera: medium-full still observation with light defining material; natural eye level; brief hold. Keep a natural observational distance and let the person behave independently of the camera. Let the person enter, cross, or act independently inside a quiet observational frame. The HERO is the moment the person and worn product settle into a composition that has been waiting through the film.\nProduct: Product clear within the worn look at natural human scale.\nTransition: The cut follows new, reference-supported product information. Leave as the action reaches its natural completion so release inherits the movement.\n\nSHOT 5 — RELEASE\nTime: 12.0-15.0s\nAction: The person remains still while the room and light continue around her. The film resolves through atmosphere rather than another action.\nCamera: held room composition with no new subject action; natural eye level; fixed observation. Establish the frame first, then let the person enter, complete the action, and leave naturally. Place the frame before the action begins, then let the person enter, complete the action, and leave naturally. Let the camera remain after the subject leaves or settles, so the final image is the world holding its position.\nProduct: Product secondary within the worn look.\nTransition: The cut releases the film into its final state rather than starting a new beat.\nEnding: The person settles while the room, light, and quiet environment continue unchanged. Let the camera remain after the subject leaves or settles, so the final image is the world holding its position.\n\n[SOUND WORLD]\nContext: quiet private interior.\nSound: soft room tone; fabric movement; open street ambience.\nNo dialogue, no voiceover, no music unless explicitly requested.\n\n[VISUAL LOOK]\nNatural light, restrained saturation, realistic skin, matte non-glossy finish, soft controlled contrast.\nThe environment may use a restrained warm-neutral grade, but the footwear must remain faithful to the external reference in hue, saturation, contrast, and visible material appearance.\nThe private room should feel quietly inhabited rather than pristine: keep light falloff, soft material movement, ordinary object placement, and no showroom perfection.\nAllow controlled observational imperfection: slight occlusion, subject entering slightly late, off-center framing, and the camera staying after the subject leaves.\nUse a real shadow or light falloff to preserve privacy and continuity in this world beat. Beat 1 contributes one part of the same visual idea, not a symbol.\n\n[GLOBAL PRODUCT PROTECTION]\nUse the footwear reference images uploaded in the external video generation tool as the only source of truth for the product. Do not invent or alter product details not supported by those references.\nPreserve silhouette, proportions, visible material and color relationships, outsole/upper/tongue/lace relationships, and grounded foot-to-shoe scale.\nDo not invent product facts, logos, materials, colors, panel geometry, or construction. Do not recolor, reshape, stretch, compress, or deform the product through pose, garment, or camera.\n\n[NEGATIVES]\nNo runway posing, deliberate shoe presentation, camera-aware influencer gestures, shoe chase camera, orbit, 360, whip pan, or aggressive dolly.\nNo clearly readable invented brand names or corrupted AI text. Distant non-readable storefront graphics, abstract signage shapes, and passing-life reflections are allowed.\nNo product-only packshot, invented product detail, floating footwear, or detached shoe.\nNo readable brand names, generated text, letters, logos, or signage in the environment unless explicitly requested.",
+      "directorPlanSummary": {
+        "concept": "STATIC_CAMERA_FILM",
+        "label": "Static Camera Film",
+        "globalRule": "The camera never follows the subject; every composition is already waiting before the action begins.",
+        "heroRule": "The HERO is the moment the person and worn product settle into a composition that has been waiting through the film.",
+        "releaseRule": "Let the camera remain after the subject leaves or settles, so the final image is the world holding its position.",
+        "shotContributions": [
+          "PRIMARY",
+          "REST",
+          "REST",
+          "PRIMARY",
+          "RESOLUTION"
+        ]
+      },
+      "eventSpineSummary": {
+        "centralEvent": "A private pause makes material and proportion perceptible through stillness rather than explanation.",
+        "eventChain": [
+          "PRIVATE_STATE",
+          "RESTRAINED_SHIFT",
+          "MATERIAL_PAUSE",
+          "PRODUCT_RECOGNITION",
+          "ROOM_CONTINUES"
+        ],
+        "durationPlan": [
+          4.3,
+          2.8,
+          1.5,
+          3.5,
+          2.9
+        ],
+        "endingGrammar": "Stillness And Room Continues"
+      },
+      "shotCount": 5,
+      "productRevealStrategy": "DELAYED",
+      "transitionStrategy": [
+        "Exit with product understanding still incomplete until the reveal beat.",
+        "Exit with product understanding still incomplete until the reveal beat.",
+        "Leave as the action reaches its natural completion so hero inherits the movement.",
+        "Leave as the action reaches its natural completion so release inherits the movement.",
+        "Leave as the action reaches its natural completion so the release inherits the movement."
+      ],
+      "endingStrategy": "The person settles while the room, light, and quiet environment continue unchanged.",
+      "scriptValidationStatus": "COMMERCIAL_EXECUTION_VALIDATED",
+      "visualReviewStatus": "NOT_REVIEWED"
+    },
+    {
+      "caseId": "case-02",
+      "group": "A",
+      "intent": "QUIET_LUXURY",
+      "directorConceptId": "PARTIAL_OBSCURATION",
+      "cinematicDevice": "Partial Obscuration",
+      "generationNonce": 0,
+      "duration": 15,
+      "aspectRatio": "9:16",
+      "canonicalCompiledText": "SEEDANCE — COMMERCIAL FILM\n15 seconds · one person · one continuous commercial idea\n\n[FILM IDEA]\nThe person takes a brief pause inside a calm private space; In this film, the product's role is defined by the selected commercial expression; the details read as refined because nothing is over-explained. Exact product identity is supplied later by the external video-generation references. The film should let the material and proportion become meaningful through a private, restrained moment.\nA private pause makes material and proportion perceptible through stillness rather than explanation.\nCinematic rule: The viewer rarely receives a perfectly clean view; motivated foreground obstruction keeps the image found rather than staged.\n\n[CHARACTER / WORLD]\nAge: 33-37\nVisible appearance: 亚裔\nWorld: 衣帽间 / 更衣角 → 窗边阅读角 → 居家衣帽间 · 秋\nOne primary character. Background life may remain distant and secondary. Natural expression, task-driven movement, no performance toward camera, same person and wardrobe throughout.\n\n[TIMING]\nShot 1: 0.0-4.4s\nShot 2: 4.4-7.3s\nShot 3: 7.3-8.6s\nShot 4: 8.6-12.0s\nShot 5: 12.0-15.0s\n\nSHOT 1 — WORLD\nTime: 0.0-4.4s\nAction: She stands by the window with most of her weight settled on the rear leg. The film enters the room before it asks the viewer to notice the product.\nCamera: partial interior frame with foreground occlusion; natural eye level; fixed observation. Keep the complete product view temporarily out of frame while preserving physical and commercial clarity. Keep the complete product view temporarily outside the frame without breaking physical plausibility. Use door edges, glass, architecture, furniture, or passing life as foreground layers without hiding the product at HERO.\nProduct: Product not visible; crop, foreground, seating, or occlusion must physically prevent footwear exposure.\nTransition: The cut moves into the next part of the same believable place. Exit with product understanding still incomplete until the reveal beat.\n\nSHOT 2 — WEAR\nTime: 4.4-7.3s\nAction: She makes one small standing adjustment that changes the body line. The private pause naturally produces a small change in weight distribution.\nCamera: medium body line with room and texture visible; natural eye level; fixed observation. Keep a natural observational distance and let the person behave independently of the camera. Let the person enter, cross, or act independently inside a quiet observational frame. Use door edges, glass, architecture, furniture, or passing life as foreground layers without hiding the product at HERO. Use foreground layers, residual negative space, and frame-within-frame relationships to create depth and partial information.\nProduct: Product secondary within the worn look.\nTransition: The cut arrives as the current physical action completes. Exit with product understanding still incomplete until the reveal beat.\n\nSHOT 3 — DETAIL\nTime: 7.3-8.6s\nAction: She holds the pause and lets her weight settle through the ankle and heel while side light defines the lower silhouette. The body shift creates a natural moment where one material relationship can be seen.\nCamera: medium composition with the product relationship inside the body frame; natural chest height; controlled detail framing. Use one short detail to interrupt the wider action, then return to the human situation without becoming a product beauty shot. Interrupt the wider action briefly for one confirmed detail, then return to the human continuity. Use door edges, glass, architecture, furniture, or passing life as foreground layers without hiding the product at HERO. Use foreground layers, residual negative space, and frame-within-frame relationships to create depth and partial information.\nProduct: Observe the proportion and natural side-light relationship from the external footwear references through natural use; do not default to a full-shoe close-up.\nTransition: The cut follows new, reference-supported product information. Leave as the action reaches its natural completion so hero inherits the movement.\n\nSHOT 4 — HERO\nTime: 8.6-12.0s\nAction: She shifts her weight once and holds the complete worn line in the private light. The earlier pause and material observation culminate in a completed understanding.\nCamera: medium-full still observation with light defining material; natural eye level; brief hold. Keep a natural observational distance and let the person behave independently of the camera. Let the person enter, cross, or act independently inside a quiet observational frame. Let the foreground obstruction clear just enough for a complete worn-product read at HERO.\nProduct: Product clear within the worn look at natural human scale.\nTransition: The cut follows new, reference-supported product information. Leave as the action reaches its natural completion so release inherits the movement.\n\nSHOT 5 — RELEASE\nTime: 12.0-15.0s\nAction: The person remains still while the room and light continue around her. The film resolves through atmosphere rather than another action.\nCamera: held room composition with no new subject action; natural eye level; fixed observation. Establish the frame first, then let the person enter, complete the action, and leave naturally. Place the frame before the action begins, then let the person enter, complete the action, and leave naturally. Let a real foreground element reclaim part of the frame as the subject leaves, preserving the device to the end.\nProduct: Product secondary within the worn look.\nTransition: The cut releases the film into its final state rather than starting a new beat.\nEnding: The person settles while the room, light, and quiet environment continue unchanged. Let a real foreground element reclaim part of the frame as the subject leaves, preserving the device to the end.\n\n[SOUND WORLD]\nContext: quiet private interior.\nSound: soft room tone; fabric movement; open street ambience.\nNo dialogue, no voiceover, no music unless explicitly requested.\n\n[VISUAL LOOK]\nNatural light, restrained saturation, realistic skin, matte non-glossy finish, soft controlled contrast.\nThe environment may use a restrained warm-neutral grade, but the footwear must remain faithful to the external reference in hue, saturation, contrast, and visible material appearance.\nThe private room should feel quietly inhabited rather than pristine: keep light falloff, soft material movement, ordinary object placement, and no showroom perfection.\nAllow controlled observational imperfection: slight occlusion, subject entering slightly late, off-center framing, and the camera staying after the subject leaves.\nUse a real shadow or light falloff to preserve privacy and continuity in this world beat. Beat 1 contributes one part of the same visual idea, not a symbol.\n\n[GLOBAL PRODUCT PROTECTION]\nUse the footwear reference images uploaded in the external video generation tool as the only source of truth for the product. Do not invent or alter product details not supported by those references.\nPreserve silhouette, proportions, visible material and color relationships, outsole/upper/tongue/lace relationships, and grounded foot-to-shoe scale.\nDo not invent product facts, logos, materials, colors, panel geometry, or construction. Do not recolor, reshape, stretch, compress, or deform the product through pose, garment, or camera.\n\n[NEGATIVES]\nNo runway posing, deliberate shoe presentation, camera-aware influencer gestures, shoe chase camera, orbit, 360, whip pan, or aggressive dolly.\nNo clearly readable invented brand names or corrupted AI text. Distant non-readable storefront graphics, abstract signage shapes, and passing-life reflections are allowed.\nNo product-only packshot, invented product detail, floating footwear, or detached shoe.\nNo readable brand names, generated text, letters, logos, or signage in the environment unless explicitly requested.",
+      "directorPlanSummary": {
+        "concept": "PARTIAL_OBSCURATION",
+        "label": "Partial Obscuration",
+        "globalRule": "The viewer rarely receives a perfectly clean view; motivated foreground obstruction keeps the image found rather than staged.",
+        "heroRule": "Let the foreground obstruction clear just enough for a complete worn-product read at HERO.",
+        "releaseRule": "Let a real foreground element reclaim part of the frame as the subject leaves, preserving the device to the end.",
+        "shotContributions": [
+          "PRIMARY",
+          "REST",
+          "REST",
+          "PRIMARY",
+          "RESOLUTION"
+        ]
+      },
+      "eventSpineSummary": {
+        "centralEvent": "A private pause makes material and proportion perceptible through stillness rather than explanation.",
+        "eventChain": [
+          "PRIVATE_STATE",
+          "RESTRAINED_SHIFT",
+          "MATERIAL_PAUSE",
+          "PRODUCT_RECOGNITION",
+          "ROOM_CONTINUES"
+        ],
+        "durationPlan": [
+          4.3,
+          2.8,
+          1.5,
+          3.5,
+          2.9
+        ],
+        "endingGrammar": "Stillness And Room Continues"
+      },
+      "shotCount": 5,
+      "productRevealStrategy": "DELAYED",
+      "transitionStrategy": [
+        "Exit with product understanding still incomplete until the reveal beat.",
+        "Exit with product understanding still incomplete until the reveal beat.",
+        "Leave as the action reaches its natural completion so hero inherits the movement.",
+        "Leave as the action reaches its natural completion so release inherits the movement.",
+        "Leave as the action reaches its natural completion so the release inherits the movement."
+      ],
+      "endingStrategy": "The person settles while the room, light, and quiet environment continue unchanged.",
+      "scriptValidationStatus": "COMMERCIAL_EXECUTION_VALIDATED",
+      "visualReviewStatus": "NOT_REVIEWED"
+    },
+    {
+      "caseId": "case-03",
+      "group": "A",
+      "intent": "QUIET_LUXURY",
+      "directorConceptId": "EDGE_OF_FRAME",
+      "cinematicDevice": "Edge Of Frame",
+      "generationNonce": 0,
+      "duration": 15,
+      "aspectRatio": "9:16",
+      "canonicalCompiledText": "SEEDANCE — COMMERCIAL FILM\n15 seconds · one person · one continuous commercial idea\n\n[FILM IDEA]\nThe person takes a brief pause inside a calm private space; In this film, the product's role is defined by the selected commercial expression; the details read as refined because nothing is over-explained. Exact product identity is supplied later by the external video-generation references. The film should let the material and proportion become meaningful through a private, restrained moment.\nA private pause makes material and proportion perceptible through stillness rather than explanation.\nCinematic rule: Important human and product information often sits near the visual edge rather than at the center.\n\n[CHARACTER / WORLD]\nAge: 33-37\nVisible appearance: 亚裔\nWorld: 衣帽间 / 更衣角 → 窗边阅读角 → 居家衣帽间 · 秋\nOne primary character. Background life may remain distant and secondary. Natural expression, task-driven movement, no performance toward camera, same person and wardrobe throughout.\n\n[TIMING]\nShot 1: 0.0-4.4s\nShot 2: 4.4-7.3s\nShot 3: 7.3-8.6s\nShot 4: 8.6-12.0s\nShot 5: 12.0-15.0s\n\nSHOT 1 — WORLD\nTime: 0.0-4.4s\nAction: She stands by the window with most of her weight settled on the rear leg. The film enters the room before it asks the viewer to notice the product.\nCamera: partial interior frame with foreground occlusion; natural eye level; fixed observation. Keep the complete product view temporarily out of frame while preserving physical and commercial clarity. Keep the complete product view temporarily outside the frame without breaking physical plausibility. Use off-center placement, late entry, early exit, and deliberate crop while keeping the worn product understandable.\nProduct: Product not visible; crop, foreground, seating, or occlusion must physically prevent footwear exposure.\nTransition: The cut moves into the next part of the same believable place. Exit with product understanding still incomplete until the reveal beat.\n\nSHOT 2 — WEAR\nTime: 4.4-7.3s\nAction: She makes one small standing adjustment that changes the body line. The private pause naturally produces a small change in weight distribution.\nCamera: medium body line with room and texture visible; natural eye level; fixed observation. Keep a natural observational distance and let the person behave independently of the camera. Let the person enter, cross, or act independently inside a quiet observational frame. Use off-center placement, late entry, early exit, and deliberate crop while keeping the worn product understandable. Use asymmetric visual weight, edge placement, partial crop, and negative space as deliberate graphic decisions.\nProduct: Product secondary within the worn look.\nTransition: The cut arrives as the current physical action completes. Exit with product understanding still incomplete until the reveal beat.\n\nSHOT 3 — DETAIL\nTime: 7.3-8.6s\nAction: She holds the pause and lets her weight settle through the ankle and heel while side light defines the lower silhouette. The body shift creates a natural moment where one material relationship can be seen.\nCamera: medium composition with the product relationship inside the body frame; natural chest height; controlled detail framing. Use one short detail to interrupt the wider action, then return to the human situation without becoming a product beauty shot. Interrupt the wider action briefly for one confirmed detail, then return to the human continuity. Use off-center placement, late entry, early exit, and deliberate crop while keeping the worn product understandable. Use asymmetric visual weight, edge placement, partial crop, and negative space as deliberate graphic decisions.\nProduct: Observe the proportion and natural side-light relationship from the external footwear references through natural use; do not default to a full-shoe close-up.\nTransition: The cut follows new, reference-supported product information. Leave as the action reaches its natural completion so hero inherits the movement.\n\nSHOT 4 — HERO\nTime: 8.6-12.0s\nAction: She shifts her weight once and holds the complete worn line in the private light. The earlier pause and material observation culminate in a completed understanding.\nCamera: medium-full still observation with light defining material; natural eye level; brief hold. Keep a natural observational distance and let the person behave independently of the camera. Let the person enter, cross, or act independently inside a quiet observational frame. At HERO, the edge placement resolves into a stable but intentionally off-center worn composition.\nProduct: Product clear within the worn look at natural human scale.\nTransition: The cut follows new, reference-supported product information. Leave as the action reaches its natural completion so release inherits the movement.\n\nSHOT 5 — RELEASE\nTime: 12.0-15.0s\nAction: The person remains still while the room and light continue around her. The film resolves through atmosphere rather than another action.\nCamera: held room composition with no new subject action; natural eye level; fixed observation. Establish the frame first, then let the person enter, complete the action, and leave naturally. Place the frame before the action begins, then let the person enter, complete the action, and leave naturally. Let the subject leave toward the established edge or let the frame hold the edge after departure.\nProduct: Product secondary within the worn look.\nTransition: The cut releases the film into its final state rather than starting a new beat.\nEnding: The person settles while the room, light, and quiet environment continue unchanged. Let the subject leave toward the established edge or let the frame hold the edge after departure.\n\n[SOUND WORLD]\nContext: quiet private interior.\nSound: soft room tone; fabric movement; open street ambience.\nNo dialogue, no voiceover, no music unless explicitly requested.\n\n[VISUAL LOOK]\nNatural light, restrained saturation, realistic skin, matte non-glossy finish, soft controlled contrast.\nThe environment may use a restrained warm-neutral grade, but the footwear must remain faithful to the external reference in hue, saturation, contrast, and visible material appearance.\nThe private room should feel quietly inhabited rather than pristine: keep light falloff, soft material movement, ordinary object placement, and no showroom perfection.\nAllow controlled observational imperfection: slight occlusion, subject entering slightly late, off-center framing, and the camera staying after the subject leaves.\nUse a real shadow or light falloff to preserve privacy and continuity in this world beat. Beat 1 contributes one part of the same visual idea, not a symbol.\n\n[GLOBAL PRODUCT PROTECTION]\nUse the footwear reference images uploaded in the external video generation tool as the only source of truth for the product. Do not invent or alter product details not supported by those references.\nPreserve silhouette, proportions, visible material and color relationships, outsole/upper/tongue/lace relationships, and grounded foot-to-shoe scale.\nDo not invent product facts, logos, materials, colors, panel geometry, or construction. Do not recolor, reshape, stretch, compress, or deform the product through pose, garment, or camera.\n\n[NEGATIVES]\nNo runway posing, deliberate shoe presentation, camera-aware influencer gestures, shoe chase camera, orbit, 360, whip pan, or aggressive dolly.\nNo clearly readable invented brand names or corrupted AI text. Distant non-readable storefront graphics, abstract signage shapes, and passing-life reflections are allowed.\nNo product-only packshot, invented product detail, floating footwear, or detached shoe.\nNo readable brand names, generated text, letters, logos, or signage in the environment unless explicitly requested.",
+      "directorPlanSummary": {
+        "concept": "EDGE_OF_FRAME",
+        "label": "Edge Of Frame",
+        "globalRule": "Important human and product information often sits near the visual edge rather than at the center.",
+        "heroRule": "At HERO, the edge placement resolves into a stable but intentionally off-center worn composition.",
+        "releaseRule": "Let the subject leave toward the established edge or let the frame hold the edge after departure.",
+        "shotContributions": [
+          "PRIMARY",
+          "REST",
+          "REST",
+          "PRIMARY",
+          "RESOLUTION"
+        ]
+      },
+      "eventSpineSummary": {
+        "centralEvent": "A private pause makes material and proportion perceptible through stillness rather than explanation.",
+        "eventChain": [
+          "PRIVATE_STATE",
+          "RESTRAINED_SHIFT",
+          "MATERIAL_PAUSE",
+          "PRODUCT_RECOGNITION",
+          "ROOM_CONTINUES"
+        ],
+        "durationPlan": [
+          4.3,
+          2.8,
+          1.5,
+          3.5,
+          2.9
+        ],
+        "endingGrammar": "Stillness And Room Continues"
+      },
+      "shotCount": 5,
+      "productRevealStrategy": "DELAYED",
+      "transitionStrategy": [
+        "Exit with product understanding still incomplete until the reveal beat.",
+        "Exit with product understanding still incomplete until the reveal beat.",
+        "Leave as the action reaches its natural completion so hero inherits the movement.",
+        "Leave as the action reaches its natural completion so release inherits the movement.",
+        "Leave as the action reaches its natural completion so the release inherits the movement."
+      ],
+      "endingStrategy": "The person settles while the room, light, and quiet environment continue unchanged.",
+      "scriptValidationStatus": "COMMERCIAL_EXECUTION_VALIDATED",
+      "visualReviewStatus": "NOT_REVIEWED"
+    },
+    {
+      "caseId": "case-04",
+      "group": "A",
+      "intent": "QUIET_LUXURY",
+      "directorConceptId": "THRESHOLD_CHAIN",
+      "cinematicDevice": "Threshold Chain",
+      "generationNonce": 0,
+      "duration": 15,
+      "aspectRatio": "9:16",
+      "canonicalCompiledText": "SEEDANCE — COMMERCIAL FILM\n15 seconds · one person · one continuous commercial idea\n\n[FILM IDEA]\nThe person takes a brief pause inside a calm private space; In this film, the product's role is defined by the selected commercial expression; the details read as refined because nothing is over-explained. Exact product identity is supplied later by the external video-generation references. The film should let the material and proportion become meaningful through a private, restrained moment.\nA private pause makes material and proportion perceptible through stillness rather than explanation.\nCinematic rule: The film is organized around crossing real boundaries, with each crossing advancing the same spatial idea.\n\n[CHARACTER / WORLD]\nAge: 33-37\nVisible appearance: 亚裔\nWorld: 衣帽间 / 更衣角 → 窗边阅读角 → 居家衣帽间 · 秋\nOne primary character. Background life may remain distant and secondary. Natural expression, task-driven movement, no performance toward camera, same person and wardrobe throughout.\n\n[TIMING]\nShot 1: 0.0-4.4s\nShot 2: 4.4-7.3s\nShot 3: 7.3-8.6s\nShot 4: 8.6-12.0s\nShot 5: 12.0-15.0s\n\nSHOT 1 — WORLD\nTime: 0.0-4.4s\nAction: She stands by the window with most of her weight settled on the rear leg. The film enters the room before it asks the viewer to notice the product.\nCamera: partial interior frame with foreground occlusion; natural eye level; fixed observation. Keep the complete product view temporarily out of frame while preserving physical and commercial clarity. Keep the complete product view temporarily outside the frame without breaking physical plausibility. Place the camera on one side of a boundary and let the subject cross into or out of the frame.\nProduct: Product not visible; crop, foreground, seating, or occlusion must physically prevent footwear exposure.\nTransition: The cut moves into the next part of the same believable place. Exit with product understanding still incomplete until the reveal beat.\n\nSHOT 2 — WEAR\nTime: 4.4-7.3s\nAction: She makes one small standing adjustment that changes the body line. The private pause naturally produces a small change in weight distribution.\nCamera: medium body line with room and texture visible; natural eye level; fixed observation. Keep a natural observational distance and let the person behave independently of the camera. Let the person enter, cross, or act independently inside a quiet observational frame. Place the camera on one side of a boundary and let the subject cross into or out of the frame. Use door edges, curbs, shadows, glass, and architectural openings as geometric divisions inside the frame.\nProduct: Product secondary within the worn look.\nTransition: The cut arrives as the current physical action completes. Exit with product understanding still incomplete until the reveal beat.\n\nSHOT 3 — DETAIL\nTime: 7.3-8.6s\nAction: She holds the pause and lets her weight settle through the ankle and heel while side light defines the lower silhouette. The body shift creates a natural moment where one material relationship can be seen.\nCamera: medium composition with the product relationship inside the body frame; natural chest height; controlled detail framing. Use one short detail to interrupt the wider action, then return to the human situation without becoming a product beauty shot. Interrupt the wider action briefly for one confirmed detail, then return to the human continuity. Place the camera on one side of a boundary and let the subject cross into or out of the frame. Use door edges, curbs, shadows, glass, and architectural openings as geometric divisions inside the frame.\nProduct: Observe the proportion and natural side-light relationship from the external footwear references through natural use; do not default to a full-shoe close-up.\nTransition: The cut follows new, reference-supported product information. Leave as the action reaches its natural completion so hero inherits the movement.\n\nSHOT 4 — HERO\nTime: 8.6-12.0s\nAction: She shifts her weight once and holds the complete worn line in the private light. The earlier pause and material observation culminate in a completed understanding.\nCamera: medium-full still observation with light defining material; natural eye level; brief hold. Keep a natural observational distance and let the person behave independently of the camera. Let the person enter, cross, or act independently inside a quiet observational frame. The HERO occurs as the final threshold crossing makes the worn product readable in the new space.\nProduct: Product clear within the worn look at natural human scale.\nTransition: The cut follows new, reference-supported product information. Leave as the action reaches its natural completion so release inherits the movement.\n\nSHOT 5 — RELEASE\nTime: 12.0-15.0s\nAction: The person remains still while the room and light continue around her. The film resolves through atmosphere rather than another action.\nCamera: held room composition with no new subject action; natural eye level; fixed observation. Establish the frame first, then let the person enter, complete the action, and leave naturally. Place the frame before the action begins, then let the person enter, complete the action, and leave naturally. Let the final threshold close or settle the spatial sequence rather than opening another route.\nProduct: Product secondary within the worn look.\nTransition: The cut releases the film into its final state rather than starting a new beat.\nEnding: The person settles while the room, light, and quiet environment continue unchanged. Let the final threshold close or settle the spatial sequence rather than opening another route.\n\n[SOUND WORLD]\nContext: quiet private interior.\nSound: soft room tone; fabric movement; open street ambience.\nNo dialogue, no voiceover, no music unless explicitly requested.\n\n[VISUAL LOOK]\nNatural light, restrained saturation, realistic skin, matte non-glossy finish, soft controlled contrast.\nThe environment may use a restrained warm-neutral grade, but the footwear must remain faithful to the external reference in hue, saturation, contrast, and visible material appearance.\nThe private room should feel quietly inhabited rather than pristine: keep light falloff, soft material movement, ordinary object placement, and no showroom perfection.\nAllow controlled observational imperfection: slight occlusion, subject entering slightly late, off-center framing, and the camera staying after the subject leaves.\nUse a real shadow or light falloff to preserve privacy and continuity in this world beat. Beat 1 contributes one part of the same visual idea, not a symbol.\n\n[GLOBAL PRODUCT PROTECTION]\nUse the footwear reference images uploaded in the external video generation tool as the only source of truth for the product. Do not invent or alter product details not supported by those references.\nPreserve silhouette, proportions, visible material and color relationships, outsole/upper/tongue/lace relationships, and grounded foot-to-shoe scale.\nDo not invent product facts, logos, materials, colors, panel geometry, or construction. Do not recolor, reshape, stretch, compress, or deform the product through pose, garment, or camera.\n\n[NEGATIVES]\nNo runway posing, deliberate shoe presentation, camera-aware influencer gestures, shoe chase camera, orbit, 360, whip pan, or aggressive dolly.\nNo clearly readable invented brand names or corrupted AI text. Distant non-readable storefront graphics, abstract signage shapes, and passing-life reflections are allowed.\nNo product-only packshot, invented product detail, floating footwear, or detached shoe.\nNo readable brand names, generated text, letters, logos, or signage in the environment unless explicitly requested.",
+      "directorPlanSummary": {
+        "concept": "THRESHOLD_CHAIN",
+        "label": "Threshold Chain",
+        "globalRule": "The film is organized around crossing real boundaries, with each crossing advancing the same spatial idea.",
+        "heroRule": "The HERO occurs as the final threshold crossing makes the worn product readable in the new space.",
+        "releaseRule": "Let the final threshold close or settle the spatial sequence rather than opening another route.",
+        "shotContributions": [
+          "SUPPORTING",
+          "REST",
+          "REST",
+          "PRIMARY",
+          "RESOLUTION"
+        ]
+      },
+      "eventSpineSummary": {
+        "centralEvent": "A private pause makes material and proportion perceptible through stillness rather than explanation.",
+        "eventChain": [
+          "PRIVATE_STATE",
+          "RESTRAINED_SHIFT",
+          "MATERIAL_PAUSE",
+          "PRODUCT_RECOGNITION",
+          "ROOM_CONTINUES"
+        ],
+        "durationPlan": [
+          4.3,
+          2.8,
+          1.5,
+          3.5,
+          2.9
+        ],
+        "endingGrammar": "Stillness And Room Continues"
+      },
+      "shotCount": 5,
+      "productRevealStrategy": "DELAYED",
+      "transitionStrategy": [
+        "Exit with product understanding still incomplete until the reveal beat.",
+        "Exit with product understanding still incomplete until the reveal beat.",
+        "Leave as the action reaches its natural completion so hero inherits the movement.",
+        "Leave as the action reaches its natural completion so release inherits the movement.",
+        "Leave as the action reaches its natural completion so the release inherits the movement."
+      ],
+      "endingStrategy": "The person settles while the room, light, and quiet environment continue unchanged.",
+      "scriptValidationStatus": "COMMERCIAL_EXECUTION_VALIDATED",
+      "visualReviewStatus": "NOT_REVIEWED"
+    },
+    {
+      "caseId": "case-05",
+      "group": "A",
+      "intent": "QUIET_LUXURY",
+      "directorConceptId": "REFLECTION_WORLD",
+      "cinematicDevice": "Reflection World",
+      "generationNonce": 0,
+      "duration": 15,
+      "aspectRatio": "9:16",
+      "canonicalCompiledText": "SEEDANCE — COMMERCIAL FILM\n15 seconds · one person · one continuous commercial idea\n\n[FILM IDEA]\nThe person takes a brief pause inside a calm private space; In this film, the product's role is defined by the selected commercial expression; the details read as refined because nothing is over-explained. Exact product identity is supplied later by the external video-generation references. The film should let the material and proportion become meaningful through a private, restrained moment.\nA private pause makes material and proportion perceptible through stillness rather than explanation.\nCinematic rule: Some important information is perceived indirectly through real reflections before it resolves into direct physical view.\n\n[CHARACTER / WORLD]\nAge: 33-37\nVisible appearance: 亚裔\nWorld: 衣帽间 / 更衣角 → 窗边阅读角 → 居家衣帽间 · 秋\nOne primary character. Background life may remain distant and secondary. Natural expression, task-driven movement, no performance toward camera, same person and wardrobe throughout.\n\n[TIMING]\nShot 1: 0.0-4.4s\nShot 2: 4.4-7.3s\nShot 3: 7.3-8.6s\nShot 4: 8.6-12.0s\nShot 5: 12.0-15.0s\n\nSHOT 1 — WORLD\nTime: 0.0-4.4s\nAction: She stands by the window with most of her weight settled on the rear leg. The film enters the room before it asks the viewer to notice the product.\nCamera: partial interior frame with foreground occlusion; natural eye level; fixed observation. Keep the complete product view temporarily out of frame while preserving physical and commercial clarity. Keep the complete product view temporarily outside the frame without breaking physical plausibility. Use glass, windows, polished surfaces, and neighboring architecture as motivated layered views.\nProduct: Product not visible; crop, foreground, seating, or occlusion must physically prevent footwear exposure.\nTransition: The cut moves into the next part of the same believable place. Exit with product understanding still incomplete until the reveal beat.\n\nSHOT 2 — WEAR\nTime: 4.4-7.3s\nAction: She makes one small standing adjustment that changes the body line. The private pause naturally produces a small change in weight distribution.\nCamera: medium body line with room and texture visible; natural eye level; fixed observation. Keep a natural observational distance and let the person behave independently of the camera. Let the person enter, cross, or act independently inside a quiet observational frame. Use glass, windows, polished surfaces, and neighboring architecture as motivated layered views. Use foreground reflection, frame-within-frame, deep plane, and soft double-image relationships without surreal duplication.\nProduct: Product secondary within the worn look.\nTransition: The cut arrives as the current physical action completes. Exit with product understanding still incomplete until the reveal beat.\n\nSHOT 3 — DETAIL\nTime: 7.3-8.6s\nAction: She holds the pause and lets her weight settle through the ankle and heel while side light defines the lower silhouette. The body shift creates a natural moment where one material relationship can be seen.\nCamera: medium composition with the product relationship inside the body frame; natural chest height; controlled detail framing. Use one short detail to interrupt the wider action, then return to the human situation without becoming a product beauty shot. Interrupt the wider action briefly for one confirmed detail, then return to the human continuity. Use glass, windows, polished surfaces, and neighboring architecture as motivated layered views. Use foreground reflection, frame-within-frame, deep plane, and soft double-image relationships without surreal duplication.\nProduct: Observe the proportion and natural side-light relationship from the external footwear references through natural use; do not default to a full-shoe close-up.\nTransition: The cut follows new, reference-supported product information. Leave as the action reaches its natural completion so hero inherits the movement.\n\nSHOT 4 — HERO\nTime: 8.6-12.0s\nAction: She shifts her weight once and holds the complete worn line in the private light. The earlier pause and material observation culminate in a completed understanding.\nCamera: medium-full still observation with light defining material; natural eye level; brief hold. Keep a natural observational distance and let the person behave independently of the camera. Let the person enter, cross, or act independently inside a quiet observational frame. Resolve the indirect visual language into a direct, worn-product read at HERO.\nProduct: Product clear within the worn look at natural human scale.\nTransition: The cut follows new, reference-supported product information. Leave as the action reaches its natural completion so release inherits the movement.\n\nSHOT 5 — RELEASE\nTime: 12.0-15.0s\nAction: The person remains still while the room and light continue around her. The film resolves through atmosphere rather than another action.\nCamera: held room composition with no new subject action; natural eye level; fixed observation. Establish the frame first, then let the person enter, complete the action, and leave naturally. Place the frame before the action begins, then let the person enter, complete the action, and leave naturally. Let the reflection continue after the subject moves, so the world retains the image.\nProduct: Product secondary within the worn look.\nTransition: The cut releases the film into its final state rather than starting a new beat.\nEnding: The person settles while the room, light, and quiet environment continue unchanged. Let the reflection continue after the subject moves, so the world retains the image.\n\n[SOUND WORLD]\nContext: quiet private interior.\nSound: soft room tone; fabric movement; open street ambience.\nNo dialogue, no voiceover, no music unless explicitly requested.\n\n[VISUAL LOOK]\nNatural light, restrained saturation, realistic skin, matte non-glossy finish, soft controlled contrast.\nThe environment may use a restrained warm-neutral grade, but the footwear must remain faithful to the external reference in hue, saturation, contrast, and visible material appearance.\nThe private room should feel quietly inhabited rather than pristine: keep light falloff, soft material movement, ordinary object placement, and no showroom perfection.\nAllow controlled observational imperfection: slight occlusion, subject entering slightly late, off-center framing, and the camera staying after the subject leaves.\nUse a real shadow or light falloff to preserve privacy and continuity in this world beat. Beat 1 contributes one part of the same visual idea, not a symbol.\n\n[GLOBAL PRODUCT PROTECTION]\nUse the footwear reference images uploaded in the external video generation tool as the only source of truth for the product. Do not invent or alter product details not supported by those references.\nPreserve silhouette, proportions, visible material and color relationships, outsole/upper/tongue/lace relationships, and grounded foot-to-shoe scale.\nDo not invent product facts, logos, materials, colors, panel geometry, or construction. Do not recolor, reshape, stretch, compress, or deform the product through pose, garment, or camera.\n\n[NEGATIVES]\nNo runway posing, deliberate shoe presentation, camera-aware influencer gestures, shoe chase camera, orbit, 360, whip pan, or aggressive dolly.\nNo clearly readable invented brand names or corrupted AI text. Distant non-readable storefront graphics, abstract signage shapes, and passing-life reflections are allowed.\nNo product-only packshot, invented product detail, floating footwear, or detached shoe.\nNo readable brand names, generated text, letters, logos, or signage in the environment unless explicitly requested.",
+      "directorPlanSummary": {
+        "concept": "REFLECTION_WORLD",
+        "label": "Reflection World",
+        "globalRule": "Some important information is perceived indirectly through real reflections before it resolves into direct physical view.",
+        "heroRule": "Resolve the indirect visual language into a direct, worn-product read at HERO.",
+        "releaseRule": "Let the reflection continue after the subject moves, so the world retains the image.",
+        "shotContributions": [
+          "PRIMARY",
+          "REST",
+          "REST",
+          "PRIMARY",
+          "RESOLUTION"
+        ]
+      },
+      "eventSpineSummary": {
+        "centralEvent": "A private pause makes material and proportion perceptible through stillness rather than explanation.",
+        "eventChain": [
+          "PRIVATE_STATE",
+          "RESTRAINED_SHIFT",
+          "MATERIAL_PAUSE",
+          "PRODUCT_RECOGNITION",
+          "ROOM_CONTINUES"
+        ],
+        "durationPlan": [
+          4.3,
+          2.8,
+          1.5,
+          3.5,
+          2.9
+        ],
+        "endingGrammar": "Stillness And Room Continues"
+      },
+      "shotCount": 5,
+      "productRevealStrategy": "DELAYED",
+      "transitionStrategy": [
+        "Exit with product understanding still incomplete until the reveal beat.",
+        "Exit with product understanding still incomplete until the reveal beat.",
+        "Leave as the action reaches its natural completion so hero inherits the movement.",
+        "Leave as the action reaches its natural completion so release inherits the movement.",
+        "Leave as the action reaches its natural completion so the release inherits the movement."
+      ],
+      "endingStrategy": "The person settles while the room, light, and quiet environment continue unchanged.",
+      "scriptValidationStatus": "COMMERCIAL_EXECUTION_VALIDATED",
+      "visualReviewStatus": "NOT_REVIEWED"
+    },
+    {
+      "caseId": "case-06",
+      "group": "A",
+      "intent": "QUIET_LUXURY",
+      "directorConceptId": "LIGHT_REVEAL",
+      "cinematicDevice": "Light Reveal",
+      "generationNonce": 0,
+      "duration": 15,
+      "aspectRatio": "9:16",
+      "canonicalCompiledText": "SEEDANCE — COMMERCIAL FILM\n15 seconds · one person · one continuous commercial idea\n\n[FILM IDEA]\nThe person takes a brief pause inside a calm private space; In this film, the product's role is defined by the selected commercial expression; the details read as refined because nothing is over-explained. Exact product identity is supplied later by the external video-generation references. The film should let the material and proportion become meaningful through a private, restrained moment.\nA private pause makes material and proportion perceptible through stillness rather than explanation.\nCinematic rule: Light, body movement, or spatial change reveals the product instead of camera magnification.\n\n[CHARACTER / WORLD]\nAge: 33-37\nVisible appearance: 亚裔\nWorld: 衣帽间 / 更衣角 → 窗边阅读角 → 居家衣帽间 · 秋\nOne primary character. Background life may remain distant and secondary. Natural expression, task-driven movement, no performance toward camera, same person and wardrobe throughout.\n\n[TIMING]\nShot 1: 0.0-4.4s\nShot 2: 4.4-7.3s\nShot 3: 7.3-8.6s\nShot 4: 8.6-12.0s\nShot 5: 12.0-15.0s\n\nSHOT 1 — WORLD\nTime: 0.0-4.4s\nAction: She stands by the window with most of her weight settled on the rear leg. The film enters the room before it asks the viewer to notice the product.\nCamera: partial interior frame with foreground occlusion; natural eye level; fixed observation. Keep the complete product view temporarily out of frame while preserving physical and commercial clarity. Keep the complete product view temporarily outside the frame without breaking physical plausibility. Keep camera movement restrained and let changing light or subject movement expose the worn relationship.\nProduct: Product not visible; crop, foreground, seating, or occlusion must physically prevent footwear exposure.\nTransition: The cut moves into the next part of the same believable place. Exit with product understanding still incomplete until the reveal beat.\n\nSHOT 2 — WEAR\nTime: 4.4-7.3s\nAction: She makes one small standing adjustment that changes the body line. The private pause naturally produces a small change in weight distribution.\nCamera: medium body line with room and texture visible; natural eye level; fixed observation. Keep a natural observational distance and let the person behave independently of the camera. Let the person enter, cross, or act independently inside a quiet observational frame. Keep camera movement restrained and let changing light or subject movement expose the worn relationship. Use light falloff, shadow edge, deep plane, and asymmetric placement to define where information becomes visible.\nProduct: Product secondary within the worn look.\nTransition: The cut arrives as the current physical action completes. Exit with product understanding still incomplete until the reveal beat.\n\nSHOT 3 — DETAIL\nTime: 7.3-8.6s\nAction: She holds the pause and lets her weight settle through the ankle and heel while side light defines the lower silhouette. The body shift creates a natural moment where one material relationship can be seen.\nCamera: medium composition with the product relationship inside the body frame; natural chest height; controlled detail framing. Use one short detail to interrupt the wider action, then return to the human situation without becoming a product beauty shot. Interrupt the wider action briefly for one confirmed detail, then return to the human continuity. Keep camera movement restrained and let changing light or subject movement expose the worn relationship. Use light falloff, shadow edge, deep plane, and asymmetric placement to define where information becomes visible.\nProduct: Observe the proportion and natural side-light relationship from the external footwear references through natural use; do not default to a full-shoe close-up.\nTransition: The cut follows new, reference-supported product information. Leave as the action reaches its natural completion so hero inherits the movement.\n\nSHOT 4 — HERO\nTime: 8.6-12.0s\nAction: She shifts her weight once and holds the complete worn line in the private light. The earlier pause and material observation culminate in a completed understanding.\nCamera: medium-full still observation with light defining material; natural eye level; brief hold. Keep a natural observational distance and let the person behave independently of the camera. Let the person enter, cross, or act independently inside a quiet observational frame. Let the final stable light condition resolve the complete worn-product read at HERO.\nProduct: Product clear within the worn look at natural human scale.\nTransition: The cut follows new, reference-supported product information. Leave as the action reaches its natural completion so release inherits the movement.\n\nSHOT 5 — RELEASE\nTime: 12.0-15.0s\nAction: The person remains still while the room and light continue around her. The film resolves through atmosphere rather than another action.\nCamera: held room composition with no new subject action; natural eye level; fixed observation. Establish the frame first, then let the person enter, complete the action, and leave naturally. Place the frame before the action begins, then let the person enter, complete the action, and leave naturally. Let the light remain after the subject movement resolves, giving the world the final image.\nProduct: Product secondary within the worn look.\nTransition: The cut releases the film into its final state rather than starting a new beat.\nEnding: The person settles while the room, light, and quiet environment continue unchanged. Let the light remain after the subject movement resolves, giving the world the final image.\n\n[SOUND WORLD]\nContext: quiet private interior.\nSound: soft room tone; fabric movement; open street ambience.\nNo dialogue, no voiceover, no music unless explicitly requested.\n\n[VISUAL LOOK]\nNatural light, restrained saturation, realistic skin, matte non-glossy finish, soft controlled contrast.\nThe environment may use a restrained warm-neutral grade, but the footwear must remain faithful to the external reference in hue, saturation, contrast, and visible material appearance.\nThe private room should feel quietly inhabited rather than pristine: keep light falloff, soft material movement, ordinary object placement, and no showroom perfection.\nAllow controlled observational imperfection: slight occlusion, subject entering slightly late, off-center framing, and the camera staying after the subject leaves.\nUse a real shadow or light falloff to preserve privacy and continuity in this world beat. Beat 1 contributes one part of the same visual idea, not a symbol.\n\n[GLOBAL PRODUCT PROTECTION]\nUse the footwear reference images uploaded in the external video generation tool as the only source of truth for the product. Do not invent or alter product details not supported by those references.\nPreserve silhouette, proportions, visible material and color relationships, outsole/upper/tongue/lace relationships, and grounded foot-to-shoe scale.\nDo not invent product facts, logos, materials, colors, panel geometry, or construction. Do not recolor, reshape, stretch, compress, or deform the product through pose, garment, or camera.\n\n[NEGATIVES]\nNo runway posing, deliberate shoe presentation, camera-aware influencer gestures, shoe chase camera, orbit, 360, whip pan, or aggressive dolly.\nNo clearly readable invented brand names or corrupted AI text. Distant non-readable storefront graphics, abstract signage shapes, and passing-life reflections are allowed.\nNo product-only packshot, invented product detail, floating footwear, or detached shoe.\nNo readable brand names, generated text, letters, logos, or signage in the environment unless explicitly requested.",
+      "directorPlanSummary": {
+        "concept": "LIGHT_REVEAL",
+        "label": "Light Reveal",
+        "globalRule": "Light, body movement, or spatial change reveals the product instead of camera magnification.",
+        "heroRule": "Let the final stable light condition resolve the complete worn-product read at HERO.",
+        "releaseRule": "Let the light remain after the subject movement resolves, giving the world the final image.",
+        "shotContributions": [
+          "PRIMARY",
+          "REST",
+          "REST",
+          "PRIMARY",
+          "RESOLUTION"
+        ]
+      },
+      "eventSpineSummary": {
+        "centralEvent": "A private pause makes material and proportion perceptible through stillness rather than explanation.",
+        "eventChain": [
+          "PRIVATE_STATE",
+          "RESTRAINED_SHIFT",
+          "MATERIAL_PAUSE",
+          "PRODUCT_RECOGNITION",
+          "ROOM_CONTINUES"
+        ],
+        "durationPlan": [
+          4.3,
+          2.8,
+          1.5,
+          3.5,
+          2.9
+        ],
+        "endingGrammar": "Stillness And Room Continues"
+      },
+      "shotCount": 5,
+      "productRevealStrategy": "DELAYED",
+      "transitionStrategy": [
+        "Exit with product understanding still incomplete until the reveal beat.",
+        "Exit with product understanding still incomplete until the reveal beat.",
+        "Leave as the action reaches its natural completion so hero inherits the movement.",
+        "Leave as the action reaches its natural completion so release inherits the movement.",
+        "Leave as the action reaches its natural completion so the release inherits the movement."
+      ],
+      "endingStrategy": "The person settles while the room, light, and quiet environment continue unchanged.",
+      "scriptValidationStatus": "COMMERCIAL_EXECUTION_VALIDATED",
+      "visualReviewStatus": "NOT_REVIEWED"
+    },
+    {
+      "caseId": "case-07",
+      "group": "A",
+      "intent": "QUIET_LUXURY",
+      "directorConceptId": "WORLD_MOVES_SUBJECT_SETTLES",
+      "cinematicDevice": "World Moves Subject Settles",
+      "generationNonce": 0,
+      "duration": 15,
+      "aspectRatio": "9:16",
+      "canonicalCompiledText": "SEEDANCE — COMMERCIAL FILM\n15 seconds · one person · one continuous commercial idea\n\n[FILM IDEA]\nThe person takes a brief pause inside a calm private space; In this film, the product's role is defined by the selected commercial expression; the details read as refined because nothing is over-explained. Exact product identity is supplied later by the external video-generation references. The film should let the material and proportion become meaningful through a private, restrained moment.\nA private pause makes material and proportion perceptible through stillness rather than explanation.\nCinematic rule: The subject gradually becomes still while the world continues moving behind or around her.\n\n[CHARACTER / WORLD]\nAge: 33-37\nVisible appearance: 亚裔\nWorld: 衣帽间 / 更衣角 → 窗边阅读角 → 居家衣帽间 · 秋\nOne primary character. Background life may remain distant and secondary. Natural expression, task-driven movement, no performance toward camera, same person and wardrobe throughout.\n\n[TIMING]\nShot 1: 0.0-4.4s\nShot 2: 4.4-7.3s\nShot 3: 7.3-8.6s\nShot 4: 8.6-12.0s\nShot 5: 12.0-15.0s\n\nSHOT 1 — WORLD\nTime: 0.0-4.4s\nAction: She stands by the window with most of her weight settled on the rear leg. The film enters the room before it asks the viewer to notice the product.\nCamera: partial interior frame with foreground occlusion; natural eye level; fixed observation. Keep the complete product view temporarily out of frame while preserving physical and commercial clarity. Keep the complete product view temporarily outside the frame without breaking physical plausibility. Keep the subject in a stable frame while background life, reflections, or environmental movement continues.\nProduct: Product not visible; crop, foreground, seating, or occlusion must physically prevent footwear exposure.\nTransition: The cut moves into the next part of the same believable place. Exit with product understanding still incomplete until the reveal beat.\n\nSHOT 2 — WEAR\nTime: 4.4-7.3s\nAction: She makes one small standing adjustment that changes the body line. The private pause naturally produces a small change in weight distribution.\nCamera: medium body line with room and texture visible; natural eye level; fixed observation. Keep a natural observational distance and let the person behave independently of the camera. Let the person enter, cross, or act independently inside a quiet observational frame. Keep the subject in a stable frame while background life, reflections, or environmental movement continues. Use deep plane, foreground stillness, background movement, and unequal visual weight to separate subject and world.\nProduct: Product secondary within the worn look.\nTransition: The cut arrives as the current physical action completes. Exit with product understanding still incomplete until the reveal beat.\n\nSHOT 3 — DETAIL\nTime: 7.3-8.6s\nAction: She holds the pause and lets her weight settle through the ankle and heel while side light defines the lower silhouette. The body shift creates a natural moment where one material relationship can be seen.\nCamera: medium composition with the product relationship inside the body frame; natural chest height; controlled detail framing. Use one short detail to interrupt the wider action, then return to the human situation without becoming a product beauty shot. Interrupt the wider action briefly for one confirmed detail, then return to the human continuity. Keep the subject in a stable frame while background life, reflections, or environmental movement continues. Use deep plane, foreground stillness, background movement, and unequal visual weight to separate subject and world.\nProduct: Observe the proportion and natural side-light relationship from the external footwear references through natural use; do not default to a full-shoe close-up.\nTransition: The cut follows new, reference-supported product information. Leave as the action reaches its natural completion so hero inherits the movement.\n\nSHOT 4 — HERO\nTime: 8.6-12.0s\nAction: She shifts her weight once and holds the complete worn line in the private light. The earlier pause and material observation culminate in a completed understanding.\nCamera: medium-full still observation with light defining material; natural eye level; brief hold. Keep a natural observational distance and let the person behave independently of the camera. Let the person enter, cross, or act independently inside a quiet observational frame. The HERO holds the subject still enough to read the worn product while the environment remains alive.\nProduct: Product clear within the worn look at natural human scale.\nTransition: The cut follows new, reference-supported product information. Leave as the action reaches its natural completion so release inherits the movement.\n\nSHOT 5 — RELEASE\nTime: 12.0-15.0s\nAction: The person remains still while the room and light continue around her. The film resolves through atmosphere rather than another action.\nCamera: held room composition with no new subject action; natural eye level; fixed observation. Establish the frame first, then let the person enter, complete the action, and leave naturally. Place the frame before the action begins, then let the person enter, complete the action, and leave naturally. Let the environment continue after the subject stops; the final state belongs to the world.\nProduct: Product secondary within the worn look.\nTransition: The cut releases the film into its final state rather than starting a new beat.\nEnding: The person settles while the room, light, and quiet environment continue unchanged. Let the environment continue after the subject stops; the final state belongs to the world.\n\n[SOUND WORLD]\nContext: quiet private interior.\nSound: soft room tone; fabric movement; open street ambience.\nNo dialogue, no voiceover, no music unless explicitly requested.\n\n[VISUAL LOOK]\nNatural light, restrained saturation, realistic skin, matte non-glossy finish, soft controlled contrast.\nThe environment may use a restrained warm-neutral grade, but the footwear must remain faithful to the external reference in hue, saturation, contrast, and visible material appearance.\nThe private room should feel quietly inhabited rather than pristine: keep light falloff, soft material movement, ordinary object placement, and no showroom perfection.\nAllow controlled observational imperfection: slight occlusion, subject entering slightly late, off-center framing, and the camera staying after the subject leaves.\nUse a real shadow or light falloff to preserve privacy and continuity in this world beat. Beat 1 contributes one part of the same visual idea, not a symbol.\n\n[GLOBAL PRODUCT PROTECTION]\nUse the footwear reference images uploaded in the external video generation tool as the only source of truth for the product. Do not invent or alter product details not supported by those references.\nPreserve silhouette, proportions, visible material and color relationships, outsole/upper/tongue/lace relationships, and grounded foot-to-shoe scale.\nDo not invent product facts, logos, materials, colors, panel geometry, or construction. Do not recolor, reshape, stretch, compress, or deform the product through pose, garment, or camera.\n\n[NEGATIVES]\nNo runway posing, deliberate shoe presentation, camera-aware influencer gestures, shoe chase camera, orbit, 360, whip pan, or aggressive dolly.\nNo clearly readable invented brand names or corrupted AI text. Distant non-readable storefront graphics, abstract signage shapes, and passing-life reflections are allowed.\nNo product-only packshot, invented product detail, floating footwear, or detached shoe.\nNo readable brand names, generated text, letters, logos, or signage in the environment unless explicitly requested.",
+      "directorPlanSummary": {
+        "concept": "WORLD_MOVES_SUBJECT_SETTLES",
+        "label": "World Moves Subject Settles",
+        "globalRule": "The subject gradually becomes still while the world continues moving behind or around her.",
+        "heroRule": "The HERO holds the subject still enough to read the worn product while the environment remains alive.",
+        "releaseRule": "Let the environment continue after the subject stops; the final state belongs to the world.",
+        "shotContributions": [
+          "PRIMARY",
+          "REST",
+          "REST",
+          "PRIMARY",
+          "RESOLUTION"
+        ]
+      },
+      "eventSpineSummary": {
+        "centralEvent": "A private pause makes material and proportion perceptible through stillness rather than explanation.",
+        "eventChain": [
+          "PRIVATE_STATE",
+          "RESTRAINED_SHIFT",
+          "MATERIAL_PAUSE",
+          "PRODUCT_RECOGNITION",
+          "ROOM_CONTINUES"
+        ],
+        "durationPlan": [
+          4.3,
+          2.8,
+          1.5,
+          3.5,
+          2.9
+        ],
+        "endingGrammar": "Stillness And Room Continues"
+      },
+      "shotCount": 5,
+      "productRevealStrategy": "DELAYED",
+      "transitionStrategy": [
+        "Exit with product understanding still incomplete until the reveal beat.",
+        "Exit with product understanding still incomplete until the reveal beat.",
+        "Leave as the action reaches its natural completion so hero inherits the movement.",
+        "Leave as the action reaches its natural completion so release inherits the movement.",
+        "Leave as the action reaches its natural completion so the release inherits the movement."
+      ],
+      "endingStrategy": "The person settles while the room, light, and quiet environment continue unchanged.",
+      "scriptValidationStatus": "COMMERCIAL_EXECUTION_VALIDATED",
+      "visualReviewStatus": "NOT_REVIEWED"
+    },
+    {
+      "caseId": "case-08",
+      "group": "A",
+      "intent": "QUIET_LUXURY",
+      "directorConceptId": "REPEATED_GESTURE",
+      "cinematicDevice": "Repeated Gesture",
+      "generationNonce": 0,
+      "duration": 15,
+      "aspectRatio": "9:16",
+      "canonicalCompiledText": "SEEDANCE — COMMERCIAL FILM\n15 seconds · one person · one continuous commercial idea\n\n[FILM IDEA]\nThe person takes a brief pause inside a calm private space; In this film, the product's role is defined by the selected commercial expression; the details read as refined because nothing is over-explained. Exact product identity is supplied later by the external video-generation references. The film should let the material and proportion become meaningful through a private, restrained moment.\nA private pause makes material and proportion perceptible through stillness rather than explanation.\nCinematic rule: One small human gesture or physical relationship returns with variation across the film.\n\n[CHARACTER / WORLD]\nAge: 33-37\nVisible appearance: 亚裔\nWorld: 衣帽间 / 更衣角 → 窗边阅读角 → 居家衣帽间 · 秋\nOne primary character. Background life may remain distant and secondary. Natural expression, task-driven movement, no performance toward camera, same person and wardrobe throughout.\n\n[TIMING]\nShot 1: 0.0-4.4s\nShot 2: 4.4-7.3s\nShot 3: 7.3-8.6s\nShot 4: 8.6-12.0s\nShot 5: 12.0-15.0s\n\nSHOT 1 — WORLD\nTime: 0.0-4.4s\nAction: She stands by the window with most of her weight settled on the rear leg. The film enters the room before it asks the viewer to notice the product.\nCamera: partial interior frame with foreground occlusion; natural eye level; fixed observation. Keep the complete product view temporarily out of frame while preserving physical and commercial clarity. Keep the complete product view temporarily outside the frame without breaking physical plausibility. Observe each recurrence from a different physical relationship while keeping the gesture recognizable.\nProduct: Product not visible; crop, foreground, seating, or occlusion must physically prevent footwear exposure.\nTransition: The cut moves into the next part of the same believable place. Exit with product understanding still incomplete until the reveal beat.\n\nSHOT 2 — WEAR\nTime: 4.4-7.3s\nAction: She makes one small standing adjustment that changes the body line. The private pause naturally produces a small change in weight distribution.\nCamera: medium body line with room and texture visible; natural eye level; fixed observation. Keep a natural observational distance and let the person behave independently of the camera. Let the person enter, cross, or act independently inside a quiet observational frame. Observe each recurrence from a different physical relationship while keeping the gesture recognizable. Use repeated frame geometry, edge placement, and asymmetric weight to make the variation visible.\nProduct: Product secondary within the worn look.\nTransition: The cut arrives as the current physical action completes. Exit with product understanding still incomplete until the reveal beat.\n\nSHOT 3 — DETAIL\nTime: 7.3-8.6s\nAction: She holds the pause and lets her weight settle through the ankle and heel while side light defines the lower silhouette. The body shift creates a natural moment where one material relationship can be seen.\nCamera: medium composition with the product relationship inside the body frame; natural chest height; controlled detail framing. Use one short detail to interrupt the wider action, then return to the human situation without becoming a product beauty shot. Interrupt the wider action briefly for one confirmed detail, then return to the human continuity. Observe each recurrence from a different physical relationship while keeping the gesture recognizable. Use repeated frame geometry, edge placement, and asymmetric weight to make the variation visible.\nProduct: Observe the proportion and natural side-light relationship from the external footwear references through natural use; do not default to a full-shoe close-up.\nTransition: The cut follows new, reference-supported product information. Leave as the action reaches its natural completion so hero inherits the movement.\n\nSHOT 4 — HERO\nTime: 8.6-12.0s\nAction: She shifts her weight once and holds the complete worn line in the private light. The earlier pause and material observation culminate in a completed understanding.\nCamera: medium-full still observation with light defining material; natural eye level; brief hold. Keep a natural observational distance and let the person behave independently of the camera. Let the person enter, cross, or act independently inside a quiet observational frame. The final recurrence clarifies the worn product's role through the gesture's completed variation.\nProduct: Product clear within the worn look at natural human scale.\nTransition: The cut follows new, reference-supported product information. Leave as the action reaches its natural completion so release inherits the movement.\n\nSHOT 5 — RELEASE\nTime: 12.0-15.0s\nAction: The person remains still while the room and light continue around her. The film resolves through atmosphere rather than another action.\nCamera: held room composition with no new subject action; natural eye level; fixed observation. Establish the frame first, then let the person enter, complete the action, and leave naturally. Place the frame before the action begins, then let the person enter, complete the action, and leave naturally. Let the gesture resolve into stillness, departure, or environmental continuation without a new idea.\nProduct: Product secondary within the worn look.\nTransition: The cut releases the film into its final state rather than starting a new beat.\nEnding: The person settles while the room, light, and quiet environment continue unchanged. Let the gesture resolve into stillness, departure, or environmental continuation without a new idea.\n\n[SOUND WORLD]\nContext: quiet private interior.\nSound: soft room tone; fabric movement; open street ambience.\nNo dialogue, no voiceover, no music unless explicitly requested.\n\n[VISUAL LOOK]\nNatural light, restrained saturation, realistic skin, matte non-glossy finish, soft controlled contrast.\nThe environment may use a restrained warm-neutral grade, but the footwear must remain faithful to the external reference in hue, saturation, contrast, and visible material appearance.\nThe private room should feel quietly inhabited rather than pristine: keep light falloff, soft material movement, ordinary object placement, and no showroom perfection.\nAllow controlled observational imperfection: slight occlusion, subject entering slightly late, off-center framing, and the camera staying after the subject leaves.\nUse a real shadow or light falloff to preserve privacy and continuity in this world beat. Beat 1 contributes one part of the same visual idea, not a symbol.\n\n[GLOBAL PRODUCT PROTECTION]\nUse the footwear reference images uploaded in the external video generation tool as the only source of truth for the product. Do not invent or alter product details not supported by those references.\nPreserve silhouette, proportions, visible material and color relationships, outsole/upper/tongue/lace relationships, and grounded foot-to-shoe scale.\nDo not invent product facts, logos, materials, colors, panel geometry, or construction. Do not recolor, reshape, stretch, compress, or deform the product through pose, garment, or camera.\n\n[NEGATIVES]\nNo runway posing, deliberate shoe presentation, camera-aware influencer gestures, shoe chase camera, orbit, 360, whip pan, or aggressive dolly.\nNo clearly readable invented brand names or corrupted AI text. Distant non-readable storefront graphics, abstract signage shapes, and passing-life reflections are allowed.\nNo product-only packshot, invented product detail, floating footwear, or detached shoe.\nNo readable brand names, generated text, letters, logos, or signage in the environment unless explicitly requested.",
+      "directorPlanSummary": {
+        "concept": "REPEATED_GESTURE",
+        "label": "Repeated Gesture",
+        "globalRule": "One small human gesture or physical relationship returns with variation across the film.",
+        "heroRule": "The final recurrence clarifies the worn product's role through the gesture's completed variation.",
+        "releaseRule": "Let the gesture resolve into stillness, departure, or environmental continuation without a new idea.",
+        "shotContributions": [
+          "PRIMARY",
+          "SUPPORTING",
+          "SUPPORTING",
+          "PRIMARY",
+          "RESOLUTION"
+        ]
+      },
+      "eventSpineSummary": {
+        "centralEvent": "A private pause makes material and proportion perceptible through stillness rather than explanation.",
+        "eventChain": [
+          "PRIVATE_STATE",
+          "RESTRAINED_SHIFT",
+          "MATERIAL_PAUSE",
+          "PRODUCT_RECOGNITION",
+          "ROOM_CONTINUES"
+        ],
+        "durationPlan": [
+          4.3,
+          2.8,
+          1.5,
+          3.5,
+          2.9
+        ],
+        "endingGrammar": "Stillness And Room Continues"
+      },
+      "shotCount": 5,
+      "productRevealStrategy": "DELAYED",
+      "transitionStrategy": [
+        "Exit with product understanding still incomplete until the reveal beat.",
+        "Exit with product understanding still incomplete until the reveal beat.",
+        "Leave as the action reaches its natural completion so hero inherits the movement.",
+        "Leave as the action reaches its natural completion so release inherits the movement.",
+        "Leave as the action reaches its natural completion so the release inherits the movement."
+      ],
+      "endingStrategy": "The person settles while the room, light, and quiet environment continue unchanged.",
+      "scriptValidationStatus": "COMMERCIAL_EXECUTION_VALIDATED",
+      "visualReviewStatus": "NOT_REVIEWED"
+    },
+    {
+      "caseId": "case-09",
+      "group": "B",
+      "intent": "URBAN_MOTION",
+      "directorConceptId": "STATIC_CAMERA_FILM",
+      "cinematicDevice": "Static Camera Film",
+      "generationNonce": 0,
+      "duration": 15,
+      "aspectRatio": "9:16",
+      "canonicalCompiledText": "SEEDANCE — COMMERCIAL FILM\n15 seconds · one person · one continuous commercial idea\n\n[FILM IDEA]\nThe person moves through adjacent city spaces without interrupting the rhythm of the day; In this film, the product's role is defined by the selected commercial expression; the product fits the ordinary rhythm of the day. Exact product identity is supplied later by the external video-generation references. A continuous city movement should make the product feel capable of joining the day without slowing it down.\nA believable urban route changes spatial condition while the same person and footwear continue through it.\nCinematic rule: The camera never follows the subject; every composition is already waiting before the action begins.\n\n[CHARACTER / WORLD]\nAge: 33-37\nVisible appearance: 亚裔\nWorld: 城市街角 / 安静街区 → 商务区转角 → 周末城市散步 · 秋\nOne primary character. Background life may remain distant and secondary. Natural expression, task-driven movement, no performance toward camera, same person and wardrobe throughout.\n\n[TIMING]\nShot 1: 0.0-3.1s\nShot 2: 3.1-5.8s\nShot 3: 5.8-7.4s\nShot 4: 7.4-10.7s\nShot 5: 10.7-15.0s\n\nSHOT 1 — WORLD\nTime: 0.0-3.1s\nAction: The person crosses from one urban plane into the next without breaking pace. The route is already in motion and the camera begins inside that movement.\nCamera: partial foreground city frame with the person entering the route; natural eye level; fixed observation. Establish the frame first, then let the person enter, complete the action, and leave naturally. Place the frame before the action begins, then let the person enter, complete the action, and leave naturally. Keep each camera position fixed and let human movement, world movement, and editing provide the energy.\nProduct: Product secondary within the worn look.\nTransition: The cut moves into the next part of the same believable place. Leave on a directional or body-mechanical match that continues into wear.\n\nSHOT 2 — WEAR\nTime: 3.1-5.8s\nAction: She keeps the same route into one changed street condition at the curb. The first crossing creates a believable next segment in the same journey.\nCamera: full figure at a three-quarter route angle; natural eye level; fixed observation. Keep a natural observational distance and let the person behave independently of the camera. Let the person enter, cross, or act independently inside a quiet observational frame. Keep each camera position fixed and let human movement, world movement, and editing provide the energy. Build clear internal geometry inside a fixed frame; use negative space and unequal subject placement rather than centered presentation.\nProduct: Product partial and secondary; keep the human action primary.\nTransition: The cut follows a compatible direction or body movement from the previous shot. Leave on a directional or body-mechanical match that continues into detail.\n\nSHOT 3 — DETAIL\nTime: 5.8-7.4s\nAction: She takes one short step onto a changed surface and lets the leading foot settle. The changed surface makes the body resolve a new ground relationship.\nCamera: lower-body movement inside the broader city frame; natural chest height; controlled detail framing. Use one short detail to interrupt the wider action, then return to the human situation without becoming a product beauty shot. Interrupt the wider action briefly for one confirmed detail, then return to the human continuity. Keep each camera position fixed and let human movement, world movement, and editing provide the energy. Build clear internal geometry inside a fixed frame; use negative space and unequal subject placement rather than centered presentation.\nProduct: Observe the footwear-stride-ground relationship from the external footwear references through natural use; do not default to a full-shoe close-up.\nTransition: The cut follows a compatible direction or body movement from the previous shot. Leave as the action reaches its natural completion so hero inherits the movement.\n\nSHOT 4 — HERO\nTime: 7.4-10.7s\nAction: She reaches a natural pause point and lets her weight settle without posing. The route itself creates a believable moment to slow into a grounded stop.\nCamera: medium-full worn-product observation at the pause point; natural eye level; brief hold. Let a motivated change of body, light, doorway, or framing make the worn product clearly readable. Use a motivated body, light, doorway, or reframing change to make the worn product clearly readable. The HERO is the moment the person and worn product settle into a composition that has been waiting through the film.\nProduct: Product clear within the worn look at natural human scale.\nTransition: The cut follows a compatible direction or body movement from the previous shot. Leave as the action reaches its natural completion so release inherits the movement.\n\nSHOT 5 — RELEASE\nTime: 10.7-15.0s\nAction: She continues beyond the pause point while the camera remains with the place she crossed. The route remains open and the film resolves through continuation rather than a product-only ending.\nCamera: held environmental frame with the subject leaving the deeper plane; natural eye level; fixed observation. Keep a natural observational distance and let the person behave independently of the camera. Let the person enter, cross, or act independently inside a quiet observational frame. Let the camera remain after the subject leaves or settles, so the final image is the world holding its position.\nProduct: Product secondary within the worn look.\nTransition: The cut releases the film into its final state rather than starting a new beat.\nEnding: The subject continues beyond the established city point while the camera stays with the place she has just crossed. Let the camera remain after the subject leaves or settles, so the final image is the world holding its position.\n\n[SOUND WORLD]\nContext: urban exterior.\nSound: street ambience; ordinary footsteps; open street ambience.\nNo dialogue, no voiceover, no music unless explicitly requested.\n\n[VISUAL LOOK]\nNatural light, restrained saturation, realistic skin, matte non-glossy finish, soft controlled contrast.\nThe environment may use a restrained warm-neutral grade, but the footwear must remain faithful to the external reference in hue, saturation, contrast, and visible material appearance.\nThe city should feel actively inhabited rather than cleared for filming: keep subtle background pedestrians, distant traffic, irregular pavement, reflections, ordinary street objects, and non-readable storefront graphics while all background activity stays secondary.\nAllow controlled observational imperfection: slight occlusion, subject entering slightly late, off-center framing, and the camera staying after the subject leaves.\nUse one physical reflection already present in the world without turning it into an effect. Beat 1 contributes one part of the same visual idea, not a symbol.\n\n[GLOBAL PRODUCT PROTECTION]\nUse the footwear reference images uploaded in the external video generation tool as the only source of truth for the product. Do not invent or alter product details not supported by those references.\nPreserve silhouette, proportions, visible material and color relationships, outsole/upper/tongue/lace relationships, and grounded foot-to-shoe scale.\nDo not invent product facts, logos, materials, colors, panel geometry, or construction. Do not recolor, reshape, stretch, compress, or deform the product through pose, garment, or camera.\n\n[NEGATIVES]\nNo runway posing, deliberate shoe presentation, camera-aware influencer gestures, shoe chase camera, orbit, 360, whip pan, or aggressive dolly.\nNo clearly readable invented brand names or corrupted AI text. Distant non-readable storefront graphics, abstract signage shapes, and passing-life reflections are allowed.\nNo product-only packshot, invented product detail, floating footwear, or detached shoe.\nNo readable brand names, generated text, letters, logos, or signage in the environment unless explicitly requested.",
+      "directorPlanSummary": {
+        "concept": "STATIC_CAMERA_FILM",
+        "label": "Static Camera Film",
+        "globalRule": "The camera never follows the subject; every composition is already waiting before the action begins.",
+        "heroRule": "The HERO is the moment the person and worn product settle into a composition that has been waiting through the film.",
+        "releaseRule": "Let the camera remain after the subject leaves or settles, so the final image is the world holding its position.",
+        "shotContributions": [
+          "PRIMARY",
+          "REST",
+          "REST",
+          "PRIMARY",
+          "RESOLUTION"
+        ]
+      },
+      "eventSpineSummary": {
+        "centralEvent": "A believable urban route changes spatial condition while the same person and footwear continue through it.",
+        "eventChain": [
+          "CITY_ENTRY",
+          "ROUTE_CONTINUATION",
+          "GROUND_RELATION_CHANGE",
+          "URBAN_PAUSE",
+          "ROUTE_RELEASE"
+        ],
+        "durationPlan": [
+          3.2,
+          2.6,
+          1.8,
+          3.3,
+          4.1
+        ],
+        "endingGrammar": "Continued Spatial Movement"
+      },
+      "shotCount": 5,
+      "productRevealStrategy": "PROGRESSIVE",
+      "transitionStrategy": [
+        "Leave on a directional or body-mechanical match that continues into wear.",
+        "Leave on a directional or body-mechanical match that continues into detail.",
+        "Leave as the action reaches its natural completion so hero inherits the movement.",
+        "Leave as the action reaches its natural completion so release inherits the movement.",
+        "Leave on a directional or body-mechanical match that continues into the release."
+      ],
+      "endingStrategy": "The subject continues beyond the established city point while the camera stays with the place she has just crossed.",
+      "scriptValidationStatus": "COMMERCIAL_EXECUTION_VALIDATED",
+      "visualReviewStatus": "NOT_REVIEWED"
+    },
+    {
+      "caseId": "case-10",
+      "group": "B",
+      "intent": "DAILY_STYLING",
+      "directorConceptId": "STATIC_CAMERA_FILM",
+      "cinematicDevice": "Static Camera Film",
+      "generationNonce": 0,
+      "duration": 15,
+      "aspectRatio": "9:16",
+      "canonicalCompiledText": "SEEDANCE — COMMERCIAL FILM\n15 seconds · one person · one continuous commercial idea\n\n[FILM IDEA]\nThe person moves from a private dressing moment into the first ordinary step outside; In this film, the product's role is defined by the selected commercial expression; the product fits the ordinary rhythm of the day. Exact product identity is supplied later by the external video-generation references. The product should feel resolved within the whole outfit before the person steps into the day.\nA private styling decision is completed and then tested in the first real movement of the day.\nCinematic rule: The camera never follows the subject; every composition is already waiting before the action begins.\n\n[CHARACTER / WORLD]\nAge: 33-37\nVisible appearance: 亚裔\nWorld: 入户镜前 → 玄关出门 → 住宅楼外 · 秋\nOne primary character. Background life may remain distant and secondary. Natural expression, task-driven movement, no performance toward camera, same person and wardrobe throughout.\n\n[TIMING]\nShot 1: 0.0-3.5s\nShot 2: 3.5-5.9s\nShot 3: 5.9-7.6s\nShot 4: 7.6-11.3s\nShot 5: 11.3-15.0s\n\nSHOT 1 — WORLD\nTime: 0.0-3.5s\nAction: She completes one useful wardrobe task that resolves the look. The day is beginning and the outfit needs one last practical decision.\nCamera: upper-body and garment framing before the footwear is revealed; natural eye level; fixed observation. Keep a natural observational distance and let the person behave independently of the camera. Let the person enter, cross, or act independently inside a quiet observational frame. Keep each camera position fixed and let human movement, world movement, and editing provide the energy.\nProduct: Product secondary within the worn look.\nTransition: The cut moves into the next part of the same believable place. Leave as the action reaches its natural completion so wear inherits the movement.\n\nSHOT 2 — WEAR\nTime: 3.5-5.9s\nAction: She crosses the doorway threshold and the completed look enters real movement. Preparation naturally leads into leaving the private space.\nCamera: full figure through a doorway with the person crossing; natural chest height; restrained follow. Follow softly from the side or rear three-quarter, keeping the distance human and unpresentational. Follow at a human working distance from the side or rear three-quarter without centering a fashion walk. Keep each camera position fixed and let human movement, world movement, and editing provide the energy. Build clear internal geometry inside a fixed frame; use negative space and unequal subject placement rather than centered presentation.\nProduct: Product clear within the worn look at natural human scale.\nTransition: The cut carries the current physical action into the next shot. Leave as the action reaches its natural completion so detail inherits the movement.\n\nSHOT 3 — DETAIL\nTime: 5.9-7.6s\nAction: She completes the step and lets the finished hem, ankle, and footwear relationship become visible. The threshold crossing makes the worn relationship visible without a pose.\nCamera: medium-lower body inside the doorway action; natural eye level; fixed observation. Keep a natural observational distance and let the person behave independently of the camera. Let the person enter, cross, or act independently inside a quiet observational frame. Keep each camera position fixed and let human movement, world movement, and editing provide the energy. Build clear internal geometry inside a fixed frame; use negative space and unequal subject placement rather than centered presentation.\nProduct: Observe the garment-ankle-footwear relationship from the external footwear references through natural use; do not default to a full-shoe close-up.\nTransition: The cut follows new, reference-supported product information. Leave on a directional or body-mechanical match that continues into hero.\n\nSHOT 4 — HERO\nTime: 7.6-11.3s\nAction: She reaches the outside edge, stops naturally, and lets the completed look settle. The first step outside creates a believable pause before the day continues.\nCamera: medium-full outfit and worn-product observation; natural chest height; brief hold. Follow softly from the side or rear three-quarter, keeping the distance human and unpresentational. Follow at a human working distance from the side or rear three-quarter without centering a fashion walk. The HERO is the moment the person and worn product settle into a composition that has been waiting through the film.\nProduct: Product clear within the worn look at natural human scale.\nTransition: The cut carries the current physical action into the next shot. Leave on a directional or body-mechanical match that continues into release.\n\nSHOT 5 — RELEASE\nTime: 11.3-15.0s\nAction: She moves into the first ordinary street step with the styling already resolved. The completed look has entered the day and no further decision is needed.\nCamera: medium environmental exit with no return to preparation; natural chest height; fixed observation. Let the person pass through the visual space, using depth and a natural foreground relationship. Let the person pass through the visual space with natural depth rather than centering the frame. Let the camera remain after the subject leaves or settles, so the final image is the world holding its position.\nProduct: Product secondary within the worn look.\nTransition: The cut releases the film into its final state rather than starting a new beat.\nEnding: The preparation resolves into the first lived movement outside the private space. Let the camera remain after the subject leaves or settles, so the final image is the world holding its position.\n\n[SOUND WORLD]\nContext: private threshold to street.\nSound: quiet room tone; fabric movement; soft fabric movement.\nNo dialogue, no voiceover, no music unless explicitly requested.\n\n[VISUAL LOOK]\nNatural light, restrained saturation, realistic skin, matte non-glossy finish, soft controlled contrast.\nThe environment may use a restrained warm-neutral grade, but the footwear must remain faithful to the external reference in hue, saturation, contrast, and visible material appearance.\nThe private space should feel genuinely used rather than staged as a luxury showroom, with ordinary interior residue and only physically plausible distant exterior life.\nAllow controlled observational imperfection: slight occlusion, subject entering slightly late, off-center framing, and the camera staying after the subject leaves.\nUse one real doorway, edge, or crossing point to quietly connect this world beat to the next. Beat 1 contributes one part of the same visual idea, not a symbol.\n\n[GLOBAL PRODUCT PROTECTION]\nUse the footwear reference images uploaded in the external video generation tool as the only source of truth for the product. Do not invent or alter product details not supported by those references.\nPreserve silhouette, proportions, visible material and color relationships, outsole/upper/tongue/lace relationships, and grounded foot-to-shoe scale.\nDo not invent product facts, logos, materials, colors, panel geometry, or construction. Do not recolor, reshape, stretch, compress, or deform the product through pose, garment, or camera.\n\n[NEGATIVES]\nNo runway posing, deliberate shoe presentation, camera-aware influencer gestures, shoe chase camera, orbit, 360, whip pan, or aggressive dolly.\nNo clearly readable invented brand names or corrupted AI text. Distant non-readable storefront graphics, abstract signage shapes, and passing-life reflections are allowed.\nNo product-only packshot, invented product detail, floating footwear, or detached shoe.\nNo readable brand names, generated text, letters, logos, or signage in the environment unless explicitly requested.",
+      "directorPlanSummary": {
+        "concept": "STATIC_CAMERA_FILM",
+        "label": "Static Camera Film",
+        "globalRule": "The camera never follows the subject; every composition is already waiting before the action begins.",
+        "heroRule": "The HERO is the moment the person and worn product settle into a composition that has been waiting through the film.",
+        "releaseRule": "Let the camera remain after the subject leaves or settles, so the final image is the world holding its position.",
+        "shotContributions": [
+          "PRIMARY",
+          "REST",
+          "REST",
+          "PRIMARY",
+          "RESOLUTION"
+        ]
+      },
+      "eventSpineSummary": {
+        "centralEvent": "A private styling decision is completed and then tested in the first real movement of the day.",
+        "eventChain": [
+          "WARDROBE_DECISION",
+          "THRESHOLD_TEST",
+          "GARMENT_FOOT_RELATION",
+          "READY_TO_MOVE",
+          "LIVED_USE"
+        ],
+        "durationPlan": [
+          3.5,
+          2.4,
+          1.8,
+          3.6,
+          3.7
+        ],
+        "endingGrammar": "Transition Into Lived Use"
+      },
+      "shotCount": 5,
+      "productRevealStrategy": "IMMEDIATE",
+      "transitionStrategy": [
+        "Leave as the action reaches its natural completion so wear inherits the movement.",
+        "Leave as the action reaches its natural completion so detail inherits the movement.",
+        "Leave on a directional or body-mechanical match that continues into hero.",
+        "Leave on a directional or body-mechanical match that continues into release.",
+        "Leave as the action reaches its natural completion so the release inherits the movement."
+      ],
+      "endingStrategy": "The preparation resolves into the first lived movement outside the private space.",
+      "scriptValidationStatus": "COMMERCIAL_EXECUTION_VALIDATED",
+      "visualReviewStatus": "NOT_REVIEWED"
+    },
+    {
+      "caseId": "case-11",
+      "group": "B",
+      "intent": "PRODUCT_CRAFT",
+      "directorConceptId": "STATIC_CAMERA_FILM",
+      "cinematicDevice": "Static Camera Film",
+      "generationNonce": 0,
+      "duration": 15,
+      "aspectRatio": "9:16",
+      "canonicalCompiledText": "SEEDANCE — COMMERCIAL FILM\n15 seconds · one person · one continuous commercial idea\n\n[FILM IDEA]\nThe person finishes preparing for the day and checks the last details of the look; In this film, the product's role is defined by the selected commercial expression; the details read as refined because nothing is over-explained. Exact product identity is supplied later by the external video-generation references. The product's visible material and structural relationships should become clearer through natural use.\nA preparation task creates a natural opportunity to understand one externally referenced product relationship.\nCinematic rule: The camera never follows the subject; every composition is already waiting before the action begins.\n\n[CHARACTER / WORLD]\nAge: 33-37\nVisible appearance: 亚裔\nWorld: 衣帽间 / 更衣角 → 居家衣帽间 → 玄关出门 · 秋\nOne primary character. Background life may remain distant and secondary. Natural expression, task-driven movement, no performance toward camera, same person and wardrobe throughout.\n\n[TIMING]\nShot 1: 0.0-3.5s\nShot 2: 3.5-6.1s\nShot 3: 6.1-7.6s\nShot 4: 7.6-11.0s\nShot 5: 11.0-15.0s\n\nSHOT 1 — WORLD\nTime: 0.0-3.5s\nAction: She works through one ordinary preparation task that establishes the dressing context. The task gives the camera a real reason to observe without posing.\nCamera: environmental work-surface frame with the person at partial scale; natural eye level; fixed observation. Establish the frame first, then let the person enter, complete the action, and leave naturally. Place the frame before the action begins, then let the person enter, complete the action, and leave naturally. Keep each camera position fixed and let human movement, world movement, and editing provide the energy.\nProduct: Product secondary within the worn look.\nTransition: The cut moves into the next part of the same believable place. Leave as the action reaches its natural completion so wear inherits the movement.\n\nSHOT 2 — WEAR\nTime: 3.5-6.1s\nAction: She stands from the preparation position and takes one small step with the product already worn. The preparation task has produced a real body state that can now move.\nCamera: medium worn-product frame inside the room; natural eye level; fixed observation. Keep a natural observational distance and let the person behave independently of the camera. Let the person enter, cross, or act independently inside a quiet observational frame. Keep each camera position fixed and let human movement, world movement, and editing provide the energy. Build clear internal geometry inside a fixed frame; use negative space and unequal subject placement rather than centered presentation.\nProduct: Product partial and secondary; keep the human action primary.\nTransition: The cut follows new, reference-supported product information. Leave as the action reaches its natural completion so detail inherits the movement.\n\nSHOT 3 — DETAIL\nTime: 6.1-7.6s\nAction: She shifts her weight onto the leading foot and lets the trouser hem settle around the ankle. The prior movement exposes the selected reference-supported product relationship.\nCamera: medium human frame containing the selected product relationship, not a default full-shoe close-up; natural chest height; controlled detail framing. Use one short detail to interrupt the wider action, then return to the human situation without becoming a product beauty shot. Interrupt the wider action briefly for one confirmed detail, then return to the human continuity. Keep each camera position fixed and let human movement, world movement, and editing provide the energy. Build clear internal geometry inside a fixed frame; use negative space and unequal subject placement rather than centered presentation.\nProduct: Observe the surface from the external footwear references through natural use; do not default to a full-shoe close-up.\nTransition: The cut follows new, reference-supported product information. Leave as the action reaches its natural completion so hero inherits the movement.\n\nSHOT 4 — HERO\nTime: 7.6-11.0s\nAction: Her weight settles through one small practical move, allowing the relationship to be understood in use. A grounded action confirms the detail inside real movement.\nCamera: medium-full worn context with the person in the frame; natural chest height; brief hold. Let the product become clearer through movement, light, a turn, or a threshold rather than a presentation gesture. Use one restrained reframe motivated by the body, light, doorway, or spatial change. The HERO is the moment the person and worn product settle into a composition that has been waiting through the film.\nProduct: Product clear within the worn look at natural human scale.\nTransition: The cut carries the current physical action into the next shot. Leave as the action reaches its natural completion so release inherits the movement.\n\nSHOT 5 — RELEASE\nTime: 11.0-15.0s\nAction: The action completes and she becomes ready to leave the preparation space. The task has reached a stable conclusion.\nCamera: medium completion frame that holds the prepared state; natural eye level; fixed observation. Establish the frame first, then let the person enter, complete the action, and leave naturally. Place the frame before the action begins, then let the person enter, complete the action, and leave naturally. Let the camera remain after the subject leaves or settles, so the final image is the world holding its position.\nProduct: Product secondary within the worn look.\nTransition: The cut releases the film into its final state rather than starting a new beat.\nEnding: The final action completes and the person becomes ready to leave the preparation space. Let the camera remain after the subject leaves or settles, so the final image is the world holding its position.\n\n[SOUND WORLD]\nContext: working preparation interior.\nSound: room tone; fabric movement; open street ambience.\nNo dialogue, no voiceover, no music unless explicitly requested.\n\n[VISUAL LOOK]\nNatural light, restrained saturation, realistic skin, matte non-glossy finish, soft controlled contrast.\nThe environment may use a restrained warm-neutral grade, but the footwear must remain faithful to the external reference in hue, saturation, contrast, and visible material appearance.\nThe preparation world should feel materially real and mildly used, never a perfect studio set or a generic luxury showroom.\nAllow controlled observational imperfection: slight occlusion, subject entering slightly late, off-center framing, and the camera staying after the subject leaves.\nLet the existing light direction reveal the same human and product continuity across this world beat. Beat 1 contributes one part of the same visual idea, not a symbol.\n\n[GLOBAL PRODUCT PROTECTION]\nUse the footwear reference images uploaded in the external video generation tool as the only source of truth for the product. Do not invent or alter product details not supported by those references.\nPreserve silhouette, proportions, visible material and color relationships, outsole/upper/tongue/lace relationships, and grounded foot-to-shoe scale.\nDo not invent product facts, logos, materials, colors, panel geometry, or construction. Do not recolor, reshape, stretch, compress, or deform the product through pose, garment, or camera.\n\n[NEGATIVES]\nNo runway posing, deliberate shoe presentation, camera-aware influencer gestures, shoe chase camera, orbit, 360, whip pan, or aggressive dolly.\nNo clearly readable invented brand names or corrupted AI text. Distant non-readable storefront graphics, abstract signage shapes, and passing-life reflections are allowed.\nNo product-only packshot, invented product detail, floating footwear, or detached shoe.\nNo readable brand names, generated text, letters, logos, or signage in the environment unless explicitly requested.",
+      "directorPlanSummary": {
+        "concept": "STATIC_CAMERA_FILM",
+        "label": "Static Camera Film",
+        "globalRule": "The camera never follows the subject; every composition is already waiting before the action begins.",
+        "heroRule": "The HERO is the moment the person and worn product settle into a composition that has been waiting through the film.",
+        "releaseRule": "Let the camera remain after the subject leaves or settles, so the final image is the world holding its position.",
+        "shotContributions": [
+          "PRIMARY",
+          "REST",
+          "REST",
+          "PRIMARY",
+          "RESOLUTION"
+        ]
+      },
+      "eventSpineSummary": {
+        "centralEvent": "A preparation task creates a natural opportunity to understand one externally referenced product relationship.",
+        "eventChain": [
+          "PREPARATION_CONTEXT",
+          "WEAR_TRANSITION",
+          "EXTERNAL_DETAIL_SELECTION",
+          "USE_CONFIRMATION",
+          "QUIET_COMPLETION"
+        ],
+        "durationPlan": [
+          3.4,
+          2.5,
+          1.7,
+          3.5,
+          3.9
+        ],
+        "endingGrammar": "Completion And Quiet Departure"
+      },
+      "shotCount": 5,
+      "productRevealStrategy": "PROGRESSIVE",
+      "transitionStrategy": [
+        "Leave as the action reaches its natural completion so wear inherits the movement.",
+        "Leave as the action reaches its natural completion so detail inherits the movement.",
+        "Leave as the action reaches its natural completion so hero inherits the movement.",
+        "Leave as the action reaches its natural completion so release inherits the movement.",
+        "Leave as the action reaches its natural completion so the release inherits the movement."
+      ],
+      "endingStrategy": "The final action completes and the person becomes ready to leave the preparation space.",
+      "scriptValidationStatus": "COMMERCIAL_EXECUTION_VALIDATED",
+      "visualReviewStatus": "NOT_REVIEWED"
+    },
+    {
+      "caseId": "case-12",
+      "group": "B",
+      "intent": "NEW_ARRIVAL",
+      "directorConceptId": "STATIC_CAMERA_FILM",
+      "cinematicDevice": "Static Camera Film",
+      "generationNonce": 0,
+      "duration": 15,
+      "aspectRatio": "9:16",
+      "canonicalCompiledText": "SEEDANCE — COMMERCIAL FILM\n15 seconds · one person · one continuous commercial idea\n\n[FILM IDEA]\nThe person arrives at a familiar city destination and settles into the moment; In this film, the product's role is defined by the selected commercial expression; the product belongs naturally to the place and outfit. Exact product identity is supplied later by the external video-generation references. The new product should enter a familiar life immediately and feel already at home there.\nAn approach resolves into arrival and the product becomes part of the settled place.\nCinematic rule: The camera never follows the subject; every composition is already waiting before the action begins.\n\n[CHARACTER / WORLD]\nAge: 33-37\nVisible appearance: 亚裔\nWorld: 咖啡店门口 → 城市街角 / 安静街区 → 周末城市散步 · 秋\nOne primary character. Background life may remain distant and secondary. Natural expression, task-driven movement, no performance toward camera, same person and wardrobe throughout.\n\n[TIMING]\nShot 1: 0.0-3.1s\nShot 2: 3.1-5.5s\nShot 3: 5.5-6.9s\nShot 4: 6.9-10.6s\nShot 5: 10.6-15.0s\n\nSHOT 1 — WORLD\nTime: 0.0-3.1s\nAction: She approaches a destination through a believable adjacent space. The film begins with the movement toward arrival, not with a product introduction.\nCamera: wide arrival frame with the subject entering from a believable edge; natural eye level; fixed observation. Establish the frame first, then let the person enter, complete the action, and leave naturally. Place the frame before the action begins, then let the person enter, complete the action, and leave naturally. Keep each camera position fixed and let human movement, world movement, and editing provide the energy.\nProduct: Product secondary within the worn look.\nTransition: The cut moves into the next part of the same believable place. Leave as the action reaches its natural completion so wear inherits the movement.\n\nSHOT 2 — WEAR\nTime: 3.1-5.5s\nAction: She reaches the destination threshold and makes the final physical adjustment to enter. The approach has created a real crossing point.\nCamera: medium threshold frame with foreground spatial depth; natural chest height; restrained follow. Follow softly from the side or rear three-quarter, keeping the distance human and unpresentational. Follow at a human working distance from the side or rear three-quarter without centering a fashion walk. Keep each camera position fixed and let human movement, world movement, and editing provide the energy. Build clear internal geometry inside a fixed frame; use negative space and unequal subject placement rather than centered presentation.\nProduct: Product clear within the worn look at natural human scale.\nTransition: The cut carries the current physical action into the next shot. Leave as the action reaches its natural completion so detail inherits the movement.\n\nSHOT 3 — DETAIL\nTime: 5.5-6.9s\nAction: She feels the arrival surface through one real step and a settled weight change. The threshold creates a natural point of contact with the new place.\nCamera: medium-lower arrival frame with the place visible; natural eye level; fixed observation. Keep a natural observational distance and let the person behave independently of the camera. Let the person enter, cross, or act independently inside a quiet observational frame. Keep each camera position fixed and let human movement, world movement, and editing provide the energy. Build clear internal geometry inside a fixed frame; use negative space and unequal subject placement rather than centered presentation.\nProduct: Observe the threshold-arrival surface-stop relationship from the external footwear references through natural use; do not default to a full-shoe close-up.\nTransition: The cut follows new, reference-supported product information. Leave on a directional or body-mechanical match that continues into hero.\n\nSHOT 4 — HERO\nTime: 6.9-10.6s\nAction: She settles into the destination and the complete worn state becomes clear. The arrival has completed and the body can resolve.\nCamera: medium-full settled composition with the destination visible; natural eye level; brief hold. Let a motivated change of body, light, doorway, or framing make the worn product clearly readable. Use a motivated body, light, doorway, or reframing change to make the worn product clearly readable. The HERO is the moment the person and worn product settle into a composition that has been waiting through the film.\nProduct: Product clear within the worn look at natural human scale.\nTransition: The cut carries the current physical action into the next shot. Leave on a directional or body-mechanical match that continues into release.\n\nSHOT 5 — RELEASE\nTime: 10.6-15.0s\nAction: The destination continues around her while she remains settled in the arrival space. The film resolves by showing that arrival has become part of the place.\nCamera: held arrival composition with no new route; natural eye level; fixed observation. Keep a natural observational distance and let the person behave independently of the camera. Let the person enter, cross, or act independently inside a quiet observational frame. Let the camera remain after the subject leaves or settles, so the final image is the world holding its position.\nProduct: Product secondary within the worn look.\nTransition: The cut releases the film into its final state rather than starting a new beat.\nEnding: The arrival becomes a settled state, with the surrounding place continuing naturally around her. Let the camera remain after the subject leaves or settles, so the final image is the world holding its position.\n\n[SOUND WORLD]\nContext: exterior threshold to arrival.\nSound: street ambience; door threshold sound; open street ambience.\nNo dialogue, no voiceover, no music unless explicitly requested.\n\n[VISUAL LOOK]\nNatural light, restrained saturation, realistic skin, matte non-glossy finish, soft controlled contrast.\nThe environment may use a restrained warm-neutral grade, but the footwear must remain faithful to the external reference in hue, saturation, contrast, and visible material appearance.\nThe destination should feel independently inhabited: keep restrained background movement, distant traffic or reflection, ordinary surfaces, and non-readable wayfinding or storefront information.\nAllow controlled observational imperfection: slight occlusion, subject entering slightly late, off-center framing, and the camera staying after the subject leaves.\nUse one real doorway, edge, or crossing point to quietly connect this world beat to the next. Beat 1 contributes one part of the same visual idea, not a symbol.\n\n[GLOBAL PRODUCT PROTECTION]\nUse the footwear reference images uploaded in the external video generation tool as the only source of truth for the product. Do not invent or alter product details not supported by those references.\nPreserve silhouette, proportions, visible material and color relationships, outsole/upper/tongue/lace relationships, and grounded foot-to-shoe scale.\nDo not invent product facts, logos, materials, colors, panel geometry, or construction. Do not recolor, reshape, stretch, compress, or deform the product through pose, garment, or camera.\n\n[NEGATIVES]\nNo runway posing, deliberate shoe presentation, camera-aware influencer gestures, shoe chase camera, orbit, 360, whip pan, or aggressive dolly.\nNo clearly readable invented brand names or corrupted AI text. Distant non-readable storefront graphics, abstract signage shapes, and passing-life reflections are allowed.\nNo product-only packshot, invented product detail, floating footwear, or detached shoe.\nNo readable brand names, generated text, letters, logos, or signage in the environment unless explicitly requested.",
+      "directorPlanSummary": {
+        "concept": "STATIC_CAMERA_FILM",
+        "label": "Static Camera Film",
+        "globalRule": "The camera never follows the subject; every composition is already waiting before the action begins.",
+        "heroRule": "The HERO is the moment the person and worn product settle into a composition that has been waiting through the film.",
+        "releaseRule": "Let the camera remain after the subject leaves or settles, so the final image is the world holding its position.",
+        "shotContributions": [
+          "PRIMARY",
+          "REST",
+          "REST",
+          "PRIMARY",
+          "RESOLUTION"
+        ]
+      },
+      "eventSpineSummary": {
+        "centralEvent": "An approach resolves into arrival and the product becomes part of the settled place.",
+        "eventChain": [
+          "APPROACH",
+          "THRESHOLD",
+          "ARRIVAL_GROUNDING",
+          "SETTLING",
+          "ARRIVAL_ENVIRONMENT"
+        ],
+        "durationPlan": [
+          3.2,
+          2.3,
+          1.6,
+          3.7,
+          4.2
+        ],
+        "endingGrammar": "Arrival Settles"
+      },
+      "shotCount": 5,
+      "productRevealStrategy": "IMMEDIATE",
+      "transitionStrategy": [
+        "Leave as the action reaches its natural completion so wear inherits the movement.",
+        "Leave as the action reaches its natural completion so detail inherits the movement.",
+        "Leave on a directional or body-mechanical match that continues into hero.",
+        "Leave on a directional or body-mechanical match that continues into release.",
+        "Leave as the action reaches its natural completion so the release inherits the movement."
+      ],
+      "endingStrategy": "The arrival becomes a settled state, with the surrounding place continuing naturally around her.",
+      "scriptValidationStatus": "COMMERCIAL_EXECUTION_VALIDATED",
+      "visualReviewStatus": "NOT_REVIEWED"
+    }
+  ],
+  "reviewResults": [
+    {
+      "caseId": "case-01",
+      "seedanceModel": null,
+      "seedanceVersion": null,
+      "attempt": null,
+      "sameReferenceSet": null,
+      "sameDuration": null,
+      "sameAspectRatio": null,
+      "sameGenerationSettings": null,
+      "videoReference": null,
+      "reviewStatus": "NOT_REVIEWED",
+      "conceptVisibility": null,
+      "conceptContinuity": null,
+      "cinematicDeviceVisibility": null,
+      "cinematicDeviceContinuity": null,
+      "intentIntegrity": null,
+      "productIntegration": null,
+      "cameraExecution": null,
+      "transitionExecution": null,
+      "worldRealism": null,
+      "endingExecution": null,
+      "notes": "",
+      "failureCodes": []
+    },
+    {
+      "caseId": "case-02",
+      "seedanceModel": null,
+      "seedanceVersion": null,
+      "attempt": null,
+      "sameReferenceSet": null,
+      "sameDuration": null,
+      "sameAspectRatio": null,
+      "sameGenerationSettings": null,
+      "videoReference": null,
+      "reviewStatus": "NOT_REVIEWED",
+      "conceptVisibility": null,
+      "conceptContinuity": null,
+      "cinematicDeviceVisibility": null,
+      "cinematicDeviceContinuity": null,
+      "intentIntegrity": null,
+      "productIntegration": null,
+      "cameraExecution": null,
+      "transitionExecution": null,
+      "worldRealism": null,
+      "endingExecution": null,
+      "notes": "",
+      "failureCodes": []
+    },
+    {
+      "caseId": "case-03",
+      "seedanceModel": null,
+      "seedanceVersion": null,
+      "attempt": null,
+      "sameReferenceSet": null,
+      "sameDuration": null,
+      "sameAspectRatio": null,
+      "sameGenerationSettings": null,
+      "videoReference": null,
+      "reviewStatus": "NOT_REVIEWED",
+      "conceptVisibility": null,
+      "conceptContinuity": null,
+      "cinematicDeviceVisibility": null,
+      "cinematicDeviceContinuity": null,
+      "intentIntegrity": null,
+      "productIntegration": null,
+      "cameraExecution": null,
+      "transitionExecution": null,
+      "worldRealism": null,
+      "endingExecution": null,
+      "notes": "",
+      "failureCodes": []
+    },
+    {
+      "caseId": "case-04",
+      "seedanceModel": null,
+      "seedanceVersion": null,
+      "attempt": null,
+      "sameReferenceSet": null,
+      "sameDuration": null,
+      "sameAspectRatio": null,
+      "sameGenerationSettings": null,
+      "videoReference": null,
+      "reviewStatus": "NOT_REVIEWED",
+      "conceptVisibility": null,
+      "conceptContinuity": null,
+      "cinematicDeviceVisibility": null,
+      "cinematicDeviceContinuity": null,
+      "intentIntegrity": null,
+      "productIntegration": null,
+      "cameraExecution": null,
+      "transitionExecution": null,
+      "worldRealism": null,
+      "endingExecution": null,
+      "notes": "",
+      "failureCodes": []
+    },
+    {
+      "caseId": "case-05",
+      "seedanceModel": null,
+      "seedanceVersion": null,
+      "attempt": null,
+      "sameReferenceSet": null,
+      "sameDuration": null,
+      "sameAspectRatio": null,
+      "sameGenerationSettings": null,
+      "videoReference": null,
+      "reviewStatus": "NOT_REVIEWED",
+      "conceptVisibility": null,
+      "conceptContinuity": null,
+      "cinematicDeviceVisibility": null,
+      "cinematicDeviceContinuity": null,
+      "intentIntegrity": null,
+      "productIntegration": null,
+      "cameraExecution": null,
+      "transitionExecution": null,
+      "worldRealism": null,
+      "endingExecution": null,
+      "notes": "",
+      "failureCodes": []
+    },
+    {
+      "caseId": "case-06",
+      "seedanceModel": null,
+      "seedanceVersion": null,
+      "attempt": null,
+      "sameReferenceSet": null,
+      "sameDuration": null,
+      "sameAspectRatio": null,
+      "sameGenerationSettings": null,
+      "videoReference": null,
+      "reviewStatus": "NOT_REVIEWED",
+      "conceptVisibility": null,
+      "conceptContinuity": null,
+      "cinematicDeviceVisibility": null,
+      "cinematicDeviceContinuity": null,
+      "intentIntegrity": null,
+      "productIntegration": null,
+      "cameraExecution": null,
+      "transitionExecution": null,
+      "worldRealism": null,
+      "endingExecution": null,
+      "notes": "",
+      "failureCodes": []
+    },
+    {
+      "caseId": "case-07",
+      "seedanceModel": null,
+      "seedanceVersion": null,
+      "attempt": null,
+      "sameReferenceSet": null,
+      "sameDuration": null,
+      "sameAspectRatio": null,
+      "sameGenerationSettings": null,
+      "videoReference": null,
+      "reviewStatus": "NOT_REVIEWED",
+      "conceptVisibility": null,
+      "conceptContinuity": null,
+      "cinematicDeviceVisibility": null,
+      "cinematicDeviceContinuity": null,
+      "intentIntegrity": null,
+      "productIntegration": null,
+      "cameraExecution": null,
+      "transitionExecution": null,
+      "worldRealism": null,
+      "endingExecution": null,
+      "notes": "",
+      "failureCodes": []
+    },
+    {
+      "caseId": "case-08",
+      "seedanceModel": null,
+      "seedanceVersion": null,
+      "attempt": null,
+      "sameReferenceSet": null,
+      "sameDuration": null,
+      "sameAspectRatio": null,
+      "sameGenerationSettings": null,
+      "videoReference": null,
+      "reviewStatus": "NOT_REVIEWED",
+      "conceptVisibility": null,
+      "conceptContinuity": null,
+      "cinematicDeviceVisibility": null,
+      "cinematicDeviceContinuity": null,
+      "intentIntegrity": null,
+      "productIntegration": null,
+      "cameraExecution": null,
+      "transitionExecution": null,
+      "worldRealism": null,
+      "endingExecution": null,
+      "notes": "",
+      "failureCodes": []
+    },
+    {
+      "caseId": "case-09",
+      "seedanceModel": null,
+      "seedanceVersion": null,
+      "attempt": null,
+      "sameReferenceSet": null,
+      "sameDuration": null,
+      "sameAspectRatio": null,
+      "sameGenerationSettings": null,
+      "videoReference": null,
+      "reviewStatus": "NOT_REVIEWED",
+      "conceptVisibility": null,
+      "conceptContinuity": null,
+      "cinematicDeviceVisibility": null,
+      "cinematicDeviceContinuity": null,
+      "intentIntegrity": null,
+      "productIntegration": null,
+      "cameraExecution": null,
+      "transitionExecution": null,
+      "worldRealism": null,
+      "endingExecution": null,
+      "notes": "",
+      "failureCodes": []
+    },
+    {
+      "caseId": "case-10",
+      "seedanceModel": null,
+      "seedanceVersion": null,
+      "attempt": null,
+      "sameReferenceSet": null,
+      "sameDuration": null,
+      "sameAspectRatio": null,
+      "sameGenerationSettings": null,
+      "videoReference": null,
+      "reviewStatus": "NOT_REVIEWED",
+      "conceptVisibility": null,
+      "conceptContinuity": null,
+      "cinematicDeviceVisibility": null,
+      "cinematicDeviceContinuity": null,
+      "intentIntegrity": null,
+      "productIntegration": null,
+      "cameraExecution": null,
+      "transitionExecution": null,
+      "worldRealism": null,
+      "endingExecution": null,
+      "notes": "",
+      "failureCodes": []
+    },
+    {
+      "caseId": "case-11",
+      "seedanceModel": null,
+      "seedanceVersion": null,
+      "attempt": null,
+      "sameReferenceSet": null,
+      "sameDuration": null,
+      "sameAspectRatio": null,
+      "sameGenerationSettings": null,
+      "videoReference": null,
+      "reviewStatus": "NOT_REVIEWED",
+      "conceptVisibility": null,
+      "conceptContinuity": null,
+      "cinematicDeviceVisibility": null,
+      "cinematicDeviceContinuity": null,
+      "intentIntegrity": null,
+      "productIntegration": null,
+      "cameraExecution": null,
+      "transitionExecution": null,
+      "worldRealism": null,
+      "endingExecution": null,
+      "notes": "",
+      "failureCodes": []
+    },
+    {
+      "caseId": "case-12",
+      "seedanceModel": null,
+      "seedanceVersion": null,
+      "attempt": null,
+      "sameReferenceSet": null,
+      "sameDuration": null,
+      "sameAspectRatio": null,
+      "sameGenerationSettings": null,
+      "videoReference": null,
+      "reviewStatus": "NOT_REVIEWED",
+      "conceptVisibility": null,
+      "conceptContinuity": null,
+      "cinematicDeviceVisibility": null,
+      "cinematicDeviceContinuity": null,
+      "intentIntegrity": null,
+      "productIntegration": null,
+      "cameraExecution": null,
+      "transitionExecution": null,
+      "worldRealism": null,
+      "endingExecution": null,
+      "notes": "",
+      "failureCodes": []
+    }
+  ],
+  "finalVisualStatus": "NOT_VERIFIED",
+  "canonicalBaselineSha256": "40f53904e6f4d967fc1b88bb075b76cc52cf92dd550e1087b77f1b90a51f840c"
+}

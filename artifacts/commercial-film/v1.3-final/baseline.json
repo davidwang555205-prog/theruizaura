@@ -1,0 +1,149 @@
+{
+  "schemaVersion": "commercial-film/visual-acceptance-baseline-v1.3-final",
+  "stage": "COMMERCIAL_FILM_V1.3_CANONICAL_BASELINE",
+  "hashAlgorithm": "sha256",
+  "cases": [
+    {
+      "caseId": "case-01",
+      "intent": "QUIET_LUXURY",
+      "directorConceptId": "STATIC_CAMERA_FILM",
+      "generationNonce": 0,
+      "duration": 15,
+      "aspectRatio": "9:16",
+      "canonicalInputSha256": "fe48d98f39523a15935617e33553dbdd549177381c44f7091ffc7c8fe838a40d",
+      "directorPlanSha256": "a8138698ee5452170e4614571124892cd72d8681669d4572f89b855a7bbe97f8",
+      "compiledTextSha256": "1870f9e302d34e913c95bd1b38f513baf06cb0f3289cb0cd81eb8f6bdd8e24d0"
+    },
+    {
+      "caseId": "case-02",
+      "intent": "QUIET_LUXURY",
+      "directorConceptId": "PARTIAL_OBSCURATION",
+      "generationNonce": 0,
+      "duration": 15,
+      "aspectRatio": "9:16",
+      "canonicalInputSha256": "44ecb083c3c6eb4430cafbfc7124df48b0b91f899ea28ae65077643bf6e6f9b3",
+      "directorPlanSha256": "eeb5754fe41cd380626edd0e25f130df766c0b0b031bf722ff1a2cc5ffe8ddba",
+      "compiledTextSha256": "9848e67b82768c2b138a8185835f6960680e447297a61e86ccc376535b9f8f00"
+    },
+    {
+      "caseId": "case-03",
+      "intent": "QUIET_LUXURY",
+      "directorConceptId": "EDGE_OF_FRAME",
+      "generationNonce": 0,
+      "duration": 15,
+      "aspectRatio": "9:16",
+      "canonicalInputSha256": "47a8062adb3cdfa18fa2455e24804228f3ad1d57c9deb3c48da47d9851f7b94e",
+      "directorPlanSha256": "966bb378ddb5f8888c18a84c1bf597fa98ece7ec1825559321ded772b84aa4e9",
+      "compiledTextSha256": "0ef484d843a70462d0ea98376f43b2dcd9a84e3507acac9e4446d88fc82728a4"
+    },
+    {
+      "caseId": "case-04",
+      "intent": "QUIET_LUXURY",
+      "directorConceptId": "THRESHOLD_CHAIN",
+      "generationNonce": 0,
+      "duration": 15,
+      "aspectRatio": "9:16",
+      "canonicalInputSha256": "dbc8dadfcda7886c0b141e2f5d01696cebca00d79aa6dd8bc8aa453e1245c9ab",
+      "directorPlanSha256": "a48c575909e0b354a8ab749b9f4fd08b5ce37e394cab6e3c9f862947f0f4c9fc",
+      "compiledTextSha256": "0238d7a54c8f8d722ce84079360e01fd5bb5a3cf4d0bb05fda375bd80f9455bd"
+    },
+    {
+      "caseId": "case-05",
+      "intent": "QUIET_LUXURY",
+      "directorConceptId": "REFLECTION_WORLD",
+      "generationNonce": 0,
+      "duration": 15,
+      "aspectRatio": "9:16",
+      "canonicalInputSha256": "e42e3f4e8461b45be18a2f0982e11b41e429d4e2ff5d9930d806257faa64ff1f",
+      "directorPlanSha256": "86213e33d0b644898be9b289e317e68be1886615203c5dbf418cc0f5f2e46663",
+      "compiledTextSha256": "7b04ff774d714e6ec1ca7e1c38832a5649f9947170e9486a3ebf6bc839385b44"
+    },
+    {
+      "caseId": "case-06",
+      "intent": "QUIET_LUXURY",
+      "directorConceptId": "LIGHT_REVEAL",
+      "generationNonce": 0,
+      "duration": 15,
+      "aspectRatio": "9:16",
+      "canonicalInputSha256": "59a56afdb4c612f911e008f22ec0db137d25adb3d4f18932475300404db48b83",
+      "directorPlanSha256": "599a02f45cf1bd9e458e0a2e5a513e552615e199f29b67f6ae5181a9f41f8623",
+      "compiledTextSha256": "84c678adc2a7c302dcc55ca9ff82f73c24aa7ffeba380ce9dc3424da4568bb1a"
+    },
+    {
+      "caseId": "case-07",
+      "intent": "QUIET_LUXURY",
+      "directorConceptId": "WORLD_MOVES_SUBJECT_SETTLES",
+      "generationNonce": 0,
+      "duration": 15,
+      "aspectRatio": "9:16",
+      "canonicalInputSha256": "ad1502fe26d4b8af66236132b7618fb800aae2c04fbc43fb9244129c946e5c03",
+      "directorPlanSha256": "e6bd4ca48c271aaaa860c5aada9a7b8a34c7112300eb56654ab93a7a06adc9d1",
+      "compiledTextSha256": "1729e046b46f1096e00209e73770450da3f6ddf2dd919a2fb1f83f7a8b2a0ccf"
+    },
+    {
+      "caseId": "case-08",
+      "intent": "QUIET_LUXURY",
+      "directorConceptId": "REPEATED_GESTURE",
+      "generationNonce": 0,
+      "duration": 15,
+      "aspectRatio": "9:16",
+      "canonicalInputSha256": "4810dfd602a3912ade660c19d3efffe2e0e5073eb1279ad097474ff400e5ba2a",
+      "directorPlanSha256": "9e6a496e7602d6e2d4083c72ed8f1316b22926280dd8a8ac4e1fc05bbc9544f0",
+      "compiledTextSha256": "e393af16a32a0a820d0757feb4cc6228a621f4345a42f45df38722c4dbccdf24"
+    },
+    {
+      "caseId": "case-09",
+      "intent": "URBAN_MOTION",
+      "directorConceptId": "STATIC_CAMERA_FILM",
+      "generationNonce": 0,
+      "duration": 15,
+      "aspectRatio": "9:16",
+      "canonicalInputSha256": "3fdb77de7e15f0048c56606fe63dd24143049760d39b90d458a85f52efdbea62",
+      "directorPlanSha256": "bde0d3633cfa1e2717c0a1d74f94966f2da676d3a4038fba07b27e592d40b848",
+      "compiledTextSha256": "591c3cb43b4646b6158a57eeda6a49247d4ba99eb7fa2cbf76964deda5b85c37"
+    },
+    {
+      "caseId": "case-10",
+      "intent": "DAILY_STYLING",
+      "directorConceptId": "STATIC_CAMERA_FILM",
+      "generationNonce": 0,
+      "duration": 15,
+      "aspectRatio": "9:16",
+      "canonicalInputSha256": "a0a13cac6895b118f42e73840d7306551de13f5f8136e01d3f5c4c834934e522",
+      "directorPlanSha256": "976fdbe5358bc3ffacaa1d63be306ae9997dd6a025cc01dfbc8d3c5b9b693d98",
+      "compiledTextSha256": "0aa9d180e0386b45e86f2d343add3dd6ef401e42b33d7412dbccc942e149cf20"
+    },
+    {
+      "caseId": "case-11",
+      "intent": "PRODUCT_CRAFT",
+      "directorConceptId": "STATIC_CAMERA_FILM",
+      "generationNonce": 0,
+      "duration": 15,
+      "aspectRatio": "9:16",
+      "canonicalInputSha256": "39a1114a865e820d96917f9633759d448b48b5692ac858cb243a4d1b7c0b1576",
+      "directorPlanSha256": "89552dba7118eacbe1659b55b0dc41d7355dcd499d5d6ea02c14c21bd6925814",
+      "compiledTextSha256": "561ffda727bdac53870256b4072194df3ece56bdbb4a3955a53d38302736d57f"
+    },
+    {
+      "caseId": "case-12",
+      "intent": "NEW_ARRIVAL",
+      "directorConceptId": "STATIC_CAMERA_FILM",
+      "generationNonce": 0,
+      "duration": 15,
+      "aspectRatio": "9:16",
+      "canonicalInputSha256": "23b85523cffe9bda31a45e64549f080719eb0489c2f0cea93f9c61014af81c0e",
+      "directorPlanSha256": "a1cb1e0815bf5db8cef667e08f64445b9c07558df42a1acb25c9e0d931010a02",
+      "compiledTextSha256": "c0e24f715eac0c17215237c0ad4e176fcc8702437dcdf90169cfc860ba0af1ca"
+    }
+  ],
+  "protectedSources": [
+    {
+      "path": "src/immersive-narrative",
+      "sha256": "37f3858ae6d80ea3c07034256ec3c58c0b41628deb5dc6851ed24fe5ab0f51c2"
+    },
+    {
+      "path": "src/data/personActionLibrary.ts",
+      "sha256": "cd23321cd82d69c9b6486845ce9174a6e826e4cea9dff860881feb7ff5001592"
+    }
+  ]
+}

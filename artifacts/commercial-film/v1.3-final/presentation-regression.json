@@ -1,0 +1,68 @@
+{
+  "schemaVersion": "commercial-film/final-script-presentation-v1.3",
+  "stage": "COMMERCIAL_FILM_V1.3_FINAL_SCRIPT_PRESENTATION",
+  "canonicalBaseline": "UNCHANGED",
+  "protectedGenerationSources": "UNCHANGED",
+  "cases": [
+    {
+      "caseId": "case-01",
+      "canonicalCompiledTextSha256": "1870f9e302d34e913c95bd1b38f513baf06cb0f3289cb0cd81eb8f6bdd8e24d0",
+      "presentationScriptSha256": "67f88eebb27ab3530bd005a25fc22705e7bf61cac31543e9dbad4be6cfd5d556"
+    },
+    {
+      "caseId": "case-02",
+      "canonicalCompiledTextSha256": "9848e67b82768c2b138a8185835f6960680e447297a61e86ccc376535b9f8f00",
+      "presentationScriptSha256": "52e7cb1d250d44b1ea64e1df360abb8520e75943487fc35264c1c4f81469cc72"
+    },
+    {
+      "caseId": "case-03",
+      "canonicalCompiledTextSha256": "0ef484d843a70462d0ea98376f43b2dcd9a84e3507acac9e4446d88fc82728a4",
+      "presentationScriptSha256": "4a9816c2f980f4dc60443ffeac9e4a36068f70bcaca0db239fc09a01fc3f55d4"
+    },
+    {
+      "caseId": "case-04",
+      "canonicalCompiledTextSha256": "0238d7a54c8f8d722ce84079360e01fd5bb5a3cf4d0bb05fda375bd80f9455bd",
+      "presentationScriptSha256": "ff52a1e018875724ed777ecf173eaa4fea542690438adde67cc8981cedd48ff9"
+    },
+    {
+      "caseId": "case-05",
+      "canonicalCompiledTextSha256": "7b04ff774d714e6ec1ca7e1c38832a5649f9947170e9486a3ebf6bc839385b44",
+      "presentationScriptSha256": "f1d31e9f353d93f85b879af4a620c01505820b7ea991414b1c73b835abbb1adb"
+    },
+    {
+      "caseId": "case-06",
+      "canonicalCompiledTextSha256": "84c678adc2a7c302dcc55ca9ff82f73c24aa7ffeba380ce9dc3424da4568bb1a",
+      "presentationScriptSha256": "19aa9d67cf7bf188be530cbb15dc21f42c4de1d1d256e41579fa493b296a7c22"
+    },
+    {
+      "caseId": "case-07",
+      "canonicalCompiledTextSha256": "1729e046b46f1096e00209e73770450da3f6ddf2dd919a2fb1f83f7a8b2a0ccf",
+      "presentationScriptSha256": "ecc5c01fdd54371d2a4cd90bde59ee0bf42b7b1800edd6b539a31a38c5353163"
+    },
+    {
+      "caseId": "case-08",
+      "canonicalCompiledTextSha256": "e393af16a32a0a820d0757feb4cc6228a621f4345a42f45df38722c4dbccdf24",
+      "presentationScriptSha256": "0107480732e6d47ac42d2379e8fafd4049870d03fafc1bd2d8250123e63391f5"
+    },
+    {
+      "caseId": "case-09",
+      "canonicalCompiledTextSha256": "591c3cb43b4646b6158a57eeda6a49247d4ba99eb7fa2cbf76964deda5b85c37",
+      "presentationScriptSha256": "2398dc4cbf8ea1655c851f8b4d348df2bcf4a80c52fad86891ff6237901bff2d"
+    },
+    {
+      "caseId": "case-10",
+      "canonicalCompiledTextSha256": "0aa9d180e0386b45e86f2d343add3dd6ef401e42b33d7412dbccc942e149cf20",
+      "presentationScriptSha256": "f9f982b29c697cfa23b631ad2f6803af47cbe9d46af7ce7a04700a44d4570f0e"
+    },
+    {
+      "caseId": "case-11",
+      "canonicalCompiledTextSha256": "561ffda727bdac53870256b4072194df3ece56bdbb4a3955a53d38302736d57f",
+      "presentationScriptSha256": "5e302e7ee8de543afec58679c60e0f122f4df90d6f6aedf2b52528ae03bd87ec"
+    },
+    {
+      "caseId": "case-12",
+      "canonicalCompiledTextSha256": "c0e24f715eac0c17215237c0ad4e176fcc8702437dcdf90169cfc860ba0af1ca",
+      "presentationScriptSha256": "d9ee07eaf29749b4cc4a88b86ac2b96c88929a61b606c816be82876a89b69c7f"
+    }
+  ]
+}

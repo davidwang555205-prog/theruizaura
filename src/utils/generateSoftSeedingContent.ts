@@ -2969,6 +2969,7 @@ function selectLifestyleSoftSeedingImageDrafts(
   const familyPattern = patterns[normalized % patterns.length];
   const selected: SoftSeedingImageDraft[] = [];
   const isEligible = (draft: SoftSeedingImageDraft) =>
+    (draft.weight ?? 1) > 0 &&
     (!draft.supportedSeasons || draft.supportedSeasons.includes(season)) &&
     (!options.contentCategory || draft.contentCategory === options.contentCategory) &&
     (options.captureStyle === "standard" || draft.supportedCaptureStyles?.includes(options.captureStyle));

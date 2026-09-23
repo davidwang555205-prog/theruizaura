@@ -1,0 +1,140 @@
+{
+  "schemaVersion": "commercial-film/creative-directing-v1.4",
+  "stage": "COMMERCIAL_FILM_V1.4_CREATIVE_DIRECTING",
+  "caseCount": 12,
+  "nonClassicStructureCases": 11,
+  "cases": [
+    {
+      "caseId": "v14-case-01",
+      "title": "THE FRAME WAITS",
+      "structureType": "CLASSIC_FIVE_ROLE",
+      "signatureEvent": "A closing umbrella passes outside the window at the quiet interior floor; when it clears, the worn line is already visible inside the frame.",
+      "productRevealCause": "The worn line becomes readable after the movement clears.",
+      "endingImage": "She leaves frame left while the camera remains on the window light, chair edge, and empty floor where she stood.",
+      "canonicalCompiledTextFingerprint": "fnv1a32:c1bfbdea",
+      "v14CompiledTextSha256": "fe11530b619a79356624591867bf306a740ae8c770d9b88f209abe51e16c3a5f",
+      "presentationScriptSha256": "9110b60d4dcf57ffa8d4ff0e486dc8df073f44e394341ca294abddf719786e8d"
+    },
+    {
+      "caseId": "v14-case-02",
+      "title": "SEEN IN PARTS",
+      "structureType": "OBSCURE_REVEAL_INTERRUPT_RESOLVE_DISAPPEAR",
+      "signatureEvent": "A passing pedestrian crosses outside the window at the chair edge and briefly hides her lower body; when the figure clears, the worn line reads in full. The pedestrian passes in the reflection on the glass.",
+      "productRevealCause": "The clearing foreground restores the worn relationship.",
+      "endingImage": "The camera holds on the empty window seat while the light moves across the surface and the room stays still.",
+      "canonicalCompiledTextFingerprint": "fnv1a32:9d27a864",
+      "v14CompiledTextSha256": "e92fa428b9c3c249f3ac61ceb09cff8d04eb9e7bd357b402fd88b40c86bc5c6c",
+      "presentationScriptSha256": "5bdb4c8c185a704077af8173ddf989125b368caadf8ee1587b98d322811e67af"
+    },
+    {
+      "caseId": "v14-case-03",
+      "title": "LIGHT ARRIVES FIRST",
+      "structureType": "REPEAT_REPEAT_CHANGE_BREAK_HERO_RELEASE",
+      "signatureEvent": "A reflection from a passing vehicle slides across the lower frame at the window light; it catches the material, then disappears.",
+      "productRevealCause": "The reflection creates the first readable material moment.",
+      "endingImage": "Her body exits the central frame; the chair, fabric edge, and a patch of window light remain fixed.",
+      "canonicalCompiledTextFingerprint": "fnv1a32:02a6faa4",
+      "v14CompiledTextSha256": "0a4344fde39f6004d01e616c2fd00204de71190f50a88cc407177ecc6ff3b146",
+      "presentationScriptSha256": "3e4a008442eac1afdc791445fec4e573decdd114a3a94fb4fa8141b609d44e2f"
+    },
+    {
+      "caseId": "v14-case-04",
+      "title": "THE CITY MOVES. SHE DOESN'T.",
+      "structureType": "MOVE_MOVE_HOLD_SINGLE_ACTION_RELEASE",
+      "signatureEvent": "A pedestrian flow clears behind her at the crossing point; she is already standing still while the city keeps moving.",
+      "productRevealCause": "Her stillness removes motion blur around the worn line.",
+      "endingImage": "She exits frame right while the camera stays on the empty curb, a cyclist crossing, and traffic continuing behind the crossing.",
+      "canonicalCompiledTextFingerprint": "fnv1a32:e09a03a5",
+      "v14CompiledTextSha256": "ccbfa61a822a9d4e08abd7883c5e4d9c8dc12f9dab3958f2e596a5a0bcc8a151",
+      "presentationScriptSha256": "3430de3328f9206e4928a9a347a1ac130b87cfcc74305ecd47aed52db7453dfe"
+    },
+    {
+      "caseId": "v14-case-05",
+      "title": "AFTER THE DOOR",
+      "structureType": "ARRIVE_DISCOVER_INTERACT_SETTLE_REMAIN",
+      "signatureEvent": "The revolving glass door sweeps through the centre at the storefront edge; when its panel clears, she crosses the boundary and the worn line reads in the new space.",
+      "productRevealCause": "The new space makes the worn relationship readable.",
+      "endingImage": "The camera holds on the empty street sign and wet pavement after she leaves the frame left, with two pedestrians crossing the far edge.",
+      "canonicalCompiledTextFingerprint": "fnv1a32:50845bc6",
+      "v14CompiledTextSha256": "5c76d89d4735b62a6b1771fe64b47a5c7c49810470c864931e302a563de79132",
+      "presentationScriptSha256": "b8af6e91d142e557725b42b2d438f0ac5784deeb2125cb5187cac19d1801a94e"
+    },
+    {
+      "caseId": "v14-case-06",
+      "title": "AT THE EDGE",
+      "structureType": "OBSERVE_APPROACH_CONTACT_RESOLVE_AFTERIMAGE",
+      "signatureEvent": "A passing cyclist takes the centre at the storefront edge; when the cyclist clears, she is already settled at the frame edge.",
+      "productRevealCause": "The worn line reads through off-center placement.",
+      "endingImage": "The camera holds on the empty street sign and wet pavement after she leaves the frame left, with two pedestrians crossing the far edge.",
+      "canonicalCompiledTextFingerprint": "fnv1a32:355d0fb3",
+      "v14CompiledTextSha256": "e86601bc37e7aaae3c287006d33babbd565026bd7567d66376fb7b7efa4b58d3",
+      "presentationScriptSha256": "e18089e3806c9003fd744e20f5a5c188573c26d331d869d7bb176f67fc995aa1"
+    },
+    {
+      "caseId": "v14-case-07",
+      "title": "AGAIN, DIFFERENTLY",
+      "structureType": "REPEAT_REPEAT_CHANGE_BREAK_HERO_RELEASE",
+      "signatureEvent": "She smooths the same cuff line at the stoop, then repeats the gesture after the environment changes around her.",
+      "productRevealCause": "The second gesture makes the worn relationship readable.",
+      "endingImage": "She steps out of frame right; the open door, moving coat sleeve, and street beyond remain in the final composition.",
+      "canonicalCompiledTextFingerprint": "fnv1a32:752a3f85",
+      "v14CompiledTextSha256": "a2a352104a80c180824022c4193ead568d744fc4cb9e4936bd0d0fb34123bed9",
+      "presentationScriptSha256": "30e148235884a22973df8d8aae81646d285229c5741737b6c0f60a32c6dc49cf"
+    },
+    {
+      "caseId": "v14-case-08",
+      "title": "SEEN IN PARTS",
+      "structureType": "OBSCURE_REVEAL_INTERRUPT_RESOLVE_DISAPPEAR",
+      "signatureEvent": "foreground shoulder hides her lower body at the entryway mirror; when it clears, the worn line reads in full.",
+      "productRevealCause": "The clearing foreground restores the worn relationship.",
+      "endingImage": "The camera holds on the threshold after her shadow leaves, with a neighbor crossing the far side of the frame.",
+      "canonicalCompiledTextFingerprint": "fnv1a32:d8926937",
+      "v14CompiledTextSha256": "aa233b0473fcf1293a2bd36ed135262f86ce9710e17b2e9f91e3c90d2c8b1da8",
+      "presentationScriptSha256": "7f4f0d173c0f0274006a431ce83d9d822c60f8495350d99ebc3cbb9bd1d6bcdd"
+    },
+    {
+      "caseId": "v14-case-09",
+      "title": "LIGHT ARRIVES FIRST",
+      "structureType": "REPEAT_REPEAT_CHANGE_BREAK_HERO_RELEASE",
+      "signatureEvent": "Through the workroom window, a reflection from a passing vehicle slides across the lower frame at the brief standing pause; it catches the material, then disappears.",
+      "productRevealCause": "The reflection creates the first readable material moment.",
+      "endingImage": "The action completes as she moves out of frame; the bench, wardrobe edge, and floor remain in the final composition.",
+      "canonicalCompiledTextFingerprint": "fnv1a32:fc76f6b1",
+      "v14CompiledTextSha256": "fcb9cd9f5d0f496ae64f47dd5ac169f10f87f11a026f866aecf39af6d7488464",
+      "presentationScriptSha256": "340c87145fc5aa12dac0facfd59d6cf282dcda2607bbed2fb92e9f9cc7403158"
+    },
+    {
+      "caseId": "v14-case-10",
+      "title": "THE CITY MOVES. SHE DOESN'T.",
+      "structureType": "MOVE_MOVE_HOLD_SINGLE_ACTION_RELEASE",
+      "signatureEvent": "Seen through the window, a passing bus clears behind her at the ankle-to-floor relationship; she is already standing still while the city keeps moving.",
+      "productRevealCause": "Her stillness removes motion blur around the worn line.",
+      "endingImage": "The camera stays on the preparation surface after she leaves, with both feet out of frame and the room holding the final light.",
+      "canonicalCompiledTextFingerprint": "fnv1a32:cf16f9c6",
+      "v14CompiledTextSha256": "d6679b51ab562ad218a5a398fac25d225d4f60a6043e309074c0a19855a4d88a",
+      "presentationScriptSha256": "f941951ba9a2b97397287da0d75ed282c9aa06f2c96177784a5377e88b1c9d79"
+    },
+    {
+      "caseId": "v14-case-11",
+      "title": "AT THE EDGE",
+      "structureType": "OBSERVE_APPROACH_CONTACT_RESOLVE_AFTERIMAGE",
+      "signatureEvent": "The frame lets revolving door hold the centre at the curb line; when it clears, she resolves at the frame edge.",
+      "productRevealCause": "The worn line reads through off-center placement.",
+      "endingImage": "The destination remains visible around her while another pedestrian crosses the far edge and the light stays on the wall.",
+      "canonicalCompiledTextFingerprint": "fnv1a32:6a60168c",
+      "v14CompiledTextSha256": "e576836ca0a47af8cbd7c3bf12bf97666e0d32d1fcba018a85d338b7a86d659e",
+      "presentationScriptSha256": "36edbcc83796311e1f7124e22347138ff011aa45e1b7f2db1d41f2147a501f29"
+    },
+    {
+      "caseId": "v14-case-12",
+      "title": "AFTER THE DOOR",
+      "structureType": "ARRIVE_DISCOVER_INTERACT_SETTLE_REMAIN",
+      "signatureEvent": "The cafe door closes behind her at the pause before continuing; the camera stays on the closed threshold while the street continues.",
+      "productRevealCause": "The new space makes the worn relationship readable.",
+      "endingImage": "The camera holds on the arrival space after she moves to the back of the composition, with a bicycle passing behind.",
+      "canonicalCompiledTextFingerprint": "fnv1a32:04d19928",
+      "v14CompiledTextSha256": "056327210e91a93ed8055814a75400146bfdec5056f054735380493e955b15e9",
+      "presentationScriptSha256": "6c95631fdf4a2242fd0c6caad1be0b62aa61ec13cb0247413a95bbbac03fd510"
+    }
+  ]
+}

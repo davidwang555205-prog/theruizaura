@@ -1,0 +1,75 @@
+{
+  "schemaVersion": "commercial-film/final-script-presentation-protected-source-v1.3",
+  "stage": "COMMERCIAL_FILM_V1.3_FINAL_SCRIPT_PRESENTATION_PROTECTED_SOURCE_BASELINE",
+  "hashAlgorithm": "sha256",
+  "sources": [
+    {
+      "path": "src/commercial-film/director-concept",
+      "sha256": "a05fb98ead35e7dfb4fc493bd88d28c19eb83817ad66ed251fdf75fb790ef966"
+    },
+    {
+      "path": "src/commercial-film/event-spine",
+      "sha256": "c14f592034a60db8e6c02fc0bcc30faddd66ba9ba3044be25b81d45091135e33"
+    },
+    {
+      "path": "src/commercial-film/creative-spine",
+      "sha256": "dce5f540b01d055f98ed129bbdd3dbcc1790d7b7139b5463c1edfcbb68923e1c"
+    },
+    {
+      "path": "src/commercial-film/creative-direction",
+      "sha256": "4a96482b6d474eb9108d3ddf4de63eccc509b5e7a1240363357ea223939a57a6"
+    },
+    {
+      "path": "src/commercial-film/catalog.ts",
+      "sha256": "935e9d35455817b9293158c1a06df29fe29668f87ec1b47734659f5479f62f02"
+    },
+    {
+      "path": "src/commercial-film/planner.ts",
+      "sha256": "ec4741b899200ddf0dc508e460ec8be755552571e737ed4adcb422e25b992a4d"
+    },
+    {
+      "path": "src/commercial-film/pipeline.ts",
+      "sha256": "59dfb027721e550e9b9a4aed4f0fda74303e193af6b9a0604ad8ce945cb3f256"
+    },
+    {
+      "path": "src/commercial-film/camera.ts",
+      "sha256": "9956f633732f1c8084ad92a8dd6e248450545b7dee9544a935453294cd6ccb87"
+    },
+    {
+      "path": "src/commercial-film/sound.ts",
+      "sha256": "c2433b964eea771ca8c33c0c6b6c946df510f72daaa56d6d08a8750198767ed4"
+    },
+    {
+      "path": "src/commercial-film/product-message.ts",
+      "sha256": "d54a5175798b829db89b76675d644f22f78eb63f736713c0fec77bc293e72257"
+    },
+    {
+      "path": "src/commercial-film/reference.ts",
+      "sha256": "0447538f5ee376c5a3acc2eb187285ad1517ba5b7bbde4a9d472e9e7f83af90f"
+    },
+    {
+      "path": "src/commercial-film/commercial-actions.ts",
+      "sha256": "e2f0213134eddb9fd303390d7beeff9eca10f0a81ef561f31a21b1ca39f15ce4"
+    },
+    {
+      "path": "src/commercial-film/execution-compiler.ts",
+      "sha256": "0ff9333be5fb89957ca941ca8fe824e424e225e24f594dd691f64dbb46ee9e6d"
+    },
+    {
+      "path": "src/commercial-film/qc.ts",
+      "sha256": "b5e5685da384359d768b85f81cb5e34a5aeb928943d2a5d73d6526846a54671e"
+    },
+    {
+      "path": "src/commercial-film/types.ts",
+      "sha256": "59d29d4576ec3ef3a114214141ef32ddc8e086885352bd1c58e9c488d4309398"
+    },
+    {
+      "path": "src/data/personActionLibrary.ts",
+      "sha256": "cd23321cd82d69c9b6486845ce9174a6e826e4cea9dff860881feb7ff5001592"
+    },
+    {
+      "path": "src/immersive-narrative",
+      "sha256": "37f3858ae6d80ea3c07034256ec3c58c0b41628deb5dc6851ed24fe5ab0f51c2"
+    }
+  ]
+}

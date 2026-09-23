@@ -208,6 +208,8 @@ const TEAM_SCENE_TEXT: Record<Exclude<TeamScenePreference, "自动匹配">, stri
     "Use a quiet city walk setting such as a calm street, cafe exterior, gallery district, bookstore street, or light stone wall. The image should feel relaxed, tasteful, and mature.",
   "精品超市 / 日常采购":
     "Use a refined daily errands setting such as a premium grocery, bakery corner, flower shop, or calm neighborhood store. The mood should feel real, warm, and tasteful.",
+  归家玄关:
+    "Use a real home entry threshold immediately after a small errand: a visible apartment door or entryway, a short interior transition, a practical entry console or landing surface, and a believable pavement-to-floor relationship. Let a grocery or paper bag be handled naturally at the threshold without making the scene a delivery shot, kitchen set, styled still life, or luxury house interior.",
   旅行酒店:
     "Use a calm hotel room, hotel doorway, wardrobe mirror, suitcase corner, or soft hotel window light. The scene should feel organized, quiet, and refined, not touristy or cheap.",
   居家衣帽间:
@@ -236,6 +238,8 @@ const TEAM_SCENE_TEXT: Record<Exclude<TeamScenePreference, "自动匹配">, stri
     "Use a refined daily city transition setting between a parking area and an office entrance, with believable pavement, building edges, and walking rhythm. The scene should feel like a real workday moment.",
   回家进门:
     "Use a quiet home-entry setting at the front door, apartment corridor, or indoor threshold, with a relaxed return-home feeling, warm light, and subtle lived-in order.",
+  住宅楼外:
+    "Use a real residential building exit and the first short stretch of adjacent sidewalk. Keep the doorway or building edge visible, the pavement believable, and the space continuous with a private entryway rather than a commercial district, park, cafe, or unrelated street setting.",
   "地铁 / 商场通道":
     "Use a clean urban passage such as a metro corridor or shopping-mall walkway, with believable indoor or semi-indoor light, smooth surfaces, and calm pedestrian rhythm. Avoid crowded commercial chaos.",
   "楼下便利店 / 咖啡外带":
@@ -250,6 +254,8 @@ const TEAM_SCENE_TEXT: Record<Exclude<TeamScenePreference, "自动匹配">, stri
     "Use a believable contemporary art museum or gallery interior with correctly spaced artwork, warm-white or soft-stone walls, restrained wall lighting, a bench or passage if natural, and quiet visitors kept secondary. Avoid fake exhibition text, luxury-event staging, touching artwork, or an empty CGI gallery.",
   "书店 / 杂志店门口":
     "Use a quiet bookstore or magazine-shop entrance with soft urban texture, restrained signage, and a thoughtful daily atmosphere. Keep it mature, calm, and believable.",
+  "书店 / 杂志店内":
+    "Use a real neighborhood bookstore or magazine-shop interior with a natural browsing aisle, restrained magazine or book shelving, believable shelf scale, warm-neutral light, and enough circulation space for entering, slowing, browsing briefly, and continuing naturally. Avoid flagship retail sets, influencer spots, exaggerated art-book styling, cluttered storage, and staged reading scenes.",
   "花店 / 买花":
     "Use a refined flower-shop moment with paper-wrapped flowers, soft pavement, and clean storefront surroundings. Keep the mood warm, quiet, and natural.",
   "社区市集 / 精品买菜":
@@ -301,10 +307,13 @@ const EXPANDED_LIFESTYLE_SCENES = [
   "写字楼门口",
   "停车后步行去办公室",
   "回家进门",
+  "住宅楼外",
+  "归家玄关",
   "地铁 / 商场通道",
   "楼下便利店 / 咖啡外带",
   "咖啡店门口",
   "书店 / 杂志店门口",
+  "书店 / 杂志店内",
   "花店 / 买花",
   "社区市集 / 精品买菜",
   "城市街角 / 安静街区",
@@ -335,9 +344,11 @@ const EXPANDED_STREET_SCENES: ExpandedLifestyleScene[] = [
   "商务区转角",
   "写字楼门口",
   "停车后步行去办公室",
+  "住宅楼外",
   "楼下便利店 / 咖啡外带",
   "咖啡店门口",
   "书店 / 杂志店门口",
+  "书店 / 杂志店内",
   "花店 / 买花",
   "社区市集 / 精品买菜",
   "城市街角 / 安静街区",
@@ -553,6 +564,8 @@ const EXPANDED_SCENE_PROPS_LINES: Record<ExpandedLifestyleScene, string> = {
     "Add one subtle workday-transition prop only if natural: a tote, phone, sunglasses, or light outer layer. Avoid luxury-car showcase mood and never block the sneakers.",
   回家进门:
     "Add one subtle return-home prop only if natural: a tote, small ceramic tray, folded cotton shirt, or light shopping bag. Keep it lived-in and orderly, never messy, and never block the sneakers.",
+  住宅楼外:
+    "Add at most one ordinary departure prop only if natural: a small tote, folded note, or light outer layer. Keep the building exit and immediate sidewalk clear, avoid commercial storefront or tourist cues, and never block the sneakers.",
   "地铁 / 商场通道":
     "Add one subtle urban-passage prop only if natural: a small handbag, tote, takeaway coffee, or phone. Keep the scene calm and uncluttered, never blocking the sneakers.",
   "楼下便利店 / 咖啡外带":
@@ -561,10 +574,14 @@ const EXPANDED_SCENE_PROPS_LINES: Record<ExpandedLifestyleScene, string> = {
     "Add one subtle cafe prop only if natural: takeaway coffee, a tote, sunglasses, or small paper bag. Avoid influencer-cafe styling and never block the sneakers.",
   "书店 / 杂志店门口":
     "Add one subtle bookstore prop only if natural: a book, magazine, canvas tote, or receipt. Avoid readable fake text and never block the sneakers.",
+  "书店 / 杂志店内":
+    "Add at most one quiet bookstore-interior cue only if natural: a closed book, magazine, canvas tote, or small receipt. Keep the browsing aisle open, avoid readable fake text, staged reading poses, and clutter, and never block the sneakers.",
   "花店 / 买花":
     "Add one subtle flower-buying prop only if natural: restrained paper-wrapped flowers, a tote, or small shopping bag. Never block the sneakers.",
   "社区市集 / 精品买菜":
     "Add one subtle grocery prop only if natural: a grocery paper bag, fruit box, canvas tote, or receipt. Avoid tourist-market styling and never block the sneakers.",
+  归家玄关:
+    "Add at most one ordinary errand-return cue only if natural: a grocery paper bag, canvas tote, or small entry-console object. Keep the landing surface and doorway clear, avoid delivery-shoot or styled-interior mood, and never block the sneakers.",
   "城市街角 / 安静街区":
     "Add one subtle city prop only if natural: a light tote, sunglasses, phone, or coffee. Keep props minimal and never block the sneakers.",
   雨天街角:
@@ -969,14 +986,14 @@ function resolveSceneKey(params: TeamPromptParams, resolvedScene: Exclude<TeamSc
   if (["商务区转角", "写字楼门口", "停车后步行去办公室"].includes(resolvedScene)) {
     return "commute";
   }
-  if (["回家进门", "地铁 / 商场通道", "停车场到电梯口"].includes(resolvedScene)) {
+  if (["回家进门", "住宅楼外", "归家玄关", "地铁 / 商场通道", "停车场到电梯口"].includes(resolvedScene)) {
     return "entrywayDeparture";
   }
   if (resolvedScene === "楼下便利店 / 咖啡外带") return "bakeryDessert";
   if (resolvedScene === "咖啡店门口") return "cafeExterior";
   if (resolvedScene === "咖啡馆内" || resolvedScene === "朋友午餐") return "lightSocial";
   if (resolvedScene === "美术馆") return "galleryExhibition";
-  if (resolvedScene === "书店 / 杂志店门口") return "bookstoreMagazine";
+  if (resolvedScene === "书店 / 杂志店门口" || resolvedScene === "书店 / 杂志店内") return "bookstoreMagazine";
   if (resolvedScene === "花店 / 买花") return "flowerShop";
   if (resolvedScene === "社区市集 / 精品买菜") return "premiumErrands";
   if (resolvedScene === "城市街角 / 安静街区" || resolvedScene === "雨天街角") return "cityCorner";

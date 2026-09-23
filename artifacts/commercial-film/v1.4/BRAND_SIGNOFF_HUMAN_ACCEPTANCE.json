@@ -1,0 +1,67 @@
+{
+  "schemaVersion": "commercial-film/brand-signoff-human-acceptance-v1",
+  "stage": "COMMERCIAL_FILM_V1_4_BRAND_SIGNOFF_HUMAN_ACCEPTANCE",
+  "recorded": "2026-09-23",
+  "authority": "HUMAN_APPROVED",
+  "brandMark": "THERUIZ AURA",
+  "scope": "Frozen 12-case acceptance matrix. Authoritative for the upcoming visual acceptance pack; it is not the general Brand Sign-off generator output.",
+  "notes": [
+    "Film Line is creatively optional: LOGO_ONLY is a valid accepted result and not a fallback.",
+    "case v14-case-10 mode was recorded as LOGO_AND_FILILM_LINE_OVER_ENDING_IMAGE in the human brief and is stored here as LOGO_AND_FILM_LINE_OVER_ENDING_IMAGE.",
+    "Accepted distribution: Film Line 7 / Logo Only 5."
+  ],
+  "timingRule": {
+    "withFilmLine": {
+      "startSecond": 12.8,
+      "endSecond": 15,
+      "insideOriginalDuration": true
+    },
+    "logoOnly": {
+      "startSecond": 13.4,
+      "endSecond": 15,
+      "insideOriginalDuration": true
+    }
+  },
+  "cases": [
+    { "caseId": "v14-case-01", "mode": "LOGO_ONLY", "filmLine": null },
+    { "caseId": "v14-case-02", "mode": "LOGO_ONLY", "filmLine": null },
+    {
+      "caseId": "v14-case-03",
+      "mode": "LOGO_AND_FILM_LINE_OVER_ENDING_IMAGE",
+      "filmLine": "One pass of light."
+    },
+    {
+      "caseId": "v14-case-04",
+      "mode": "LOGO_AND_FILM_LINE_OVER_ENDING_IMAGE",
+      "filmLine": "Still, in a moving city."
+    },
+    { "caseId": "v14-case-05", "mode": "LOGO_ONLY", "filmLine": null },
+    {
+      "caseId": "v14-case-06",
+      "mode": "LOGO_AND_FILM_LINE_OVER_ENDING_IMAGE",
+      "filmLine": "Almost out of frame."
+    },
+    {
+      "caseId": "v14-case-07",
+      "mode": "LOGO_AND_FILM_LINE_OVER_ENDING_IMAGE",
+      "filmLine": "Different the second time."
+    },
+    { "caseId": "v14-case-08", "mode": "LOGO_ONLY", "filmLine": null },
+    {
+      "caseId": "v14-case-09",
+      "mode": "LOGO_AND_FILM_LINE_OVER_ENDING_IMAGE",
+      "filmLine": "Caught in passing."
+    },
+    {
+      "caseId": "v14-case-10",
+      "mode": "LOGO_AND_FILM_LINE_OVER_ENDING_IMAGE",
+      "filmLine": "The city passes. She stays."
+    },
+    {
+      "caseId": "v14-case-11",
+      "mode": "LOGO_AND_FILM_LINE_OVER_ENDING_IMAGE",
+      "filmLine": "Found at the edge."
+    },
+    { "caseId": "v14-case-12", "mode": "LOGO_ONLY", "filmLine": null }
+  ]
+}

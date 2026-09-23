@@ -88,6 +88,21 @@ const lifestyleSoftSeedingScenePoolBase: Omit<
     weight: 3
   },
   {
+    id: "lifestyle-residential-building-exit",
+    name: "图｜出门后｜住宅楼外",
+    purpose: "建立从室内玄关到户外街道的第一段连续过渡。",
+    description: "住宅建筑出口与门前人行道，真实入口、短台阶和自然街光。",
+    imageType: "生活场景图",
+    scenePreference: "住宅楼外",
+    garmentTypePreference: "裤装",
+    extraRequirement: "Use a real residential building exit and the first stretch of adjacent sidewalk. Keep the doorway, a short stoop or path, believable pavement, and natural street light visible; the space must allow a person to step outside from an entryway and continue walking without entering a commercial district, park, cafe, or unrelated street setting. No luggage, travel, event, or tourist cues.",
+    family: "departure",
+    supportedSeasons: ALL_SEASONS,
+    handheldPolicy: "none",
+    // Narrative coverage scene: keep it out of legacy Lifestyle auto-rotation.
+    weight: 0
+  },
+  {
     id: "lifestyle-commute-general",
     name: "图｜工作日｜通勤路上",
     purpose: "证明鞋子能进入普通工作日。",
@@ -270,6 +285,21 @@ const lifestyleSoftSeedingScenePoolBase: Omit<
     weight: 5
   },
   {
+    id: "lifestyle-bookstore-interior",
+    name: "图｜周末｜书店内",
+    purpose: "补充书店从入口进入阅读区后的真实室内空间。",
+    description: "真实书店或杂志店内部，杂志陈列区、自然浏览通道、书架比例真实。",
+    imageType: "生活场景图",
+    scenePreference: "书店 / 杂志店内",
+    garmentTypePreference: "裤装",
+    extraRequirement: "Use a real neighborhood bookstore or magazine-shop interior with a natural browsing aisle, restrained magazine or book shelving, believable shelf scale, warm-neutral light, and enough circulation space for a person to enter, slow down, browse briefly, and continue naturally. Keep it understated and lived-in; avoid a flagship retail set, influencer photo spot, exaggerated art-book store, cluttered secondhand storage, or staged reading scene.",
+    family: "culture",
+    supportedSeasons: ALL_SEASONS,
+    handheldPolicy: "none",
+    // Narrative coverage scene: keep it out of legacy Lifestyle auto-rotation.
+    weight: 0
+  },
+  {
     id: "lifestyle-flower-shop",
     name: "图｜周末｜花店",
     purpose: "加入真实周末采购和柔和城市色彩。",
@@ -310,6 +340,21 @@ const lifestyleSoftSeedingScenePoolBase: Omit<
     supportedSeasons: ALL_SEASONS,
     handheldPolicy: "none",
     weight: 4
+  },
+  {
+    id: "lifestyle-home-errand-entry",
+    name: "图｜采购归来｜玄关",
+    purpose: "建立采购回到家门口与玄关之间的连续空间。",
+    description: "住宅门口与玄关连接，入口台面可自然放置采购袋，通道真实。",
+    imageType: "生活场景图",
+    scenePreference: "归家玄关",
+    garmentTypePreference: "裤装",
+    extraRequirement: "Use a real home entry threshold immediately after a small errand: visible apartment door or entryway, a short interior transition, a practical entry console or landing surface, and a believable pavement-to-floor relationship. The space should allow one grocery bag or paper bag to be handled naturally at the threshold without turning the scene into a posed delivery shot, kitchen set, styled still life, or luxury house interior.",
+    family: "departure",
+    supportedSeasons: ALL_SEASONS,
+    handheldPolicy: "none",
+    // Narrative coverage scene: keep it out of legacy Lifestyle auto-rotation.
+    weight: 0
   },
   {
     id: "lifestyle-community-market",
@@ -558,6 +603,7 @@ const lifestyleSceneTaxonomy: Record<string, {
   "lifestyle-entryway-mirror": { contentCategory: "natural_life", supportedCaptureStyles: ["standard"] },
   "lifestyle-entryway-departure": { contentCategory: "natural_life", supportedCaptureStyles: ["standard", "telephoto_candid"] },
   "lifestyle-returning-home": { contentCategory: "natural_life", supportedCaptureStyles: ["standard", "telephoto_candid"] },
+  "lifestyle-residential-building-exit": { contentCategory: "natural_life", supportedCaptureStyles: ["standard", "telephoto_candid"] },
   "lifestyle-commute-general": { contentCategory: "urban_commute", supportedCaptureStyles: ["standard", "telephoto_candid"] },
   "lifestyle-business-corner": { contentCategory: "urban_commute", supportedCaptureStyles: ["standard", "telephoto_candid"] },
   "lifestyle-office-entrance": { contentCategory: "urban_commute", supportedCaptureStyles: ["standard", "telephoto_candid"] },
@@ -571,9 +617,11 @@ const lifestyleSceneTaxonomy: Record<string, {
   "lifestyle-friend-lunch": { contentCategory: "natural_life", supportedCaptureStyles: ["standard", "telephoto_candid"] },
   "lifestyle-gallery": { contentCategory: "natural_life", supportedCaptureStyles: ["standard", "telephoto_candid"] },
   "lifestyle-bookstore": { contentCategory: "natural_life", supportedCaptureStyles: ["standard", "telephoto_candid"] },
+  "lifestyle-bookstore-interior": { contentCategory: "natural_life", supportedCaptureStyles: ["standard", "telephoto_candid"] },
   "lifestyle-flower-shop": { contentCategory: "natural_life", supportedCaptureStyles: ["standard", "telephoto_candid"] },
   "lifestyle-city-corner": { contentCategory: "natural_life", supportedCaptureStyles: ["standard", "telephoto_candid"] },
   "lifestyle-premium-grocery": { contentCategory: "natural_life", supportedCaptureStyles: ["standard", "telephoto_candid"] },
+  "lifestyle-home-errand-entry": { contentCategory: "natural_life", supportedCaptureStyles: ["standard", "telephoto_candid"] },
   "lifestyle-community-market": { contentCategory: "natural_life", supportedCaptureStyles: ["standard", "telephoto_candid"] },
   "lifestyle-light-shopping": { contentCategory: "natural_life", supportedCaptureStyles: ["standard", "telephoto_candid"] },
   "lifestyle-park-walk": { contentCategory: "natural_life", supportedCaptureStyles: ["standard", "telephoto_candid"] },

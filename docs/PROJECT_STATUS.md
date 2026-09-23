@@ -48,7 +48,7 @@ Capture styles:
 - `standard` — 标准记录
 - `telephoto_candid` — 长焦随拍
 
-Current lifestyle scene inventory: 36 classified scenes.
+Current lifestyle scene inventory: 39 classified scenes, including 3 Narrative coverage scenes excluded from legacy auto-rotation.
 
 ## 3. Prompt runtime
 
@@ -287,9 +287,96 @@ The website is already present in repository metadata; description and topics st
 
 - [`README.md`](../README.md) — project overview and local usage
 - [`00_CODEX_EXECUTION.md`](../00_CODEX_EXECUTION.md) — Codex execution baseline
+- [`docs/immersive-narrative/`](immersive-narrative/) — Immersive Narrative V1 (architecture, phases, acceptance)
 - [`docs/prompt-engine/`](prompt-engine/) — Prompt Engine design / acceptance
 - [`docs/visual-system/`](visual-system/) — visual-system source documents
 - [`docs/integration/`](integration/) — UI / Prompt integration history
 - [`docs/prompt-audit/`](prompt-audit/) — Prompt audit records
 - [`docs/consumer-trust/`](consumer-trust/) — consumer-trust validation
 - [`docs/ui-redesign/`](ui-redesign/) — UI validation material
+
+## 14. Immersive Narrative V1 closeout (2026-09-22)
+
+```text
+THERUIZ AURA IMMERSIVE NARRATIVE VIDEO SCRIPT SYSTEM V1 COMPLETE
+
+Phase 1 COMPLETE · Phase 2 COMPLETE · Phase 2.5 COMPLETE · Phase 3 COMPLETE
+Phase 4 COMPLETE · Phase 4.5 COMPLETE · Phase 5 COMPLETE · Phase 5.5 COMPLETE
+Phase 6 COMPLETE · Phase 7 COMPLETE · Phase 8 COMPLETE · Phase 9 COMPLETE
+```
+
+Acceptance rule:
+
+```text
+All in-scope Immersive Narrative validators must PASS.
+Legacy behavior must remain unchanged.
+A non-PASS legacy validation result may be accepted only when it is
+  A. a demonstrably pre-existing baseline failure, or
+  B. an intentional compatibility exception required to preserve an approved
+     legacy contract,
+and the exception is explicitly documented.
+```
+
+Authoritative V1 numbers:
+
+```text
+Existing Actions 318 · Modified 0 · Narrative Primitives 9
+Physical Action Moments 65 · Matched 61 · Correct Unsupported 4 · Coverage 93.8 %
+Existing Action Selected 43 · Narrative Primitive Selected 18
+Known Misassignments 0 · Unsupported Extra Selected 0
+Unchecked Primitive Capability 0 · Invalid Same-Object Exception 0
+Synthetic Composition 0 · Automatic Composition 0
+
+Camera Execution 13 / 13 topics approved · 61 executable · 4 correct unsupported
+Invalid product-driven camera 0 · Invalid action rewrite 0
+
+Seedance Compiler 13 / 13 topics compiled · 13 / 13 final scripts generated
+Provider dependency NONE
+
+Final UI Generate PASS · View PASS · Copy PASS · Debug collapsed PASS
+Final UI 1600 PASS · 1280 PASS · 390 PASS
+```
+
+Validation summary:
+
+```text
+Validators total 31 · PASS 29
+  PRE_EXISTING_BASELINE_FAILURE       1  validate:reference-binding
+  ACCEPTED_COMPATIBILITY_EXCEPTION    1  validate:prompts
+typecheck PASS · build PASS
+
+Full Playwright 38 total · 35 passed · 3 failed · 0 skipped
+  Narrative 6 / 6 · Final UI 7 / 7 · Responsive 18 / 18 · visual-system 4 / 7
+```
+
+### Accepted V1 Validation Exceptions
+
+| Check | Classification | Impact |
+| --- | --- | --- |
+| `validate:reference-binding` | `PRE_EXISTING_BASELINE_FAILURE` | non-blocking |
+| `validate:prompts` | `ACCEPTED_COMPATIBILITY_EXCEPTION` — Narrative-only scenes intentionally excluded from the legacy Lifestyle sampler | non-blocking |
+| `visual-system.spec.ts` ×3 | `KNOWN_PRE_EXISTING_UNRELATED_FAILURE` (old A2 marker, atmosphere image rotation, atmosphere module copy) | non-blocking |
+
+`validate:prompts` is not merely an unrelated pre-existing failure: the three
+Narrative coverage scenes are deliberately unreachable from the old Lifestyle
+sampler / rotation path, because making them reachable would change approved
+legacy Lifestyle behavior and invalidate the preserved legacy hash baseline. The
+chosen V1 contract is to preserve legacy Lifestyle behavior. No runtime change is
+authorized for V1.
+
+Future technical debt item (recorded only, not implemented):
+
+```text
+LEGACY VALIDATION CONTRACT RECONCILIATION
+determine whether the old Lifestyle validator should distinguish
+GLOBAL SCENE CATALOG from LEGACY LIFESTYLE SAMPLER-REACHABLE SCENES
+```
+
+Runtime changes during closeout: **NONE**.
+
+Git:
+
+```text
+Git unavailable — fatal: not a git repository: (null)
+No destructive repair attempted.
+```

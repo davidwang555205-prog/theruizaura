@@ -1,0 +1,55 @@
+{
+  "schemaVersion": "commercial-film/brand-signoff-treatment-baseline-v1",
+  "stage": "COMMERCIAL_FILM_V1_4_4_CREATIVE_ENGINE_FREEZE",
+  "note": "Creative treatment text surface frozen after V1.4.4 human filmability verification. The brand sign-off layer must not rewrite it.",
+  "cases": [
+    {
+      "caseId": "v14-case-01",
+      "treatmentSha256": "a8d5978dabf9fa04b9addfa7fcbecbf14fcedab927e68bf48e1e6d19e182893b"
+    },
+    {
+      "caseId": "v14-case-02",
+      "treatmentSha256": "989c2237777310b56e0c2e93936ddd418bcdaa5cf39b07151b7b04d37da397e7"
+    },
+    {
+      "caseId": "v14-case-03",
+      "treatmentSha256": "5d4ef5705520394a4638311de206e57e82ab21fb3c940fc8bbf999c043d0dc6a"
+    },
+    {
+      "caseId": "v14-case-04",
+      "treatmentSha256": "b0906a8450a089225fb739cf49b0dd7499532552a5dd9b0e004c6867ce5118d2"
+    },
+    {
+      "caseId": "v14-case-05",
+      "treatmentSha256": "e4c5ebdf14317d4cdab4599b90135e9a80c64107bd1a075635413a5494998034"
+    },
+    {
+      "caseId": "v14-case-06",
+      "treatmentSha256": "36814c7521bc0d5ab38ae8e6e170a864606c63d2ba28243f50667e76a1e60e8f"
+    },
+    {
+      "caseId": "v14-case-07",
+      "treatmentSha256": "9d15361da04bfaca88f6735cb78040ae271c77107d74e05a784c40f804d0b55e"
+    },
+    {
+      "caseId": "v14-case-08",
+      "treatmentSha256": "61cb534428bab7068038ea1a72413612b100e916a9bbb54020e0d90859ff01c6"
+    },
+    {
+      "caseId": "v14-case-09",
+      "treatmentSha256": "711dbe7687e24d14dbabd12577042052bcf98ac8778afdbce7c469c4b9994a6c"
+    },
+    {
+      "caseId": "v14-case-10",
+      "treatmentSha256": "e1ed918313bf03c1a91c1f1563968300bdfa964c82f330e324dcb44d66ffd451"
+    },
+    {
+      "caseId": "v14-case-11",
+      "treatmentSha256": "e75e490c2a75ef4a9bbfe77962a3befc69823d99af59ecedb5c9b3651c0590cf"
+    },
+    {
+      "caseId": "v14-case-12",
+      "treatmentSha256": "d967e0f496100dccf3a2471c76a61db3df6ee0e6ff58e4d2e9037ac094a331f2"
+    }
+  ]
+}
