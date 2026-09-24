@@ -21,25 +21,36 @@ const primaryButtonClass = "w-full rounded-[14px] bg-aura-charcoal px-5 py-3.5 t
 const quietButtonClass = "rounded-[12px] border border-aura-beige bg-white px-3.5 py-2 text-xs font-medium text-aura-charcoal transition hover:border-aura-clay";
 const DURATION_SECONDS = 15;
 
-// The user-facing final artifact always comes from the Phase 8 Seedance
-// Compiler (`ImmersiveSeedanceScript.compiledText`). The Narrative Planner text
-// ([NARRATIVE CORE] / [MOMENT CHAIN] / [NARRATIVE QC] … APPROVED FOR SCENE
-// RESOLUTION) is an intermediate result and stays inside Debug / Internal.
-const SEEDANCE_SCRIPT_HEADER = "SEEDANCE — IMMERSIVE NARRATIVE VIDEO SCRIPT";
-const NARRATIVE_PLANNER_MARKERS = [
+// The user-facing final artifact is the V1.1 Model-Facing Execution Script
+// (`ModelFacingExecutionScript.compiledText`). The internal Seedance script and
+// the Narrative Planner text stay inside Debug / Internal.
+const MODEL_FACING_HEADER = "SEEDANCE — IMMERSIVE NARRATIVE EXECUTION SCRIPT";
+const INTERNAL_SCRIPT_MARKERS = [
   "[NARRATIVE CORE]",
   "[MOMENT CHAIN]",
   "[NARRATIVE QC]",
   "APPROVED FOR SCENE RESOLUTION",
+  "CORRECT_UNSUPPORTED",
+  "REAL_CAPABILITY_GAP",
 ];
 
-// Fail-closed guard for the View / Copy chain: only a real Seedance Compiler
-// artifact may be shown or copied as the final script.
-function isSeedanceCompilerOutput(value: string) {
-  return value.startsWith(SEEDANCE_SCRIPT_HEADER)
-    && value.includes("[GLOBAL INTENT]")
-    && value.includes("[FINAL ENDING STATE]")
-    && !NARRATIVE_PLANNER_MARKERS.some((marker) => value.includes(marker));
+const DIRECTOR_SCRIPT_MARKERS = ["CREATIVE IDEA", "CHARACTER", "FILM STRUCTURE", "TAKE 1 —", "GLOBAL SOUND", "ENDING"];
+
+// Fail-closed guard for the View / Copy chain: only a model-facing execution
+// script may be copied as the execution prompt.
+function isModelFacingExecutionScript(value: string) {
+  return value.startsWith(MODEL_FACING_HEADER)
+    && value.includes("[TIMELINE]")
+    && value.includes("[ENDING STATE]")
+    && !INTERNAL_SCRIPT_MARKERS.some((marker) => value.includes(marker));
+}
+
+// The director script is the primary user-facing artifact and carries its own
+// vocabulary (TAKE / MOMENT), never commercial-film shot roles.
+function isDirectorScriptOutput(value: string) {
+  return DIRECTOR_SCRIPT_MARKERS.every((marker) => value.includes(marker))
+    && !INTERNAL_SCRIPT_MARKERS.some((marker) => value.includes(marker))
+    && !/\bSHOT [1-5] — (?:WORLD|WEAR|DETAIL|HERO|RELEASE)\b/.test(value);
 }
 
 type DraftInputs = {
@@ -48,6 +59,7 @@ type DraftInputs = {
   season: NarrativeSeason;
   lifestyleFeeling: string;
   sceneLibraryText: string;
+  variantSeed: number;
 };
 
 function initialDraft(): DraftInputs {
@@ -58,6 +70,7 @@ function initialDraft(): DraftInputs {
     season: "秋",
     lifestyleFeeling: "安静 / 克制",
     sceneLibraryText: defaultSceneLabelsForTopic(topic).join("\n"),
+    variantSeed: -1,
   };
 }
 
@@ -68,6 +81,7 @@ function toRequest(draft: DraftInputs): ImmersiveNarrativeRequest {
     season: draft.season,
     lifestyleFeeling: draft.lifestyleFeeling,
     availableSceneLibrary: parseSceneLibraryText(draft.sceneLibraryText),
+    variantSeed: Math.max(0, draft.variantSeed),
     referenceMapping: DEFAULT_REFERENCE_MAPPING,
   };
 }
@@ -78,6 +92,7 @@ function requestSignature(request: ImmersiveNarrativeRequest) {
     characterSelection: request.characterSelection,
     season: request.season,
     lifestyleFeeling: request.lifestyleFeeling,
+    variantSeed: request.variantSeed ?? 0,
     scenes: request.availableSceneLibrary.map((scene) => scene.label),
   });
 }
@@ -245,6 +260,7 @@ export function ImmersiveNarrativeWorkspace() {
   const [generatedRequest, setGeneratedRequest] = useState<ImmersiveNarrativeRequest | null>(null);
   const [status, setStatus] = useState("");
   const [expanded, setExpanded] = useState(false);
+  const [promptExpanded, setPromptExpanded] = useState(false);
   const [debugOpen, setDebugOpen] = useState(false);
 
   const outcome: ImmersiveNarrativePipelineOutcome | null = useMemo(
@@ -256,25 +272,64 @@ export function ImmersiveNarrativeWorkspace() {
     generatedRequest && requestSignature(generatedRequest) !== requestSignature(currentRequest)
   );
   const generated = outcome && outcome.status === "GENERATED" ? outcome : null;
-  // Single canonical final artifact consumed by the preview, 查看完整脚本, and
-  // 复制完整脚本. Nothing in the UI re-compiles or re-assembles a script.
-  const finalCompiledSeedanceScript = generated?.script.compiledText ?? "";
-  const finalScriptIsCompilerOutput = isSeedanceCompilerOutput(finalCompiledSeedanceScript);
+  // Primary artifact: the V1.2 director script. Secondary artifact: the Seedance
+  // execution prompt. Both come from the pipeline; the UI never re-assembles them.
+  const directorScriptText = generated?.presentation.presentationScript ?? "";
+  const executionPromptText = generated?.modelFacingScript.compiledText ?? "";
+  const executionStatus = generated?.modelFacingScript.status ?? null;
+  const executionReasons = generated?.modelFacingScript.notExecutableReasons ?? [];
+  const finalScriptIsExecutable = executionStatus === "EXECUTABLE";
+  const executionPromptIsValid = isModelFacingExecutionScript(executionPromptText);
+  const directorScriptIsValid = isDirectorScriptOutput(directorScriptText)
+    && (generated ? generated.presentationValidation.status === "DIRECTOR_SCRIPT_VALIDATED" : false);
+  const directorScriptReady = Boolean(generated) && finalScriptIsExecutable && directorScriptIsValid;
 
   const generate = () => {
-    setGeneratedRequest(toRequest(draft));
+    // 「重新生成」= 自动推进到下一个脚本变体（无需用户选择）。
+    const nextDraft = { ...draft, variantSeed: draft.variantSeed + 1 };
+    setDraft(nextDraft);
+    setGeneratedRequest(toRequest(nextDraft));
     setExpanded(false);
+    setPromptExpanded(false);
     setStatus("");
   };
 
-  const copyScript = async () => {
+  const copyDirectorScript = async () => {
     if (!generated) return;
-    if (!finalScriptIsCompilerOutput) {
-      setStatus("最终脚本绑定异常：未检测到 Seedance Compiler 输出，已阻止复制。");
+    if (staleOutput) {
+      setStatus("输入已变更：当前脚本来自上一组设定，请重新生成后再复制。");
       return;
     }
-    await copyText(finalCompiledSeedanceScript);
-    setStatus("已复制完整脚本。");
+    if (!finalScriptIsExecutable) {
+      setStatus(`当前脚本无法安全编译为外部执行脚本：${executionStatus ?? "UNKNOWN"}。`);
+      return;
+    }
+    if (!directorScriptIsValid) {
+      setStatus("导演脚本绑定异常：未检测到有效的导演脚本输出，已阻止复制。");
+      return;
+    }
+    await copyText(directorScriptText);
+    setStatus("已复制导演脚本。");
+  };
+
+  const copyExecutionPrompt = async () => {
+    if (!generated) return;
+    if (staleOutput) {
+      setStatus("输入已变更：当前执行提示词来自上一组设定，请重新生成后再复制。");
+      return;
+    }
+    if (!finalScriptIsExecutable || !executionPromptIsValid) {
+      setStatus("执行提示词不可用：当前结果未通过执行编译校验。");
+      return;
+    }
+    await copyText(executionPromptText);
+    setStatus("已复制执行提示词。");
+  };
+
+  const copyInternalScript = async () => {
+    if (!generated) return;
+    await copyText(generated.script.compiledText);
+    setStatus("已复制 Internal Compiler Script（内部表示，不是正式输出）。");
   };
 
   const copyNarrativePlan = async () => {
@@ -288,6 +343,7 @@ export function ImmersiveNarrativeWorkspace() {
     setDraft((current) => ({
       ...current,
       topic: nextTopic,
+      variantSeed: -1,
       sceneLibraryText: suggestedScenes.length > 0 ? suggestedScenes.join("\n") : current.sceneLibraryText,
     }));
   };
@@ -371,19 +427,26 @@ export function ImmersiveNarrativeWorkspace() {
           <section className="rounded-[20px] bg-white/70 p-5 ring-1 ring-aura-beige/70">
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div>
-                <h2 className="text-lg font-semibold text-aura-charcoal">Generated Script</h2>
+                <h2 className="text-lg font-semibold text-aura-charcoal">Director Script</h2>
                 <p data-testid="script-summary" className="mt-1 text-xs text-aura-muted">
                   {!outcome && "尚未生成脚本"}
                   {outcome?.status === "BLOCKED" && "无法生成脚本"}
-                  {generated && `${generated.topicLabel} · ${generated.plan.durationSeconds} 秒 · ${generated.plan.momentCount} Moments · 正确不支持 ${generated.cameraExecution.plan.coverage.correctUnsupportedMoments}`}
+                  {generated && `${generated.presentation.directorScript.title} · 变体 ${generated.plan.variantSeed + 1} · ${generated.plan.durationSeconds} 秒 · ${generated.presentation.directorScript.takes.length} take(s) / ${generated.plan.momentCount} moments`}
                 </p>
               </div>
-              {generated && finalScriptIsCompilerOutput && (
+              {directorScriptReady && (
                 <div className="flex flex-wrap gap-2">
                   <button type="button" className={quietButtonClass} onClick={() => setExpanded((value) => !value)}>
                     {expanded ? "收起脚本" : "查看完整脚本"}
                   </button>
-                  <button type="button" className={quietButtonClass} onClick={copyScript}>复制完整脚本</button>
+                  <button
+                    type="button"
+                    className={`${quietButtonClass} disabled:cursor-not-allowed disabled:opacity-50`}
+                    disabled={staleOutput}
+                    onClick={copyDirectorScript}
+                  >
+                    复制导演脚本
+                  </button>
                   <button type="button" className={quietButtonClass} onClick={generate}>重新生成</button>
                 </div>
               )}
@@ -400,23 +463,79 @@ export function ImmersiveNarrativeWorkspace() {
               </div>
             )}
 
-            {generated && finalScriptIsCompilerOutput && (
+            {generated && staleOutput && (
+              <div data-testid="stale-output-warning" className="mt-4 rounded-[14px] border border-aura-clay/40 bg-aura-cream px-4 py-3 text-xs leading-5 text-aura-charcoal">
+                <b>输入已变更。</b> 人物外观/年龄、Season、Lifestyle Feeling 或 Scene Library 改动后，当前显示的是上一组设定生成的脚本；复制已禁用，请点击「重新生成」。
+              </div>
+            )}
+
+            {directorScriptReady && (
               <pre
-                data-testid="seedance-script-output"
+                data-testid="director-script-output"
                 className={`aura-scrollbar mt-4 whitespace-pre-wrap rounded-[14px] bg-aura-cream/55 p-4 text-xs leading-5 text-aura-charcoal [overflow-wrap:anywhere] ${expanded ? "" : "max-h-[520px] overflow-auto"}`}
               >
-                {finalCompiledSeedanceScript}
+                {directorScriptText}
               </pre>
             )}
 
-            {generated && !finalScriptIsCompilerOutput && (
+            {generated && !finalScriptIsExecutable && (
+              <div data-testid="execution-fail-closed" className="mt-4 rounded-[14px] bg-aura-cream px-4 py-3 text-sm leading-6 text-aura-charcoal">
+                <b>当前脚本无法安全编译为外部执行脚本。</b>
+                <p className="mt-2 text-xs text-aura-muted">{executionStatus}</p>
+                {executionReasons.length > 0 && (
+                  <ul className="mt-2 space-y-1 text-xs text-aura-muted">
+                    {executionReasons.map((reason) => <li key={reason}>{reason}</li>)}
+                  </ul>
+                )}
+              </div>
+            )}
+
+            {generated && finalScriptIsExecutable && !directorScriptIsValid && (
               <p data-testid="final-script-binding-error" className="mt-4 rounded-[14px] bg-aura-cream px-4 py-3 text-sm text-aura-charcoal">
-                最终脚本绑定异常：当前结果不是 Seedance Compiler 的最终输出，已阻止查看与复制。
+                导演脚本绑定异常：当前结果不是有效的导演脚本输出，已阻止查看与复制。
               </p>
             )}
 
             {status && <p role="status" className="mt-3 text-xs text-aura-muted">{status}</p>}
           </section>
+
+          {generated && (
+            <section className="rounded-[20px] bg-white/70 p-5 ring-1 ring-aura-beige/70">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <div>
+                  <h2 className="text-lg font-semibold text-aura-charcoal">Seedance Execution Prompt</h2>
+                  <p data-testid="execution-prompt-summary" className="mt-1 text-xs text-aura-muted">
+                    {finalScriptIsExecutable && executionPromptIsValid
+                      ? `${executionPromptText.length} 字符 · ${executionStatus}`
+                      : `不可用 · ${executionStatus ?? "UNKNOWN"}`}
+                  </p>
+                </div>
+                {finalScriptIsExecutable && executionPromptIsValid && (
+                  <div className="flex flex-wrap gap-2">
+                    <button type="button" className={quietButtonClass} onClick={() => setPromptExpanded((value) => !value)}>
+                      {promptExpanded ? "收起执行提示词" : "查看执行提示词"}
+                    </button>
+                    <button
+                      type="button"
+                      className={`${quietButtonClass} disabled:cursor-not-allowed disabled:opacity-50`}
+                      disabled={staleOutput}
+                      onClick={copyExecutionPrompt}
+                    >
+                      复制执行提示词
+                    </button>
+                  </div>
+                )}
+              </div>
+              {finalScriptIsExecutable && executionPromptIsValid && promptExpanded && (
+                <pre
+                  data-testid="execution-prompt-output"
+                  className="aura-scrollbar mt-4 max-h-[520px] overflow-auto whitespace-pre-wrap rounded-[14px] bg-aura-cream/55 p-4 text-xs leading-5 text-aura-charcoal [overflow-wrap:anywhere]"
+                >
+                  {executionPromptText}
+                </pre>
+              )}
+            </section>
+          )}
 
           {generated && (
             <section className="rounded-[20px] bg-white/70 p-5 ring-1 ring-aura-beige/70">
@@ -488,6 +607,18 @@ export function ImmersiveNarrativeWorkspace() {
                       </div>
                       <pre data-testid="narrative-plan-output" className="aura-scrollbar mt-3 max-h-[420px] overflow-auto whitespace-pre-wrap rounded-[12px] bg-aura-cream/55 p-4 text-xs leading-5 text-aura-charcoal">{generated.plan.compiledText}</pre>
                       <QcGrid qc={generated.plan.qc} />
+                    </DebugSection>
+
+                    <DebugSection
+                      title="Internal Compiler Script"
+                      subtitle="Internal representation (engineering script) · not the user-facing output"
+                      status={`${generated.script.diagnostics.characterCount} chars`}
+                      testId="internal-script-status"
+                    >
+                      <div className="flex flex-wrap justify-end gap-2">
+                        <button type="button" className={quietButtonClass} onClick={copyInternalScript}>复制 Internal Script</button>
+                      </div>
+                      <pre data-testid="internal-script-output" className="aura-scrollbar mt-3 max-h-[420px] overflow-auto whitespace-pre-wrap rounded-[12px] bg-aura-cream/55 p-4 text-xs leading-5 text-aura-charcoal">{generated.script.compiledText}</pre>
                     </DebugSection>
 
                     <DebugSection

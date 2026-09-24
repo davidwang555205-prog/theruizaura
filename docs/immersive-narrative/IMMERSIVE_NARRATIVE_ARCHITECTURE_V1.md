@@ -278,3 +278,61 @@ Git                        UNAVAILABLE
 Observed error             fatal: not a git repository: (null)
 Destructive repair         not attempted
 ```
+
+## V1.1 Correctness Upgrade
+
+V1 history above is preserved. V1.1 adds three correctness layers on top of the
+frozen canonical pipeline:
+
+```text
+Narrative Closure V1.1        docs/immersive-narrative/NARRATIVE_CLOSURE_V1_1.md
+Spatial Continuity V1.1       docs/immersive-narrative/SPATIAL_CONTINUITY_V1_1.md
+Model-Facing Execution V1.1   docs/immersive-narrative/EXECUTION_COMPILER_V1_1.md
+```
+
+```text
+canonical narrative types     localGoal · goalState · spatialEnvelope ·
+                              startState · endState · goalProgress ·
+                              completionBoundary · spatialAnchor
+Narrative QC                  8 → 14 gates（+ spatial_continuity, state_progression,
+                              micro_event_consequence, no_semantic_loop,
+                              goal_completion, resolved_ending）
+Scene QC                      4 → 7 gates（+ scene_sequence_spatially_continuous,
+                              no_origin_execution_confusion,
+                              no_unannounced_location_jump）
+Execution Compiler            canonical boundary 消费 + safe continuation +
+                              sound evidence gate + camera state persistence +
+                              spatial/closure fail-closed
+UI                            Preview / 查看 / 复制 = execution script；
+                              internal script 移入 Debug / Internal
+```
+
+```text
+13/13 Narrative approved（14 门 QC）
+13/13 Scene Resolution approved（7 门 QC）
+13/13 Model-facing execution script executable
+0 semantic loop · 0 event without consequence · 0 teleport
+0 internal marker · 0 timeline hole · 0 reference=0 product fact
+Scene Library / Existing 318 Actions / Evidence Guard / legacy 未改动
+```
+
+New validators:
+
+```text
+npm run validate:narrative-closure
+npm run validate:narrative-spatial-continuity
+npm run validate:narrative-execution-compiler
+```
+
+## V1.2 Director Script
+
+`docs/immersive-narrative/DIRECTOR_SCRIPT_V1_2.md`
+
+```text
+presentation 层          src/immersive-narrative/presentation/**（纯 formatter，不 import commercial-film）
+主产物                   导演脚本（TAKE / MOMENT，Moment ≠ Shot）
+次级产物                 Seedance Execution Prompt（V1.1 execution script，字节不变）
+内部产物                 Internal Compiler Script（Debug）
+validator                npm run validate:narrative-director-script
+结果                     13/13 生成 · 内部标记 0 · 商业词汇碰撞 0 · 时间轴连续 · 确定性
+```

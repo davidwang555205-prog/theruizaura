@@ -38,8 +38,8 @@ const scenarios = [
   },
   {
     topic: "采购归来",
-    scenes: [{ id: "scene-grocery", label: "精品超市 / 日常采购" }, { id: "scene-entry", label: "归家玄关" }],
-    world: "RETURNING_WITH_PURCHASES",
+    scenes: [{ id: "scene-hall", label: "公寓走廊" }, { id: "scene-entry", label: "归家玄关" }],
+    world: "HOME_ARRIVAL",
   },
 ];
 

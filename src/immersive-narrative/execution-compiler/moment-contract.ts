@@ -4,8 +4,9 @@ import type {
   ExecutionCompilerInput,
   ExecutionMomentContract,
   NarrativeCompletionClass,
-  NarrativeEndState,
+  ExecutionEndState,
 } from "./types";
+import type { NarrativeCompletionBoundary } from "../types";
 
 // ---------------------------------------------------------------------------
 // Narrative truth extraction. Every pattern below reads the Narrative Moment
@@ -13,7 +14,7 @@ import type {
 // a primitive capability, so a primitive can never advance the story.
 // ---------------------------------------------------------------------------
 type EndStateRule = {
-  state: NarrativeEndState;
+  state: ExecutionEndState;
   pattern: RegExp;
   allowedProgress: string;
   forbidden: NarrativeCompletionClass[];
@@ -118,7 +119,34 @@ function itemOf(text: string) {
 export function detectEndState(text: string): EndStateRule {
   return END_STATE_RULES.find((rule) => rule.pattern.test(text))
     ?? {
-      state: "STATE_HOLD" as NarrativeEndState,
+      state: "STATE_HOLD" as ExecutionEndState,
+      pattern: /(?:)/,
+      allowedProgress: "the current state holds",
+      forbidden: [] as NarrativeCompletionClass[],
+      objectAfter: () => "unchanged",
+    };
+}
+
+// The canonical boundary is the only source of truth. It is mapped onto the
+// execution vocabulary; the execution layer never re-reads the Moment text.
+const CANONICAL_TO_EXECUTION: Record<NarrativeCompletionBoundary, ExecutionEndState> = {
+  WALK_CONTINUES: "WALK_CONTINUES",
+  SEARCH_STARTED: "SEARCH_BEGINS",
+  SEARCH_CONTINUES: "SEARCH_CONTINUES",
+  REACH_STARTED: "REACH_BEGINS",
+  OBJECT_HANDLING: "OBJECT_HANDLING_IN_PROGRESS",
+  ITEM_RETRIEVED: "ITEM_RETRIEVED",
+  DOOR_HANDLED: "DOOR_INTERACTION",
+  ENTERED: "ENTRY_COMPLETE",
+  SETTLED: "SETTLED_STATE",
+  STATE_HELD: "STATE_HOLD",
+};
+
+export function boundaryRuleFor(boundary: NarrativeCompletionBoundary): EndStateRule {
+  const executionState = CANONICAL_TO_EXECUTION[boundary];
+  return END_STATE_RULES.find((rule) => rule.state === executionState)
+    ?? {
+      state: "STATE_HOLD" as ExecutionEndState,
       pattern: /(?:)/,
       allowedProgress: "the current state holds",
       forbidden: [] as NarrativeCompletionClass[],
@@ -154,10 +182,10 @@ export function buildExecutionMomentContracts(
   const topicContainer = containerOf(topicNarrative);
   const topicItem = itemOf(topicNarrative);
   let previousAnchor = "scene position";
-  let previousState: NarrativeEndState = "STATE_HOLD";
+  let previousState: ExecutionEndState = "STATE_HOLD";
 
   const contracts = input.plan.moments.map((moment) => {
-    const rule = detectEndState(moment.whatHappens);
+    const rule = boundaryRuleFor(moment.completionBoundary);
     const cameraMoment = input.cameraExecution.moments.find((entry) => entry.momentIndex === moment.index);
     const anchor = detectSpatialAnchor(moment.whatHappens, previousAnchor);
     const notes: string[] = [];
@@ -215,7 +243,7 @@ export function buildExecutionMomentContracts(
   return contracts;
 }
 
-function requiredProgressFor(state: NarrativeEndState): NarrativeCompletionClass[] | null {
+function requiredProgressFor(state: ExecutionEndState): NarrativeCompletionClass[] | null {
   if (state === "SEARCH_BEGINS" || state === "SEARCH_CONTINUES") return ["ITEM_RETRIEVED"];
   if (state === "REACH_BEGINS") return ["ITEM_RETRIEVED", "DOOR_INTERACTION"];
   if (state === "OBJECT_HANDLING_IN_PROGRESS") return ["CARRIED_OBJECT_SECURED", "GARMENT_SETTLED"];

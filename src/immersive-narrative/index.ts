@@ -12,5 +12,6 @@ export * from "./physical-action";
 export * from "./camera-execution";
 export * from "./seedance-compiler";
 export * from "./execution-compiler";
+export * from "./presentation";
 export * from "./pipeline";
 export { ImmersiveNarrativeWorkspace } from "./ImmersiveNarrativeWorkspace";

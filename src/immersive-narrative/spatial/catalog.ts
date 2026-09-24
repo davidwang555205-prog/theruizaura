@@ -37,7 +37,7 @@ export const SPATIAL_ANCHORS: AnchorDefinition[] = [
   {
     id: "HOME_INTERIOR",
     label: "home interior",
-    patterns: [/室内|屋内|客厅|厨房/, /\bhome interior\b|\binside the home\b/i],
+    patterns: [/公寓内|家里|家中|屋内|客厅|厨房/, /\bhome interior\b|\binside the home\b|\bapartment interior\b/i],
     adjacent: ["ENTRYWAY", "CLOAKROOM", "TABLE"],
   },
   {
@@ -91,7 +91,7 @@ export const SPATIAL_ANCHORS: AnchorDefinition[] = [
   {
     id: "SHOP_INTERIOR",
     label: "shop interior",
-    patterns: [/书店 \/ 杂志店内|书店内|店内|精品超市|超市|日常采购/, /\bbookstore interior\b|\binside the shop\b|\bsupermarket\b|\bgrocery store\b/i],
+    patterns: [/书店 \/ 杂志店内|书店内|店内|店内门廊|精品超市|超市|日常采购/, /\bbookstore interior\b|\binside the shop\b|\bsupermarket\b|\bgrocery store\b/i],
     adjacent: ["SHOP_FRONT"],
   },
   {

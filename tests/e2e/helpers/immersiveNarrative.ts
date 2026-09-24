@@ -9,6 +9,12 @@ export const qcLabels = [
   "State Visibility",
   "Location Logic",
   "Natural Ending",
+  "Spatial Continuity",
+  "State Progression",
+  "Micro Event Consequence",
+  "No Semantic Loop",
+  "Goal Completion",
+  "Resolved Ending",
 ];
 
 export const sceneQcLabels = [
@@ -16,6 +22,9 @@ export const sceneQcLabels = [
   "Location Continuity",
   "Narrative Preserved",
   "No Scene Invention",
+  "Scene Sequence Spatially Continuous",
+  "No Origin / Execution Confusion",
+  "No Unannounced Location Jump",
 ];
 
 export const productPresenceQcLabels = [
@@ -55,13 +64,13 @@ export const cameraExecutionQcLabels = [
 
 export async function generateScript(page: Page) {
   await page.getByRole("button", { name: /生成代入感/ }).first().click();
-  const output = page.getByTestId("seedance-script-output");
+  const output = page.getByTestId("director-script-output");
   await expect(output).toBeVisible();
-  await expect(output).toContainText("SEEDANCE — IMMERSIVE NARRATIVE VIDEO SCRIPT");
-  await expect(output).toContainText("[GLOBAL INTENT]");
-  await expect(output).toContainText("[MOMENT 1]");
-  await expect(output).toContainText("[MOMENT 5]");
-  await expect(output).toContainText("[FINAL ENDING STATE]");
+  await expect(output).toContainText("CREATIVE IDEA");
+  await expect(output).toContainText("FILM STRUCTURE");
+  await expect(output).toContainText("TAKE 1 —");
+  await expect(output).toContainText("GLOBAL SOUND");
+  await expect(output).toContainText("ENDING");
   return output;
 }
 

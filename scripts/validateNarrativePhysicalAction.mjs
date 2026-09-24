@@ -665,13 +665,12 @@ try {
     (moment) => moment.garment.required.filter((entry) => entry.capability !== "none").length > 1
   );
   const combinationKeys = [...new Set(combinationMoments.map((moment) => `${moment.topicId}:${moment.momentIndex}`))].sort();
-  assert(combinationKeys.length === 4, `expected 4 combination requirements, received ${combinationKeys.length}`);
+  assert(combinationKeys.length === 3, `expected 3 combination requirements, received ${combinationKeys.length}`);
   assert(
     JSON.stringify(combinationKeys) === JSON.stringify([
       "after_work_home:3",
       "errand_outing:3",
       "evening_return_home:2",
-      "returning_with_purchases:3",
     ]),
     `the combination requirement set changed: ${combinationKeys.join(", ")}`
   );
@@ -1125,7 +1124,6 @@ try {
 
   const guardUnresolvedKeys = [
     "after_work_home:2",
-    "returning_with_purchases:1",
     "evening_return_home:1",
     "evening_return_home:3",
   ];

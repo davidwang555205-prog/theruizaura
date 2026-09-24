@@ -66,7 +66,7 @@ const sceneLibrary = {
     { id: "scene-cafe-inside", label: "咖啡馆室内" },
   ],
   errand: [
-    { id: "scene-street", label: "超市出口街边" },
+    { id: "scene-hall", label: "公寓走廊" },
     { id: "scene-door", label: "公寓门口" },
     { id: "scene-errand-entry", label: "归家玄关" },
   ],
@@ -162,7 +162,7 @@ try {
       assert(resolution.resolvedMoments.at(-1)?.sceneId === "lifestyle-bookstore-interior", "Bookstore resolution did not use the interior scene");
     }
     if (topic === "采购归来") {
-      assert(resolution.resolvedMoments.at(-1)?.sceneId === "lifestyle-home-errand-entry", "Errand resolution did not use the home errand entry scene");
+      assert(resolution.resolvedMoments.at(-1)?.sceneId === "lifestyle-returning-home", "Errand resolution did not use the home-arrival scene");
     }
   }
 

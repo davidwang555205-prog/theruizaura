@@ -120,13 +120,13 @@ try {
   assert(returnHome.moments.at(-1).role === "AFTER_ACTION", "Return-home ending should allow AFTER_ACTION");
 
   const activeEndingRule = {
-    topicId: "weekend_walk",
+    topicId: "city_wandering",
     label: "Forced active ending validation",
     baseline: ["WAITING_CAMERA", "FOLLOWER", "FOLLOWER", "OBSERVER", "AFTER_ACTION"],
     description: "Validation-only forced AFTER_ACTION rule.",
     forceAfterAction: true,
   };
-  const activeEnding = planCameraNarrative(inputs.get("weekend_walk"), { rules: [activeEndingRule] });
+  const activeEnding = planCameraNarrative(inputs.get("city_wandering"), { rules: [activeEndingRule] });
   assertFailed(activeEnding, "AFTER_ACTION_CONFLICT");
   assert(activeEnding.qc.role_motivated_by_action.status === "FAIL", "Active ending conflict did not fail Role Motivated By Action");
 

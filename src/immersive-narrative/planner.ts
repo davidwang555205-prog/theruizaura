@@ -332,7 +332,10 @@ export function planImmersiveNarrative(input: NarrativePlannerInput): NarrativeP
     scenes,
     characterProfile.resolvedCharacterContext
   );
-  const drafts = archetype.moments(context);
+  // Deterministic variant selection: the same seed always yields the same slice.
+  const variants = [archetype.moments, ...(archetype.alternateMoments ?? [])];
+  const variantIndex = Math.abs(Math.trunc(input.variantSeed ?? 0)) % variants.length;
+  const drafts = variants[variantIndex](context);
   if (drafts.length !== 5) {
     throw new NarrativePlannerError(
       "INVALID_ARCHETYPE_OUTPUT",
@@ -343,14 +346,19 @@ export function planImmersiveNarrative(input: NarrativePlannerInput): NarrativeP
 
   let previousBoundary: NarrativeCompletionBoundary = "STATE_HELD";
   let previousAnchor: NarrativeMoment["spatialAnchor"] = "UNKNOWN";
+  const spatialEnvelope = buildSpatialEnvelope(resolvedTopic!.id);
   const moments = drafts.map((draft, index) => {
-    const moment = toMoment(draft, index, context.scenes, { boundary: previousBoundary, anchor: previousAnchor });
+    const moment = toMoment(draft, index, context.scenes, {
+      boundary: previousBoundary,
+      // The first Moment falls back to the Topic's entry anchor so a scene label
+      // the anchor catalog does not know can never open the route as UNKNOWN.
+      anchor: index === 0 ? spatialEnvelope.allowedAnchors[0] : previousAnchor,
+    });
     previousBoundary = moment.completionBoundary;
     previousAnchor = moment.spatialAnchor;
     return moment;
   });
   const localGoal = TOPIC_LOCAL_GOALS[resolvedTopic!.id];
-  const spatialEnvelope = buildSpatialEnvelope(resolvedTopic!.id);
   const closureView: ClosureMomentView[] = moments.map((moment) => ({
     index: moment.index,
     purpose: moment.purpose,
@@ -393,6 +401,7 @@ export function planImmersiveNarrative(input: NarrativePlannerInput): NarrativeP
     localGoal,
     goalState: closureEvaluation.goalState,
     spatialEnvelope,
+    variantSeed: variantIndex,
     initialCharacterState: archetype.initialCharacterState(context),
     microEvent: archetype.microEvent(context),
     emotionalArc: [...archetype.emotionalArc],
@@ -420,6 +429,13 @@ export function parseSceneLibraryText(value: string, startIndex = 0): NarrativeS
 
 export function getSupportedNarrativeTopics() {
   return NARRATIVE_TOPIC_CATALOG.map((topic) => topic.label);
+}
+
+export function getTopicVariantCount(topicLabel: string) {
+  const resolved = resolveNarrativeTopic(topicLabel);
+  if (!resolved) return 1;
+  const archetype = NARRATIVE_ARCHETYPES.find((candidate) => candidate.topicId === resolved.id);
+  return archetype ? 1 + (archetype.alternateMoments?.length ?? 0) : 1;
 }
 
 export function isNarrativeDuration(value: number): value is NarrativeDuration {

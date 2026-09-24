@@ -66,8 +66,8 @@ const sceneLibrary = {
     { id: "scene-cafe-inside", label: "咖啡馆室内" },
   ],
   errand: [
-    { id: "scene-street", label: "超市出口街边" },
-    { id: "scene-door", label: "公寓门口" },
+    { id: "scene-hall", label: "公寓走廊" },
+    { id: "scene-entry", label: "归家玄关" },
     { id: "scene-kitchen", label: "厨房" },
   ],
 };

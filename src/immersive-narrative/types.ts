@@ -32,6 +32,7 @@ export type NarrativePlannerInput = {
   lifestyleFeeling: string;
   duration: NarrativeDuration;
   availableSceneLibrary: NarrativeSceneLibraryItem[];
+  variantSeed?: number;
 };
 
 export type NarrativeMomentPurpose =
@@ -114,6 +115,7 @@ export type NarrativePlan = {
   localGoal: string;
   goalState: NarrativeGoalState;
   spatialEnvelope: SpatialEnvelope;
+  variantSeed: number;
   initialCharacterState: string;
   microEvent: string;
   emotionalArc: string[];

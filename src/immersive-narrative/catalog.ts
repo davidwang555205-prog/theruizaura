@@ -51,6 +51,10 @@ export type NarrativeArchetype = {
   microEvent: (context: NarrativeTemplateContext) => string;
   emotionalArc: string[];
   moments: (context: NarrativeTemplateContext) => NarrativeMomentDraft[];
+  // Optional full-story alternates. Variant 0 is `moments`; each alternate must
+  // keep the same purpose order, completion boundaries, spatial anchors, and
+  // resolved ending, so every variant passes the same gates.
+  alternateMoments?: ((context: NarrativeTemplateContext) => NarrativeMomentDraft[])[];
 };
 
 function verb(pronoun: NarrativePronoun, singular: string, plural: string) {
@@ -105,6 +109,40 @@ export const NARRATIVE_ARCHETYPES: NarrativeArchetype[] = [
         whatHappens: `${context.pronoun.subject} steps into the ${scene(context, "interior")} without turning back. The ${scene(context, "transition")} returns to stillness.`,
         causalLink: "Entering follows only after the door is open and the key search is complete.",
       },
+    ],
+    alternateMoments: [
+      (context) => [
+        {
+          purpose: "establish_state",
+          sceneRole: "transition",
+          whatHappens: `${context.pronoun.subject} walks from the elevator along the ${scene(context, "transition")} toward ${context.pronoun.possessiveLower} door, the bag steady in one hand.`,
+          causalLink: null,
+        },
+        {
+          purpose: "approach_trigger",
+          sceneRole: "threshold",
+          whatHappens: `At the ${scene(context, "threshold")}, one hand begins searching inside the bag for the key.`,
+          causalLink: "The search starts only because the door is now within reach.",
+        },
+        {
+          purpose: "micro_event",
+          sceneRole: "threshold",
+          whatHappens: `The key is not where ${context.pronoun.subjectLower} expects it, so ${context.pronoun.subjectLower} pauses at the ${scene(context, "threshold")} and looks inside the bag for another second.`,
+          causalLink: "The pause follows only from the key not being found straight away.",
+        },
+        {
+          purpose: "response",
+          sceneRole: "threshold",
+          whatHappens: `${context.pronoun.subject} finds the key, unlocks the door, and ${context.pronoun.possessiveLower} posture releases slightly.`,
+          causalLink: "Unlocking follows only after the key is in hand.",
+        },
+        {
+          purpose: "after_state",
+          sceneRole: "interior",
+          whatHappens: `${context.pronoun.subject} steps into the ${scene(context, "interior")} and the ${scene(context, "transition")} goes quiet behind ${context.pronoun.subjectLower}.`,
+          causalLink: "Entering follows only after the door is open.",
+        },
+      ],
     ],
   },
   {
@@ -286,6 +324,40 @@ export const NARRATIVE_ARCHETYPES: NarrativeArchetype[] = [
         causalLink: "Stepping aside follows only after the card and pocket are settled.",
       },
     ],
+    alternateMoments: [
+      (context) => [
+        {
+          purpose: "establish_state",
+          sceneRole: "interior",
+          whatHappens: `${context.pronoun.subject} walks into the ${scene(context, "interior")} and crosses the room at an easy pace.`,
+          causalLink: null,
+        },
+        {
+          purpose: "approach_trigger",
+          sceneRole: "counter",
+          whatHappens: `At the ${scene(context, "counter")}, one hand begins reaching for the usual pocket.`,
+          causalLink: "The reach begins only because the usual pocket is where the card should be.",
+        },
+        {
+          purpose: "micro_event",
+          sceneRole: "counter",
+          whatHappens: `The card is not where ${context.pronoun.subjectLower} expects it, so ${context.pronoun.subjectLower} pauses and checks the pocket once more.`,
+          causalLink: "The second check follows only from the first touch finding nothing.",
+        },
+        {
+          purpose: "response",
+          sceneRole: "counter",
+          whatHappens: `${context.pronoun.subject} finds the card and closes the pocket with one small movement.`,
+          causalLink: "Closing the pocket follows only after the card is in hand.",
+        },
+        {
+          purpose: "after_state",
+          sceneRole: "interior",
+          whatHappens: `${context.pronoun.subject} steps aside from the ${scene(context, "counter")} and settles; the search is over.`,
+          causalLink: "Stepping aside follows only after the card and pocket are settled.",
+        },
+      ],
+    ],
   },
   {
     id: "ordinary_errand_return",
@@ -330,6 +402,40 @@ export const NARRATIVE_ARCHETYPES: NarrativeArchetype[] = [
         whatHappens: `${context.pronoun.subject} steps into the ${scene(context, "interior")} with the bag held steadily; the adjustment is complete.`,
         causalLink: "Entering follows only after the bag has been secured and the door opened.",
       },
+    ],
+    alternateMoments: [
+      (context) => [
+        {
+          purpose: "establish_state",
+          sceneRole: "exterior",
+          whatHappens: `${context.pronoun.subject} steps out of the elevator with one shopping bag in hand and walks along the ${scene(context, "exterior")}.`,
+          causalLink: null,
+        },
+        {
+          purpose: "approach_trigger",
+          sceneRole: "transition",
+          whatHappens: `A few steps down the ${scene(context, "transition")}, the bag handle shifts against ${context.pronoun.possessiveLower} grip.`,
+          causalLink: "The handle shifts only because the bag has been carried through the short walk.",
+        },
+        {
+          purpose: "micro_event",
+          sceneRole: "threshold",
+          whatHappens: `${context.pronoun.subject} stops once in the ${scene(context, "threshold")} and moves the bag from one hand to the other.`,
+          causalLink: "The hand change follows only from the slipping handle.",
+        },
+        {
+          purpose: "response",
+          sceneRole: "threshold",
+          whatHappens: `With the grip settled, ${context.pronoun.subjectLower} reaches for the door and turns the key.`,
+          causalLink: "Reaching for the door follows only after the new grip is secure.",
+        },
+        {
+          purpose: "after_state",
+          sceneRole: "interior",
+          whatHappens: `${context.pronoun.subject} steps into the ${scene(context, "interior")} with the bag held steadily; the adjustment is complete.`,
+          causalLink: "Entering follows only after the bag has been secured and the door opened.",
+        },
+      ],
     ],
   },
   {
@@ -618,7 +724,7 @@ export const NARRATIVE_ARCHETYPES: NarrativeArchetype[] = [
       {
         purpose: "establish_state",
         sceneRole: "exterior",
-        whatHappens: `${context.pronoun.subject} walks along the ${scene(context, "exterior")} with one small item in hand, the ${scene(context, "threshold")} already in view.`,
+        whatHappens: `${context.pronoun.subject} walks along the ${scene(context, "exterior")} with one small item in hand, keeping an even pace and a clear route.`,
         causalLink: null,
       },
       {
@@ -645,6 +751,40 @@ export const NARRATIVE_ARCHETYPES: NarrativeArchetype[] = [
         whatHappens: `${context.pronoun.subject} reaches the ${scene(context, "threshold")} and stops there; the short move is complete.`,
         causalLink: "Arriving follows only after the final steps have been walked.",
       },
+    ],
+    alternateMoments: [
+      (context) => [
+        {
+          purpose: "establish_state",
+          sceneRole: "exterior",
+          whatHappens: `${context.pronoun.subject} walks along the ${scene(context, "exterior")} with one small item in hand and an easy, even pace.`,
+          causalLink: null,
+        },
+        {
+          purpose: "approach_trigger",
+          sceneRole: "exterior",
+          whatHappens: `Halfway along the ${scene(context, "exterior")}, ${context.pronoun.subjectLower} checks the small item once and shifts it in ${context.pronoun.possessiveLower} hand.`,
+          causalLink: "The check begins only because the item has shifted during the first steps.",
+        },
+        {
+          purpose: "micro_event",
+          sceneRole: "exterior",
+          whatHappens: `${context.pronoun.subject} stops for a moment on the path and settles it securely before moving on.`,
+          causalLink: "The stop follows only from the item check that already began.",
+        },
+        {
+          purpose: "response",
+          sceneRole: "exterior",
+          whatHappens: `With the item secure, ${context.pronoun.subjectLower} walks the last few steps toward the ${scene(context, "threshold")}.`,
+          causalLink: "The last steps follow only after the item is secure.",
+        },
+        {
+          purpose: "after_state",
+          sceneRole: "threshold",
+          whatHappens: `${context.pronoun.subject} reaches the ${scene(context, "threshold")} and stops there; the short move is complete.`,
+          causalLink: "Arriving follows only after the last steps have been walked.",
+        },
+      ],
     ],
   },
 ];

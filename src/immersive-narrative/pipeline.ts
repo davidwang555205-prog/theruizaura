@@ -26,6 +26,12 @@ import {
   type ExecutionCompilerValidation,
   type ModelFacingExecutionScript,
 } from "./execution-compiler";
+import {
+  buildImmersiveFinalScriptPresentation,
+  validateImmersiveFinalScriptPresentation,
+  type ImmersiveFinalScriptPresentation,
+  type ImmersivePresentationValidation,
+} from "./presentation";
 import { buildProductPresenceInput, planProductPresence, type ProductPresenceOutput } from "./product-presence";
 import { buildSceneResolverInput, resolveNarrativeScenes, type SceneResolverOutput } from "./scene-resolver";
 import {
@@ -82,6 +88,7 @@ export type ImmersiveNarrativeRequest = {
   season: NarrativeSeason;
   lifestyleFeeling: string;
   availableSceneLibrary: NarrativeSceneLibraryItem[];
+  variantSeed?: number;
   referenceMapping?: ImmersiveReferenceMapping;
 };
 
@@ -102,6 +109,8 @@ export type ImmersiveNarrativePipelineGenerated = {
   modelFacingScript: ModelFacingExecutionScript;
   executionValidation: ExecutionCompilerValidation;
   executionInput: ExecutionCompilerInput;
+  presentation: ImmersiveFinalScriptPresentation;
+  presentationValidation: ImmersivePresentationValidation;
   stages: ImmersivePipelineStages;
   momentReport: ImmersiveMomentReport[];
 };
@@ -139,6 +148,7 @@ export function runImmersiveNarrativePipeline(
       lifestyleFeeling: request.lifestyleFeeling,
       duration: 15,
       availableSceneLibrary: request.availableSceneLibrary,
+      variantSeed: request.variantSeed ?? 0,
     };
     plan = planImmersiveNarrative(plannerInput);
   } catch (error) {
@@ -222,6 +232,22 @@ export function runImmersiveNarrativePipeline(
   };
   const modelFacingScript = compileModelFacingExecutionScript(executionInput);
   const executionValidation = validateModelFacingExecutionScript(modelFacingScript, executionInput);
+  const presentation = buildImmersiveFinalScriptPresentation({
+    topicLabel,
+    character,
+    plan,
+    sceneResolution,
+    cameraExecution: cameraExecutionPlan,
+    modelFacingScript,
+  });
+  const presentationValidation = validateImmersiveFinalScriptPresentation(presentation, {
+    topicLabel,
+    character,
+    plan,
+    sceneResolution,
+    cameraExecution: cameraExecutionPlan,
+    modelFacingScript,
+  });
 
   const stageFailures: string[] = [];
   if (plan.status !== "APPROVED_FOR_SCENE_RESOLUTION") stageFailures.push("Narrative Plan is not approved.");
@@ -312,6 +338,8 @@ export function runImmersiveNarrativePipeline(
     modelFacingScript,
     executionValidation,
     executionInput,
+    presentation,
+    presentationValidation,
     stages,
     momentReport,
   };

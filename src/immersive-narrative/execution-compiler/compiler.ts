@@ -158,7 +158,8 @@ function handMechanics(
   evidence: ActionExecutionEvidence,
   contract: ExecutionMomentContract,
   container: string | null,
-  item: string | null
+  item: string | null,
+  topicNarrative = ""
 ) {
   const searching = evidence.capabilityIds.includes("CONTAINER_OBJECT_SEARCH") || evidence.handTask === "object_search";
   const door = evidence.capabilityIds.includes("DOOR_CONTACT") || evidence.handTask === "door_contact";
@@ -186,6 +187,11 @@ function handMechanics(
   if (placement) return "One hand sets the small object down and releases it.";
   if (garment) return "One hand adjusts her outer layer once, without hurrying.";
   if (carrying && container) return `She keeps the ${container} steady in one hand.`;
+  // The Narrative decides what the hands are doing; the Action only supplies
+  // mechanics. A carried item the Narrative states must not read as empty hands.
+  if (/\bin hand\b|\bcarrying\b|\bwith one bag\b|\bwith one shopping bag\b/i.test(`${contract.narrativeEvent} ${topicNarrative}`)) {
+    return `One hand keeps the ${item ?? container ?? "carried item"} steady.`;
+  }
   if (evidence.handTask === "phone") return "One hand holds the phone at rest.";
   if (evidence.handTask === "seatSupport" || evidence.handTask === "furniture_contact") return "One hand rests lightly on the seat.";
   return "Her hands stay relaxed and empty.";
@@ -453,8 +459,13 @@ export function compileModelFacingExecutionScript(input: ExecutionCompilerInput)
     if (continuation) {
       bodyParts.push(continuation.humanLine);
     } else {
-      bodyParts.push(movementMechanics(evidence));
-      bodyParts.push(handMechanics(evidence, contract, container, item));
+      const mechanics = movementMechanics(evidence);
+      const mechanicsContradictWalking = contract.endState === "WALK_CONTINUES"
+        && !/\bwalk|step|pace|toward|approach|resumes?\b/i.test(mechanics);
+      bodyParts.push(mechanicsContradictWalking
+        ? "She keeps walking at an ordinary pace, one step at a time."
+        : mechanics);
+      bodyParts.push(handMechanics(evidence, contract, container, item, topicNarrative));
       const posture = postureClause(contract.narrativeEvent);
       if (posture) bodyParts.push(posture);
       const clamp = clampClause(contract, item);
@@ -544,6 +555,38 @@ export function compileModelFacingExecutionScript(input: ExecutionCompilerInput)
     }
   }
 
+  // Spatial and closure fail-closed gates. The execution layer never repairs an
+  // upstream problem; it refuses to emit a model-facing script instead.
+  const spatialFailures = input.sceneResolution.resolvedMoments.filter((moment) => (
+    moment.spatialContinuityStatus === "FAIL" || moment.transitionFromPrevious === "NON_CONTIGUOUS"
+  ));
+  const spatialGate = spatialFailures.length === 0
+    ? {
+      pass: true,
+      reason: `All Moment transitions stay inside the ${input.plan.spatialEnvelope.macroLocation} route.`,
+    }
+    : {
+      pass: false,
+      reason: `Spatial discontinuity at Moment(s): ${spatialFailures.map((moment) => moment.momentIndex + 1).join(", ")}.`,
+    };
+  const closureFailures: string[] = [];
+  if (input.plan.goalState !== "COMPLETED") closureFailures.push(`goal state is ${input.plan.goalState}`);
+  if (input.plan.qc.goal_completion.status !== "PASS") closureFailures.push("goal completion gate failed");
+  if (input.plan.qc.resolved_ending.status !== "PASS") closureFailures.push("resolved ending gate failed");
+  if (input.plan.qc.no_semantic_loop.status !== "PASS") closureFailures.push("semantic loop gate failed");
+  const closureGate = closureFailures.length === 0
+    ? { pass: true, reason: `Local goal completed: ${input.plan.localGoal}` }
+    : { pass: false, reason: `Incomplete narrative: ${closureFailures.join("; ")}.` };
+  if (!spatialGate.pass) notExecutableReasons.push(spatialGate.reason);
+  if (!closureGate.pass) notExecutableReasons.push(closureGate.reason);
+  const status: ModelFacingExecutionScript["status"] = !spatialGate.pass
+    ? "NOT_EXECUTABLE_SPATIAL_DISCONTINUITY"
+    : !closureGate.pass
+      ? "NOT_EXECUTABLE_INCOMPLETE_NARRATIVE"
+      : notExecutableReasons.length > 0
+        ? "NOT_EXECUTABLE_UNSAFE_CONTINUATION"
+        : "EXECUTABLE";
+
   return {
     schemaVersion: EXECUTION_COMPILER_SCHEMA_VERSION,
     compilerVersion: EXECUTION_COMPILER_VERSION,
@@ -551,7 +594,7 @@ export function compileModelFacingExecutionScript(input: ExecutionCompilerInput)
     topicLabel: input.topicLabel,
     season: input.season,
     durationSeconds: input.plan.durationSeconds,
-    status: notExecutableReasons.length === 0 ? "EXECUTABLE" : "NOT_EXECUTABLE",
+    status,
     notExecutableReasons,
     compiledText,
     moments,
@@ -579,6 +622,8 @@ export function compileModelFacingExecutionScript(input: ExecutionCompilerInput)
       referenceCount: input.referenceMapping.confirmedReferenceCount,
       engineeringMarkers: [...new Set(engineeringMarkers)],
       timelineCoverage: coverage,
+      spatialGate,
+      closureGate,
     },
   };
 }
@@ -696,6 +741,20 @@ export function validateModelFacingExecutionScript(
     Boolean(lastMoment) && script.compiledText.includes("[ENDING STATE]") && /do not append/i.test(script.compiledText),
     "The final Moment's narrative text closes the script and no extra ending is allowed.",
     "the ending state is missing or open-ended"
+  );
+  add(
+    "spatial_continuity_gate",
+    "Spatial Continuity Gate",
+    diagnostics.spatialGate.pass,
+    diagnostics.spatialGate.reason,
+    diagnostics.spatialGate.reason
+  );
+  add(
+    "closure_gate",
+    "Narrative Closure Gate",
+    diagnostics.closureGate.pass,
+    diagnostics.closureGate.reason,
+    diagnostics.closureGate.reason
   );
 
   const failureReasons = checks.filter((check) => check.status === "FAIL").map((check) => `${check.id}: ${check.reason}`);

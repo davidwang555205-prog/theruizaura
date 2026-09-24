@@ -44,7 +44,7 @@ const scenarios = [
   { topic: "周末书店", scenes: [{ id: "scene-storefront", label: "书店 / 杂志店门口" }, { id: "scene-inside", label: "书店 / 杂志店内" }] },
   { topic: "等人", scenes: [{ id: "scene-office", label: "写字楼门口" }] },
   { topic: "咖啡馆", scenes: [{ id: "scene-cafe", label: "咖啡馆内" }] },
-  { topic: "采购归来", scenes: [{ id: "scene-grocery", label: "精品超市 / 日常采购" }, { id: "scene-entry", label: "归家玄关" }] },
+  { topic: "采购归来", scenes: [{ id: "scene-hall", label: "公寓走廊" }, { id: "scene-entry", label: "归家玄关" }] },
 ];
 
 function clone(value) {

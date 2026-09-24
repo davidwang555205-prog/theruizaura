@@ -1,4 +1,12 @@
-import type { NarrativeDuration, NarrativeMomentPurpose, NarrativeSeason } from "../types";
+import type {
+  NarrativeCompletionBoundary,
+  NarrativeDuration,
+  NarrativeGoalState,
+  NarrativeMomentPurpose,
+  NarrativeQc,
+  NarrativeSeason,
+} from "../types";
+import type { SpatialAnchorId, SpatialEnvelope, SpatialTransitionClass } from "../spatial/types";
 import type { NarrativeTopicId } from "../topic-catalog";
 import type { CameraExecutionMoment, CameraExecutionPlan } from "../camera-execution";
 import type { PhysicalActionMomentMatch } from "../physical-action";
@@ -14,7 +22,9 @@ export const MODEL_FACING_HEADER = "SEEDANCE — IMMERSIVE NARRATIVE EXECUTION S
 
 // Narrative decides WHAT HAPPENS. These end states are the closed set the
 // Execution Compiler is allowed to translate into model-facing language.
-export type NarrativeEndState =
+// Execution vocabulary. It is derived from the canonical boundary by an explicit
+// mapping table; the execution layer never re-reads the Moment text.
+export type ExecutionEndState =
   | "WALK_CONTINUES"
   | "SEARCH_BEGINS"
   | "SEARCH_CONTINUES"
@@ -42,9 +52,9 @@ export type ExecutionMomentContract = {
   purpose: NarrativeMomentPurpose;
   timeRange: { startSecond: number; endSecond: number } | null;
   narrativeEvent: string;
-  startState: NarrativeEndState;
+  startState: ExecutionEndState;
   allowedProgress: string;
-  endState: NarrativeEndState;
+  endState: ExecutionEndState;
   objectStateBefore: string;
   objectStateAfter: string;
   forbiddenCompletions: NarrativeCompletionClass[];
@@ -159,7 +169,7 @@ export type ModelFacingExecutionScript = {
   topicLabel: string;
   season: NarrativeSeason;
   durationSeconds: NarrativeDuration;
-  status: "EXECUTABLE" | "NOT_EXECUTABLE";
+  status: ModelFacingExecutionStatus;
   notExecutableReasons: string[];
   compiledText: string;
   moments: ModelFacingMoment[];
@@ -182,8 +192,16 @@ export type ModelFacingExecutionScript = {
     referenceCount: number;
     engineeringMarkers: string[];
     timelineCoverage: { startSecond: number; endSecond: number; contiguous: boolean };
+    spatialGate: { pass: boolean; reason: string };
+    closureGate: { pass: boolean; reason: string };
   };
 };
+
+export type ModelFacingExecutionStatus =
+  | "EXECUTABLE"
+  | "NOT_EXECUTABLE_INCOMPLETE_NARRATIVE"
+  | "NOT_EXECUTABLE_SPATIAL_DISCONTINUITY"
+  | "NOT_EXECUTABLE_UNSAFE_CONTINUATION";
 
 export type ExecutionCompilerCheck = {
   id: string;
@@ -206,11 +224,33 @@ export type ExecutionCompilerInput = {
     topicId: string;
     durationSeconds: NarrativeDuration;
     storyIntent: string;
-    moments: { index: number; purpose: NarrativeMomentPurpose; whatHappens: string; causalLink: string | null }[];
+    localGoal: string;
+    goalState: NarrativeGoalState;
+    spatialEnvelope: SpatialEnvelope;
+    qc: NarrativeQc;
+    moments: {
+      index: number;
+      purpose: NarrativeMomentPurpose;
+      whatHappens: string;
+      causalLink: string | null;
+      completionBoundary: NarrativeCompletionBoundary;
+      goalProgress: number;
+      startState: string;
+      endState: string;
+      spatialAnchor: SpatialAnchorId;
+    }[];
   };
   sceneResolution: {
     locationWorld: { id: string; label: string } | null;
-    resolvedMoments: { momentIndex: number; sceneId: string; sceneName: string; locationWorldId: string }[];
+    resolvedMoments: {
+      momentIndex: number;
+      sceneId: string;
+      sceneName: string;
+      locationWorldId: string;
+      spatialAnchor?: SpatialAnchorId;
+      transitionFromPrevious?: SpatialTransitionClass | null;
+      spatialContinuityStatus?: "PASS" | "FAIL";
+    }[];
   };
   productPresence: { curve: { momentIndex: number; presence: ProductPresenceLevel; reason: string }[] };
   soundWorld: { moments: SoundMoment[] };

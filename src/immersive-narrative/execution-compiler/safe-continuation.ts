@@ -28,7 +28,10 @@ function searchEvidence(evidence: ActionExecutionEvidence | null, text: string) 
   return null;
 }
 
-function carriedObjectEvidence(evidence: ActionExecutionEvidence | null) {
+function carriedObjectEvidence(evidence: ActionExecutionEvidence | null, previousText = "") {
+  if (/\bin hand\b|\bwith one bag\b|\bcarrying\b|\bcarried\b/i.test(previousText)) {
+    return "the previous Moment already holds the same item in hand";
+  }
   if (!evidence) return null;
   const holds = evidence.capabilityIds.some((capability) => (
     capability === "CARRIED_OBJECT_HOLD"
@@ -117,9 +120,23 @@ export function resolveSafeContinuation(
   }
 
   if (contract.endState === "OBJECT_HANDLING_IN_PROGRESS") {
-    const evidence = carriedObjectEvidence(previous?.evidence ?? null);
+    const evidence = carriedObjectEvidence(previous?.evidence ?? null, previous?.contract.narrativeEvent ?? "");
     if (!evidence) return { available: false, reason: "no established carried object supports this handling Moment" };
-    if (!container) return { available: false, reason: "the carried object is not established by the Narrative" };
+    const heldItem = container ?? itemOf(text) ?? itemOf(topicNarrative);
+    if (!heldItem) return { available: false, reason: "the carried object is not established by the Narrative" };
+    if (!container) {
+      return finish({
+        kind: "CARRIED_OBJECT_HANDLING_CONTINUES",
+        continuesActionId: previous?.evidence.actionId ?? null,
+        humanLine: `She keeps the ${heldItem} in the same hand and continues the same steady carry; it settles back into her grip before she moves on. Nothing else changes.`,
+        preservedObject: heldItem,
+        preservedHandTask: "carry the same item in the same hand",
+        preservedCausalState: "the carried item keeps its place",
+        cameraReuse,
+        soundReuse,
+        evidence,
+      });
+    }
     return finish({
       kind: "CARRIED_OBJECT_HANDLING_CONTINUES",
       continuesActionId: previous?.evidence.actionId ?? null,

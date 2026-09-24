@@ -57,6 +57,12 @@ export function classifyTransition(from: SpatialAnchorId, to: SpatialAnchorId): 
       ? "IMMEDIATE_ADJACENT"
       : "SHORT_CONTIGUOUS_WALK";
   }
+  // Two ordinary steps inside the same envelope (for example entryway →
+  // apartment door → building exit) still count as one short contiguous walk.
+  const twoHop = definition.adjacent.some((middle) => anchorDefinition(middle)?.adjacent.includes(to));
+  if (twoHop || reverse.adjacent.some((middle) => anchorDefinition(middle)?.adjacent.includes(from))) {
+    return "SHORT_CONTIGUOUS_WALK";
+  }
   return "NON_CONTIGUOUS";
 }
 
