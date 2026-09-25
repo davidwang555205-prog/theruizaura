@@ -106,11 +106,45 @@ try {
   // Cafe regression.
   const cafe = outcomes.get("午后咖啡").modelFacingScript;
   const cafeBody = (index) => cafe.moments[index].bodyBehavior;
+  assert(!cafe.compiledText.includes("One person only"), "cafe still forbids incidental background people");
+  assert(!cafe.compiledText.includes("No new person"), "cafe still forbids background occupancy");
+  assert(cafe.compiledText.includes("natural background occupancy"), "cafe lacks location-appropriate background occupancy");
+  assert(cafe.compiledText.includes("no foreground dialogue"), "cafe lacks the foreground dialogue restriction");
+  assert(cafe.moments.some((moment) => moment.naturalSound.some((cue) => cue.includes("background voices"))), "cafe has no background voices in a Moment");
   assert(!/brings it out|finds the card/i.test(cafeBody(1)), `cafe M2 advances retrieval: ${cafeBody(1)}`);
   assert(!/brings it out|finds the card/i.test(cafeBody(2)), `cafe M3 advances retrieval: ${cafeBody(2)}`);
   assert(/finds the card/i.test(cafeBody(3)) && /brings it out/i.test(cafeBody(3)), "cafe M4 does not retrieve the card");
   assert(cafe.diagnostics.forcedInsertShots === 0, "cafe created a forced insert shot");
   assert(cafe.moments[2].cameraObservation.includes("do not create an insert shot"), "cafe M3 does not state natural partial visibility");
+
+  const officialCafe = runImmersiveNarrativePipeline({
+    topic: "午后咖啡",
+    characterSelection: { ageProfileId: "age_28_32", appearanceGroupId: "asian" },
+    season: "秋",
+    lifestyleFeeling: "安静 / 克制",
+    availableSceneLibrary: [{ id: "lifestyle-cafe-interior", label: "咖啡馆内" }],
+    referenceMapping: { mode: "reference_bound_manual", confirmedReferenceCount: 0, instruction: "" },
+  });
+  assert(officialCafe.status === "GENERATED", "official cafe pipeline blocked");
+  const cafeStates = officialCafe.physicalAction.report.moments.map((moment) => moment.selectedMovementState);
+  assert(JSON.stringify(cafeStates) === JSON.stringify(["walking_ongoing", "walking_finish", "stopping_settle", "stationary", "walking_ongoing"]), `official cafe movement states changed: ${cafeStates.join(", ")}`);
+  const officialCafeBodies = officialCafe.modelFacingScript.moments.map((moment) => moment.bodyBehavior);
+  assert(officialCafeBodies[1].includes("The last walking step settles"), "official cafe M2 lost walking finish");
+  assert(!officialCafeBodies[2].includes("The last walking step settles"), "official cafe M3 repeats walking finish");
+  assert(!officialCafeBodies[3].includes("The last walking step settles"), "official cafe M4 repeats walking finish");
+  assert(officialCafeBodies.join(" ").split("The last walking step settles").length - 1 === 1, "official cafe repeats walking finish across the sequence");
+  assert(/not yet found or brought out/i.test(officialCafeBodies[1]), "official cafe M2 advances card retrieval");
+  assert(/still not found/i.test(officialCafeBodies[2]), "official cafe M3 advances card retrieval");
+  assert(/finds the card/i.test(officialCafeBodies[3]) && /brings it out/i.test(officialCafeBodies[3]), "official cafe M4 does not retrieve the card");
+  const cafeDoorCue = officialCafe.modelFacingScript.diagnostics.soundVerdicts.find((verdict) => verdict.momentIndex === 0 && verdict.cue === "door handle movement");
+  assert(officialCafe.soundWorld.moments[0].object.includes("door handle movement"), "official cafe M1 lost the raw door cue");
+  assert(cafeDoorCue?.kept === false && cafeDoorCue.rejectionReason === "NO_EVENT_EVIDENCE", "official cafe M1 kept a door cue without door interaction");
+  assert(!officialCafe.modelFacingScript.moments[0].naturalSound.includes("door handle movement"), "official cafe M1 final sound still has door handle movement");
+  assert(officialCafe.modelFacingScript.moments[0].naturalSound.includes("quiet cafe room tone with restrained background voices and soft counter appliance hum"), "official cafe M1 lost its environment sound");
+  assert(officialCafe.modelFacingScript.moments[0].naturalSound.includes("subtle body and fabric movement"), "official cafe M1 lost its body and fabric sound");
+  const doorOpening = outcomes.get("出门办事");
+  assert(/opens the door/i.test(doorOpening.plan.moments[1].whatHappens), "official door-opening Moment changed");
+  assert(doorOpening.modelFacingScript.moments[1].naturalSound.includes("door handle movement"), "official door-opening Moment lost its door sound");
 
   // 采购归来 / 短途出行 production regressions.
   const purchases = outcomes.get("采购归来");

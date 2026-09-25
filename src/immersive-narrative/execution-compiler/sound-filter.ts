@@ -15,10 +15,8 @@ type SoundRule = {
 };
 
 function doorInteractionInMoment(text: string) {
-  if (/\b(?:opens?|unlocks?|closes?|grips?|turns?|inserts?)\b[^.]*\b(?:door|lock|doorway)\b/i.test(text)) return "the Moment states a door interaction";
-  if (/\breaches? for the door\b/i.test(text)) return "the Moment states a reach for the door";
-  if (/\b(?:enters?|steps? (?:into|through))\b[^.]*\b(?:doorway|door)\b/i.test(text)) return "the Moment states passing through the doorway";
-  if (/\benters?\b/i.test(text) && /\bdoorway\b/i.test(text)) return "the Moment states entering through the doorway";
+  if (/\b(?:opens?|unlocks?|closes?|pushes?|pulls?|touches?|grips?)\s+(?:(?:the|a|an)\s+)?(?:door|lock)\b/i.test(text)) return "the Moment states a door interaction";
+  if (/\b(?:turns?|inserts?)\b(?:\s+\w+){0,2}\s+\bkey\b/i.test(text) && /\b(?:door|lock)\b/i.test(text)) return "the Moment states a key-and-door interaction";
   return null;
 }
 

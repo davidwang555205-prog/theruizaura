@@ -308,20 +308,21 @@ function render(
   const lines: string[] = [];
 
   lines.push(MODEL_FACING_HEADER);
-  lines.push(`${input.topicLabel} · ${input.plan.durationSeconds}s · one person · real-world timing`);
+  lines.push(`${input.topicLabel} · ${input.plan.durationSeconds}s · one primary subject · real-world timing`);
   lines.push("");
   lines.push("[INTENT]");
   lines.push(input.plan.storyIntent);
-  lines.push("One person, one continuous sequence. Nothing is added between the moments below.");
+  lines.push("One primary subject, one continuous sequence. Nothing is added between the moments below.");
   lines.push("");
   lines.push("[CHARACTER]");
   lines.push(`Age: ${input.character.ageProfile ? `${input.character.ageProfile.ageMin}-${input.character.ageProfile.ageMax}` : "as written"}`);
   lines.push(`Appearance: ${input.character.appearanceGroup?.label ?? "as written"}`);
-  lines.push("One person only. Keep the same person, wardrobe, and hair for the whole clip.");
+  lines.push("Keep the same primary person, wardrobe, and hair for the whole clip. Background people must never become a second narrative subject.");
   lines.push("");
   lines.push("[WORLD & CONTINUITY]");
   lines.push(`Location: ${world}. Scenes in order: ${scenes.join(" → ")}.`);
   lines.push(`Season: ${input.season}. Keep the same light direction, surfaces, and location continuity throughout.`);
+  lines.push("Keep natural background occupancy appropriate to the resolved location. In public spaces, background people remain anonymous, incidental, and non-narrative.");
   lines.push(`Camera side: ${input.cameraExecution.continuityProfile.cameraSide}. Lens: ${input.cameraExecution.continuityProfile.focalRange}.`);
   lines.push("");
   lines.push("[CAMERA STATE]");
@@ -347,7 +348,7 @@ function render(
   lines.push("Real-world speed and normal human cadence; no slow motion, no time stretching, no speed ramp.");
   lines.push("The camera observes the person. It never changes what the person is doing.");
   lines.push("Do not add any action, object, event, or product beat that is not written in the timeline.");
-  lines.push("Sound is natural world sound only: no music, no dialogue, no voiceover, no narration.");
+  lines.push("Sound is natural world sound only: no music, no foreground dialogue, no voiceover, no narration.");
   lines.push("Use only the sounds written in the timeline; do not add any other object, door, or surface sound.");
   lines.push("Do not advance past a moment's described end state; each moment stops where it says it stops.");
   lines.push("");
@@ -364,7 +365,7 @@ function render(
   }
   lines.push("");
   lines.push("[DO NOT]");
-  lines.push("No new person, no crowd focus, no vehicle or animal entering the frame.");
+  lines.push("No new foreground character or second narrative subject, no crowd focus, no vehicle or animal entering the frame.");
   lines.push("No insert shot, close-up, cutaway, or new camera setup.");
   lines.push("No pose montage, no product showcase, no logo reveal, no on-screen text.");
   lines.push("No re-framing for the product; the narrative camera always wins.");
@@ -459,7 +460,13 @@ export function compileModelFacingExecutionScript(input: ExecutionCompilerInput)
     if (continuation) {
       bodyParts.push(continuation.humanLine);
     } else {
-      const mechanics = movementMechanics(evidence);
+      const currentAction = input.physicalAction.moments.find((entry) => entry.momentIndex === contract.momentIndex);
+      const previousAction = input.physicalAction.moments.find((entry) => entry.momentIndex === contract.momentIndex - 1);
+      const alreadyStationary = previousAction?.endState === "stationary"
+        && currentAction?.startState === "stationary";
+      const mechanics = movementMechanics(alreadyStationary && evidence.movementState === "walking_finish"
+        ? { ...evidence, movementState: "stationary" }
+        : evidence);
       const mechanicsContradictWalking = contract.endState === "WALK_CONTINUES"
         && !/\bwalk|step|pace|toward|approach|resumes?\b/i.test(mechanics);
       bodyParts.push(mechanicsContradictWalking

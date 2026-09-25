@@ -125,6 +125,8 @@ try {
   assert(returnHomeSound.moments[4].silenceLevel === "PRONOUNCED", "Return-home ending must expose pronounced quiet");
 
   const cafeSound = planSoundWorld(soundInputs.get("咖啡馆"));
+  assert(cafeSound.moments.some((moment) => moment.environment.some((cue) => cue.includes("background voices"))), "cafe environment lacks background voices");
+  assert(cafeSound.moments.some((moment) => moment.environment.some((cue) => cue.includes("appliance hum"))), "cafe environment lacks appliance hum");
   const cafePresence = presenceOutputs.get("咖啡馆");
   const readableWithoutFootwear = cafePresence.curve.findIndex((moment) => moment.presence === "READABLE" && cafeSound.moments[moment.momentIndex].footwear.length === 0);
   assert(readableWithoutFootwear >= 0, "READABLE must not force footwear sound");

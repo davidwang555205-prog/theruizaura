@@ -30,6 +30,9 @@ export const SOUND_WORLD_RULES: SoundWorldRule[] = [
     label: "Cafe arrival",
     dominantBaseline: ["ENVIRONMENT", "OBJECT", "ENVIRONMENT", "HUMAN", "ENVIRONMENT"],
     description: "Interior room tone, counter contact, pocket movement, and the continuing cafe atmosphere.",
+    cuePalette: {
+      ENVIRONMENT: ["quiet cafe room tone with restrained background voices and soft counter appliance hum"],
+    },
   },
   {
     topic: "returning_with_purchases",

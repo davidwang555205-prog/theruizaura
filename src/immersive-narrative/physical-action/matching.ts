@@ -496,6 +496,19 @@ function rankExactCandidates(
   });
 }
 
+function movementStateForMoment(
+  requirement: PhysicalActionRequirement,
+  capability: PhysicalActionCapability
+): PhysicalActionMovementState | null {
+  if (capability.source !== "NARRATIVE_PRIMITIVE"
+    || requirement.requiredMovementState.includes(capability.movementState)) {
+    return capability.movementState;
+  }
+  return requirement.requiredMovementState.find((state) => (
+    capability.narrativePrimitive?.movementCompatibility.includes(state)
+  )) ?? null;
+}
+
 export function matchMoment(
   requirement: PhysicalActionRequirement,
   matrix: PhysicalActionCapability[],
@@ -559,6 +572,10 @@ export function matchMoment(
     .slice(0, MAX_REPORTED_CANDIDATES)
     .map(({ capability, eligibility }) => ({ primitiveId: capability.actionId, eligibility }));
 
+  const selectedMovementState = selected
+    ? movementStateForMoment(requirement, selected.capability)
+    : null;
+
   return {
     topicId: requirement.topicId,
     topicLabel: requirement.topicLabel,
@@ -574,7 +591,7 @@ export function matchMoment(
     selectedActionFamily: selected?.capability.actionFamily ?? null,
     selectedHandTask: selected?.capability.hand.sourceHandTask ?? null,
     selectedFootwork: selected?.capability.footwork.pattern ?? null,
-    selectedMovementState: selected?.capability.movementState ?? null,
+    selectedMovementState,
     startState: requirement.startState,
     endState: selected ? requirement.desiredEndState : requirement.desiredEndState,
     whyCompatible: selected
@@ -810,7 +827,7 @@ export function runContinuityPass(
             selectedActionFamily: replacement.actionFamily,
             selectedHandTask: replacement.hand.sourceHandTask,
             selectedFootwork: replacement.footwork.pattern,
-            selectedMovementState: replacement.movementState,
+            selectedMovementState: movementStateForMoment(requirement, replacement),
             selectionReason: "CONTINUITY_PREFERRED",
             source: replacementIsNarrativePrimitive ? "NARRATIVE_PRIMITIVE" : "EXISTING_ACTION",
             primitiveId: replacementIsNarrativePrimitive ? replacement.actionId : null,
