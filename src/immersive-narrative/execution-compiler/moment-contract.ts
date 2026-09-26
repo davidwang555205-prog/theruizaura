@@ -103,6 +103,11 @@ const END_STATE_RULES: EndStateRule[] = [
 
 const CONTAINER_PATTERN = /\bbag\b|\bpocket\b|\bhandbag\b/i;
 const ITEM_PATTERN = /\bkey\b|\bcard\b|\bsmall item\b|\bthe object\b/i;
+const RETURNS_OBJECT_TO_CONTAINER = /\b(?:slips?|puts?|returns?)\s+(?:it|the (?:card|key|item))\s+(?:straight\s+)?back\s+(?:into|in)\s+(?:the\s+)?(?:same|usual)\s+(?:pocket|bag)\b/i;
+
+export function returnsObjectToContainer(text: string) {
+  return RETURNS_OBJECT_TO_CONTAINER.test(text);
+}
 
 function containerOf(text: string) {
   const match = text.match(CONTAINER_PATTERN);
@@ -183,9 +188,16 @@ export function buildExecutionMomentContracts(
   const topicItem = itemOf(topicNarrative);
   let previousAnchor = "scene position";
   let previousState: ExecutionEndState = "STATE_HOLD";
+  let previousObjectState = topicContainer && topicItem ? `${topicItem} in ${topicContainer}` : "unchanged";
 
   const contracts = input.plan.moments.map((moment) => {
     const rule = boundaryRuleFor(moment.completionBoundary);
+    const ruleObjectStateAfter = rule.objectAfter(moment.whatHappens);
+    const objectStateAfter = returnsObjectToContainer(moment.whatHappens)
+      ? "returned to the same pocket or bag; not held"
+      : ruleObjectStateAfter === "unchanged" || (rule.state === "ENTRY_COMPLETE" && topicItem)
+        ? previousObjectState
+        : ruleObjectStateAfter;
     const cameraMoment = input.cameraExecution.moments.find((entry) => entry.momentIndex === moment.index);
     const anchor = detectSpatialAnchor(moment.whatHappens, previousAnchor);
     const notes: string[] = [];
@@ -207,8 +219,8 @@ export function buildExecutionMomentContracts(
       startState: previousState,
       allowedProgress: rule.allowedProgress,
       endState: rule.state,
-      objectStateBefore: previousState === "STATE_HOLD" ? "unchanged" : `${previousState.toLowerCase().replace(/_/g, " ")}`,
-      objectStateAfter: rule.objectAfter(moment.whatHappens),
+      objectStateBefore: previousObjectState,
+      objectStateAfter,
       forbiddenCompletions: [...rule.forbidden],
       requiredProgressEvidence: requiredProgressFor(rule.state),
       narrativeEvidence: moment.whatHappens,
@@ -218,6 +230,7 @@ export function buildExecutionMomentContracts(
     };
     previousAnchor = anchor;
     previousState = rule.state;
+    previousObjectState = objectStateAfter;
     return contract;
   });
 
@@ -304,7 +317,9 @@ export function checkMomentBoundary(
 ): BoundaryConflict[] {
   const conflicts: BoundaryConflict[] = [];
   const claimed = completionClassesOf(evidence);
-  const early = claimed.filter((entry) => contract.forbiddenCompletions.includes(entry));
+  const returnsObject = returnsObjectToContainer(contract.narrativeEvent);
+  const early = claimed.filter((entry) => contract.forbiddenCompletions.includes(entry)
+    && !(returnsObject && entry === "ITEM_RETRIEVED"));
   if (early.length > 0) {
     conflicts.push({
       momentIndex: contract.momentIndex,

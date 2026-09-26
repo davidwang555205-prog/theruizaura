@@ -99,8 +99,40 @@ try {
       && moments[4].timeRange.endSecond === 15
       && moments.every((moment, index) => index === 0 || moment.timeRange.startSecond === moments[index - 1].timeRange.endSecond);
     if (!contiguous) timelineFailures += 1;
-    const motivated = outcome.modelFacingScript.diagnostics.cameraTransitions.filter((transition, index) => index > 0 && transition.changed).length;
-    if (presentation.directorScript.takes.length !== motivated + 1) takeMismatches += 1;
+    const takeBoundaryMoments = new Set(outcome.modelFacingScript.diagnostics.cameraTransitions
+      .filter((transition, index) => index > 0 && transition.changed
+        && /the subject (?:advances to a new position|travels through the space)/i.test(transition.motivation ?? ""))
+      .map((transition) => transition.momentIndex));
+    for (const moment of outcome.plan.moments) {
+      const previous = outcome.plan.moments.find((candidate) => candidate.index === moment.index - 1);
+      if (topic.id === "afternoon_cafe" && moment.purpose === "approach_trigger" && previous && moment.spatialAnchor !== previous.spatialAnchor) {
+        takeBoundaryMoments.add(moment.index);
+      }
+    }
+    const takeBoundaries = takeBoundaryMoments.size;
+    if (presentation.directorScript.takes.length !== takeBoundaries + 1) takeMismatches += 1;
+
+    if (topic.id === "afternoon_cafe") {
+      const takes = presentation.directorScript.takes;
+      const endingTransition = outcome.modelFacingScript.diagnostics.cameraTransitions.find((transition) => transition.momentIndex === 4);
+      const endingIsWithinFinalTake = takes.length === 2
+        && takes[0].moments.map((moment) => moment.momentIndex).join(",") === "0"
+        && takes[1].moments.map((moment) => moment.momentIndex).join(",") === "1,2,3,4"
+        && takes[1].takeRole === "CONTINUOUS_MOMENT"
+        && endingTransition?.changed === true
+        && takes[1].moments.at(-1)?.momentIndex === 4
+        && moments.length === 5
+        && moments.reduce((total, moment) => total + moment.timeRange.durationSeconds, 0) === 15
+        && !/card|pocket|retriev|search/i.test(text);
+      assert(endingIsWithinFinalTake, "afternoon_cafe must remain a card-free 15s / 5 moment, 2 take sequence with the ending hold inside Take 2");
+      assert(presentation.directorScript.global.visualLook.some((line) => line.includes("actively operating")), "afternoon_cafe world presence description was lost");
+    }
+
+    if (["after_work_home", "weekend_walk"].includes(topic.id)) {
+      const changedStates = outcome.modelFacingScript.diagnostics.cameraTransitions.filter((transition, index) => index > 0 && transition.changed).length;
+      assert(presentation.directorScript.takes.length < changedStates + 1, `${topic.id} converted every camera state change into a Take`);
+      assert(presentation.directorScript.takes.at(-1)?.moments.at(-1)?.momentIndex === 4, `${topic.id} ending state escaped the final continuous Take`);
+    }
     if (presentation.executionScriptText !== outcome.modelFacingScript.compiledText) executionMismatches += 1;
 
     const rebuilt = buildImmersiveFinalScriptPresentation({
@@ -129,7 +161,7 @@ try {
   assert(commercialHits === 0, `${commercialHits} commercial-film markers leaked into director scripts`);
   assert(executionMismatches === 0, `${executionMismatches} execution prompts were rewritten by the presentation layer`);
   assert(determinismFailures === 0, `${determinismFailures} non-deterministic director scripts`);
-  assert(takeMismatches === 0, `${takeMismatches} take structures disagree with motivated camera changes`);
+  assert(takeMismatches === 0, `${takeMismatches} take structures disagree with motivated spatial take boundaries`);
   assert(timelineFailures === 0, `${timelineFailures} director timelines are not continuous`);
 
   // Variant matrix: every authored variant must pass the same gates, stay

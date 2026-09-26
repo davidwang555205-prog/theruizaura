@@ -1,4 +1,5 @@
 import type { ModelFacingCameraState } from "../execution-compiler";
+import { resolvedWorldPresenceDescription } from "../scene-resolver/location-worlds";
 import {
   BOUNDARY_NOTE,
   CONTINUITY_NOTE,
@@ -70,6 +71,10 @@ function resolveTone(takes: ImmersivePresentationTake[], movement: ModelFacingCa
   return IMMERSIVE_TONE.moving;
 }
 
+function beginsNewTake(transition: ImmersivePresentationInput["modelFacingScript"]["diagnostics"]["cameraTransitions"][number] | undefined) {
+  return Boolean(transition?.changed && /the subject (?:advances to a new position|travels through the space)/i.test(transition.motivation ?? ""));
+}
+
 function buildTakes(input: ImmersivePresentationInput): ImmersivePresentationTake[] {
   const script = input.modelFacingScript;
   const transitions = new Map(script.diagnostics.cameraTransitions.map((transition) => [transition.momentIndex, transition]));
@@ -77,8 +82,13 @@ function buildTakes(input: ImmersivePresentationInput): ImmersivePresentationTak
 
   script.moments.forEach((moment, index) => {
     const transition = transitions.get(moment.momentIndex);
-    const startsNewTake = index === 0 || Boolean(transition?.changed);
     const purpose = input.plan.moments.find((entry) => entry.index === moment.momentIndex)?.purpose ?? "establish_state";
+    const currentPlanMoment = input.plan.moments.find((entry) => entry.index === moment.momentIndex);
+    const previousPlanMoment = input.plan.moments.find((entry) => entry.index === moment.momentIndex - 1);
+    const advancesAtApproach = input.plan.topicId === "afternoon_cafe"
+      && purpose === "approach_trigger"
+      && Boolean(currentPlanMoment && previousPlanMoment && currentPlanMoment.spatialAnchor !== previousPlanMoment.spatialAnchor);
+    const startsNewTake = index === 0 || beginsNewTake(transition) || advancesAtApproach;
     const boundary = input.plan.moments.find((entry) => entry.index === moment.momentIndex)?.completionBoundary ?? "STATE_HELD";
     const presentationMoment: ImmersivePresentationMoment = {
       takeIndex: startsNewTake ? takes.length : Math.max(0, takes.length - 1),
@@ -107,7 +117,7 @@ function buildTakes(input: ImmersivePresentationInput): ImmersivePresentationTak
         takeRole: "OPENING_OBSERVATION",
         cameraMovement: transition?.state.movementState ?? "locked_off",
         framingState: transition?.state.framingState ?? "medium-full",
-        motivation: transition?.motivation ?? null,
+        motivation: transition?.motivation ?? (advancesAtApproach ? currentPlanMoment?.causalLink ?? null : null),
         moments: [presentationMoment],
       });
       return;
@@ -118,9 +128,15 @@ function buildTakes(input: ImmersivePresentationInput): ImmersivePresentationTak
   return takes.map((take, index) => {
     if (index === 0) return { ...take, takeRole: "OPENING_OBSERVATION" as const };
     const isFinalTake = index === takes.length - 1;
-    const role: ImmersiveTakeRole = isFinalTake && (take.cameraMovement === "hold_position" || take.cameraMovement === "locked_off")
+    const takeStartTransition = transitions.get(take.moments[0]?.momentIndex ?? -1);
+    const holdsOnlyEnding = isFinalTake
+      && take.moments.length === 1
+      && take.moments[0].continuity === "SETTLE";
+    const role: ImmersiveTakeRole = holdsOnlyEnding
       ? "HELD_ENDING"
-      : "MOTIVATED_REFRAME";
+      : beginsNewTake(takeStartTransition)
+        ? "MOTIVATED_REFRAME"
+        : "CONTINUOUS_MOMENT";
     return { ...take, takeRole: role };
   });
 }
@@ -134,6 +150,10 @@ function buildDirectorScript(input: ImmersivePresentationInput): ImmersiveDirect
   const finalMoment = input.plan.moments[input.plan.moments.length - 1];
   const spatialAnchors = input.plan.moments.map((moment) => moment.spatialAnchor);
   const sceneNames = input.sceneResolution.resolvedMoments.map((moment) => moment.sceneName);
+  const worldPresence = resolvedWorldPresenceDescription(
+    input.sceneResolution.locationWorld?.id ?? null,
+    input.sceneResolution.resolvedMoments.map((moment) => moment.sceneId),
+  );
 
   return {
     schemaVersion: IMMERSIVE_DIRECTOR_SCRIPT_SCHEMA_VERSION,
@@ -160,6 +180,7 @@ function buildDirectorScript(input: ImmersivePresentationInput): ImmersiveDirect
       visualLook: [
         `One lens family for the whole slice: ${input.cameraExecution.continuityProfile.focalRange}.`,
         `Camera side: ${input.cameraExecution.continuityProfile.cameraSide}. ${input.cameraExecution.continuityProfile.axisRule}`,
+        ...(worldPresence ? [`World occupancy: ${worldPresence}`] : []),
         input.cameraExecution.cameraLook.lookLine,
       ],
       soundPolicy: [
@@ -297,14 +318,22 @@ export function validateImmersiveFinalScriptPresentation(
     "The take structure does not cover the full duration continuously."
   );
 
-  const motivatedChanges = input.modelFacingScript.diagnostics.cameraTransitions
-    .filter((transition, index) => index > 0 && transition.changed).length;
+  const takeBoundaryMoments = new Set(input.modelFacingScript.diagnostics.cameraTransitions
+    .filter((transition, index) => index > 0 && beginsNewTake(transition))
+    .map((transition) => transition.momentIndex));
+  for (const moment of input.plan.moments) {
+    const previous = input.plan.moments.find((candidate) => candidate.index === moment.index - 1);
+    if (input.plan.topicId === "afternoon_cafe" && moment.purpose === "approach_trigger" && previous && moment.spatialAnchor !== previous.spatialAnchor) {
+      takeBoundaryMoments.add(moment.index);
+    }
+  }
+  const takeBoundaries = takeBoundaryMoments.size;
   add(
     "moment_is_not_shot",
     "Moment ≠ Shot",
-    script.takes.length === motivatedChanges + 1 && !/\bSHOT\b/.test(text),
-    `${script.takes.length} take(s) for ${motivatedChanges} motivated camera change(s); no per-Moment shot list.`,
-    `Take count ${script.takes.length} does not match 1 + ${motivatedChanges} motivated changes.`
+    script.takes.length === takeBoundaries + 1 && !/\bSHOT\b/.test(text),
+    `${script.takes.length} take(s) for ${takeBoundaries} motivated spatial take boundary/boundaries; camera state changes remain within a Take unless they mark a new spatial passage.`,
+    `Take count ${script.takes.length} does not match 1 + ${takeBoundaries} motivated spatial take boundaries.`
   );
 
   const internalHits = INTERNAL_MARKERS.filter((marker) => text.includes(marker));

@@ -202,7 +202,12 @@ function toMoment(
   const scene = scenes[draft.sceneRole];
   const whatHappens = draft.whatHappens.trim();
   const boundary = detectCompletionBoundary(whatHappens);
-  const spatialAnchor = detectSpatialAnchor(whatHappens, previous.anchor);
+  const cafeInterior = /咖啡|\bcafe\b/i.test(scene.label);
+  const spatialAnchor = cafeInterior && draft.sceneRole === "counter"
+    ? "CAFE_COUNTER"
+    : cafeInterior && draft.sceneRole === "interior"
+      ? "CAFE_INTERIOR"
+      : detectSpatialAnchor(whatHappens, previous.anchor);
   return {
     id: `moment-${String(index + 1).padStart(2, "0")}`,
     index,

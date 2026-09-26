@@ -668,7 +668,7 @@ try {
   assert(combinationKeys.length === 3, `expected 3 combination requirements, received ${combinationKeys.length}`);
   assert(
     JSON.stringify(combinationKeys) === JSON.stringify([
-      "after_work_home:3",
+      "after_work_home:2",
       "errand_outing:3",
       "evening_return_home:2",
     ]),
@@ -1123,10 +1123,10 @@ try {
   );
 
   const guardUnresolvedKeys = [
-    "after_work_home:2",
     "evening_return_home:1",
     "evening_return_home:3",
   ];
+  assert(momentByKey.get("after_work_home:2")?.primitiveId === "narrative-key-door-unlock", "home brief key interaction is not matched by the existing key-door primitive");
   let guardUnresolvedPassing = 0;
   for (const key of guardUnresolvedKeys) {
     const moment = momentByKey.get(key);

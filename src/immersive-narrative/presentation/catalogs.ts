@@ -10,7 +10,7 @@ export const IMMERSIVE_DIRECTOR_TITLES: Record<NarrativeTopicId, string> = {
   weekend_alone: "A LITTLE LONGER IN THE ROOM",
   errand_outing: "OUT THE DOOR, ON WITH THE DAY",
   waiting_for_friend: "WAITING, WITHOUT HURRY",
-  afternoon_cafe: "THE POCKET, THE CARD, THE PAUSE",
+  afternoon_cafe: "THE OPEN SEAT, THE PAUSE",
   bookstore_browse: "STOPPING AT THE WINDOW",
   returning_with_purchases: "HOME, WITH THE BAG IN HAND",
   after_school_pickup: "AFTER THE WAIT, THE WALK",
@@ -75,7 +75,7 @@ export const PURPOSE_STRUCTURE_LABEL: Record<NarrativeMomentPurpose, string> = {
 };
 
 export const BOUNDARY_NOTE: Record<NarrativeCompletionBoundary, string> = {
-  WALK_CONTINUES: "still on the way; nothing else has happened yet",
+  WALK_CONTINUES: "still on the way; the current route continues",
   SEARCH_STARTED: "the search has only started",
   SEARCH_CONTINUES: "the search is still not resolved",
   REACH_STARTED: "the reach has only begun",

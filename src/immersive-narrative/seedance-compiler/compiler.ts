@@ -6,6 +6,7 @@ import type { PhysicalActionAuditReport } from "../physical-action";
 import type { ProductPresenceOutput } from "../product-presence";
 import type { SceneResolverOutput } from "../scene-resolver";
 import type { SoundWorldOutput } from "../sound-world";
+import { resolvedWorldPresenceDescription } from "../scene-resolver/location-worlds";
 import type { NarrativePlan, NarrativeSeason } from "../types";
 import {
   IMMERSIVE_SCRIPT_SECTIONS,
@@ -48,7 +49,7 @@ export const DEFAULT_REFERENCE_MAPPING: ImmersiveReferenceMapping = {
 const NO_MUSIC_DIALOGUE_VOICE = [
   "no music score",
   "no soundtrack bed",
-  "no dialogue",
+  "no foreground dialogue",
   "no voiceover",
   "no narration",
 ];
@@ -59,7 +60,7 @@ const SCRIPT_PROHIBITIONS = [
   "no shoe showcase cutaway",
   "no five disconnected lifestyle clips",
   "no commercial storyboard cliché (hero push-in, product hero shot, logo reveal)",
-  "no second person or crowd focus",
+  "no second narrative subject or crowd focus; location-appropriate ambient people remain incidental and never participate in the story",
   "no invented event that the Narrative does not contain",
   "no slow motion, time stretching, or speed ramp",
   "no product morphing, recolour, or reshaping",
@@ -98,6 +99,7 @@ export function compileImmersiveSeedanceScript(input: ImmersiveSeedanceCompilerI
   const roleByIndex = new Map(cameraNarrative.moments.map((moment) => [moment.momentIndex, moment]));
   const cameraByIndex = new Map(cameraExecution.moments.map((moment) => [moment.momentIndex, moment]));
   const locationWorld = sceneResolution.locationWorld;
+  const worldPresence = resolvedWorldPresenceDescription(locationWorld?.id ?? null, sceneResolution.resolvedMoments.map((moment) => moment.sceneId));
   const characterAge = input.character.ageProfile;
   const characterAppearance = input.character.appearanceGroup;
 
@@ -109,27 +111,29 @@ export function compileImmersiveSeedanceScript(input: ImmersiveSeedanceCompilerI
   lines.push(`Topic: ${input.topicLabel}`);
   lines.push(`Duration: ${plan.durationSeconds} seconds`);
   lines.push(`Season: ${input.season} · Lifestyle feeling: ${input.lifestyleFeeling}`);
-  lines.push("Delivery: one person, one small process, one micro-event, one coherent life sequence. Copy this script into the external video model manually.");
+  lines.push("Delivery: one primary narrative subject, one small process, one micro-event, one coherent life sequence. Copy this script into the external video model manually.");
   lines.push("");
 
   lines.push("[GLOBAL INTENT]");
   lines.push(plan.storyIntent);
   lines.push(`Initial state: ${plan.initialCharacterState}`);
   lines.push(`Micro event: ${plan.microEvent}`);
-  lines.push("Keep one person, one continuous situation, and one emotional or state shift. This is an observed small life sequence, not a shot list.");
+  lines.push("Keep one primary narrative subject, one continuous situation, and one emotional or state shift. This is an observed small life sequence, not a shot list.");
   lines.push("");
 
   lines.push("[CHARACTER]");
   lines.push(`Age: ${characterAge ? `${characterAge.ageMin}-${characterAge.ageMax}` : "not resolved"}`);
   lines.push(`Appearance: ${characterAppearance?.label ?? "not resolved"}`);
   lines.push(input.character.resolvedCharacterContext);
-  lines.push("One person only. Personality, job, and social class are not inferred from appearance.");
+  lines.push("One primary narrative subject only. Location-appropriate ambient people may remain incidental in public space. Personality, job, and social class are not inferred from appearance.");
   lines.push("");
 
   lines.push("[VISUAL WORLD]");
   lines.push(`Location world: ${locationWorld ? `${locationWorld.label} (${locationWorld.id})` : "unresolved"}`);
   lines.push(`Scenes in order: ${plan.moments.map((moment) => sceneByIndex.get(moment.index)?.sceneName ?? "unresolved").join(" → ")}`);
   lines.push(`Season world: ${input.season} with its real light, clothing weight, and surface evidence.`);
+  if (worldPresence) lines.push(worldPresence);
+  lines.push("Do not empty a normally occupied public environment merely to isolate the main character; private rooms remain private. Background voices may have incidental visual sources where naturally visible, without a camera move or cutaway.");
   lines.push(`Camera look: ${cameraExecution.cameraLook.lookLine}`);
   lines.push(`Lens family: ${cameraExecution.continuityProfile.focalRange} (${cameraExecution.continuityProfile.lensFamily}); perspective risk assessment ${cameraExecution.continuityProfile.perspectiveRisk}.`);
   lines.push(`Camera side: ${cameraExecution.continuityProfile.cameraSide}. ${cameraExecution.continuityProfile.axisRule}`);
@@ -184,7 +188,7 @@ export function compileImmersiveSeedanceScript(input: ImmersiveSeedanceCompilerI
     lines.push("");
     lines.push("SOUND");
     lines.push(sound ? soundLine(sound) : "No sound world record.");
-    lines.push("Naturalistic world sound only. No music, no dialogue, no voiceover.");
+    lines.push("Naturalistic world sound only. No music, no foreground dialogue, no voiceover.");
     lines.push("");
     lines.push("PRODUCT PRESENCE");
     lines.push(`${product?.presence ?? "ABSENT"} — ${camera?.productVisibilityGuard ?? product?.reason ?? "Product Presence is a readability guard only."}`);

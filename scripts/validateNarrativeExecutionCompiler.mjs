@@ -96,10 +96,9 @@ try {
   const home = outcomes.get("下班回家").modelFacingScript;
   const homeBody = (index) => home.moments[index].bodyBehavior;
   assert(!/finds the key|brings it out/i.test(homeBody(1)), `home M2 advances retrieval: ${homeBody(1)}`);
-  assert(/not yet found or brought out/i.test(homeBody(1)), "home M2 does not clamp the search boundary");
-  assert(/continues the same quiet search/i.test(homeBody(2)), "home M3 has no safe continuation");
-  assert(!/door handle movement/i.test(home.moments[2].naturalSound.join("; ")), "home M3 still carries a door-handle sound");
-  assert(/finds the key/i.test(homeBody(3)) && /door/i.test(homeBody(3)), "home M4 does not complete the key and door interaction");
+  assert(/first touch misses the key.*second touch finds it.*door/i.test(homeBody(2)), "home M3 does not complete the brief key retrieval and unlock");
+  assert(home.moments[2].timeRange.endSecond - home.moments[2].timeRange.startSecond <= 3, "home key retrieval exceeds the compact event window");
+  assert(/opens the already unlocked door/i.test(homeBody(3)), "home M4 repeats the unlock or omits the door opening");
   assert(home.moments.every((moment) => moment.timeRange.endSecond > moment.timeRange.startSecond), "home timeline has an unscheduled Moment");
   assert(!home.compiledText.includes("CORRECT_UNSUPPORTED"), "home model-facing script leaks an unsupported marker");
 
@@ -108,14 +107,21 @@ try {
   const cafeBody = (index) => cafe.moments[index].bodyBehavior;
   assert(!cafe.compiledText.includes("One person only"), "cafe still forbids incidental background people");
   assert(!cafe.compiledText.includes("No new person"), "cafe still forbids background occupancy");
-  assert(cafe.compiledText.includes("natural background occupancy"), "cafe lacks location-appropriate background occupancy");
+  assert(cafe.compiledText.includes("actively operating cafe, not an empty set"), "cafe lacks positive operating-world direction");
+  assert(cafe.compiledText.includes("barista is naturally working behind the counter") && cafe.compiledText.includes("a few unrelated customers occupy the seating area"), "cafe lacks visible staff and customer occupancy");
   assert(cafe.compiledText.includes("no foreground dialogue"), "cafe lacks the foreground dialogue restriction");
   assert(cafe.moments.some((moment) => moment.naturalSound.some((cue) => cue.includes("background voices"))), "cafe has no background voices in a Moment");
-  assert(!/brings it out|finds the card/i.test(cafeBody(1)), `cafe M2 advances retrieval: ${cafeBody(1)}`);
-  assert(!/brings it out|finds the card/i.test(cafeBody(2)), `cafe M3 advances retrieval: ${cafeBody(2)}`);
-  assert(/finds the card/i.test(cafeBody(3)) && /brings it out/i.test(cafeBody(3)), "cafe M4 does not retrieve the card");
+  assert(!/card|pocket|retrieve|retrieval|check the card/i.test(cafe.compiledText), "cafe still introduces an unmotivated card action");
+  assert(/open seat/i.test(cafe.moments[1].whatHappens), "cafe M2 does not establish the visible destination");
+  assert(/gaze naturally registers an open seat/i.test(cafe.moments[1].whatHappens) && /stride does not break/i.test(cafe.moments[1].whatHappens), "cafe M2 does not show a subtle attention change while walking");
+  assert(/turns .*shoulders .*toward the open seat/i.test(cafe.moments[2].whatHappens) && /next step .*clear aisle/i.test(cafe.moments[2].whatHappens), "cafe M3 does not naturally reorient toward the seat while moving");
+  assert(/slows as the open chair draws near/i.test(cafe.moments[3].whatHappens) && /takes a seat/i.test(cafe.moments[4].whatHappens), "cafe M4-M5 do not decelerate into and reach the seat");
+  assert(cafe.moments.every((moment) => !/card|pocket|retriev|search/i.test(`${moment.whatHappens} ${moment.bodyBehavior}`)), "cafe reintroduces card retrieval in a Moment");
+  const cafePlan = outcomes.get("午后咖啡").plan;
+  assert(cafePlan.moments[1].causalLink?.includes("open seat") && cafePlan.moments[2].causalLink?.includes("open seat"), "cafe trigger and route adjustment lack direct environmental causality");
+  assert(cafe.moments[2].timeRange.endSecond > cafe.moments[2].timeRange.startSecond, "cafe route adjustment has no scheduled duration");
   assert(cafe.diagnostics.forcedInsertShots === 0, "cafe created a forced insert shot");
-  assert(cafe.moments[2].cameraObservation.includes("do not create an insert shot"), "cafe M3 does not state natural partial visibility");
+  assert(!/insert shot|cutaway/i.test(cafe.moments[2].cameraObservation) || /do not create an insert shot/i.test(cafe.moments[2].cameraObservation), "cafe M3 requests an extra shot");
 
   const officialCafe = runImmersiveNarrativePipeline({
     topic: "午后咖啡",
@@ -127,15 +133,27 @@ try {
   });
   assert(officialCafe.status === "GENERATED", "official cafe pipeline blocked");
   const cafeStates = officialCafe.physicalAction.report.moments.map((moment) => moment.selectedMovementState);
-  assert(JSON.stringify(cafeStates) === JSON.stringify(["walking_ongoing", "walking_finish", "stopping_settle", "stationary", "walking_ongoing"]), `official cafe movement states changed: ${cafeStates.join(", ")}`);
+  assert(cafeStates.join(",") === "walking_ongoing,walking_ongoing,turning,walking_finish,seated", `official cafe physical progression changed: ${cafeStates.join(", ")}`);
   const officialCafeBodies = officialCafe.modelFacingScript.moments.map((moment) => moment.bodyBehavior);
-  assert(officialCafeBodies[1].includes("The last walking step settles"), "official cafe M2 lost walking finish");
-  assert(!officialCafeBodies[2].includes("The last walking step settles"), "official cafe M3 repeats walking finish");
-  assert(!officialCafeBodies[3].includes("The last walking step settles"), "official cafe M4 repeats walking finish");
-  assert(officialCafeBodies.join(" ").split("The last walking step settles").length - 1 === 1, "official cafe repeats walking finish across the sequence");
-  assert(/not yet found or brought out/i.test(officialCafeBodies[1]), "official cafe M2 advances card retrieval");
-  assert(/still not found/i.test(officialCafeBodies[2]), "official cafe M3 advances card retrieval");
-  assert(/finds the card/i.test(officialCafeBodies[3]) && /brings it out/i.test(officialCafeBodies[3]), "official cafe M4 does not retrieve the card");
+  assert(officialCafe.plan.moments.every((moment) => !/card|pocket|retrieve|search/i.test(`${moment.whatHappens} ${moment.causalLink ?? ""}`)), "official cafe Narrative contains an unmotivated card event");
+  assert(officialCafeBodies.every((body) => !/card|pocket|retrieve|search/i.test(body)), "official cafe execution BODY contains an unmotivated card action");
+  assert(/gaze naturally registers an open seat/i.test(officialCafe.plan.moments[1].whatHappens) && /stride does not break/i.test(officialCafe.plan.moments[1].whatHappens), "official cafe M2 lacks a subtle attention change during continuous movement");
+  assert(/turns .*shoulders .*toward the open seat/i.test(officialCafe.plan.moments[2].whatHappens) && /next step .*clear aisle/i.test(officialCafe.plan.moments[2].whatHappens), "official cafe M3 lacks an in-motion route/body orientation change");
+  assert(/slows as the open chair draws near/i.test(officialCafe.plan.moments[3].whatHappens) && /takes a seat, then settles/i.test(officialCafe.plan.moments[4].whatHappens), "official cafe M4-M5 lack deceleration and seated arrival");
+  assert(officialCafe.plan.moments.every((moment, index) => index === 0 || Boolean(moment.causalLink)), "official cafe contains a Moment without an explicit causal link");
+  assert(officialCafe.plan.moments.at(-1).endState.toLowerCase().includes("settled"), "official cafe does not reach a settled end state");
+  assert(officialCafe.physicalAction.report.moments.at(-1).selectedMovementState === "seated", "official cafe M5 does not use the existing seated capability");
+  assert(/lowers into a settled seated position/i.test(officialCafe.modelFacingScript.moments.at(-1).bodyBehavior), "official cafe M5 does not render the seated transition");
+  assert(!officialCafe.modelFacingScript.moments[3].bodyBehavior.includes("Nothing is taken out yet"), "official cafe M4 leaks object-retrieval continuity into the seat approach");
+  assert(JSON.stringify(officialCafe.plan.moments.map((moment) => moment.spatialAnchor)) === JSON.stringify(["CAFE_INTERIOR", "CAFE_COUNTER", "CAFE_COUNTER", "CAFE_INTERIOR", "CAFE_INTERIOR"]), "official cafe does not progress through existing cafe anchors");
+  assert(officialCafe.modelFacingScript.compiledText.includes("This is an actively operating cafe, not an empty set")
+    && officialCafe.modelFacingScript.compiledText.includes("barista is naturally working behind the counter")
+    && officialCafe.modelFacingScript.compiledText.includes("a few unrelated customers occupy the seating area"), "official cafe lost explicit operating-world occupancy");
+  assert(!officialCafe.modelFacingScript.compiledText.includes("card interaction") && !officialCafe.modelFacingScript.compiledText.includes("nothing else happens yet"), "official cafe execution retains stale card or no-progress directions");
+  assert(officialCafe.presentation.presentationScript.includes("World occupancy: This is an actively operating cafe, not an empty set"), "official director script lacks positive world occupancy");
+  assert(!officialCafe.presentation.presentationScript.includes("nothing else has happened yet"), "official director script negates the visible route progression");
+  assert(officialCafe.script.compiledText.includes("This is an actively operating cafe, not an empty set"), "official Seedance script lacks positive world occupancy");
+  assert(!/no other people|empty environment|one person only/i.test(officialCafe.modelFacingScript.compiledText), "official cafe has conflicting people restrictions");
   const cafeDoorCue = officialCafe.modelFacingScript.diagnostics.soundVerdicts.find((verdict) => verdict.momentIndex === 0 && verdict.cue === "door handle movement");
   assert(officialCafe.soundWorld.moments[0].object.includes("door handle movement"), "official cafe M1 lost the raw door cue");
   assert(cafeDoorCue?.kept === false && cafeDoorCue.rejectionReason === "NO_EVENT_EVIDENCE", "official cafe M1 kept a door cue without door interaction");
@@ -145,6 +163,23 @@ try {
   const doorOpening = outcomes.get("出门办事");
   assert(/opens the door/i.test(doorOpening.plan.moments[1].whatHappens), "official door-opening Moment changed");
   assert(doorOpening.modelFacingScript.moments[1].naturalSound.includes("door handle movement"), "official door-opening Moment lost its door sound");
+  const bookstore = outcomes.get("逛书店");
+  const street = outcomes.get("城市闲逛");
+  const privateHome = outcomes.get("周末独处");
+  assert(bookstore.modelFacingScript.compiledText.includes("actively operating bookstore, not an empty set") && bookstore.modelFacingScript.compiledText.includes("few unrelated browsers"), "bookstore lacks positive background presence");
+  assert(street.modelFacingScript.compiledText.includes("actively used public route, not an empty set") && street.modelFacingScript.compiledText.includes("few pedestrians move independently"), "city street lacks positive independent pedestrians");
+  assert(privateHome.modelFacingScript.compiledText.includes("This is a private home environment. Keep the room private and do not add unfamiliar people."), "private home allows unfamiliar people");
+  for (const [label, outcome] of [["cafe", officialCafe], ["bookstore", bookstore], ["street", street]]) {
+    assert(!/no other people|empty environment|one person only/i.test(outcome.modelFacingScript.compiledText), `${label} contains a conflicting empty-public-space restriction`);
+    assert(outcome.modelFacingScript.compiledText.includes("Do not change the camera to show a sound source or an ambient person"), `${label} permits a camera change for ambient people`);
+  }
+  assert(!privateHome.modelFacingScript.compiledText.includes("incidental staff") && !privateHome.modelFacingScript.compiledText.includes("incidental pedestrians"), "private home inherits public occupancy");
+  assert(!/take(?:s)? (?:a|the) book/i.test(bookstore.plan.moments.map((moment) => moment.whatHappens).join(" ")), "official bookstore unexpectedly invented a book retrieval event");
+  const sleeve = outcomes.get("出门办事").modelFacingScript.moments;
+  assert(sleeve.filter((moment) => /adjusts her sleeve/i.test(moment.whatHappens)).length === 1, "sleeve adjustment repeats across Moments");
+  assert(sleeve[3].timeRange.endSecond - sleeve[3].timeRange.startSecond <= 3, "ordinary sleeve adjustment occupies more than three seconds");
+  const wait = outcomes.get("等朋友").modelFacingScript.moments;
+  assert(wait[2].timeRange.endSecond - wait[2].timeRange.startSecond >= 3, "intentional waiting was compressed like a minor hand action");
 
   // 采购归来 / 短途出行 production regressions.
   const purchases = outcomes.get("采购归来");

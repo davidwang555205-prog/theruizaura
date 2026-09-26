@@ -1,10 +1,12 @@
 import { productTruthLock } from "../../visual-system/types";
 import type { SoundMoment } from "../sound-world";
+import { resolvedWorldPresenceDescription } from "../scene-resolver/location-worlds";
 import { buildCameraStates } from "./camera-state";
 import {
   buildExecutionMomentContracts,
   checkMomentBoundary,
   completionClassesOf,
+  returnsObjectToContainer,
   temporalCoverage,
 } from "./moment-contract";
 import { resolveSafeContinuation } from "./safe-continuation";
@@ -146,9 +148,9 @@ function movementMechanics(evidence: ActionExecutionEvidence) {
     case "transition_pause":
       return "She holds a brief, natural pause between two small movements.";
     case "turning":
-      return "She turns in place with a compact, grounded pivot.";
+      return "She makes a compact, grounded directional turn and carries the next step into the new course.";
     case "seated":
-      return "She stays seated with her weight settled on the seat.";
+      return "She completes the turn into the open chair and lowers into a settled seated position.";
     default:
       return "She moves at an ordinary, unhurried pace.";
   }
@@ -161,6 +163,7 @@ function handMechanics(
   item: string | null,
   topicNarrative = ""
 ) {
+  const returnedToContainer = /\b(?:slips?|puts?|returns?)\s+(?:it|the (?:card|key|item))\s+(?:straight\s+)?back\s+(?:into|in)\s+(?:the\s+)?(?:same|usual)\s+(?:pocket|bag)\b/i.test(contract.narrativeEvent);
   const searching = evidence.capabilityIds.includes("CONTAINER_OBJECT_SEARCH") || evidence.handTask === "object_search";
   const door = evidence.capabilityIds.includes("DOOR_CONTACT") || evidence.handTask === "door_contact";
   const carrying = evidence.capabilityIds.some((capability) => capability.startsWith("CARRIED_OBJECT"))
@@ -168,9 +171,19 @@ function handMechanics(
   const garment = evidence.capabilityIds.includes("GARMENT_ADJUSTMENT") || evidence.handTask === "garment_adjustment";
   const placement = evidence.capabilityIds.includes("SMALL_OBJECT_PLACEMENT") || evidence.handTask === "object_placement";
 
+  if (returnedToContainer && container) {
+    if (/\bmisses? the (?:card|key|item)\b[^.]*\bfinds? the (?:card|key|item)\b/i.test(contract.narrativeEvent)) {
+      return `One hand checks the ${container}; the first touch misses the ${item ?? "object"}, the second finds it and draws it out just enough to confirm it is there, then slips it straight back into the same ${container}; the hand is empty again.`;
+    }
+    return `One hand checks the ${container}, confirms the ${item ?? "object"} is there, then slips it straight back into the same ${container}; the hand is empty again.`;
+  }
+
   // The Narrative decides how far the hand behaviour goes; the action only
   // supplies mechanics. A retrieving Moment must not read as a search.
   if (contract.endState === "ITEM_RETRIEVED" && container) {
+    if (/\bmisses? the (?:card|key|item)\b[^.]*\bfinds? the (?:card|key|item)\b/i.test(contract.narrativeEvent)) {
+      return `One hand checks the ${container}; the first touch misses the ${item ?? "object"}, then the second touch finds it and brings it out in the same continuous movement${/\bunlocks? the door\b/i.test(contract.narrativeEvent) ? " before turning it in the door" : ""}.`;
+    }
     if (/\bunlocks? the door|\bopens? the door|\breaches? for the door/i.test(contract.narrativeEvent)) {
       return `One hand finds the ${item ?? "object"} in the ${container}, brings it out, and turns it in the door.`;
     }
@@ -182,6 +195,9 @@ function handMechanics(
     }
     return `One hand keeps searching inside the ${container} for the ${item ?? "object"}.`;
   }
+  if (door && contract.startState === "ITEM_RETRIEVED" && /\bopens? the door\b/i.test(contract.narrativeEvent)) {
+    return "One hand opens the already unlocked door.";
+  }
   if (door && item) return `One hand brings the ${item} to the door and turns it.`;
   if (door) return "One hand reaches the door and turns the handle.";
   if (placement) return "One hand sets the small object down and releases it.";
@@ -189,7 +205,7 @@ function handMechanics(
   if (carrying && container) return `She keeps the ${container} steady in one hand.`;
   // The Narrative decides what the hands are doing; the Action only supplies
   // mechanics. A carried item the Narrative states must not read as empty hands.
-  if (/\bin hand\b|\bcarrying\b|\bwith one bag\b|\bwith one shopping bag\b/i.test(`${contract.narrativeEvent} ${topicNarrative}`)) {
+  if (/\bin hand\b|\bcarrying\b|\bwith one bag\b|\bwith one shopping bag\b/i.test(contract.narrativeEvent)) {
     return `One hand keeps the ${item ?? container ?? "carried item"} steady.`;
   }
   if (evidence.handTask === "phone") return "One hand holds the phone at rest.";
@@ -205,11 +221,11 @@ function clampClause(contract: ExecutionMomentContract, item: string | null) {
     case "SEARCH_CONTINUES":
       return `The ${object} is still not found; nothing is taken out.`;
     case "REACH_BEGINS":
-      return "Nothing is taken out yet and the reach is not finished.";
+      return item ? "Nothing is taken out yet and the reach is not finished." : null;
     case "OBJECT_HANDLING_IN_PROGRESS":
       return "The object keeps its place; nothing else changes.";
     case "WALK_CONTINUES":
-      return "She is still walking; nothing else happens yet.";
+      return "She continues along the current route; no separate action is added.";
     default:
       return null;
   }
@@ -305,6 +321,12 @@ function render(
   const referenceCount = input.referenceMapping.confirmedReferenceCount;
   const world = input.sceneResolution.locationWorld?.label ?? "current location";
   const scenes = input.sceneResolution.resolvedMoments.map((moment) => moment.sceneName);
+  const sceneIds = input.sceneResolution.resolvedMoments.map((moment) => moment.sceneId);
+  const publicScenes = sceneIds.filter((id) => /(?:cafe|bookstore|grocery|city|street|park|community|office-entrance|business|shop|store|mall|station|restaurant|flower|hotel-lobby|waiting|residential-building-exit)/i.test(id));
+  const worldPresence = resolvedWorldPresenceDescription(input.sceneResolution.locationWorld?.id ?? null, sceneIds);
+  const isCafe = input.sceneResolution.locationWorld?.id === "CAFE_VISIT";
+  const isBookstore = input.sceneResolution.locationWorld?.id === "BOOKSTORE_VISIT";
+  const isStreet = input.sceneResolution.locationWorld?.id === "AFTER_LUNCH_STREET" || input.sceneResolution.locationWorld?.id === "URBAN_WANDERING";
   const lines: string[] = [];
 
   lines.push(MODEL_FACING_HEADER);
@@ -322,7 +344,23 @@ function render(
   lines.push("[WORLD & CONTINUITY]");
   lines.push(`Location: ${world}. Scenes in order: ${scenes.join(" → ")}.`);
   lines.push(`Season: ${input.season}. Keep the same light direction, surfaces, and location continuity throughout.`);
-  lines.push("Keep natural background occupancy appropriate to the resolved location. In public spaces, background people remain anonymous, incidental, and non-narrative.");
+  if (publicScenes.length > 0) {
+    lines.push(worldPresence ?? "This is an actively operating public environment, not an empty set. Location-appropriate staff, customers, or pedestrians are present in the background, occupied with ordinary independent activity.");
+    lines.push("Keep all background people incidental and secondary. They do not look toward, react to, follow, assist, interrupt, or interact with the main character unless the approved event explicitly requires it. Do not change the camera to show them.");
+    lines.push(isCafe
+      ? "Keep the working barista behind the counter and a few unrelated customers in the seating area or room depth within the established cafe frame; they remain background presence and never become narrative subjects."
+      : isBookstore
+        ? "Keep a few unrelated browsers at the shelves or in the depth of the established bookstore frame; they remain background presence and never become narrative subjects."
+        : isStreet
+          ? "Keep pedestrians passing independently at the frame edge or in the depth of the established street frame; they remain background presence and never become narrative subjects."
+          : "Keep ambient people secondary, incidental, partly visible, softly separated by depth, or occupied with ordinary independent activity.");
+    lines.push("Background voices should have plausible visual sources somewhere in the environment when naturally visible within the established frame; do not create an acoustically occupied but visually abandoned public space. Do not change the camera to show a sound source or an ambient person.");
+  } else {
+    lines.push(worldPresence ?? "Private rooms remain private; do not add unfamiliar background people.");
+  }
+  if (isCafe) {
+    lines.push(`Within this one cafe scene, follow the existing spatial anchors: ${input.sceneResolution.resolvedMoments.map((moment) => moment.spatialAnchor).join(" → ")}. The movement proceeds from entry past the counter as an open seat comes into view, adjusts into the clear aisle, then slows at the seating area and resolves at the open chair within the same cafe interior; no location jump or new event.`);
+  }
   lines.push(`Camera side: ${input.cameraExecution.continuityProfile.cameraSide}. Lens: ${input.cameraExecution.continuityProfile.focalRange}.`);
   lines.push("");
   lines.push("[CAMERA STATE]");
@@ -365,7 +403,9 @@ function render(
   }
   lines.push("");
   lines.push("[DO NOT]");
-  lines.push("No new foreground character or second narrative subject, no crowd focus, no vehicle or animal entering the frame.");
+  lines.push(publicScenes.length > 0
+    ? "No second narrative subject and no background person may become a story participant. Ambient people remain secondary and occupied with their own ordinary activity; they do not look at, react to, follow, assist, interrupt, or interact with the main character unless the approved event explicitly requires it. No crowd focus, no vehicle or animal entering the frame."
+    : "No second narrative subject. Do not add unfamiliar people to a private room. No crowd focus, no vehicle or animal entering the frame.");
   lines.push("No insert shot, close-up, cutaway, or new camera setup.");
   lines.push("No pose montage, no product showcase, no logo reveal, no on-screen text.");
   lines.push("No re-framing for the product; the narrative camera always wins.");
@@ -551,7 +591,8 @@ export function compileModelFacingExecutionScript(input: ExecutionCompilerInput)
       });
     }
     for (const forbidden of contract.forbiddenCompletions) {
-      if (claimsCompletion(text, forbidden)) {
+      if (claimsCompletion(text, forbidden)
+        && !(returnsObjectToContainer(contract.narrativeEvent) && forbidden === "ITEM_RETRIEVED")) {
         boundaryConflictsAfter.push({
           momentIndex: contract.momentIndex,
           type: "EARLY_COMPLETION",

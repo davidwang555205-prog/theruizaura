@@ -122,7 +122,7 @@ try {
   const returnHome = planImmersiveNarrative(baseInput());
   assertApproved(returnHome, "Return-home plan");
   assert(returnHome.moments.every((moment) => sceneLibrary.returnHome.some((scene) => scene.id === moment.sceneId)), "Return-home plan invented a scene outside the available library");
-  assert(returnHome.moments[2].whatHappens.includes("does not immediately find it"), "Return-home Micro Event was not preserved in the moment chain");
+  assert(/misses the key on the first touch.*finds the key.*unlocks the door/i.test(returnHome.moments[2].whatHappens), "Return-home key interaction is not completed in one Micro Event");
   assert(returnHome.moments[4].whatHappens.includes("玄关"), "Return-home after-state did not use the available interior scene");
   assert(JSON.stringify(returnHome) === JSON.stringify(planImmersiveNarrative(baseInput())), "Narrative Planner output is not deterministic for identical input");
 

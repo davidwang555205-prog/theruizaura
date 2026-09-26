@@ -336,3 +336,29 @@ export const CURRENT_SCENE_RESOLUTION_RULES: SceneResolverRule[] = [
     failureReason: "The community path, the last walking stretch, and the office entrance form one contiguous arrival slice for the short local move.",
   },
 ];
+
+// Positive visual occupancy is resolved from the existing location world and
+// its assigned scene ids. It is prompt language only; it does not add people to
+// private scenes or create a new scene/planning layer.
+export function resolvedWorldPresenceDescription(locationWorldId: string | null, sceneIds: string[]) {
+  const sceneText = sceneIds.join(" ").toLowerCase();
+  if (locationWorldId === "CAFE_VISIT" || /cafe|coffee-shop/.test(sceneText)) {
+    return "This is an actively operating cafe, not an empty set. A barista is naturally working behind the counter, while a few unrelated customers occupy the seating area or pass naturally through the depth of the room. They remain incidental environmental presence, stay occupied with their own ordinary activity, and do not look toward or interact with the main character.";
+  }
+  if (locationWorldId === "BOOKSTORE_VISIT" || /bookstore/.test(sceneText)) {
+    return "This is an actively operating bookstore, not an empty set. A staff member works in the store while a few unrelated browsers look through shelves or pass naturally through the depth of the space. They remain incidental environmental presence, occupied with ordinary independent activity, and do not look toward or interact with the main character.";
+  }
+  if (["AFTER_LUNCH_STREET", "URBAN_WANDERING", "NEIGHBORHOOD_WALK", "SCHOOL_PICKUP_TRANSITION"].includes(locationWorldId ?? "") || /city-corner|weekend-city-walk|park-walk|community-path|street|sidewalk/.test(sceneText)) {
+    return "This is an actively used public route, not an empty set. A few pedestrians move independently at the frame edge or in the depth of the environment, occupied with ordinary travel and never gathered around the main character.";
+  }
+  if (/restaurant/.test(sceneText)) {
+    return "This is an actively operating restaurant, not an empty set. Staff work naturally in the space while a few diners occupy tables or pass through the depth of the room; they remain incidental and do not engage with the main character.";
+  }
+  if (/retail|shop|store|mall|grocery|flower|hotel-lobby|station|waiting/.test(sceneText)) {
+    return "This is an actively operating public environment, not an empty set. Location-appropriate staff and a few visitors remain naturally present and occupied with ordinary independent activity in the background.";
+  }
+  if (["HOME_ARRIVAL", "WEEKEND_PRIVATE_TIME"].includes(locationWorldId ?? "") || /returning-home|window-reading|dressing-corner|home-errand-entry/.test(sceneText)) {
+    return "This is a private home environment. Keep the room private and do not add unfamiliar people.";
+  }
+  return null;
+}

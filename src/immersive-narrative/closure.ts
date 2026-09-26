@@ -40,7 +40,7 @@ const BOUNDARY_RULES: { boundary: NarrativeCompletionBoundary; pattern: RegExp }
   },
   {
     boundary: "SETTLED",
-    pattern: /\bremains? quietly\b|\bis complete\b|\breturns? to stillness\b|\bbehind (?:her|him|them|their|his)\b|\bsettles? back\b|\bsettles? into a normal\b|\bthe .{0,24}is over\b/i,
+    pattern: /\bremains? quietly\b|\bis complete\b|\breturns? to stillness\b|\bbehind (?:her|him|them|their|his)\b|\bsettles? back\b|\bsettles? into a normal\b|\bsettles? into the next part\b|\bthe .{0,24}is over\b/i,
   },
   {
     boundary: "WALK_CONTINUES",
@@ -66,6 +66,20 @@ const GOAL_PROGRESS_BY_PURPOSE: Record<NarrativeMomentPurpose, number> = {
 };
 
 export function detectCompletionBoundary(text: string): NarrativeCompletionBoundary {
+  // A retrieval that ends with the same object returned to its container is a
+  // completed, settled micro-action; ITEM_RETRIEVED would incorrectly claim it
+  // remains in hand at the Moment boundary.
+  if (/\b(?:slips?|puts?|returns?)\s+(?:it|the (?:card|key|item))\s+(?:straight\s+)?back\s+(?:into|in)\s+(?:the\s+)?(?:same|usual)\s+(?:pocket|bag)\b/i.test(text)) {
+    return "SETTLED";
+  }
+  // A missed first touch followed by an explicit retrieval is one completed
+  // action; the temporary miss must not become the Moment's final boundary.
+  if (/\bmisses? the (?:card|key|item)\b[^.]*\bfinds? the (?:card|key|item)\b/i.test(text)) {
+    return "ITEM_RETRIEVED";
+  }
+  if (/\bpauses? beside\b[^.]*\blast walking step\b/i.test(text)) {
+    return "SETTLED";
+  }
   return BOUNDARY_RULES.find((rule) => rule.pattern.test(text))?.boundary ?? "STATE_HELD";
 }
 

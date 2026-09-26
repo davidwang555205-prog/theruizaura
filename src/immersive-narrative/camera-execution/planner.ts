@@ -24,8 +24,38 @@ const SEQUENCE_TIMING: Record<number, [number, number][]> = {
 
 const CAMERA_SIDE = "established A-side";
 
-function timingFor(momentCount: number, index: number): [number, number] | null {
-  return SEQUENCE_TIMING[momentCount]?.[index] ?? null;
+function timingFor(input: CameraExecutionInput, index: number): [number, number] | null {
+  const defaultWindow = SEQUENCE_TIMING[input.moments.length]?.[index] ?? null;
+  const compactMoment = input.moments.find((moment) => (
+    (moment.purpose === "micro_event" && /\bfinds? the (?:card|key|item)\b/i.test(moment.whatHappens))
+    || (moment.purpose === "response" && /\badjusts? (?:her|his|their) (?:sleeve|outer layer)\b/i.test(moment.whatHappens))
+  ) && !/\bwaits?\b|\bwaiting\b|\bremains?\b|\bstill searching\b|\banother second\b/i.test(moment.whatHappens));
+  if (!compactMoment || input.moments.length !== 5) return defaultWindow;
+
+  // A completed ordinary hand action occupies a brief part of the continuous
+  // slice. The remaining time follows the surrounding life flow, not the hand.
+  const eventDuration = /\bunlocks? the door\b/i.test(compactMoment.whatHappens)
+    ? input.durationSeconds * 0.2
+    : /\badjusts? (?:her|his|their) (?:sleeve|outer layer)\b/i.test(compactMoment.whatHappens)
+      ? input.durationSeconds * (/\bsettles? the bag\b/i.test(compactMoment.whatHappens) ? 0.16 : 0.12)
+      : input.durationSeconds * 0.1;
+  const surroundingWeights = [1.2, 0.9, 1.5, 1.5, 1.7];
+  const totalWeight = surroundingWeights.reduce((sum, weight, momentIndex) => (
+    momentIndex === compactMoment.momentIndex ? sum : sum + weight
+  ), 0);
+  const windows: [number, number][] = [];
+  let cursor = 0;
+  for (let momentIndex = 0; momentIndex < input.moments.length; momentIndex += 1) {
+    const duration = momentIndex === compactMoment.momentIndex
+      ? eventDuration
+      : (input.durationSeconds - eventDuration) * surroundingWeights[momentIndex] / totalWeight;
+    const end = momentIndex === input.moments.length - 1
+      ? input.durationSeconds
+      : Math.round((cursor + duration) * 10) / 10;
+    windows.push([cursor, end]);
+    cursor = end;
+  }
+  return windows[index] ?? null;
 }
 
 function productGuard(presence: ProductPresenceLevel, executableNow: boolean) {
@@ -200,7 +230,7 @@ export function planCameraExecution(input: CameraExecutionInput): CameraExecutio
     const carriedFromPreviousFrame = Boolean(
       index > 0 && executable && previous?.physicalAction.status === "MATCHED"
     );
-    const timing = executable ? timingFor(input.moments.length, index) : null;
+    const timing = executable ? timingFor(input, index) : null;
     const startSecond = timing?.[0] ?? null;
     const endSecond = timing?.[1] ?? null;
     const previousEndFraming = index > 0 && momentsUnsafe(input, index - 1)?.physicalAction.status === "MATCHED"
