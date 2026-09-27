@@ -201,6 +201,29 @@ const COMMERCIAL_RHYTHM_RULES: Record<CommercialCameraRhythm, Record<CommercialS
   },
 };
 
+/**
+ * A HERO beat that the narrative declares as continuous is observed inside the
+ * movement that is already happening. The worn product is read through
+ * framing and distance, not by stopping the person for the camera.
+ */
+const HERO_CONTINUOUS_ACTION_RULE: Record<CommercialCameraRhythm, Pick<
+  CommercialCameraShot,
+  "movement" | "movementLine"
+>> = {
+  CALM: {
+    movement: "restrained_follow",
+    movementLine: "Follow the worn product inside the movement that is already happening; the person never stops for the frame.",
+  },
+  BALANCED: {
+    movement: "restrained_follow",
+    movementLine: "Track the ongoing action at an ordinary distance so the worn product stays readable without interrupting the movement.",
+  },
+  PRODUCT_FORWARD: {
+    movement: "short_lateral_track",
+    movementLine: "Use one short lateral reframe motivated by the person's own weight change so the worn product reads without a stop.",
+  },
+};
+
 export function buildCommercialCameraPlan(
   rhythm: CommercialCameraRhythm,
   shotRoles: CommercialShotRole[],
@@ -213,18 +236,30 @@ export function buildCommercialCameraPlan(
     const rule = COMMERCIAL_RHYTHM_RULES[rhythm][shotRole];
     const behavior = direction?.shotDirections[shotIndex]?.cameraBehavior;
     const behaviorOverride = behavior ? CAMERA_BEHAVIOR_OVERRIDES[behavior] : undefined;
+    const heroActionIsContinuous = shotRole === "HERO"
+      && eventSpine?.shots[shotIndex]?.actionContinuity === "CONTINUOUS";
+    const heroContinuousRule = HERO_CONTINUOUS_ACTION_RULE[rhythm];
     return {
       shotIndex,
       shotRole,
       ...rule,
       ...behaviorOverride,
       framing: eventSpine?.shots[shotIndex]?.framingHint ?? behaviorOverride?.framing ?? rule.framing,
-      movement: shotRole === "HERO" ? "brief_hero_hold" : (behaviorOverride?.movement ?? rule.movement),
+      movement: heroActionIsContinuous
+        ? heroContinuousRule.movement
+        : shotRole === "HERO"
+          ? "brief_hero_hold"
+          : (behaviorOverride?.movement ?? rule.movement),
+      movementLine: heroActionIsContinuous
+        ? heroContinuousRule.movementLine
+        : (behaviorOverride?.movementLine ?? rule.movementLine),
       productReadabilityGuard:
         shotRole === "DETAIL"
           ? "Observe only reference-supported detail; keep the ankle, product, and ground relationship intact."
           : shotRole === "HERO"
-            ? "Keep the product worn at natural human scale and clearly readable without isolating it."
+            ? heroActionIsContinuous
+              ? "Keep the product worn, moving, and readable at natural human scale without stopping the person or isolating the product."
+              : "Keep the product worn at natural human scale and clearly readable without isolating it."
             : "Keep the product naturally inside the human action; never force a product-only close-up.",
     };
   });

@@ -1,0 +1,107 @@
+{
+  "schemaVersion": "commercial-film/take-plan-v1",
+  "takes": [
+    {
+      "takeIndex": 0,
+      "shotIndexes": [
+        0
+      ],
+      "beatIndexes": [
+        0
+      ],
+      "startSecond": 0,
+      "endSecond": 3.2,
+      "boundary": null,
+      "continuityInheritance": [
+        "same person, same wardrobe, same product, same season"
+      ]
+    },
+    {
+      "takeIndex": 1,
+      "shotIndexes": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "beatIndexes": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "startSecond": 3.2,
+      "endSecond": 15,
+      "boundary": {
+        "motivation": "SPATIAL_BOUNDARY",
+        "boundaryReason": "The character crosses from the exterior approach into the arrival space.",
+        "boundaryEvidence": [
+          {
+            "kind": "SPATIAL_TRANSITION",
+            "statement": "The character's space changes from outside on the approach to inside the arrival space.",
+            "proof": {
+              "entityId": "character",
+              "attribute": "space",
+              "fromValue": "outside on the approach",
+              "toValue": "inside the arrival space"
+            }
+          }
+        ],
+        "whyContinuousTakeFails": "The destination interior cannot be covered by the camera position that covers the exterior approach while the character completes the entry."
+      },
+      "continuityInheritance": [
+        "same person, same wardrobe, same product, same season"
+      ]
+    }
+  ],
+  "boundaryDecisions": [
+    {
+      "shotIndex": 0,
+      "declaredMotivation": null,
+      "admitted": false,
+      "admittedMotivation": null,
+      "reason": "The first beat opens the first take of the film.",
+      "boundaryEvidence": [],
+      "whyContinuousTakeFails": ""
+    },
+    {
+      "shotIndex": 1,
+      "declaredMotivation": "SPATIAL_BOUNDARY",
+      "admitted": true,
+      "admittedMotivation": "SPATIAL_BOUNDARY",
+      "reason": "The character crosses from the exterior approach into the arrival space. The character's space changes from outside on the approach to inside the arrival space at this beat, which is a real spatial boundary.",
+      "boundaryEvidence": [
+        "The character's space changes from outside on the approach to inside the arrival space."
+      ],
+      "whyContinuousTakeFails": "The destination interior cannot be covered by the camera position that covers the exterior approach while the character completes the entry."
+    },
+    {
+      "shotIndex": 2,
+      "declaredMotivation": null,
+      "admitted": false,
+      "admittedMotivation": null,
+      "reason": "The beat continues inside the current photographic state.",
+      "boundaryEvidence": [],
+      "whyContinuousTakeFails": ""
+    },
+    {
+      "shotIndex": 3,
+      "declaredMotivation": null,
+      "admitted": false,
+      "admittedMotivation": null,
+      "reason": "The beat continues inside the current photographic state.",
+      "boundaryEvidence": [],
+      "whyContinuousTakeFails": ""
+    },
+    {
+      "shotIndex": 4,
+      "declaredMotivation": null,
+      "admitted": false,
+      "admittedMotivation": null,
+      "reason": "The beat continues inside the current photographic state.",
+      "boundaryEvidence": [],
+      "whyContinuousTakeFails": ""
+    }
+  ],
+  "failureReasons": []
+}

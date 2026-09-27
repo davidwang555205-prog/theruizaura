@@ -80,7 +80,7 @@ function shotTexts(outcome) {
   return outcome.plan.shotArchitecture.shots.map((shot) => {
     const start = text.indexOf(`SHOT ${shot.shotIndex + 1} — ${shot.role}`);
     const next = text.indexOf(`SHOT ${shot.shotIndex + 2} — `, start);
-    return text.slice(start, next === -1 ? text.indexOf("[SOUND WORLD]") : next);
+    return text.slice(start, next === -1 ? text.indexOf("[SOUND ENVIRONMENT]") : next);
   });
 }
 
@@ -293,7 +293,7 @@ try {
       backgroundActivityDominanceFailures += 1;
     }
 
-    for (const required of ["[FILM IDEA]", "[CHARACTER / WORLD]", "[TIMING]", "[SOUND WORLD]", "[VISUAL LOOK]", "[GLOBAL PRODUCT PROTECTION]", "[NEGATIVES]"]) {
+    for (const required of ["[FILM IDEA]", "[CHARACTER / ENVIRONMENT]", "[TIMING]", "[SOUND ENVIRONMENT]", "[VISUAL LOOK]", "[GLOBAL PRODUCT PROTECTION]", "[NEGATIVES]"]) {
       if (!text.includes(required)) compactCompletenessFailures += 1;
     }
     if (!text.includes("footwear reference images uploaded in the external video generation tool")) compactCompletenessFailures += 1;

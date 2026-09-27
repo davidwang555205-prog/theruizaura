@@ -1,0 +1,76 @@
+{
+  "schemaVersion": "commercial-film/take-plan-v1",
+  "takes": [
+    {
+      "takeIndex": 0,
+      "shotIndexes": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "beatIndexes": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "startSecond": 0,
+      "endSecond": 15,
+      "boundary": null,
+      "continuityInheritance": [
+        "same person, same wardrobe, same product, same season"
+      ]
+    }
+  ],
+  "boundaryDecisions": [
+    {
+      "shotIndex": 0,
+      "declaredMotivation": null,
+      "admitted": false,
+      "admittedMotivation": null,
+      "reason": "The first beat opens the first take of the film.",
+      "boundaryEvidence": [],
+      "whyContinuousTakeFails": ""
+    },
+    {
+      "shotIndex": 1,
+      "declaredMotivation": null,
+      "admitted": false,
+      "admittedMotivation": null,
+      "reason": "The beat continues inside the current photographic state.",
+      "boundaryEvidence": [],
+      "whyContinuousTakeFails": ""
+    },
+    {
+      "shotIndex": 2,
+      "declaredMotivation": null,
+      "admitted": false,
+      "admittedMotivation": null,
+      "reason": "The beat continues inside the current photographic state.",
+      "boundaryEvidence": [],
+      "whyContinuousTakeFails": ""
+    },
+    {
+      "shotIndex": 3,
+      "declaredMotivation": null,
+      "admitted": false,
+      "admittedMotivation": null,
+      "reason": "The beat continues inside the current photographic state.",
+      "boundaryEvidence": [],
+      "whyContinuousTakeFails": ""
+    },
+    {
+      "shotIndex": 4,
+      "declaredMotivation": null,
+      "admitted": false,
+      "admittedMotivation": null,
+      "reason": "The beat continues inside the current photographic state.",
+      "boundaryEvidence": [],
+      "whyContinuousTakeFails": ""
+    }
+  ],
+  "failureReasons": []
+}
