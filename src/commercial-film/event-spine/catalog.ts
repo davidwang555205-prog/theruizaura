@@ -5,10 +5,26 @@ import type {
 } from "./types";
 import type { CommercialIntentId } from "../types";
 
+/**
+ * The narrative catalog stays the authoritative creative text. The structured
+ * execution state (preconditions, effects, camera state, take boundary) is
+ * declared per event kind in `execution-contracts.ts` and merged by the planner.
+ */
 export type CommercialEventSpineTemplate = {
   intent: CommercialIntentId;
   centralEvent: string;
-  shots: Array<Omit<CommercialEventShot, "shotIndex" | "shotRole">>;
+  shots: Array<Omit<
+    CommercialEventShot,
+    | "shotIndex"
+    | "shotRole"
+    | "stateContract"
+    | "cameraState"
+    | "actionContinuity"
+    | "actionSequenceId"
+    | "actionRequiresFreshSetup"
+    | "takeBoundary"
+    | "timeGapSeconds"
+  >>;
   endingGrammarId: CommercialEndingGrammarId;
 };
 

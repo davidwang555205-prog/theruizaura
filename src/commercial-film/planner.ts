@@ -20,6 +20,8 @@ import { planCommercialCreativeDirection } from "./creative-direction";
 import {
   applyCreativeModeTiming,
   planCommercialEventSpine,
+  planCommercialContinuity,
+  planCommercialMicroDecision,
 } from "./event-spine";
 import { planCommercialDirectorConcept } from "./director-concept";
 import {
@@ -172,6 +174,16 @@ export function planCommercialFilm(input: CommercialFilmPlannerInput): Commercia
     creativeSpine,
     generationNonce: input.generationNonce ?? 0,
   });
+  const continuity = planCommercialContinuity({
+    worldModel: eventSpine.worldModel,
+    beats: eventSpine.shots,
+  });
+  const microDecision = planCommercialMicroDecision({
+    declaration: input.microDecision,
+    beats: eventSpine.shots,
+    timeline: continuity.worldStateTimeline,
+    worldModel: eventSpine.worldModel,
+  });
   const actionPlan = buildCommercialActionPlan(intent.id, eventSpine);
   if (actionPlan.length !== 5) {
     throw new CommercialFilmPlannerError(
@@ -287,6 +299,8 @@ export function planCommercialFilm(input: CommercialFilmPlannerInput): Commercia
     creativeSpine,
     creativeDirection,
     eventSpine,
+    continuity,
+    microDecision,
     directorConcept,
     brandMood: COMMERCIAL_BRAND_MOOD,
     character: {
@@ -332,7 +346,16 @@ export function planCommercialFilm(input: CommercialFilmPlannerInput): Commercia
   const creativeFailureReasons = creativeSpine.failureReasons ?? [];
   const directionFailureReasons = creativeDirection.failureReasons ?? [];
   const directorFailureReasons = directorConcept.failureReasons ?? [];
-  const failureReasons = [...creativeFailureReasons, ...directionFailureReasons, ...directorFailureReasons, ...qcResult.failureReasons];
+  const continuityFailureReasons = continuity.failureReasons;
+  const microDecisionFailureReasons = microDecision.failureReasons;
+  const failureReasons = [
+    ...creativeFailureReasons,
+    ...directionFailureReasons,
+    ...directorFailureReasons,
+    ...continuityFailureReasons,
+    ...microDecisionFailureReasons,
+    ...qcResult.failureReasons,
+  ];
   return {
     schemaVersion: COMMERCIAL_FILM_SCHEMA_VERSION,
     plannerVersion: COMMERCIAL_FILM_VERSION,
@@ -340,6 +363,8 @@ export function planCommercialFilm(input: CommercialFilmPlannerInput): Commercia
       && creativeFailureReasons.length === 0
       && directionFailureReasons.length === 0
       && directorFailureReasons.length === 0
+      && continuity.status === "CONTINUOUS"
+      && microDecision.status !== "MICRO_DECISION_FAILED"
       ? "APPROVED_FOR_COMMERCIAL_EXECUTION"
       : "BLOCKED",
     ...planWithoutQc,
@@ -376,6 +401,44 @@ export function renderCommercialFilmPlanText(
       `Product: ${shot.productMessageDimension ?? "context only"}`,
       "",
     ]),
+    "[CONTINUITY STATE]",
+    `Status: ${plan.continuity.status}`,
+    `World Entities: ${plan.continuity.worldModel.entities.map((entity) => `${entity.id}(${entity.kind})`).join(", ") || "none"}`,
+    ...plan.continuity.worldStateTimeline.map((step) => (
+      `Shot ${step.shotIndex + 1} state: ${Object.entries(step.after.attributes).flatMap(([entityId, values]) => (
+        Object.entries(values).map(([attribute, value]) => `${entityId}.${attribute}=${value}`)
+      )).join(" · ")}`
+    )),
+    ...plan.continuity.conflicts.map((conflict) => (
+      `Conflict: ${conflict.code} · shot ${conflict.shotIndex + 1} · ${conflict.detail}`
+    )),
+    "",
+    "[TAKE PLAN]",
+    ...plan.continuity.takePlan.takes.map((take) => (
+      `Take ${take.takeIndex + 1}: shots ${take.shotIndexes.map((shotIndex) => shotIndex + 1).join(", ")} · ${take.startSecond.toFixed(1)}-${take.endSecond.toFixed(1)}s`
+      + `${take.boundary ? ` · boundary ${take.boundary.motivation}: ${take.boundary.boundaryReason} · why continuous fails: ${take.boundary.whyContinuousTakeFails}` : ""}`
+    )),
+    ...plan.continuity.takePlan.boundaryDecisions.map((decision) => (
+      `Boundary ${decision.shotIndex + 1}: ${decision.admitted ? `ADMITTED ${decision.admittedMotivation}` : "CONTINUOUS"} · ${decision.reason}`
+    )),
+    "",
+    "[MICRO DECISION]",
+    `Status: ${plan.microDecision.status}`,
+    ...(plan.microDecision.contract
+      ? [
+        `Beat: decision shot ${plan.microDecision.contract.decisionBeatIndex + 1} → consequence shot ${plan.microDecision.contract.consequenceBeatIndex + 1}`,
+        `Decision Status: ${plan.microDecision.contract.decisionStatus} at shot ${plan.microDecision.contract.decisionBeatIndex + 1}`,
+        `Chosen Action Id: ${plan.microDecision.contract.chosenActionId}`,
+        `Routine: ${plan.microDecision.contract.routine}`,
+        `Expectation: ${plan.microDecision.contract.expectation}`,
+        `Trigger: ${plan.microDecision.contract.trigger}`,
+        `Chosen Action: ${plan.microDecision.contract.chosenAction}`,
+        `Visible Consequence: ${plan.microDecision.contract.visibleConsequence}`,
+        `Continuation: ${plan.microDecision.contract.continuation}`,
+      ]
+      : ["No Micro Decision contract is declared for this film."]),
+    ...plan.microDecision.failureReasons.map((reason) => `Micro Decision Failure: ${reason}`),
+    "",
     "[CAMERA PLAN]",
     `Rhythm: ${plan.cameraRhythm}`,
     `Lens: ${plan.cameraPlan.continuity.focalRange}`,

@@ -2,6 +2,7 @@ import {
   COMMERCIAL_ENDING_GRAMMARS,
   COMMERCIAL_EVENT_SPINE_TEMPLATES,
 } from "./catalog";
+import { resolveCommercialIntentExecutionContract } from "./execution-contracts";
 import {
   COMMERCIAL_EVENT_SPINE_SCHEMA_VERSION,
   COMMERCIAL_EVENT_SPINE_VERSION,
@@ -65,25 +66,48 @@ export function planCommercialEventSpine(
   input: CommercialEventSpinePlannerInput
 ): CommercialEventSpinePlan {
   const template = COMMERCIAL_EVENT_SPINE_TEMPLATES[input.commercialIntent];
+  const execution = resolveCommercialIntentExecutionContract(input.commercialIntent);
   const durations = normalizeDurations(
     template.shots.map((shot) => shot.durationSeconds),
     input.creativeSpine.revealStrategy
   );
-  const shots: CommercialEventShot[] = template.shots.map((shot, shotIndex) => ({
-    ...shot,
-    shotIndex,
-    shotRole: SHOT_ROLES[shotIndex],
-    durationSeconds: durations[shotIndex],
-    productDetailRelationship: input.commercialIntent === "PRODUCT_CRAFT"
-      ? PRODUCT_CRAFT_DETAIL_RELATIONSHIPS[input.generationNonce % PRODUCT_CRAFT_DETAIL_RELATIONSHIPS.length]
-      : shot.productDetailRelationship ?? null,
-  }));
+  const templateEventKinds = template.shots.map((shot) => shot.eventKind);
+  const declaredEventKinds = Object.keys(execution.events);
+  const missingContracts = templateEventKinds.filter((eventKind) => !declaredEventKinds.includes(eventKind));
+  const unusedContracts = declaredEventKinds.filter((eventKind) => !templateEventKinds.includes(eventKind));
+  if (missingContracts.length > 0 || unusedContracts.length > 0) {
+    throw new Error(
+      "Commercial Event Spine execution contracts do not match the current event catalog."
+      + `${missingContracts.length > 0 ? ` Missing: ${missingContracts.join(", ")}.` : ""}`
+      + `${unusedContracts.length > 0 ? ` Unused: ${unusedContracts.join(", ")}.` : ""}`
+    );
+  }
+  const shots: CommercialEventShot[] = template.shots.map((shot, shotIndex) => {
+    const contract = execution.events[shot.eventKind];
+    return {
+      ...shot,
+      shotIndex,
+      shotRole: SHOT_ROLES[shotIndex],
+      durationSeconds: durations[shotIndex],
+      productDetailRelationship: input.commercialIntent === "PRODUCT_CRAFT"
+        ? PRODUCT_CRAFT_DETAIL_RELATIONSHIPS[input.generationNonce % PRODUCT_CRAFT_DETAIL_RELATIONSHIPS.length]
+        : shot.productDetailRelationship ?? null,
+      cameraState: contract.cameraState,
+      actionContinuity: contract.actionContinuity,
+      actionSequenceId: contract.actionSequenceId,
+      actionRequiresFreshSetup: contract.actionRequiresFreshSetup,
+      takeBoundary: contract.takeBoundary,
+      timeGapSeconds: contract.timeGapSeconds,
+      stateContract: contract.stateContract,
+    };
+  });
   if (shots.length !== 5 || durations.some((duration) => duration < 1 || duration > 5)) {
     throw new Error("Commercial Event Spine must produce five shots with durations between 1 and 5 seconds.");
   }
   return {
     schemaVersion: COMMERCIAL_EVENT_SPINE_SCHEMA_VERSION,
     plannerVersion: COMMERCIAL_EVENT_SPINE_VERSION,
+    worldModel: execution.worldModel,
     intent: input.commercialIntent,
     centralEvent: template.centralEvent,
     eventChain: shots.map((shot) => shot.eventKind),

@@ -14,11 +14,9 @@ import {
   renderProductPresenceDirection,
 } from "./creative-spine";
 import {
-  modeDirectingPrinciple,
   renderCameraBehaviorDirection,
-  renderCutMotivationDirection,
-  renderEditLogicDirection,
   renderVisualMotifDirection,
+  type CommercialEditLogic,
 } from "./creative-direction";
 
 export const COMMERCIAL_MODEL_FACING_HEADER =
@@ -30,6 +28,9 @@ const INTERNAL_MARKERS = [
   "[CAMERA PLAN]",
   "[SOUND PLAN]",
   "[REFERENCE STATE]",
+  "[CONTINUITY STATE]",
+  "[TAKE PLAN]",
+  "[MICRO DECISION]",
   "ACTION PRIMITIVE",
   "SOURCE ID",
   "dramatic function",
@@ -171,8 +172,234 @@ function naturalCameraMovement(movement: CommercialFilmPlan["cameraPlan"]["shots
   }[movement];
 }
 
+const ROLE_TOKEN_TRANSLATIONS: Record<string, string> = {
+  WORLD: "the opening environment",
+  WEAR: "the worn look",
+  DETAIL: "the selected detail",
+  HERO: "the key worn-product moment",
+  RELEASE: "the final moment",
+};
+
+const CONTINUOUS_EDIT_TRANSLATIONS: Record<CommercialEditLogic, string> = {
+  ACTION_CUT: "Let the motivated physical action carry its momentum into the next movement without restarting it.",
+  MATCH_MOVEMENT: "Match direction and body mechanics as the camera continues, preserving believable geography.",
+  SENSORY_INSERT: "Keep the sensory beat inside the same continuous human situation, then return to the action without an insert.",
+  DELAYED_REVEAL: "Hold back the complete product read temporarily, then reveal it through a motivated visual change inside the same take.",
+};
+
+const CONTINUOUS_LOCOMOTION_REPLACEMENTS: Array<[RegExp, string]> = [
+  [/\bnatural pause point\b/gi, "natural moving adjustment"],
+  [/\blets her weight settle\b/gi, "lets her weight transfer"],
+  [/\bweight settles\b/gi, "weight transfers"],
+  [/\bsettles into\b/gi, "continues into"],
+  [/\bslow into a grounded stop\b/gi, "keep the step and momentum continuous"],
+  [/\bcomes to a stop\b/gi, "keeps the movement continuous"],
+  [/\bstops naturally\b/gi, "keeps moving naturally"],
+  [/\blets the leading foot settle\b/gi, "keeps the leading foot moving through the step"],
+  [/\bbeyond the pause point\b/gi, "beyond the route adjustment"],
+  [/\bpause point\b/gi, "route adjustment"],
+  [/\bhem settle[sd]? around the ankle\b/gi, "hem move around the ankle"],
+  [/\bhem settle[sd]?\b/gi, "hem move"],
+];
+
+function continuousLocomotionSentence(text: string) {
+  return CONTINUOUS_LOCOMOTION_REPLACEMENTS.reduce(
+    (sentence, [pattern, replacement]) => sentence.replace(pattern, replacement),
+    text
+  );
+}
+
+function takeUsesContinuousLocomotionFlow(
+  plan: CommercialFilmPlan,
+  take: CommercialFilmPlan["continuity"]["takePlan"]["takes"][number]
+) {
+  if (plan.microDecision.contract) return false;
+  if (take.shotIndexes.length <= 1) return false;
+  const continuities = take.shotIndexes.map((shotIndex) => (
+    plan.eventSpine.shots.find((shot) => shot.shotIndex === shotIndex)?.actionContinuity
+  ));
+  return continuities.some((continuity) => continuity === "CONTINUOUS")
+    && continuities.every((continuity) => continuity !== "SETTLES");
+}
+
+function continuousActionFlowLines(
+  plan: CommercialFilmPlan,
+  take: CommercialFilmPlan["continuity"]["takePlan"]["takes"][number]
+) {
+  const shots = take.shotIndexes
+    .map((shotIndex) => plan.shotArchitecture.shots.find((shot) => shot.shotIndex === shotIndex))
+    .filter((shot): shot is CommercialFilmPlan["shotArchitecture"]["shots"][number] => Boolean(shot));
+  const lines: string[] = [];
+  lines.push("[ONE CONTINUOUS ACTION FLOW]");
+  shots.forEach((shot, index) => {
+    const action = continuousLocomotionSentence(shot.action.physicalActionLine);
+    if (index === 0) {
+      lines.push(action);
+    } else {
+      const previous = shots[index - 1];
+      const cameraReframes = ["short_lateral_track", "motivated_pan", "controlled_detail_framing"].includes(
+        previous.camera.movement
+      );
+      const link = cameraReframes ? "As the camera reframes," : "Without stopping,";
+      const continued = action.charAt(0).toLowerCase() + action.slice(1);
+      lines.push(`${link} ${continued}`);
+    }
+    if (shot.productVisibility === "PRODUCT_READABLE" || shot.productVisibility === "PRODUCT_HERO") {
+      lines.push("The footwear remains readable during this same motion, without pausing for product readability.");
+    }
+    if (["PRODUCT_READABLE", "PRODUCT_DETAIL", "PRODUCT_HERO", "BRAND_RELEASE"].includes(shot.productVisibility)) {
+      lines.push(sanitizeRoleTokens(compactProductLine(plan, shot.shotIndex)));
+    }
+  });
+  lines.push("The movement continues directly out of the established frame as the film ends.");
+  lines.push(sanitizeRoleTokens(plan.endingStrategy.grammar.line));
+  lines.push("");
+  lines.push("Beat windows are timing metadata only, not cuts:");
+  shots.forEach((shot, index) => {
+    lines.push(`Beat window ${index + 1}: ${shot.timeRange.startSecond.toFixed(1)}-${shot.timeRange.endSecond.toFixed(1)}s`);
+  });
+  shots.forEach((shot) => {
+    lines.push(`Edit continuity: ${sanitizeRoleTokens(CONTINUOUS_EDIT_TRANSLATIONS[shot.direction.editLogic])}`);
+  });
+  const cameraFlow = shots.map((shot, index) => (
+    `${sanitizeRoleTokens(renderCameraBehaviorDirection(shot.direction.cameraBehavior))
+      .replace(/, doorway,/gi, ",")
+      .replace(/\bdoorway\b/gi, "framing")} (${shot.timeRange.startSecond.toFixed(1)}-${shot.timeRange.endSecond.toFixed(1)}s)`
+  )).join(" · ");
+  lines.push(`Camera continuity: ${cameraFlow}`);
+  return lines;
+}
+
+function mandatoryVisualEvents(plan: CommercialFilmPlan) {
+  const events: string[] = [];
+  const seen = new Set<string>();
+  const push = (key: string, line: string) => {
+    if (seen.has(key)) return;
+    seen.add(key);
+    events.push(line);
+  };
+  plan.eventSpine.shots.forEach((shot) => {
+    shot.stateContract.effects.forEach((effect) => {
+      if (effect.entityId === "character" && effect.attribute === "space") {
+        if (effect.fromValue !== effect.toValue) {
+          push(
+            `character.space`,
+            `The character must visibly move into ${effect.toValue}.`
+          );
+        }
+        return;
+      }
+      if (effect.entityId === "character" && effect.attribute === "anchor") return;
+      if (effect.cause === "ACTION" && effect.actionId && effect.fromValue !== effect.toValue) {
+        if (shot.stateContract.singleUseAction?.actionId === effect.actionId) return;
+        const entity = plan.continuity.worldModel.entities.find((entry) => entry.id === effect.entityId);
+        const verb = effect.actionLabel ?? "change state";
+        push(
+          `${effect.entityId}.${effect.attribute}`,
+          `${stateSubject(entity?.label ?? effect.entityId)} must be visibly ${verb}.`
+        );
+      }
+    });
+    const singleUse = shot.stateContract.singleUseAction;
+    if (singleUse) {
+      push(
+        `single-use:${singleUse.actionId}`,
+        `${singleUse.label} must visibly happen.`
+      );
+    }
+  });
+  const decision = plan.microDecision.contract;
+  if (decision) {
+    push(
+      "micro-decision:consequence",
+      `The visible consequence must happen after the decision is committed: ${decision.visibleConsequence}.`
+    );
+  }
+  return events;
+}
+
+function sanitizeRoleTokens(text: string) {
+  return text.replace(
+    /\b(?:WORLD|WEAR|DETAIL|HERO|RELEASE)\b/g,
+    (token) => ROLE_TOKEN_TRANSLATIONS[token] ?? token
+  );
+}
+
+function lastActionLabelFor(
+  plan: CommercialFilmPlan,
+  upToShotIndex: number,
+  entityId: string,
+  attribute: string
+): string | null {
+  for (let shotIndex = upToShotIndex; shotIndex >= 0; shotIndex -= 1) {
+    const shot = plan.eventSpine.shots.find((entry) => entry.shotIndex === shotIndex);
+    const effects = shot?.stateContract.effects ?? [];
+    for (let index = effects.length - 1; index >= 0; index -= 1) {
+      const effect = effects[index];
+      if (effect.entityId === entityId && effect.attribute === attribute && effect.actionLabel) {
+        return effect.actionLabel;
+      }
+    }
+  }
+  return null;
+}
+
+function stateSubject(label: string) {
+  const trimmed = label.trim();
+  return trimmed.charAt(0).toUpperCase() + trimmed.slice(1);
+}
+
+function collectedStateFacts(plan: CommercialFilmPlan, snapshot: {
+  shotIndex: number;
+  attributes: Record<string, Record<string, string>>;
+  completedActions: string[];
+}) {
+  const facts: string[] = [];
+  plan.continuity.worldModel.entities.forEach((entity) => {
+    const values = snapshot.attributes[entity.id] ?? {};
+    if (entity.kind === "CHARACTER") {
+      const space = values.space;
+      if (space) {
+        facts.push(`The character is ${space}.`);
+        facts.push("Do not return the character to an earlier spatial state without an explicit new crossing action.");
+      }
+      return;
+    }
+    entity.continuityLockAttributes.forEach((attribute) => {
+      const value = values[attribute];
+      if (value === undefined) return;
+      const actionLabel = lastActionLabelFor(plan, snapshot.shotIndex, entity.id, attribute);
+      facts.push(`${stateSubject(entity.label)} is already ${value}.`);
+      facts.push(
+        value !== entity.initialAttributes[attribute]
+          ? `Do not replay ${actionLabel ?? "the action that produced this state"}.`
+          : "Do not reset this state."
+      );
+    });
+  });
+  return facts;
+}
+
+function microDecisionTimelineLines(plan: CommercialFilmPlan) {
+  const decision = plan.microDecision.contract;
+  if (!decision) return [];
+  return [
+    "[DECISION SEQUENCE]",
+    `Trigger: ${decision.trigger}`,
+    `Decision: ${decision.chosenAction}`,
+    `Commitment: the choice commits as ${decision.chosenActionId.toLowerCase()} before any consequence begins.`,
+    `ONLY AFTER the decision is committed, this consequence begins: ${decision.visibleConsequence}.`,
+    "WHILE the consequence is visible: the character remains in the spatial state reached by the decision and does not begin continuation.",
+    "UNTIL the consequence has clearly completed: the character does not begin continuation.",
+    `ONLY THEN: ${decision.continuation}`,
+    "",
+  ];
+}
+
 function compileText(plan: CommercialFilmPlan, internalScriptText: string) {
   const lines: string[] = [];
+  const takes = plan.continuity.takePlan.takes;
+  const shotByIndex = new Map(plan.shotArchitecture.shots.map((shot) => [shot.shotIndex, shot]));
   lines.push(COMMERCIAL_MODEL_FACING_HEADER);
   lines.push(`${plan.duration} seconds · one person · one continuous commercial idea`);
   lines.push("");
@@ -181,35 +408,120 @@ function compileText(plan: CommercialFilmPlan, internalScriptText: string) {
   lines.push(plan.eventSpine.centralEvent);
   lines.push(`Cinematic rule: ${plan.directorConcept.globalRule}`);
   lines.push("");
-  lines.push("[CHARACTER / WORLD]");
+  lines.push("[CHARACTER / ENVIRONMENT]");
   lines.push(`Age: ${plan.character.resolved.ageProfile ? `${plan.character.resolved.ageProfile.ageMin}-${plan.character.resolved.ageProfile.ageMax}` : "as selected"}`);
   lines.push(`Visible appearance: ${plan.character.resolved.appearanceGroup?.label ?? "as selected"}`);
   lines.push(`World: ${plan.sceneWorld.sceneNames.join(" → ")} · ${plan.season}`);
   lines.push("One primary character. Background life may remain distant and secondary. Natural expression, task-driven movement, no performance toward camera, same person and wardrobe throughout.");
   lines.push("");
-  lines.push("[TIMING]");
-  plan.shotArchitecture.shots.forEach((shot) => {
-    lines.push(`Shot ${shot.shotIndex + 1}: ${shot.timeRange.startSecond.toFixed(1)}-${shot.timeRange.endSecond.toFixed(1)}s`);
+  lines.push("[CONTINUITY LOCK]");
+  plan.continuity.continuityLock.lines.forEach((line) => {
+    lines.push(line);
   });
   lines.push("");
+  lines.push("[TIMING]");
+  takes.forEach((take) => {
+    lines.push(`Take ${take.takeIndex + 1}: ${take.startSecond.toFixed(1)}-${take.endSecond.toFixed(1)}s · ${take.shotIndexes.length} chronological beat(s)`);
+  });
+  lines.push("");
+  lines.push(...microDecisionTimelineLines(plan));
+  lines.push("[MANDATORY VISUAL EVENTS]");
+  const mandatoryEvents = mandatoryVisualEvents(plan);
+  if (mandatoryEvents.length > 0) {
+    lines.push("The film is not narratively complete until each event below has visibly happened:");
+    mandatoryEvents.forEach((event, index) => {
+      lines.push(`${index + 1}. ${event}`);
+    });
+    lines.push("These events may not be replaced by generic walking, posing, product observation, or an alternative destination.");
+  } else {
+    lines.push("No single-use or state-completing visual event beyond the continuous action flow itself.");
+  }
+  lines.push("");
 
-  plan.shotArchitecture.shots.forEach((shot) => {
-    lines.push(`SHOT ${shot.shotIndex + 1} — ${shot.role}`);
-    lines.push(`Time: ${shot.timeRange.startSecond.toFixed(1)}-${shot.timeRange.endSecond.toFixed(1)}s`);
-    lines.push(`Action: ${shot.action.physicalActionLine}`);
-    const directorShot = plan.directorConcept.shots[shot.shotIndex];
-    lines.push(`Camera: ${shot.camera.framing}; ${naturalCameraHeight(shot.camera.cameraHeight)}; ${naturalCameraMovement(shot.camera.movement)}. ${renderCameraBehaviorDirection(shot.direction.cameraBehavior)} ${shot.camera.movementLine} ${directorShot.conceptRule}`);
-    lines.push(`Product: ${compactProductLine(plan, shot.shotIndex)}`);
-    if (shot.shotIndex === plan.shotArchitecture.shots.length - 1) {
-      lines.push(`Transition: ${renderCutMotivationDirection(shot.direction.cutMotivation)}`);
-      lines.push(`Ending: ${plan.endingStrategy.grammar.line} ${directorShot.releaseConvergence ?? plan.directorConcept.releaseRule}`);
+  takes.forEach((take) => {
+    const isMultiBeat = take.shotIndexes.length > 1;
+    const continuousFlow = takeUsesContinuousLocomotionFlow(plan, take);
+    lines.push(`TAKE ${take.takeIndex + 1} — ONE CONTINUOUS SHOT`);
+    lines.push(`Time: ${take.startSecond.toFixed(1)}-${take.endSecond.toFixed(1)}s`);
+    if (continuousFlow) {
+      lines.push("This entire take is uninterrupted.");
+      lines.push("Do not cut.");
+      lines.push("Do not reset camera position.");
+      lines.push("Do not restart character movement.");
+      lines.push("Do not create an insert shot for the product.");
+      lines.push("LOCOMOTION STATE:");
+      lines.push("The character remains in continuous locomotion throughout this take.");
+      lines.push("There is no stop, settle, held position, planted-feet readability pause, or hero-like stationary moment in this take.");
+      lines.push("");
+      lines.push(...continuousActionFlowLines(plan, take));
+      lines.push("");
+    } else if (isMultiBeat) {
+      lines.push("This entire take is uninterrupted.");
+      lines.push("Do not cut.");
+      lines.push("Do not reset camera position.");
+      lines.push("Do not restart character movement.");
+      lines.push("Do not create an insert shot for the product.");
+      lines.push("Do not treat the timed beats below as separate shots.");
+    }
+    if (take.takeIndex > 0) {
+      const previousTake = takes[take.takeIndex - 1];
+      const previousLastShotIndex = previousTake.shotIndexes[previousTake.shotIndexes.length - 1];
+      const inherited = plan.continuity.worldStateTimeline.find((step) => (
+        step.shotIndex === previousLastShotIndex
+      ))?.after;
+      lines.push("START STATE INHERITED FROM PREVIOUS TAKE");
+      if (inherited) {
+        collectedStateFacts(plan, inherited).forEach((fact) => lines.push(fact));
+      }
+    }
+    if (continuousFlow) {
+      lines.push("");
     } else {
-      lines.push(`Transition: ${renderCutMotivationDirection(shot.direction.cutMotivation)} ${shot.direction.editExit}`);
+      let beatNumber = 1;
+      take.shotIndexes.forEach((shotIndex) => {
+        const shot = shotByIndex.get(shotIndex);
+        if (!shot) return;
+        const directorShot = plan.directorConcept.shots[shot.shotIndex];
+        lines.push(`BEAT ${beatNumber}`);
+        lines.push(`Time: ${shot.timeRange.startSecond.toFixed(1)}-${shot.timeRange.endSecond.toFixed(1)}s`);
+        lines.push(`Action: ${shot.action.physicalActionLine}`);
+        const heroContinuous = shot.role === "HERO" && shot.event.actionContinuity === "CONTINUOUS";
+        const cameraBehaviorText = heroContinuous
+          ? "Let the natural weight settle make the worn product readable inside the ongoing movement."
+          : sanitizeRoleTokens(renderCameraBehaviorDirection(shot.direction.cameraBehavior));
+        const conceptRuleText = heroContinuous
+          ? "Keep the hero moment inside the continuous movement; the worn product stays readable without a camera stop."
+          : sanitizeRoleTokens(directorShot.conceptRule);
+        lines.push(`Camera: ${shot.camera.framing}; ${naturalCameraHeight(shot.camera.cameraHeight)}; ${naturalCameraMovement(shot.camera.movement)}. ${cameraBehaviorText} ${shot.camera.movementLine} ${conceptRuleText}`);
+        lines.push(`Product: ${compactProductLine(plan, shot.shotIndex)}`);
+        const microDecision = plan.microDecision.contract;
+        if (microDecision && microDecision.decisionBeatIndex === shot.shotIndex) {
+          lines.push(`Decision: ${microDecision.chosenAction}`);
+          lines.push(`Decision setup: ${microDecision.routine} The viewer expects ${microDecision.expectedAction}; the visible trigger is ${microDecision.trigger}.`);
+          lines.push("Decision commitment: the choice is committed at this beat.");
+        }
+        if (microDecision && microDecision.consequenceBeatIndex === shot.shotIndex) {
+          lines.push(`Visible consequence: ${microDecision.visibleConsequence}`);
+          lines.push("Consequence precondition: the decision is already committed before this visible consequence.");
+          lines.push(`Decision continues: ${microDecision.continuation}`);
+        }
+        const isLastBeatInTake = shotIndex === take.shotIndexes[take.shotIndexes.length - 1];
+        const isLastTake = take.takeIndex === takes.length - 1;
+        if (isLastBeatInTake && isLastTake) {
+          lines.push(`Ending: ${sanitizeRoleTokens(plan.endingStrategy.grammar.line)} ${sanitizeRoleTokens(directorShot.releaseConvergence ?? plan.directorConcept.releaseRule)}`);
+        } else if (isLastBeatInTake) {
+          lines.push("Transition: this take ends here. The next take starts from the state declared in its own START STATE INHERITED FROM PREVIOUS TAKE block.");
+        } else {
+          lines.push("Transition: continue inside this same uninterrupted take; the next timed beat is a process boundary, not a cut.");
+        }
+        lines.push(`Edit continuity: ${sanitizeRoleTokens(CONTINUOUS_EDIT_TRANSLATIONS[shot.direction.editLogic])}`);
+        beatNumber += 1;
+      });
     }
     lines.push("");
   });
 
-  lines.push("[SOUND WORLD]");
+  lines.push("[SOUND ENVIRONMENT]");
   const soundCues = [...new Set(plan.soundPlan.shots.flatMap((shot) => shot.cues))].slice(0, 3);
   lines.push(`Context: ${plan.soundPlan.context}.`);
   lines.push(`Sound: ${soundCues.join("; ")}.`);
@@ -236,6 +548,14 @@ function compileText(plan: CommercialFilmPlan, internalScriptText: string) {
   }
   lines.push("Preserve silhouette, proportions, visible material and color relationships, outsole/upper/tongue/lace relationships, and grounded foot-to-shoe scale.");
   lines.push("Do not invent product facts, logos, materials, colors, panel geometry, or construction. Do not recolor, reshape, stretch, compress, or deform the product through pose, garment, or camera.");
+  lines.push("");
+  lines.push("[EVENT COMPLETION GATE]");
+  lines.push("The film may enter its final structured state or continuation only after every mandatory visual event above has visibly completed.");
+  lines.push("If any mandatory event is still incomplete, do not replace it with walking continuation, posing, product observation, or another destination.");
+  lines.push("");
+  lines.push("[FINAL STATE CLOSURE]");
+  lines.push("Once the final structured state is reached, do not invent a new human task, destination, pose, seated action, object interaction, or product presentation.");
+  collectedStateFacts(plan, plan.continuity.finalState).forEach((fact) => lines.push(fact));
   lines.push("");
   lines.push("[NEGATIVES]");
   lines.push("No runway posing, deliberate shoe presentation, camera-aware influencer gestures, shoe chase camera, orbit, 360, whip pan, or aggressive dolly.");
@@ -267,7 +587,30 @@ export function validateCommercialExecutionScript(
   const internalMarkers = INTERNAL_MARKERS.filter((marker) => text.includes(marker));
   const actionIdLeak = /\b(?:standing|walking|transition|turning|garment-task|scene-interaction|environment-response|on-foot|seated|studio-[a-z-]+|mirror-[a-z-]+)-\d{3}\b/i.test(text);
   const qcLanguageLeak = /\b(?:QC|validator|validation status|source id|primitive id|enum)\b/i.test(text);
-  const shotBlocks = plan.shotArchitecture.shots.filter((shot) => text.includes(`SHOT ${shot.shotIndex + 1} — ${shot.role}`));
+  const usesContinuousFlow = text.includes("[ONE CONTINUOUS ACTION FLOW]");
+  const beatBlocks = plan.shotArchitecture.shots.map((shot, index) => {
+    if (usesContinuousFlow) {
+      const marker = `Beat window ${index + 1}:`;
+      const start = text.indexOf(marker);
+      const nextMarker = index < plan.shotArchitecture.shots.length - 1
+        ? `Beat window ${index + 2}:`
+        : null;
+      const next = nextMarker
+        ? text.indexOf(nextMarker, start + marker.length)
+        : text.indexOf("[SOUND ENVIRONMENT]", start + marker.length);
+      return text.slice(Math.max(0, start), next === -1 ? text.length : next);
+    }
+    const timeMarker = `Time: ${shot.timeRange.startSecond.toFixed(1)}-${shot.timeRange.endSecond.toFixed(1)}s`;
+    const start = text.indexOf(timeMarker);
+    const nextShot = plan.shotArchitecture.shots.find((entry) => entry.shotIndex === shot.shotIndex + 1);
+    const nextMarker = nextShot
+      ? `Time: ${nextShot.timeRange.startSecond.toFixed(1)}-${nextShot.timeRange.endSecond.toFixed(1)}s`
+      : null;
+    const next = nextMarker
+      ? text.indexOf(nextMarker, start + timeMarker.length)
+      : text.indexOf("[SOUND ENVIRONMENT]", start + timeMarker.length);
+    return text.slice(Math.max(0, start), next === -1 ? text.length : next);
+  });
   const positiveDirectionText = text.split("[NEGATIVES]")[0] ?? text;
   const hardSell = /\b(?:logo animation|packshot|brand end card|sports commercial energy)\b/i.test(positiveDirectionText);
   const referenceBound = plan.referenceState.status === "REFERENCE_READY"
@@ -279,12 +622,7 @@ export function validateCommercialExecutionScript(
       )
     );
   const brandNameLeak = (text.match(/THERUIZ AURA/g) ?? []).length;
-  const shotTexts = plan.shotArchitecture.shots.map((shot) => {
-    const start = text.indexOf(`SHOT ${shot.shotIndex + 1} — ${shot.role}`);
-    const next = text.indexOf(`SHOT ${shot.shotIndex + 2} — `, start);
-    return text.slice(start, next === -1 ? text.indexOf("[SOUND WORLD]") : next);
-  });
-  const semanticContradictionCount = shotTexts.reduce((count, block, index) => {
+  const semanticContradictionCount = beatBlocks.reduce((count, block, index) => {
     const productBlock = block.match(/Product:\s*([^\n]+)/i)?.[1] ?? "";
     const contradictions = [
       /\bclear\b/i.test(productBlock) && /\bpartial\b/i.test(productBlock),
@@ -298,35 +636,106 @@ export function validateCommercialExecutionScript(
   const revealStrategyCompatible = plan.creativeSpine.revealStrategy !== "DELAYED"
     || plan.creativeSpine.productPresenceByShot.indexOf("CLEAR") <= 3;
   const transitionChainValid = plan.shotArchitecture.shots.every((shot, index) => {
-    const block = shotTexts[index] ?? "";
-    if (!block.includes("Transition:")) return false;
+    if (usesContinuousFlow) return true;
+    const block = beatBlocks[index] ?? "";
+    if (!block.includes("Transition:") && !block.includes("Ending:")) return false;
     if (index < plan.shotArchitecture.shots.length - 1 && /\b(?:no further shot|final frame)\b/i.test(block)) return false;
     return true;
   });
+  const continuityLockStart = text.indexOf("[CONTINUITY LOCK]");
+  const continuityLockEnd = text.indexOf("[TIMING]");
+  const continuityLockSection = continuityLockStart === -1
+    ? ""
+    : text.slice(continuityLockStart, continuityLockEnd === -1 ? undefined : continuityLockEnd);
+  const continuityLockComplete = continuityLockStart !== -1
+    && plan.continuity.continuityLock.lines.length > 0
+    && plan.continuity.continuityLock.lines.every((line) => text.includes(line));
+  const continuityLockTraceable = plan.continuity.continuityLock.facts.every((fact) => {
+    const entity = plan.continuity.worldModel.entities.find((entry) => entry.id === fact.entityId);
+    if (!entity) return false;
+    if (!fact.attribute) return true;
+    return Object.prototype.hasOwnProperty.call(entity.initialAttributes, fact.attribute);
+  });
+  const thresholdEntityExists = plan.continuity.worldModel.entities.some((entity) => entity.kind === "THRESHOLD");
+  const continuityLockScope = thresholdEntityExists
+    || !/\b(?:door|doors|doorway|doors?way|threshold|gate|lid)\b/i.test(continuityLockSection);
+  const microDecisionContract = plan.microDecision.contract;
+  const microDecisionBound = !microDecisionContract
+    || (
+      microDecisionContract.consequenceBeatIndex > microDecisionContract.decisionBeatIndex
+      && text.includes(`Decision: ${microDecisionContract.chosenAction}`)
+      && text.includes(`Visible consequence: ${microDecisionContract.visibleConsequence}`)
+      && text.includes("Decision commitment: the choice is committed at this beat.")
+      && text.includes("Consequence precondition: the decision is already committed before this visible consequence.")
+    );
+  const takeHeadings = plan.continuity.takePlan.takes.filter((take) => (
+    text.includes(`TAKE ${take.takeIndex + 1} — ONE CONTINUOUS SHOT`)
+  ));
+  const takeStructureValid = takeHeadings.length === plan.continuity.takePlan.takes.length
+    && !/\bSHOT\s+\d+\s*[—:-]/i.test(text);
+  const noRolePressure = !/\b(?:WORLD|WEAR|DETAIL|HERO|RELEASE)\b/.test(text);
+  const continuousTakeLanguage = text.includes("ONE CONTINUOUS SHOT")
+    && plan.continuity.takePlan.takes.every((take) => (
+      take.shotIndexes.length <= 1
+      || usesContinuousFlow
+      || text.includes("Do not treat the timed beats below as separate shots.")
+    ));
+  const crossTakeHandoffValid = plan.continuity.takePlan.takes.length <= 1
+    || text.includes("START STATE INHERITED FROM PREVIOUS TAKE");
+  const microDecisionTemporal = !microDecisionContract
+    || ["ONLY AFTER", "WHILE", "UNTIL", "ONLY THEN"].every((token) => text.includes(token));
+  const finalClosureValid = text.includes("[FINAL STATE CLOSURE]")
+    && text.includes("do not invent a new human task, destination, pose, seated action, object interaction, or product presentation.");
+  const locomotionAuthorityValid = !usesContinuousFlow
+    || (
+      text.includes("LOCOMOTION STATE:")
+      && text.includes("The character remains in continuous locomotion throughout this take.")
+    );
+  const noStationaryWordingValid = !usesContinuousFlow
+    || !/\b(?:stops?|settles?|holds? position|plants? both feet|pauses? for product|hero-like stationary|stationary)\b/i.test(
+      text.slice(text.indexOf("[ONE CONTINUOUS ACTION FLOW]"), text.indexOf("[SOUND ENVIRONMENT]"))
+    );
+  const mandatoryEventsPresent = text.includes("[MANDATORY VISUAL EVENTS]");
+  const eventCompletionGatePresent = text.includes("[EVENT COMPLETION GATE]")
+    && text.includes("only after every mandatory visual event above has visibly completed");
 
   add("header", "Commercial Film Header", text.startsWith(COMMERCIAL_MODEL_FACING_HEADER), "The final artifact is the Commercial Film execution script.", "The Commercial Film header is missing.");
   add("film_idea", "Film Idea", text.includes("[FILM IDEA]"), "Film idea is explicit.", "Film idea is missing.");
   add("product_message", "Product Message", referenceBound, "Product message is reference-bound.", "Product message is not reference-bound.");
-  add("character_world", "Character / World", text.includes("[CHARACTER / WORLD]"), "Character and world continuity are explicit.", "Character and world are missing.");
+  add("character_world", "Character / Environment", text.includes("[CHARACTER / ENVIRONMENT]"), "Character and environment continuity are explicit.", "Character and environment are missing.");
   add("timing", "Timing Profile", text.includes("[TIMING]"), "Dynamic timing profile is explicit.", "Timing profile is missing.");
-  add("five_shots", "Five Semantic Shots", shotBlocks.length === 5, "All five semantic shots are present in order.", `Only ${shotBlocks.length} semantic shots are present.`);
-  add("shot_required_fields", "Shot Required Fields", plan.shotArchitecture.shots.every((shot) => {
-    const start = text.indexOf(`SHOT ${shot.shotIndex + 1} — ${shot.role}`);
-    const next = text.indexOf(`SHOT ${shot.shotIndex + 2} — `, start);
-    const block = text.slice(start, next === -1 ? text.indexOf("[SOUND WORLD]") : next);
-    return ["Time:", "Action:", "Camera:", "Product:", "Transition:"].every((label) => block.includes(label));
-  }), "Every shot contains time, action, camera, product, and transition guidance.", "At least one shot is missing a required field.");
-  add("sound_world", "Sound World", text.includes("[SOUND WORLD]"), "Natural sound world is present.", "Sound world is missing.");
+  add("five_beats", "Five Semantic Beats", beatBlocks.length === 5 && beatBlocks.every((block) => block.length > 0), "All five semantic beats are present in order.", `Only ${beatBlocks.filter((block) => block.length > 0).length} semantic beats are present.`);
+  add("beat_required_fields", "Beat Required Fields", usesContinuousFlow
+    ? beatBlocks.length === 5 && beatBlocks.every((block) => block.length > 0)
+    : plan.shotArchitecture.shots.every((shot, index) => {
+    const block = beatBlocks[index] ?? "";
+    return ["Time:", "Action:", "Camera:", "Product:"].every((label) => block.includes(label))
+      && (block.includes("Transition:") || block.includes("Ending:"));
+  }), "Every beat contains time, action, camera, product, and take-boundary guidance.", "At least one beat is missing a required field.");
+  add("take_structure", "Take Structure Is Top Level", takeStructureValid, "The final script is organized by the structured Take Plan, not by five legacy shots.", "The final script still uses legacy shot headings as its top-level structure.");
+  add("no_role_pressure", "No Internal Role Pressure", noRolePressure, "The final script exposes no WORLD, WEAR, DETAIL, HERO, or RELEASE role token.", "An internal role token leaked into the model-facing script.");
+  add("continuous_take_language", "Continuous Take Language", continuousTakeLanguage, "Every multi-beat take is declared as one uninterrupted shot and forbids beat-as-cut semantics.", "A multi-beat take is missing its continuous-shot declaration.");
+  add("cross_take_handoff", "Cross-Take State Handoff", crossTakeHandoffValid, "Every new take carries its inherited start state from the previous take.", "A new take is missing its inherited start state.");
+  add("micro_decision_temporal", "Micro Decision Temporal Dependency", microDecisionTemporal, "The Micro Decision carries explicit ONLY AFTER / WHILE / UNTIL / ONLY THEN ordering.", "The Micro Decision lacks its explicit visual temporal ordering.");
+  add("final_state_closure", "Final State Closure", finalClosureValid, "The final state closure forbids unscripted tasks, destinations, poses, or object interactions.", "The final state closure is missing.");
+  add("continuous_locomotion_authority", "Continuous Locomotion Authority", locomotionAuthorityValid, "A continuous-locomotion take declares the authoritative positive locomotion fact.", "A continuous-locomotion take is missing its locomotion authority.");
+  add("no_stationary_wording", "No Stationary Wording", noStationaryWordingValid, "The continuous flow contains no stop, settle, held-position, or product-pause wording.", "The continuous flow still implies a stationary product moment.");
+  add("mandatory_visual_events", "Mandatory Visual Events", mandatoryEventsPresent, "The structured single-use and state-completing events are declared mandatory.", "The mandatory visual event section is missing.");
+  add("event_completion_gate", "Event Completion Gate", eventCompletionGatePresent, "Continuation cannot begin before the mandatory visual events complete.", "The event completion gate is missing.");
+  add("sound_world", "Sound Environment", text.includes("[SOUND ENVIRONMENT]"), "Natural sound environment is present.", "Sound environment is missing.");
   add("visual_look", "Visual Look", text.includes("[VISUAL LOOK]"), "Visual look is present.", "Visual look is missing.");
   add("product_protection", "Global Product Protection", text.includes("[GLOBAL PRODUCT PROTECTION]"), "Global product protection is present.", "Global product protection is missing.");
   add("negatives", "Global Negatives", text.includes("[NEGATIVES]"), "Consolidated negatives are present.", "Global negatives are missing.");
-  add("ending", "Natural Ending", text.includes("Ending:"), "The ending is explicit in the release shot.", "The natural ending is missing.");
+  add("ending", "Natural Ending", text.includes("Ending:") || text.includes(plan.endingStrategy.grammar.line), "The ending is explicit.", "The natural ending is missing.");
   add("no_internal_markers", "No Internal Markers", internalMarkers.length === 0, "No internal plan markers are present.", `Internal markers leaked: ${internalMarkers.join(", ")}.`);
   add("no_action_ids", "No Action IDs", !actionIdLeak, "No existing Action ID is present in the final script.", "An Action ID leaked into the final script.");
   add("no_qc_language", "No QC Language", !qcLanguageLeak, "No QC, validator, enum, or source-ID language is present.", "QC or internal validation language leaked into the final script.");
   add("no_brand_leakage", "No Brand-Name Leakage", brandNameLeak === 0, "The execution body uses neutral brand language.", "The execution body contains the brand name.");
   add("no_semantic_contradictions", "Final Semantic Contradiction Pass", semanticContradictionCount === 0 && revealStrategyCompatible && transitionChainValid, "The final execution text has no visibility, reveal, shot-position, or transition contradiction.", "The final execution text contains a semantic contradiction or contradictory transition chain.");
   add("no_hard_sell", "No Hard-Sell Direction", !hardSell, "The final script keeps a restrained commercial direction.", "A prohibited hard-sell direction is present.");
+  add("continuity_lock", "Continuity Lock", continuityLockComplete, "The final script states the structured continuity facts of this film before the timing profile.", "The Continuity Lock section is missing or does not carry the structured World State facts.");
+  add("continuity_lock_scope", "Continuity Lock Scope", continuityLockTraceable && continuityLockScope, "Every Continuity Lock fact is traceable to a declared World State entity, and no unowned threshold, door, gate, or lid rule is emitted.", "The Continuity Lock contains a fact that the World State does not declare.");
+  add("micro_decision_binding", "Micro Decision Binding", microDecisionBound, "The declared Micro Decision renders its chosen action and its visible consequence in the correct shot order.", "The declared Micro Decision is not rendered with its visible consequence after the decision.");
   add("timing", "Full 15s Timing", script.diagnostics.timelineCoverage.startSecond === 0
     && script.diagnostics.timelineCoverage.endSecond === 15
     && script.diagnostics.timelineCoverage.contiguous, "The script covers the full contiguous 15-second timeline.", "The script does not cover a contiguous 0-15 second timeline.");
@@ -359,14 +768,35 @@ export function compileCommercialExecutionScript(
   }
 
   const compiled = compileText(plan, internalScriptText);
-  const shotBlocks = plan.shotArchitecture.shots.map((shot) => {
-    const start = compiled.compiledText.indexOf(`[SHOT ${shot.shotIndex + 1} — ${shot.role}]`);
-    const next = compiled.compiledText.indexOf(`[SHOT ${shot.shotIndex + 2} — `, start);
-    const end = next === -1 ? compiled.compiledText.indexOf("[GLOBAL PRODUCT PROTECTION]") : next;
+  const shotBlocks = plan.shotArchitecture.shots.map((shot, index) => {
+    if (compiled.compiledText.includes("[ONE CONTINUOUS ACTION FLOW]")) {
+      const marker = `Beat window ${index + 1}:`;
+      const start = compiled.compiledText.indexOf(marker);
+      const nextMarker = index < plan.shotArchitecture.shots.length - 1
+        ? `Beat window ${index + 2}:`
+        : null;
+      const end = nextMarker
+        ? compiled.compiledText.indexOf(nextMarker, start + marker.length)
+        : compiled.compiledText.indexOf("[SOUND ENVIRONMENT]", start + marker.length);
+      return {
+        shotIndex: shot.shotIndex,
+        shotRole: shot.role,
+        section: compiled.compiledText.slice(Math.max(0, start), end === -1 ? compiled.compiledText.length : end),
+      };
+    }
+    const timeMarker = `Time: ${shot.timeRange.startSecond.toFixed(1)}-${shot.timeRange.endSecond.toFixed(1)}s`;
+    const start = compiled.compiledText.indexOf(timeMarker);
+    const nextShot = plan.shotArchitecture.shots.find((entry) => entry.shotIndex === shot.shotIndex + 1);
+    const nextMarker = nextShot
+      ? `Time: ${nextShot.timeRange.startSecond.toFixed(1)}-${nextShot.timeRange.endSecond.toFixed(1)}s`
+      : null;
+    const end = nextMarker
+      ? compiled.compiledText.indexOf(nextMarker, start + timeMarker.length)
+      : compiled.compiledText.indexOf("[SOUND WORLD]", start + timeMarker.length);
     return {
       shotIndex: shot.shotIndex,
       shotRole: shot.role,
-      section: compiled.compiledText.slice(start, end),
+      section: compiled.compiledText.slice(Math.max(0, start), end === -1 ? compiled.compiledText.length : end),
     };
   });
   const script: CommercialExecutionScript = {

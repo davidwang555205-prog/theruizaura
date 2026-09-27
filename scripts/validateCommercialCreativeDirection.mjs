@@ -77,6 +77,13 @@ const editLogics = [
   "DELAYED_REVEAL",
 ];
 
+const CONTINUOUS_EDIT_TRANSLATIONS = {
+  ACTION_CUT: "Let the motivated physical action carry its momentum into the next movement without restarting it.",
+  MATCH_MOVEMENT: "Match direction and body mechanics as the camera continues, preserving believable geography.",
+  SENSORY_INSERT: "Keep the sensory beat inside the same continuous human situation, then return to the action without an insert.",
+  DELAYED_REVEAL: "Hold back the complete product read temporarily, then reveal it through a motivated visual change inside the same take.",
+};
+
 const motifs = ["THRESHOLD", "LIGHT", "REFLECTION", "SHADOW", "LINE", "REPETITION"];
 const cutMotivations = [
   "ACTION_COMPLETION",
@@ -321,8 +328,7 @@ try {
       });
       direction.shotDirections.forEach((shot) => {
         if (
-          outcome.modelFacingScript.compiledText.includes(shot.editEntry)
-          || outcome.modelFacingScript.compiledText.includes(shot.editExit)
+          outcome.modelFacingScript.compiledText.includes(CONTINUOUS_EDIT_TRANSLATIONS[shot.editLogic])
         ) {
           translatedEditLogics.add(shot.editLogic);
         }

@@ -1,0 +1,92 @@
+{
+  "schemaVersion": "commercial-film/v1.5-continuity-baseline-v1",
+  "stage": "COMMERCIAL_FILM_V1_5_CONTINUITY_STATE_EXECUTION",
+  "hashAlgorithm": "sha256",
+  "baseMain": "28097b2",
+  "protectedSources": [
+    {
+      "path": "src/commercial-film/event-spine",
+      "sha256": "a716213db74014824514567b3f682d1aceed0fce11c146f40985fad9b68393d6"
+    },
+    {
+      "path": "src/commercial-film/planner.ts",
+      "sha256": "7bc0bb6413874b1f8dd423a74f5726cca9f65f959afb25dad4f92dff28764d5a"
+    },
+    {
+      "path": "src/commercial-film/qc.ts",
+      "sha256": "23faf35c5af9f544342fa3d7e6e8c0246445aa923595f4a23d588ec4a2e9c854"
+    },
+    {
+      "path": "src/commercial-film/camera.ts",
+      "sha256": "3a5ab13f837e0ead68e457128bad91eb68c8a14e529fa4070875f2161bc913b1"
+    },
+    {
+      "path": "src/commercial-film/execution-compiler.ts",
+      "sha256": "b1d4a8f56e0b7f78b7aaaf4b3f60de95f3ed766557ceda4466ea758bd0853364"
+    },
+    {
+      "path": "src/commercial-film/types.ts",
+      "sha256": "bda1c08a6e8971028b2b0aa5cc39df638813ea0d8b71b9e5b291ba43e2336cac"
+    },
+    {
+      "path": "src/immersive-narrative",
+      "sha256": "a9ce540db1462f1ec1fb497209567facf033b5502f7f1dc74da5fc4d9020699f"
+    },
+    {
+      "path": "src/data/personActionLibrary.ts",
+      "sha256": "cd23321cd82d69c9b6486845ce9174a6e826e4cea9dff860881feb7ff5001592"
+    }
+  ],
+  "functionalCases": [
+    {
+      "intent": "URBAN_MOTION",
+      "takeCount": 1,
+      "continuityStatus": "CONTINUOUS",
+      "conflictCount": 0,
+      "worldStateTimelineSha256": "1cf07230f705468c081d44528de093bdd243dfabe44c196b4a54d2d69e23862c",
+      "continuityLockLinesSha256": "86d620fb68a9e9ed4f286fc4d4d0215dd4b1382296950c6f693a8f959cc0db70",
+      "compiledTextSha256": "b8dc56f6b6fe8e348d155d0eb698ef827c3114b5efcb649b41d68da34e39e193",
+      "executionValidationStatus": "COMMERCIAL_EXECUTION_VALIDATED"
+    },
+    {
+      "intent": "DAILY_STYLING",
+      "takeCount": 2,
+      "continuityStatus": "CONTINUOUS",
+      "conflictCount": 0,
+      "worldStateTimelineSha256": "c853de0ecaf7e4103535048dab292f6da6a9d513d97a98cb10f459b93b24116c",
+      "continuityLockLinesSha256": "ea8f5897c385dd7ca35010c79232c9dbd0fe30c796beee58c7e96c1b716fb130",
+      "compiledTextSha256": "1399c13541e8fcfba9e96430bb0b769f4f8e90639703f898abe29b8042202091",
+      "executionValidationStatus": "COMMERCIAL_EXECUTION_VALIDATED"
+    },
+    {
+      "intent": "QUIET_LUXURY",
+      "takeCount": 1,
+      "continuityStatus": "CONTINUOUS",
+      "conflictCount": 0,
+      "worldStateTimelineSha256": "a833a731ccfd62909bf22ea208ab53f77ed3cbf52078a9bfb92919fa0e565031",
+      "continuityLockLinesSha256": "7efea521fe37324a69f7d1b28a85cb99f2db4239d8773cee4427a5aec4a40176",
+      "compiledTextSha256": "fe3ad1d709c8acbf86e753462765f73f858eb6661aa81f423f161ebc9271d013",
+      "executionValidationStatus": "COMMERCIAL_EXECUTION_VALIDATED"
+    },
+    {
+      "intent": "PRODUCT_CRAFT",
+      "takeCount": 1,
+      "continuityStatus": "CONTINUOUS",
+      "conflictCount": 0,
+      "worldStateTimelineSha256": "aef98ea7587729ab30645d56cc467bdcbb5ff2255da0599cf73e3d32886d7819",
+      "continuityLockLinesSha256": "a1fc121a9750017f8ac0cd88cbf2ca53d64c1dcdbbbc7e64eb5c945731181b31",
+      "compiledTextSha256": "33a925a7f8e1ac2ca3d509953463fb3315c39fdbf4759e4811ec234130311495",
+      "executionValidationStatus": "COMMERCIAL_EXECUTION_VALIDATED"
+    },
+    {
+      "intent": "NEW_ARRIVAL",
+      "takeCount": 2,
+      "continuityStatus": "CONTINUOUS",
+      "conflictCount": 0,
+      "worldStateTimelineSha256": "270bae0d65aefa988ad4149cf2e385335319f4a71c273729299b1ccae3a182e2",
+      "continuityLockLinesSha256": "d2a5423a05f4de18200641cda6fd7bdd5bc37da081793729bdb1c88827277801",
+      "compiledTextSha256": "3b889ff35f9ba6ba0d0b466cec8266e814f6eb581cba99be8b2fdbb427ca9698",
+      "executionValidationStatus": "COMMERCIAL_EXECUTION_VALIDATED"
+    }
+  ]
+}

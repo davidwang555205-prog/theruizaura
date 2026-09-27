@@ -1,0 +1,307 @@
+{
+  "caseId": "case-a",
+  "film": {
+    "worldModel": {
+      "schemaVersion": "commercial-film/world-state-v1",
+      "entities": [
+        {
+          "id": "character",
+          "kind": "CHARACTER",
+          "label": "the character",
+          "initialAttributes": {
+            "space": "outside on the approach",
+            "anchor": "the approach line"
+          },
+          "continuityLockAttributes": [
+            "space"
+          ],
+          "containment": null
+        },
+        {
+          "id": "destination_threshold",
+          "kind": "THRESHOLD",
+          "label": "the same destination threshold",
+          "initialAttributes": {
+            "state": "closed",
+            "lock": "locked",
+            "crossings": "0"
+          },
+          "continuityLockAttributes": [
+            "state",
+            "lock"
+          ],
+          "containment": null
+        }
+      ]
+    },
+    "initialState": {
+      "shotIndex": 0,
+      "attributes": {
+        "character": {
+          "space": "outside on the approach",
+          "anchor": "the approach line"
+        },
+        "destination_threshold": {
+          "state": "closed",
+          "lock": "locked",
+          "crossings": "0"
+        }
+      },
+      "completedActions": []
+    },
+    "finalState": {
+      "shotIndex": 4,
+      "attributes": {
+        "character": {
+          "space": "inside the arrival space",
+          "anchor": "the arrival space"
+        },
+        "destination_threshold": {
+          "state": "open",
+          "lock": "unlocked",
+          "crossings": "1"
+        }
+      },
+      "completedActions": [
+        "UNLOCK_THRESHOLD",
+        "OPEN_THRESHOLD",
+        "CROSS_THRESHOLD"
+      ]
+    },
+    "timeline": [
+      {
+        "shotIndex": 0,
+        "before": {
+          "shotIndex": 0,
+          "attributes": {
+            "character": {
+              "space": "outside on the approach",
+              "anchor": "the approach line"
+            },
+            "destination_threshold": {
+              "state": "closed",
+              "lock": "locked",
+              "crossings": "0"
+            }
+          },
+          "completedActions": []
+        },
+        "after": {
+          "shotIndex": 0,
+          "attributes": {
+            "character": {
+              "space": "outside on the approach",
+              "anchor": "the approach line"
+            },
+            "destination_threshold": {
+              "state": "closed",
+              "lock": "locked",
+              "crossings": "0"
+            }
+          },
+          "completedActions": []
+        },
+        "conflicts": []
+      },
+      {
+        "shotIndex": 1,
+        "before": {
+          "shotIndex": 0,
+          "attributes": {
+            "character": {
+              "space": "outside on the approach",
+              "anchor": "the approach line"
+            },
+            "destination_threshold": {
+              "state": "closed",
+              "lock": "locked",
+              "crossings": "0"
+            }
+          },
+          "completedActions": []
+        },
+        "after": {
+          "shotIndex": 1,
+          "attributes": {
+            "character": {
+              "space": "inside the arrival space",
+              "anchor": "the arrival space"
+            },
+            "destination_threshold": {
+              "state": "open",
+              "lock": "unlocked",
+              "crossings": "1"
+            }
+          },
+          "completedActions": [
+            "UNLOCK_THRESHOLD",
+            "OPEN_THRESHOLD",
+            "CROSS_THRESHOLD"
+          ]
+        },
+        "conflicts": []
+      },
+      {
+        "shotIndex": 2,
+        "before": {
+          "shotIndex": 1,
+          "attributes": {
+            "character": {
+              "space": "inside the arrival space",
+              "anchor": "the arrival space"
+            },
+            "destination_threshold": {
+              "state": "open",
+              "lock": "unlocked",
+              "crossings": "1"
+            }
+          },
+          "completedActions": [
+            "UNLOCK_THRESHOLD",
+            "OPEN_THRESHOLD",
+            "CROSS_THRESHOLD"
+          ]
+        },
+        "after": {
+          "shotIndex": 2,
+          "attributes": {
+            "character": {
+              "space": "inside the arrival space",
+              "anchor": "the arrival space"
+            },
+            "destination_threshold": {
+              "state": "open",
+              "lock": "unlocked",
+              "crossings": "1"
+            }
+          },
+          "completedActions": [
+            "UNLOCK_THRESHOLD",
+            "OPEN_THRESHOLD",
+            "CROSS_THRESHOLD"
+          ]
+        },
+        "conflicts": []
+      },
+      {
+        "shotIndex": 3,
+        "before": {
+          "shotIndex": 2,
+          "attributes": {
+            "character": {
+              "space": "inside the arrival space",
+              "anchor": "the arrival space"
+            },
+            "destination_threshold": {
+              "state": "open",
+              "lock": "unlocked",
+              "crossings": "1"
+            }
+          },
+          "completedActions": [
+            "UNLOCK_THRESHOLD",
+            "OPEN_THRESHOLD",
+            "CROSS_THRESHOLD"
+          ]
+        },
+        "after": {
+          "shotIndex": 3,
+          "attributes": {
+            "character": {
+              "space": "inside the arrival space",
+              "anchor": "the arrival space"
+            },
+            "destination_threshold": {
+              "state": "open",
+              "lock": "unlocked",
+              "crossings": "1"
+            }
+          },
+          "completedActions": [
+            "UNLOCK_THRESHOLD",
+            "OPEN_THRESHOLD",
+            "CROSS_THRESHOLD"
+          ]
+        },
+        "conflicts": []
+      },
+      {
+        "shotIndex": 4,
+        "before": {
+          "shotIndex": 3,
+          "attributes": {
+            "character": {
+              "space": "inside the arrival space",
+              "anchor": "the arrival space"
+            },
+            "destination_threshold": {
+              "state": "open",
+              "lock": "unlocked",
+              "crossings": "1"
+            }
+          },
+          "completedActions": [
+            "UNLOCK_THRESHOLD",
+            "OPEN_THRESHOLD",
+            "CROSS_THRESHOLD"
+          ]
+        },
+        "after": {
+          "shotIndex": 4,
+          "attributes": {
+            "character": {
+              "space": "inside the arrival space",
+              "anchor": "the arrival space"
+            },
+            "destination_threshold": {
+              "state": "open",
+              "lock": "unlocked",
+              "crossings": "1"
+            }
+          },
+          "completedActions": [
+            "UNLOCK_THRESHOLD",
+            "OPEN_THRESHOLD",
+            "CROSS_THRESHOLD"
+          ]
+        },
+        "conflicts": []
+      }
+    ],
+    "singleUseActions": [
+      {
+        "actionId": "UNLOCK_THRESHOLD",
+        "actionLabel": "unlocked",
+        "entityId": "destination_threshold",
+        "attribute": "lock",
+        "fromValue": "locked",
+        "toValue": "unlocked",
+        "shotIndex": 1
+      },
+      {
+        "actionId": "OPEN_THRESHOLD",
+        "actionLabel": "opened",
+        "entityId": "destination_threshold",
+        "attribute": "state",
+        "fromValue": "closed",
+        "toValue": "open",
+        "shotIndex": 1
+      },
+      {
+        "actionId": "CROSS_THRESHOLD",
+        "actionLabel": "crossed",
+        "entityId": "character",
+        "attribute": "space",
+        "fromValue": "outside on the approach",
+        "toValue": "inside the arrival space",
+        "shotIndex": 1
+      }
+    ],
+    "conflicts": []
+  },
+  "microDecision": {
+    "declared": false,
+    "contract": null,
+    "scenarioTimeline": null
+  }
+}

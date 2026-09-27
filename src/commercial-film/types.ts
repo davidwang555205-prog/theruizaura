@@ -27,6 +27,11 @@ import type {
   CommercialEventSpinePlan,
   CommercialWorldLifeDensity,
 } from "./event-spine/types";
+import type { CommercialContinuityPlan } from "./event-spine/continuity";
+import type {
+  CommercialMicroDecisionInput,
+  CommercialMicroDecisionPlan,
+} from "./event-spine/micro-decision";
 import type {
   CommercialDirectorConceptPlan,
 } from "./director-concept/types";
@@ -238,6 +243,9 @@ export type CommercialQcGateId =
   | "product_readability"
   | "hero_moment_exists"
   | "detail_supported_by_reference"
+  | "continuity_state_consistent"
+  | "take_grouping_motivated"
+  | "micro_decision_visible_consequence"
   | "no_product_deformation"
   | "no_product_identity_drift"
   | "no_random_scene_jump"
@@ -272,6 +280,8 @@ export type CommercialFilmPlan = {
   creativeSpine: CommercialCreativeSpinePlan;
   creativeDirection: CommercialCreativeDirectionPlan;
   eventSpine: CommercialEventSpinePlan;
+  continuity: CommercialContinuityPlan;
+  microDecision: CommercialMicroDecisionPlan;
   directorConcept: CommercialDirectorConceptPlan;
   brandMood: CommercialBrandMood;
   character: {
@@ -319,6 +329,11 @@ export type CommercialFilmPlannerInput = {
   secondaryEditLogicOverride?: CommercialEditLogic | null;
   visualMotifOverride?: CommercialVisualMotif | null;
   directorConceptOverride?: import("./director-concept/types").CommercialDirectorConceptId;
+  /**
+   * Optional structured Micro Decision contract. When it is declared, the film
+   * must show the visible consequence of the choice or the plan is blocked.
+   */
+  microDecision?: CommercialMicroDecisionInput;
 };
 
 export type CommercialFilmPlannerErrorCode =

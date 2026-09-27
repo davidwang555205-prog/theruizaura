@@ -1,0 +1,220 @@
+{
+  "caseId": "case-c",
+  "film": {
+    "worldModel": {
+      "schemaVersion": "commercial-film/world-state-v1",
+      "entities": [
+        {
+          "id": "character",
+          "kind": "CHARACTER",
+          "label": "the character",
+          "initialAttributes": {
+            "space": "on the city route",
+            "anchor": "the same open city route"
+          },
+          "continuityLockAttributes": [
+            "space"
+          ],
+          "containment": null
+        },
+        {
+          "id": "ground",
+          "kind": "GROUND",
+          "label": "the ground relationship",
+          "initialAttributes": {
+            "surface": "ordinary city pavement"
+          },
+          "continuityLockAttributes": [
+            "surface"
+          ],
+          "containment": null
+        }
+      ]
+    },
+    "initialState": {
+      "shotIndex": 0,
+      "attributes": {
+        "character": {
+          "space": "on the city route",
+          "anchor": "the same open city route"
+        },
+        "ground": {
+          "surface": "ordinary city pavement"
+        }
+      },
+      "completedActions": []
+    },
+    "finalState": {
+      "shotIndex": 4,
+      "attributes": {
+        "character": {
+          "space": "on the city route",
+          "anchor": "the same open city route"
+        },
+        "ground": {
+          "surface": "a changed surface at the crossing"
+        }
+      },
+      "completedActions": []
+    },
+    "timeline": [
+      {
+        "shotIndex": 0,
+        "before": {
+          "shotIndex": 0,
+          "attributes": {
+            "character": {
+              "space": "on the city route",
+              "anchor": "the same open city route"
+            },
+            "ground": {
+              "surface": "ordinary city pavement"
+            }
+          },
+          "completedActions": []
+        },
+        "after": {
+          "shotIndex": 0,
+          "attributes": {
+            "character": {
+              "space": "on the city route",
+              "anchor": "the same open city route"
+            },
+            "ground": {
+              "surface": "ordinary city pavement"
+            }
+          },
+          "completedActions": []
+        },
+        "conflicts": []
+      },
+      {
+        "shotIndex": 1,
+        "before": {
+          "shotIndex": 0,
+          "attributes": {
+            "character": {
+              "space": "on the city route",
+              "anchor": "the same open city route"
+            },
+            "ground": {
+              "surface": "ordinary city pavement"
+            }
+          },
+          "completedActions": []
+        },
+        "after": {
+          "shotIndex": 1,
+          "attributes": {
+            "character": {
+              "space": "on the city route",
+              "anchor": "the same open city route"
+            },
+            "ground": {
+              "surface": "ordinary city pavement"
+            }
+          },
+          "completedActions": []
+        },
+        "conflicts": []
+      },
+      {
+        "shotIndex": 2,
+        "before": {
+          "shotIndex": 1,
+          "attributes": {
+            "character": {
+              "space": "on the city route",
+              "anchor": "the same open city route"
+            },
+            "ground": {
+              "surface": "ordinary city pavement"
+            }
+          },
+          "completedActions": []
+        },
+        "after": {
+          "shotIndex": 2,
+          "attributes": {
+            "character": {
+              "space": "on the city route",
+              "anchor": "the same open city route"
+            },
+            "ground": {
+              "surface": "a changed surface at the crossing"
+            }
+          },
+          "completedActions": []
+        },
+        "conflicts": []
+      },
+      {
+        "shotIndex": 3,
+        "before": {
+          "shotIndex": 2,
+          "attributes": {
+            "character": {
+              "space": "on the city route",
+              "anchor": "the same open city route"
+            },
+            "ground": {
+              "surface": "a changed surface at the crossing"
+            }
+          },
+          "completedActions": []
+        },
+        "after": {
+          "shotIndex": 3,
+          "attributes": {
+            "character": {
+              "space": "on the city route",
+              "anchor": "the same open city route"
+            },
+            "ground": {
+              "surface": "a changed surface at the crossing"
+            }
+          },
+          "completedActions": []
+        },
+        "conflicts": []
+      },
+      {
+        "shotIndex": 4,
+        "before": {
+          "shotIndex": 3,
+          "attributes": {
+            "character": {
+              "space": "on the city route",
+              "anchor": "the same open city route"
+            },
+            "ground": {
+              "surface": "a changed surface at the crossing"
+            }
+          },
+          "completedActions": []
+        },
+        "after": {
+          "shotIndex": 4,
+          "attributes": {
+            "character": {
+              "space": "on the city route",
+              "anchor": "the same open city route"
+            },
+            "ground": {
+              "surface": "a changed surface at the crossing"
+            }
+          },
+          "completedActions": []
+        },
+        "conflicts": []
+      }
+    ],
+    "singleUseActions": [],
+    "conflicts": []
+  },
+  "microDecision": {
+    "declared": false,
+    "contract": null,
+    "scenarioTimeline": null
+  }
+}

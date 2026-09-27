@@ -36,11 +36,11 @@ const reference = {
   productTruth: { coverage, status: "draft", referenceEvidenceBound: true, productTruthMode: "reference_bound" },
 };
 const previousCompactLength = {
-  URBAN_MOTION: 6939,
-  DAILY_STYLING: 6650,
-  QUIET_LUXURY: 6776,
-  PRODUCT_CRAFT: 6770,
-  NEW_ARRIVAL: 6668,
+  URBAN_MOTION: 8813,
+  DAILY_STYLING: 9497,
+  QUIET_LUXURY: 8670,
+  PRODUCT_CRAFT: 8729,
+  NEW_ARRIVAL: 9483,
 };
 
 function request(intent, nonce = 0, overrides = {}) {

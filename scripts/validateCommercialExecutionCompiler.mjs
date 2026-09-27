@@ -92,20 +92,42 @@ try {
     for (const marker of [
       "SEEDANCE — COMMERCIAL FILM",
       "[FILM IDEA]",
-      "[CHARACTER / WORLD]",
+      "[CHARACTER / ENVIRONMENT]",
+      "[CONTINUITY LOCK]",
       "[TIMING]",
-      "SHOT 1 — WORLD",
-      "SHOT 2 — WEAR",
-      "SHOT 3 — DETAIL",
-      "SHOT 4 — HERO",
-      "SHOT 5 — RELEASE",
-      "[SOUND WORLD]",
+      "ONE CONTINUOUS SHOT",
+      "[SOUND ENVIRONMENT]",
       "[VISUAL LOOK]",
       "[GLOBAL PRODUCT PROTECTION]",
+      "[FINAL STATE CLOSURE]",
       "[NEGATIVES]",
     ]) {
       assert(text.includes(marker), `${intent} is missing ${marker}.`);
     }
+    const chronologicalBeatCount = text.includes("[ONE CONTINUOUS ACTION FLOW]")
+      ? (text.match(/^Beat window \d+:/gm) ?? []).length
+      : (text.match(/^BEAT \d+/gm) ?? []).length;
+    assert(chronologicalBeatCount === 5, `${intent} does not render five chronological beats.`);
+    assert(!/\bSHOT\s+\d+\s*[—:-]/i.test(text), `${intent} still exposes legacy shot headings.`);
+    assert(!/\b(?:WORLD|WEAR|DETAIL|HERO|RELEASE)\b/.test(text), `${intent} leaked an internal role token.`);
+    assert(
+      text.includes("START STATE INHERITED FROM PREVIOUS TAKE") === (outcome.plan.continuity.takePlan.takes.length > 1),
+      `${intent} cross-take inherited state is inconsistent with its Take Plan.`
+    );
+    const lockSection = text.slice(text.indexOf("[CONTINUITY LOCK]"), text.indexOf("[TIMING]"));
+    outcome.plan.continuity.continuityLock.lines.forEach((line) => {
+      assert(lockSection.includes(line), `${intent} Continuity Lock is missing a structured state fact: ${line}`);
+    });
+    if (!outcome.plan.continuity.worldModel.entities.some((entity) => entity.kind === "THRESHOLD")) {
+      assert(
+        !/\b(?:door|doors|doorway|threshold|gate|lid)\b/i.test(lockSection),
+        `${intent} Continuity Lock emitted threshold or door rules without a declared threshold entity.`
+      );
+    }
+    assert(
+      outcome.plan.continuity.takePlan.takes.length < outcome.plan.shotArchitecture.shots.length,
+      `${intent} still compiles one narrative beat per take.`
+    );
     for (const internal of ["[COMMERCIAL PLAN]", "[SHOT PLAN]", "[CAMERA PLAN]", "[SOUND PLAN]", "[REFERENCE STATE]"]) {
       if (text.includes(internal)) internalMarkerLeaks += 1;
       assert(!text.includes(internal), `${intent} leaked ${internal}.`);
@@ -121,8 +143,14 @@ try {
     const durations = outcome.plan.shotArchitecture.shots.map((shot) => shot.timeRange.durationSeconds);
     assert(Math.abs(durations.reduce((sum, duration) => sum + duration, 0) - 15) < 0.01, `${intent} timing does not sum to 15s.`);
     assert(new Set(durations).size > 1, `${intent} timing is still equal across shots.`);
-    assert(text.includes(`Time: ${outcome.plan.shotArchitecture.shots[0].timeRange.startSecond.toFixed(1)}-${outcome.plan.shotArchitecture.shots[0].timeRange.endSecond.toFixed(1)}s`), `${intent} SHOT 1 timing is wrong.`);
-    assert(text.includes(`Time: ${outcome.plan.shotArchitecture.shots[4].timeRange.startSecond.toFixed(1)}-${outcome.plan.shotArchitecture.shots[4].timeRange.endSecond.toFixed(1)}s`), `${intent} SHOT 5 timing is wrong.`);
+    const firstTiming = text.includes("[ONE CONTINUOUS ACTION FLOW]")
+      ? `Beat window 1: ${outcome.plan.shotArchitecture.shots[0].timeRange.startSecond.toFixed(1)}-${outcome.plan.shotArchitecture.shots[0].timeRange.endSecond.toFixed(1)}s`
+      : `Time: ${outcome.plan.shotArchitecture.shots[0].timeRange.startSecond.toFixed(1)}-${outcome.plan.shotArchitecture.shots[0].timeRange.endSecond.toFixed(1)}s`;
+    const lastTiming = text.includes("[ONE CONTINUOUS ACTION FLOW]")
+      ? `Beat window 5: ${outcome.plan.shotArchitecture.shots[4].timeRange.startSecond.toFixed(1)}-${outcome.plan.shotArchitecture.shots[4].timeRange.endSecond.toFixed(1)}s`
+      : `Time: ${outcome.plan.shotArchitecture.shots[4].timeRange.startSecond.toFixed(1)}-${outcome.plan.shotArchitecture.shots[4].timeRange.endSecond.toFixed(1)}s`;
+    assert(text.includes(firstTiming), `${intent} BEAT 1 timing is wrong.`);
+    assert(text.includes(lastTiming), `${intent} BEAT 5 timing is wrong.`);
     assert(!text.includes("MOMENT "), `${intent} reused Narrative Moment language.`);
     assert(!text.includes("Product Presence"), `${intent} reused Narrative Product Presence language.`);
     assert(!text.includes("Camera Narrative Role"), `${intent} reused Narrative Camera Role language.`);

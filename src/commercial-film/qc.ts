@@ -16,6 +16,9 @@ const GATE_LABELS: Record<CommercialQcGateId, string> = {
   product_readability: "Product Readability",
   hero_moment_exists: "Hero Moment Exists",
   detail_supported_by_reference: "Detail Supported By Reference",
+  continuity_state_consistent: "Continuity State Consistent",
+  take_grouping_motivated: "Take Grouping Motivated",
+  micro_decision_visible_consequence: "Micro Decision Visible Consequence",
   no_product_deformation: "No Product Deformation",
   no_product_identity_drift: "No Product Identity Drift",
   no_random_scene_jump: "No Random Scene Jump",
@@ -89,6 +92,31 @@ export function runCommercialFilmQc(input: CommercialQcInput): {
   const detailShot = input.shotArchitecture.shots.find((shot) => shot.role === "DETAIL");
   const heroShot = input.shotArchitecture.shots.find((shot) => shot.role === "HERO");
   const releaseShot = input.shotArchitecture.shots.find((shot) => shot.role === "RELEASE");
+  const heroActionText = (heroShot?.action.physicalActionLine ?? "")
+    .replace(/\b(?:without|no)\s+(?:posing|a\s+pose|any\s+pose)\b/gi, " ");
+  const heroPoseFree = !/\b(?:pose|poses|posed|posing)\b|\bpresents?\s+the\s+(?:shoe|product)\b|\bdisplays?\s+the\s+(?:shoe|product)\b|\bstops?\s+for\s+the\s+camera\b/i.test(
+    heroActionText
+  );
+  const heroHoldMotivated = heroShot?.camera.movement !== "brief_hero_hold"
+    || heroShot?.event.actionContinuity === "SETTLES";
+  const heroReadabilityReachable = Boolean(heroShot)
+    && (Boolean(heroShot?.productMessageDimension) || input.productMessage.externalReferenceRequired)
+    && heroShot?.productVisibility === "PRODUCT_HERO"
+    && heroPoseFree
+    && heroHoldMotivated;
+  const continuityStateConsistent = input.continuity.status === "CONTINUOUS"
+    && input.continuity.conflicts.length === 0;
+  const takePlan = input.continuity.takePlan;
+  const takeGroupingMotivated = takePlan.takes.length > 0
+    && takePlan.takes.length <= 3
+    && takePlan.failureReasons.length === 0
+    && takePlan.takes.every((take) => take.shotIndexes.length > 0);
+  const microDecisionValid = input.microDecision.status !== "MICRO_DECISION_FAILED";
+  const microDecisionLine = input.microDecision.status === "MICRO_DECISION_NOT_DECLARED"
+    ? "No Micro Decision contract is declared for this film."
+    : microDecisionValid
+      ? "The declared Micro Decision shows its visible consequence after the chosen action and does not restart it."
+      : `The declared Micro Decision is not executable: ${input.microDecision.failureReasons.join(" | ")}`;
   const detailSupported = input.productMessage.externalReferenceRequired
     ? detailShot?.storySpine.productPresenceDesign !== "ABSENT"
     : Boolean(detailShot?.productMessageDimension)
@@ -161,11 +189,11 @@ export function runCommercialFilmQc(input: CommercialQcInput): {
     ),
     hero_moment_exists: gate(
       "hero_moment_exists",
-      Boolean(heroShot)
-        && (Boolean(heroShot?.productMessageDimension) || input.productMessage.externalReferenceRequired)
-        && heroShot?.camera.movement === "brief_hero_hold",
+      heroReadabilityReachable,
       heroShot
-        ? "The HERO shot is a brief worn-product hold inside the continuation of the person's real action."
+        ? heroHoldMotivated
+          ? "The HERO shot reaches worn-product readability inside the declared action continuity: a hold is used only where the narrative actually settles."
+          : "The HERO shot forces a breath-hold inside an action that the narrative declares as continuous, so the character would stop for the product."
         : "No PRODUCT_HERO shot exists."
     ),
     detail_supported_by_reference: gate(
@@ -174,6 +202,25 @@ export function runCommercialFilmQc(input: CommercialQcInput): {
       detailSupported
         ? `The DETAIL shot observes only ${detailShot?.productMessageDimension}, a coverage item established by the current confirmed references.`
         : "The DETAIL shot is not supported by any confirmed product coverage."
+    ),
+    continuity_state_consistent: gate(
+      "continuity_state_consistent",
+      continuityStateConsistent,
+      continuityStateConsistent
+        ? "Every beat's preconditions are satisfied by the previous beat's effects, and no single-use action, spatial anchor, or object state is reset."
+        : `The World State chain contains hard continuity conflicts: ${input.continuity.failureReasons.join(" | ")}`
+    ),
+    take_grouping_motivated: gate(
+      "take_grouping_motivated",
+      takeGroupingMotivated,
+      takeGroupingMotivated
+        ? `${input.shotArchitecture.shots.length} narrative beats compile into ${takePlan.takes.length} motivated take(s), and every take boundary comes from a declared spatial, photographic, temporal, or action boundary.`
+        : `The take plan is not admissible: ${takePlan.failureReasons.join(" | ") || "no motivated take could be planned"}.`
+    ),
+    micro_decision_visible_consequence: gate(
+      "micro_decision_visible_consequence",
+      microDecisionValid,
+      microDecisionLine
     ),
     no_product_deformation: gate(
       "no_product_deformation",

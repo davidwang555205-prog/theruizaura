@@ -1,0 +1,347 @@
+{
+  "schemaVersion": "commercial-film/v1.5-seedance-acceptance-manifest-v1",
+  "stage": "COMMERCIAL_FILM_V1_5_SEEDANCE_VISUAL_ACCEPTANCE",
+  "compiledFromMain": "28097b2",
+  "caseCount": 3,
+  "cases": [
+    {
+      "caseId": "case-a",
+      "purpose": "Isolate door/threshold single-use state and inside/outside character continuity.",
+      "intent": "NEW_ARRIVAL",
+      "structuredInitialState": {
+        "shotIndex": 0,
+        "attributes": {
+          "character": {
+            "space": "outside on the approach",
+            "anchor": "the approach line"
+          },
+          "destination_threshold": {
+            "state": "closed",
+            "lock": "locked",
+            "crossings": "0"
+          }
+        },
+        "completedActions": []
+      },
+      "structuredFinalState": {
+        "shotIndex": 4,
+        "attributes": {
+          "character": {
+            "space": "inside the arrival space",
+            "anchor": "the arrival space"
+          },
+          "destination_threshold": {
+            "state": "open",
+            "lock": "unlocked",
+            "crossings": "1"
+          }
+        },
+        "completedActions": [
+          "UNLOCK_THRESHOLD",
+          "OPEN_THRESHOLD",
+          "CROSS_THRESHOLD"
+        ]
+      },
+      "singleUseActions": [
+        {
+          "actionId": "UNLOCK_THRESHOLD",
+          "actionLabel": "unlocked",
+          "entityId": "destination_threshold",
+          "attribute": "lock",
+          "fromValue": "locked",
+          "toValue": "unlocked",
+          "shotIndex": 1
+        },
+        {
+          "actionId": "OPEN_THRESHOLD",
+          "actionLabel": "opened",
+          "entityId": "destination_threshold",
+          "attribute": "state",
+          "fromValue": "closed",
+          "toValue": "open",
+          "shotIndex": 1
+        },
+        {
+          "actionId": "CROSS_THRESHOLD",
+          "actionLabel": "crossed",
+          "entityId": "character",
+          "attribute": "space",
+          "fromValue": "outside on the approach",
+          "toValue": "inside the arrival space",
+          "shotIndex": 1
+        }
+      ],
+      "microDecision": null,
+      "decisionStatus": null,
+      "takeCount": 2,
+      "takeBoundaries": [
+        {
+          "takeIndex": 1,
+          "motivation": "SPATIAL_BOUNDARY",
+          "boundaryReason": "The character crosses from the exterior approach into the arrival space.",
+          "boundaryEvidence": [
+            {
+              "kind": "SPATIAL_TRANSITION",
+              "statement": "The character's space changes from outside on the approach to inside the arrival space.",
+              "proof": {
+                "entityId": "character",
+                "attribute": "space",
+                "fromValue": "outside on the approach",
+                "toValue": "inside the arrival space"
+              }
+            }
+          ],
+          "whyContinuousTakeFails": "The destination interior cannot be covered by the camera position that covers the exterior approach while the character completes the entry."
+        }
+      ],
+      "continuityLockFacts": [
+        {
+          "factId": "character.space.change",
+          "kind": "SPATIAL_CHANGE",
+          "entityId": "character",
+          "attribute": "space",
+          "line": "The character begins outside on the approach and is inside the arrival space from shot 2 onward."
+        },
+        {
+          "factId": "character.space.rule",
+          "kind": "SPATIAL_HOLD",
+          "entityId": "character",
+          "attribute": "space",
+          "line": "The only spatial change in the film is the crossing declared at shot 2; the character does not return to the previous spatial situation afterwards."
+        },
+        {
+          "factId": "destination_threshold.persistence",
+          "kind": "ENTITY_PERSISTENCE",
+          "entityId": "destination_threshold",
+          "attribute": null,
+          "line": "The same destination threshold persists throughout the film."
+        },
+        {
+          "factId": "destination_threshold.state.change",
+          "kind": "ENTITY_CHANGE",
+          "entityId": "destination_threshold",
+          "attribute": "state",
+          "line": "The same destination threshold begins closed, is opened once at shot 2, and stays open for the rest of the film."
+        },
+        {
+          "factId": "destination_threshold.lock.change",
+          "kind": "ENTITY_CHANGE",
+          "entityId": "destination_threshold",
+          "attribute": "lock",
+          "line": "The same destination threshold begins locked, is unlocked once at shot 2, and stays unlocked for the rest of the film."
+        },
+        {
+          "factId": "CROSS_THRESHOLD.single_use",
+          "kind": "SINGLE_USE_ACTION",
+          "entityId": "destination_threshold",
+          "attribute": "crossings",
+          "line": "Crossing the destination threshold happens once in the film and is not repeated afterwards."
+        }
+      ],
+      "expectedFailureModes": [
+        "door is unlocked more than once",
+        "door is opened more than once",
+        "character returns outside after entering",
+        "door direction changes between shots",
+        "character spatial motion resets"
+      ],
+      "compiledScriptHash": "9d8ee83a50ae8a5225764baa1ab6f6755ce5b9262c4574c8690607f97e619e2a"
+    },
+    {
+      "caseId": "case-b",
+      "purpose": "Isolate the Micro Decision commitment and its visible consequence.",
+      "intent": "URBAN_MOTION",
+      "structuredInitialState": {
+        "shotIndex": 0,
+        "attributes": {
+          "character": {
+            "space": "on the city route",
+            "anchor": "the same open city route"
+          },
+          "ground": {
+            "surface": "ordinary city pavement"
+          }
+        },
+        "completedActions": []
+      },
+      "structuredFinalState": {
+        "shotIndex": 4,
+        "attributes": {
+          "character": {
+            "space": "on the city route",
+            "anchor": "the same open city route"
+          },
+          "ground": {
+            "surface": "a changed surface at the crossing"
+          }
+        },
+        "completedActions": []
+      },
+      "singleUseActions": [],
+      "microDecision": {
+        "schemaVersion": "commercial-film/micro-decision-v1",
+        "routine": "The character waits at an ordinary bus stop during a city walk.",
+        "expectation": "The viewer expects her to board the bus when it arrives.",
+        "trigger": "The bus arrives at the stop.",
+        "expectedAction": "board the bus",
+        "chosenAction": "she visibly stays on the pavement and does not board",
+        "visibleConsequence": "the bus departs without her",
+        "continuation": "she turns and continues walking",
+        "decisionBeatIndex": 3,
+        "consequenceBeatIndex": 4,
+        "triggerState": {
+          "entityId": "bus",
+          "attribute": "state",
+          "value": "approaching the stop",
+          "reason": "The bus must be arriving before the boarding decision."
+        },
+        "decisionPrecondition": {
+          "entityId": "character",
+          "attribute": "space",
+          "value": "on the city route",
+          "reason": "The character is already on the city route when the decision happens."
+        },
+        "decisionEffect": null,
+        "consequencePrecondition": {
+          "entityId": "character",
+          "attribute": "space",
+          "value": "on the city route",
+          "reason": "The STAY decision preserves her physical location."
+        },
+        "consequenceEffect": {
+          "entityId": "bus",
+          "attribute": "state",
+          "fromValue": "approaching the stop",
+          "toValue": "departed without her",
+          "cause": "ENVIRONMENT",
+          "actionId": null,
+          "actionLabel": null,
+          "reason": "The bus departs after the decision is committed."
+        },
+        "chosenActionId": "STAY",
+        "consequenceDecisionStatusRequirement": "COMMITTED",
+        "scenarioState": {
+          "entities": [
+            {
+              "id": "bus",
+              "kind": "OBJECT",
+              "label": "the bus",
+              "initialAttributes": {
+                "state": "approaching the stop"
+              },
+              "continuityLockAttributes": [],
+              "containment": null
+            }
+          ],
+          "beatEffects": [
+            {
+              "beatIndex": 4,
+              "effects": [
+                {
+                  "entityId": "bus",
+                  "attribute": "state",
+                  "fromValue": "approaching the stop",
+                  "toValue": "departed without her",
+                  "cause": "ENVIRONMENT",
+                  "actionId": null,
+                  "actionLabel": null,
+                  "reason": "The bus departs after the decision is committed."
+                }
+              ]
+            }
+          ]
+        },
+        "decisionStatus": "COMMITTED",
+        "committedAtBeatIndex": 3
+      },
+      "decisionStatus": "COMMITTED",
+      "takeCount": 1,
+      "takeBoundaries": [],
+      "continuityLockFacts": [
+        {
+          "factId": "character.space.hold",
+          "kind": "SPATIAL_HOLD",
+          "entityId": "character",
+          "attribute": "space",
+          "line": "The character remains on the city route for the whole film and does not relocate to another spatial situation."
+        },
+        {
+          "factId": "ground.surface.change",
+          "kind": "ENTITY_CHANGE",
+          "entityId": "ground",
+          "attribute": "surface",
+          "line": "The ground relationship begins ordinary city pavement and becomes a changed surface at the crossing at shot 3, and that state holds afterwards."
+        }
+      ],
+      "expectedFailureModes": [
+        "character boards and then reappears outside",
+        "bus leaves before the decision",
+        "bus returns after departing",
+        "decision exists only in prose without visible action",
+        "product creates a separate hero stop",
+        "phone or another prop enters the story"
+      ],
+      "compiledScriptHash": "2c15e07eaf82fa1fbcd64b938c36333d084fefb4cc8bd44cc8fe92aa11203fcd"
+    },
+    {
+      "caseId": "case-c",
+      "purpose": "Prove five narrative beats can remain exactly one continuous take.",
+      "intent": "URBAN_MOTION",
+      "structuredInitialState": {
+        "shotIndex": 0,
+        "attributes": {
+          "character": {
+            "space": "on the city route",
+            "anchor": "the same open city route"
+          },
+          "ground": {
+            "surface": "ordinary city pavement"
+          }
+        },
+        "completedActions": []
+      },
+      "structuredFinalState": {
+        "shotIndex": 4,
+        "attributes": {
+          "character": {
+            "space": "on the city route",
+            "anchor": "the same open city route"
+          },
+          "ground": {
+            "surface": "a changed surface at the crossing"
+          }
+        },
+        "completedActions": []
+      },
+      "singleUseActions": [],
+      "microDecision": null,
+      "decisionStatus": null,
+      "takeCount": 1,
+      "takeBoundaries": [],
+      "continuityLockFacts": [
+        {
+          "factId": "character.space.hold",
+          "kind": "SPATIAL_HOLD",
+          "entityId": "character",
+          "attribute": "space",
+          "line": "The character remains on the city route for the whole film and does not relocate to another spatial situation."
+        },
+        {
+          "factId": "ground.surface.change",
+          "kind": "ENTITY_CHANGE",
+          "entityId": "ground",
+          "attribute": "surface",
+          "line": "The ground relationship begins ordinary city pavement and becomes a changed surface at the crossing at shot 3, and that state holds afterwards."
+        }
+      ],
+      "expectedFailureModes": [
+        "five separate spatial reinitializations",
+        "character stops to present the shoe",
+        "standalone shoe close-up",
+        "hero pose",
+        "city direction or walking axis changes"
+      ],
+      "compiledScriptHash": "96124be44ed3810afb4c901d908708a941c70ca85fd997de252e6f231d519ef2"
+    }
+  ]
+}

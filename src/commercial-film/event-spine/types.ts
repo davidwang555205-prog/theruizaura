@@ -1,8 +1,17 @@
 import type { CommercialIntentId, CommercialShotRole } from "../types";
 import type { CommercialCreativeSpinePlan } from "../creative-spine/types";
+import type {
+  CommercialEventStateContract,
+  CommercialWorldModel,
+} from "./world-state";
+import type {
+  CommercialActionContinuity,
+  CommercialEventCameraState,
+  CommercialTakeBoundary,
+} from "./takes";
 
-export const COMMERCIAL_EVENT_SPINE_SCHEMA_VERSION = "commercial-film/event-spine-v1.2.1" as const;
-export const COMMERCIAL_EVENT_SPINE_VERSION = "1.2.1" as const;
+export const COMMERCIAL_EVENT_SPINE_SCHEMA_VERSION = "commercial-film/event-spine-v1.3" as const;
+export const COMMERCIAL_EVENT_SPINE_VERSION = "1.3.0" as const;
 
 export type CommercialEndingGrammarId =
   | "CONTINUED_SPATIAL_MOVEMENT"
@@ -25,6 +34,18 @@ export type CommercialEventShot = {
   durationSeconds: number;
   durationRationale: string;
   productDetailRelationship?: string | null;
+  /**
+   * Structured execution state added on top of the narrative event fields.
+   * The narrative text stays authoritative for the creative idea; these fields
+   * only declare what the beat requires, changes, and proves on screen.
+   */
+  stateContract: CommercialEventStateContract;
+  cameraState: CommercialEventCameraState;
+  actionContinuity: CommercialActionContinuity;
+  actionSequenceId: string;
+  actionRequiresFreshSetup: boolean;
+  takeBoundary: CommercialTakeBoundary | null;
+  timeGapSeconds: number;
 };
 
 export type CommercialEndingGrammar = {
@@ -38,6 +59,7 @@ export type CommercialEndingGrammar = {
 export type CommercialEventSpinePlan = {
   schemaVersion: typeof COMMERCIAL_EVENT_SPINE_SCHEMA_VERSION;
   plannerVersion: typeof COMMERCIAL_EVENT_SPINE_VERSION;
+  worldModel: CommercialWorldModel;
   intent: CommercialIntentId;
   centralEvent: string;
   eventChain: string[];
