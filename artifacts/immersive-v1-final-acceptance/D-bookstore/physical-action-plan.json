@@ -1,0 +1,47 @@
+[
+  {
+    "momentIndex": 0,
+    "whatHappens": "She walks along the 书店 / 杂志店门口 at a steady pace, approaching the bookstore without changing direction.",
+    "status": "MATCHED",
+    "selectedActionId": "walking-006",
+    "primitiveId": null,
+    "source": "EXISTING_ACTION",
+    "movementState": "walking_ongoing"
+  },
+  {
+    "momentIndex": 1,
+    "whatHappens": "As she nears the 书店 / 杂志店门口, her gaze moves toward the window display.",
+    "status": "MATCHED",
+    "selectedActionId": "environment-response-004",
+    "primitiveId": null,
+    "source": "EXISTING_ACTION",
+    "movementState": "stationary"
+  },
+  {
+    "momentIndex": 2,
+    "whatHappens": "She slows just before the 书店 / 杂志店门口 and stops outside instead of continuing past.",
+    "status": "MATCHED",
+    "selectedActionId": "transition-010",
+    "primitiveId": null,
+    "source": "EXISTING_ACTION",
+    "movementState": "stopping_settle"
+  },
+  {
+    "momentIndex": 3,
+    "whatHappens": "She steps slightly closer, looks for another second, then settles back into a normal standing position.",
+    "status": "MATCHED",
+    "selectedActionId": "transition-010",
+    "primitiveId": null,
+    "source": "EXISTING_ACTION",
+    "movementState": "stopping_settle"
+  },
+  {
+    "momentIndex": 4,
+    "whatHappens": "She continues into the 书店 / 杂志店内 at the same quiet pace; the moment of notice is over.",
+    "status": "MATCHED",
+    "selectedActionId": "walking-006",
+    "primitiveId": null,
+    "source": "EXISTING_ACTION",
+    "movementState": "walking_ongoing"
+  }
+]

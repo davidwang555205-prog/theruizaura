@@ -1,0 +1,102 @@
+SEEDANCE — IMMERSIVE NARRATIVE EXECUTION SCRIPT
+午后咖啡 · 15s · one primary subject · real-world timing
+
+[INTENT]
+Capture a quiet cafe arrival as the character notices an available seat and naturally adjusts their route toward it.
+One primary subject, one continuous sequence. Nothing is added between the moments below.
+
+[CHARACTER]
+Age: 28-32
+Appearance: 亚裔
+Keep the same primary person, wardrobe, and hair for the whole clip. Background people must never become a second narrative subject.
+
+[WORLD & CONTINUITY]
+Location: 咖啡馆到访. Scenes in order: 咖啡馆内 → 咖啡馆内 → 咖啡馆内 → 咖啡馆内 → 咖啡馆内.
+Season: 秋. Keep the same light direction, surfaces, and location continuity throughout.
+This is an actively operating cafe, not an empty set. A barista is naturally working behind the counter, while a few unrelated customers occupy the seating area or pass naturally through the depth of the room. They remain incidental environmental presence, stay occupied with their own ordinary activity, and do not look toward or interact with the main character.
+Keep all background people incidental and secondary. They do not look toward, react to, follow, assist, interrupt, or interact with the main character unless the approved event explicitly requires it. Do not change the camera to show them.
+Keep the working barista behind the counter and a few unrelated customers in the seating area or room depth within the established cafe frame; they remain background presence and never become narrative subjects.
+Background voices should have plausible visual sources somewhere in the environment when naturally visible within the established frame; do not create an acoustically occupied but visually abandoned public space. Do not change the camera to show a sound source or an ambient person.
+The existing background activity continues at its own pace while she moves; a foreground passerby or brief partial obstruction may cross the established view without becoming a new story event.
+Within this one cafe scene, the movement proceeds from entry past the counter as an open seat comes into view, adjusts into the clear aisle, then slows at the seating area and resolves at the open chair; no location jump or new event.
+Camera side: established A-side. Lens: a natural 50-70mm equivalent perspective.
+
+[CAMERA STATE]
+Natural eye level, fixed working distance, the same camera side for the whole clip.
+2 motivated camera state changes across the clip.
+Moment is not a shot: do not cut to a new setup for each moment.
+
+[TIMELINE]
+[MANDATORY VISUAL COMPLETION]
+1. The character visibly enters the cafe and continues walking.
+2. The open seat becomes visible along the continuing walk.
+3. The character visibly redirects the same continuing stride into the clear aisle.
+4. The character visibly reaches the open chair before sitting.
+5. The character visibly takes the same open chair and remains seated.
+Each listed transition must leave enough visual evidence to be understood, even if part of the action is briefly occluded. It needs no dedicated shot, held pause, centered pose, or full unobstructed view; generic walking, product observation, posing, or a camera move cannot replace it.
+
+TAKE 1 — 0.0-2.4s — ONE CONTINUOUS OBSERVATION
+[ONE CONTINUOUS ACTION FLOW]
+These timing windows observe one ongoing life action. Adjacent movement details may overlap while required state changes stay in order. Her pace can vary within the existing movement. Do not stop, restart, hold a stationary pose, or pause for product readability.
+She enters the 咖啡馆内 and walks through its entry area into the room without stopping at the doorway. She keeps the same grounded walking cadence without stopping or restarting. Her hands stay relaxed and empty.
+Camera: The same locked observation from established A-side, natural_eye_level, wide framing, unchanged lens. These are the already established observations, not corrective moves. The camera can lag slightly or allow partial obstruction and edge framing; it does not recover the subject or product for readability.
+Observation windows, not body cues: 1=0.0-2.4s.
+
+TAKE 2 — 2.4-15.0s — ONE CONTINUOUS OBSERVATION
+Begin this take after the preceding action. The entry observation gives way to the counter-side sightline where the open chair becomes visible. A new camera position is needed because The opening entry camera cannot hold the counter-side seat sightline at the established working distance.
+Keep what the previous take already established:
+She is already inside the same cafe.
+Her ordinary walking movement continues.
+The same chair remains unoccupied.
+The open chair is not yet in sight.
+She has not yet turned into the aisle.
+The earlier action of entering the cafe is complete; do not perform it again.
+[ONE CONTINUOUS ACTION FLOW]
+These timing windows observe one ongoing life action. Adjacent movement details may overlap while required state changes stay in order. Her pace can vary within the existing movement. Do not stop, restart, hold a stationary pose, or pause for product readability.
+She continues past the counter as her gaze naturally registers an open seat across the cafe; her stride does not break. She keeps the same grounded walking cadence without stopping or restarting. Her hands stay relaxed and empty. She turns her shoulders slightly toward the open seat and carries the next step into the clear aisle without breaking stride. She slows as the open chair draws near, shortening her steps and easing into the seating area.
+Camera: The same locked observation from established A-side, natural_eye_level, medium-full framing, unchanged lens. These are the already established observations, not corrective moves. The camera can lag slightly or allow partial obstruction and edge framing; it does not recover the subject or product for readability.
+Observation windows, not body cues: 2=2.4-6.0s; 3=6.0-9.4s; 4=9.4-12.8s.
+12.8-15.0s — MOMENT 5 · TAKE SEAT (observation window)
+The next movement begins as the previous action yields its required result; hand, torso, and weight may overlap without reversing the required event order or holding an end pose.
+Observed action: The approach carries into the turn toward the same open chair; she lowers into it and remains seated.
+Camera observation: The camera holds its position from established A-side, natural_eye_level, medium framing, unchanged lens.
+SOUND: quiet cafe room tone with restrained background voices and soft counter appliance hum; subtle body and fabric movement.
+
+[GLOBAL EXECUTION RULES]
+Real-world speed and normal human cadence; no slow motion, no time stretching, no speed ramp.
+The camera observes the person. It never changes what the person is doing.
+At an established observation position, allow brief foreground obstruction, edge framing, partial departure from the frame, and temporary loss of product readability. Never recenter, rush, or recover the subject or product for visibility; use only the already established camera movement.
+Do not add any action, object, event, or product beat that is not written in the timeline.
+Sound is natural world sound only: no music, no foreground dialogue, no voiceover, no narration.
+Use only the sounds written in the timeline; do not add any other object, door, or surface sound.
+Do not advance past a moment's described end state; a timeline boundary never requires a physical stop.
+A Moment boundary is timing and state evidence, not a command to stop or restart the person's movement.
+
+[PRODUCT / REFERENCE RULES]
+If product references are supplied to the external model, preserve those references exactly. Do not redesign or stylize the product.
+No product reference is confirmed for this task, so do not add or invent any colour, material, construction, logo, or panel detail.
+Product visibility: visible only if it falls naturally inside the framing. Never re-frame, push in, or cut away for the product.
+Product readability is incidental to the existing walk, turn, sit, or threshold crossing: no stop or reframe, repeated step, foot repositioning, or body turn is made for it.
+
+[DO NOT]
+No second narrative subject and no background person may become a story participant. Ambient people remain secondary and occupied with their own ordinary activity; they do not look at, react to, follow, assist, interrupt, or interact with the main character unless the approved event explicitly requires it. No crowd focus, no vehicle or animal entering the frame.
+No insert shot, close-up, cutaway, or new camera setup.
+No pose montage, no product showcase, no logo reveal, no on-screen text.
+No re-framing for the product; the narrative camera always wins.
+
+[ENDING STATE]
+She remains in the same seat reached by the last action; nothing else begins.
+At the end, preserve the state the action has reached:
+She is at the same chair.
+She remains seated; no second sit-down begins.
+She remains in the same chair.
+The same chair remains in sight.
+She has already turned into the clear aisle.
+The earlier action of entering the cafe is complete; do not perform it again.
+The earlier action of seeing the open chair is complete; do not perform it again.
+The earlier action of turning into the aisle is complete; do not perform it again.
+The earlier action of approaching the chair is complete; do not perform it again.
+The earlier action of sitting in the chair is complete; do not perform it again.
+Once this final state is reached, do not add a new task, destination, object interaction, sit-down, start, entry, door opening, product pose, or second ending.
+Do not enter the final state while any mandatory visual event above remains incomplete.
+Hold the final frame until the clip ends. Do not append a product shot, a logo, or a second ending.

@@ -71,10 +71,6 @@ function resolveTone(takes: ImmersivePresentationTake[], movement: ModelFacingCa
   return IMMERSIVE_TONE.moving;
 }
 
-function beginsNewTake(transition: ImmersivePresentationInput["modelFacingScript"]["diagnostics"]["cameraTransitions"][number] | undefined) {
-  return Boolean(transition?.changed && /the subject (?:advances to a new position|travels through the space)/i.test(transition.motivation ?? ""));
-}
-
 function buildTakes(input: ImmersivePresentationInput): ImmersivePresentationTake[] {
   const script = input.modelFacingScript;
   const transitions = new Map(script.diagnostics.cameraTransitions.map((transition) => [transition.momentIndex, transition]));
@@ -83,12 +79,7 @@ function buildTakes(input: ImmersivePresentationInput): ImmersivePresentationTak
   script.moments.forEach((moment, index) => {
     const transition = transitions.get(moment.momentIndex);
     const purpose = input.plan.moments.find((entry) => entry.index === moment.momentIndex)?.purpose ?? "establish_state";
-    const currentPlanMoment = input.plan.moments.find((entry) => entry.index === moment.momentIndex);
-    const previousPlanMoment = input.plan.moments.find((entry) => entry.index === moment.momentIndex - 1);
-    const advancesAtApproach = input.plan.topicId === "afternoon_cafe"
-      && purpose === "approach_trigger"
-      && Boolean(currentPlanMoment && previousPlanMoment && currentPlanMoment.spatialAnchor !== previousPlanMoment.spatialAnchor);
-    const startsNewTake = index === 0 || beginsNewTake(transition) || advancesAtApproach;
+    const startsNewTake = index === 0 || Boolean(moment.contract.takeBoundary);
     const boundary = input.plan.moments.find((entry) => entry.index === moment.momentIndex)?.completionBoundary ?? "STATE_HELD";
     const presentationMoment: ImmersivePresentationMoment = {
       takeIndex: startsNewTake ? takes.length : Math.max(0, takes.length - 1),
@@ -117,7 +108,9 @@ function buildTakes(input: ImmersivePresentationInput): ImmersivePresentationTak
         takeRole: "OPENING_OBSERVATION",
         cameraMovement: transition?.state.movementState ?? "locked_off",
         framingState: transition?.state.framingState ?? "medium-full",
-        motivation: transition?.motivation ?? (advancesAtApproach ? currentPlanMoment?.causalLink ?? null : null),
+        motivation: moment.contract.takeBoundary
+          ? `${moment.contract.takeBoundary.evidence} ${moment.contract.takeBoundary.whyContinuousCoverageFails}`
+          : transition?.motivation ?? null,
         moments: [presentationMoment],
       });
       return;
@@ -134,8 +127,8 @@ function buildTakes(input: ImmersivePresentationInput): ImmersivePresentationTak
       && take.moments[0].continuity === "SETTLE";
     const role: ImmersiveTakeRole = holdsOnlyEnding
       ? "HELD_ENDING"
-      : beginsNewTake(takeStartTransition)
-        ? "MOTIVATED_REFRAME"
+      : take.moments[0]?.momentIndex !== undefined && script.contracts.find((contract) => contract.momentIndex === take.moments[0].momentIndex)?.takeBoundary
+        ? "CONTINUOUS_MOMENT"
         : "CONTINUOUS_MOMENT";
     return { ...take, takeRole: role };
   });
@@ -318,15 +311,9 @@ export function validateImmersiveFinalScriptPresentation(
     "The take structure does not cover the full duration continuously."
   );
 
-  const takeBoundaryMoments = new Set(input.modelFacingScript.diagnostics.cameraTransitions
-    .filter((transition, index) => index > 0 && beginsNewTake(transition))
-    .map((transition) => transition.momentIndex));
-  for (const moment of input.plan.moments) {
-    const previous = input.plan.moments.find((candidate) => candidate.index === moment.index - 1);
-    if (input.plan.topicId === "afternoon_cafe" && moment.purpose === "approach_trigger" && previous && moment.spatialAnchor !== previous.spatialAnchor) {
-      takeBoundaryMoments.add(moment.index);
-    }
-  }
+  const takeBoundaryMoments = new Set(input.modelFacingScript.contracts
+    .filter((contract) => contract.takeBoundary && contract.momentIndex > 0)
+    .map((contract) => contract.momentIndex));
   const takeBoundaries = takeBoundaryMoments.size;
   add(
     "moment_is_not_shot",

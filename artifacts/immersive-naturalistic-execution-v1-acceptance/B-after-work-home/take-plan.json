@@ -1,0 +1,78 @@
+[
+  {
+    "take": 1,
+    "moments": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "motivation": "initial camera state for the sequence",
+    "boundary": null,
+    "inheritedStart": {
+      "facts": {
+        "character.place": "HALLWAY",
+        "character.motion": "WALKING",
+        "door.lock": "LOCKED",
+        "door.state": "CLOSED",
+        "key.location": "BAG",
+        "key.containment": "BAG",
+        "key.visibility": "HIDDEN",
+        "character.anchor": "APARTMENT_HALLWAY"
+      },
+      "entities": {
+        "character": {
+          "kind": "CHARACTER"
+        },
+        "door": {
+          "kind": "THRESHOLD"
+        },
+        "key": {
+          "kind": "OBJECT"
+        }
+      },
+      "completedEvents": []
+    }
+  },
+  {
+    "take": 2,
+    "moments": [
+      5
+    ],
+    "motivation": "The route passes from the exterior door view to the private home interior. One established camera cannot cover both sides of the doorway while keeping the same observation side.",
+    "boundary": {
+      "kind": "REAL_SPATIAL_BOUNDARY",
+      "evidence": "The route passes from the exterior door view to the private home interior.",
+      "whyContinuousCoverageFails": "One established camera cannot cover both sides of the doorway while keeping the same observation side."
+    },
+    "inheritedStart": {
+      "facts": {
+        "character.place": "INSIDE",
+        "character.motion": "WALKING",
+        "door.lock": "UNLOCKED",
+        "door.state": "OPEN",
+        "key.location": "HAND",
+        "key.containment": "NONE",
+        "key.visibility": "VISIBLE",
+        "character.anchor": "ENTRYWAY"
+      },
+      "entities": {
+        "character": {
+          "kind": "CHARACTER"
+        },
+        "door": {
+          "kind": "THRESHOLD"
+        },
+        "key": {
+          "kind": "OBJECT"
+        }
+      },
+      "completedEvents": [
+        "UNLOCK_DOOR",
+        "FIND_KEY",
+        "CROSS_THRESHOLD",
+        "OPEN_DOOR"
+      ]
+    }
+  }
+]

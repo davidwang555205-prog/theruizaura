@@ -1,0 +1,71 @@
+[
+  {
+    "take": 1,
+    "moments": [
+      1
+    ],
+    "motivation": "initial camera state for the sequence",
+    "boundary": null,
+    "inheritedStart": {
+      "facts": {
+        "character.place": "CAFE_ENTRY",
+        "character.motion": "WALKING",
+        "seat.state": "OPEN",
+        "seat.visibility": "HIDDEN",
+        "route.state": "STRAIGHT",
+        "character.anchor": "CAFE_INTERIOR"
+      },
+      "entities": {
+        "character": {
+          "kind": "CHARACTER"
+        },
+        "seat": {
+          "kind": "OBJECT"
+        },
+        "route": {
+          "kind": "PLACE"
+        }
+      },
+      "completedEvents": []
+    }
+  },
+  {
+    "take": 2,
+    "moments": [
+      2,
+      3,
+      4,
+      5
+    ],
+    "motivation": "The entry observation gives way to the counter-side sightline where the open chair becomes visible. The opening entry camera cannot hold the counter-side seat sightline at the established working distance.",
+    "boundary": {
+      "kind": "TRUE_CAMERA_STATE_DISCONTINUITY",
+      "evidence": "The entry observation gives way to the counter-side sightline where the open chair becomes visible.",
+      "whyContinuousCoverageFails": "The opening entry camera cannot hold the counter-side seat sightline at the established working distance."
+    },
+    "inheritedStart": {
+      "facts": {
+        "character.place": "CAFE_INTERIOR",
+        "character.motion": "WALKING",
+        "seat.state": "OPEN",
+        "seat.visibility": "HIDDEN",
+        "route.state": "STRAIGHT",
+        "character.anchor": "CAFE_INTERIOR"
+      },
+      "entities": {
+        "character": {
+          "kind": "CHARACTER"
+        },
+        "seat": {
+          "kind": "OBJECT"
+        },
+        "route": {
+          "kind": "PLACE"
+        }
+      },
+      "completedEvents": [
+        "ENTER_CAFE"
+      ]
+    }
+  }
+]

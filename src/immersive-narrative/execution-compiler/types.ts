@@ -14,6 +14,7 @@ import type { ProductPresenceLevel } from "../product-presence";
 import type { SoundMoment } from "../sound-world";
 import type { ResolvedCharacterProfile } from "../character-profile";
 import type { ImmersiveReferenceMapping } from "../seedance-compiler";
+import type { WorldSnapshot, VisibleEvent, TakeBoundary } from "./moment-contract";
 
 export const EXECUTION_COMPILER_SCHEMA_VERSION = "immersive-narrative/execution-compiler-v1.1" as const;
 export const EXECUTION_COMPILER_VERSION = "1.1.0" as const;
@@ -63,6 +64,14 @@ export type ExecutionMomentContract = {
   spatialAnchor: string;
   executionStatus: "EXECUTABLE" | "SAFE_CONTINUATION" | "NOT_EXECUTABLE";
   notes: string[];
+  stateAuthority: "STRUCTURED_AUTHORITY" | "LEGACY_FALLBACK";
+  worldStateBefore: WorldSnapshot | null;
+  worldStateAfter: WorldSnapshot | null;
+  requiredVisibleEvidence: VisibleEvent[];
+  singleUseAction: string | null;
+  takeBoundary: TakeBoundary | null;
+  stateConflicts: string[];
+  requiresStationaryBody: boolean;
 };
 
 export type BoundaryConflictType = "EARLY_COMPLETION" | "MISSING_END_STATE";
@@ -191,6 +200,8 @@ export type ModelFacingExecutionScript = {
     forcedInsertShots: number;
     referenceCount: number;
     engineeringMarkers: string[];
+    emotionalReleaseWording: string[];
+    emotionalReleaseCues: string[];
     timelineCoverage: { startSecond: number; endSecond: number; contiguous: boolean };
     spatialGate: { pass: boolean; reason: string };
     closureGate: { pass: boolean; reason: string };

@@ -5,6 +5,192 @@ import type {
   SceneResolverSceneEntry,
 } from "./types";
 
+export type LocationWorldTruth = {
+  category: string;
+  allowedEnvironmentContent: string[];
+  ambientActivity: string[];
+  routeGeometry: "existing_scene_geometry" | "private_room" | "threshold_continuity";
+  publicSpace: boolean;
+  protagonistReadyGuard?: string;
+  routeGeometryLine?: string;
+  forbiddenDominantEnvironmentSignals?: string[];
+};
+
+// The referenced footwear is role-bound to the protagonist. It never becomes a
+// storefront, shelf, poster, prop, or another person's identical product.
+export const PRODUCT_WORLD_EXCLUSIONS = [
+  "referenced footwear merchandise",
+  "shoe displays",
+  "shoe shelves",
+  "footwear posters or packaging",
+  "duplicated protagonist footwear",
+  "another person's identical footwear",
+];
+
+const PUBLIC_ROUTE_CONTENT = [
+  "ordinary paving and street furniture",
+  "existing building and shopfront lines",
+  "vegetation, benches, and route geometry already present",
+];
+
+const HOME_CONTENT = [
+  "domestic furniture and ordinary home objects",
+  "existing doors, walls, light, and surfaces",
+  "location-consistent residential objects",
+];
+
+const LOCATION_WORLD_TRUTH: Record<string, LocationWorldTruth> = {
+  HOME_ARRIVAL: {
+    category: "returning-home threshold",
+    allowedEnvironmentContent: HOME_CONTENT,
+    ambientActivity: ["ordinary domestic light and room tone stay continuous"],
+    routeGeometry: "threshold_continuity",
+    publicSpace: false,
+  },
+  LEAVING_HOME: {
+    category: "home departure and building exit",
+    allowedEnvironmentContent: ["entryway furniture and objects", "residential door and exterior surfaces", "ordinary building-exit surroundings"],
+    ambientActivity: ["no unfamiliar people enter the private entry area"],
+    routeGeometry: "threshold_continuity",
+    publicSpace: false,
+  },
+  BOOKSTORE_VISIT: {
+    category: "bookstore",
+    allowedEnvironmentContent: [
+      "books, magazines, and printed reading material",
+      "stationery and book-related displays",
+      "shelves, reading tables, and ordinary bookstore signage",
+    ],
+    ambientActivity: [
+      "staff shelving books",
+      "one customer browsing deeper inside",
+      "a page turning or a person crossing behind shelving",
+    ],
+    routeGeometry: "existing_scene_geometry",
+    publicSpace: true,
+    routeGeometryLine: "Existing shelving and display geometry shapes the approach; the protagonist is not locked to a center showcase position.",
+    protagonistReadyGuard: "The window and shelf displays contain reading material, never footwear. The character stops to look at the bookstore display, not at a shoe display.",
+    forbiddenDominantEnvironmentSignals: ["dominant cafe counter and coffee-service identity"],
+  },
+  CAFE_VISIT: {
+    category: "cafe",
+    allowedEnvironmentContent: [
+      "coffee service and food",
+      "cafe furniture, counters, and ordinary operation",
+      "location-consistent cafe objects and light",
+    ],
+    ambientActivity: [
+      "barista is naturally working behind the counter",
+      "a few unrelated customers occupy the seating area or pass through the depth of the room",
+      "one existing customer shifting a chair",
+      "a person crossing deeper background",
+      "cups being placed and ordinary cafe circulation",
+    ],
+    routeGeometry: "existing_scene_geometry",
+    publicSpace: true,
+    routeGeometryLine: "Existing counter, table, and chair geometry shapes the approach; furniture and independent activity may partially interrupt the route. The protagonist is not locked to a cleared center aisle.",
+    protagonistReadyGuard: "Existing tables, chairs, and independent activity may partially interrupt the sightline or approach. The open seat needs enough evidence to be recognized, not a cleared hero runway.",
+    forbiddenDominantEnvironmentSignals: ["dominant bookstore shelving", "bookstore window or display identity", "reading-store signage"],
+  },
+  OFFICE_ENTRANCE_WAIT: {
+    category: "office-entrance wait",
+    allowedEnvironmentContent: ["office entrance and facade", "ordinary street surfaces and furniture", "location-consistent building signage"],
+    ambientActivity: ["a distant pedestrian", "ordinary public movement at the edge of the space"],
+    routeGeometry: "existing_scene_geometry",
+    publicSpace: true,
+  },
+  RETURNING_WITH_PURCHASES: {
+    category: "returning-home route",
+    allowedEnvironmentContent: HOME_CONTENT,
+    ambientActivity: ["ordinary room tone and existing light stay continuous"],
+    routeGeometry: "threshold_continuity",
+    publicSpace: false,
+  },
+  WEEKEND_PRIVATE_TIME: {
+    category: "private reading room",
+    allowedEnvironmentContent: HOME_CONTENT,
+    ambientActivity: ["the private room stays private with no added people"],
+    routeGeometry: "private_room",
+    publicSpace: false,
+  },
+  SCHOOL_PICKUP_TRANSITION: {
+    category: "neighborhood homeward route",
+    allowedEnvironmentContent: PUBLIC_ROUTE_CONTENT,
+    ambientActivity: ["a distant pedestrian", "a person crossing another route in the background"],
+    routeGeometry: "existing_scene_geometry",
+    publicSpace: true,
+  },
+  NEIGHBORHOOD_WALK: {
+    category: "neighborhood walking route",
+    allowedEnvironmentContent: PUBLIC_ROUTE_CONTENT,
+    ambientActivity: ["a distant pedestrian", "ordinary public movement on another path", "leaves or low ambient public motion where the location allows"],
+    routeGeometry: "existing_scene_geometry",
+    publicSpace: true,
+  },
+  AFTER_LUNCH_STREET: {
+    category: "city street",
+    allowedEnvironmentContent: PUBLIC_ROUTE_CONTENT,
+    ambientActivity: ["a distant pedestrian", "ordinary background traffic or public movement where the location allows"],
+    routeGeometry: "existing_scene_geometry",
+    publicSpace: true,
+  },
+  URBAN_WANDERING: {
+    category: "urban block route",
+    allowedEnvironmentContent: PUBLIC_ROUTE_CONTENT,
+    ambientActivity: ["a distant pedestrian", "a person crossing another route in the background", "ordinary independent city movement"],
+    routeGeometry: "existing_scene_geometry",
+    publicSpace: true,
+  },
+  EVENING_HOME_RETURN: {
+    category: "evening residential route",
+    allowedEnvironmentContent: [...PUBLIC_ROUTE_CONTENT, ...HOME_CONTENT],
+    ambientActivity: ["a distant pedestrian on the early route", "ordinary residential light and room tone at the threshold"],
+    routeGeometry: "threshold_continuity",
+    publicSpace: false,
+  },
+  SHORT_LOCAL_TRIP: {
+    category: "short local route",
+    allowedEnvironmentContent: PUBLIC_ROUTE_CONTENT,
+    ambientActivity: ["a distant pedestrian", "ordinary public movement on another path"],
+    routeGeometry: "existing_scene_geometry",
+    publicSpace: true,
+  },
+};
+
+export function locationWorldTruthOf(locationWorldId: string | null, sceneIds: string[] = []) {
+  const explicit = locationWorldId ? LOCATION_WORLD_TRUTH[locationWorldId] : undefined;
+  const truth = explicit ?? LOCATION_WORLD_TRUTH[locationWorldId ?? ""] ?? null;
+  if (truth) {
+    return {
+      ...truth,
+      allowedEnvironmentContent: [...truth.allowedEnvironmentContent],
+      ambientActivity: [...truth.ambientActivity],
+      excludedEnvironmentContent: [...PRODUCT_WORLD_EXCLUSIONS],
+    };
+  }
+  const sceneText = sceneIds.join(" ").toLowerCase();
+  if (/bookstore/.test(sceneText)) return locationWorldTruthOf("BOOKSTORE_VISIT", sceneIds);
+  if (/cafe|coffee-shop/.test(sceneText)) return locationWorldTruthOf("CAFE_VISIT", sceneIds);
+  if (/returning-home|window-reading|dressing-corner|home-errand-entry/.test(sceneText)) {
+    return {
+      category: "private home environment",
+      allowedEnvironmentContent: [...HOME_CONTENT],
+      ambientActivity: ["the private room stays private with no added people"],
+      routeGeometry: "private_room" as const,
+      publicSpace: false,
+      excludedEnvironmentContent: [...PRODUCT_WORLD_EXCLUSIONS],
+    };
+  }
+  return {
+    category: "public environment",
+    allowedEnvironmentContent: [...PUBLIC_ROUTE_CONTENT],
+    ambientActivity: ["a few independent background visitors or pedestrians occupied with ordinary activity"],
+    routeGeometry: "existing_scene_geometry" as const,
+    publicSpace: true,
+    excludedEnvironmentContent: [...PRODUCT_WORLD_EXCLUSIONS],
+  };
+}
+
 export const CURRENT_NARRATIVE_SCENE_LIBRARY: SceneResolverSceneEntry[] = lifestyleSoftSeedingScenePool.map((scene) => ({
   id: scene.id,
   sceneName: scene.scenePreference,
@@ -341,24 +527,25 @@ export const CURRENT_SCENE_RESOLUTION_RULES: SceneResolverRule[] = [
 // its assigned scene ids. It is prompt language only; it does not add people to
 // private scenes or create a new scene/planning layer.
 export function resolvedWorldPresenceDescription(locationWorldId: string | null, sceneIds: string[]) {
-  const sceneText = sceneIds.join(" ").toLowerCase();
-  if (locationWorldId === "CAFE_VISIT" || /cafe|coffee-shop/.test(sceneText)) {
-    return "This is an actively operating cafe, not an empty set. A barista is naturally working behind the counter, while a few unrelated customers occupy the seating area or pass naturally through the depth of the room. They remain incidental environmental presence, stay occupied with their own ordinary activity, and do not look toward or interact with the main character.";
+  const truth = locationWorldTruthOf(locationWorldId, sceneIds);
+  const routeLike = /route|street|entrance|block|walking/i.test(truth.category);
+  const occupancy = truth.publicSpace
+    ? `${routeLike ? "This is an actively used public route, not an empty set." : `This is an actively operating ${truth.category}, not an empty set.`} ${truth.ambientActivity.join("; ")}${routeLike ? ". A few pedestrians move independently at the frame edge or in the depth of the environment, occupied with ordinary travel and never gathered around the main character" : ""}. All background activity is incidental, low-intensity, independent, and never becomes a narrative event.`
+    : `This is a private home environment. Keep the room private and do not add unfamiliar people. ${truth.ambientActivity.join("; ")}.`;
+  const lines = [
+    occupancy,
+    `Location content: ${truth.allowedEnvironmentContent.join(", ")}. The location keeps its own real-world merchandise and objects. ${truth.excludedEnvironmentContent.join(", ")} must not appear anywhere in the environment.`,
+  ];
+  if (truth.forbiddenDominantEnvironmentSignals?.length) {
+    lines.push(`Do not give this location the dominant identity of another category: ${truth.forbiddenDominantEnvironmentSignals.join(", ")}. Realistic possibility does not automatically become the selected location identity.`);
   }
-  if (locationWorldId === "BOOKSTORE_VISIT" || /bookstore/.test(sceneText)) {
-    return "This is an actively operating bookstore, not an empty set. A staff member works in the store while a few unrelated browsers look through shelves or pass naturally through the depth of the space. They remain incidental environmental presence, occupied with ordinary independent activity, and do not look toward or interact with the main character.";
+  if (truth.routeGeometryLine) {
+    lines.push(truth.routeGeometryLine);
+  } else if (truth.publicSpace && truth.routeGeometry === "existing_scene_geometry") {
+    lines.push("The existing scene geometry sets the route: sidewalk edges, building and shopfront lines, tree lines, benches, and path junctions create a naturally off-axis course. The protagonist is not locked to an optical center or a symmetric vanishing line.");
   }
-  if (["AFTER_LUNCH_STREET", "URBAN_WANDERING", "NEIGHBORHOOD_WALK", "SCHOOL_PICKUP_TRANSITION"].includes(locationWorldId ?? "") || /city-corner|weekend-city-walk|park-walk|community-path|street|sidewalk/.test(sceneText)) {
-    return "This is an actively used public route, not an empty set. A few pedestrians move independently at the frame edge or in the depth of the environment, occupied with ordinary travel and never gathered around the main character.";
+  if (truth.protagonistReadyGuard) {
+    lines.push(truth.protagonistReadyGuard);
   }
-  if (/restaurant/.test(sceneText)) {
-    return "This is an actively operating restaurant, not an empty set. Staff work naturally in the space while a few diners occupy tables or pass through the depth of the room; they remain incidental and do not engage with the main character.";
-  }
-  if (/retail|shop|store|mall|grocery|flower|hotel-lobby|station|waiting/.test(sceneText)) {
-    return "This is an actively operating public environment, not an empty set. Location-appropriate staff and a few visitors remain naturally present and occupied with ordinary independent activity in the background.";
-  }
-  if (["HOME_ARRIVAL", "WEEKEND_PRIVATE_TIME"].includes(locationWorldId ?? "") || /returning-home|window-reading|dressing-corner|home-errand-entry/.test(sceneText)) {
-    return "This is a private home environment. Keep the room private and do not add unfamiliar people.";
-  }
-  return null;
+  return lines.join(" ");
 }

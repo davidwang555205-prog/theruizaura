@@ -1,0 +1,29 @@
+{
+  "facts": {
+    "character.place": "INSIDE",
+    "character.motion": "SETTLED",
+    "door.lock": "UNLOCKED",
+    "door.state": "OPEN",
+    "key.location": "HAND",
+    "key.containment": "NONE",
+    "key.visibility": "VISIBLE",
+    "character.anchor": "HOME_INTERIOR"
+  },
+  "entities": {
+    "character": {
+      "kind": "CHARACTER"
+    },
+    "door": {
+      "kind": "THRESHOLD"
+    },
+    "key": {
+      "kind": "OBJECT"
+    }
+  },
+  "completedEvents": [
+    "UNLOCK_DOOR",
+    "FIND_KEY",
+    "CROSS_THRESHOLD",
+    "OPEN_DOOR"
+  ]
+}

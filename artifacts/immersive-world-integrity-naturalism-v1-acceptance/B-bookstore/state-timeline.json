@@ -1,0 +1,208 @@
+[
+  {
+    "moment": 1,
+    "authority": "LEGACY_FALLBACK",
+    "before": {
+      "facts": {
+        "character.place": "OUTSIDE",
+        "character.motion": "WALKING",
+        "store.entry": "NOT_ENTERED",
+        "character.anchor": "SHOP_FRONT"
+      },
+      "entities": {
+        "character": {
+          "kind": "CHARACTER"
+        },
+        "store": {
+          "kind": "PLACE"
+        }
+      },
+      "completedEvents": []
+    },
+    "preconditionEvidence": [],
+    "after": {
+      "facts": {
+        "character.place": "OUTSIDE",
+        "character.motion": "WALKING",
+        "store.entry": "NOT_ENTERED",
+        "character.anchor": "SHOP_FRONT"
+      },
+      "entities": {
+        "character": {
+          "kind": "CHARACTER"
+        },
+        "store": {
+          "kind": "PLACE"
+        }
+      },
+      "completedEvents": []
+    }
+  },
+  {
+    "moment": 2,
+    "authority": "STRUCTURED_AUTHORITY",
+    "before": {
+      "facts": {
+        "character.place": "OUTSIDE",
+        "character.motion": "WALKING",
+        "store.entry": "NOT_ENTERED",
+        "character.anchor": "SHOP_FRONT"
+      },
+      "entities": {
+        "character": {
+          "kind": "CHARACTER"
+        },
+        "store": {
+          "kind": "PLACE"
+        }
+      },
+      "completedEvents": []
+    },
+    "preconditionEvidence": [],
+    "after": {
+      "facts": {
+        "character.place": "OUTSIDE",
+        "character.motion": "SLOWING",
+        "store.entry": "NOT_ENTERED",
+        "character.anchor": "SHOP_WINDOW"
+      },
+      "entities": {
+        "character": {
+          "kind": "CHARACTER"
+        },
+        "store": {
+          "kind": "PLACE"
+        }
+      },
+      "completedEvents": []
+    }
+  },
+  {
+    "moment": 3,
+    "authority": "STRUCTURED_AUTHORITY",
+    "before": {
+      "facts": {
+        "character.place": "OUTSIDE",
+        "character.motion": "SLOWING",
+        "store.entry": "NOT_ENTERED",
+        "character.anchor": "SHOP_WINDOW"
+      },
+      "entities": {
+        "character": {
+          "kind": "CHARACTER"
+        },
+        "store": {
+          "kind": "PLACE"
+        }
+      },
+      "completedEvents": []
+    },
+    "preconditionEvidence": [],
+    "after": {
+      "facts": {
+        "character.place": "WINDOW",
+        "character.motion": "STOPPED",
+        "store.entry": "NOT_ENTERED",
+        "character.anchor": "SHOP_WINDOW"
+      },
+      "entities": {
+        "character": {
+          "kind": "CHARACTER"
+        },
+        "store": {
+          "kind": "PLACE"
+        }
+      },
+      "completedEvents": [
+        "WINDOW_STOP"
+      ]
+    }
+  },
+  {
+    "moment": 4,
+    "authority": "STRUCTURED_AUTHORITY",
+    "before": {
+      "facts": {
+        "character.place": "WINDOW",
+        "character.motion": "STOPPED",
+        "store.entry": "NOT_ENTERED",
+        "character.anchor": "SHOP_WINDOW"
+      },
+      "entities": {
+        "character": {
+          "kind": "CHARACTER"
+        },
+        "store": {
+          "kind": "PLACE"
+        }
+      },
+      "completedEvents": [
+        "WINDOW_STOP"
+      ]
+    },
+    "preconditionEvidence": [],
+    "after": {
+      "facts": {
+        "character.place": "WINDOW",
+        "character.motion": "SETTLED",
+        "store.entry": "NOT_ENTERED",
+        "character.anchor": "SHOP_FRONT"
+      },
+      "entities": {
+        "character": {
+          "kind": "CHARACTER"
+        },
+        "store": {
+          "kind": "PLACE"
+        }
+      },
+      "completedEvents": [
+        "WINDOW_STOP"
+      ]
+    }
+  },
+  {
+    "moment": 5,
+    "authority": "STRUCTURED_AUTHORITY",
+    "before": {
+      "facts": {
+        "character.place": "WINDOW",
+        "character.motion": "SETTLED",
+        "store.entry": "NOT_ENTERED",
+        "character.anchor": "SHOP_FRONT"
+      },
+      "entities": {
+        "character": {
+          "kind": "CHARACTER"
+        },
+        "store": {
+          "kind": "PLACE"
+        }
+      },
+      "completedEvents": [
+        "WINDOW_STOP"
+      ]
+    },
+    "preconditionEvidence": [],
+    "after": {
+      "facts": {
+        "character.place": "INSIDE",
+        "character.motion": "WALKING",
+        "store.entry": "ENTERED",
+        "character.anchor": "SHOP_INTERIOR"
+      },
+      "entities": {
+        "character": {
+          "kind": "CHARACTER"
+        },
+        "store": {
+          "kind": "PLACE"
+        }
+      },
+      "completedEvents": [
+        "WINDOW_STOP",
+        "ENTER_STORE"
+      ]
+    }
+  }
+]

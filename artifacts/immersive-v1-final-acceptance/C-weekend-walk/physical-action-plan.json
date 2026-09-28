@@ -1,0 +1,47 @@
+[
+  {
+    "momentIndex": 0,
+    "whatHappens": "She walks along the 公园慢走 at an even pace with no destination in mind.",
+    "status": "MATCHED",
+    "selectedActionId": "walking-006",
+    "primitiveId": null,
+    "source": "EXISTING_ACTION",
+    "movementState": "walking_ongoing"
+  },
+  {
+    "momentIndex": 1,
+    "whatHappens": "As she approaches the edge of the path, her attention moves to the surface ahead.",
+    "status": "MATCHED",
+    "selectedActionId": "walking-006",
+    "primitiveId": null,
+    "source": "EXISTING_ACTION",
+    "movementState": "walking_ongoing"
+  },
+  {
+    "momentIndex": 2,
+    "whatHappens": "She shortens one step to clear the uneven surface and then restores her normal pace.",
+    "status": "MATCHED",
+    "selectedActionId": "walking-026",
+    "primitiveId": null,
+    "source": "EXISTING_ACTION",
+    "movementState": "walking_finish"
+  },
+  {
+    "momentIndex": 3,
+    "whatHappens": "She settles back into the same easy rhythm and continues past the change.",
+    "status": "MATCHED",
+    "selectedActionId": "transition-010",
+    "primitiveId": null,
+    "source": "EXISTING_ACTION",
+    "movementState": "stopping_settle"
+  },
+  {
+    "momentIndex": 4,
+    "whatHappens": "She settles into an easy rhythm along the 公园慢走; the small adjustment is behind her.",
+    "status": "MATCHED",
+    "selectedActionId": "transition-010",
+    "primitiveId": null,
+    "source": "EXISTING_ACTION",
+    "movementState": "stopping_settle"
+  }
+]

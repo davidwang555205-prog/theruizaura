@@ -10,6 +10,7 @@ const GATE_LABELS: Record<ProductPresenceQcGateId, string> = {
   product_not_forced: "Product Not Forced",
   sufficient_product_evidence: "Sufficient Product Evidence",
   no_overexposure: "No Overexposure",
+  product_scope_target: "Product Scope Target",
 };
 
 function gate(id: ProductPresenceQcGateId, passed: boolean, reason: string): ProductPresenceQcGate {
@@ -28,6 +29,7 @@ export function buildProductPresenceQc(input: {
   productForced: boolean;
   rawHeroCount: number;
   rawStrongCount: number;
+  scopeTarget: boolean;
 }): { qc: ProductPresenceQc; allPassed: boolean } {
   const heroCount = input.curve.filter((moment) => moment.presence === "HERO").length;
   const readableCount = input.curve.filter((moment) => moment.presence === "READABLE").length;
@@ -70,6 +72,13 @@ export function buildProductPresenceQc(input: {
       noOverexposure
         ? `The curve keeps HERO at ${heroCount} and READABLE + HERO at ${strongCount}.`
         : "The curve has too many strong product moments or makes every moment a product focus."
+    ),
+    product_scope_target: gate(
+      "product_scope_target",
+      input.scopeTarget,
+      input.scopeTarget
+        ? "Every presence level describes only the protagonist's worn product; no moment scopes the reference to world merchandise."
+        : "A Product Presence Moment left the protagonist-worn scope and implied world-level product presence."
     ),
   };
 

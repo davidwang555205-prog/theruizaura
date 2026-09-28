@@ -56,7 +56,7 @@ function roleIntent(role: CameraNarrativeRole): CameraNarrativeIntent {
   return {
     followsSubjectMovement: role === "FOLLOWER",
     cameraPreExistsInSpace: role === "WAITING_CAMERA" || role === "AFTER_ACTION",
-    allowsSubjectToExitFrame: role === "AFTER_ACTION",
+    allowsSubjectToExitFrame: role === "AFTER_ACTION" || role === "OBSERVER" || role === "WAITING_CAMERA",
     allowsPartialBodyObservation: role === "PARTIAL_OBSERVATION",
   };
 }
@@ -75,7 +75,8 @@ function resolveRole(
   moment: ResolvedMoment,
   index: number,
   total: number,
-  partialAlreadyUsed: boolean
+  partialAlreadyUsed: boolean,
+  followerWarrant: boolean
 ) {
   const text = moment.originalWhatHappens;
   const state = actionState(text);
@@ -86,21 +87,23 @@ function resolveRole(
     role = "OBSERVER";
     reason = "PARTIAL_OBSERVATION is not used because the existing action has no grounded partial-observation reason.";
   }
-  if (role === "FOLLOWER" && state === "stationary") {
+  if (role === "FOLLOWER" && (state === "stationary" || !followerWarrant)) {
     role = "OBSERVER";
-    reason = "FOLLOWER is not used for a stationary action; OBSERVER keeps the camera non-interfering.";
+    reason = state === "stationary"
+      ? "FOLLOWER is not used for a stationary action; OBSERVER keeps the camera non-interfering."
+      : "Walking alone does not warrant a follow. FOLLOWER requires an existing narrative or spatial reason, so the camera resolves to a near-static OBSERVER.";
   }
   if (role === "WAITING_CAMERA" && state === "stationary") {
     role = supportsPartialObservation(text) ? "OBSERVER" : "OBSERVER";
     reason = "WAITING_CAMERA is not used because the subject is not entering or crossing the existing space.";
   }
   if (role === "AFTER_ACTION" && index !== total - 1) {
-    role = state === "move" ? "FOLLOWER" : "OBSERVER";
-    reason = "AFTER_ACTION is reserved for the narrative ending.";
+    role = "OBSERVER";
+    reason = "AFTER_ACTION is reserved for the narrative ending; the camera stays near-static instead of following.";
   }
   if (role === "AFTER_ACTION" && index === total - 1 && hasActiveEndingAction(text)) {
-    role = state === "move" || state === "enter" ? "FOLLOWER" : "OBSERVER";
-    reason = "AFTER_ACTION is not forced while the final Moment still contains active movement or entry.";
+    role = "OBSERVER";
+    reason = "AFTER_ACTION is not forced while the final Moment still contains active movement or entry; walking does not convert the camera into tracking.";
   }
 
   return { role, reason };
@@ -183,7 +186,14 @@ export function planCameraNarrative(
       }
 
       const state = actionState(moment.originalWhatHappens);
-      let resolved = resolveRole(baseline, moment, index, input.resolvedMoments.length, partialAlreadyUsed);
+      let resolved = resolveRole(
+        baseline,
+        moment,
+        index,
+        input.resolvedMoments.length,
+        partialAlreadyUsed,
+        Boolean(rule.followerWarrant)
+      );
       let role = resolved.role;
       let reason = resolved.reason;
 

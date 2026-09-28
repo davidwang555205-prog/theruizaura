@@ -63,6 +63,11 @@ export type CameraNarrativeRule = {
   label: string;
   baseline: CameraNarrativeRole[];
   description: string;
+  // FOLLOWER is not the walking default. A rule may grant it only when an
+  // existing narrative or spatial reason requires carrying observation across
+  // a real route or threshold handoff. Without this declaration, a walking
+  // baseline resolves to a near-static OBSERVER.
+  followerWarrant?: boolean;
   productDriven?: boolean;
   partialObservationPurpose?: "narrative" | "product";
   forceAfterAction?: boolean;

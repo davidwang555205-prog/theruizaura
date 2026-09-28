@@ -30,7 +30,7 @@
     },
     {
       "path": "src/immersive-narrative",
-      "sha256": "a9ce540db1462f1ec1fb497209567facf033b5502f7f1dc74da5fc4d9020699f"
+      "sha256": "e46bf928e24ca5954268cb61f0545ea6198bbbfa8a8f0565e7890a13a2efa9c7"
     },
     {
       "path": "src/data/personActionLibrary.ts",

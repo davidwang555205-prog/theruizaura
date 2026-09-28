@@ -17,7 +17,7 @@ import type {
 const INVENTED_EVENT_PATTERN = /\b(?:phone ring(?:s|ing)?|incoming call|someone calls? her|dog bark(?:s|ing)?|thunder|rain begins?|car horn|doorbell|notification|conversation directed at)\b/i;
 const OVERDESIGN_PATTERN = /\b(?:asmr|whoosh|cinematic impact|impact hit|sound hit|emotional score|music swell|transition sting|lens flare sound|product sound)\b/i;
 const FOOT_CONTACT_PATTERN = /\b(?:walk|walks|walking|step|steps|continues|approach|approaches|near|nears|reaches|moves through|outside|pace|stance|weight|floor|pavement|ground|threshold)\b/i;
-const FABRIC_PATTERN = /\b(?:fabric|sleeve|coat|garment|cuff|clothing|shoulder|posture|breath)/i;
+const FABRIC_PATTERN = /\b(?:fabric|sleeve|coat|garment|cuff|clothing|shoulder|posture)/i;
 const BAG_PATTERN = /\b(?:bag|tote|strap|grip|handle)/i;
 const DOOR_PATTERN = /\b(?:door|doorway|entrance|threshold|unlocks|opens)/i;
 const OBJECT_PATTERN = /\b(?:key|lock|handle|card|pocket|book|magazine|shelf|counter|console|paper|receipt|cup)/i;
@@ -68,7 +68,10 @@ function humanCues(text: string) {
   const cues: string[] = [];
   if (FABRIC_PATTERN.test(text)) cues.push("fabric movement");
   if (BAG_PATTERN.test(text)) cues.push("bag strap against clothing");
-  if (/quiet|still|pause|remains/i.test(text)) cues.push("soft breathing at rest");
+  // Quiet, settled, unhurried, relaxed, pause, slows, and stays describe an
+  // internal state, never an audible emotional release: they keep an ordinary
+  // human-presence cue and never generate a breath, sigh, or exhale sound.
+  if (/quiet|still|pause|remains/i.test(text)) cues.push("quiet fabric and body presence");
   if (!cues.length && /reaches|stands|shifts|adjusts|turns|walks|moves|closes|settles|continues/i.test(text)) {
     cues.push("subtle body and fabric movement");
   }

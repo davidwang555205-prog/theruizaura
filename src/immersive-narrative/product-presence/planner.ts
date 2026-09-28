@@ -111,6 +111,7 @@ function preserveMoment(moment: ResolvedMoment, presence: ProductPresenceLevel, 
     presence,
     reason,
     productRequirement: productRequirements(presence),
+    scopeTarget: "PROTAGONIST_WORN_PRODUCT",
   };
 }
 
@@ -201,6 +202,7 @@ export function planProductPresence(
     productForced,
     rawHeroCount,
     rawStrongCount,
+    scopeTarget: curve.every((moment) => moment.scopeTarget === "PROTAGONIST_WORN_PRODUCT"),
   });
 
   const status = qcResult.allPassed && failureReasons.length === 0
@@ -213,6 +215,7 @@ export function planProductPresence(
     topic: input.topic,
     duration: input.duration,
     curve,
+    scopeTarget: "PROTAGONIST_WORN_PRODUCT",
     qc: qcResult.qc,
     status,
     failureReasons: failureReasons.length ? failureReasons : undefined,

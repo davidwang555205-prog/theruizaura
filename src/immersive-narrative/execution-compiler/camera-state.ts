@@ -71,6 +71,27 @@ export function buildCameraStates(
         state: desired,
         note: "The opening Moment establishes the observation position, side, lens family, and framing.",
       });
+      previousRole = cameraMoment?.cameraRole ?? null;
+      continue;
+    }
+
+    const startsNewTake = Boolean(contract.takeBoundary?.evidence && contract.takeBoundary?.whyContinuousCoverageFails);
+
+    // Camera inertia persists inside one continuous Take. A Moment boundary is
+    // timing evidence, not a command to rebuild position, distance, height, or
+    // framing. Only a justified Take boundary may carry the observation into a
+    // new spatial position.
+    if (!startsNewTake) {
+      current = { ...current, naturalPartialVisibility: partialObservation };
+      transitions.push({
+        momentIndex: contract.momentIndex,
+        changed: false,
+        suppressed: false,
+        motivation: null,
+        state: current,
+        note: "Camera inertia persists inside this continuous Take; the Moment boundary does not rebuild the camera-to-subject relation.",
+      });
+      previousRole = cameraMoment?.cameraRole ?? previousRole;
       continue;
     }
 
@@ -117,6 +138,12 @@ export function buildCameraStates(
           : null;
       changed = Boolean(motivation);
       suppressed = !changed;
+    }
+
+    if (!changed) {
+      changed = true;
+      suppressed = false;
+      motivation = contract.takeBoundary?.evidence ?? "a real spatial boundary requires carrying the observation into the next position";
     }
 
     if (changed) {

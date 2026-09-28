@@ -1,0 +1,81 @@
+SEEDANCE — IMMERSIVE NARRATIVE EXECUTION SCRIPT
+周末散步 · 15s · one primary subject · real-world timing
+
+[INTENT]
+Capture a short neighborhood walk with no destination, observed at an easy pace.
+One primary subject, one continuous sequence. Nothing is added between the moments below.
+
+[CHARACTER]
+Age: 28-32
+Appearance: 亚裔
+Keep the same primary person, wardrobe, and hair for the whole clip. Background people must never become a second narrative subject.
+
+[WORLD & CONTINUITY]
+Location: 社区散步路线. Scenes in order: 社区步道 → 公园慢走 → 公园慢走 → 社区步道 → 公园慢走.
+Season: 秋. Keep the same light direction, surfaces, and location continuity throughout.
+This is an actively used public route, not an empty set. a distant pedestrian; ordinary public movement on another path; leaves or low ambient public motion where the location allows. A few pedestrians move independently at the frame edge or in the depth of the environment, occupied with ordinary travel and never gathered around the main character. All background activity is incidental, low-intensity, independent, and never becomes a narrative event. Location content: ordinary paving and street furniture, existing building and shopfront lines, vegetation, benches, and route geometry already present. The location keeps its own real-world merchandise and objects. referenced footwear merchandise, shoe displays, shoe shelves, footwear posters or packaging, duplicated protagonist footwear, another person's identical footwear must not appear anywhere in the environment. The existing scene geometry sets the route: sidewalk edges, building and shopfront lines, tree lines, benches, and path junctions create a naturally off-axis course. The protagonist is not locked to an optical center or a symmetric vanishing line.
+Keep all background people incidental and secondary. They do not look toward, react to, follow, assist, interrupt, or interact with the main character unless the approved event explicitly requires it. Do not change the camera to show them.
+Keep ambient people secondary, incidental, partly visible, softly separated by depth, or occupied with ordinary independent activity.
+Background voices should have plausible visual sources somewhere in the environment when naturally visible within the established frame; do not create an acoustically occupied but visually abandoned public space. Do not change the camera to show a sound source or an ambient person.
+The existing background activity continues at its own pace while she moves; a foreground passerby or brief partial obstruction may cross the established view without becoming a new story event.
+Camera side: established A-side. Lens: a natural 50-70mm equivalent perspective.
+
+[CAMERA STATE]
+Natural human height, the same camera side, and no subject-presentation guarantee for the whole clip. Distance and framing may drift; the camera never chases, re-centers, or recovers the subject or product.
+The camera is established once and then observed without cuts or re-frames.
+Moment is not a shot: do not cut to a new setup for each moment.
+
+[TIMELINE]
+[MANDATORY VISUAL COMPLETION]
+1. One real step visibly clears the uneven surface without stopping the walk.
+Each listed transition must leave enough visual evidence to be understood, even if part of the action is briefly occluded. It needs no dedicated shot, held pause, centered pose, or full unobstructed view; generic walking, product observation, posing, or a camera move cannot replace it.
+
+TAKE 1 — 0.0-15.0s — ONE CONTINUOUS OBSERVATION
+[ONE CONTINUOUS ACTION FLOW]
+These timing windows observe one ongoing life action. Adjacent movement details may overlap while required state changes stay in order. Her pace can vary within the existing movement. Do not stop, restart, hold a stationary pose, or pause for product readability.
+She walks along the 公园慢走 at an even pace with no destination in mind. She keeps the same grounded walking cadence without stopping or restarting. Her hands stay relaxed and empty. As she approaches the edge of the path, her attention moves to the surface ahead. She shortens one step to clear the uneven surface and restores her normal pace. She returns to the same easy rhythm and continues past the change. She keeps an easy rhythm along the 公园慢走; the small adjustment is behind her.
+Camera: A near-static observation carried into the current spatial position without re-centering or presentation recovery from established A-side, natural_eye_level, wide framing, unchanged lens. The camera keeps its position, side, lens, and wide framing from the previous Moment; it may lag or drift slightly, and it does not re-center, chase, or recover subject or product presentation. The camera keeps its position, side, lens, and wide framing from the previous Moment; it may lag or drift slightly, and it does not re-center, chase, or recover subject or product presentation. The camera keeps its position, side, lens, and wide framing from the previous Moment; it may lag or drift slightly, and it does not re-center, chase, or recover subject or product presentation. The camera keeps its position, side, lens, and wide framing from the previous Moment; it may lag or drift slightly, and it does not re-center, chase, or recover subject or product presentation. These are the already established observations, not corrective moves. The camera can lag slightly or allow partial obstruction and edge framing; it does not recover the subject or product for readability.
+Observation windows, not body cues: 1=0.0-3.6s; 2=3.6-6.4s; 3=6.4-10.0s; 4=10.0-11.7s; 5=11.7-15.0s.
+
+[GLOBAL EXECUTION RULES]
+Real-world speed and normal human cadence; no slow motion, no time stretching, no speed ramp.
+The camera observes the person. It never changes what the person is doing.
+At an established observation position, allow brief foreground obstruction, edge framing, partial departure from the frame, and temporary loss of product readability. Never recenter, rush, or recover the subject or product for visibility; use only the already established camera movement.
+Do not add any action, object, event, or product beat that is not written in the timeline.
+Camera observes life; it does not guarantee full-body, centered, or continuously readable presentation.
+The camera may discover the product, but never gives it its own frame: no ankle-level or shoe-level framing, prolonged lower-body-only crop, upward shoe reveal tilt, or product-motivated lowering of the camera.
+Ordinary observations stay at believable human-observer height unless real scene geometry requires otherwise. Incidental partial visibility is allowed; a deliberate footwear crop is not.
+A mandatory event must be legible, but complete action coverage is not required. The camera may see the beginning or consequence, and the next visible state may already show completion.
+Walking routes use the existing scene geometry rather than a cleared center runway; the protagonist may enter off-center, cross the frame diagonally, drift toward one side, and leave the optical center without any camera correction.
+Moment windows are timing metadata, not performance windows: once an event is established, the remaining time flows into the existing action without extending or repeating that event.
+A Moment boundary does not rebuild the camera-to-subject relation; inside one continuous Take the camera keeps its position, framing, and distance.
+Existing environment activity may legally cross or block part of the view; do not avoid, re-frame, or recover for it.
+Emotion never creates a new action. Quiet, settled, unhurried, relaxed, after work, pause, slows, and stays remain ordinary body states: they do not become a performed gesture, an added visible response, an audible reaction, or an emotional pause. Default emotion execution is neutral, internally occupied, and unperformed.
+Sound is natural world sound only: no music, no foreground dialogue, no voiceover, no narration.
+Use only the sounds written in the timeline; do not add any other object, door, or surface sound.
+Do not advance past a moment's described end state; a timeline boundary never requires a physical stop.
+A Moment boundary is timing and state evidence, not a command to stop or restart the person's movement.
+
+[PRODUCT / REFERENCE RULES]
+If product references are supplied to the external model, preserve those references exactly. Do not redesign or stylize the product.
+No product reference is confirmed for this task, so do not add or invent any colour, material, construction, logo, or panel detail.
+Product visibility: visible only if it falls naturally inside the framing. Never re-frame, push in, or cut away for the product.
+The uploaded footwear reference applies only to the protagonist's worn shoes. Do not reproduce, echo, merchandise, display, advertise, print, place, or duplicate the referenced footwear anywhere else in the environment; the selected location keeps its own real-world objects and inventory.
+Product readability is incidental to the existing walk, turn, sit, or threshold crossing: no stop or reframe, repeated step, foot repositioning, or body turn is made for it.
+
+[DO NOT]
+No second narrative subject and no background person may become a story participant. Ambient people remain secondary and occupied with their own ordinary activity; they do not look at, react to, follow, assist, interrupt, or interact with the main character unless the approved event explicitly requires it. No crowd focus, no vehicle or animal entering the frame.
+No insert shot, close-up, cutaway, or new camera setup.
+No pose montage, no product showcase, no logo reveal, no on-screen text.
+No re-framing for the product; the narrative camera always wins.
+
+[ENDING STATE]
+She settles into an easy rhythm along the 公园慢走; the small adjustment is behind her.
+At the end, preserve the state the action has reached:
+She remains on the same path.
+Her ordinary walking movement continues.
+The uneven surface is already behind her; keep the same route.
+The earlier action of clearing the uneven surface is complete; do not perform it again.
+Once this final state is reached, do not add a new task, destination, object interaction, sit-down, start, entry, door opening, product pose, or second ending.
+Do not enter the final state while any mandatory visual event above remains incomplete.
+Hold the final frame until the clip ends. Do not append a product shot, a logo, or a second ending.

@@ -1,0 +1,207 @@
+[
+  {
+    "moment": 1,
+    "authority": "STRUCTURED_AUTHORITY",
+    "before": {
+      "facts": {
+        "character.place": "PATH",
+        "character.motion": "WALKING",
+        "surface.state": "AHEAD",
+        "character.anchor": "COMMUNITY_PATH"
+      },
+      "entities": {
+        "character": {
+          "kind": "CHARACTER"
+        },
+        "surface": {
+          "kind": "SURFACE"
+        }
+      },
+      "completedEvents": []
+    },
+    "preconditionEvidence": [],
+    "after": {
+      "facts": {
+        "character.place": "PATH",
+        "character.motion": "WALKING",
+        "surface.state": "AHEAD",
+        "character.anchor": "COMMUNITY_PATH"
+      },
+      "entities": {
+        "character": {
+          "kind": "CHARACTER"
+        },
+        "surface": {
+          "kind": "SURFACE"
+        }
+      },
+      "completedEvents": []
+    }
+  },
+  {
+    "moment": 2,
+    "authority": "STRUCTURED_AUTHORITY",
+    "before": {
+      "facts": {
+        "character.place": "PATH",
+        "character.motion": "WALKING",
+        "surface.state": "AHEAD",
+        "character.anchor": "COMMUNITY_PATH"
+      },
+      "entities": {
+        "character": {
+          "kind": "CHARACTER"
+        },
+        "surface": {
+          "kind": "SURFACE"
+        }
+      },
+      "completedEvents": []
+    },
+    "preconditionEvidence": [],
+    "after": {
+      "facts": {
+        "character.place": "PATH",
+        "character.motion": "WALKING",
+        "surface.state": "AHEAD",
+        "character.anchor": "COMMUNITY_PATH"
+      },
+      "entities": {
+        "character": {
+          "kind": "CHARACTER"
+        },
+        "surface": {
+          "kind": "SURFACE"
+        }
+      },
+      "completedEvents": []
+    }
+  },
+  {
+    "moment": 3,
+    "authority": "STRUCTURED_AUTHORITY",
+    "before": {
+      "facts": {
+        "character.place": "PATH",
+        "character.motion": "WALKING",
+        "surface.state": "AHEAD",
+        "character.anchor": "COMMUNITY_PATH"
+      },
+      "entities": {
+        "character": {
+          "kind": "CHARACTER"
+        },
+        "surface": {
+          "kind": "SURFACE"
+        }
+      },
+      "completedEvents": []
+    },
+    "preconditionEvidence": [],
+    "after": {
+      "facts": {
+        "character.place": "PATH",
+        "character.motion": "WALKING",
+        "surface.state": "CLEARED",
+        "character.anchor": "COMMUNITY_PATH"
+      },
+      "entities": {
+        "character": {
+          "kind": "CHARACTER"
+        },
+        "surface": {
+          "kind": "SURFACE"
+        }
+      },
+      "completedEvents": [
+        "CLEAR_SURFACE"
+      ]
+    }
+  },
+  {
+    "moment": 4,
+    "authority": "STRUCTURED_AUTHORITY",
+    "before": {
+      "facts": {
+        "character.place": "PATH",
+        "character.motion": "WALKING",
+        "surface.state": "CLEARED",
+        "character.anchor": "COMMUNITY_PATH"
+      },
+      "entities": {
+        "character": {
+          "kind": "CHARACTER"
+        },
+        "surface": {
+          "kind": "SURFACE"
+        }
+      },
+      "completedEvents": [
+        "CLEAR_SURFACE"
+      ]
+    },
+    "preconditionEvidence": [],
+    "after": {
+      "facts": {
+        "character.place": "PATH",
+        "character.motion": "WALKING",
+        "surface.state": "CLEARED",
+        "character.anchor": "COMMUNITY_PATH"
+      },
+      "entities": {
+        "character": {
+          "kind": "CHARACTER"
+        },
+        "surface": {
+          "kind": "SURFACE"
+        }
+      },
+      "completedEvents": [
+        "CLEAR_SURFACE"
+      ]
+    }
+  },
+  {
+    "moment": 5,
+    "authority": "STRUCTURED_AUTHORITY",
+    "before": {
+      "facts": {
+        "character.place": "PATH",
+        "character.motion": "WALKING",
+        "surface.state": "CLEARED",
+        "character.anchor": "COMMUNITY_PATH"
+      },
+      "entities": {
+        "character": {
+          "kind": "CHARACTER"
+        },
+        "surface": {
+          "kind": "SURFACE"
+        }
+      },
+      "completedEvents": [
+        "CLEAR_SURFACE"
+      ]
+    },
+    "preconditionEvidence": [],
+    "after": {
+      "facts": {
+        "character.place": "PATH",
+        "character.motion": "WALKING",
+        "surface.state": "CLEARED",
+        "character.anchor": "COMMUNITY_PATH"
+      },
+      "entities": {
+        "character": {
+          "kind": "CHARACTER"
+        },
+        "surface": {
+          "kind": "SURFACE"
+        }
+      },
+      "completedEvents": [
+        "CLEAR_SURFACE"
+      ]
+    }
+  }
+]

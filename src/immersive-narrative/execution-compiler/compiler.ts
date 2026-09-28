@@ -1,6 +1,7 @@
 import { productTruthLock } from "../../visual-system/types";
 import type { SoundMoment } from "../sound-world";
 import { resolvedWorldPresenceDescription } from "../scene-resolver/location-worlds";
+import { locationWorldTruthOf } from "../scene-resolver/location-worlds";
 import { buildCameraStates } from "./camera-state";
 import {
   buildExecutionMomentContracts,
@@ -11,6 +12,11 @@ import {
 } from "./moment-contract";
 import { resolveSafeContinuation } from "./safe-continuation";
 import { filterSoundCues } from "./sound-filter";
+import {
+  EMOTION_NEVER_ACTS_RULE,
+  findForbiddenEmotionalReleaseWording,
+  findForbiddenSoundCueWording,
+} from "./emotion-rule";
 import {
   EXECUTION_COMPILER_SCHEMA_VERSION,
   EXECUTION_COMPILER_VERSION,
@@ -195,6 +201,9 @@ function handMechanics(
     }
     return `One hand keeps searching inside the ${container} for the ${item ?? "object"}.`;
   }
+  if (evidence.capabilityIds.includes("SMALL_OBJECT_RETRIEVAL") && contract.endState === "REACH_BEGINS") {
+    return `One hand begins reaching for the ${item ?? "object"}.`;
+  }
   if (door && contract.startState === "ITEM_RETRIEVED" && /\bopens? the door\b/i.test(contract.narrativeEvent)) {
     return "One hand opens the already unlocked door.";
   }
@@ -203,6 +212,7 @@ function handMechanics(
   if (placement) return "One hand sets the small object down and releases it.";
   if (garment) return "One hand adjusts her outer layer once, without hurrying.";
   if (carrying && container) return `She keeps the ${container} steady in one hand.`;
+  if (carrying && item) return "One hand checks the carried item once and re-seats it in the same grip.";
   // The Narrative decides what the hands are doing; the Action only supplies
   // mechanics. A carried item the Narrative states must not read as empty hands.
   if (/\bin hand\b|\bcarrying\b|\bwith one bag\b|\bwith one shopping bag\b/i.test(contract.narrativeEvent)) {
@@ -311,6 +321,35 @@ function containerAndItem(text: string, topicNarrative: string) {
   return { container, item };
 }
 
+function modelFacingFact(key: string, value: string): string | null {
+  const facts: Record<string, Record<string, string>> = {
+    "character.place": { CAFE_INTERIOR: "She is already inside the same cafe.", INSIDE: "She is already on the interior side of the crossed threshold.", SEAT: "She is at the same chair.", WINDOW: "She is outside at the shop window.", PATH: "She remains on the same path." },
+    "character.motion": { WALKING: "Her ordinary walking movement continues.", SLOWING: "She is naturally slowing without stopping.", STOPPED: "She has come to a real stop.", SETTLED: "She remains naturally settled in the position already reached.", SEATED: "She remains seated; no second sit-down begins.", WAITING: "She remains in the established wait." },
+    "door.lock": { LOCKED: "The same door is still locked.", UNLOCKED: "The same door is already unlocked; do not unlock it again." },
+    "door.state": { CLOSED: "The same door remains closed.", OPEN: "The same door is already open; do not open it again." },
+    "key.location": { BAG: "The same key remains in the bag.", HAND: "She still holds the same key." },
+    "key.containment": { BAG: "The key remains inside the bag.", NONE: "The key has already been taken out of the bag." },
+    "key.visibility": { HIDDEN: "The key is not yet visible.", VISIBLE: "The same key remains visible." },
+    "seat.state": { OPEN: "The same chair remains unoccupied.", OCCUPIED: "She remains in the same chair." },
+    "seat.visibility": { HIDDEN: "The open chair is not yet in sight.", VISIBLE: "The same chair remains in sight." },
+    "route.state": { STRAIGHT: "She has not yet turned into the aisle.", AISLE: "She has already turned into the clear aisle." },
+    "store.entry": { NOT_ENTERED: "She remains outside the store.", ENTERED: "She is already inside the store; do not stage a second entry." },
+    "surface.state": { AHEAD: "The uneven surface is still ahead on this path.", CLEARED: "The uneven surface is already behind her; keep the same route." },
+  };
+  return facts[key]?.[value] ?? null;
+}
+
+function modelFacingCompletedEvent(id: string): string {
+  const actions: Record<string, string> = {
+    ENTER_CAFE: "entering the cafe", FIND_KEY: "taking the key from the bag", UNLOCK_DOOR: "unlocking the door",
+    OPEN_DOOR: "opening the door", CROSS_THRESHOLD: "crossing the threshold", SEE_OPEN_SEAT: "seeing the open chair",
+    ROUTE_CHANGE: "turning into the aisle", APPROACH_CHAIR: "approaching the chair", TAKE_SEAT: "sitting in the chair",
+    WINDOW_STOP: "stopping at the shop window", ENTER_STORE: "entering the store", CLEAR_SURFACE: "clearing the uneven surface",
+  };
+  const action = actions[id] ?? id.toLowerCase().replace(/_/g, " ");
+  return `The earlier action of ${action} is complete; do not perform it again.`;
+}
+
 function render(
   input: ExecutionCompilerInput,
   moments: ModelFacingMoment[],
@@ -327,6 +366,9 @@ function render(
   const isCafe = input.sceneResolution.locationWorld?.id === "CAFE_VISIT";
   const isBookstore = input.sceneResolution.locationWorld?.id === "BOOKSTORE_VISIT";
   const isStreet = input.sceneResolution.locationWorld?.id === "AFTER_LUNCH_STREET" || input.sceneResolution.locationWorld?.id === "URBAN_WANDERING";
+  const locationTruth = locationWorldTruthOf(input.sceneResolution.locationWorld?.id ?? null, sceneIds);
+  const isWalkingRoute = isStreet || /route|walk|path|corner|block/i.test(locationTruth.category);
+  const takeBoundaryCount = moments.filter((moment) => Boolean(moment.contract.takeBoundary)).length;
   const lines: string[] = [];
 
   lines.push(MODEL_FACING_HEADER);
@@ -355,40 +397,152 @@ function render(
           ? "Keep pedestrians passing independently at the frame edge or in the depth of the established street frame; they remain background presence and never become narrative subjects."
           : "Keep ambient people secondary, incidental, partly visible, softly separated by depth, or occupied with ordinary independent activity.");
     lines.push("Background voices should have plausible visual sources somewhere in the environment when naturally visible within the established frame; do not create an acoustically occupied but visually abandoned public space. Do not change the camera to show a sound source or an ambient person.");
+    lines.push("The existing background activity continues at its own pace while she moves; a foreground passerby or brief partial obstruction may cross the established view without becoming a new story event.");
   } else {
     lines.push(worldPresence ?? "Private rooms remain private; do not add unfamiliar background people.");
+    lines.push("The room's existing light, surfaces, and ambience remain present while she acts; nothing pauses to present her or the product.");
   }
   if (isCafe) {
-    lines.push(`Within this one cafe scene, follow the existing spatial anchors: ${input.sceneResolution.resolvedMoments.map((moment) => moment.spatialAnchor).join(" → ")}. The movement proceeds from entry past the counter as an open seat comes into view, adjusts into the clear aisle, then slows at the seating area and resolves at the open chair within the same cafe interior; no location jump or new event.`);
+    lines.push("Within this one cafe scene, the movement proceeds from entry past the counter as an open seat comes into view, adjusts toward the seating area, then slows and takes the open seat. Existing tables, chairs, and independent activity may partially interrupt the route without clearing it; no location jump or new event.");
+    lines.push("The camera does not owe continuous coverage of the entire route. She may enter partially, pass behind counter or furniture edges, move close to the frame boundary, and the final seat action may be partly occluded; TAKE_SEAT completion must remain legible. Never pan, drift, or reframe solely to keep covering the protagonist.");
+  }
+  if (isBookstore) {
+    lines.push("The window and shelf displays contain books and reading material, never footwear. The character stops at the window to look at the bookstore display, not at shoes; the established observation is kept without creating a showroom composition.");
+    lines.push("The window look lasts only as long as the real stop requires. Do not add a prolonged neutral stance, a lean-in, or an extra viewing performance to fill the observation window.");
+    lines.push("The observation happens inside the already established stop; it does not add a second full physical hold.");
+  }
+  if (isBookstore || isWalkingRoute) {
+    lines.push("Reference-derived brand identity is role-bound: brand name, logo, typography, product mark, packaging identity, and trademark cues stay on the protagonist's worn product and never appear in storefront text, signage, glass lettering, posters, advertisements, shelves, wall graphics, or background merchandise. Any environmental text must be generic location text only.");
   }
   lines.push(`Camera side: ${input.cameraExecution.continuityProfile.cameraSide}. Lens: ${input.cameraExecution.continuityProfile.focalRange}.`);
   lines.push("");
   lines.push("[CAMERA STATE]");
-  lines.push("Natural eye level, fixed working distance, the same camera side for the whole clip.");
-  lines.push(cameraSummary.changes <= 1
+  lines.push(isWalkingRoute
+    ? "Natural human height, world-anchored observer, the same camera side, and no subject-presentation guarantee for the whole clip. The camera does not travel with, accompany, or maintain distance to the protagonist; apparent subject size changes naturally as the protagonist moves through the world."
+    : "Natural human height, the same camera side, and no subject-presentation guarantee for the whole clip. Distance and framing may drift; the camera never chases, re-centers, or recovers the subject or product.");
+  lines.push(cameraSummary.changes === 0 && takeBoundaryCount === 0
     ? "The camera is established once and then observed without cuts or re-frames."
-    : `${cameraSummary.changes} motivated camera state changes across the clip${cameraSummary.suppressed > 0 ? `; ${cameraSummary.suppressed} requested change(s) were suppressed because they were not motivated` : ""}.`);
+    : cameraSummary.changes === takeBoundaryCount
+      ? `${cameraSummary.changes} justified camera position change(s) at real spatial boundaries; every other Moment inherits the existing observation without a re-frame.`
+      : `${cameraSummary.changes} justified camera position change(s) across the clip${cameraSummary.suppressed > 0 ? `; ${cameraSummary.suppressed} requested change(s) were suppressed because they were not motivated` : ""}.`);
   lines.push("Moment is not a shot: do not cut to a new setup for each moment.");
   lines.push("");
   lines.push("[TIMELINE]");
-
+  const takes: ModelFacingMoment[][] = [];
   for (const moment of moments) {
-    lines.push("");
-    lines.push(`${moment.timeRange.startSecond.toFixed(1)}-${moment.timeRange.endSecond.toFixed(1)}s — MOMENT ${moment.momentIndex + 1} · ${moment.title}`);
-    lines.push(`WHAT HAPPENS: ${moment.whatHappens}`);
-    lines.push(`BODY: ${moment.bodyBehavior}`);
-    lines.push(`CAMERA: ${moment.cameraObservation}`);
-    lines.push(`SOUND: ${moment.naturalSound.length > 0 ? moment.naturalSound.join("; ") : "natural room tone only"}.`);
-    if (moment.productLine) lines.push(`PRODUCT: ${moment.productLine}`);
+    if (takes.length === 0 || moment.contract.takeBoundary) takes.push([]);
+    takes[takes.length - 1].push(moment);
   }
+  const visible = moments.flatMap((moment) => moment.contract.requiredVisibleEvidence);
+  if (visible.length > 0) {
+    lines.push("[MANDATORY VISUAL COMPLETION]");
+    const emitted = new Set<string>();
+    for (const item of visible) {
+      if (emitted.has(item.id)) continue;
+      emitted.add(item.id);
+      lines.push(`${emitted.size}. ${item.statement}`);
+    }
+    lines.push("Each listed transition must leave enough visual evidence to be understood, even if part of the action is briefly occluded. It needs no dedicated shot, held pause, centered pose, or full unobstructed view; generic walking, product observation, posing, or a camera move cannot replace it.");
+  }
+  takes.forEach((take, takeIndex) => {
+    const first = take[0];
+    const lastTakeMoment = take[take.length - 1];
+    lines.push("");
+    lines.push(`TAKE ${takeIndex + 1} — ${first.timeRange.startSecond.toFixed(1)}-${lastTakeMoment.timeRange.endSecond.toFixed(1)}s — ONE CONTINUOUS OBSERVATION`);
+    if (takeIndex > 0) {
+      const boundary = first.contract.takeBoundary;
+      lines.push(`Begin this take after the preceding action. ${boundary?.evidence ?? ""} A new camera position is needed because ${boundary?.whyContinuousCoverageFails ?? "continuous coverage cannot preserve the established observation"}`);
+      lines.push("Keep what the previous take already established:");
+      for (const [key, value] of Object.entries(first.contract.worldStateBefore?.facts ?? {})) {
+        const sentence = modelFacingFact(key, value);
+        if (sentence) lines.push(sentence);
+      }
+      for (const completed of first.contract.worldStateBefore?.completedEvents ?? []) lines.push(modelFacingCompletedEvent(completed));
+    }
+    const moving = (moment: ModelFacingMoment) => {
+      const motion = moment.contract.worldStateAfter?.facts["character.motion"];
+      const before = moment.contract.worldStateBefore?.facts["character.motion"];
+      return (motion === "WALKING" || motion === "SLOWING")
+        && !moment.contract.requiresStationaryBody
+        && before !== "STOPPED" && before !== "WAITING" && before !== "SETTLED" && before !== "SEATED";
+    };
+    const emitFlow = (flow: ModelFacingMoment[]) => {
+      lines.push("[ONE CONTINUOUS ACTION FLOW]");
+      lines.push("These timing windows observe one ongoing life action. Adjacent movement details may overlap while required state changes stay in order. Her pace can vary within the existing movement. Do not stop, restart, hold a stationary pose, or pause for product readability.");
+      const actionFlow = flow.map((moment, index) => {
+        const source = moment.whatHappens.replace(/\band then\b/gi, "and").replace(/\bthen\b/gi, "while").replace(/\bsettles back into\b/gi, "returns to").replace(/\bsettles into\b/gi, "keeps");
+        return `${source}${index === 0 ? ` ${moment.bodyBehavior}` : ""}`;
+      });
+      lines.push(actionFlow.join(" "));
+      const cameraObservations = flow.map((moment) => moment.cameraObservation).filter((description) => (
+        !description.startsWith("Same camera position") && !description.startsWith("The camera stays at its world position")
+      ));
+      lines.push(`Camera: ${cameraObservations.join(" ")} These are the already established observations, not corrective moves. ${isWalkingRoute
+        ? "The camera stays world-anchored; it does not travel with the protagonist or maintain subject distance."
+        : "The camera can lag slightly or allow partial obstruction and edge framing; it does not recover the subject or product for readability."}`);
+      lines.push(`Observation windows, not body cues: ${flow.map((moment) => `${moment.momentIndex + 1}=${moment.timeRange.startSecond.toFixed(1)}-${moment.timeRange.endSecond.toFixed(1)}s`).join("; ")}.`);
+    };
+    for (let cursor = 0; cursor < take.length;) {
+      let end = cursor;
+      while (end < take.length && moving(take[end])) end += 1;
+      if (end - cursor >= 2 || (take.length === 1 && end - cursor === 1)) {
+        emitFlow(take.slice(cursor, end));
+        cursor = end;
+      } else {
+        const moment = take[cursor];
+        const previous = cursor > 0 ? take[cursor - 1] : null;
+        const beforeMotion = moment.contract.worldStateBefore?.facts["character.motion"];
+        const afterMotion = moment.contract.worldStateAfter?.facts["character.motion"];
+        const isRealStop = beforeMotion !== "STOPPED" && afterMotion === "STOPPED";
+        const isSeated = afterMotion === "SEATED";
+        const alreadyStopped = beforeMotion === "STOPPED" && (afterMotion === "STOPPED" || afterMotion === "SETTLED");
+        const resumesFromRealStop = (beforeMotion === "STOPPED" || beforeMotion === "SETTLED" || beforeMotion === "WAITING") && afterMotion === "WALKING";
+        const physical = isSeated
+          ? "Her final approaching step carries into the chair turn and her weight lowers into the seat; she remains seated without a held presentation pose."
+          : resumesFromRealStop
+            ? "Her weight shifts into the next movement as soon as its prerequisite is met; she moves at an ordinary pace without a staged restart."
+          : alreadyStopped
+            ? `${moment.bodyBehavior.replace(/^She comes to a settled stop, weight even on both feet\./, "She stays in the position already reached.")} No second stop begins.`
+            : moment.bodyBehavior;
+        lines.push(`${moment.timeRange.startSecond.toFixed(1)}-${moment.timeRange.endSecond.toFixed(1)}s — MOMENT ${moment.momentIndex + 1} · ${moment.title} (observation window)`);
+        if (previous && isRealStop) {
+          lines.push("The last approaching step eases into this real stop; no separate preparation pose or camera cue is inserted.");
+        }
+        if (previous && !isRealStop && previous.contract.requiredVisibleEvidence.length > 0 && moment.contract.requiredVisibleEvidence.length > 0) {
+          lines.push("The next movement begins as the previous action yields its required result; hand, torso, and weight may overlap without reversing the required event order or holding an end pose.");
+        }
+        const observedAction = isSeated
+          ? "The approach carries into the turn toward the same open chair; she lowers into it and remains seated."
+          : moment.whatHappens;
+        lines.push(`Observed action: ${observedAction} ${isSeated ? "" : physical}`.trim());
+        lines.push(`Camera observation: ${moment.cameraObservation}`);
+        lines.push(`SOUND: ${moment.naturalSound.length > 0 ? moment.naturalSound.join("; ") : "natural room tone only"}.`);
+        cursor += 1;
+      }
+    }
+  });
   lines.push("");
   lines.push("[GLOBAL EXECUTION RULES]");
   lines.push("Real-world speed and normal human cadence; no slow motion, no time stretching, no speed ramp.");
   lines.push("The camera observes the person. It never changes what the person is doing.");
+  lines.push("At an established observation position, allow brief foreground obstruction, edge framing, partial departure from the frame, and temporary loss of product readability. Never recenter, rush, or recover the subject or product for visibility; use only the already established camera movement.");
   lines.push("Do not add any action, object, event, or product beat that is not written in the timeline.");
+  lines.push("Camera observes life; it does not guarantee full-body, centered, or continuously readable presentation.");
+  if (isWalkingRoute) {
+    lines.push("An OBSERVER camera is world-anchored, not subject-anchored: it stays at its world position and never translates, dollies, walks with, or maintains subject distance while the protagonist moves. If the protagonist walks away, apparent size decreases naturally.");
+  }
+  lines.push("The camera may discover the product, but never gives it its own frame: no ankle-level or shoe-level framing, prolonged lower-body-only crop, upward shoe reveal tilt, or product-motivated lowering of the camera.");
+  lines.push("Ordinary observations stay at believable human-observer height unless real scene geometry requires otherwise. Incidental partial visibility is allowed; a deliberate footwear crop is not.");
+  lines.push("A mandatory event must be legible, but complete action coverage is not required. The camera may see the beginning or consequence, and the next visible state may already show completion.");
+  lines.push("Walking routes use the existing scene geometry rather than a cleared center runway; the protagonist may enter off-center, cross the frame diagonally, drift toward one side, and leave the optical center without any camera correction.");
+  lines.push("Moment windows are timing metadata, not performance windows: once an event is established, the remaining time flows into the existing action without extending or repeating that event.");
+  lines.push("A Moment boundary does not rebuild the camera-to-subject relation; inside one continuous Take the camera keeps its position, framing, and distance.");
+  lines.push("Existing environment activity may legally cross or block part of the view; do not avoid, re-frame, or recover for it.");
+  lines.push(EMOTION_NEVER_ACTS_RULE);
   lines.push("Sound is natural world sound only: no music, no foreground dialogue, no voiceover, no narration.");
   lines.push("Use only the sounds written in the timeline; do not add any other object, door, or surface sound.");
-  lines.push("Do not advance past a moment's described end state; each moment stops where it says it stops.");
+  lines.push("Do not advance past a moment's described end state; a timeline boundary never requires a physical stop.");
+  lines.push("A Moment boundary is timing and state evidence, not a command to stop or restart the person's movement.");
   lines.push("");
   lines.push("[PRODUCT / REFERENCE RULES]");
   if (referenceCount > 0) {
@@ -401,6 +555,11 @@ function render(
   if (productDecisions.some((decision) => decision.modelFacing === "VISIBLE_IF_NATURALLY_FRAMED" && decision.internalPresence !== "INCIDENTAL")) {
     lines.push("Product visibility: visible only if it falls naturally inside the framing. Never re-frame, push in, or cut away for the product.");
   }
+  lines.push("The uploaded footwear reference applies only to the protagonist's worn shoes. Do not reproduce, echo, merchandise, display, advertise, print, place, or duplicate the referenced footwear anywhere else in the environment; the selected location keeps its own real-world objects and inventory.");
+  if (isBookstore || isWalkingRoute) {
+    lines.push("Reference-derived brand identity is role-bound to the protagonist's worn product and must not appear anywhere in the environment.");
+  }
+  lines.push("Product readability is incidental to the existing walk, turn, sit, or threshold crossing: no stop or reframe, repeated step, foot repositioning, or body turn is made for it.");
   lines.push("");
   lines.push("[DO NOT]");
   lines.push(publicScenes.length > 0
@@ -412,7 +571,17 @@ function render(
   lines.push("");
   lines.push("[ENDING STATE]");
   const last = moments[moments.length - 1];
-  lines.push(`${last.whatHappens}`);
+  lines.push(last.contract.worldStateAfter?.facts["character.motion"] === "SEATED"
+    ? "She remains in the same seat reached by the last action; nothing else begins."
+    : last.whatHappens);
+  lines.push("At the end, preserve the state the action has reached:");
+  for (const [key, value] of Object.entries(last.contract.worldStateAfter?.facts ?? {})) {
+    const sentence = modelFacingFact(key, value);
+    if (sentence) lines.push(sentence);
+  }
+  for (const completed of last.contract.worldStateAfter?.completedEvents ?? []) lines.push(modelFacingCompletedEvent(completed));
+  lines.push("Once this final state is reached, do not add a new task, destination, object interaction, sit-down, start, entry, door opening, product pose, or second ending.");
+  lines.push("Do not enter the final state while any mandatory visual event above remains incomplete.");
   lines.push("Hold the final frame until the clip ends. Do not append a product shot, a logo, or a second ending.");
   return lines.join("\n");
 }
@@ -421,6 +590,10 @@ export function compileModelFacingExecutionScript(input: ExecutionCompilerInput)
   const contracts = buildExecutionMomentContracts(input);
   const evidences = buildEvidence(input);
   const topicNarrative = input.plan.moments.map((moment) => moment.whatHappens).join(" ");
+  const executionSceneIds = input.sceneResolution.resolvedMoments.map((moment) => moment.sceneId);
+  const executionLocationTruth = locationWorldTruthOf(input.sceneResolution.locationWorld?.id ?? null, executionSceneIds);
+  const isWalkingRoute = ["AFTER_LUNCH_STREET", "URBAN_WANDERING"].includes(input.sceneResolution.locationWorld?.id ?? "")
+    || /route|walk|path|corner|block/i.test(executionLocationTruth.category);
 
   // Conflicts the internal representation already carries (measured, not fixed).
   const boundaryConflictsBefore: BoundaryConflict[] = [];
@@ -433,6 +606,7 @@ export function compileModelFacingExecutionScript(input: ExecutionCompilerInput)
   }
 
   const notExecutableReasons: string[] = [];
+  for (const contract of contracts) notExecutableReasons.push(...contract.stateConflicts);
   const safeContinuations: { momentIndex: number; kind: SafeContinuation["kind"]; evidence: string }[] = [];
   const safeContinuationByMoment = new Map<number, SafeContinuation>();
   const soundVerdicts: SoundCueVerdict[] = [];
@@ -518,18 +692,39 @@ export function compileModelFacingExecutionScript(input: ExecutionCompilerInput)
       const clamp = clampClause(contract, item);
       if (clamp) bodyParts.push(clamp);
     }
-    const bodyBehavior = bodyParts.join(" ");
+    const structuredMotion = contract.worldStateAfter?.facts["character.motion"];
+    let bodyBehavior = contract.stateAuthority === "STRUCTURED_AUTHORITY"
+      && contract.requiresStationaryBody
+      && contract.requiredVisibleEvidence.length === 0
+      && (structuredMotion === "STOPPED" || structuredMotion === "SETTLED")
+      ? structuredMotion === "STOPPED"
+        ? "She reaches the specified position and comes to a natural stop. Her hands stay relaxed."
+        : "She remains naturally settled in the reached position. Her hands stay relaxed."
+      : contract.stateAuthority === "STRUCTURED_AUTHORITY"
+        && !contract.requiresStationaryBody
+        && (structuredMotion === "WALKING" || structuredMotion === "SLOWING")
+        ? `${structuredMotion === "SLOWING" ? "She shortens one natural step without stopping and stays in motion." : "She keeps the same grounded walking cadence without stopping or restarting."} ${handMechanics(evidence, contract, container, item, topicNarrative)}`
+        : bodyParts.join(" ");
+    if (contract.stateAuthority === "STRUCTURED_AUTHORITY"
+      && contract.worldStateBefore?.facts["character.motion"] === "STOPPED"
+      && structuredMotion === "STOPPED") {
+      bodyBehavior = bodyBehavior.replace(/^She comes to a settled stop, weight even on both feet\./, "She remains at the reached position.");
+    }
 
     const keptSound = soundVerdicts
       .filter((verdict) => verdict.momentIndex === contract.momentIndex && verdict.kept)
       .map((verdict) => sanitizeSoundCue(verdict.cue));
     const cameraObservation = transition.changed
       ? `${transition.state.movementState === "restrained_follow"
-        ? "Restrained parallel follow at a fixed working distance"
+        ? "A lightly carried observation that may lag and drift"
         : transition.state.movementState === "hold_position"
-          ? "The camera holds its position"
-          : "The same locked observation"} from ${transition.state.cameraSide}, ${transition.state.height}, ${transition.state.framingState} framing, unchanged lens.`
-      : `Same camera position, side, lens, and ${transition.state.framingState} framing as the previous moment; no cut and no re-frame.${transition.state.naturalPartialVisibility ? " The body may become naturally partially visible through its own movement; do not create an insert shot." : ""}`;
+          ? "The camera stays where the action left it; it does not settle into a portrait composition"
+          : isWalkingRoute
+            ? "The world-anchored observation stays at its established world position"
+            : "A near-static observation carried into the current spatial position without re-centering or presentation recovery"} from ${transition.state.cameraSide}, ${transition.state.height}, ${transition.state.framingState} framing, unchanged lens.`
+      : isWalkingRoute
+        ? `The camera stays at its world position, side, lens, and ${transition.state.framingState} framing from the previous Moment; it never translates, dollies, walks with, or maintains subject distance, so the subject may become smaller or leave the ideal frame.${transition.state.naturalPartialVisibility ? " The body may become naturally partially visible through its own movement; do not create an insert shot." : ""}`
+        : `The camera keeps its position, side, lens, and ${transition.state.framingState} framing from the previous Moment; it may lag or drift slightly, and it does not re-center, chase, or recover subject or product presentation.${transition.state.naturalPartialVisibility ? " The body may become naturally partially visible through its own movement; do not create an insert shot." : ""}`;
     if (transition.state.naturalPartialVisibility) {
       previousCameraDescription = cameraObservation;
     } else {
@@ -538,12 +733,22 @@ export function compileModelFacingExecutionScript(input: ExecutionCompilerInput)
 
     moments.push({
       momentIndex: contract.momentIndex,
-      title: momentTitle(contract, item),
+      title: contract.worldStateBefore?.facts["character.place"] === "INSIDE"
+        && contract.worldStateAfter?.facts["character.place"] === "INSIDE"
+        && contract.worldStateBefore.completedEvents.includes("CROSS_THRESHOLD")
+        ? "Already inside from the previous action"
+        : contract.requiredVisibleEvidence.length > 0
+        ? contract.requiredVisibleEvidence.map((entry) => entry.id.replace(/_/g, " ")).join(" + ")
+        : momentTitle(contract, item),
       timeRange: {
         startSecond: contract.timeRange?.startSecond ?? 0,
         endSecond: contract.timeRange?.endSecond ?? 0,
       },
-      whatHappens: contract.narrativeEvent,
+      whatHappens: contract.worldStateBefore?.facts["character.place"] === "INSIDE"
+        && contract.worldStateAfter?.facts["character.place"] === "INSIDE"
+        && contract.worldStateBefore.completedEvents.includes("CROSS_THRESHOLD")
+        ? "The character remains inside the home in the state reached after the single completed entry."
+        : contract.narrativeEvent,
       bodyBehavior,
       cameraObservation,
       naturalSound: keptSound,
@@ -575,6 +780,10 @@ export function compileModelFacingExecutionScript(input: ExecutionCompilerInput)
 
   const engineeringMarkers = INTERNAL_MARKER_PATTERNS
     .flatMap((pattern) => compiledText.match(pattern) ?? []);
+  const emotionalReleaseWording = findForbiddenEmotionalReleaseWording(compiledText);
+  const emotionalReleaseCues = moments
+    .flatMap((moment) => moment.naturalSound)
+    .flatMap((cue) => findForbiddenSoundCueWording(cue));
   const boundaryConflictsAfter: BoundaryConflict[] = [];
   for (const contract of contracts) {
     const evidence = evidences.get(contract.momentIndex)!;
@@ -669,6 +878,8 @@ export function compileModelFacingExecutionScript(input: ExecutionCompilerInput)
       )).length,
       referenceCount: input.referenceMapping.confirmedReferenceCount,
       engineeringMarkers: [...new Set(engineeringMarkers)],
+      emotionalReleaseWording: [...new Set(emotionalReleaseWording)],
+      emotionalReleaseCues: [...new Set(emotionalReleaseCues)],
       timelineCoverage: coverage,
       spatialGate,
       closureGate,
@@ -735,6 +946,16 @@ export function validateModelFacingExecutionScript(
     "a rejected sound cue is still present or a kept cue lacks evidence"
   );
   add(
+    "no_emotional_release_sound",
+    "No Emotional Release Sound",
+    diagnostics.emotionalReleaseCues.length === 0
+      && diagnostics.soundVerdicts.every((verdict) => (
+        verdict.kept ? findForbiddenSoundCueWording(verdict.cue).length === 0 : true
+      )),
+    `No sound cue makes breathing, a sigh, or an exhale audible; ${diagnostics.soundVerdicts.filter((verdict) => !verdict.kept && verdict.rejectionReason === "EMOTIONAL_RELEASE_CUE").length} emotional release cue(s) were rejected before the script.`,
+    `emotional release sound cue(s) reached the script: ${diagnostics.emotionalReleaseCues.join(", ")}`
+  );
+  add(
     "camera_state_persistence",
     "Camera State Persistence",
     diagnostics.unmotivatedCameraChanges === 0,
@@ -781,6 +1002,13 @@ export function validateModelFacingExecutionScript(
     !/CORRECT_UNSUPPORTED|QC (?:PASS|FAIL)|APPROVED FOR SCENE RESOLUTION|REAL_CAPABILITY_GAP/i.test(script.compiledText),
     "No QC, gap, or unsupported status language appears in the model-facing script.",
     "debug status language leaked into the model-facing script"
+  );
+  add(
+    "no_emotional_release_wording",
+    "No Emotional Release Wording",
+    diagnostics.emotionalReleaseWording.length === 0 && script.compiledText.includes(EMOTION_NEVER_ACTS_RULE),
+    "The script states the global rule that emotion never creates a new action and contains no sigh, exhale, relief, or performed-emotion wording.",
+    `forbidden emotional release wording reached the script: ${diagnostics.emotionalReleaseWording.join(", ")}`
   );
   const lastMoment = script.moments[script.moments.length - 1];
   add(

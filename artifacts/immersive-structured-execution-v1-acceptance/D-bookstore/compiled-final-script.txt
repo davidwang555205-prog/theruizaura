@@ -1,0 +1,99 @@
+SEEDANCE — IMMERSIVE NARRATIVE EXECUTION SCRIPT
+逛书店 · 15s · one primary subject · real-world timing
+
+[INTENT]
+Capture the brief shift from walking past a familiar shop to noticing something specific in the bookstore window.
+One primary subject, one continuous sequence. Nothing is added between the moments below.
+
+[CHARACTER]
+Age: 28-32
+Appearance: 亚裔
+Keep the same primary person, wardrobe, and hair for the whole clip. Background people must never become a second narrative subject.
+
+[WORLD & CONTINUITY]
+Location: 书店到访. Scenes in order: 书店 / 杂志店门口 → 书店 / 杂志店门口 → 书店 / 杂志店门口 → 书店 / 杂志店门口 → 书店 / 杂志店内.
+Season: 秋. Keep the same light direction, surfaces, and location continuity throughout.
+This is an actively operating bookstore, not an empty set. A staff member works in the store while a few unrelated browsers look through shelves or pass naturally through the depth of the space. They remain incidental environmental presence, occupied with ordinary independent activity, and do not look toward or interact with the main character.
+Keep all background people incidental and secondary. They do not look toward, react to, follow, assist, interrupt, or interact with the main character unless the approved event explicitly requires it. Do not change the camera to show them.
+Keep a few unrelated browsers at the shelves or in the depth of the established bookstore frame; they remain background presence and never become narrative subjects.
+Background voices should have plausible visual sources somewhere in the environment when naturally visible within the established frame; do not create an acoustically occupied but visually abandoned public space. Do not change the camera to show a sound source or an ambient person.
+Camera side: established A-side. Lens: a natural 50-70mm equivalent perspective.
+
+[CAMERA STATE]
+Natural eye level, fixed working distance, the same camera side for the whole clip.
+2 motivated camera state changes across the clip.
+Moment is not a shot: do not cut to a new setup for each moment.
+
+[TIMELINE]
+[MANDATORY VISUAL COMPLETION]
+1. The character visibly stops outside at the window.
+2. The character visibly crosses from the window outside into the bookstore.
+A critical transition is incomplete until its listed visual event visibly happens. Generic walking, product observation, posing, or a camera move cannot replace it.
+
+TAKE 1 — 0.0-12.8s — ONE CONTINUOUS OBSERVATION
+0.0-2.4s — MOMENT 1 · WALKING
+WHAT HAPPENS: She walks along the 书店 / 杂志店门口 at a steady pace, approaching the bookstore without changing direction.
+BODY: She keeps an ordinary walking pace, one step at a time. Her hands stay relaxed and empty. She continues along the current route; no separate action is added.
+CAMERA: Restrained parallel follow at a fixed working distance from established A-side, natural_chest_height, medium-full framing, unchanged lens.
+SOUND: quiet bookstore room tone; subtle body and fabric movement.
+2.4-6.0s — MOMENT 2 · HOLDING THE MOMENT
+WHAT HAPPENS: As she nears the 书店 / 杂志店门口, her gaze moves toward the window display.
+BODY: She shortens one natural step without stopping and stays in motion. Her hands stay relaxed and empty.
+CAMERA: The same locked observation from established A-side, natural_eye_level, medium-full framing, unchanged lens.
+SOUND: quiet bookstore room tone; subtle body and fabric movement.
+PRODUCT: Keep the footwear naturally readable inside this framing; never re-frame or add a product shot for it.
+6.0-9.4s — MOMENT 3 · WINDOW STOP
+WHAT HAPPENS: She slows just before the 书店 / 杂志店门口 and stops outside instead of continuing past.
+BODY: She comes to a settled stop, weight even on both feet. Her hands stay relaxed and empty.
+CAMERA: Same camera position, side, lens, and medium-full framing as the previous moment; no cut and no re-frame.
+SOUND: quiet bookstore room tone; footsteps on wood.
+9.4-12.8s — MOMENT 4 · SHE KEEPS SEARCHING
+WHAT HAPPENS: She steps slightly closer, looks for another second, then settles back into a normal standing position.
+BODY: She comes to a settled stop, weight even on both feet. Her hands stay relaxed and empty. The object is still not found; nothing is taken out.
+CAMERA: Same camera position, side, lens, and medium-full framing as the previous moment; no cut and no re-frame.
+SOUND: quiet bookstore room tone; subtle body and fabric movement; footsteps on wood.
+PRODUCT: Keep the footwear naturally readable inside this framing; never re-frame or add a product shot for it.
+
+TAKE 2 — 12.8-15.0s — ONE CONTINUOUS OBSERVATION
+Begin this take after the preceding action. The window observation is outside and the final position is inside the shop. A new camera position is needed because The exterior window camera cannot cover the interior route from the same established side.
+Keep what the previous take already established:
+She is outside at the shop window.
+She remains naturally settled in the position already reached.
+She remains outside the store.
+The earlier action of stopping at the shop window is complete; do not perform it again.
+[ONE CONTINUOUS ACTION FLOW]
+The character keeps the same locomotion throughout this action span. Do not stop, restart, hold a stationary pose, or pause for product readability.
+She continues into the 书店 / 杂志店内 at the same quiet pace; the moment of notice is over. She keeps the same grounded walking cadence without stopping or restarting. Her hands stay relaxed and empty.
+Camera continuity: Restrained parallel follow at a fixed working distance from established A-side, natural_chest_height, medium-full framing, unchanged lens.
+Moment windows are timing metadata only: 5=12.8-15.0s.
+
+[GLOBAL EXECUTION RULES]
+Real-world speed and normal human cadence; no slow motion, no time stretching, no speed ramp.
+The camera observes the person. It never changes what the person is doing.
+Do not add any action, object, event, or product beat that is not written in the timeline.
+Sound is natural world sound only: no music, no foreground dialogue, no voiceover, no narration.
+Use only the sounds written in the timeline; do not add any other object, door, or surface sound.
+Do not advance past a moment's described end state; a timeline boundary never requires a physical stop.
+A Moment boundary is timing and state evidence, not a command to stop or restart the person's movement.
+
+[PRODUCT / REFERENCE RULES]
+If product references are supplied to the external model, preserve those references exactly. Do not redesign or stylize the product.
+No product reference is confirmed for this task, so do not add or invent any colour, material, construction, logo, or panel detail.
+
+[DO NOT]
+No second narrative subject and no background person may become a story participant. Ambient people remain secondary and occupied with their own ordinary activity; they do not look at, react to, follow, assist, interrupt, or interact with the main character unless the approved event explicitly requires it. No crowd focus, no vehicle or animal entering the frame.
+No insert shot, close-up, cutaway, or new camera setup.
+No pose montage, no product showcase, no logo reveal, no on-screen text.
+No re-framing for the product; the narrative camera always wins.
+
+[ENDING STATE]
+She continues into the 书店 / 杂志店内 at the same quiet pace; the moment of notice is over.
+At the end, preserve the state the action has reached:
+She is already on the interior side of the crossed threshold.
+Her ordinary walking movement continues.
+She is already inside the store; do not stage a second entry.
+The earlier action of stopping at the shop window is complete; do not perform it again.
+The earlier action of entering the store is complete; do not perform it again.
+Once this final state is reached, do not add a new task, destination, object interaction, sit-down, start, entry, door opening, product pose, or second ending.
+Do not enter the final state while any mandatory visual event above remains incomplete.
+Hold the final frame until the clip ends. Do not append a product shot, a logo, or a second ending.

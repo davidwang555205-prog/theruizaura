@@ -1,0 +1,37 @@
+[
+  {
+    "momentIndex": 0,
+    "title": "ENTER CAFE",
+    "startSecond": 0,
+    "endSecond": 3.2,
+    "durationSeconds": 3.2
+  },
+  {
+    "momentIndex": 1,
+    "title": "SEE OPEN SEAT",
+    "startSecond": 3.2,
+    "endSecond": 5.7,
+    "durationSeconds": 2.5
+  },
+  {
+    "momentIndex": 2,
+    "title": "ROUTE CHANGE",
+    "startSecond": 5.7,
+    "endSecond": 8.9,
+    "durationSeconds": 3.2
+  },
+  {
+    "momentIndex": 3,
+    "title": "APPROACH CHAIR",
+    "startSecond": 8.9,
+    "endSecond": 12.1,
+    "durationSeconds": 3.2
+  },
+  {
+    "momentIndex": 4,
+    "title": "TAKE SEAT",
+    "startSecond": 12.1,
+    "endSecond": 15,
+    "durationSeconds": 2.9
+  }
+]

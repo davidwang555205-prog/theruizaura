@@ -41,8 +41,8 @@ export const AURA_CAMERA_EXECUTION_ROLE_RULES: Record<CameraNarrativeRole, AuraC
     viewAngle: "three_quarter_front",
     movement: "locked_off",
     distanceBandMeters: [3, 3.5],
-    movementRelationToSubject: "Locked observation from the established side; the subject moves inside a frame the camera does not chase or re-aim.",
-    subjectVisibility: "The full figure stays readable inside the frame, including the feet-to-ground relationship.",
+    movementRelationToSubject: "Near-static observation from the established side; the camera may lag or drift slightly, but it never chases, re-aims, or re-centers to restore subject or product presentation.",
+    subjectVisibility: "The body is not presentation-locked and the optical center is not required: the subject may enter off-center, cross the frame diagonally, drift toward one side, temporarily occupy an awkward part of the frame, or leave the visual center naturally. It may become partially framed or briefly obscured. Footwear stays readable only while the existing action naturally shows it; the camera never restores the composition.",
     allowsReframe: false,
   },
   FOLLOWER: {
@@ -52,8 +52,8 @@ export const AURA_CAMERA_EXECUTION_ROLE_RULES: Record<CameraNarrativeRole, AuraC
     viewAngle: "three_quarter_back",
     movement: "restrained_follow",
     distanceBandMeters: [3, 3.5],
-    movementRelationToSubject: "Restrained motivated follow at ordinary walking pace: fixed working distance, parallel to the travel direction, no zoom and no speed ramp.",
-    subjectVisibility: "The full figure stays inside the frame; the follow never overtakes, closes in, or cuts the person at the frame edge.",
+    movementRelationToSubject: "Lightly carried observation for a real narrative or spatial handoff, not a locked parallel track: the camera may lag and drift in distance, and it never overtakes, re-centers, or recovers presentation.",
+    subjectVisibility: "Full-body coverage is not guaranteed; the subject may approach the frame edge, be partially obscured, or change scale naturally without a recovery move.",
     allowsReframe: false,
   },
   WAITING_CAMERA: {
@@ -64,7 +64,7 @@ export const AURA_CAMERA_EXECUTION_ROLE_RULES: Record<CameraNarrativeRole, AuraC
     movement: "locked_off",
     distanceBandMeters: [3.5, 4],
     movementRelationToSubject: "The camera is already positioned before the action begins; the subject enters, passes, or approaches inside the waiting frame.",
-    subjectVisibility: "The environment and the subject's entry path stay visible; the camera does not swing to greet the subject.",
+    subjectVisibility: "The environment and the subject's entry path stay visible; the subject may enter, pass through, or drift toward the frame edge, and the camera does not swing to greet or keep them.",
     allowsReframe: false,
   },
   AFTER_ACTION: {
@@ -75,7 +75,7 @@ export const AURA_CAMERA_EXECUTION_ROLE_RULES: Record<CameraNarrativeRole, AuraC
     movement: "hold_position",
     distanceBandMeters: [2.5, 3],
     movementRelationToSubject: "The camera stays where the action left it and holds the settled aftermath instead of re-framing for a new composition.",
-    subjectVisibility: "The settled body state stays visible through the final frame, including hands, object, and ground contact.",
+    subjectVisibility: "The settled body may stay partially profiled, off-center, or partly obscured; the camera holds the aftermath instead of settling into a portrait composition.",
     allowsReframe: false,
   },
   PARTIAL_OBSERVATION: {
@@ -85,8 +85,8 @@ export const AURA_CAMERA_EXECUTION_ROLE_RULES: Record<CameraNarrativeRole, AuraC
     viewAngle: "three_quarter_back",
     movement: "locked_off",
     distanceBandMeters: [2.5, 3],
-    movementRelationToSubject: "Intentional partial view from the established side; the observed body region stays complete enough that the action remains readable, and the camera never advances to reveal more.",
-    subjectVisibility: "Only the body region the action needs stays inside the frame; the rest may leave the frame without hiding what the hands, feet, or object are doing.",
+    movementRelationToSubject: "Narrative partial view from the established side for the existing hand, face, or upper-body task; it is never a product crop and never lowers the camera toward footwear.",
+    subjectVisibility: "Only the body region the narrative task needs stays inside the frame. Incidental partial visibility is allowed, but a deliberate below-waist or footwear-dominant crop is forbidden; the camera never tilts upward from shoes as a reveal.",
     allowsReframe: false,
   },
 };
@@ -102,6 +102,21 @@ export const AURA_CAMERA_EXECUTION_RESTRICTIONS = [
   "no whip pan",
   "no rapid reframing",
   "no product close-up inserted because Product Presence is HERO",
+] as const;
+
+// Immersive-only naturalism rules. These are added by the Immersive Camera
+// Execution planner, so the shared AURA restriction list used by Commercial
+// Film remains byte-for-byte unchanged.
+export const IMMERSIVE_CAMERA_NATURALISM_RULES = [
+  "no recovery camera move for subject or product presentation",
+  "no re-centering to restore full-body, centered, or shoe readability",
+  "no settling the camera into a portrait composition for a real stop",
+  "no centered vanishing-axis or runway composition",
+  "no clearing or straightening the route into a protagonist-ready path",
+  "no ankle-level or shoe-level product framing",
+  "no prolonged lower-body-only crop",
+  "no upward shoe-to-person reveal tilt",
+  "no product-motivated camera lowering",
 ] as const;
 
 export const AURA_CAMERA_EXECUTION_NEGATIVE_LINE = cameraLookProfiles.AuraOutdoorReference.cameraNegativeLine;

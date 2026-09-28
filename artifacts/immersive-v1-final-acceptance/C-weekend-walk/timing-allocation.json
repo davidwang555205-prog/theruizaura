@@ -1,0 +1,37 @@
+[
+  {
+    "momentIndex": 0,
+    "title": "WALKING",
+    "startSecond": 0,
+    "endSecond": 3.6,
+    "durationSeconds": 3.6
+  },
+  {
+    "momentIndex": 1,
+    "title": "WALKING",
+    "startSecond": 3.6,
+    "endSecond": 6.4,
+    "durationSeconds": 2.8
+  },
+  {
+    "momentIndex": 2,
+    "title": "CLEAR SURFACE",
+    "startSecond": 6.4,
+    "endSecond": 10,
+    "durationSeconds": 3.6
+  },
+  {
+    "momentIndex": 3,
+    "title": "SETTLING",
+    "startSecond": 10,
+    "endSecond": 11.7,
+    "durationSeconds": 1.7
+  },
+  {
+    "momentIndex": 4,
+    "title": "SETTLING",
+    "startSecond": 11.7,
+    "endSecond": 15,
+    "durationSeconds": 3.3
+  }
+]

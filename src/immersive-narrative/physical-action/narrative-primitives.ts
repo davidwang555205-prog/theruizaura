@@ -44,8 +44,11 @@ const PHASE_BY_STATE: Record<PhysicalActionMovementState, PersonActionMovementPh
   mirror_still: "still",
 };
 
-// Nine capability-level primitives, one per confirmed gap cluster. Each entry is
-// a single real body behavior, never a runtime composition of two Actions.
+// Capability-level primitives, one per confirmed gap cluster. Each entry is a
+// single real body behavior, never a runtime composition of two Actions. The
+// closing three entries close the remaining real capability gaps: a carried
+// object verified inside an unfinished walk, a key reached for inside an
+// unfinished step, and a door opened from an already settled stance.
 export const NARRATIVE_PRIMITIVE_SPECS: NarrativePrimitiveSpec[] = [
   {
     primitiveId: "narrative-carried-object-walk",
@@ -240,6 +243,69 @@ export const NARRATIVE_PRIMITIVE_SPECS: NarrativePrimitiveSpec[] = [
     garmentContact: false,
     gapIds: ["carried-object-adjust-with-bag"],
     affectedMoments: [{ topicId: "returning_with_purchases", momentIndex: 3 }],
+  },
+  {
+    primitiveId: "narrative-carried-object-check-walking",
+    capabilityFamily: "carried-object-handling",
+    capabilities: ["CARRIED_OBJECT_CHECK"],
+    movementState: "walking_ongoing",
+    movementCompatibility: ["walking_starting", "walking_ongoing", "walking_finish"],
+    footwork: "midStep",
+    weight: "transferring",
+    canStartFrom: ["walking_starting", "walking_ongoing", "walking_finish", "stationary"],
+    canEndAs: ["walking_ongoing", "walking_finish"],
+    endState: "walking_ongoing",
+    bodyBehavior: "Keep the same measured stride while one hand verifies the carried object and re-seats it without breaking the pace.",
+    handBehavior: "The carrying hand closes briefly on the object, confirms it is secure, and lets it settle back into the same grip.",
+    requiresSurfaceContext: false,
+    requiresDoorContext: false,
+    garmentContact: false,
+    gapIds: ["carried-object-check-with-small-item"],
+    affectedMoments: [
+      { topicId: "short_local_trip", momentIndex: 1 },
+    ],
+  },
+  {
+    primitiveId: "narrative-key-pocket-retrieval",
+    capabilityFamily: "small-object-handling",
+    capabilities: ["SMALL_OBJECT_RETRIEVAL"],
+    movementState: "walking_finish",
+    movementCompatibility: ["walking_ongoing", "walking_finish", "stopping_settle"],
+    footwork: "stepFinish",
+    weight: "settling",
+    canStartFrom: ["walking_ongoing", "walking_finish", "stopping_settle", "stationary"],
+    canEndAs: ["walking_finish", "stopping_settle", "transition_pause"],
+    endState: "walking_finish",
+    bodyBehavior: "Shorten the stride and let the working hand reach into the worn pocket inside the unfinished step.",
+    handBehavior: "One hand reaches into the pocket and closes on the key while the other hand stays with the body line.",
+    requiresSurfaceContext: false,
+    requiresDoorContext: false,
+    garmentContact: false,
+    gapIds: ["object-retrieval-with-key"],
+    affectedMoments: [
+      { topicId: "evening_return_home", momentIndex: 1 },
+    ],
+  },
+  {
+    primitiveId: "narrative-door-contact-settled",
+    capabilityFamily: "threshold-handling",
+    capabilities: ["DOOR_CONTACT"],
+    movementState: "stopping_settle",
+    movementCompatibility: ["stopping_settle", "stationary", "transition_pause"],
+    footwork: "split",
+    weight: "settling",
+    canStartFrom: ["stationary", "stopping_settle", "walking_finish", "transition_pause"],
+    canEndAs: ["stationary", "transition_pause"],
+    endState: "stationary",
+    bodyBehavior: "Open the door from the already settled stance, weight even, and let the working hand carry the door clear before any step through.",
+    handBehavior: "One hand turns the handle and pushes the door clear; the free hand stays relaxed and takes no second task.",
+    requiresSurfaceContext: false,
+    requiresDoorContext: true,
+    garmentContact: false,
+    gapIds: ["door-contact-with-door"],
+    affectedMoments: [
+      { topicId: "evening_return_home", momentIndex: 3 },
+    ],
   },
 ];
 

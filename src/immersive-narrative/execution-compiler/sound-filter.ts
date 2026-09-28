@@ -1,5 +1,6 @@
 import type { SoundMoment } from "../sound-world";
 import type { ActionExecutionEvidence, ExecutionMomentContract, SoundCueVerdict } from "./types";
+import { findForbiddenSoundCueWording } from "./emotion-rule";
 
 type SoundCueContext = {
   contract: ExecutionMomentContract;
@@ -88,7 +89,7 @@ const SOUND_RULES: SoundRule[] = [
   },
   {
     id: "HUMAN",
-    pattern: /\bbreath|\bfabric\b|\bsleeve\b|\bgarment\b|\bclothing\b/i,
+    pattern: /\bfabric\b|\bsleeve\b|\bgarment\b|\bclothing\b/i,
     evidence: () => "the person is present and moving naturally",
   },
   {
@@ -103,6 +104,18 @@ export function filterSoundCues(context: SoundCueContext): SoundCueVerdict[] {
   if (!moment) return [];
   const cues = [...moment.environment, ...moment.human, ...moment.object, ...moment.footwear];
   return cues.map((cue) => {
+    // Global No-Sigh rule: a sound cue may never make breathing, a sigh, or an
+    // exhale audible as an emotional release, whatever generated it.
+    const forbidden = findForbiddenSoundCueWording(cue);
+    if (forbidden.length > 0) {
+      return {
+        momentIndex: context.contract.momentIndex,
+        cue,
+        kept: false,
+        rejectionReason: "EMOTIONAL_RELEASE_CUE",
+        evidence: `the cue ${forbidden.join(", ")} makes an internal state audible, and emotion never creates a new action`,
+      };
+    }
     // Rule selection is by specificity, not by table order: a "door handle"
     // cue must be judged as a door event even though it also says "handle".
     const rule = /\bdoor\b|\block\b|\bdoorway\b/i.test(cue)

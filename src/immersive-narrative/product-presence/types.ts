@@ -7,6 +7,8 @@ export type ProductPresenceLevel =
   | "READABLE"
   | "HERO";
 
+export type ProductPresenceScopeTarget = "PROTAGONIST_WORN_PRODUCT";
+
 export type ProductPresenceRequirement = {
   visibilityRequired: boolean;
   fullShoeRequired: boolean;
@@ -20,13 +22,15 @@ export type ProductPresenceMoment = {
   presence: ProductPresenceLevel;
   reason: string;
   productRequirement: ProductPresenceRequirement;
+  scopeTarget: ProductPresenceScopeTarget;
 };
 
 export type ProductPresenceQcGateId =
   | "narrative_preserved"
   | "product_not_forced"
   | "sufficient_product_evidence"
-  | "no_overexposure";
+  | "no_overexposure"
+  | "product_scope_target";
 
 export type ProductPresenceQcGate = {
   id: ProductPresenceQcGateId;
@@ -66,6 +70,7 @@ export type ProductPresenceOutput = {
   topic: string;
   duration: number;
   curve: ProductPresenceMoment[];
+  scopeTarget: ProductPresenceScopeTarget;
   qc: ProductPresenceQc;
   status: ProductPresenceStatus;
   failureReasons?: string[];

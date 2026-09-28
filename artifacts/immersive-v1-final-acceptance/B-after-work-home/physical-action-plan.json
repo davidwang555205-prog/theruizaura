@@ -1,0 +1,47 @@
+[
+  {
+    "momentIndex": 0,
+    "whatHappens": "She leaves the 电梯 and begins walking through the 公寓走廊 toward the 公寓门口.",
+    "status": "MATCHED",
+    "selectedActionId": "walking-001",
+    "primitiveId": null,
+    "source": "EXISTING_ACTION",
+    "movementState": "walking_starting"
+  },
+  {
+    "momentIndex": 1,
+    "whatHappens": "She reaches the 公寓门口 and settles beside the closed door.",
+    "status": "MATCHED",
+    "selectedActionId": "walking-006",
+    "primitiveId": null,
+    "source": "EXISTING_ACTION",
+    "movementState": "walking_ongoing"
+  },
+  {
+    "momentIndex": 2,
+    "whatHappens": "Beside the door, she touches the bag, misses the key on the first touch, immediately finds the key with a second touch, and unlocks the door.",
+    "status": "MATCHED",
+    "selectedActionId": "narrative-key-door-unlock",
+    "primitiveId": "narrative-key-door-unlock",
+    "source": "NARRATIVE_PRIMITIVE",
+    "movementState": "stopping_settle"
+  },
+  {
+    "momentIndex": 3,
+    "whatHappens": "She opens the door and steps through with her posture slightly less held.",
+    "status": "MATCHED",
+    "selectedActionId": "narrative-door-open-transition",
+    "primitiveId": "narrative-door-open-transition",
+    "source": "NARRATIVE_PRIMITIVE",
+    "movementState": "walking_ongoing"
+  },
+  {
+    "momentIndex": 4,
+    "whatHappens": "She steps into the 玄关 without turning back. The 公寓走廊 returns to stillness.",
+    "status": "MATCHED",
+    "selectedActionId": "walking-006",
+    "primitiveId": null,
+    "source": "EXISTING_ACTION",
+    "movementState": "walking_ongoing"
+  }
+]

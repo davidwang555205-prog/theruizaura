@@ -1,0 +1,325 @@
+{
+  "pipelineStatus": "GENERATED",
+  "stages": {
+    "narrative": "PASS",
+    "scene": "PASS",
+    "product": "PASS",
+    "sound": "PASS",
+    "cameraRole": "PASS",
+    "physicalAction": "PASS",
+    "cameraExecution": "PASS",
+    "compiler": "GENERATED",
+    "executionCompiler": "GENERATED",
+    "finalScript": "GENERATED"
+  },
+  "executionValidation": {
+    "checks": [
+      {
+        "id": "narrative_completion_boundary",
+        "label": "Narrative Completion Boundary",
+        "status": "PASS",
+        "reason": "All 5 Moments carry a start state, event, object state, and end state derived from the Narrative."
+      },
+      {
+        "id": "no_early_completion",
+        "label": "No Early Completion",
+        "status": "PASS",
+        "reason": "Model-facing output preserves every Moment end state (internal conflicts detected before translation: 0)."
+      },
+      {
+        "id": "no_downstream_event_invention",
+        "label": "No Downstream Event Invention",
+        "status": "PASS",
+        "reason": "Every translated Moment either keeps the matched body mechanics or states a Narrative-supported continuation."
+      },
+      {
+        "id": "safe_continuation_validity",
+        "label": "Safe Continuation Validity",
+        "status": "PASS",
+        "reason": "0 safe continuation(s), each with preserved object, hand task, and causal state."
+      },
+      {
+        "id": "full_timeline_coverage",
+        "label": "Full Timeline Coverage",
+        "status": "PASS",
+        "reason": "Timeline covers 0.0-15.0s without a hole."
+      },
+      {
+        "id": "sound_evidence_gate",
+        "label": "Sound Evidence Gate",
+        "status": "PASS",
+        "reason": "14 cues checked; 2 rejected for missing event evidence and excluded from the script."
+      },
+      {
+        "id": "no_emotional_release_sound",
+        "label": "No Emotional Release Sound",
+        "status": "PASS",
+        "reason": "No sound cue makes breathing, a sigh, or an exhale audible; 0 emotional release cue(s) were rejected before the script."
+      },
+      {
+        "id": "camera_state_persistence",
+        "label": "Camera State Persistence",
+        "status": "PASS",
+        "reason": "1 motivated camera change(s), 0 suppressed, 0 unmotivated."
+      },
+      {
+        "id": "no_unmotivated_insert_shot",
+        "label": "No Unmotivated Insert Shot",
+        "status": "PASS",
+        "reason": "PARTIAL_OBSERVATION is translated as natural partial visibility; no insert shot is created."
+      },
+      {
+        "id": "product_camera_consistency",
+        "label": "Product / Camera Consistency",
+        "status": "PASS",
+        "reason": "0 product requirement(s) downgraded to natural framing; the narrative camera keeps priority."
+      },
+      {
+        "id": "reference_zero_safety",
+        "label": "Reference=0 Safety",
+        "status": "PASS",
+        "reason": "no confirmed reference, so no specific product fact appears in the model-facing script"
+      },
+      {
+        "id": "no_internal_ids",
+        "label": "No Internal IDs",
+        "status": "PASS",
+        "reason": "No action id, primitive id, capability id, or engineering marker appears in the model-facing script."
+      },
+      {
+        "id": "no_debug_status_language",
+        "label": "No Debug Status Language",
+        "status": "PASS",
+        "reason": "No QC, gap, or unsupported status language appears in the model-facing script."
+      },
+      {
+        "id": "no_emotional_release_wording",
+        "label": "No Emotional Release Wording",
+        "status": "PASS",
+        "reason": "The script states the global rule that emotion never creates a new action and contains no sigh, exhale, relief, or performed-emotion wording."
+      },
+      {
+        "id": "ending_state_preserved",
+        "label": "Ending State Preserved",
+        "status": "PASS",
+        "reason": "The final Moment's narrative text closes the script and no extra ending is allowed."
+      },
+      {
+        "id": "spatial_continuity_gate",
+        "label": "Spatial Continuity Gate",
+        "status": "PASS",
+        "reason": "All Moment transitions stay inside the BOOKSTORE_VISIT route."
+      },
+      {
+        "id": "closure_gate",
+        "label": "Narrative Closure Gate",
+        "status": "PASS",
+        "reason": "Local goal completed: enter the bookstore after noticing the window display"
+      }
+    ],
+    "status": "EXECUTION_SCRIPT_VALIDATED",
+    "failureReasons": []
+  },
+  "presentationValidation": {
+    "checks": [
+      {
+        "id": "structure_complete",
+        "label": "Director script structure complete",
+        "status": "PASS",
+        "reason": "Title, idea, concept, device, 5 structure lines, 2 take(s), and an ending are present."
+      },
+      {
+        "id": "timeline_coverage",
+        "label": "Full timeline coverage",
+        "status": "PASS",
+        "reason": "Takes cover 0.0-15.0 continuously across 5 Moments."
+      },
+      {
+        "id": "moment_is_not_shot",
+        "label": "Moment ≠ Shot",
+        "status": "PASS",
+        "reason": "2 take(s) for 1 motivated spatial take boundary/boundaries; camera state changes remain within a Take unless they mark a new spatial passage."
+      },
+      {
+        "id": "no_internal_markers",
+        "label": "No internal markers",
+        "status": "PASS",
+        "reason": "No capability id, QC status, or unsupported marker appears in the director script."
+      },
+      {
+        "id": "commercial_distinctness",
+        "label": "Distinct from commercial-film vocabulary",
+        "status": "PASS",
+        "reason": "The director script keeps its own TAKE/MOMENT vocabulary and never uses commercial shot roles."
+      },
+      {
+        "id": "execution_prompt_preserved",
+        "label": "Execution prompt preserved",
+        "status": "PASS",
+        "reason": "13358 characters of execution prompt pass through unchanged."
+      },
+      {
+        "id": "character_binding",
+        "label": "Character selection reflected",
+        "status": "PASS",
+        "reason": "Director script states the selected age band and appearance (亚裔)."
+      }
+    ],
+    "status": "DIRECTOR_SCRIPT_VALIDATED",
+    "failureReasons": []
+  },
+  "cameraQc": {
+    "physical_action_preserved": {
+      "id": "physical_action_preserved",
+      "label": "Physical Action Preserved",
+      "status": "PASS",
+      "reason": "All 5 Moments keep the upstream Physical Action selection unchanged; Camera Execution issues no action rewrite."
+    },
+    "camera_role_preserved": {
+      "id": "camera_role_preserved",
+      "label": "Camera Role Preserved",
+      "status": "PASS",
+      "reason": "Every Moment keeps the Camera Narrative Role delivered upstream."
+    },
+    "no_product_driven_action": {
+      "id": "no_product_driven_action",
+      "label": "No Product-Driven Action",
+      "status": "PASS",
+      "reason": "Product Presence never produces or edits a body action; the action stays the upstream Physical Action."
+    },
+    "no_product_only_camera_motivation": {
+      "id": "no_product_only_camera_motivation",
+      "label": "No Product-Only Camera Motivation",
+      "status": "PASS",
+      "reason": "No camera move exists only because Product Presence requested one; HERO status stays a readability guard."
+    },
+    "no_impossible_follow": {
+      "id": "no_impossible_follow",
+      "label": "No Impossible Follow",
+      "status": "PASS",
+      "reason": "Every FOLLOWER Moment observes a real matched walking, turning, or transition behavior at a fixed working distance."
+    },
+    "no_body_camera_collision": {
+      "id": "no_body_camera_collision",
+      "label": "No Body / Camera Collision",
+      "status": "PASS",
+      "reason": "Every executable Moment keeps the camera off the subject's travel axis at a stated working distance."
+    },
+    "no_perspective_abuse": {
+      "id": "no_perspective_abuse",
+      "label": "No Perspective Abuse",
+      "status": "PASS",
+      "reason": "Every executable Moment uses one of the approved AURA shot scales, lens families and camera movements; 10 prohibited behaviours are excluded by construction."
+    },
+    "no_random_lens_jump": {
+      "id": "no_random_lens_jump",
+      "label": "No Random Lens Jump",
+      "status": "PASS",
+      "reason": "The whole sequence keeps one lens family resolved from the AURA perspective-risk rules for this topic."
+    },
+    "no_unmotivated_reframe": {
+      "id": "no_unmotivated_reframe",
+      "label": "No Unmotivated Reframe",
+      "status": "PASS",
+      "reason": "No Moment issues a reframe; every planned camera behaviour is locked, a motivated follow, or a held position."
+    },
+    "moment_continuity": {
+      "id": "moment_continuity",
+      "label": "Moment Continuity",
+      "status": "PASS",
+      "reason": "5 executable Moments read as one observed sequence: single lens family, single camera side, carried frames, and no cut language."
+    },
+    "natural_ending": {
+      "id": "natural_ending",
+      "label": "Natural Ending",
+      "status": "PASS",
+      "reason": "The final Moment holds the settled state and ends on an unchanged frame."
+    }
+  },
+  "cameraCoverage": {
+    "totalMoments": 5,
+    "executableMoments": 5,
+    "correctUnsupportedMoments": 0,
+    "roleDistribution": {
+      "OBSERVER": 5,
+      "FOLLOWER": 0,
+      "WAITING_CAMERA": 0,
+      "AFTER_ACTION": 0,
+      "PARTIAL_OBSERVATION": 0
+    },
+    "lensFamilyCount": 1,
+    "lensFamilyChanges": 0,
+    "sideSwitches": 0,
+    "resetToFrontCount": 0,
+    "productDrivenCameraMoments": 0,
+    "actionRewrites": 0
+  },
+  "physicalActionCoverage": {
+    "totalExistingActions": 318,
+    "totalMoments": 5,
+    "matchedMoments": 5,
+    "unresolvedMoments": 0,
+    "coveragePercent": 100,
+    "uniqueExistingActionsReused": 3,
+    "narrativePrimitivesUsed": 0,
+    "addedPrimitiveCount": 0
+  },
+  "soundQc": {
+    "narrative_preserved": {
+      "id": "narrative_preserved",
+      "label": "Narrative Preserved",
+      "status": "PASS",
+      "reason": "Moment order, Scene, What Happens, and Product Presence remain unchanged."
+    },
+    "scene_physically_consistent": {
+      "id": "scene_physically_consistent",
+      "label": "Scene Physically Consistent",
+      "status": "PASS",
+      "reason": "All sound cues are compatible with the resolved Scene and physical surface."
+    },
+    "no_invented_event": {
+      "id": "no_invented_event",
+      "label": "No Invented Event",
+      "status": "PASS",
+      "reason": "No sound cue introduces a new Narrative event."
+    },
+    "no_overdesign": {
+      "id": "no_overdesign",
+      "label": "No Overdesign",
+      "status": "PASS",
+      "reason": "Sound density and dominant-sound distribution remain restrained."
+    }
+  },
+  "productQc": {
+    "narrative_preserved": {
+      "id": "narrative_preserved",
+      "label": "Narrative Preserved",
+      "status": "PASS",
+      "reason": "Original Moment order, What Happens, and resolved Scene remain unchanged."
+    },
+    "product_not_forced": {
+      "id": "product_not_forced",
+      "label": "Product Not Forced",
+      "status": "PASS",
+      "reason": "Presence levels only annotate existing action and do not request a pose or movement change."
+    },
+    "sufficient_product_evidence": {
+      "id": "sufficient_product_evidence",
+      "label": "Sufficient Product Evidence",
+      "status": "PASS",
+      "reason": "0 HERO and 2 READABLE moments provide the required product evidence."
+    },
+    "no_overexposure": {
+      "id": "no_overexposure",
+      "label": "No Overexposure",
+      "status": "PASS",
+      "reason": "The curve keeps HERO at 0 and READABLE + HERO at 2."
+    },
+    "product_scope_target": {
+      "id": "product_scope_target",
+      "label": "Product Scope Target",
+      "status": "PASS",
+      "reason": "Every presence level describes only the protagonist's worn product; no moment scopes the reference to world merchandise."
+    }
+  }
+}

@@ -1,6 +1,13 @@
 import type { CameraNarrativeRole } from "../camera-role";
 import type { ProductPresenceLevel } from "../product-presence";
-import { AURA_CAMERA_EXECUTION_ROLE_RULES, AURA_CAMERA_EXECUTION_RESTRICTIONS, AURA_CAMERA_EXECUTION_LOOK_LINE, AURA_CAMERA_EXECUTION_NEGATIVE_LINE, resolveAuraTopicLensProfile } from "./aura-camera-rules";
+import {
+  AURA_CAMERA_EXECUTION_LOOK_LINE,
+  AURA_CAMERA_EXECUTION_NEGATIVE_LINE,
+  AURA_CAMERA_EXECUTION_RESTRICTIONS,
+  AURA_CAMERA_EXECUTION_ROLE_RULES,
+  IMMERSIVE_CAMERA_NATURALISM_RULES,
+  resolveAuraTopicLensProfile,
+} from "./aura-camera-rules";
 import { buildCameraExecutionQc } from "./qc";
 import {
   CAMERA_EXECUTION_SCHEMA_VERSION,
@@ -16,21 +23,93 @@ import {
 } from "./types";
 
 // One 15-second sequence is allocated once, deterministically, and the same
-// allocation is used by the Camera plan and the final Seedance script.
-const SEQUENCE_TIMING: Record<number, [number, number][]> = {
-  4: [[0, 2.6], [2.6, 7], [7, 12], [12, 15]],
-  5: [[0, 2.4], [2.4, 6], [6, 9.4], [9.4, 12.8], [12.8, 15]],
+// allocation is used by the Camera plan and the final Seedance script. Moment
+// windows are narrative allocations, not performance windows: a real stop or
+// observation gets the time its behavior actually needs instead of an equal
+// slice or a long presentation hold.
+type TimingClass =
+  | "TRANSIT"
+  | "TRANSITION"
+  | "MICRO_EVENT"
+  | "TRUE_STOP"
+  | "OBSERVATION"
+  | "WAITING"
+  | "CLOSURE";
+
+const TIMING_CLASS_WEIGHTS: Record<TimingClass, number> = {
+  TRANSIT: 1.35,
+  TRANSITION: 1.05,
+  MICRO_EVENT: 1.0,
+  TRUE_STOP: 0.5,
+  OBSERVATION: 0.65,
+  WAITING: 1.5,
+  CLOSURE: 1.2,
 };
 
 const CAMERA_SIDE = "established A-side";
 
+const STOP_TIMING_PATTERN = /\bstops?\b|\bpauses?\b|\bremains?\b|\bwaits?\b|\bsearches?\b|\blooks? (?:into|at|through)\b|\bsettles? (?:it|securely|back)\b/i;
+const MOVING_TIMING_PATTERN = /\bwalks?\b|\bcontinues?\b|\bresumes?\b|\bapproaches?\b|\bheads?\b|\bmoves?\b|\benters?\b|\bsteps?\b|\bcrosses?\b|\bturns?\b/i;
+const STATIONARY_TIMING_CLASSES = new Set<TimingClass>(["TRUE_STOP", "OBSERVATION", "WAITING"]);
+
+function timingClassOf(moment: CameraExecutionMomentInput, topicId: string): TimingClass {
+  const text = moment.whatHappens;
+  if (topicId === "waiting_for_friend" && ["micro_event", "response", "after_state"].includes(moment.purpose)) {
+    return "WAITING";
+  }
+  if (moment.purpose === "establish_state") return MOVING_TIMING_PATTERN.test(text) ? "TRANSIT" : "TRANSITION";
+  if (moment.purpose === "approach_trigger") return "TRANSITION";
+  if (moment.purpose === "micro_event") {
+    if (/\bwaits?\b|\bwaiting\b/i.test(text)) return "WAITING";
+    if (STOP_TIMING_PATTERN.test(text)) return "TRUE_STOP";
+    return MOVING_TIMING_PATTERN.test(text) ? "TRANSIT" : "MICRO_EVENT";
+  }
+  if (moment.purpose === "response") {
+    if (/\bwaits?\b|\bwaiting\b/i.test(text)) return "WAITING";
+    if (STOP_TIMING_PATTERN.test(text)) return "OBSERVATION";
+    return MOVING_TIMING_PATTERN.test(text) ? "TRANSIT" : "TRANSITION";
+  }
+  if (moment.purpose === "after_state") {
+    if (/\barriv|\bis complete\b|\bstops? there\b|\bremains? quietly\b|\bsettles? into\b/i.test(text)) return "CLOSURE";
+    return MOVING_TIMING_PATTERN.test(text) ? "TRANSIT" : "CLOSURE";
+  }
+  return "TRANSITION";
+}
+
+function boundedTimingWindows(input: CameraExecutionInput): [number, number][] {
+  const classes = input.moments.map((moment) => timingClassOf(moment, input.topicId));
+  // Consecutive stationary Moments form one stationary span. The first Moment
+  // establishes the real stop; each following observation or wait happens
+  // inside that already-held stillness instead of receiving a second full hold.
+  let stationarySpanActive = false;
+  const effectiveWeights = classes.map((className) => {
+    const stationary = STATIONARY_TIMING_CLASSES.has(className);
+    const weight = TIMING_CLASS_WEIGHTS[className] * (stationary && stationarySpanActive ? 0.45 : 1);
+    stationarySpanActive = stationary;
+    return weight;
+  });
+  const totalWeight = effectiveWeights.reduce((sum, weight) => sum + weight, 0);
+  const windows: [number, number][] = [];
+  let cursor = 0;
+  for (let index = 0; index < input.moments.length; index += 1) {
+    const duration = input.durationSeconds * effectiveWeights[index] / totalWeight;
+    const end = index === input.moments.length - 1
+      ? input.durationSeconds
+      : Math.round((cursor + duration) * 10) / 10;
+    windows.push([cursor, end]);
+    cursor = end;
+  }
+  return windows;
+}
+
 function timingFor(input: CameraExecutionInput, index: number): [number, number] | null {
-  const defaultWindow = SEQUENCE_TIMING[input.moments.length]?.[index] ?? null;
   const compactMoment = input.moments.find((moment) => (
     (moment.purpose === "micro_event" && /\bfinds? the (?:card|key|item)\b/i.test(moment.whatHappens))
     || (moment.purpose === "response" && /\badjusts? (?:her|his|their) (?:sleeve|outer layer)\b/i.test(moment.whatHappens))
   ) && !/\bwaits?\b|\bwaiting\b|\bremains?\b|\bstill searching\b|\banother second\b/i.test(moment.whatHappens));
-  if (!compactMoment || input.moments.length !== 5) return defaultWindow;
+  if (!compactMoment || input.moments.length !== 5) {
+    return boundedTimingWindows(input)[index] ?? null;
+  }
 
   // A completed ordinary hand action occupies a brief part of the continuous
   // slice. The remaining time follows the surrounding life flow, not the hand.
@@ -67,19 +146,19 @@ function productGuard(presence: ProductPresenceLevel, executableNow: boolean) {
     return "Product may stay visible only if the action-led frame already includes it; never reframe for it. " + suffix;
   }
   if (presence === "READABLE") {
-    return "Keep the product readable inside the action-led framing already chosen, without a dedicated product shot. " + suffix;
+    return "Product readability is temporal, not compositional: the footwear becomes naturally readable at some point during the existing action, with no guaranteed duration. READABLE never changes camera height, distance, crop, tilt, movement, or subject framing, and never lowers the camera toward footwear. " + suffix;
   }
-  return "Keep the product clearly readable inside the same action-led framing, and never let HERO evidence motivate the camera. " + suffix;
+  return "Product readability stays intermittent and incidental to the existing action; HERO evidence never motivates camera height, distance, crop, tilt, movement, or subject framing. " + suffix;
 }
 
 function framingFor(role: CameraNarrativeRole) {
   const rule = AURA_CAMERA_EXECUTION_ROLE_RULES[role];
-  if (role === "OBSERVER") return "Held observational frame at a fixed working distance.";
+  if (role === "OBSERVER") return "Near-static observational frame; the camera may drift slightly and lets the subject approach the frame edge without recovering presentation.";
   if (role === "FOLLOWER") {
-    return "The follow stops at the exact moment the matched action ends; the frame is held at the same working distance and no new setup is established.";
+    return "A lightly carried observation that stops with the action; distance may drift and the frame is never re-centered or rebuilt.";
   }
-  if (role === "WAITING_CAMERA") return "Unchanged waiting frame; the subject has entered or passed inside it.";
-  if (role === "AFTER_ACTION") return "Settled final frame held to the last second.";
+  if (role === "WAITING_CAMERA") return "Unchanged waiting frame; the subject may enter, pass, or drift toward the edge inside it.";
+  if (role === "AFTER_ACTION") return "Settled final frame held without turning the stop into a portrait composition.";
   return "Partial view holds the observed body region without widening or advancing.";
 }
 
@@ -89,8 +168,11 @@ function viewAngleLabel(viewAngle: CameraViewAngle) {
   return "three-quarter front angle";
 }
 
-function workingDistanceFor(role: CameraNarrativeRole) {
+function workingDistanceFor(role: CameraNarrativeRole, worldAnchoredObserver: boolean) {
   const rule = AURA_CAMERA_EXECUTION_ROLE_RULES[role];
+  if (worldAnchoredObserver && role !== "FOLLOWER") {
+    return "World-anchored observer position; camera-to-subject distance is not maintained while the subject moves.";
+  }
   const [minimum, maximum] = rule.distanceBandMeters;
   return `${minimum.toFixed(1)}-${maximum.toFixed(1)} m working distance, held off the travel axis at natural human scale.`;
 }
@@ -126,7 +208,7 @@ function transitionFor(
   }
   return {
     kind: "CONTINUOUS_HOLD",
-    text: "Continuous hold over the previous frame; the camera relationship changes only as much as the action requires.",
+    text: "Continuous hold over the previous frame; a Moment boundary does not rebuild the camera-to-subject relation.",
   };
 }
 
@@ -213,6 +295,9 @@ export function planCameraExecution(input: CameraExecutionInput): CameraExecutio
   }
 
   const lensProfile = resolveAuraTopicLensProfile(input.moments.map((moment) => moment.whatHappens));
+  const sceneText = input.moments.map((moment) => moment.sceneId).join(" ");
+  const worldAnchoredObserver = /community-path|park-walk|city-corner|weekend-city-walk|business-corner|parking-to-office|residential-building-exit/i.test(sceneText)
+    && !/cafe|bookstore|window-reading|dressing|returning-home|entryway/i.test(sceneText);
   const roleDistribution: Record<CameraNarrativeRole, number> = {
     OBSERVER: 0,
     FOLLOWER: 0,
@@ -238,7 +323,7 @@ export function planCameraExecution(input: CameraExecutionInput): CameraExecutio
       : null;
     const startFraming = executable
       ? (index === 0
-        ? `Opening frame established from the ${CAMERA_SIDE} at a ${viewAngleLabel(rule.viewAngle)}; the body is not front-centred.`
+        ? `Opening frame established from the ${CAMERA_SIDE} at a ${viewAngleLabel(rule.viewAngle)}; the body is not front-centred and no presentation is prepared or corrected.`
         : previousEndFraming
           ? `Carried from the previous Moment: ${previousEndFraming}`
           : "Fresh frame from the same camera side after an unsupported Moment; no cut is invented.")
@@ -308,7 +393,7 @@ export function planCameraExecution(input: CameraExecutionInput): CameraExecutio
       physicalActionMovementState: moment.physicalAction.movementState,
       status: "EXECUTABLE" as const,
       shotScale: rule.shotScale,
-      workingDistance: workingDistanceFor(role),
+      workingDistance: workingDistanceFor(role, worldAnchoredObserver),
       cameraPosition: "off_travel_axis_established_side" as const,
       cameraHeight: rule.cameraHeight,
       viewAngle: rule.viewAngle,
@@ -338,7 +423,7 @@ export function planCameraExecution(input: CameraExecutionInput): CameraExecutio
           ? "Frame, lens family, and camera side are carried forward from the previous executable Moment."
           : "This Moment carries no prior frame; it opens from the same camera side instead of cutting to a new setup.",
       },
-      reason: `${role} is executed as ${rule.shotScale} at ${rule.cameraHeight} from the ${viewAngleLabel(rule.viewAngle)}; ${rule.movement} keeps the camera subordinate to the matched physical action.`,
+      reason: `${role} is executed as ${rule.shotScale} at ${rule.cameraHeight} from the ${viewAngleLabel(rule.viewAngle)}; ${rule.movement} keeps the camera subordinate to the matched physical action and never guarantees subject presentation.`,
       unsupportedReason: null,
     };
   });
@@ -400,7 +485,7 @@ export function planCameraExecution(input: CameraExecutionInput): CameraExecutio
       lookLine: AURA_CAMERA_EXECUTION_LOOK_LINE,
       negativeLine: AURA_CAMERA_EXECUTION_NEGATIVE_LINE,
     },
-    restrictions: [...AURA_CAMERA_EXECUTION_RESTRICTIONS],
+    restrictions: [...AURA_CAMERA_EXECUTION_RESTRICTIONS, ...IMMERSIVE_CAMERA_NATURALISM_RULES],
     failureReasons: failureReasons.length > 0 ? failureReasons : undefined,
   };
 }

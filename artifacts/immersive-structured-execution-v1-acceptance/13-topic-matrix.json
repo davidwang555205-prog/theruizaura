@@ -1,0 +1,555 @@
+[
+  {
+    "topic": "after_work_home",
+    "topicLabel": "下班回家",
+    "momentCount": 5,
+    "takeCount": 2,
+    "structuredStateCoverage": "5/5 Moments; 8 final facts",
+    "legacyFallbackUsed": false,
+    "mandatoryVisualEvents": [
+      "FIND_KEY",
+      "UNLOCK_DOOR",
+      "OPEN_DOOR",
+      "CROSS_THRESHOLD"
+    ],
+    "continuousActionFlowUsed": false,
+    "finalState": {
+      "facts": {
+        "character.place": "INSIDE",
+        "character.motion": "SETTLED",
+        "door.lock": "UNLOCKED",
+        "door.state": "OPEN",
+        "key.location": "HAND",
+        "key.containment": "NONE",
+        "key.visibility": "VISIBLE",
+        "character.anchor": "HOME_INTERIOR"
+      },
+      "entities": {
+        "character": {
+          "kind": "CHARACTER"
+        },
+        "door": {
+          "kind": "THRESHOLD"
+        },
+        "key": {
+          "kind": "OBJECT"
+        }
+      },
+      "completedEvents": [
+        "UNLOCK_DOOR",
+        "FIND_KEY",
+        "CROSS_THRESHOLD",
+        "OPEN_DOOR"
+      ]
+    },
+    "singleUseEvents": [
+      "UNLOCK_DOOR",
+      "FIND_KEY",
+      "CROSS_THRESHOLD",
+      "OPEN_DOOR"
+    ],
+    "qcStatus": "PASS"
+  },
+  {
+    "topic": "weekend_alone",
+    "topicLabel": "周末独处",
+    "momentCount": 5,
+    "takeCount": 1,
+    "structuredStateCoverage": "3/5 Moments; 5 final facts",
+    "legacyFallbackUsed": true,
+    "mandatoryVisualEvents": [
+      "PUT_OBJECT_DOWN"
+    ],
+    "continuousActionFlowUsed": false,
+    "finalState": {
+      "facts": {
+        "character.place": "HOME_INTERIOR",
+        "character.motion": "SETTLED",
+        "object.location": "TABLE_PLACED",
+        "object.visibility": "VISIBLE",
+        "character.anchor": "WINDOW_SIDE"
+      },
+      "entities": {
+        "character": {
+          "kind": "CHARACTER"
+        },
+        "object": {
+          "kind": "OBJECT"
+        }
+      },
+      "completedEvents": [
+        "PUT_OBJECT_DOWN"
+      ]
+    },
+    "singleUseEvents": [
+      "PUT_OBJECT_DOWN"
+    ],
+    "qcStatus": "PASS"
+  },
+  {
+    "topic": "errand_outing",
+    "topicLabel": "出门办事",
+    "momentCount": 5,
+    "takeCount": 2,
+    "structuredStateCoverage": "5/5 Moments; 6 final facts",
+    "legacyFallbackUsed": false,
+    "mandatoryVisualEvents": [
+      "OPEN_AND_EXIT",
+      "ADJUST_SLEEVE"
+    ],
+    "continuousActionFlowUsed": true,
+    "finalState": {
+      "facts": {
+        "character.place": "OUTSIDE",
+        "character.motion": "WALKING",
+        "door.state": "OPEN",
+        "bag.location": "HAND",
+        "character.anchor": "RESIDENTIAL_EXIT",
+        "sleeve.state": "ADJUSTED"
+      },
+      "entities": {
+        "character": {
+          "kind": "CHARACTER"
+        },
+        "door": {
+          "kind": "THRESHOLD"
+        },
+        "bag": {
+          "kind": "OBJECT"
+        },
+        "sleeve": {
+          "kind": "OBJECT"
+        }
+      },
+      "completedEvents": [
+        "OPEN_AND_EXIT",
+        "ADJUST_SLEEVE"
+      ]
+    },
+    "singleUseEvents": [
+      "OPEN_AND_EXIT",
+      "ADJUST_SLEEVE"
+    ],
+    "qcStatus": "PASS"
+  },
+  {
+    "topic": "waiting_for_friend",
+    "topicLabel": "等朋友",
+    "momentCount": 5,
+    "takeCount": 1,
+    "structuredStateCoverage": "4/5 Moments; 5 final facts",
+    "legacyFallbackUsed": true,
+    "mandatoryVisualEvents": [
+      "WAIT_OUTSIDE"
+    ],
+    "continuousActionFlowUsed": false,
+    "finalState": {
+      "facts": {
+        "character.place": "ENTRANCE",
+        "character.motion": "WAITING",
+        "entry.state": "NOT_ENTERED",
+        "character.anchor": "OFFICE_ENTRANCE",
+        "bag.strap": "ADJUSTED"
+      },
+      "entities": {
+        "character": {
+          "kind": "CHARACTER"
+        },
+        "entry": {
+          "kind": "THRESHOLD"
+        },
+        "bag": {
+          "kind": "OBJECT"
+        }
+      },
+      "completedEvents": [
+        "WAIT_OUTSIDE"
+      ]
+    },
+    "singleUseEvents": [
+      "WAIT_OUTSIDE"
+    ],
+    "qcStatus": "PASS"
+  },
+  {
+    "topic": "afternoon_cafe",
+    "topicLabel": "午后咖啡",
+    "momentCount": 5,
+    "takeCount": 2,
+    "structuredStateCoverage": "5/5 Moments; 6 final facts",
+    "legacyFallbackUsed": false,
+    "mandatoryVisualEvents": [
+      "ENTER_CAFE",
+      "SEE_OPEN_SEAT",
+      "ROUTE_CHANGE",
+      "APPROACH_CHAIR",
+      "TAKE_SEAT"
+    ],
+    "continuousActionFlowUsed": true,
+    "finalState": {
+      "facts": {
+        "character.place": "SEAT",
+        "character.motion": "SEATED",
+        "seat.state": "OCCUPIED",
+        "seat.visibility": "VISIBLE",
+        "route.state": "AISLE",
+        "character.anchor": "CAFE_INTERIOR"
+      },
+      "entities": {
+        "character": {
+          "kind": "CHARACTER"
+        },
+        "seat": {
+          "kind": "OBJECT"
+        },
+        "route": {
+          "kind": "PLACE"
+        }
+      },
+      "completedEvents": [
+        "ENTER_CAFE",
+        "SEE_OPEN_SEAT",
+        "ROUTE_CHANGE",
+        "APPROACH_CHAIR",
+        "TAKE_SEAT"
+      ]
+    },
+    "singleUseEvents": [
+      "ENTER_CAFE",
+      "SEE_OPEN_SEAT",
+      "ROUTE_CHANGE",
+      "APPROACH_CHAIR",
+      "TAKE_SEAT"
+    ],
+    "qcStatus": "PASS"
+  },
+  {
+    "topic": "bookstore_browse",
+    "topicLabel": "逛书店",
+    "momentCount": 5,
+    "takeCount": 2,
+    "structuredStateCoverage": "4/5 Moments; 4 final facts",
+    "legacyFallbackUsed": true,
+    "mandatoryVisualEvents": [
+      "WINDOW_STOP",
+      "ENTER_STORE"
+    ],
+    "continuousActionFlowUsed": true,
+    "finalState": {
+      "facts": {
+        "character.place": "INSIDE",
+        "character.motion": "WALKING",
+        "store.entry": "ENTERED",
+        "character.anchor": "SHOP_INTERIOR"
+      },
+      "entities": {
+        "character": {
+          "kind": "CHARACTER"
+        },
+        "store": {
+          "kind": "PLACE"
+        }
+      },
+      "completedEvents": [
+        "WINDOW_STOP",
+        "ENTER_STORE"
+      ]
+    },
+    "singleUseEvents": [
+      "WINDOW_STOP",
+      "ENTER_STORE"
+    ],
+    "qcStatus": "PASS"
+  },
+  {
+    "topic": "returning_with_purchases",
+    "topicLabel": "采购归来",
+    "momentCount": 5,
+    "takeCount": 2,
+    "structuredStateCoverage": "3/5 Moments; 6 final facts",
+    "legacyFallbackUsed": true,
+    "mandatoryVisualEvents": [
+      "CHANGE_GRIP",
+      "UNLOCK_DOOR",
+      "CROSS_THRESHOLD"
+    ],
+    "continuousActionFlowUsed": true,
+    "finalState": {
+      "facts": {
+        "character.place": "INSIDE",
+        "character.motion": "WALKING",
+        "bag.location": "OTHER_HAND",
+        "door.lock": "UNLOCKED",
+        "door.state": "OPEN",
+        "character.anchor": "ENTRYWAY"
+      },
+      "entities": {
+        "character": {
+          "kind": "CHARACTER"
+        },
+        "bag": {
+          "kind": "OBJECT"
+        },
+        "door": {
+          "kind": "THRESHOLD"
+        }
+      },
+      "completedEvents": [
+        "CHANGE_GRIP",
+        "UNLOCK_DOOR",
+        "CROSS_THRESHOLD"
+      ]
+    },
+    "singleUseEvents": [
+      "CHANGE_GRIP",
+      "UNLOCK_DOOR",
+      "CROSS_THRESHOLD"
+    ],
+    "qcStatus": "PASS"
+  },
+  {
+    "topic": "after_school_pickup",
+    "topicLabel": "接孩子后",
+    "momentCount": 5,
+    "takeCount": 1,
+    "structuredStateCoverage": "4/5 Moments; 5 final facts",
+    "legacyFallbackUsed": true,
+    "mandatoryVisualEvents": [
+      "WAIT_FOR_PASSAGE"
+    ],
+    "continuousActionFlowUsed": true,
+    "finalState": {
+      "facts": {
+        "character.place": "COMMUNITY_PATH",
+        "character.motion": "WALKING",
+        "passage.state": "CLEAR",
+        "bag.location": "HAND",
+        "character.anchor": "COMMUNITY_PATH"
+      },
+      "entities": {
+        "character": {
+          "kind": "CHARACTER"
+        },
+        "passage": {
+          "kind": "PLACE"
+        },
+        "bag": {
+          "kind": "OBJECT"
+        }
+      },
+      "completedEvents": [
+        "WAIT_FOR_PASSAGE"
+      ]
+    },
+    "singleUseEvents": [
+      "WAIT_FOR_PASSAGE"
+    ],
+    "qcStatus": "PASS"
+  },
+  {
+    "topic": "weekend_walk",
+    "topicLabel": "周末散步",
+    "momentCount": 5,
+    "takeCount": 1,
+    "structuredStateCoverage": "5/5 Moments; 4 final facts",
+    "legacyFallbackUsed": false,
+    "mandatoryVisualEvents": [
+      "CLEAR_SURFACE"
+    ],
+    "continuousActionFlowUsed": true,
+    "finalState": {
+      "facts": {
+        "character.place": "PATH",
+        "character.motion": "WALKING",
+        "surface.state": "CLEARED",
+        "character.anchor": "COMMUNITY_PATH"
+      },
+      "entities": {
+        "character": {
+          "kind": "CHARACTER"
+        },
+        "surface": {
+          "kind": "SURFACE"
+        }
+      },
+      "completedEvents": [
+        "CLEAR_SURFACE"
+      ]
+    },
+    "singleUseEvents": [
+      "CLEAR_SURFACE"
+    ],
+    "qcStatus": "PASS"
+  },
+  {
+    "topic": "after_lunch",
+    "topicLabel": "午餐之后",
+    "momentCount": 5,
+    "takeCount": 1,
+    "structuredStateCoverage": "4/5 Moments; 5 final facts",
+    "legacyFallbackUsed": true,
+    "mandatoryVisualEvents": [
+      "CHOOSE_ROUTE",
+      "ADJUST_LAYER"
+    ],
+    "continuousActionFlowUsed": true,
+    "finalState": {
+      "facts": {
+        "character.place": "STREET",
+        "character.motion": "WALKING",
+        "route.state": "CHOSEN",
+        "character.anchor": "STREET",
+        "outer_layer.state": "ADJUSTED"
+      },
+      "entities": {
+        "character": {
+          "kind": "CHARACTER"
+        },
+        "route": {
+          "kind": "PLACE"
+        },
+        "outer_layer": {
+          "kind": "OBJECT"
+        }
+      },
+      "completedEvents": [
+        "CHOOSE_ROUTE",
+        "ADJUST_LAYER"
+      ]
+    },
+    "singleUseEvents": [
+      "CHOOSE_ROUTE",
+      "ADJUST_LAYER"
+    ],
+    "qcStatus": "PASS"
+  },
+  {
+    "topic": "city_wandering",
+    "topicLabel": "城市闲逛",
+    "momentCount": 5,
+    "takeCount": 1,
+    "structuredStateCoverage": "5/5 Moments; 4 final facts",
+    "legacyFallbackUsed": false,
+    "mandatoryVisualEvents": [
+      "NOTICE_REFLECTION"
+    ],
+    "continuousActionFlowUsed": true,
+    "finalState": {
+      "facts": {
+        "character.place": "STREET",
+        "character.motion": "WALKING",
+        "notice.state": "SEEN",
+        "character.anchor": "SHOP_FRONT"
+      },
+      "entities": {
+        "character": {
+          "kind": "CHARACTER"
+        },
+        "notice": {
+          "kind": "SURFACE"
+        }
+      },
+      "completedEvents": [
+        "NOTICE_REFLECTION"
+      ]
+    },
+    "singleUseEvents": [
+      "NOTICE_REFLECTION"
+    ],
+    "qcStatus": "PASS"
+  },
+  {
+    "topic": "evening_return_home",
+    "topicLabel": "傍晚回家",
+    "momentCount": 5,
+    "takeCount": 2,
+    "structuredStateCoverage": "4/5 Moments; 8 final facts",
+    "legacyFallbackUsed": true,
+    "mandatoryVisualEvents": [
+      "FIND_KEY",
+      "UNLOCK_DOOR",
+      "OPEN_DOOR",
+      "CROSS_THRESHOLD"
+    ],
+    "continuousActionFlowUsed": true,
+    "finalState": {
+      "facts": {
+        "character.place": "INSIDE",
+        "character.motion": "SETTLED",
+        "door.lock": "UNLOCKED",
+        "door.state": "OPEN",
+        "key.location": "HAND",
+        "key.containment": "NONE",
+        "key.visibility": "VISIBLE",
+        "character.anchor": "ENTRYWAY"
+      },
+      "entities": {
+        "character": {
+          "kind": "CHARACTER"
+        },
+        "door": {
+          "kind": "THRESHOLD"
+        },
+        "key": {
+          "kind": "OBJECT"
+        }
+      },
+      "completedEvents": [
+        "UNLOCK_DOOR",
+        "FIND_KEY",
+        "OPEN_DOOR",
+        "CROSS_THRESHOLD"
+      ]
+    },
+    "singleUseEvents": [
+      "UNLOCK_DOOR",
+      "FIND_KEY",
+      "OPEN_DOOR",
+      "CROSS_THRESHOLD"
+    ],
+    "qcStatus": "PASS"
+  },
+  {
+    "topic": "short_local_trip",
+    "topicLabel": "短途出行",
+    "momentCount": 5,
+    "takeCount": 1,
+    "structuredStateCoverage": "3/5 Moments; 6 final facts",
+    "legacyFallbackUsed": true,
+    "mandatoryVisualEvents": [
+      "SECURE_ITEM",
+      "ARRIVE"
+    ],
+    "continuousActionFlowUsed": false,
+    "finalState": {
+      "facts": {
+        "character.place": "DESTINATION",
+        "character.motion": "STOPPED",
+        "item.location": "HAND",
+        "item.state": "SECURE",
+        "arrival.state": "ARRIVED",
+        "character.anchor": "DESTINATION_ANCHOR"
+      },
+      "entities": {
+        "character": {
+          "kind": "CHARACTER"
+        },
+        "item": {
+          "kind": "OBJECT"
+        },
+        "arrival": {
+          "kind": "PLACE"
+        }
+      },
+      "completedEvents": [
+        "SECURE_ITEM",
+        "ARRIVE"
+      ]
+    },
+    "singleUseEvents": [
+      "SECURE_ITEM",
+      "ARRIVE"
+    ],
+    "qcStatus": "PASS"
+  }
+]

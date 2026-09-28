@@ -1,0 +1,18 @@
+[
+  {
+    "id": "FIND_KEY",
+    "statement": "The same key visibly comes out of the bag."
+  },
+  {
+    "id": "UNLOCK_DOOR",
+    "statement": "The key visibly unlocks the same door."
+  },
+  {
+    "id": "OPEN_DOOR",
+    "statement": "The unlocked door visibly opens."
+  },
+  {
+    "id": "CROSS_THRESHOLD",
+    "statement": "The character visibly crosses that open threshold into the home."
+  }
+]

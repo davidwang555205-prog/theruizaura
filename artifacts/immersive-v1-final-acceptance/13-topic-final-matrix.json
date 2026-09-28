@@ -1,0 +1,143 @@
+{
+  "topics": [
+    {
+      "topic": "after_work_home",
+      "status": "GENERATED",
+      "physicalActionMatched": 5,
+      "physicalActionUnmatched": 0,
+      "takeCount": 2,
+      "executionValidation": "EXECUTION_SCRIPT_VALIDATED",
+      "qcPass": true
+    },
+    {
+      "topic": "weekend_alone",
+      "status": "GENERATED",
+      "physicalActionMatched": 5,
+      "physicalActionUnmatched": 0,
+      "takeCount": 1,
+      "executionValidation": "EXECUTION_SCRIPT_VALIDATED",
+      "qcPass": true
+    },
+    {
+      "topic": "errand_outing",
+      "status": "GENERATED",
+      "physicalActionMatched": 5,
+      "physicalActionUnmatched": 0,
+      "takeCount": 2,
+      "executionValidation": "EXECUTION_SCRIPT_VALIDATED",
+      "qcPass": true
+    },
+    {
+      "topic": "waiting_for_friend",
+      "status": "GENERATED",
+      "physicalActionMatched": 5,
+      "physicalActionUnmatched": 0,
+      "takeCount": 1,
+      "executionValidation": "EXECUTION_SCRIPT_VALIDATED",
+      "qcPass": true
+    },
+    {
+      "topic": "afternoon_cafe",
+      "status": "GENERATED",
+      "physicalActionMatched": 5,
+      "physicalActionUnmatched": 0,
+      "takeCount": 2,
+      "executionValidation": "EXECUTION_SCRIPT_VALIDATED",
+      "qcPass": true
+    },
+    {
+      "topic": "bookstore_browse",
+      "status": "GENERATED",
+      "physicalActionMatched": 5,
+      "physicalActionUnmatched": 0,
+      "takeCount": 2,
+      "executionValidation": "EXECUTION_SCRIPT_VALIDATED",
+      "qcPass": true
+    },
+    {
+      "topic": "returning_with_purchases",
+      "status": "GENERATED",
+      "physicalActionMatched": 5,
+      "physicalActionUnmatched": 0,
+      "takeCount": 2,
+      "executionValidation": "EXECUTION_SCRIPT_VALIDATED",
+      "qcPass": true
+    },
+    {
+      "topic": "after_school_pickup",
+      "status": "GENERATED",
+      "physicalActionMatched": 5,
+      "physicalActionUnmatched": 0,
+      "takeCount": 1,
+      "executionValidation": "EXECUTION_SCRIPT_VALIDATED",
+      "qcPass": true
+    },
+    {
+      "topic": "weekend_walk",
+      "status": "GENERATED",
+      "physicalActionMatched": 5,
+      "physicalActionUnmatched": 0,
+      "takeCount": 1,
+      "executionValidation": "EXECUTION_SCRIPT_VALIDATED",
+      "qcPass": true
+    },
+    {
+      "topic": "after_lunch",
+      "status": "GENERATED",
+      "physicalActionMatched": 5,
+      "physicalActionUnmatched": 0,
+      "takeCount": 1,
+      "executionValidation": "EXECUTION_SCRIPT_VALIDATED",
+      "qcPass": true
+    },
+    {
+      "topic": "city_wandering",
+      "status": "GENERATED",
+      "physicalActionMatched": 5,
+      "physicalActionUnmatched": 0,
+      "takeCount": 1,
+      "executionValidation": "EXECUTION_SCRIPT_VALIDATED",
+      "qcPass": true
+    },
+    {
+      "topic": "evening_return_home",
+      "status": "GENERATED",
+      "physicalActionMatched": 5,
+      "physicalActionUnmatched": 0,
+      "takeCount": 2,
+      "executionValidation": "EXECUTION_SCRIPT_VALIDATED",
+      "qcPass": true
+    },
+    {
+      "topic": "short_local_trip",
+      "status": "GENERATED",
+      "physicalActionMatched": 5,
+      "physicalActionUnmatched": 0,
+      "takeCount": 1,
+      "executionValidation": "EXECUTION_SCRIPT_VALIDATED",
+      "qcPass": true
+    }
+  ],
+  "cases": [
+    {
+      "name": "B-after-work-home",
+      "topic": "after_work_home",
+      "deterministic": true
+    },
+    {
+      "name": "A-cafe",
+      "topic": "afternoon_cafe",
+      "deterministic": true
+    },
+    {
+      "name": "D-bookstore",
+      "topic": "bookstore_browse",
+      "deterministic": true
+    },
+    {
+      "name": "C-weekend-walk",
+      "topic": "weekend_walk",
+      "deterministic": true
+    }
+  ]
+}

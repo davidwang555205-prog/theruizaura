@@ -1,0 +1,99 @@
+{
+  "moments": [
+    {
+      "momentIndex": 0,
+      "cameraRole": "OBSERVER",
+      "cameraMovement": "locked_off",
+      "shotScale": "medium_full",
+      "cameraHeight": "natural_eye_level",
+      "viewAngle": "three_quarter_front",
+      "workingDistance": "3.0-3.5 m working distance, held off the travel axis at natural human scale.",
+      "movementRelationToSubject": "Near-static observation from the established side; the camera may lag or drift slightly, but it never chases, re-aims, or re-centers to restore subject or product presentation.",
+      "subjectVisibility": "The body is not presentation-locked and the optical center is not required: the subject may enter off-center, cross the frame diagonally, drift toward one side, temporarily occupy an awkward part of the frame, or leave the visual center naturally. It may become partially framed or briefly obscured. Footwear stays readable only while the existing action naturally shows it; the camera never restores the composition.",
+      "startFraming": "Opening frame established from the established A-side at a three-quarter front angle; the body is not front-centred and no presentation is prepared or corrected.",
+      "endFraming": "Near-static observational frame; the camera may drift slightly and lets the subject approach the frame edge without recovering presentation."
+    },
+    {
+      "momentIndex": 1,
+      "cameraRole": "OBSERVER",
+      "cameraMovement": "locked_off",
+      "shotScale": "medium_full",
+      "cameraHeight": "natural_eye_level",
+      "viewAngle": "three_quarter_front",
+      "workingDistance": "3.0-3.5 m working distance, held off the travel axis at natural human scale.",
+      "movementRelationToSubject": "Near-static observation from the established side; the camera may lag or drift slightly, but it never chases, re-aims, or re-centers to restore subject or product presentation.",
+      "subjectVisibility": "The body is not presentation-locked and the optical center is not required: the subject may enter off-center, cross the frame diagonally, drift toward one side, temporarily occupy an awkward part of the frame, or leave the visual center naturally. It may become partially framed or briefly obscured. Footwear stays readable only while the existing action naturally shows it; the camera never restores the composition.",
+      "startFraming": "Carried from the previous Moment: Near-static observational frame; the camera may drift slightly and lets the subject approach the frame edge without recovering presentation.",
+      "endFraming": "Near-static observational frame; the camera may drift slightly and lets the subject approach the frame edge without recovering presentation."
+    },
+    {
+      "momentIndex": 2,
+      "cameraRole": "OBSERVER",
+      "cameraMovement": "locked_off",
+      "shotScale": "medium_full",
+      "cameraHeight": "natural_eye_level",
+      "viewAngle": "three_quarter_front",
+      "workingDistance": "3.0-3.5 m working distance, held off the travel axis at natural human scale.",
+      "movementRelationToSubject": "Near-static observation from the established side; the camera may lag or drift slightly, but it never chases, re-aims, or re-centers to restore subject or product presentation.",
+      "subjectVisibility": "The body is not presentation-locked and the optical center is not required: the subject may enter off-center, cross the frame diagonally, drift toward one side, temporarily occupy an awkward part of the frame, or leave the visual center naturally. It may become partially framed or briefly obscured. Footwear stays readable only while the existing action naturally shows it; the camera never restores the composition.",
+      "startFraming": "Carried from the previous Moment: Near-static observational frame; the camera may drift slightly and lets the subject approach the frame edge without recovering presentation.",
+      "endFraming": "Near-static observational frame; the camera may drift slightly and lets the subject approach the frame edge without recovering presentation."
+    },
+    {
+      "momentIndex": 3,
+      "cameraRole": "OBSERVER",
+      "cameraMovement": "locked_off",
+      "shotScale": "medium_full",
+      "cameraHeight": "natural_eye_level",
+      "viewAngle": "three_quarter_front",
+      "workingDistance": "3.0-3.5 m working distance, held off the travel axis at natural human scale.",
+      "movementRelationToSubject": "Near-static observation from the established side; the camera may lag or drift slightly, but it never chases, re-aims, or re-centers to restore subject or product presentation.",
+      "subjectVisibility": "The body is not presentation-locked and the optical center is not required: the subject may enter off-center, cross the frame diagonally, drift toward one side, temporarily occupy an awkward part of the frame, or leave the visual center naturally. It may become partially framed or briefly obscured. Footwear stays readable only while the existing action naturally shows it; the camera never restores the composition.",
+      "startFraming": "Carried from the previous Moment: Near-static observational frame; the camera may drift slightly and lets the subject approach the frame edge without recovering presentation.",
+      "endFraming": "Near-static observational frame; the camera may drift slightly and lets the subject approach the frame edge without recovering presentation."
+    },
+    {
+      "momentIndex": 4,
+      "cameraRole": "OBSERVER",
+      "cameraMovement": "locked_off",
+      "shotScale": "medium_full",
+      "cameraHeight": "natural_eye_level",
+      "viewAngle": "three_quarter_front",
+      "workingDistance": "3.0-3.5 m working distance, held off the travel axis at natural human scale.",
+      "movementRelationToSubject": "Near-static observation from the established side; the camera may lag or drift slightly, but it never chases, re-aims, or re-centers to restore subject or product presentation.",
+      "subjectVisibility": "The body is not presentation-locked and the optical center is not required: the subject may enter off-center, cross the frame diagonally, drift toward one side, temporarily occupy an awkward part of the frame, or leave the visual center naturally. It may become partially framed or briefly obscured. Footwear stays readable only while the existing action naturally shows it; the camera never restores the composition.",
+      "startFraming": "Carried from the previous Moment: Near-static observational frame; the camera may drift slightly and lets the subject approach the frame edge without recovering presentation.",
+      "endFraming": "Near-static observational frame; the camera may drift slightly and lets the subject approach the frame edge without recovering presentation."
+    }
+  ],
+  "continuityProfile": {
+    "lensFamily": "stabilized_50_70",
+    "focalRange": "a natural 50-70mm equivalent perspective",
+    "perspectiveRisk": "medium",
+    "perspectiveProfileId": "stabilized",
+    "cameraSide": "established A-side",
+    "axisRule": "The subject keeps the same screen side and travel direction for the whole sequence; the camera never crosses the action line.",
+    "resetToFrontPolicy": "The frame is carried forward instead of being re-established in front of the subject."
+  },
+  "restrictions": [
+    "no ultra-wide distortion",
+    "no extreme low angle",
+    "no shoe chase camera",
+    "no aggressive dolly",
+    "no zoom burst",
+    "no orbit",
+    "no 360 spin",
+    "no whip pan",
+    "no rapid reframing",
+    "no product close-up inserted because Product Presence is HERO",
+    "no recovery camera move for subject or product presentation",
+    "no re-centering to restore full-body, centered, or shoe readability",
+    "no settling the camera into a portrait composition for a real stop",
+    "no centered vanishing-axis or runway composition",
+    "no clearing or straightening the route into a protagonist-ready path",
+    "no ankle-level or shoe-level product framing",
+    "no prolonged lower-body-only crop",
+    "no upward shoe-to-person reveal tilt",
+    "no product-motivated camera lowering"
+  ]
+}

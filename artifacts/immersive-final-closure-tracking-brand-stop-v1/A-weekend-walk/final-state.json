@@ -1,0 +1,19 @@
+{
+  "facts": {
+    "character.place": "PATH",
+    "character.motion": "WALKING",
+    "surface.state": "CLEARED",
+    "character.anchor": "COMMUNITY_PATH"
+  },
+  "entities": {
+    "character": {
+      "kind": "CHARACTER"
+    },
+    "surface": {
+      "kind": "SURFACE"
+    }
+  },
+  "completedEvents": [
+    "CLEAR_SURFACE"
+  ]
+}

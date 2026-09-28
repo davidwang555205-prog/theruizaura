@@ -1,0 +1,288 @@
+[
+  {
+    "moment": 1,
+    "authority": "STRUCTURED_AUTHORITY",
+    "before": {
+      "facts": {
+        "character.place": "HALLWAY",
+        "character.motion": "WALKING",
+        "door.lock": "LOCKED",
+        "door.state": "CLOSED",
+        "key.location": "BAG",
+        "key.containment": "BAG",
+        "key.visibility": "HIDDEN",
+        "character.anchor": "APARTMENT_HALLWAY"
+      },
+      "entities": {
+        "character": {
+          "kind": "CHARACTER"
+        },
+        "door": {
+          "kind": "THRESHOLD"
+        },
+        "key": {
+          "kind": "OBJECT"
+        }
+      },
+      "completedEvents": []
+    },
+    "preconditionEvidence": [],
+    "after": {
+      "facts": {
+        "character.place": "HALLWAY",
+        "character.motion": "WALKING",
+        "door.lock": "LOCKED",
+        "door.state": "CLOSED",
+        "key.location": "BAG",
+        "key.containment": "BAG",
+        "key.visibility": "HIDDEN",
+        "character.anchor": "APARTMENT_HALLWAY"
+      },
+      "entities": {
+        "character": {
+          "kind": "CHARACTER"
+        },
+        "door": {
+          "kind": "THRESHOLD"
+        },
+        "key": {
+          "kind": "OBJECT"
+        }
+      },
+      "completedEvents": []
+    }
+  },
+  {
+    "moment": 2,
+    "authority": "STRUCTURED_AUTHORITY",
+    "before": {
+      "facts": {
+        "character.place": "HALLWAY",
+        "character.motion": "WALKING",
+        "door.lock": "LOCKED",
+        "door.state": "CLOSED",
+        "key.location": "BAG",
+        "key.containment": "BAG",
+        "key.visibility": "HIDDEN",
+        "character.anchor": "APARTMENT_HALLWAY"
+      },
+      "entities": {
+        "character": {
+          "kind": "CHARACTER"
+        },
+        "door": {
+          "kind": "THRESHOLD"
+        },
+        "key": {
+          "kind": "OBJECT"
+        }
+      },
+      "completedEvents": []
+    },
+    "preconditionEvidence": [],
+    "after": {
+      "facts": {
+        "character.place": "THRESHOLD",
+        "character.motion": "STOPPED",
+        "door.lock": "LOCKED",
+        "door.state": "CLOSED",
+        "key.location": "BAG",
+        "key.containment": "BAG",
+        "key.visibility": "HIDDEN",
+        "character.anchor": "APARTMENT_THRESHOLD"
+      },
+      "entities": {
+        "character": {
+          "kind": "CHARACTER"
+        },
+        "door": {
+          "kind": "THRESHOLD"
+        },
+        "key": {
+          "kind": "OBJECT"
+        }
+      },
+      "completedEvents": []
+    }
+  },
+  {
+    "moment": 3,
+    "authority": "STRUCTURED_AUTHORITY",
+    "before": {
+      "facts": {
+        "character.place": "THRESHOLD",
+        "character.motion": "STOPPED",
+        "door.lock": "LOCKED",
+        "door.state": "CLOSED",
+        "key.location": "BAG",
+        "key.containment": "BAG",
+        "key.visibility": "HIDDEN",
+        "character.anchor": "APARTMENT_THRESHOLD"
+      },
+      "entities": {
+        "character": {
+          "kind": "CHARACTER"
+        },
+        "door": {
+          "kind": "THRESHOLD"
+        },
+        "key": {
+          "kind": "OBJECT"
+        }
+      },
+      "completedEvents": []
+    },
+    "preconditionEvidence": [],
+    "after": {
+      "facts": {
+        "character.place": "THRESHOLD",
+        "character.motion": "STOPPED",
+        "door.lock": "UNLOCKED",
+        "door.state": "CLOSED",
+        "key.location": "HAND",
+        "key.containment": "NONE",
+        "key.visibility": "VISIBLE",
+        "character.anchor": "APARTMENT_THRESHOLD"
+      },
+      "entities": {
+        "character": {
+          "kind": "CHARACTER"
+        },
+        "door": {
+          "kind": "THRESHOLD"
+        },
+        "key": {
+          "kind": "OBJECT"
+        }
+      },
+      "completedEvents": [
+        "UNLOCK_DOOR",
+        "FIND_KEY"
+      ]
+    }
+  },
+  {
+    "moment": 4,
+    "authority": "STRUCTURED_AUTHORITY",
+    "before": {
+      "facts": {
+        "character.place": "THRESHOLD",
+        "character.motion": "STOPPED",
+        "door.lock": "UNLOCKED",
+        "door.state": "CLOSED",
+        "key.location": "HAND",
+        "key.containment": "NONE",
+        "key.visibility": "VISIBLE",
+        "character.anchor": "APARTMENT_THRESHOLD"
+      },
+      "entities": {
+        "character": {
+          "kind": "CHARACTER"
+        },
+        "door": {
+          "kind": "THRESHOLD"
+        },
+        "key": {
+          "kind": "OBJECT"
+        }
+      },
+      "completedEvents": [
+        "UNLOCK_DOOR",
+        "FIND_KEY"
+      ]
+    },
+    "preconditionEvidence": [],
+    "after": {
+      "facts": {
+        "character.place": "INSIDE",
+        "character.motion": "WALKING",
+        "door.lock": "UNLOCKED",
+        "door.state": "OPEN",
+        "key.location": "HAND",
+        "key.containment": "NONE",
+        "key.visibility": "VISIBLE",
+        "character.anchor": "ENTRYWAY"
+      },
+      "entities": {
+        "character": {
+          "kind": "CHARACTER"
+        },
+        "door": {
+          "kind": "THRESHOLD"
+        },
+        "key": {
+          "kind": "OBJECT"
+        }
+      },
+      "completedEvents": [
+        "UNLOCK_DOOR",
+        "FIND_KEY",
+        "CROSS_THRESHOLD",
+        "OPEN_DOOR"
+      ]
+    }
+  },
+  {
+    "moment": 5,
+    "authority": "STRUCTURED_AUTHORITY",
+    "before": {
+      "facts": {
+        "character.place": "INSIDE",
+        "character.motion": "WALKING",
+        "door.lock": "UNLOCKED",
+        "door.state": "OPEN",
+        "key.location": "HAND",
+        "key.containment": "NONE",
+        "key.visibility": "VISIBLE",
+        "character.anchor": "ENTRYWAY"
+      },
+      "entities": {
+        "character": {
+          "kind": "CHARACTER"
+        },
+        "door": {
+          "kind": "THRESHOLD"
+        },
+        "key": {
+          "kind": "OBJECT"
+        }
+      },
+      "completedEvents": [
+        "UNLOCK_DOOR",
+        "FIND_KEY",
+        "CROSS_THRESHOLD",
+        "OPEN_DOOR"
+      ]
+    },
+    "preconditionEvidence": [],
+    "after": {
+      "facts": {
+        "character.place": "INSIDE",
+        "character.motion": "SETTLED",
+        "door.lock": "UNLOCKED",
+        "door.state": "OPEN",
+        "key.location": "HAND",
+        "key.containment": "NONE",
+        "key.visibility": "VISIBLE",
+        "character.anchor": "HOME_INTERIOR"
+      },
+      "entities": {
+        "character": {
+          "kind": "CHARACTER"
+        },
+        "door": {
+          "kind": "THRESHOLD"
+        },
+        "key": {
+          "kind": "OBJECT"
+        }
+      },
+      "completedEvents": [
+        "UNLOCK_DOOR",
+        "FIND_KEY",
+        "CROSS_THRESHOLD",
+        "OPEN_DOOR"
+      ]
+    }
+  }
+]

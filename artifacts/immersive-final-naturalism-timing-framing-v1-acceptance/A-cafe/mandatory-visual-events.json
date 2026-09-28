@@ -1,0 +1,22 @@
+[
+  {
+    "id": "ENTER_CAFE",
+    "statement": "The character visibly enters the cafe and continues walking."
+  },
+  {
+    "id": "SEE_OPEN_SEAT",
+    "statement": "The open seat becomes visible along the continuing walk."
+  },
+  {
+    "id": "ROUTE_CHANGE",
+    "statement": "The character visibly redirects the same continuing stride into the clear aisle."
+  },
+  {
+    "id": "APPROACH_CHAIR",
+    "statement": "The character visibly reaches the open chair before sitting."
+  },
+  {
+    "id": "TAKE_SEAT",
+    "statement": "The character visibly takes the same open chair and remains seated."
+  }
+]

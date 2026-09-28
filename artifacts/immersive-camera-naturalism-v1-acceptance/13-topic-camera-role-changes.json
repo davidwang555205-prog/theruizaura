@@ -1,0 +1,227 @@
+{
+  "status": "CAMERA_NATURALISM_V1",
+  "followerRoles": 0,
+  "topics": [
+    {
+      "topic": "after_work_home",
+      "roles": [
+        "WAITING_CAMERA",
+        "OBSERVER",
+        "OBSERVER",
+        "OBSERVER",
+        "AFTER_ACTION"
+      ],
+      "reason": [
+        "Baseline WAITING_CAMERA is supported by the existing move action.",
+        "Baseline OBSERVER is supported by the existing stationary action.",
+        "Baseline OBSERVER is supported by the existing stationary action.",
+        "Baseline OBSERVER is supported by the existing enter action.",
+        "Baseline AFTER_ACTION is supported by the existing enter action."
+      ]
+    },
+    {
+      "topic": "weekend_alone",
+      "roles": [
+        "OBSERVER",
+        "OBSERVER",
+        "OBSERVER",
+        "OBSERVER",
+        "AFTER_ACTION"
+      ],
+      "reason": [
+        "Baseline OBSERVER is supported by the existing move action.",
+        "Baseline OBSERVER is supported by the existing stationary action.",
+        "Baseline OBSERVER is supported by the existing stationary action.",
+        "Baseline OBSERVER is supported by the existing stationary action.",
+        "Baseline AFTER_ACTION is supported by the existing move action."
+      ]
+    },
+    {
+      "topic": "errand_outing",
+      "roles": [
+        "OBSERVER",
+        "WAITING_CAMERA",
+        "OBSERVER",
+        "OBSERVER",
+        "OBSERVER"
+      ],
+      "reason": [
+        "Baseline OBSERVER is supported by the existing move action.",
+        "Baseline WAITING_CAMERA is supported by the existing enter action.",
+        "Baseline OBSERVER is supported by the existing move action.",
+        "Baseline OBSERVER is supported by the existing move action.",
+        "Baseline OBSERVER is supported by the existing move action."
+      ]
+    },
+    {
+      "topic": "waiting_for_friend",
+      "roles": [
+        "OBSERVER",
+        "OBSERVER",
+        "PARTIAL_OBSERVATION",
+        "OBSERVER",
+        "AFTER_ACTION"
+      ],
+      "reason": [
+        "Baseline OBSERVER is supported by the existing stationary action.",
+        "Baseline OBSERVER is supported by the existing stationary action.",
+        "Baseline PARTIAL_OBSERVATION is supported by the existing stationary action.",
+        "Baseline OBSERVER is supported by the existing stationary action.",
+        "Baseline AFTER_ACTION is supported by the existing stationary action."
+      ]
+    },
+    {
+      "topic": "afternoon_cafe",
+      "roles": [
+        "WAITING_CAMERA",
+        "OBSERVER",
+        "OBSERVER",
+        "OBSERVER",
+        "AFTER_ACTION"
+      ],
+      "reason": [
+        "Baseline WAITING_CAMERA is supported by the existing enter action.",
+        "Baseline OBSERVER is supported by the existing move action.",
+        "PARTIAL_OBSERVATION is not used because the existing action has no grounded partial-observation reason.",
+        "Baseline OBSERVER is supported by the existing move action.",
+        "Baseline AFTER_ACTION is supported by the existing stationary action."
+      ]
+    },
+    {
+      "topic": "bookstore_browse",
+      "roles": [
+        "OBSERVER",
+        "OBSERVER",
+        "OBSERVER",
+        "OBSERVER",
+        "OBSERVER"
+      ],
+      "reason": [
+        "Baseline OBSERVER is supported by the existing move action.",
+        "Baseline OBSERVER is supported by the existing move action.",
+        "Baseline OBSERVER is supported by the existing stationary action.",
+        "PARTIAL_OBSERVATION is not used because the existing action has no grounded partial-observation reason.",
+        "AFTER_ACTION is not forced while the final Moment still contains active movement or entry; walking does not convert the camera into tracking."
+      ]
+    },
+    {
+      "topic": "returning_with_purchases",
+      "roles": [
+        "OBSERVER",
+        "WAITING_CAMERA",
+        "OBSERVER",
+        "PARTIAL_OBSERVATION",
+        "AFTER_ACTION"
+      ],
+      "reason": [
+        "Baseline OBSERVER is supported by the existing move action.",
+        "Baseline WAITING_CAMERA is supported by the existing move action.",
+        "Baseline OBSERVER is supported by the existing move action.",
+        "Baseline PARTIAL_OBSERVATION is supported by the existing stationary action.",
+        "Baseline AFTER_ACTION is supported by the existing enter action."
+      ]
+    },
+    {
+      "topic": "after_school_pickup",
+      "roles": [
+        "OBSERVER",
+        "OBSERVER",
+        "OBSERVER",
+        "OBSERVER",
+        "AFTER_ACTION"
+      ],
+      "reason": [
+        "Baseline OBSERVER is supported by the existing move action.",
+        "Baseline OBSERVER is supported by the existing move action.",
+        "Baseline OBSERVER is supported by the existing stationary action.",
+        "Baseline OBSERVER is supported by the existing move action.",
+        "Baseline AFTER_ACTION is supported by the existing move action."
+      ]
+    },
+    {
+      "topic": "weekend_walk",
+      "roles": [
+        "WAITING_CAMERA",
+        "OBSERVER",
+        "OBSERVER",
+        "OBSERVER",
+        "AFTER_ACTION"
+      ],
+      "reason": [
+        "Baseline WAITING_CAMERA is supported by the existing move action.",
+        "Baseline OBSERVER is supported by the existing move action.",
+        "Baseline OBSERVER is supported by the existing move action.",
+        "Baseline OBSERVER is supported by the existing move action.",
+        "Baseline AFTER_ACTION is supported by the existing stationary action."
+      ]
+    },
+    {
+      "topic": "after_lunch",
+      "roles": [
+        "WAITING_CAMERA",
+        "OBSERVER",
+        "OBSERVER",
+        "OBSERVER",
+        "AFTER_ACTION"
+      ],
+      "reason": [
+        "Baseline WAITING_CAMERA is supported by the existing move action.",
+        "Baseline OBSERVER is supported by the existing move action.",
+        "Baseline OBSERVER is supported by the existing move action.",
+        "Baseline OBSERVER is supported by the existing stationary action.",
+        "Baseline AFTER_ACTION is supported by the existing stationary action."
+      ]
+    },
+    {
+      "topic": "city_wandering",
+      "roles": [
+        "OBSERVER",
+        "OBSERVER",
+        "OBSERVER",
+        "OBSERVER",
+        "OBSERVER"
+      ],
+      "reason": [
+        "Baseline OBSERVER is supported by the existing move action.",
+        "Baseline OBSERVER is supported by the existing stationary action.",
+        "Baseline OBSERVER is supported by the existing move action.",
+        "PARTIAL_OBSERVATION is not used because the existing action has no grounded partial-observation reason.",
+        "AFTER_ACTION is not forced while the final Moment still contains active movement or entry; walking does not convert the camera into tracking."
+      ]
+    },
+    {
+      "topic": "evening_return_home",
+      "roles": [
+        "OBSERVER",
+        "OBSERVER",
+        "OBSERVER",
+        "OBSERVER",
+        "AFTER_ACTION"
+      ],
+      "reason": [
+        "Baseline OBSERVER is supported by the existing move action.",
+        "WAITING_CAMERA is not used because the subject is not entering or crossing the existing space.",
+        "Baseline OBSERVER is supported by the existing move action.",
+        "Baseline OBSERVER is supported by the existing enter action.",
+        "Baseline AFTER_ACTION is supported by the existing enter action."
+      ]
+    },
+    {
+      "topic": "short_local_trip",
+      "roles": [
+        "WAITING_CAMERA",
+        "OBSERVER",
+        "OBSERVER",
+        "WAITING_CAMERA",
+        "AFTER_ACTION"
+      ],
+      "reason": [
+        "Baseline WAITING_CAMERA is supported by the existing move action.",
+        "Baseline OBSERVER is supported by the existing move action.",
+        "Baseline OBSERVER is supported by the existing stationary action.",
+        "Baseline WAITING_CAMERA is supported by the existing move action.",
+        "Baseline AFTER_ACTION is supported by the existing move action."
+      ]
+    }
+  ]
+}

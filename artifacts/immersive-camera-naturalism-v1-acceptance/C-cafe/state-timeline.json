@@ -1,0 +1,281 @@
+[
+  {
+    "moment": 1,
+    "authority": "STRUCTURED_AUTHORITY",
+    "before": {
+      "facts": {
+        "character.place": "CAFE_ENTRY",
+        "character.motion": "WALKING",
+        "seat.state": "OPEN",
+        "seat.visibility": "HIDDEN",
+        "route.state": "STRAIGHT",
+        "character.anchor": "CAFE_INTERIOR"
+      },
+      "entities": {
+        "character": {
+          "kind": "CHARACTER"
+        },
+        "seat": {
+          "kind": "OBJECT"
+        },
+        "route": {
+          "kind": "PLACE"
+        }
+      },
+      "completedEvents": []
+    },
+    "preconditionEvidence": [],
+    "after": {
+      "facts": {
+        "character.place": "CAFE_INTERIOR",
+        "character.motion": "WALKING",
+        "seat.state": "OPEN",
+        "seat.visibility": "HIDDEN",
+        "route.state": "STRAIGHT",
+        "character.anchor": "CAFE_INTERIOR"
+      },
+      "entities": {
+        "character": {
+          "kind": "CHARACTER"
+        },
+        "seat": {
+          "kind": "OBJECT"
+        },
+        "route": {
+          "kind": "PLACE"
+        }
+      },
+      "completedEvents": [
+        "ENTER_CAFE"
+      ]
+    }
+  },
+  {
+    "moment": 2,
+    "authority": "STRUCTURED_AUTHORITY",
+    "before": {
+      "facts": {
+        "character.place": "CAFE_INTERIOR",
+        "character.motion": "WALKING",
+        "seat.state": "OPEN",
+        "seat.visibility": "HIDDEN",
+        "route.state": "STRAIGHT",
+        "character.anchor": "CAFE_INTERIOR"
+      },
+      "entities": {
+        "character": {
+          "kind": "CHARACTER"
+        },
+        "seat": {
+          "kind": "OBJECT"
+        },
+        "route": {
+          "kind": "PLACE"
+        }
+      },
+      "completedEvents": [
+        "ENTER_CAFE"
+      ]
+    },
+    "preconditionEvidence": [],
+    "after": {
+      "facts": {
+        "character.place": "COUNTER",
+        "character.motion": "WALKING",
+        "seat.state": "OPEN",
+        "seat.visibility": "VISIBLE",
+        "route.state": "STRAIGHT",
+        "character.anchor": "CAFE_COUNTER"
+      },
+      "entities": {
+        "character": {
+          "kind": "CHARACTER"
+        },
+        "seat": {
+          "kind": "OBJECT"
+        },
+        "route": {
+          "kind": "PLACE"
+        }
+      },
+      "completedEvents": [
+        "ENTER_CAFE",
+        "SEE_OPEN_SEAT"
+      ]
+    }
+  },
+  {
+    "moment": 3,
+    "authority": "STRUCTURED_AUTHORITY",
+    "before": {
+      "facts": {
+        "character.place": "COUNTER",
+        "character.motion": "WALKING",
+        "seat.state": "OPEN",
+        "seat.visibility": "VISIBLE",
+        "route.state": "STRAIGHT",
+        "character.anchor": "CAFE_COUNTER"
+      },
+      "entities": {
+        "character": {
+          "kind": "CHARACTER"
+        },
+        "seat": {
+          "kind": "OBJECT"
+        },
+        "route": {
+          "kind": "PLACE"
+        }
+      },
+      "completedEvents": [
+        "ENTER_CAFE",
+        "SEE_OPEN_SEAT"
+      ]
+    },
+    "preconditionEvidence": [],
+    "after": {
+      "facts": {
+        "character.place": "COUNTER",
+        "character.motion": "WALKING",
+        "seat.state": "OPEN",
+        "seat.visibility": "VISIBLE",
+        "route.state": "AISLE",
+        "character.anchor": "CAFE_COUNTER"
+      },
+      "entities": {
+        "character": {
+          "kind": "CHARACTER"
+        },
+        "seat": {
+          "kind": "OBJECT"
+        },
+        "route": {
+          "kind": "PLACE"
+        }
+      },
+      "completedEvents": [
+        "ENTER_CAFE",
+        "SEE_OPEN_SEAT",
+        "ROUTE_CHANGE"
+      ]
+    }
+  },
+  {
+    "moment": 4,
+    "authority": "STRUCTURED_AUTHORITY",
+    "before": {
+      "facts": {
+        "character.place": "COUNTER",
+        "character.motion": "WALKING",
+        "seat.state": "OPEN",
+        "seat.visibility": "VISIBLE",
+        "route.state": "AISLE",
+        "character.anchor": "CAFE_COUNTER"
+      },
+      "entities": {
+        "character": {
+          "kind": "CHARACTER"
+        },
+        "seat": {
+          "kind": "OBJECT"
+        },
+        "route": {
+          "kind": "PLACE"
+        }
+      },
+      "completedEvents": [
+        "ENTER_CAFE",
+        "SEE_OPEN_SEAT",
+        "ROUTE_CHANGE"
+      ]
+    },
+    "preconditionEvidence": [],
+    "after": {
+      "facts": {
+        "character.place": "CHAIR_APPROACH",
+        "character.motion": "SLOWING",
+        "seat.state": "OPEN",
+        "seat.visibility": "VISIBLE",
+        "route.state": "AISLE",
+        "character.anchor": "CAFE_INTERIOR"
+      },
+      "entities": {
+        "character": {
+          "kind": "CHARACTER"
+        },
+        "seat": {
+          "kind": "OBJECT"
+        },
+        "route": {
+          "kind": "PLACE"
+        }
+      },
+      "completedEvents": [
+        "ENTER_CAFE",
+        "SEE_OPEN_SEAT",
+        "ROUTE_CHANGE",
+        "APPROACH_CHAIR"
+      ]
+    }
+  },
+  {
+    "moment": 5,
+    "authority": "STRUCTURED_AUTHORITY",
+    "before": {
+      "facts": {
+        "character.place": "CHAIR_APPROACH",
+        "character.motion": "SLOWING",
+        "seat.state": "OPEN",
+        "seat.visibility": "VISIBLE",
+        "route.state": "AISLE",
+        "character.anchor": "CAFE_INTERIOR"
+      },
+      "entities": {
+        "character": {
+          "kind": "CHARACTER"
+        },
+        "seat": {
+          "kind": "OBJECT"
+        },
+        "route": {
+          "kind": "PLACE"
+        }
+      },
+      "completedEvents": [
+        "ENTER_CAFE",
+        "SEE_OPEN_SEAT",
+        "ROUTE_CHANGE",
+        "APPROACH_CHAIR"
+      ]
+    },
+    "preconditionEvidence": [],
+    "after": {
+      "facts": {
+        "character.place": "SEAT",
+        "character.motion": "SEATED",
+        "seat.state": "OCCUPIED",
+        "seat.visibility": "VISIBLE",
+        "route.state": "AISLE",
+        "character.anchor": "CAFE_INTERIOR"
+      },
+      "entities": {
+        "character": {
+          "kind": "CHARACTER"
+        },
+        "seat": {
+          "kind": "OBJECT"
+        },
+        "route": {
+          "kind": "PLACE"
+        }
+      },
+      "completedEvents": [
+        "ENTER_CAFE",
+        "SEE_OPEN_SEAT",
+        "ROUTE_CHANGE",
+        "APPROACH_CHAIR",
+        "TAKE_SEAT"
+      ]
+    }
+  }
+]

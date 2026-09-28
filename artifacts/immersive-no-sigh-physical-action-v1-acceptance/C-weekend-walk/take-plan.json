@@ -1,0 +1,31 @@
+[
+  {
+    "take": 1,
+    "moments": [
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    "motivation": "initial camera state for the sequence",
+    "boundary": null,
+    "inheritedStart": {
+      "facts": {
+        "character.place": "PATH",
+        "character.motion": "WALKING",
+        "surface.state": "AHEAD",
+        "character.anchor": "COMMUNITY_PATH"
+      },
+      "entities": {
+        "character": {
+          "kind": "CHARACTER"
+        },
+        "surface": {
+          "kind": "SURFACE"
+        }
+      },
+      "completedEvents": []
+    }
+  }
+]

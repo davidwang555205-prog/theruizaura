@@ -8,6 +8,7 @@ import type { SceneResolverOutput } from "../scene-resolver";
 import type { SoundWorldOutput } from "../sound-world";
 import { resolvedWorldPresenceDescription } from "../scene-resolver/location-worlds";
 import type { NarrativePlan, NarrativeSeason } from "../types";
+import { EMOTION_NEVER_ACTS_RULE } from "../execution-compiler/emotion-rule";
 import {
   IMMERSIVE_SCRIPT_SECTIONS,
   IMMERSIVE_SEEDANCE_COMPILER_SCHEMA_VERSION,
@@ -43,7 +44,7 @@ export const DEFAULT_REFERENCE_MAPPING: ImmersiveReferenceMapping = {
   mode: "reference_bound_manual",
   confirmedReferenceCount: 0,
   instruction:
-    "Use the confirmed footwear references uploaded in the current task as the only product source. If a Reference Plan order exists in THERUIZ AURA, upload the references to the external video model in that order before generating. This system attaches no references itself.",
+    "Use the confirmed footwear references uploaded in the current task as the only product source. If a configured Reference Plan order exists, upload the references to the external video model in that order before generating. This system attaches no references itself.",
 };
 
 const NO_MUSIC_DIALOGUE_VOICE = [
@@ -118,7 +119,8 @@ export function compileImmersiveSeedanceScript(input: ImmersiveSeedanceCompilerI
   lines.push(plan.storyIntent);
   lines.push(`Initial state: ${plan.initialCharacterState}`);
   lines.push(`Micro event: ${plan.microEvent}`);
-  lines.push("Keep one primary narrative subject, one continuous situation, and one emotional or state shift. This is an observed small life sequence, not a shot list.");
+  lines.push("Keep one primary narrative subject, one continuous situation, and one internal state shift that is never performed as a new action. This is an observed small life sequence, not a shot list.");
+  lines.push(EMOTION_NEVER_ACTS_RULE);
   lines.push("");
 
   lines.push("[CHARACTER]");
@@ -140,7 +142,7 @@ export function compileImmersiveSeedanceScript(input: ImmersiveSeedanceCompilerI
   lines.push("");
 
   lines.push("[STORY ARC]");
-  lines.push(`Emotional arc: ${plan.emotionalArc.join(" → ")}`);
+  lines.push(`Internal state arc (unperformed, never a new action): ${plan.emotionalArc.join(" → ")}`);
   plan.moments.forEach((moment) => {
     lines.push(`Moment ${moment.index + 1} (${moment.purpose}): ${moment.whatHappens}${moment.causalLink ? ` — causal link: ${moment.causalLink}` : ""}`);
   });
@@ -220,6 +222,7 @@ export function compileImmersiveSeedanceScript(input: ImmersiveSeedanceCompilerI
   lines.push(productTruthLock);
   lines.push("Use the uploaded product references as the only product source. Do not add, rename, or infer any material, colour, toe shape, outsole, heel, logo, or construction fact that the references do not establish.");
   lines.push("Keep left and right shoes mutually consistent, at believable human scale, with stable ground contact and no frame-to-frame deformation.");
+  lines.push("The uploaded footwear reference applies only to the protagonist's worn shoes. Do not reproduce, echo, merchandise, display, advertise, print, place, or duplicate the referenced footwear anywhere else in the environment; the selected location keeps its own real-world objects and inventory.");
   referenceSection(input).forEach((line) => lines.push(line));
   lines.push("Product Presence may not create a body action, a camera move, or a product close-up. It only constrains whether the product must stay readable inside the action-led frame.");
   lines.push("");

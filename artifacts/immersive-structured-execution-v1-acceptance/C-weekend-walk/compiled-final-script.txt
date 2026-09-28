@@ -1,0 +1,72 @@
+SEEDANCE — IMMERSIVE NARRATIVE EXECUTION SCRIPT
+周末散步 · 15s · one primary subject · real-world timing
+
+[INTENT]
+Capture a short neighborhood walk with no destination, observed at an easy pace.
+One primary subject, one continuous sequence. Nothing is added between the moments below.
+
+[CHARACTER]
+Age: 28-32
+Appearance: 亚裔
+Keep the same primary person, wardrobe, and hair for the whole clip. Background people must never become a second narrative subject.
+
+[WORLD & CONTINUITY]
+Location: 社区散步路线. Scenes in order: 社区步道 → 公园慢走 → 公园慢走 → 社区步道 → 公园慢走.
+Season: 秋. Keep the same light direction, surfaces, and location continuity throughout.
+This is an actively used public route, not an empty set. A few pedestrians move independently at the frame edge or in the depth of the environment, occupied with ordinary travel and never gathered around the main character.
+Keep all background people incidental and secondary. They do not look toward, react to, follow, assist, interrupt, or interact with the main character unless the approved event explicitly requires it. Do not change the camera to show them.
+Keep ambient people secondary, incidental, partly visible, softly separated by depth, or occupied with ordinary independent activity.
+Background voices should have plausible visual sources somewhere in the environment when naturally visible within the established frame; do not create an acoustically occupied but visually abandoned public space. Do not change the camera to show a sound source or an ambient person.
+Camera side: established A-side. Lens: a natural 50-70mm equivalent perspective.
+
+[CAMERA STATE]
+Natural eye level, fixed working distance, the same camera side for the whole clip.
+3 motivated camera state changes across the clip.
+Moment is not a shot: do not cut to a new setup for each moment.
+
+[TIMELINE]
+[MANDATORY VISUAL COMPLETION]
+1. One real step visibly clears the uneven surface without stopping the walk.
+A critical transition is incomplete until its listed visual event visibly happens. Generic walking, product observation, posing, or a camera move cannot replace it.
+
+TAKE 1 — 0.0-15.0s — ONE CONTINUOUS OBSERVATION
+[ONE CONTINUOUS ACTION FLOW]
+The character keeps the same locomotion throughout this action span. Do not stop, restart, hold a stationary pose, or pause for product readability.
+She walks along the 公园慢走 at an even pace with no destination in mind. She keeps the same grounded walking cadence without stopping or restarting. Her hands stay relaxed and empty.
+While the same movement continues, as she approaches the edge of the path, her attention moves to the surface ahead. She keeps the same grounded walking cadence without stopping or restarting. Her hands stay relaxed and empty.
+While the same movement continues, she shortens one step to clear the uneven surface and then restores her normal pace. She keeps the same grounded walking cadence without stopping or restarting. Her hands stay relaxed and empty.
+While the same movement continues, she settles back into the same easy rhythm and continues past the change. She keeps the same grounded walking cadence without stopping or restarting. Her hands stay relaxed and empty.
+While the same movement continues, she settles into an easy rhythm along the 公园慢走; the small adjustment is behind her. She keeps the same grounded walking cadence without stopping or restarting. Her hands stay relaxed and empty.
+Camera continuity: The same locked observation from established A-side, natural_eye_level, wide framing, unchanged lens. Restrained parallel follow at a fixed working distance from established A-side, natural_chest_height, medium-full framing, unchanged lens. Same camera position, side, lens, and medium-full framing as the previous moment; no cut and no re-frame. The same locked observation from established A-side, natural_eye_level, medium-full framing, unchanged lens. The camera holds its position from established A-side, natural_eye_level, medium framing, unchanged lens.
+Moment windows are timing metadata only: 1=0.0-2.4s; 2=2.4-6.0s; 3=6.0-9.4s; 4=9.4-12.8s; 5=12.8-15.0s.
+
+[GLOBAL EXECUTION RULES]
+Real-world speed and normal human cadence; no slow motion, no time stretching, no speed ramp.
+The camera observes the person. It never changes what the person is doing.
+Do not add any action, object, event, or product beat that is not written in the timeline.
+Sound is natural world sound only: no music, no foreground dialogue, no voiceover, no narration.
+Use only the sounds written in the timeline; do not add any other object, door, or surface sound.
+Do not advance past a moment's described end state; a timeline boundary never requires a physical stop.
+A Moment boundary is timing and state evidence, not a command to stop or restart the person's movement.
+
+[PRODUCT / REFERENCE RULES]
+If product references are supplied to the external model, preserve those references exactly. Do not redesign or stylize the product.
+No product reference is confirmed for this task, so do not add or invent any colour, material, construction, logo, or panel detail.
+Product visibility: visible only if it falls naturally inside the framing. Never re-frame, push in, or cut away for the product.
+
+[DO NOT]
+No second narrative subject and no background person may become a story participant. Ambient people remain secondary and occupied with their own ordinary activity; they do not look at, react to, follow, assist, interrupt, or interact with the main character unless the approved event explicitly requires it. No crowd focus, no vehicle or animal entering the frame.
+No insert shot, close-up, cutaway, or new camera setup.
+No pose montage, no product showcase, no logo reveal, no on-screen text.
+No re-framing for the product; the narrative camera always wins.
+
+[ENDING STATE]
+She settles into an easy rhythm along the 公园慢走; the small adjustment is behind her.
+At the end, preserve the state the action has reached:
+She remains on the same path.
+Her ordinary walking movement continues.
+The uneven surface is already behind her; keep the same route.
+The earlier action of clearing the uneven surface is complete; do not perform it again.
+Once this final state is reached, do not add a new task, destination, object interaction, sit-down, start, entry, door opening, product pose, or second ending.
+Do not enter the final state while any mandatory visual event above remains incomplete.
+Hold the final frame until the clip ends. Do not append a product shot, a logo, or a second ending.

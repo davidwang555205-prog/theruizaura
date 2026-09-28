@@ -1,0 +1,37 @@
+[
+  {
+    "momentIndex": 0,
+    "title": "WALKING",
+    "startSecond": 0,
+    "endSecond": 2.7,
+    "durationSeconds": 2.7
+  },
+  {
+    "momentIndex": 1,
+    "title": "HOLDING THE MOMENT",
+    "startSecond": 2.7,
+    "endSecond": 4.7,
+    "durationSeconds": 2
+  },
+  {
+    "momentIndex": 2,
+    "title": "FIND KEY + UNLOCK DOOR",
+    "startSecond": 4.7,
+    "endSecond": 7.7,
+    "durationSeconds": 3
+  },
+  {
+    "momentIndex": 3,
+    "title": "OPEN DOOR + CROSS THRESHOLD",
+    "startSecond": 7.7,
+    "endSecond": 11.1,
+    "durationSeconds": 3.4
+  },
+  {
+    "momentIndex": 4,
+    "title": "Already inside from the previous action",
+    "startSecond": 11.1,
+    "endSecond": 15,
+    "durationSeconds": 3.9
+  }
+]

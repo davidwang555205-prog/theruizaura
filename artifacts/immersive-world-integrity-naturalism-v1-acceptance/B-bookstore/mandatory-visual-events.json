@@ -1,0 +1,10 @@
+[
+  {
+    "id": "WINDOW_STOP",
+    "statement": "The character visibly stops outside at the window."
+  },
+  {
+    "id": "ENTER_STORE",
+    "statement": "The character visibly crosses from the window outside into the bookstore."
+  }
+]

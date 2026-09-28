@@ -16,6 +16,7 @@ import {
   type ClosureMomentView,
 } from "./closure";
 import { detectSpatialAnchor, validateSpatialSequence } from "./spatial/validator";
+import { TOPIC_STATE_DATA } from "./execution-compiler/moment-contract";
 import {
   NARRATIVE_TOPIC_CATALOG,
   TOPIC_LOCAL_GOALS,
@@ -197,17 +198,18 @@ function toMoment(
   draft: NarrativeMomentDraft,
   index: number,
   scenes: NarrativeTemplateContext["scenes"],
-  previous: { boundary: NarrativeCompletionBoundary; anchor: NarrativeMoment["spatialAnchor"] }
+  previous: { boundary: NarrativeCompletionBoundary; anchor: NarrativeMoment["spatialAnchor"] },
+  structuredAnchor?: NarrativeMoment["spatialAnchor"]
 ): NarrativeMoment {
   const scene = scenes[draft.sceneRole];
   const whatHappens = draft.whatHappens.trim();
   const boundary = detectCompletionBoundary(whatHappens);
   const cafeInterior = /咖啡|\bcafe\b/i.test(scene.label);
-  const spatialAnchor = cafeInterior && draft.sceneRole === "counter"
+  const spatialAnchor = structuredAnchor ?? (cafeInterior && draft.sceneRole === "counter"
     ? "CAFE_COUNTER"
     : cafeInterior && draft.sceneRole === "interior"
       ? "CAFE_INTERIOR"
-      : detectSpatialAnchor(whatHappens, previous.anchor);
+      : detectSpatialAnchor(whatHappens, previous.anchor));
   return {
     id: `moment-${String(index + 1).padStart(2, "0")}`,
     index,
@@ -358,7 +360,7 @@ export function planImmersiveNarrative(input: NarrativePlannerInput): NarrativeP
       // The first Moment falls back to the Topic's entry anchor so a scene label
       // the anchor catalog does not know can never open the route as UNKNOWN.
       anchor: index === 0 ? spatialEnvelope.allowedAnchors[0] : previousAnchor,
-    });
+    }, TOPIC_STATE_DATA[resolvedTopic!.id]?.anchors[index]);
     previousBoundary = moment.completionBoundary;
     previousAnchor = moment.spatialAnchor;
     return moment;

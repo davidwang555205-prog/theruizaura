@@ -1122,21 +1122,60 @@ try {
     "after_lunch:3 must select the garment-adjust-transition primitive"
   );
 
-  const guardUnresolvedKeys = [
-    "evening_return_home:1",
-    "evening_return_home:3",
-  ];
   assert(momentByKey.get("after_work_home:2")?.primitiveId === "narrative-key-door-unlock", "home brief key interaction is not matched by the existing key-door primitive");
-  let guardUnresolvedPassing = 0;
-  for (const key of guardUnresolvedKeys) {
+  // The evidence guard stays fail-closed after the primitive patch: the exact
+  // primitives that were rejected for these two Moments must still be rejected
+  // for the same reasons. Coverage comes from a new capability-level primitive,
+  // never from a loosened eligibility rule.
+  const guardRejectionKeys = [
+    ["evening_return_home:1", "narrative-container-object-retrieval", "unsupported extra capability: CONTAINER_OBJECT_SEARCH"],
+    ["evening_return_home:1", "narrative-key-door-unlock", "unsupported extra capability: DOOR_CONTACT"],
+    ["evening_return_home:3", "narrative-door-open-transition", "transition state not compatible"],
+    ["evening_return_home:3", "narrative-key-door-unlock", "unsupported extra capability: SMALL_OBJECT_RETRIEVAL"],
+  ];
+  let guardRejectionsPassing = 0;
+  for (const [key, primitiveId, expectedReason] of guardRejectionKeys) {
     const moment = momentByKey.get(key);
-    assert(moment && moment.status === "UNRESOLVED", `${key} must stay unresolved under the evidence guard`);
+    assert(moment, `guard regression Moment ${key} is missing`);
+    const trace = moment.rejectedPrimitiveTraces.find((entry) => entry.primitiveId === primitiveId);
+    assert(trace && trace.eligibility.eligible === false, `${key} no longer rejects ${primitiveId} under the evidence guard`);
     assert(
-      moment.rejectedPrimitiveTraces.length > 0 && moment.rejectedPrimitiveTraces[0].eligibility.eligible === false,
-      `${key} must expose a rejected primitive trace`
+      trace.eligibility.rejectionReasons.includes(expectedReason),
+      `${key} rejected ${primitiveId} for a different reason: ${trace.eligibility.rejectionReasons.join(" | ")}`
     );
-    guardUnresolvedPassing += 1;
+    guardRejectionsPassing += 1;
   }
+
+  // Physical Action coverage regression: every Moment of every Topic is covered.
+  const shortLocalTrip = topics.find((entry) => entry.topicId === "short_local_trip");
+  assert(
+    shortLocalTrip
+      && shortLocalTrip.matchIndexes.length === 5
+      && shortLocalTrip.matched === 5
+      && shortLocalTrip.unresolved === 0,
+    `SHORT_LOCAL_TRIP_ALL_MOMENTS_MATCHED failed: ${JSON.stringify(shortLocalTrip)}`
+  );
+  assert(
+    momentByKey.get("short_local_trip:1")?.primitiveId === "narrative-carried-object-check-walking",
+    "short_local_trip:1 is not covered by the walking carried-object check primitive"
+  );
+  assert(
+    momentByKey.get("evening_return_home:1")?.primitiveId === "narrative-key-pocket-retrieval"
+      && momentByKey.get("evening_return_home:3")?.primitiveId === "narrative-door-contact-settled",
+    "the evening-return-home capability gaps were not closed by a capability-level primitive"
+  );
+  assert(
+    combinedReport.coverage.unresolvedMoments === 0 && combinedReport.recommendation === "A",
+    `13 Topic Physical Action audit still reports ${combinedReport.coverage.unresolvedMoments} unmatched Moment(s)`
+  );
+  assert(
+    combinedReport.gaps.length === 0 && combinedReport.gapReview.minimumNewPrimitives === 0,
+    "the capability gap review still reports open gaps after the primitive patch"
+  );
+  assert(
+    combinedReport.resultStage === "PHYSICAL_ACTION_APPROVED",
+    `Physical Action result stage is ${combinedReport.resultStage} with zero unmatched Moments`
+  );
 
   let selectedPrimitiveChecks = 0;
   let selectedSameObjectExceptions = 0;
@@ -1247,17 +1286,25 @@ try {
       fixtureCount: Object.keys(guardFixtures).length,
       fixturesPassed: Object.values(guardFixtures).filter(Boolean).length,
       misassignmentsFixed: `${misassignmentChecks.length} / ${misassignmentChecks.length}`,
-      guardCreatedUnresolved: `${guardUnresolvedPassing} / ${guardUnresolvedKeys.length}`,
+      guardRejectionsPreserved: `${guardRejectionsPassing} / ${guardRejectionKeys.length}`,
       selectedPrimitiveCapabilityChecks: selectedPrimitiveChecks,
       selectedSameObjectExceptions,
       unsupportedExtraSelected: uncheckedSelected,
       invalidSameObjectExceptions,
     },
+    physicalActionCoverage: {
+      topics: topics.length,
+      moments: totalMoments,
+      matched: combinedReport.coverage.matchedMoments,
+      unmatched: combinedReport.coverage.unresolvedMoments,
+      shortLocalTripAllMomentsMatched: true,
+      resultStage: combinedReport.resultStage,
+    },
     auditCoverage: {
       matched,
       unresolved,
       resultStage: combinedReport.resultStage,
-      note: "Final trusted rematch executed; the remaining unresolved Moments are clustered real capability gaps.",
+      note: "Final trusted rematch executed; the remaining real capability gaps were closed by capability-level Narrative primitives, so all 13 Topics report zero unmatched Moments under the unchanged evidence guard.",
     },
     perTopic: topics,
   }, null, 2));

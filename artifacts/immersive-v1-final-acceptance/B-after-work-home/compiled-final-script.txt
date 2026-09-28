@@ -1,0 +1,120 @@
+SEEDANCE — IMMERSIVE NARRATIVE EXECUTION SCRIPT
+下班回家 · 15s · one primary subject · real-world timing
+
+[INTENT]
+Capture the short transition from public composure to private relaxation when the character arrives home after an ordinary workday.
+One primary subject, one continuous sequence. Nothing is added between the moments below.
+
+[CHARACTER]
+Age: 28-32
+Appearance: 亚裔
+Keep the same primary person, wardrobe, and hair for the whole clip. Background people must never become a second narrative subject.
+
+[WORLD & CONTINUITY]
+Location: 回家进门 / 住宅到手. Scenes in order: 回家进门 → 回家进门 → 回家进门 → 回家进门 → 回家进门.
+Season: 秋. Keep the same light direction, surfaces, and location continuity throughout.
+This is a private home environment. Keep the room private and do not add unfamiliar people. ordinary domestic light and room tone stay continuous. Location content: domestic furniture and ordinary home objects, existing doors, walls, light, and surfaces, location-consistent residential objects. The location keeps its own real-world merchandise and objects. referenced footwear merchandise, shoe displays, shoe shelves, footwear posters or packaging, duplicated protagonist footwear, another person's identical footwear must not appear anywhere in the environment.
+The room's existing light, surfaces, and ambience remain present while she acts; nothing pauses to present her or the product.
+Camera side: established A-side. Lens: a natural 50-70mm equivalent perspective.
+
+[CAMERA STATE]
+Natural human height, the same camera side, and no subject-presentation guarantee for the whole clip. Distance and framing may drift; the camera never chases, re-centers, or recovers the subject or product.
+1 justified camera position change(s) at real spatial boundaries; every other Moment inherits the existing observation without a re-frame.
+Moment is not a shot: do not cut to a new setup for each moment.
+
+[TIMELINE]
+[MANDATORY VISUAL COMPLETION]
+1. The same key visibly comes out of the bag.
+2. The key visibly unlocks the same door.
+3. The unlocked door visibly opens.
+4. The character visibly crosses that open threshold into the home.
+Each listed transition must leave enough visual evidence to be understood, even if part of the action is briefly occluded. It needs no dedicated shot, held pause, centered pose, or full unobstructed view; generic walking, product observation, posing, or a camera move cannot replace it.
+
+TAKE 1 — 0.0-11.1s — ONE CONTINUOUS OBSERVATION
+0.0-2.7s — MOMENT 1 · WALKING (observation window)
+Observed action: She leaves the 电梯 and begins walking through the 公寓走廊 toward the 公寓门口. She keeps the same grounded walking cadence without stopping or restarting. Her hands stay relaxed and empty.
+Camera observation: A near-static observation carried into the current spatial position without re-centering or presentation recovery from established A-side, natural_eye_level, wide framing, unchanged lens.
+SOUND: apartment hallway room tone; footsteps on stone.
+2.7-4.7s — MOMENT 2 · HOLDING THE MOMENT (observation window)
+The last approaching step eases into this real stop; no separate preparation pose or camera cue is inserted.
+Observed action: She reaches the 公寓门口 and settles beside the closed door. She reaches the specified position and comes to a natural stop. Her hands stay relaxed.
+Camera observation: The camera keeps its position, side, lens, and wide framing from the previous Moment; it may lag or drift slightly, and it does not re-center, chase, or recover subject or product presentation.
+SOUND: apartment hallway room tone; subtle body and fabric movement.
+4.7-7.7s — MOMENT 3 · FIND KEY + UNLOCK DOOR (observation window)
+Observed action: Beside the door, she touches the bag, misses the key on the first touch, immediately finds the key with a second touch, and unlocks the door. She remains at the reached position. One hand checks the bag; the first touch misses the key, then the second touch finds it and brings it out in the same continuous movement before turning it in the door. No second stop begins.
+Camera observation: The camera keeps its position, side, lens, and wide framing from the previous Moment; it may lag or drift slightly, and it does not re-center, chase, or recover subject or product presentation.
+SOUND: apartment hallway room tone; bag strap against clothing; key contact inside the bag.
+7.7-11.1s — MOMENT 4 · OPEN DOOR + CROSS THRESHOLD (observation window)
+The next movement begins as the previous action yields its required result; hand, torso, and weight may overlap without reversing the required event order or holding an end pose.
+Observed action: She opens the door and steps through with her posture slightly less held. Her weight shifts into the next movement as soon as its prerequisite is met; she moves at an ordinary pace without a staged restart.
+Camera observation: The camera keeps its position, side, lens, and wide framing from the previous Moment; it may lag or drift slightly, and it does not re-center, chase, or recover subject or product presentation.
+SOUND: apartment hallway room tone; fabric movement; door handle movement.
+
+TAKE 2 — 11.1-15.0s — ONE CONTINUOUS OBSERVATION
+Begin this take after the preceding action. The route passes from the exterior door view to the private home interior. A new camera position is needed because One established camera cannot cover both sides of the doorway while keeping the same observation side.
+Keep what the previous take already established:
+She is already on the interior side of the crossed threshold.
+Her ordinary walking movement continues.
+The same door is already unlocked; do not unlock it again.
+The same door is already open; do not open it again.
+She still holds the same key.
+The key has already been taken out of the bag.
+The same key remains visible.
+The earlier action of unlocking the door is complete; do not perform it again.
+The earlier action of taking the key from the bag is complete; do not perform it again.
+The earlier action of crossing the threshold is complete; do not perform it again.
+The earlier action of opening the door is complete; do not perform it again.
+11.1-15.0s — MOMENT 5 · Already inside from the previous action (observation window)
+Observed action: The character remains inside the home in the state reached after the single completed entry. She remains naturally settled in the reached position. Her hands stay relaxed.
+Camera observation: The camera stays where the action left it; it does not settle into a portrait composition from established A-side, natural_eye_level, medium framing, unchanged lens.
+SOUND: apartment hallway room tone; quiet fabric and body presence; footsteps on stone.
+
+[GLOBAL EXECUTION RULES]
+Real-world speed and normal human cadence; no slow motion, no time stretching, no speed ramp.
+The camera observes the person. It never changes what the person is doing.
+At an established observation position, allow brief foreground obstruction, edge framing, partial departure from the frame, and temporary loss of product readability. Never recenter, rush, or recover the subject or product for visibility; use only the already established camera movement.
+Do not add any action, object, event, or product beat that is not written in the timeline.
+Camera observes life; it does not guarantee full-body, centered, or continuously readable presentation.
+The camera may discover the product, but never gives it its own frame: no ankle-level or shoe-level framing, prolonged lower-body-only crop, upward shoe reveal tilt, or product-motivated lowering of the camera.
+Ordinary observations stay at believable human-observer height unless real scene geometry requires otherwise. Incidental partial visibility is allowed; a deliberate footwear crop is not.
+A mandatory event must be legible, but complete action coverage is not required. The camera may see the beginning or consequence, and the next visible state may already show completion.
+Walking routes use the existing scene geometry rather than a cleared center runway; the protagonist may enter off-center, cross the frame diagonally, drift toward one side, and leave the optical center without any camera correction.
+Moment windows are timing metadata, not performance windows: once an event is established, the remaining time flows into the existing action without extending or repeating that event.
+A Moment boundary does not rebuild the camera-to-subject relation; inside one continuous Take the camera keeps its position, framing, and distance.
+Existing environment activity may legally cross or block part of the view; do not avoid, re-frame, or recover for it.
+Emotion never creates a new action. Quiet, settled, unhurried, relaxed, after work, pause, slows, and stays remain ordinary body states: they do not become a performed gesture, an added visible response, an audible reaction, or an emotional pause. Default emotion execution is neutral, internally occupied, and unperformed.
+Sound is natural world sound only: no music, no foreground dialogue, no voiceover, no narration.
+Use only the sounds written in the timeline; do not add any other object, door, or surface sound.
+Do not advance past a moment's described end state; a timeline boundary never requires a physical stop.
+A Moment boundary is timing and state evidence, not a command to stop or restart the person's movement.
+
+[PRODUCT / REFERENCE RULES]
+If product references are supplied to the external model, preserve those references exactly. Do not redesign or stylize the product.
+No product reference is confirmed for this task, so do not add or invent any colour, material, construction, logo, or panel detail.
+Product visibility: visible only if it falls naturally inside the framing. Never re-frame, push in, or cut away for the product.
+The uploaded footwear reference applies only to the protagonist's worn shoes. Do not reproduce, echo, merchandise, display, advertise, print, place, or duplicate the referenced footwear anywhere else in the environment; the selected location keeps its own real-world objects and inventory.
+Product readability is incidental to the existing walk, turn, sit, or threshold crossing: no stop or reframe, repeated step, foot repositioning, or body turn is made for it.
+
+[DO NOT]
+No second narrative subject. Do not add unfamiliar people to a private room. No crowd focus, no vehicle or animal entering the frame.
+No insert shot, close-up, cutaway, or new camera setup.
+No pose montage, no product showcase, no logo reveal, no on-screen text.
+No re-framing for the product; the narrative camera always wins.
+
+[ENDING STATE]
+The character remains inside the home in the state reached after the single completed entry.
+At the end, preserve the state the action has reached:
+She is already on the interior side of the crossed threshold.
+She remains naturally settled in the position already reached.
+The same door is already unlocked; do not unlock it again.
+The same door is already open; do not open it again.
+She still holds the same key.
+The key has already been taken out of the bag.
+The same key remains visible.
+The earlier action of unlocking the door is complete; do not perform it again.
+The earlier action of taking the key from the bag is complete; do not perform it again.
+The earlier action of crossing the threshold is complete; do not perform it again.
+The earlier action of opening the door is complete; do not perform it again.
+Once this final state is reached, do not add a new task, destination, object interaction, sit-down, start, entry, door opening, product pose, or second ending.
+Do not enter the final state while any mandatory visual event above remains incomplete.
+Hold the final frame until the clip ends. Do not append a product shot, a logo, or a second ending.

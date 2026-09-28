@@ -1,0 +1,646 @@
+{
+  "status": "PHYSICAL_ACTION_APPROVED",
+  "topics": [
+    {
+      "topicId": "after_work_home",
+      "topicLabel": "下班回家",
+      "matched": 5,
+      "unresolved": 0,
+      "resultStage": "PHYSICAL_ACTION_APPROVED",
+      "moments": [
+        {
+          "momentIndex": 0,
+          "whatHappens": "She leaves the 电梯 and begins walking through the 公寓走廊 toward the 公寓门口.",
+          "status": "MATCHED",
+          "selectedActionId": "walking-001",
+          "primitiveId": null,
+          "source": "EXISTING_ACTION"
+        },
+        {
+          "momentIndex": 1,
+          "whatHappens": "She reaches the 公寓门口 and settles beside the closed door.",
+          "status": "MATCHED",
+          "selectedActionId": "walking-006",
+          "primitiveId": null,
+          "source": "EXISTING_ACTION"
+        },
+        {
+          "momentIndex": 2,
+          "whatHappens": "Beside the door, she touches the bag, misses the key on the first touch, immediately finds the key with a second touch, and unlocks the door.",
+          "status": "MATCHED",
+          "selectedActionId": "narrative-key-door-unlock",
+          "primitiveId": "narrative-key-door-unlock",
+          "source": "NARRATIVE_PRIMITIVE"
+        },
+        {
+          "momentIndex": 3,
+          "whatHappens": "She opens the door and steps through with her posture slightly less held.",
+          "status": "MATCHED",
+          "selectedActionId": "narrative-door-open-transition",
+          "primitiveId": "narrative-door-open-transition",
+          "source": "NARRATIVE_PRIMITIVE"
+        },
+        {
+          "momentIndex": 4,
+          "whatHappens": "She steps into the 玄关 without turning back. The 公寓走廊 returns to stillness.",
+          "status": "MATCHED",
+          "selectedActionId": "walking-006",
+          "primitiveId": null,
+          "source": "EXISTING_ACTION"
+        }
+      ]
+    },
+    {
+      "topicId": "weekend_alone",
+      "topicLabel": "周末独处",
+      "matched": 5,
+      "unresolved": 0,
+      "resultStage": "PHYSICAL_ACTION_APPROVED",
+      "moments": [
+        {
+          "momentIndex": 0,
+          "whatHappens": "She moves through the 衣帽间 / 更衣角 at an easy pace and approaches the window-side area.",
+          "status": "MATCHED",
+          "selectedActionId": "walking-006",
+          "primitiveId": null,
+          "source": "EXISTING_ACTION"
+        },
+        {
+          "momentIndex": 1,
+          "whatHappens": "She reaches the near table and notices one small object resting slightly out of place.",
+          "status": "MATCHED",
+          "selectedActionId": "walking-006",
+          "primitiveId": null,
+          "source": "EXISTING_ACTION"
+        },
+        {
+          "momentIndex": 2,
+          "whatHappens": "She reaches for the object, places it down, and pauses instead of moving on immediately.",
+          "status": "MATCHED",
+          "selectedActionId": "narrative-small-object-placement",
+          "primitiveId": "narrative-small-object-placement",
+          "source": "NARRATIVE_PRIMITIVE"
+        },
+        {
+          "momentIndex": 3,
+          "whatHappens": "She settles her stance and lets her attention return to the room.",
+          "status": "MATCHED",
+          "selectedActionId": "transition-010",
+          "primitiveId": null,
+          "source": "EXISTING_ACTION"
+        },
+        {
+          "momentIndex": 4,
+          "whatHappens": "She remains quietly by the window; the room continues around she without adding a new task.",
+          "status": "MATCHED",
+          "selectedActionId": "transition-010",
+          "primitiveId": null,
+          "source": "EXISTING_ACTION"
+        }
+      ]
+    },
+    {
+      "topicId": "errand_outing",
+      "topicLabel": "出门办事",
+      "matched": 5,
+      "unresolved": 0,
+      "resultStage": "PHYSICAL_ACTION_APPROVED",
+      "moments": [
+        {
+          "momentIndex": 0,
+          "whatHappens": "She moves through the 玄关 with one bag already in hand and reaches the 公寓门口.",
+          "status": "MATCHED",
+          "selectedActionId": "walking-006",
+          "primitiveId": null,
+          "source": "EXISTING_ACTION"
+        },
+        {
+          "momentIndex": 1,
+          "whatHappens": "She opens the door and steps through without pausing to rearrange anything.",
+          "status": "MATCHED",
+          "selectedActionId": "narrative-door-open-transition",
+          "primitiveId": "narrative-door-open-transition",
+          "source": "NARRATIVE_PRIMITIVE"
+        },
+        {
+          "momentIndex": 2,
+          "whatHappens": "Outside in the 住宅楼外, the air feels cooler than expected and she slows for one step.",
+          "status": "MATCHED",
+          "selectedActionId": "walking-026",
+          "primitiveId": null,
+          "source": "EXISTING_ACTION"
+        },
+        {
+          "momentIndex": 3,
+          "whatHappens": "She adjusts her sleeve once, settles the bag, and continues at the same measured pace.",
+          "status": "MATCHED",
+          "selectedActionId": "narrative-carried-object-garment-settle",
+          "primitiveId": "narrative-carried-object-garment-settle",
+          "source": "NARRATIVE_PRIMITIVE"
+        },
+        {
+          "momentIndex": 4,
+          "whatHappens": "She continues along the 住宅楼外; the adjustment is complete and no further pause is introduced.",
+          "status": "MATCHED",
+          "selectedActionId": "transition-005",
+          "primitiveId": null,
+          "source": "EXISTING_ACTION"
+        }
+      ]
+    },
+    {
+      "topicId": "waiting_for_friend",
+      "topicLabel": "等朋友",
+      "matched": 5,
+      "unresolved": 0,
+      "resultStage": "PHYSICAL_ACTION_APPROVED",
+      "moments": [
+        {
+          "momentIndex": 0,
+          "whatHappens": "She reaches the 写字楼门口 and checks the route ahead once before slowing down.",
+          "status": "MATCHED",
+          "selectedActionId": "walking-006",
+          "primitiveId": null,
+          "source": "EXISTING_ACTION"
+        },
+        {
+          "momentIndex": 1,
+          "whatHappens": "She reaches the 写字楼门口 and looks toward the entrance without stepping through it.",
+          "status": "MATCHED",
+          "selectedActionId": "walking-006",
+          "primitiveId": null,
+          "source": "EXISTING_ACTION"
+        },
+        {
+          "momentIndex": 2,
+          "whatHappens": "She shifts her weight and remains beside the 写字楼门口.",
+          "status": "MATCHED",
+          "selectedActionId": "transition-005",
+          "primitiveId": null,
+          "source": "EXISTING_ACTION"
+        },
+        {
+          "momentIndex": 3,
+          "whatHappens": "She adjusts the bag strap once, settles her stance, and lets her attention rest on the surrounding movement.",
+          "status": "MATCHED",
+          "selectedActionId": "narrative-carried-object-secure",
+          "primitiveId": "narrative-carried-object-secure",
+          "source": "NARRATIVE_PRIMITIVE"
+        },
+        {
+          "momentIndex": 4,
+          "whatHappens": "She remains quietly beside the 写字楼门口; no new action beyond the wait is introduced.",
+          "status": "MATCHED",
+          "selectedActionId": "transition-010",
+          "primitiveId": null,
+          "source": "EXISTING_ACTION"
+        }
+      ]
+    },
+    {
+      "topicId": "afternoon_cafe",
+      "topicLabel": "午后咖啡",
+      "matched": 5,
+      "unresolved": 0,
+      "resultStage": "PHYSICAL_ACTION_APPROVED",
+      "moments": [
+        {
+          "momentIndex": 0,
+          "whatHappens": "She enters the 咖啡馆内 and walks through its entry area into the room without stopping at the doorway.",
+          "status": "MATCHED",
+          "selectedActionId": "walking-006",
+          "primitiveId": null,
+          "source": "EXISTING_ACTION"
+        },
+        {
+          "momentIndex": 1,
+          "whatHappens": "She continues past the counter as her gaze naturally registers an open seat across the cafe; her stride does not break.",
+          "status": "MATCHED",
+          "selectedActionId": "walking-006",
+          "primitiveId": null,
+          "source": "EXISTING_ACTION"
+        },
+        {
+          "momentIndex": 2,
+          "whatHappens": "She turns her shoulders slightly toward the open seat and carries the next step into the clear aisle without breaking stride.",
+          "status": "MATCHED",
+          "selectedActionId": "turning-006",
+          "primitiveId": null,
+          "source": "EXISTING_ACTION"
+        },
+        {
+          "momentIndex": 3,
+          "whatHappens": "She slows as the open chair draws near, shortening her steps and easing into the seating area.",
+          "status": "MATCHED",
+          "selectedActionId": "walking-026",
+          "primitiveId": null,
+          "source": "EXISTING_ACTION"
+        },
+        {
+          "momentIndex": 4,
+          "whatHappens": "She turns into the open chair and takes a seat, then settles into the next part of her cafe visit.",
+          "status": "MATCHED",
+          "selectedActionId": "seated-004",
+          "primitiveId": null,
+          "source": "EXISTING_ACTION"
+        }
+      ]
+    },
+    {
+      "topicId": "bookstore_browse",
+      "topicLabel": "逛书店",
+      "matched": 5,
+      "unresolved": 0,
+      "resultStage": "PHYSICAL_ACTION_APPROVED",
+      "moments": [
+        {
+          "momentIndex": 0,
+          "whatHappens": "She walks along the 书店 / 杂志店门口 at a steady pace, approaching the bookstore without changing direction.",
+          "status": "MATCHED",
+          "selectedActionId": "walking-006",
+          "primitiveId": null,
+          "source": "EXISTING_ACTION"
+        },
+        {
+          "momentIndex": 1,
+          "whatHappens": "As she nears the 书店 / 杂志店门口, her gaze moves toward the window display.",
+          "status": "MATCHED",
+          "selectedActionId": "environment-response-004",
+          "primitiveId": null,
+          "source": "EXISTING_ACTION"
+        },
+        {
+          "momentIndex": 2,
+          "whatHappens": "She slows just before the 书店 / 杂志店门口 and stops outside instead of continuing past.",
+          "status": "MATCHED",
+          "selectedActionId": "transition-010",
+          "primitiveId": null,
+          "source": "EXISTING_ACTION"
+        },
+        {
+          "momentIndex": 3,
+          "whatHappens": "She steps slightly closer, looks for another second, then settles back into a normal standing position.",
+          "status": "MATCHED",
+          "selectedActionId": "transition-010",
+          "primitiveId": null,
+          "source": "EXISTING_ACTION"
+        },
+        {
+          "momentIndex": 4,
+          "whatHappens": "She continues into the 书店 / 杂志店内 at the same quiet pace; the moment of notice is over.",
+          "status": "MATCHED",
+          "selectedActionId": "walking-006",
+          "primitiveId": null,
+          "source": "EXISTING_ACTION"
+        }
+      ]
+    },
+    {
+      "topicId": "returning_with_purchases",
+      "topicLabel": "采购归来",
+      "matched": 5,
+      "unresolved": 0,
+      "resultStage": "PHYSICAL_ACTION_APPROVED",
+      "moments": [
+        {
+          "momentIndex": 0,
+          "whatHappens": "She steps out of the elevator into the 公寓走廊 with one shopping bag in hand and starts toward her door.",
+          "status": "MATCHED",
+          "selectedActionId": "walking-001",
+          "primitiveId": null,
+          "source": "EXISTING_ACTION"
+        },
+        {
+          "momentIndex": 1,
+          "whatHappens": "A few steps down the 公寓走廊, the bag handle shifts against her grip.",
+          "status": "MATCHED",
+          "selectedActionId": "narrative-carried-object-secure",
+          "primitiveId": "narrative-carried-object-secure",
+          "source": "NARRATIVE_PRIMITIVE"
+        },
+        {
+          "momentIndex": 2,
+          "whatHappens": "She stops once in the 归家玄关 and moves the bag from one hand to the other.",
+          "status": "MATCHED",
+          "selectedActionId": "narrative-carried-object-secure",
+          "primitiveId": "narrative-carried-object-secure",
+          "source": "NARRATIVE_PRIMITIVE"
+        },
+        {
+          "momentIndex": 3,
+          "whatHappens": "With the grip settled, she reaches for the door and turns the key.",
+          "status": "MATCHED",
+          "selectedActionId": "narrative-door-open-transition",
+          "primitiveId": "narrative-door-open-transition",
+          "source": "NARRATIVE_PRIMITIVE"
+        },
+        {
+          "momentIndex": 4,
+          "whatHappens": "She steps into the 归家玄关 with the bag held steadily; the adjustment is complete.",
+          "status": "MATCHED",
+          "selectedActionId": "narrative-carried-object-walk",
+          "primitiveId": "narrative-carried-object-walk",
+          "source": "NARRATIVE_PRIMITIVE"
+        }
+      ]
+    },
+    {
+      "topicId": "after_school_pickup",
+      "topicLabel": "接孩子后",
+      "matched": 5,
+      "unresolved": 0,
+      "resultStage": "PHYSICAL_ACTION_APPROVED",
+      "moments": [
+        {
+          "momentIndex": 0,
+          "whatHappens": "She walks along the 社区步道 with a steady pace and keeps the homeward direction in view.",
+          "status": "MATCHED",
+          "selectedActionId": "walking-006",
+          "primitiveId": null,
+          "source": "EXISTING_ACTION"
+        },
+        {
+          "momentIndex": 1,
+          "whatHappens": "She reaches the 社区步道 and slows as a small group crosses ahead.",
+          "status": "MATCHED",
+          "selectedActionId": "walking-026",
+          "primitiveId": null,
+          "source": "EXISTING_ACTION"
+        },
+        {
+          "momentIndex": 2,
+          "whatHappens": "She waits for the passage to clear, adjusts the bag in her hand, and begins moving again.",
+          "status": "MATCHED",
+          "selectedActionId": "narrative-carried-object-secure",
+          "primitiveId": "narrative-carried-object-secure",
+          "source": "NARRATIVE_PRIMITIVE"
+        },
+        {
+          "momentIndex": 3,
+          "whatHappens": "She continues at the same measured pace and lets her attention return to the route.",
+          "status": "MATCHED",
+          "selectedActionId": "walking-006",
+          "primitiveId": null,
+          "source": "EXISTING_ACTION"
+        },
+        {
+          "momentIndex": 4,
+          "whatHappens": "She settles into a steady walk along the 社区步道; the brief wait and the adjustment are behind her.",
+          "status": "MATCHED",
+          "selectedActionId": "transition-005",
+          "primitiveId": null,
+          "source": "EXISTING_ACTION"
+        }
+      ]
+    },
+    {
+      "topicId": "weekend_walk",
+      "topicLabel": "周末散步",
+      "matched": 5,
+      "unresolved": 0,
+      "resultStage": "PHYSICAL_ACTION_APPROVED",
+      "moments": [
+        {
+          "momentIndex": 0,
+          "whatHappens": "She walks along the 公园慢走 at an even pace with no destination in mind.",
+          "status": "MATCHED",
+          "selectedActionId": "walking-006",
+          "primitiveId": null,
+          "source": "EXISTING_ACTION"
+        },
+        {
+          "momentIndex": 1,
+          "whatHappens": "As she approaches the edge of the path, her attention moves to the surface ahead.",
+          "status": "MATCHED",
+          "selectedActionId": "walking-006",
+          "primitiveId": null,
+          "source": "EXISTING_ACTION"
+        },
+        {
+          "momentIndex": 2,
+          "whatHappens": "She shortens one step to clear the uneven surface and then restores her normal pace.",
+          "status": "MATCHED",
+          "selectedActionId": "walking-026",
+          "primitiveId": null,
+          "source": "EXISTING_ACTION"
+        },
+        {
+          "momentIndex": 3,
+          "whatHappens": "She settles back into the same easy rhythm and continues past the change.",
+          "status": "MATCHED",
+          "selectedActionId": "transition-010",
+          "primitiveId": null,
+          "source": "EXISTING_ACTION"
+        },
+        {
+          "momentIndex": 4,
+          "whatHappens": "She settles into an easy rhythm along the 公园慢走; the small adjustment is behind her.",
+          "status": "MATCHED",
+          "selectedActionId": "transition-010",
+          "primitiveId": null,
+          "source": "EXISTING_ACTION"
+        }
+      ]
+    },
+    {
+      "topicId": "after_lunch",
+      "topicLabel": "午餐之后",
+      "matched": 5,
+      "unresolved": 0,
+      "resultStage": "PHYSICAL_ACTION_APPROVED",
+      "moments": [
+        {
+          "momentIndex": 0,
+          "whatHappens": "She steps out from the 周末城市散步 and pauses at the first stretch of pavement.",
+          "status": "MATCHED",
+          "selectedActionId": "transition-010",
+          "primitiveId": null,
+          "source": "EXISTING_ACTION"
+        },
+        {
+          "momentIndex": 1,
+          "whatHappens": "She walks a few steps along the 城市街角 / 安静街区 while checking the direction ahead.",
+          "status": "MATCHED",
+          "selectedActionId": "walking-006",
+          "primitiveId": null,
+          "source": "EXISTING_ACTION"
+        },
+        {
+          "momentIndex": 2,
+          "whatHappens": "She slows for a moment, turns slightly toward the clearer route, and decides to continue walking.",
+          "status": "MATCHED",
+          "selectedActionId": "walking-026",
+          "primitiveId": null,
+          "source": "EXISTING_ACTION"
+        },
+        {
+          "momentIndex": 3,
+          "whatHappens": "She adjusts her outer layer once and begins moving at an easy pace.",
+          "status": "MATCHED",
+          "selectedActionId": "narrative-garment-adjust-transition",
+          "primitiveId": "narrative-garment-adjust-transition",
+          "source": "NARRATIVE_PRIMITIVE"
+        },
+        {
+          "momentIndex": 4,
+          "whatHappens": "She settles into an unhurried pace along the 城市街角 / 安静街区; the adjustment is complete and the interval after lunch is settled.",
+          "status": "MATCHED",
+          "selectedActionId": "transition-005",
+          "primitiveId": null,
+          "source": "EXISTING_ACTION"
+        }
+      ]
+    },
+    {
+      "topicId": "city_wandering",
+      "topicLabel": "城市闲逛",
+      "matched": 5,
+      "unresolved": 0,
+      "resultStage": "PHYSICAL_ACTION_APPROVED",
+      "moments": [
+        {
+          "momentIndex": 0,
+          "whatHappens": "She walks along the 城市街角 / 安静街区 at an easy pace and keeps the next block in view.",
+          "status": "MATCHED",
+          "selectedActionId": "walking-006",
+          "primitiveId": null,
+          "source": "EXISTING_ACTION"
+        },
+        {
+          "momentIndex": 1,
+          "whatHappens": "As she nears the storefront edge, her gaze shifts toward the glass.",
+          "status": "MATCHED",
+          "selectedActionId": "environment-response-004",
+          "primitiveId": null,
+          "source": "EXISTING_ACTION"
+        },
+        {
+          "momentIndex": 2,
+          "whatHappens": "She slows for one step as a reflection catches her attention, then continues without stopping.",
+          "status": "MATCHED",
+          "selectedActionId": "walking-026",
+          "primitiveId": null,
+          "source": "EXISTING_ACTION"
+        },
+        {
+          "momentIndex": 3,
+          "whatHappens": "She returns her gaze to the route and keeps moving at the same measured pace.",
+          "status": "MATCHED",
+          "selectedActionId": "walking-006",
+          "primitiveId": null,
+          "source": "EXISTING_ACTION"
+        },
+        {
+          "momentIndex": 4,
+          "whatHappens": "She continues around the next block; the small notice is over.",
+          "status": "MATCHED",
+          "selectedActionId": "walking-006",
+          "primitiveId": null,
+          "source": "EXISTING_ACTION"
+        }
+      ]
+    },
+    {
+      "topicId": "evening_return_home",
+      "topicLabel": "傍晚回家",
+      "matched": 5,
+      "unresolved": 0,
+      "resultStage": "PHYSICAL_ACTION_APPROVED",
+      "moments": [
+        {
+          "momentIndex": 0,
+          "whatHappens": "She walks along the 住宅楼外 at a steady evening pace and keeps the residential direction in view.",
+          "status": "MATCHED",
+          "selectedActionId": "walking-006",
+          "primitiveId": null,
+          "source": "EXISTING_ACTION"
+        },
+        {
+          "momentIndex": 1,
+          "whatHappens": "As she reaches the 回家进门, she slows and begins reaching for the key.",
+          "status": "MATCHED",
+          "selectedActionId": "narrative-key-pocket-retrieval",
+          "primitiveId": "narrative-key-pocket-retrieval",
+          "source": "NARRATIVE_PRIMITIVE"
+        },
+        {
+          "momentIndex": 2,
+          "whatHappens": "She pauses to move a small item between pockets, then finds the key and unlocks the door.",
+          "status": "MATCHED",
+          "selectedActionId": "narrative-key-door-unlock",
+          "primitiveId": "narrative-key-door-unlock",
+          "source": "NARRATIVE_PRIMITIVE"
+        },
+        {
+          "momentIndex": 3,
+          "whatHappens": "She opens the door and lets her posture settle slightly before stepping through.",
+          "status": "MATCHED",
+          "selectedActionId": "narrative-door-contact-settled",
+          "primitiveId": "narrative-door-contact-settled",
+          "source": "NARRATIVE_PRIMITIVE"
+        },
+        {
+          "momentIndex": 4,
+          "whatHappens": "She steps into the 回家进门 and remains quietly inside; the evening route is complete.",
+          "status": "MATCHED",
+          "selectedActionId": "walking-006",
+          "primitiveId": null,
+          "source": "EXISTING_ACTION"
+        }
+      ]
+    },
+    {
+      "topicId": "short_local_trip",
+      "topicLabel": "短途出行",
+      "matched": 5,
+      "unresolved": 0,
+      "resultStage": "PHYSICAL_ACTION_APPROVED",
+      "moments": [
+        {
+          "momentIndex": 0,
+          "whatHappens": "She walks along the 社区步道 with one small item in hand, keeping an even pace and a clear route.",
+          "status": "MATCHED",
+          "selectedActionId": "walking-006",
+          "primitiveId": null,
+          "source": "EXISTING_ACTION"
+        },
+        {
+          "momentIndex": 1,
+          "whatHappens": "As she walks along the 社区步道, she checks the small item once and begins adjusting its position.",
+          "status": "MATCHED",
+          "selectedActionId": "narrative-carried-object-check-walking",
+          "primitiveId": "narrative-carried-object-check-walking",
+          "source": "NARRATIVE_PRIMITIVE"
+        },
+        {
+          "momentIndex": 2,
+          "whatHappens": "She pauses on the 社区步道 and settles it securely before moving on.",
+          "status": "MATCHED",
+          "selectedActionId": "narrative-carried-object-secure",
+          "primitiveId": "narrative-carried-object-secure",
+          "source": "NARRATIVE_PRIMITIVE"
+        },
+        {
+          "momentIndex": 3,
+          "whatHappens": "With the item secure, she resumes the final few steps toward the 写字楼门口.",
+          "status": "MATCHED",
+          "selectedActionId": "environment-response-004",
+          "primitiveId": null,
+          "source": "EXISTING_ACTION"
+        },
+        {
+          "momentIndex": 4,
+          "whatHappens": "She reaches the 写字楼门口 and stops there; the short move is complete.",
+          "status": "MATCHED",
+          "selectedActionId": "transition-010",
+          "primitiveId": null,
+          "source": "EXISTING_ACTION"
+        }
+      ]
+    }
+  ],
+  "totalMoments": 65,
+  "matchedMoments": 65,
+  "unmatchedMoments": 0,
+  "shortLocalTripAllMomentsMatched": true
+}

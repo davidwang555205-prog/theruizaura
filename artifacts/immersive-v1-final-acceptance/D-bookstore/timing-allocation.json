@@ -1,0 +1,37 @@
+[
+  {
+    "momentIndex": 0,
+    "title": "WALKING",
+    "startSecond": 0,
+    "endSecond": 4.5,
+    "durationSeconds": 4.5
+  },
+  {
+    "momentIndex": 1,
+    "title": "HOLDING THE MOMENT",
+    "startSecond": 4.5,
+    "endSecond": 8,
+    "durationSeconds": 3.5
+  },
+  {
+    "momentIndex": 2,
+    "title": "WINDOW STOP",
+    "startSecond": 8,
+    "endSecond": 9.7,
+    "durationSeconds": 1.7
+  },
+  {
+    "momentIndex": 3,
+    "title": "SHE KEEPS SEARCHING",
+    "startSecond": 9.7,
+    "endSecond": 10.7,
+    "durationSeconds": 1
+  },
+  {
+    "momentIndex": 4,
+    "title": "ENTER STORE",
+    "startSecond": 10.7,
+    "endSecond": 15,
+    "durationSeconds": 4.3
+  }
+]

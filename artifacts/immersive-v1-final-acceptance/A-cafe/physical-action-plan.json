@@ -1,0 +1,47 @@
+[
+  {
+    "momentIndex": 0,
+    "whatHappens": "She enters the 咖啡馆内 and walks through its entry area into the room without stopping at the doorway.",
+    "status": "MATCHED",
+    "selectedActionId": "walking-006",
+    "primitiveId": null,
+    "source": "EXISTING_ACTION",
+    "movementState": "walking_ongoing"
+  },
+  {
+    "momentIndex": 1,
+    "whatHappens": "She continues past the counter as her gaze naturally registers an open seat across the cafe; her stride does not break.",
+    "status": "MATCHED",
+    "selectedActionId": "walking-006",
+    "primitiveId": null,
+    "source": "EXISTING_ACTION",
+    "movementState": "walking_ongoing"
+  },
+  {
+    "momentIndex": 2,
+    "whatHappens": "She turns her shoulders slightly toward the open seat and carries the next step into the clear aisle without breaking stride.",
+    "status": "MATCHED",
+    "selectedActionId": "turning-006",
+    "primitiveId": null,
+    "source": "EXISTING_ACTION",
+    "movementState": "turning"
+  },
+  {
+    "momentIndex": 3,
+    "whatHappens": "She slows as the open chair draws near, shortening her steps and easing into the seating area.",
+    "status": "MATCHED",
+    "selectedActionId": "walking-026",
+    "primitiveId": null,
+    "source": "EXISTING_ACTION",
+    "movementState": "walking_finish"
+  },
+  {
+    "momentIndex": 4,
+    "whatHappens": "She turns into the open chair and takes a seat, then settles into the next part of her cafe visit.",
+    "status": "MATCHED",
+    "selectedActionId": "seated-004",
+    "primitiveId": null,
+    "source": "EXISTING_ACTION",
+    "movementState": "seated"
+  }
+]
