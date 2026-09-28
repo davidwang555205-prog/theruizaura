@@ -112,9 +112,12 @@ test.describe("Commercial Film V1", () => {
     expect(directorScript).toContain("SIGNATURE MOMENT");
     expect(directorScript).toContain("FILM ARC");
     expect(directorScript).toContain("ENDING IMAGE");
-    expect(directorScript).toContain("BRAND-SIGN-OFF");
-    expect(directorScript).toContain("Brand Mark: THERUIZ AURA");
+    expect(directorScript).toContain("ENDING TEXT");
+    expect(directorScript).toContain("Film Line: ");
     expect(directorScript).toContain("SEEDANCE EXECUTION DIRECTION");
+    expect(directorScript).not.toContain("BRAND-SIGN-OFF");
+    expect(directorScript).not.toContain("Brand Mark");
+    expect(directorScript).not.toContain("THERUIZ AURA");
     expect(directorScript).toContain("SHOT 1 — ");
     expect(directorScript).toContain("SHOT 5 — ");
     expect(directorScript).not.toContain("SHOT 1 — WORLD");
@@ -129,9 +132,10 @@ test.describe("Commercial Film V1", () => {
     const script = (await output.textContent()) ?? "";
     expect(script).not.toBe(canonicalCommercialScript("PRODUCT_CRAFT"));
     expect(script).toContain("[V1.4 CREATIVE DIRECTING]");
-    expect(script).toContain("Brand sign-off: hold");
-    expect(script).toContain("Brand mark: THERUIZ AURA is applied in post");
-    expect(script).toContain("do not render brand lettering");
+    expect(script).toContain("Film line: added in post as a text overlay");
+    expect(script).not.toContain("Brand sign-off");
+    expect(script).not.toContain("Brand mark");
+    expect(script).not.toContain("THERUIZ AURA");
     expect(script).toContain("SEEDANCE — COMMERCIAL FILM");
     for (let shot = 1; shot <= 5; shot += 1) {
       expect(script).toContain(`SHOT ${shot} — `);

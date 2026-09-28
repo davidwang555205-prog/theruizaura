@@ -1,9 +1,6 @@
 import type { CommercialCreativeTreatment, CommercialV14Presentation } from "./types";
 import type { CommercialFinalScriptPresentation } from "../presentation";
-import {
-  commercialBrandSignOffModeLabel,
-  type CommercialBrandSignOff,
-} from "../brand-signoff";
+import type { CommercialBrandSignOff } from "../brand-signoff";
 
 const V14_SECTION_START = "\n[V1.4 CREATIVE DIRECTING]";
 
@@ -30,8 +27,6 @@ export function buildCommercialV14TranslationExtension(
     `Signature event: ${treatment.signatureEvent.event}`,
     `Product reveal: ${treatment.productRevealLogic.cause}`,
     `Ending image: ${treatment.endingImage}`,
-    `Brand sign-off: hold ${brandSignOff.timing.startSecond.toFixed(1)}-${brandSignOff.timing.endSecond.toFixed(1)}s over the ending image and keep clean lower-frame space for the brand mark.`,
-    `Brand mark: ${brandSignOff.brandMark} is applied in post as an overlay; do not render brand lettering in generation.`,
     ...(brandSignOff.filmLine
       ? ["Film line: added in post as a text overlay, never as generated lettering."]
       : []),
@@ -55,14 +50,17 @@ export function appendCommercialV14TranslationExtension(
   return canonicalCompiledText.replace(marker, `\n${extension}\n${marker}`);
 }
 
-function brandSignOffLines(brandSignOff: CommercialBrandSignOff) {
+// The closing text block carries the film line only. There is no brand mark, no logo overlay and no
+// end card, and the ending image itself is never rewritten.
+function filmLineLines(brandSignOff: CommercialBrandSignOff) {
+  const timing = brandSignOff.timing;
   return [
-    "BRAND-SIGN-OFF",
-    `Brand Mark: ${brandSignOff.brandMark}`,
-    ...(brandSignOff.filmLine ? [`Film Line: ${brandSignOff.filmLine}`] : []),
-    `Timing: ${brandSignOff.timing.startSecond.toFixed(1)}-${brandSignOff.timing.endSecond.toFixed(1)}s inside the ${brandSignOff.filmDurationSeconds} second film`,
-    `Presentation mode: ${commercialBrandSignOffModeLabel(brandSignOff.mode)}`,
-    "Applied in post over the ending image. The ending image is not replaced, cut short or re-staged.",
+    "ENDING TEXT",
+    `Film Line: ${brandSignOff.filmLine}`,
+    ...(timing
+      ? [`Timing: ${timing.startSecond.toFixed(1)}-${timing.endSecond.toFixed(1)}s inside the ${brandSignOff.filmDurationSeconds} second film`]
+      : []),
+    "Added in post over the ending image. The ending image is not replaced, cut short or re-staged.",
     "",
   ];
 }
@@ -120,15 +118,18 @@ export function buildCommercialV14Presentation(
     /\nSHOT 1 — /,
     `${bodySections}\nSHOT 1 — `
   );
-  presentationScript = presentationScript
-    .replace(
+  presentationScript = presentationScript.replace(
+    /\nGLOBAL VISUAL LOOK\n/,
+    `\nENDING IMAGE\n${treatment.endingImage}\n\nGLOBAL VISUAL LOOK\n`
+  );
+  // A film line replaces the legacy execution placeholder with its own overlay note. Without a film
+  // line there is nothing to overlay, so the script keeps the frozen execution section untouched.
+  if (brandSignOff.filmLine && brandSignOff.seedanceDirection) {
+    presentationScript = presentationScript.replace(
       /\nSEEDANCE EXECUTION\n[\s\S]*$/,
-      `\n${brandSignOffLines(brandSignOff).join("\n")}\nSEEDANCE EXECUTION DIRECTION\n${brandSignOff.seedanceDirection}\n`
-    )
-    .replace(
-      /\nGLOBAL VISUAL LOOK\n/,
-      `\nENDING IMAGE\n${treatment.endingImage}\n\nGLOBAL VISUAL LOOK\n`
+      `\n${filmLineLines(brandSignOff).join("\n")}\nSEEDANCE EXECUTION DIRECTION\n${brandSignOff.seedanceDirection}\n`
     );
+  }
   // Title authority belongs to the V1.4 treatment; the V1.3 presentation title stays in the legacy script.
   presentationScript = [
     treatment.title,

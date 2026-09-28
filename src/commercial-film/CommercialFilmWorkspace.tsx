@@ -532,7 +532,7 @@ export function CommercialFilmWorkspace({
                   <div className="rounded-[14px] bg-white/75 p-4 ring-1 ring-aura-beige/70">
                     <div className="flex flex-wrap items-center justify-between gap-2">
                       <b className="text-sm text-aura-charcoal">V1.4 Seedance Execution Prompt</b>
-                      <span className="text-[11px] text-aura-muted">V1.4 production source · brand mark applied in post</span>
+                      <span className="text-[11px] text-aura-muted">V1.4 production source · no logo drawn or overlaid</span>
                     </div>
                     <pre
                       data-testid="commercial-script-output"

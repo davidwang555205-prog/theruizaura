@@ -33,13 +33,23 @@ const treatmentBaselinePath = resolve(
   "treatment-baseline.json"
 );
 
-const BRAND_MARK = "THERUIZ AURA";
-const VALID_MODES = [
-  "LOGO_ONLY",
-  "LOGO_OVER_ENDING_IMAGE",
-  "LOGO_AND_FILM_LINE_OVER_ENDING_IMAGE",
-  "END_CARD_LOGO_ONLY",
-  "END_CARD_LOGO_AND_FILM_LINE",
+const FILM_LINE_MODE = "FILM_LINE_OVER_ENDING_IMAGE";
+const NO_FILM_LINE_MODE = "NO_FILM_LINE";
+const VALID_MODES = [FILM_LINE_MODE, NO_FILM_LINE_MODE];
+// Automatic logo removal contract: none of these may appear in the model-facing prompt or the
+// director script. The frozen GLOBAL NEGATIVES line that forbids readable logos in the environment is
+// a pre-existing protective prohibition, not an automatic logo request, and it stays untouched.
+const FORBIDDEN_LOGO_TOKENS = [
+  { label: "THERUIZ AURA brand mark", pattern: /THERUIZ AURA/i },
+  { label: "brand mark field", pattern: /brand mark/i },
+  { label: "brand lettering instruction", pattern: /brand lettering/i },
+  { label: "legacy logo sign-off mode", pattern: /\b(?:LOGO_ONLY|LOGO_OVER_ENDING_IMAGE|LOGO_AND_FILM_LINE_OVER_ENDING_IMAGE|END_CARD_LOGO_ONLY|END_CARD_LOGO_AND_FILM_LINE)\b/ },
+  { label: "logo-only ending", pattern: /logo[-_ ]only/i },
+  { label: "logo overlay instruction", pattern: /logo overlay/i },
+  { label: "logo animation", pattern: /logo animation/i },
+  { label: "logo end card", pattern: /logo end card/i },
+  { label: "brand sign-off block", pattern: /BRAND-SIGN-OFF|brand sign[-_ ]off/i },
+  { label: "reserved lower-frame logo space", pattern: /lower[- ]frame space/i },
 ];
 // Quality examples from the brief are listed only to prove they were not copied.
 const EXAMPLE_LINES = [
@@ -50,7 +60,7 @@ const EXAMPLE_LINES = [
 const CLAIM_OR_GENERIC_COPY =
   /\b(?:premium|luxur(?:y|ious)|timeless|elegant|elegance|perfect|perfection|crafted|iconic|effortless|elevate|elevated|discover|indulge|redefine|flawless|modern|sophisticated|refined|unmistakable|guarantee|guaranteed|best|must-have)\b/i;
 const MIN_HOLD_SECONDS = 1.2;
-const DIRECTOR_SCRIPT_ORDER = [
+const DIRECTOR_SCRIPT_ORDER_HEAD = [
   "CREATIVE PROPOSITION",
   "DIRECTOR CONCEPT",
   "CINEMATIC DEVICE",
@@ -58,8 +68,15 @@ const DIRECTOR_SCRIPT_ORDER = [
   "FILM ARC",
   "SHOT 1 — ",
   "ENDING IMAGE",
-  "BRAND-SIGN-OFF",
+];
+const DIRECTOR_SCRIPT_ORDER_WITH_FILM_LINE = [
+  ...DIRECTOR_SCRIPT_ORDER_HEAD,
+  "ENDING TEXT",
   "SEEDANCE EXECUTION DIRECTION",
+];
+const DIRECTOR_SCRIPT_ORDER_WITHOUT_FILM_LINE = [
+  ...DIRECTOR_SCRIPT_ORDER_HEAD,
+  "SEEDANCE EXECUTION",
 ];
 
 function assert(condition, message) {
@@ -84,6 +101,12 @@ function stems(value) {
 
 function lineWordCount(line) {
   return (line.match(/[A-Za-z']+/g) ?? []).length;
+}
+
+function logoTokenFailures(caseId, surface, text) {
+  return FORBIDDEN_LOGO_TOKENS
+    .filter(({ pattern }) => pattern.test(text))
+    .map(({ label }) => `${caseId}: ${label} appears in the ${surface}`);
 }
 
 function v14RequestForCase(testCase) {
@@ -121,18 +144,24 @@ function sloganKeys(value, path = "") {
   return found;
 }
 
-function directorScriptOrderFailures(script) {
-  const indices = DIRECTOR_SCRIPT_ORDER.map((token) => script.indexOf(token));
+function directorScriptOrderFailures(script, hasFilmLine) {
+  const order = hasFilmLine
+    ? DIRECTOR_SCRIPT_ORDER_WITH_FILM_LINE
+    : DIRECTOR_SCRIPT_ORDER_WITHOUT_FILM_LINE;
+  const indices = order.map((token) => script.indexOf(token));
   const lines = script.split("\n");
   const firstLine = lines[0].trim();
   const titleLinePresent = firstLine.length > 4
-    && !DIRECTOR_SCRIPT_ORDER.includes(firstLine)
+    && !order.includes(firstLine)
     && lines[1] === "";
   const orderPresent = indices.every((index) => index >= 0)
     && indices.every((index, position) => position === 0 || index > indices[position - 1]);
+  if (!hasFilmLine && script.includes("ENDING TEXT")) {
+    return ["a film line closing block is present in a case without a film line"];
+  }
   return orderPresent && titleLinePresent
     ? []
-    : ["director script order is not title -> proposition -> concept -> device -> moment -> arc -> shots -> ending -> sign-off -> execution direction"];
+    : [`director script order is not title -> proposition -> concept -> device -> moment -> arc -> shots -> ending -> ${hasFilmLine ? "film line -> execution direction" : "execution"}`];
 }
 
 try {
@@ -161,7 +190,7 @@ try {
   const matrix = api.buildCommercialV14AcceptanceMatrix();
   assert(matrix.cases.length === 12, `Brand sign-off expects the same 12 cases, received ${matrix.cases.length}.`);
 
-  const brandMarkFailures = [];
+  const logoTokenFailuresList = [];
   const filmLineFailures = [];
   const sloganFailures = [];
   const timingFailures = [];
@@ -170,7 +199,7 @@ try {
   const caseReports = [];
   const seenLines = new Map();
   let filmLineCount = 0;
-  let logoOnlyCount = 0;
+  let noFilmLineCount = 0;
 
   for (const testCase of matrix.cases) {
     const outcome = api.runCommercialV14Pipeline(v14RequestForCase(testCase));
@@ -180,11 +209,20 @@ try {
     const signOff = plan.presentation.brandSignOff;
     assert(signOff, `${testCase.caseId} has no brand sign-off record.`);
 
-    if (signOff.brandMark !== BRAND_MARK) {
-      brandMarkFailures.push(`${testCase.caseId}: brand mark is ${signOff.brandMark}`);
-    }
     if (!VALID_MODES.includes(signOff.mode)) {
-      brandMarkFailures.push(`${testCase.caseId}: unknown sign-off mode ${signOff.mode}`);
+      endingOverwriteFailures.push(`${testCase.caseId}: unknown sign-off mode ${signOff.mode}`);
+    }
+    if (Object.prototype.hasOwnProperty.call(signOff, "brandMark")) {
+      endingOverwriteFailures.push(`${testCase.caseId}: sign-off record still carries a brand mark field`);
+    }
+    logoTokenFailuresList.push(
+      ...logoTokenFailures(testCase.caseId, "model-facing Seedance prompt", plan.presentation.v14CompiledText),
+      ...logoTokenFailures(testCase.caseId, "director script", plan.presentation.presentationScript),
+    );
+    if (signOff.mode !== (signOff.filmLine === null ? NO_FILM_LINE_MODE : FILM_LINE_MODE)) {
+      endingOverwriteFailures.push(
+        `${testCase.caseId}: sign-off mode ${signOff.mode} does not match its film line state`
+      );
     }
 
     const leakedSloganKeys = sloganKeys(signOff);
@@ -193,7 +231,12 @@ try {
     }
 
     if (signOff.filmLine === null) {
-      logoOnlyCount += 1;
+      noFilmLineCount += 1;
+      if (signOff.timing !== null || signOff.seedanceDirection !== null) {
+        endingOverwriteFailures.push(
+          `${testCase.caseId}: a case without a film line still emits a sign-off window`
+        );
+      }
     } else {
       filmLineCount += 1;
       const line = signOff.filmLine;
@@ -233,50 +276,76 @@ try {
     const signatureBeatEndSecond = shots[treatment.signatureMoment.signatureBeatIndex]?.endSecond ?? 0;
     const endingImageStartSecond = shots[shots.length - 1]?.startSecond ?? 0;
     const timing = signOff.timing;
-    const hold = Math.round((timing.endSecond - timing.startSecond) * 100) / 100;
-    if (timing.endSecond !== plan.basePlan.duration
-      || signOff.filmDurationSeconds !== plan.basePlan.duration
-      || plan.basePlan.duration > 15
-      || timing.startSecond >= timing.endSecond
-      || timing.startSecond < signatureBeatEndSecond
-      || timing.startSecond < endingImageStartSecond
-      || hold !== timing.holdSeconds
-      || hold < MIN_HOLD_SECONDS) {
+    if (signOff.filmDurationSeconds !== plan.basePlan.duration || plan.basePlan.duration > 15) {
       timingFailures.push(
-        `${testCase.caseId}: sign-off timing ${timing.startSecond}-${timing.endSecond}s is not inside the ${plan.basePlan.duration}s film`
+        `${testCase.caseId}: film duration ${plan.basePlan.duration}s is not the frozen 15s film`
       );
+    }
+    if (timing) {
+      const hold = Math.round((timing.endSecond - timing.startSecond) * 100) / 100;
+      if (timing.endSecond !== plan.basePlan.duration
+        || timing.startSecond >= timing.endSecond
+        || timing.startSecond < signatureBeatEndSecond
+        || timing.startSecond < endingImageStartSecond
+        || hold !== timing.holdSeconds
+        || hold < MIN_HOLD_SECONDS) {
+        timingFailures.push(
+          `${testCase.caseId}: film line timing ${timing.startSecond}-${timing.endSecond}s is not inside the ${plan.basePlan.duration}s film`
+        );
+      }
     }
 
     const script = plan.presentation.presentationScript;
     const endingImageIndex = script.indexOf(`ENDING IMAGE\n${treatment.endingImage}`);
-    const signOffIndex = script.indexOf("BRAND-SIGN-OFF");
-    const directionIndex = script.indexOf("SEEDANCE EXECUTION DIRECTION");
+    const openingIndex = script.indexOf("ENDING TEXT");
+    const directionIndex = script.indexOf(
+      signOff.filmLine ? "SEEDANCE EXECUTION DIRECTION" : "SEEDANCE EXECUTION"
+    );
     if (endingImageIndex < 0) {
       endingOverwriteFailures.push(`${testCase.caseId}: ending image is missing from the director script`);
     }
-    if (signOffIndex < 0 || directionIndex < 0) {
-      endingOverwriteFailures.push(`${testCase.caseId}: brand sign-off block is missing from the director script`);
+    if (signOff.filmLine === null) {
+      if (endingImageIndex < 0 || directionIndex < 0
+        || !(endingImageIndex < directionIndex)) {
+        endingOverwriteFailures.push(
+          `${testCase.caseId}: the case without a film line does not end on the ending image`
+        );
+      }
+    } else if (openingIndex < 0 || directionIndex < 0
+      || !(endingImageIndex < openingIndex && openingIndex < directionIndex)) {
+      endingOverwriteFailures.push(`${testCase.caseId}: film line block is missing from the director script`);
     }
-    if (endingImageIndex >= 0 && signOffIndex >= 0 && directionIndex >= 0
-      && !(endingImageIndex < signOffIndex && signOffIndex < directionIndex)) {
-      endingOverwriteFailures.push(`${testCase.caseId}: sign-off does not follow the ending image`);
-    }
-    for (const failure of directorScriptOrderFailures(script)) {
+    for (const failure of directorScriptOrderFailures(script, signOff.filmLine !== null)) {
       endingOverwriteFailures.push(`${testCase.caseId}: ${failure}`);
     }
-    if (signOff.presentation !== "OVERLAY_OVER_ENDING_IMAGE" || !signOff.endingImagePreserved) {
+    if (!signOff.endingImagePreserved || !signOff.postProductionOnly) {
       endingOverwriteFailures.push(`${testCase.caseId}: sign-off does not preserve the ending image`);
     }
-    if (!signOff.postProductionOnly || !/(?:post overlay|applied in post)/i.test(signOff.seedanceDirection)) {
-      endingOverwriteFailures.push(`${testCase.caseId}: brand mark is not framed as a post overlay`);
+    if (signOff.filmLine !== null) {
+      if (!/\badded in post\b/i.test(signOff.seedanceDirection ?? "")
+        || !/\bdo not render lettering\b/i.test(signOff.seedanceDirection ?? "")) {
+        endingOverwriteFailures.push(
+          `${testCase.caseId}: the film line is not framed as a post-production text overlay`
+        );
+      }
+      if (!plan.presentation.v14CompiledText.includes("Film line: added in post as a text overlay")
+        || !script.includes(`Film Line: ${signOff.filmLine}`)
+        || !script.includes("Added in post over the ending image")) {
+        endingOverwriteFailures.push(
+          `${testCase.caseId}: the film line is missing from the model-facing or director output`
+        );
+      }
+    } else {
+      if (plan.presentation.v14CompiledText.includes("Film line:")) {
+        endingOverwriteFailures.push(
+          `${testCase.caseId}: a case without a film line still advertises closing text`
+        );
+      }
     }
-    if (!/\bdo not render brand lettering\b/i.test(signOff.seedanceDirection)) {
-      endingOverwriteFailures.push(`${testCase.caseId}: sign-off does not protect against generated brand typography`);
-    }
-    if (!plan.presentation.v14CompiledText.includes(`Brand sign-off: hold ${timing.startSecond.toFixed(1)}-`)
-      || !plan.presentation.v14CompiledText.includes(`Brand mark: ${BRAND_MARK} is applied in post`)
-      || !plan.presentation.v14CompiledText.includes("do not render brand lettering")) {
-      endingOverwriteFailures.push(`${testCase.caseId}: model-facing extension has no sign-off direction`);
+    if (!plan.presentation.v14CompiledText.includes(`Ending image: ${treatment.endingImage}`)) {
+      endingOverwriteFailures.push(
+        `${testCase.caseId}: the model-facing prompt no longer carries the unchanged ending image`
+      );
     }
 
     const expectedFingerprint = baselineByCaseId.get(testCase.caseId);
@@ -297,10 +366,8 @@ try {
       title: treatment.title,
       endingImage: treatment.endingImage,
       mode: signOff.mode,
-      brandMark: signOff.brandMark,
       filmLine: signOff.filmLine,
       timing,
-      presentation: signOff.presentation,
       sourceEvents: plan.presentation.sourceEvents,
       presentationScriptSha256: sha256(script),
       v14CompiledTextSha256: sha256(plan.presentation.v14CompiledText),
@@ -308,10 +375,13 @@ try {
     });
   }
 
-  assert(brandMarkFailures.length === 0, `Brand mark failures: ${brandMarkFailures.join(" | ")}`);
+  assert(
+    logoTokenFailuresList.length === 0,
+    `Automatic logo tokens: ${logoTokenFailuresList.join(" | ")}`
+  );
   assert(filmLineFailures.length === 0, `Film line failures: ${filmLineFailures.join(" | ")}`);
   assert(sloganFailures.length === 0, `Permanent slogan risk: ${sloganFailures.join(" | ")}`);
-  assert(timingFailures.length === 0, `Sign-off timing failures: ${timingFailures.join(" | ")}`);
+  assert(timingFailures.length === 0, `Film line timing failures: ${timingFailures.join(" | ")}`);
   assert(endingOverwriteFailures.length === 0, `Ending image failures: ${endingOverwriteFailures.join(" | ")}`);
   assert(creativeEngineDrift.length === 0, `Creative engine drift: ${creativeEngineDrift.join(", ")}`);
 
@@ -321,16 +391,12 @@ try {
     humanAcceptance.authority === "HUMAN_APPROVED",
     "Human acceptance record does not declare HUMAN_APPROVED authority."
   );
-  assert(
-    humanAcceptance.brandMark === BRAND_MARK,
-    "Human acceptance record declares a different brand mark."
-  );
   const humanByCaseId = new Map(
     humanAcceptance.cases.map((entry) => [entry.caseId, entry])
   );
   assert(humanByCaseId.size === 12, `Human acceptance record needs 12 cases, received ${humanByCaseId.size}.`);
 
-  const humanBrandMarkFailures = [];
+  const humanLogoTokenFailures = [];
   const humanFilmLineFailures = [];
   const humanModeFailures = [];
   const humanTimingFailures = [];
@@ -339,7 +405,7 @@ try {
   const humanCaseReports = [];
   const acceptedLines = new Map();
   let acceptedFilmLineCount = 0;
-  let acceptedLogoOnlyCount = 0;
+  let acceptedNoFilmLineCount = 0;
 
   for (const testCase of matrix.cases) {
     const accepted = humanByCaseId.get(testCase.caseId);
@@ -356,24 +422,29 @@ try {
       treatment,
       durationSeconds: plan.basePlan.duration,
       shots,
-      humanAcceptance: { filmLine: accepted.filmLine, mode: accepted.mode },
+      humanAcceptance: { filmLine: accepted.filmLine },
     });
 
-    if (signOff.authority !== "HUMAN_APPROVED" || signOff.brandMark !== BRAND_MARK) {
-      humanBrandMarkFailures.push(`${testCase.caseId}: accepted record is not branded as HUMAN_APPROVED ${BRAND_MARK}`);
+    humanLogoTokenFailures.push(
+      ...logoTokenFailures(testCase.caseId, "human-accepted sign-off record", JSON.stringify(signOff))
+    );
+    if (signOff.authority !== "HUMAN_APPROVED") {
+      humanLogoTokenFailures.push(`${testCase.caseId}: accepted record is not HUMAN_APPROVED`);
     }
-    if (signOff.filmLine !== accepted.filmLine || signOff.mode !== accepted.mode) {
+    if (signOff.filmLine !== accepted.filmLine) {
       humanModeFailures.push(`${testCase.caseId}: accepted sign-off does not match the recorded decision`);
     }
     if (accepted.filmLine === null) {
-      acceptedLogoOnlyCount += 1;
-      if (accepted.mode !== "LOGO_ONLY") {
-        humanModeFailures.push(`${testCase.caseId}: logo-only decision is not recorded as LOGO_ONLY`);
+      acceptedNoFilmLineCount += 1;
+      if (signOff.mode !== NO_FILM_LINE_MODE || signOff.timing !== null) {
+        humanModeFailures.push(
+          `${testCase.caseId}: a case without a film line still emits a closing window`
+        );
       }
     } else {
       acceptedFilmLineCount += 1;
       const normalized = accepted.filmLine.replace(/[.!?]+$/, "").toLowerCase();
-      if (accepted.mode !== "LOGO_AND_FILM_LINE_OVER_ENDING_IMAGE") {
+      if (signOff.mode !== FILM_LINE_MODE) {
         humanModeFailures.push(`${testCase.caseId}: film line decision is not recorded as an overlay mode`);
       }
       if (lineWordCount(accepted.filmLine) < 2 || lineWordCount(accepted.filmLine) > 7) {
@@ -391,27 +462,24 @@ try {
       acceptedLines.set(normalized, testCase.caseId);
     }
 
-    const expectedStart = accepted.filmLine === null
-      ? humanAcceptance.timingRule.logoOnly.startSecond
-      : humanAcceptance.timingRule.withFilmLine.startSecond;
     const signatureBeatEndSecond =
       shots[treatment.signatureMoment.signatureBeatIndex]?.endSecond ?? 0;
-    if (signOff.timing.startSecond !== expectedStart
+    const expectedStart = humanAcceptance.timingRule.withFilmLine.startSecond;
+    if (accepted.filmLine !== null && (signOff.timing === null
+      || signOff.timing.startSecond !== expectedStart
       || signOff.timing.endSecond !== plan.basePlan.duration
       || signOff.timing.endSecond > 15
       || signOff.timing.startSecond < signatureBeatEndSecond
-      || signOff.timing.holdSeconds < MIN_HOLD_SECONDS) {
+      || signOff.timing.holdSeconds < MIN_HOLD_SECONDS)) {
       humanTimingFailures.push(
-        `${testCase.caseId}: accepted sign-off timing ${signOff.timing.startSecond}-${signOff.timing.endSecond}s violates the accepted ${expectedStart}-15s rule`
+        `${testCase.caseId}: accepted film line timing ${signOff.timing?.startSecond}-${signOff.timing?.endSecond}s violates the accepted ${expectedStart}-15s rule`
       );
     }
 
-    if (signOff.presentation !== "OVERLAY_OVER_ENDING_IMAGE"
-      || !signOff.endingImagePreserved
+    if (!signOff.endingImagePreserved
       || !signOff.postProductionOnly
-      || !/(?:post overlay|applied in post)/i.test(signOff.seedanceDirection)
-      || !/\bdo not render brand lettering\b/i.test(signOff.seedanceDirection)) {
-      humanEndingFailures.push(`${testCase.caseId}: accepted sign-off does not stay a post overlay over the ending image`);
+      || (accepted.filmLine !== null && signOff.seedanceDirection === null)) {
+      humanEndingFailures.push(`${testCase.caseId}: accepted closing text does not stay a post-production overlay`);
     }
 
     humanCaseReports.push({
@@ -419,47 +487,46 @@ try {
       title: treatment.title,
       endingImage: treatment.endingImage,
       mode: signOff.mode,
-      brandMark: signOff.brandMark,
       filmLine: signOff.filmLine,
       timing: signOff.timing,
       authority: signOff.authority,
-      presentation: signOff.presentation,
     });
   }
 
-  assert(humanBrandMarkFailures.length === 0, `Human brand mark failures: ${humanBrandMarkFailures.join(" | ")}`);
+  assert(humanLogoTokenFailures.length === 0, `Human automatic logo failures: ${humanLogoTokenFailures.join(" | ")}`);
   assert(humanFilmLineFailures.length === 0, `Human film line failures: ${humanFilmLineFailures.join(" | ")}`);
   assert(humanModeFailures.length === 0, `Human sign-off mode failures: ${humanModeFailures.join(" | ")}`);
-  assert(humanTimingFailures.length === 0, `Human sign-off timing failures: ${humanTimingFailures.join(" | ")}`);
+  assert(humanTimingFailures.length === 0, `Human film line timing failures: ${humanTimingFailures.join(" | ")}`);
   assert(humanEndingFailures.length === 0, `Human ending image failures: ${humanEndingFailures.join(" | ")}`);
   assert(humanLineReuse.length === 0, `Human film line reuse: ${humanLineReuse.join(" | ")}`);
   assert(
-    acceptedFilmLineCount === 7 && acceptedLogoOnlyCount === 5,
-    `Accepted distribution must be 7 / 5, received ${acceptedFilmLineCount} / ${acceptedLogoOnlyCount}.`
+    acceptedFilmLineCount === 7 && acceptedNoFilmLineCount === 5,
+    `Accepted distribution must be 7 / 5, received ${acceptedFilmLineCount} / ${acceptedNoFilmLineCount}.`
   );
 
   await mkdir(outputDirectory, { recursive: true });
   await writeFile(
     join(outputDirectory, "BRAND_SIGNOFF_REPORT.md"),
     [
-      "# COMMERCIAL FILM V1.4 BRAND-SIGNOFF REPORT (GENERATED SIGN-OFF)",
+      "# COMMERCIAL FILM V1.4 CLOSING-TEXT REPORT (GENERATED)",
       "",
-      "GENERATED SIGN-OFF from the Brand Sign-off engine. The human-approved values are authoritative for the",
+      "GENERATED closing text from the Brand Sign-off engine. The human-approved values are authoritative for the",
       "acceptance pack and live in `BRAND_SIGNOFF_FINAL_ACCEPTANCE.md`.",
       "",
-      "Same 12 cases as V1.4.4. Creative treatments are unchanged; this report only adds the brand sign-off layer.",
-      `Brand mark: ${BRAND_MARK}. Film line: optional per film, added in post over the ending image.`,
-      `Sign-off lives inside the 15 second film (${filmLineCount} films with a film line, ${logoOnlyCount} logo only).`,
+      "Same 12 cases as V1.4.4. Creative treatments are unchanged; this report only carries the optional film line.",
+      "Automatic logo: REMOVED. No brand mark, logo overlay, logo animation or end card is generated or requested.",
+      `Film line: optional per film, added in post over the ending image (${filmLineCount} films with a film line, ${noFilmLineCount} ending on the ending image alone).`,
       "",
       ...caseReports.flatMap((entry) => [
         `## ${entry.caseId}`,
         "",
         `TITLE: ${entry.title}`,
         `ENDING IMAGE: ${entry.endingImage}`,
-        `BRAND SIGN-OFF MODE: ${entry.mode}`,
-        `BRAND MARK: ${entry.brandMark}`,
-        `FILM LINE: ${entry.filmLine ?? "none (logo only)"}`,
-        `SIGN-OFF TIMING: ${entry.timing.startSecond.toFixed(1)}-${entry.timing.endSecond.toFixed(1)}s (inside the ${entry.timing.endSecond.toFixed(1)}s film)`,
+        `CLOSING MODE: ${entry.mode}`,
+        `FILM LINE: ${entry.filmLine ?? "none (the film ends on the ending image)"}`,
+        entry.timing
+          ? `FILM LINE TIMING: ${entry.timing.startSecond.toFixed(1)}-${entry.timing.endSecond.toFixed(1)}s (inside the ${entry.timing.endSecond.toFixed(1)}s film)`
+          : "FILM LINE TIMING: none",
         "",
       ]),
     ].join("\n")
@@ -467,14 +534,14 @@ try {
   await writeFile(
     join(outputDirectory, "BRAND_SIGNOFF_FINAL_ACCEPTANCE.md"),
     [
-      "# COMMERCIAL FILM V1.4 BRAND-SIGNOFF FINAL ACCEPTANCE",
+      "# COMMERCIAL FILM V1.4 CLOSING-TEXT FINAL ACCEPTANCE",
       "",
-      "HUMAN-APPROVED SIGN-OFF. This record is authoritative for the upcoming visual acceptance pack.",
+      "HUMAN-APPROVED CLOSING TEXT. This record is authoritative for the upcoming visual acceptance pack.",
       "It is not the general Brand Sign-off generator output; see `BRAND_SIGNOFF_REPORT.md` for the generated values.",
       "",
-      `Brand mark: ${BRAND_MARK}. Film Line is creatively optional: a missing Film Line is an accepted result, not a fallback.`,
-      `Accepted distribution: Film Line ${acceptedFilmLineCount} / Logo Only ${acceptedLogoOnlyCount}.`,
-      "All sign-off stays inside the original 15 second duration; runtime is not extended and the Signature Moment is not shortened.",
+      "Automatic logo: REMOVED. Film Line is creatively optional: a missing Film Line is an accepted result, not a fallback.",
+      `Accepted distribution: Film Line ${acceptedFilmLineCount} / no Film Line ${acceptedNoFilmLineCount}.`,
+      "All closing text stays inside the original 15 second duration; runtime is not extended and the Signature Moment is not shortened.",
       "",
       ...humanCaseReports.flatMap((entry) => [
         `## ${entry.caseId}`,
@@ -482,9 +549,10 @@ try {
         `TITLE: ${entry.title}`,
         `ENDING IMAGE: ${entry.endingImage}`,
         `FINAL MODE: ${entry.mode}`,
-        `BRAND MARK: ${entry.brandMark}`,
-        `FINAL FILM LINE: ${entry.filmLine ?? "null (LOGO_ONLY)"}`,
-        `TIMING: ${entry.timing.startSecond.toFixed(1)}-${entry.timing.endSecond.toFixed(1)}s`,
+        `FINAL FILM LINE: ${entry.filmLine ?? "null (no closing text)"}`,
+        entry.timing
+          ? `TIMING: ${entry.timing.startSecond.toFixed(1)}-${entry.timing.endSecond.toFixed(1)}s`
+          : "TIMING: none",
         "AUTHORITY: HUMAN_APPROVED",
         "",
       ]),
@@ -495,30 +563,31 @@ try {
     `${JSON.stringify({
       schemaVersion: api.COMMERCIAL_BRAND_SIGNOFF_SCHEMA_VERSION,
       stage: "COMMERCIAL_FILM_V1_4_BRAND_SIGNOFF",
-      brandMark: BRAND_MARK,
+      automaticLogo: "REMOVED",
       generatedCases: caseReports,
       humanApprovedCases: humanCaseReports,
       acceptedDistribution: {
         filmLine: acceptedFilmLineCount,
-        logoOnly: acceptedLogoOnlyCount,
+        noFilmLine: acceptedNoFilmLineCount,
       },
     }, null, 2)}\n`
   );
 
   console.log("COMMERCIAL FILM V1.4 BRAND-SIGNOFF VALIDATION PASS:", JSON.stringify({
     cases: matrix.cases.length,
-    brandMarkFailures: brandMarkFailures.length,
+    automaticLogo: "REMOVED",
+    automaticLogoTokenFailures: logoTokenFailuresList.length,
     filmLineFailures: filmLineFailures.length,
     permanentSloganFailures: sloganFailures.length,
     timingFailures: timingFailures.length,
     endingOverwriteFailures: endingOverwriteFailures.length,
     creativeEngineDrift,
     filmsWithFilmLine: filmLineCount,
-    filmsLogoOnly: logoOnlyCount,
+    filmsWithoutFilmLine: noFilmLineCount,
     acceptanceRecord: humanAcceptancePath,
     acceptedFilmLineCases: acceptedFilmLineCount,
-    acceptedLogoOnlyCases: acceptedLogoOnlyCount,
-    humanBrandMarkFailures: humanBrandMarkFailures.length,
+    acceptedNoFilmLineCases: acceptedNoFilmLineCount,
+    humanAutomaticLogoFailures: humanLogoTokenFailures.length,
     humanFilmLineFailures: humanFilmLineFailures.length,
     humanModeFailures: humanModeFailures.length,
     humanTimingFailures: humanTimingFailures.length,

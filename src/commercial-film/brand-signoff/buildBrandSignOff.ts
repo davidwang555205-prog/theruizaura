@@ -1,13 +1,12 @@
 import type { CommercialCreativeTreatment } from "../creative-directing/types";
-import {
-  COMMERCIAL_BRAND_MARK,
-  type CommercialBrandSignOff,
-  type CommercialBrandSignOffInput,
+import type {
+  CommercialBrandSignOff,
+  CommercialBrandSignOffInput,
 } from "./types";
 
 // The film line is this film's closing line, compressed from the proposition, the Signature Moment
 // and the ending image of the same case. It is never a permanent brand slogan, and a case without a
-// genuinely restrained line stays logo only.
+// genuinely restrained line ends on the ending image alone.
 const FILM_LINE_BY_MECHANISM: Record<string, string | null> = {
   "QUIET_LUXURY:STATIC_CAMERA_FILM": "The world passes the window.",
   "QUIET_LUXURY:PARTIAL_OBSCURATION": "Seen through the glass.",
@@ -24,11 +23,12 @@ const FILM_LINE_BY_MECHANISM: Record<string, string | null> = {
 };
 
 const HOLD_SECONDS_WITH_FILM_LINE = 2.2;
-const HOLD_SECONDS_LOGO_ONLY = 1.6;
 
+// Film line only. No brand mark is requested, no lower-frame space is reserved, and no lettering is
+// generated: the ending image itself is never replaced, cut short or re-staged.
 const SEEDANCE_DIRECTION =
-  "Hold the ending image through the sign-off window and keep clean, calm space in the lower frame for the brand mark. "
-  + "Apply the confirmed THERUIZ AURA brand mark as a post overlay. Do not render brand lettering in generation.";
+  "The ending image is unchanged. The film line is added in post as a text overlay. "
+  + "Do not render lettering in generation.";
 
 function roundToHundredth(value: number) {
   return Math.round(value * 100) / 100;
@@ -47,28 +47,39 @@ export function buildCommercialBrandSignOff(
 ): CommercialBrandSignOff {
   const { treatment, durationSeconds, shots, humanAcceptance } = input;
   const filmLine = humanAcceptance ? humanAcceptance.filmLine : resolveCommercialFilmLine(treatment);
-  const holdSeconds = filmLine ? HOLD_SECONDS_WITH_FILM_LINE : HOLD_SECONDS_LOGO_ONLY;
+  const authority = humanAcceptance ? "HUMAN_APPROVED" : "GENERATED";
+
+  // Without a film line there is no sign-off asset at all: no window, no overlay, no end card.
+  if (!filmLine) {
+    return {
+      authority,
+      filmLine: null,
+      mode: "NO_FILM_LINE",
+      filmDurationSeconds: roundToHundredth(durationSeconds),
+      timing: null,
+      postProductionOnly: true,
+      endingImagePreserved: true,
+      filmLineSources: null,
+      seedanceDirection: null,
+    };
+  }
+
   const signatureBeatEndSecond =
     shots[treatment.signatureMoment.signatureBeatIndex]?.endSecond ?? 0;
   const endingImageStartSecond = shots[shots.length - 1]?.startSecond ?? 0;
 
-  // The sign-off lives inside the film: it starts late enough to leave the Signature Moment and the
-  // ending image intact, and it never adds seconds after the film ends.
+  // The film line window lives inside the film: it starts late enough to leave the Signature Moment and
+  // the ending image intact, and it never adds seconds after the film ends.
   const startSecond = roundToHundredth(Math.max(
-    durationSeconds - holdSeconds,
+    durationSeconds - HOLD_SECONDS_WITH_FILM_LINE,
     signatureBeatEndSecond,
     endingImageStartSecond
   ));
 
   return {
-    authority: humanAcceptance ? "HUMAN_APPROVED" : "GENERATED",
-    brandMark: COMMERCIAL_BRAND_MARK,
+    authority,
     filmLine,
-    mode: humanAcceptance?.mode
-      ?? (filmLine
-        ? "LOGO_AND_FILM_LINE_OVER_ENDING_IMAGE"
-        : "LOGO_OVER_ENDING_IMAGE"),
-    presentation: "OVERLAY_OVER_ENDING_IMAGE",
+    mode: "FILM_LINE_OVER_ENDING_IMAGE",
     filmDurationSeconds: roundToHundredth(durationSeconds),
     timing: {
       startSecond,
@@ -77,13 +88,11 @@ export function buildCommercialBrandSignOff(
     },
     postProductionOnly: true,
     endingImagePreserved: true,
-    filmLineSources: filmLine
-      ? {
-        creativeProposition: treatment.creativeProposition.presentationText,
-        signatureMoment: treatment.signatureMoment.momentDescription,
-        endingImage: treatment.endingImage,
-      }
-      : null,
+    filmLineSources: {
+      creativeProposition: treatment.creativeProposition.presentationText,
+      signatureMoment: treatment.signatureMoment.momentDescription,
+      endingImage: treatment.endingImage,
+    },
     seedanceDirection: SEEDANCE_DIRECTION,
   };
 }
