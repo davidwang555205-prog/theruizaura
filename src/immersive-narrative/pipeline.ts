@@ -32,6 +32,10 @@ import {
   type ImmersiveFinalScriptPresentation,
   type ImmersivePresentationValidation,
 } from "./presentation";
+import {
+  validateImmersiveFinalScriptConsistency,
+  type ImmersiveFinalConsistencyValidation,
+} from "./final-consistency";
 import { buildProductPresenceInput, planProductPresence, type ProductPresenceOutput } from "./product-presence";
 import { buildSceneResolverInput, resolveNarrativeScenes, type SceneResolverOutput } from "./scene-resolver";
 import {
@@ -111,6 +115,7 @@ export type ImmersiveNarrativePipelineGenerated = {
   executionInput: ExecutionCompilerInput;
   presentation: ImmersiveFinalScriptPresentation;
   presentationValidation: ImmersivePresentationValidation;
+  finalConsistencyValidation: ImmersiveFinalConsistencyValidation;
   stages: ImmersivePipelineStages;
   momentReport: ImmersiveMomentReport[];
 };
@@ -248,6 +253,18 @@ export function runImmersiveNarrativePipeline(
     cameraExecution: cameraExecutionPlan,
     modelFacingScript,
   });
+  // The final gate reads the finished Director Script and the finished execution
+  // prompt together. It never re-plans and never repairs.
+  const finalConsistencyValidation = validateImmersiveFinalScriptConsistency({
+    topicLabel,
+    plan,
+    sceneResolution,
+    cameraExecution: cameraExecutionPlan,
+    modelFacingScript,
+    presentation,
+    referenceMapping: request.referenceMapping ?? DEFAULT_REFERENCE_MAPPING,
+    internalSeedanceText: script.compiledText,
+  });
 
   const stageFailures: string[] = [];
   if (plan.status !== "APPROVED_FOR_SCENE_RESOLUTION") stageFailures.push("Narrative Plan is not approved.");
@@ -340,6 +357,7 @@ export function runImmersiveNarrativePipeline(
     executionInput,
     presentation,
     presentationValidation,
+    finalConsistencyValidation,
     stages,
     momentReport,
   };

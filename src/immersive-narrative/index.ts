@@ -13,5 +13,6 @@ export * from "./camera-execution";
 export * from "./seedance-compiler";
 export * from "./execution-compiler";
 export * from "./presentation";
+export * from "./final-consistency";
 export * from "./pipeline";
 export { ImmersiveNarrativeWorkspace } from "./ImmersiveNarrativeWorkspace";

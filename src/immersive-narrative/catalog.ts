@@ -71,13 +71,16 @@ export const NARRATIVE_ARCHETYPES: NarrativeArchetype[] = [
     topicId: "after_work_home",
     label: "下班回家",
     matchPatterns: [/下班.*回家/i, /归家/i, /回家(?:路上|途中)?/i, /return(?:ing)? home/i, /arriv(?:e|ing) home/i],
-    storyIntent: "Capture the short transition from public composure to private relaxation when the character arrives home after an ordinary workday.",
+    // Editorial meaning only: the public route gives way to the private home
+    // space. It deliberately avoids words that a video model could translate into
+    // an emotional performance.
+    storyIntent: "Capture the short transition from the public route into the private home space when the character arrives home after an ordinary workday.",
     initialCharacterState: (context) => {
       const { pronoun } = context;
       return `${pronoun.subject} ${verb(pronoun, "has", "have")} finished the working day and is moving through the last part of the route home. ${pronoun.possessive} pace is steady, ${pronoun.possessiveLower} attention stays mostly on the route, and the public part of the day is already beginning to fall away. ${context.toneClause} ${context.seasonClause}`;
     },
     microEvent: (context) => `At the ${scene(context, "threshold")}, the key has slipped deeper inside the bag than expected.`,
-    emotionalArc: ["composed", "briefly interrupted", "private", "released"],
+    emotionalArc: ["composed", "briefly interrupted", "private", "settled"],
     moments: (context) => [
       {
         purpose: "establish_state",
@@ -100,7 +103,7 @@ export const NARRATIVE_ARCHETYPES: NarrativeArchetype[] = [
       {
         purpose: "response",
         sceneRole: "threshold",
-        whatHappens: `${context.pronoun.subject} opens the door and steps through with ${context.pronoun.possessiveLower} posture slightly less held.`,
+        whatHappens: `${context.pronoun.subject} opens the door and steps through; the crossing step is shorter and the weight settles onto the leading foot.`,
         causalLink: "Stepping through follows only after the key has unlocked the door.",
       },
       {
@@ -133,7 +136,7 @@ export const NARRATIVE_ARCHETYPES: NarrativeArchetype[] = [
         {
           purpose: "response",
           sceneRole: "threshold",
-          whatHappens: `${context.pronoun.subject} opens the door and steps through with ${context.pronoun.possessiveLower} posture slightly less held.`,
+          whatHappens: `${context.pronoun.subject} opens the door and steps through; the crossing step is shorter and the weight settles onto the leading foot.`,
           causalLink: "Stepping through follows only after the key has unlocked the door.",
         },
         {

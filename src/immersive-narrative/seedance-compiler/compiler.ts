@@ -7,6 +7,7 @@ import type { ProductPresenceOutput } from "../product-presence";
 import type { SceneResolverOutput } from "../scene-resolver";
 import type { SoundWorldOutput } from "../sound-world";
 import { resolvedWorldPresenceDescription } from "../scene-resolver/location-worlds";
+import { STATE_LOCK_NOT_BODY_FREEZE } from "../final-consistency/natural-continuation";
 import type { NarrativePlan, NarrativeSeason } from "../types";
 import { EMOTION_NEVER_ACTS_RULE } from "../execution-compiler/emotion-rule";
 import {
@@ -84,6 +85,13 @@ function referenceSection(input: ImmersiveSeedanceCompilerInput) {
   if (input.referenceMapping.mode === "not_applicable") {
     return ["No product reference mapping is required for this script."];
   }
+  if (count === 0) {
+    return [
+      "Reference mode: manual reference-bound upload is not active for this task (confirmed references in this task: 0).",
+      "No product reference is confirmed for this task; no reference is uploaded and no reference-bound product fact is claimed.",
+      "This system performs no Provider call and never uploads references automatically.",
+    ];
+  }
   return [
     `Reference mode: manual reference-bound upload (confirmed references in this task: ${count}).`,
     input.referenceMapping.instruction,
@@ -132,7 +140,7 @@ export function compileImmersiveSeedanceScript(input: ImmersiveSeedanceCompilerI
 
   lines.push("[VISUAL WORLD]");
   lines.push(`Location world: ${locationWorld ? `${locationWorld.label} (${locationWorld.id})` : "unresolved"}`);
-  lines.push(`Scenes in order: ${plan.moments.map((moment) => sceneByIndex.get(moment.index)?.sceneName ?? "unresolved").join(" → ")}`);
+  lines.push(`Scene sequence: ${[...new Set(plan.moments.map((moment) => sceneByIndex.get(moment.index)?.sceneName ?? "unresolved"))].join(" → ")}`);
   lines.push(`Season world: ${input.season} with its real light, clothing weight, and surface evidence.`);
   if (worldPresence) lines.push(worldPresence);
   lines.push("Do not empty a normally occupied public environment merely to isolate the main character; private rooms remain private. Background voices may have incidental visual sources where naturally visible, without a camera move or cutaway.");
@@ -219,10 +227,18 @@ export function compileImmersiveSeedanceScript(input: ImmersiveSeedanceCompilerI
   lines.push("");
 
   lines.push("[PRODUCT / REFERENCE PROTECTION]");
-  lines.push(productTruthLock);
-  lines.push("Use the uploaded product references as the only product source. Do not add, rename, or infer any material, colour, toe shape, outsole, heel, logo, or construction fact that the references do not establish.");
+  // One branch only. With no confirmed reference the script may not carry any
+  // reference-bound product fact at all.
+  if (input.referenceMapping.confirmedReferenceCount > 0) {
+    lines.push(productTruthLock);
+    lines.push("Use the uploaded product references as the only product source. Do not add, rename, or infer any material, colour, toe shape, outsole, heel, logo, or construction fact that the references do not establish.");
+  } else {
+    lines.push("No product reference is confirmed for this task: do not add, rename, or infer any material, colour, toe shape, outsole, heel, logo, or construction fact for any footwear.");
+  }
   lines.push("Keep left and right shoes mutually consistent, at believable human scale, with stable ground contact and no frame-to-frame deformation.");
-  lines.push("The uploaded footwear reference applies only to the protagonist's worn shoes. Do not reproduce, echo, merchandise, display, advertise, print, place, or duplicate the referenced footwear anywhere else in the environment; the selected location keeps its own real-world objects and inventory.");
+  lines.push(input.referenceMapping.confirmedReferenceCount > 0
+    ? "The uploaded footwear reference applies only to the protagonist's worn shoes. Do not reproduce, echo, merchandise, display, advertise, print, place, or duplicate the referenced footwear anywhere else in the environment; the selected location keeps its own real-world objects and inventory."
+    : "The protagonist's own worn shoes are her own ordinary footwear and not a product reference. Do not reproduce, echo, merchandise, display, advertise, print, place, or duplicate that footwear anywhere else in the environment; the selected location keeps its own real-world objects and inventory.");
   referenceSection(input).forEach((line) => lines.push(line));
   lines.push("Product Presence may not create a body action, a camera move, or a product close-up. It only constrains whether the product must stay readable inside the action-led frame.");
   lines.push("");
@@ -240,9 +256,12 @@ export function compileImmersiveSeedanceScript(input: ImmersiveSeedanceCompilerI
   lines.push(`Ending Moment: ${lastMoment ? lastMoment.whatHappens : "unresolved"}`);
   lines.push(`Ending state: ${lastMoment ? lastMoment.purposeLabel : "unresolved"}.`);
   lines.push(lastCamera?.status === "EXECUTABLE" && lastCamera.endFraming
-    ? `Camera ending: ${lastCamera.endFraming} Hold the final frame; no new event, no new composition.`
+    ? `Camera ending: ${lastCamera.endFraming} Keep that observation; do not recenter, recover the full body, or recompose a portrait for the ending, and do not follow the residual motion.`
     : "The final Moment is correctly unsupported, so no cinematic resolution is claimed. End without adding a new event.");
-  lines.push("The sequence ends in a settled state. Do not append a product shot, a logo, or a second ending.");
+  lines.push(STATE_LOCK_NOT_BODY_FREEZE);
+  lines.push("Final performance behavior is rendered from the approved structured final state in the model-facing execution prompt; this internal script only fixes the principle: residual body motion continues to the last frame, no new narrative event, and no recentring or portrait ending.");
+  lines.push("Residual body motion continues to the last frame; do not freeze the subject.");
+  lines.push("The sequence ends in its settled state. Do not append a product shot, a logo, or a second ending.");
 
   const compiledText = lines.join("\n");
   const consumedSections: ImmersiveScriptSectionId[] = IMMERSIVE_SCRIPT_SECTIONS.filter((section) => (
@@ -421,9 +440,13 @@ export function validateImmersiveSeedanceScript(
     "The compiler invented content downstream of the canonical stages."
   );
 
+  // The reference branch is exclusive: a confirmed reference carries the product
+  // truth lock, and a zero-reference task must not carry it at all.
   const referenceProtectionPresent = script.compiledText.includes("[PRODUCT / REFERENCE PROTECTION]")
-    && script.compiledText.includes(productTruthLock)
-    && script.compiledText.includes("manual reference-bound upload");
+    && script.compiledText.includes("manual reference-bound upload")
+    && (input.referenceMapping.confirmedReferenceCount > 0
+      ? script.compiledText.includes(productTruthLock)
+      : !script.compiledText.includes(productTruthLock) && script.compiledText.includes("No product reference is confirmed"));
   add(
     "reference_protection_present",
     "Reference protection present",

@@ -1,16 +1,19 @@
 // Global Immersive Narrative rule, one source for every Topic.
 //
 // Emotion never creates a new action. An internal state (quiet, settled,
-// unhurried, relaxed, after work, pause, slows, stays) may change how the
-// existing action is performed, but it may never introduce a new visible or
-// audible action.
+// unhurried, after work, pause, slows, stays) may change how the existing action
+// is performed, but it may never introduce a new visible or audible action.
+//
+// The emitted sentence deliberately avoids comfort/relaxation vocabulary: even a
+// prohibition that names a sigh can prime one, so the protection is written as a
+// statement about timing and performance instead.
 //
 // This sentence is the only wording the compiler emits. The banned patterns
 // below are never copied into a model-facing script: they exist so that a
 // future upstream patch, topic, or primitive that reintroduces an emotional
 // release action fails validation instead of silently reaching the video model.
 export const EMOTION_NEVER_ACTS_RULE =
-  "Emotion never creates a new action. Quiet, settled, unhurried, relaxed, after work, pause, slows, and stays remain ordinary body states: they do not become a performed gesture, an added visible response, an audible reaction, or an emotional pause. Default emotion execution is neutral, internally occupied, and unperformed.";
+  "Emotion never creates a new action. Quiet, settled, unhurried, after work, pause, slows, and stays remain ordinary timing or body states: they do not become a performed gesture, an added visible response, an audible reaction, or an emotional pause. Default emotion execution is neutral, internally occupied, and unperformed.";
 
 export type ForbiddenEmotionalReleasePattern = {
   id: string;

@@ -1,14 +1,25 @@
 import type { ModelFacingCameraState } from "../execution-compiler";
 import { resolvedWorldPresenceDescription } from "../scene-resolver/location-worlds";
+import { modelFacingFact, modelFacingStateSentences } from "../final-consistency/facts";
+import { buildFinalPerformanceBehavior } from "../final-consistency/natural-continuation";
+import {
+  acousticsZoneOf,
+  buildImmersiveTakeTruth,
+  dedupeConsecutive,
+  humanReadableRoute,
+  humanReadableScenes,
+  sentenceList,
+  spatialAnchorLabel,
+  type ImmersiveTakeTruth,
+} from "../final-consistency/truth";
 import {
   BOUNDARY_NOTE,
   CONTINUITY_NOTE,
-  IMMERSIVE_DIRECTOR_CONCEPTS,
   IMMERSIVE_DIRECTOR_TITLES,
   IMMERSIVE_TONE,
   PURPOSE_STRUCTURE_LABEL,
   TAKE_ROLE_LABEL,
-  type ImmersiveDirectorConceptId,
+  resolveImmersiveDirectorConcept,
 } from "./catalogs";
 import {
   IMMERSIVE_DIRECTOR_SCRIPT_SCHEMA_VERSION,
@@ -57,14 +68,6 @@ function sectionLines(text: string, header: string) {
     .filter(Boolean);
 }
 
-function resolveConcept(roles: string[], takeCount: number): ImmersiveDirectorConceptId {
-  if (roles.includes("PARTIAL_OBSERVATION")) return "NATURAL_PARTIAL_VIEW";
-  if (takeCount === 1 && roles.includes("WAITING_CAMERA")) return "WAITING_FRAME_ENTRY";
-  if (takeCount === 1) return "ONE_CONTINUOUS_OBSERVATION";
-  if (roles.includes("FOLLOWER")) return "FOLLOW_THEN_SETTLE";
-  return "OBSERVED_LIFE_SLICE";
-}
-
 function resolveTone(takes: ImmersivePresentationTake[], movement: ModelFacingCameraState["movementState"]) {
   if (takes.length === 1) return IMMERSIVE_TONE.still;
   if (movement === "hold_position") return IMMERSIVE_TONE.settling;
@@ -74,10 +77,12 @@ function resolveTone(takes: ImmersivePresentationTake[], movement: ModelFacingCa
 function buildTakes(input: ImmersivePresentationInput): ImmersivePresentationTake[] {
   const script = input.modelFacingScript;
   const transitions = new Map(script.diagnostics.cameraTransitions.map((transition) => [transition.momentIndex, transition]));
+  const takeTruthByOpeningMoment = new Map(buildImmersiveTakeTruth(script).map((take) => [take.openingMomentIndex, take]));
   const takes: ImmersivePresentationTake[] = [];
 
   script.moments.forEach((moment, index) => {
     const transition = transitions.get(moment.momentIndex);
+    const takeTruth = takeTruthByOpeningMoment.get(moment.momentIndex);
     const purpose = input.plan.moments.find((entry) => entry.index === moment.momentIndex)?.purpose ?? "establish_state";
     const startsNewTake = index === 0 || Boolean(moment.contract.takeBoundary);
     const boundary = input.plan.moments.find((entry) => entry.index === moment.momentIndex)?.completionBoundary ?? "STATE_HELD";
@@ -103,11 +108,19 @@ function buildTakes(input: ImmersivePresentationInput): ImmersivePresentationTak
     };
 
     if (startsNewTake || takes.length === 0) {
+      const cameraState = transition?.state;
       takes.push({
         takeIndex: takes.length,
         takeRole: "OPENING_OBSERVATION",
         cameraMovement: transition?.state.movementState ?? "locked_off",
         framingState: transition?.state.framingState ?? "medium-full",
+        openingCameraState: cameraState
+          ? `${cameraState.cameraSide}, ${cameraState.height}, ${cameraState.framingState} framing, ${cameraState.movementState === "restrained_follow" ? "a restrained follow that may lag" : cameraState.movementState === "hold_position" ? "a held position with no further movement" : "a locked-off position"}${takes.length > 0 ? ", the same lens family and screen direction as the previous Take" : ""}`
+          : "the established observation position, side, lens family, and framing",
+        inheritance: takeTruth ? [takeInheritanceSummary(takeTruth), ...takeTruth.inheritedStateSentences] : [],
+        cameraBoundary: takeTruth?.boundary ? sentenceList([takeTruth.boundary.evidence, takeTruth.boundary.whyContinuousCoverageFails]) : null,
+        // Kept byte-identical to the frozen Take Plan projection: the Take Plan is
+        // structured truth, so only the rendered boundary line is re-worded.
         motivation: moment.contract.takeBoundary
           ? `${moment.contract.takeBoundary.evidence} ${moment.contract.takeBoundary.whyContinuousCoverageFails}`
           : transition?.motivation ?? null,
@@ -121,55 +134,115 @@ function buildTakes(input: ImmersivePresentationInput): ImmersivePresentationTak
   return takes.map((take, index) => {
     if (index === 0) return { ...take, takeRole: "OPENING_OBSERVATION" as const };
     const isFinalTake = index === takes.length - 1;
-    const takeStartTransition = transitions.get(take.moments[0]?.momentIndex ?? -1);
     const holdsOnlyEnding = isFinalTake
       && take.moments.length === 1
       && take.moments[0].continuity === "SETTLE";
     const role: ImmersiveTakeRole = holdsOnlyEnding
       ? "HELD_ENDING"
-      : take.moments[0]?.momentIndex !== undefined && script.contracts.find((contract) => contract.momentIndex === take.moments[0].momentIndex)?.takeBoundary
-        ? "CONTINUOUS_MOMENT"
-        : "CONTINUOUS_MOMENT";
+      : "CONTINUOUS_MOMENT";
     return { ...take, takeRole: role };
   });
+}
+
+function takeInheritanceSummary(take: ImmersiveTakeTruth) {
+  const previous = take.previousLocation ? spatialAnchorLabel(take.previousLocation) : null;
+  const current = spatialAnchorLabel(take.location);
+  if (previous && previous !== current) {
+    return `The person, her belongings, and every completed action continue exactly as the previous Take left them; she moves on into ${current} without anything restarting.`;
+  }
+  return "The person, her belongings, and every completed action continue exactly as the previous Take left them, inside the same place.";
+}
+
+// Space that belongs to an earlier Take can only continue off-screen once the
+// final Take has moved the camera into a different acoustic world.
+function offScreenAnchorsOf(takeTruth: ImmersiveTakeTruth[]) {
+  const finalTake = takeTruth[takeTruth.length - 1];
+  const finalZone = finalTake?.acousticsZone ?? "UNKNOWN";
+  if (!finalTake || finalZone === "UNKNOWN") return [];
+  return dedupeConsecutive(takeTruth
+    .filter((take) => take.takeIndex !== finalTake.takeIndex)
+    .flatMap((take) => take.moments.map((moment) => moment.contract.spatialAnchor))
+    .filter((anchor) => {
+      const zone = acousticsZoneOf(anchor);
+      return zone !== "UNKNOWN" && zone !== finalZone;
+    }));
+}
+
+// The ending is rendered from the final structured state and the final camera
+// state. Narrative text that belongs to space the final camera cannot see is
+// carried as an explicit off-screen continuation instead of a visible image.
+function buildEnding(input: ImmersivePresentationInput, takeTruth: ImmersiveTakeTruth[]): string {
+  const script = input.modelFacingScript;
+  const finalMoment = script.moments[script.moments.length - 1];
+  const finalContract = script.contracts[script.contracts.length - 1];
+  const finalCamera = script.diagnostics.cameraTransitions.find((transition) => transition.momentIndex === finalMoment?.momentIndex)?.state;
+  const facts = finalContract?.worldStateAfter?.facts ?? {};
+  const stateSentences = ["character.place", "character.motion", "door.state", "key.location", "seat.state"]
+    .map((key) => modelFacingFact(key, facts[key] ?? ""))
+    .filter((sentence): sentence is string => Boolean(sentence));
+  const finalTake = takeTruth[takeTruth.length - 1];
+  const offScreenAnchors = offScreenAnchorsOf(takeTruth);
+  const offScreen = offScreenAnchors.length > 0
+    ? ` Off-screen continuation: ${offScreenAnchors.map((anchor) => spatialAnchorLabel(anchor)).join(" and ")} stay outside the final framing; they are never shown again and continue only as faint residual sound.`
+    : "";
+  const performance = buildFinalPerformanceBehavior({
+    previousMotion: finalContract?.worldStateBefore?.facts["character.motion"] ?? null,
+    finalMotion: facts["character.motion"] ?? null,
+    previousPlace: finalContract?.worldStateBefore?.facts["character.place"] ?? null,
+    finalPlace: facts["character.place"] ?? null,
+    interiorFinal: acousticsZoneOf(finalTake?.location ?? "UNKNOWN") === "INTERIOR",
+  });
+  const cameraLine = finalCamera
+    ? ` The camera finishes on ${finalCamera.framingState} framing from ${finalCamera.cameraSide} and keeps that observation: it does not recenter, recover the full body, or recompose a portrait for the ending.`
+    : " The camera keeps its own observation and does not recenter or recompose a portrait for the ending.";
+  const performanceLine = ` ${performance.marker} The narrative state stays fixed while ordinary residual body motion continues inside it; no new beat, entry, door action, or second ending is added.`;
+  return `${finalMoment?.whatHappens ?? ""}${stateSentences.length > 0 ? ` ${stateSentences.join(" ")}` : ""}${cameraLine}${performanceLine}${offScreen}`.trim();
 }
 
 function buildDirectorScript(input: ImmersivePresentationInput): ImmersiveDirectorScript {
   const script = input.modelFacingScript;
   const takes = buildTakes(input);
+  const takeTruth = buildImmersiveTakeTruth(script);
   const roles = input.cameraExecution.moments.map((moment) => moment.cameraRole);
-  const conceptId = resolveConcept(roles, takes.length);
-  const concept = IMMERSIVE_DIRECTOR_CONCEPTS[conceptId];
-  const finalMoment = input.plan.moments[input.plan.moments.length - 1];
+  const concept = resolveImmersiveDirectorConcept(roles, takes.length);
   const spatialAnchors = input.plan.moments.map((moment) => moment.spatialAnchor);
   const sceneNames = input.sceneResolution.resolvedMoments.map((moment) => moment.sceneName);
   const worldPresence = resolvedWorldPresenceDescription(
     input.sceneResolution.locationWorld?.id ?? null,
     input.sceneResolution.resolvedMoments.map((moment) => moment.sceneId),
   );
+  const acousticBoundaryCrossed = takeTruth.some((take) => take.changesAcousticsZone);
+  const offScreenLabels = offScreenAnchorsOf(takeTruth).map((anchor) => spatialAnchorLabel(anchor));
+  const finalFacts = script.contracts[script.contracts.length - 1]?.worldStateAfter?.facts ?? {};
 
   return {
     schemaVersion: IMMERSIVE_DIRECTOR_SCRIPT_SCHEMA_VERSION,
     title: IMMERSIVE_DIRECTOR_TITLES[input.plan.topicId as keyof typeof IMMERSIVE_DIRECTOR_TITLES] ?? input.topicLabel,
-    format: `Immersive narrative · single continuous slice · ${takes.length} take${takes.length === 1 ? "" : "s"} / 5 moments`,
+    format: `Immersive narrative · one small real-time process · ${takes.length} take${takes.length === 1 ? "" : "s"} / ${input.plan.moments.length} moments`,
     durationSeconds: input.plan.durationSeconds,
     tone: resolveTone(takes, takes[takes.length - 1]?.cameraMovement ?? "locked_off"),
     creativeIdea: input.plan.storyIntent,
     directorConcept: `${concept.label}. ${concept.globalRule}`,
     cinematicDevice: concept.device,
-    filmStructure: input.plan.moments.map((moment, index) => (
-      `${index + 1}. ${PURPOSE_STRUCTURE_LABEL[moment.purpose]} — ${moment.whatHappens} (ends at ${BOUNDARY_NOTE[moment.completionBoundary]})`
-    )),
+    filmStructure: input.plan.moments.map((moment, index) => {
+      const line = `${index + 1}. ${PURPOSE_STRUCTURE_LABEL[moment.purpose]} — ${moment.whatHappens} (ends at ${BOUNDARY_NOTE[moment.completionBoundary]})`;
+      const isFinalBeat = index === input.plan.moments.length - 1;
+      return isFinalBeat && offScreenLabels.length > 0
+        ? `${line} The final camera stays inside; ${offScreenLabels.join(" and ")} continue only off-screen.`
+        : line;
+    }),
     character: [
       `Age: ${input.character.ageProfile ? `${input.character.ageProfile.ageMin}-${input.character.ageProfile.ageMax}` : "as written"}`,
       `Appearance: ${input.character.appearanceGroup?.label ?? "as written"}`,
       input.character.resolvedCharacterContext,
     ].filter(Boolean),
     takes,
-    ending: `${finalMoment.whatHappens} The local goal is ${input.plan.goalState === "COMPLETED" ? "complete" : input.plan.goalState.toLowerCase()}; the camera holds the final frame without a new beat.`,
+    ending: `${buildEnding(input, takeTruth)} The local goal is ${input.plan.goalState === "COMPLETED" ? "complete" : input.plan.goalState.toLowerCase()}.`,
     goalState: input.plan.goalState,
     global: {
-      spatialRoute: `${input.plan.spatialEnvelope.macroLocation} · ${spatialAnchors.join(" → ")} · ${sceneNames.join(" → ")}`,
+      // Director-facing route: places, not internal anchor ids. The internal
+      // version of the same route stays in the execution prompt and the plan.
+      spatialRoute: `${input.sceneResolution.locationWorld?.label ?? input.plan.spatialEnvelope.macroLocation} · ${humanReadableRoute(spatialAnchors)}${humanReadableScenes(sceneNames) ? ` · ${humanReadableScenes(sceneNames)}` : ""}`,
       visualLook: [
         `One lens family for the whole slice: ${input.cameraExecution.continuityProfile.focalRange}.`,
         `Camera side: ${input.cameraExecution.continuityProfile.cameraSide}. ${input.cameraExecution.continuityProfile.axisRule}`,
@@ -179,11 +252,14 @@ function buildDirectorScript(input: ImmersivePresentationInput): ImmersiveDirect
       soundPolicy: [
         ...sectionLines(script.compiledText, "GLOBAL EXECUTION RULES").filter((line) => /sound/i.test(line)),
         `Dominant world: ${input.sceneResolution.locationWorld?.label ?? "the current location"}, natural room tone and body-level sound only.`,
+        acousticBoundaryCrossed
+          ? "The same natural sound world attenuates across the camera boundary: the earlier space stays behind the character, and the space she has entered becomes the dominant room tone."
+          : "One continuous acoustic space holds for the whole sequence.",
       ].join(" "),
       productProtection: sectionLines(script.compiledText, "PRODUCT / REFERENCE RULES"),
       negatives: sectionLines(script.compiledText, "DO NOT"),
     },
-    executionPointer: "The Seedance execution prompt is generated separately from the same approved truth and remains unchanged.",
+    executionPointer: `The Seedance execution prompt is rendered from the same approved truth and stays consistent with it: ${takes.length} take${takes.length === 1 ? "" : "s"}, ${input.plan.moments.length} Moments, ${spatialAnchorLabel(takeTruth[takeTruth.length - 1]?.location ?? "UNKNOWN")}, and the same declared final state.`,
   };
 }
 
@@ -214,11 +290,13 @@ function buildFormattedText(script: ImmersiveDirectorScript) {
 
   for (const take of script.takes) {
     lines.push(`TAKE ${take.takeIndex + 1} — ${TAKE_ROLE_LABEL[take.takeRole]}`);
-    lines.push(take.takeIndex === 0
-      ? `Opening camera state: ${take.cameraMovement.replace(/_/g, " ")}, ${take.framingState} framing.`
-      : take.motivation
-        ? `Camera change: ${take.motivation}.`
-        : "Camera change: not motivated; the previous state is kept.");
+    lines.push(`Opening camera state: ${take.openingCameraState}.`);
+    if (take.takeIndex > 0) {
+      lines.push(take.cameraBoundary
+        ? `Camera boundary: ${take.cameraBoundary}`
+        : "Camera boundary: not motivated; the previous state is kept.");
+      take.inheritance.forEach((line) => lines.push(`Continues: ${line}`));
+    }
     lines.push("");
     for (const moment of take.moments) {
       lines.push(

@@ -60,6 +60,52 @@ export const IMMERSIVE_DIRECTOR_CONCEPTS: Record<ImmersiveDirectorConceptId, {
   },
 };
 
+// The Director Concept owns observation attitude, photography principles, and
+// framing tendency only. It never owns cut authority. When the approved Take Plan
+// already contains a motivated camera boundary, the concept reads that boundary
+// instead of denying it.
+export const IMMERSIVE_DIRECTOR_CONCEPT_MULTI_TAKE: Record<ImmersiveDirectorConceptId, {
+  globalRule: string;
+  device: string;
+}> = {
+  ONE_CONTINUOUS_OBSERVATION: {
+    globalRule: "The camera is placed once and held for as long as one observation position can honestly cover; inside a Take it is never re-framed, and the only admitted camera boundary is the one the Take Plan already approved.",
+    device: "One observation principle carried across the declared Takes: the frame waits inside each Take and continues through the single approved boundary.",
+  },
+  WAITING_FRAME_ENTRY: {
+    globalRule: "The camera is in position before the first Moment and the person enters an unchanged frame; the only admitted camera boundary is the one the Take Plan already approved.",
+    device: "An already-waiting frame carried across the declared Takes, entered rather than built around the person.",
+  },
+  FOLLOW_THEN_SETTLE: {
+    globalRule: "The camera follows only while the person is travelling and stops when the person stops; a new observation position is admitted only at the approved camera boundary the Take Plan declares.",
+    device: "A restrained follow carried across the declared Takes that ends with the person, never a chase and never an unapproved setup.",
+  },
+  NATURAL_PARTIAL_VIEW: {
+    globalRule: "Part of the action may leave the frame through the person's own movement; the camera never moves to recover it, and a new observation position is admitted only at the approved camera boundary in the Take Plan.",
+    device: "Natural partial visibility caused by the body, the space, or the frame edge, carried across the declared Takes — never an insert shot.",
+  },
+  OBSERVED_LIFE_SLICE: {
+    globalRule: "The camera waits, settles onto the person, and holds. It never cuts to a new setup inside a Take; the only admitted camera boundary is the one the Take Plan already approved.",
+    device: "One waiting observation carried across the declared Takes: the frame holds, then continues into the single approved camera boundary without any other cut.",
+  },
+};
+
+export function resolveImmersiveDirectorConcept(
+  roles: string[],
+  takeCount: number
+): { id: ImmersiveDirectorConceptId; label: string; globalRule: string; device: string } {
+  let id: ImmersiveDirectorConceptId;
+  if (roles.includes("PARTIAL_OBSERVATION")) id = "NATURAL_PARTIAL_VIEW";
+  else if (takeCount === 1 && roles.includes("WAITING_CAMERA")) id = "WAITING_FRAME_ENTRY";
+  else if (takeCount === 1) id = "ONE_CONTINUOUS_OBSERVATION";
+  else if (roles.includes("FOLLOWER")) id = "FOLLOW_THEN_SETTLE";
+  else id = "OBSERVED_LIFE_SLICE";
+  const base = IMMERSIVE_DIRECTOR_CONCEPTS[id];
+  if (takeCount === 1) return { id, ...base };
+  const multi = IMMERSIVE_DIRECTOR_CONCEPT_MULTI_TAKE[id];
+  return { id, label: base.label, globalRule: multi.globalRule, device: multi.device };
+}
+
 export const IMMERSIVE_TONE = {
   still: "Quiet, observational, continuous",
   moving: "Unhurried, moving, documentary",

@@ -1,6 +1,8 @@
 import type { NarrativePlan } from "../types";
 import type { ResolvedMoment, SceneResolverOutput } from "../scene-resolver";
 import type { ProductPresenceMoment, ProductPresenceOutput } from "../product-presence";
+import type { SpatialAnchorId } from "../spatial/types";
+import { acousticsZoneOf } from "../final-consistency/truth";
 import { buildSoundWorldQc } from "./qc";
 import { SOUND_WORLD_RULES } from "./rules";
 import { topicMatches } from "../topic-catalog";
@@ -52,14 +54,31 @@ function includesAny(text: string, pattern: RegExp) {
   return pattern.test(text);
 }
 
-function environmentCues(sceneId: string) {
-  if (sceneId.includes("bookstore")) return ["quiet bookstore room tone", "faint street sound through the glazing"];
+// Sound follows the current spatial state. A Moment that has already crossed into
+// an interior space never keeps the exterior room tone as its dominant world, and
+// the crossing Moment carries the attenuation instead of a hard switch.
+function environmentCues(sceneId: string, anchor: SpatialAnchorId, previousAnchor: SpatialAnchorId | null) {
+  const zone = acousticsZoneOf(anchor);
+  const previousZone = previousAnchor ? acousticsZoneOf(previousAnchor) : null;
+  const crossesBoundary = Boolean(previousZone && previousZone !== "UNKNOWN" && zone !== "UNKNOWN" && previousZone !== zone);
+  if (crossesBoundary) {
+    return [previousZone === "EXTERIOR"
+      ? "the same natural sound world crossing the doorway: hallway tone giving way to interior room tone"
+      : "the same natural sound world opening out at the doorway: interior room tone giving way to exterior ambience"];
+  }
+  if (sceneId.includes("bookstore")) {
+    return zone === "INTERIOR"
+      ? ["quiet bookstore room tone", "faint street sound through the glazing"]
+      : ["quiet street outside the bookshop glazing", "faint bookstore room tone beyond the glass"];
+  }
   if (sceneId.includes("cafe")) return ["quiet cafe room tone", "restrained background voices", "soft counter appliance hum"];
   if (sceneId.includes("office")) return ["building entrance room tone", "distant street ambience"];
   if (sceneId.includes("grocery")) return ["neighborhood-shop room tone", "distant street ambience"];
   if (sceneId.includes("building-exit")) return ["open residential street air", "distant city ambience"];
   if (sceneId.includes("home") || sceneId.includes("entryway") || sceneId.includes("returning")) {
-    return ["apartment hallway room tone", "faint exterior sound through the door"];
+    return zone === "INTERIOR"
+      ? ["quiet home interior room tone", "the hallway heard only as faint residual beyond the doorway"]
+      : ["apartment hallway room tone", "faint exterior sound through the door"];
   }
   return ["quiet room tone"];
 }
@@ -89,13 +108,24 @@ function objectCues(text: string) {
   return cues;
 }
 
-function footwearCues(sceneId: string, text: string) {
+function footwearCues(sceneId: string, text: string, anchor: SpatialAnchorId) {
   if (!FOOT_CONTACT_PATTERN.test(text)) return [];
   const materials = SCENE_MATERIALS[sceneId] ?? [];
+  // The Scene material list describes a whole location world, which may contain
+  // both the exterior corridor and the interior it leads into. The Moment's own
+  // spatial state decides which surface she is actually standing on.
+  if (acousticsZoneOf(anchor) === "INTERIOR") {
+    if (materials.includes("wood")) return ["soft outsole contact on wood", "muted heel settlement"];
+    if (materials.includes("tile")) return ["quiet outsole contact on tile", "brief weight shift"];
+    return ["quiet outsole contact on the interior floor", "muted heel settlement"];
+  }
   if (materials.includes("wood")) return ["soft outsole contact on wood", "muted heel settlement"];
   if (materials.includes("pavement")) return ["short outsole step on pavement", "natural heel contact"];
   if (materials.includes("stone")) return ["short dry outsole contact on stone", "quiet heel settlement"];
-  return ["quiet outsole contact on the interior floor", "brief weight shift"];
+  if (materials.includes("tile")) return ["quiet outsole contact on tile", "brief weight shift"];
+  // The surface is not declared by the Scene: an outside walk never borrows an
+  // interior floor.
+  return ["short outsole step on outdoor ground", "natural heel contact"];
 }
 
 function paletteFor(
@@ -110,13 +140,14 @@ function paletteFor(
 function selectCues(
   rule: SoundWorldRule,
   moment: ResolvedMoment,
-  dominant: SoundCategory
+  dominant: SoundCategory,
+  previousAnchor: SpatialAnchorId | null
 ) {
   const generated = {
-    ENVIRONMENT: environmentCues(moment.sceneId),
+    ENVIRONMENT: environmentCues(moment.sceneId, moment.spatialAnchor, previousAnchor),
     HUMAN: humanCues(moment.originalWhatHappens),
     OBJECT: objectCues(moment.originalWhatHappens),
-    FOOTWEAR: footwearCues(moment.sceneId, moment.originalWhatHappens),
+    FOOTWEAR: footwearCues(moment.sceneId, moment.originalWhatHappens, moment.spatialAnchor),
   };
   const categories: Array<Exclude<SoundCategory, "SILENCE">> = ["ENVIRONMENT", "HUMAN", "OBJECT", "FOOTWEAR"];
   const preferredOrder = dominant === "SILENCE"
@@ -161,10 +192,11 @@ function selectCues(
 function preserveMoment(
   rule: SoundWorldRule,
   moment: ResolvedMoment,
-  index: number
+  index: number,
+  previousAnchor: SpatialAnchorId | null
 ): SoundMoment {
   const baseline = rule.dominantBaseline[index] ?? "ENVIRONMENT";
-  const selected = selectCues(rule, moment, baseline);
+  const selected = selectCues(rule, moment, baseline, previousAnchor);
   const adjusted = selected.dominantSound !== baseline;
   return {
     momentIndex: moment.momentIndex,
@@ -269,7 +301,12 @@ export function planSoundWorld(
         failureReasons.push(`INVALID_DOMINANT_SOUND: Moment ${index + 1} has an invalid baseline dominant sound.`);
         return;
       }
-      moments.push(preserveMoment(rule, moment, index));
+      moments.push(preserveMoment(
+        rule,
+        moment,
+        index,
+        index > 0 ? input.resolvedMoments[index - 1]?.spatialAnchor ?? null : null
+      ));
       if (presence.originalWhatHappens !== moment.originalWhatHappens || presence.sceneId !== moment.sceneId) {
         failureReasons.push(`NARRATIVE_NOT_PRESERVED: Moment ${index + 1} differs between resolved Scene and Product Presence.`);
       }

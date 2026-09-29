@@ -219,6 +219,45 @@ try {
       && store.modelFacingScript.compiledText.includes("The last approaching step eases into this real stop")
   );
 
+  // Emotional semantic leak: the negative guard alone is not enough protection.
+  // Execution-level semantics must not carry the wording that makes a model
+  // perform a relaxation beat in the first place.
+  const executionSemanticScope = (outcome) => [
+    ...outcome.modelFacingScript.moments.map((moment) => `${moment.whatHappens} ${moment.bodyBehavior} ${moment.cameraObservation} ${moment.naturalSound.join("; ")}`),
+    outcome.presentation.directorScript.ending,
+    outcome.modelFacingScript.compiledText,
+  ].join("\n");
+  const semanticLeak = (text) => [
+    /\brelax(?:ed|es|ing|ation)?\b/i,
+    /\brelie(?:f|ved|ve)\b/i,
+    /\bunwind(?:ing|s)?\b/i,
+    /\bdecompress(?:ing|es|ion)?\b/i,
+    /\bsoften(?:s|ed|ing)?\b|\bsoftening\b/i,
+    /\bless held\b/i,
+    /\bsettle into comfort\b|\bcomfortable state\b/i,
+    /\bemotional release\b/i,
+  ].filter((pattern) => pattern.test(text)).length;
+  const breathLeak = (text) => (text.match(/\bsigh(?:s|ed|ing)?\b|\bbreath(?:e|es|ing|s)?\b/gi) ?? []);
+  const exhaleLeak = (text) => (text.match(/\bexhal(?:e|es|ed|ing|ation)\b|\bdeep\s+breath\b|\bbreathes?\s+out\b/gi) ?? []);
+  const gestureLeak = (text) => (text.match(/\bshoulders?\s+(?:drop|relax|release|sink)\w*|\bsmiles?\b|\beyes?\s+clos\w+|\bself-?soothing\b|\brelief\s+gesture\b/gi) ?? []);
+
+  check(
+    "11",
+    "execution semantics carry no relaxation / relief vocabulary",
+    every((outcome) => semanticLeak(executionSemanticScope(outcome)) === 0)
+  );
+  check(
+    "12",
+    "execution semantics carry no sigh or breath priming",
+    every((outcome) => breathLeak(executionSemanticScope(outcome)).length === 0
+      && exhaleLeak(executionSemanticScope(outcome)).length === 0)
+  );
+  check(
+    "13",
+    "execution semantics carry no performed emotional gesture",
+    every((outcome) => gestureLeak(executionSemanticScope(outcome)).length === 0)
+  );
+
   const failures = checks.filter((entry) => entry.status === "FAIL");
   console.log(JSON.stringify({ status: failures.length ? "FAIL" : "PASS", checks, failures }, null, 2));
   if (failures.length) process.exitCode = 1;

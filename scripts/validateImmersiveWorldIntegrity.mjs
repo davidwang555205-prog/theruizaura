@@ -62,23 +62,32 @@ try {
   const bookstore = outcomes.get("bookstore_browse");
   const walk = outcomes.get("weekend_walk");
 
-  const productRoleRule = /The uploaded footwear reference applies only to the protagonist's worn shoes/i;
+  // Product truth is a single exclusive branch: with a confirmed reference the
+  // reference is role-bound to the protagonist, and with zero confirmed
+  // references no uploaded-reference claim may appear at all.
+  const protagonistFootwearRule = /The protagonist's own worn shoes are her own ordinary footwear and not a product reference/i;
+  const uploadedReferenceRule = /The uploaded footwear reference applies only to the protagonist's worn shoes/i;
+  const productRoleRule = (text) => uploadedReferenceRule.test(text) || protagonistFootwearRule.test(text);
   check(
     "01",
     "footwear reference binds only to protagonist worn product",
     allOutcomes.every((outcome) => (
       outcome.productPresence.scopeTarget === "PROTAGONIST_WORN_PRODUCT"
       && outcome.productPresence.curve.every((moment) => moment.scopeTarget === "PROTAGONIST_WORN_PRODUCT")
-      && productRoleRule.test(outcome.modelFacingScript.compiledText)
+      && productRoleRule(outcome.modelFacingScript.compiledText)
+      && (outcome.modelFacingScript.diagnostics.referenceCount > 0
+        ? uploadedReferenceRule.test(outcome.modelFacingScript.compiledText)
+        : !uploadedReferenceRule.test(outcome.modelFacingScript.compiledText))
     ))
   );
   check(
     "02",
     "product cannot propagate to world merchandise",
     allOutcomes.every((outcome) => (
-      /Do not reproduce, echo, merchandise, display, advertise, print, place, or duplicate the referenced footwear anywhere else in the environment/i
+      /Do not reproduce, echo, merchandise, display, advertise, print, place, or duplicate (?:the referenced footwear|that footwear) anywhere else in the environment/i
         .test(outcome.modelFacingScript.compiledText)
       && outcome.modelFacingScript.compiledText.includes("The location keeps its own real-world merchandise and objects")
+      && !/The uploaded footwear reference applies only/i.test(outcome.modelFacingScript.compiledText)
     ))
   );
   const bookstoreTruth = locationWorldTruthOf("BOOKSTORE_VISIT");

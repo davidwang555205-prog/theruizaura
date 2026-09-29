@@ -86,6 +86,8 @@
     "validate:commercial-authority-consolidation": "node scripts/validateCommercialAuthorityConsolidation.mjs",
     "validate:commercial-final-renderers": "node scripts/validateCommercialFinalRenderers.mjs",
     "export:commercial-final-renderer-acceptance": "node scripts/exportCommercialFinalRendererAcceptance.mjs",
+    "validate:immersive-final-consistency": "node scripts/validateImmersiveFinalConsistency.mjs",
+    "export:immersive-final-consistency-acceptance": "node scripts/exportImmersiveFinalConsistencyAcceptance.mjs",
     "export:commercial-v1.5-seedance-acceptance-v2": "node scripts/exportCommercialV15SeedanceAcceptance.mjs --v2",
     "export:commercial-v1.5-seedance-acceptance-v3": "node scripts/exportCommercialV15SeedanceAcceptance.mjs --v3",
     "validate:fmcg": "node scripts/validateFmcgCategory.mjs",

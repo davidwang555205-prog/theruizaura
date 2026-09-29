@@ -36,6 +36,11 @@ export type ImmersivePresentationTake = {
   takeRole: ImmersiveTakeRole;
   cameraMovement: ModelFacingCameraState["movementState"];
   framingState: string;
+  // Every Take, not only the first, exposes the camera state it opens on plus the
+  // approved state it inherits, so no renderer has to borrow the previous Take.
+  openingCameraState: string;
+  inheritance: string[];
+  cameraBoundary: string | null;
   motivation: string | null;
   moments: ImmersivePresentationMoment[];
 };

@@ -118,7 +118,8 @@ try {
   check(
     "09",
     "product-world shape isolation remains",
-    bookstoreText.includes("The uploaded footwear reference applies only to the protagonist's worn shoes")
+    bookstoreText.includes("The protagonist's own worn shoes are her own ordinary footwear and not a product reference")
+      && !/The uploaded footwear reference applies only/i.test(bookstoreText)
       && bookstoreText.includes("The window and shelf displays contain books and reading material, never footwear")
   );
   const stopMoment = bookstore.modelFacingScript.moments.find((moment) => /WINDOW STOP/i.test(moment.title));
@@ -146,7 +147,32 @@ try {
   check("13", "ENTER_STORE remains", bookstoreEvents.includes("ENTER_STORE"));
 
   const previousCafe = await readFile(join(previous, "A-cafe", "compiled-final-script.txt"), "utf8");
-  check("14", "Cafe behavior unchanged", previousCafe === cafe.modelFacingScript.compiledText);
+  const previousCafeFinalState = await readFile(join(previous, "A-cafe", "final-state.json"), "utf8");
+  const previousCafeStateTimeline = await readFile(join(previous, "A-cafe", "state-timeline.json"), "utf8");
+  // The frozen Cafe artifact is a renderer-prose snapshot. This gate reads the same
+  // frozen Cafe truth through the final script instead of freezing its wording, and
+  // it adds the final-output consolidation obligations.
+  const cafeTakeTwoOpening = cafe.modelFacingScript.moments[1];
+  check(
+    "14",
+    "Cafe final script keeps its frozen behavior and the consolidated renderer contract",
+    previousCafe.includes("This is an actively operating cafe, not an empty set")
+      && cafe.modelFacingScript.compiledText.includes("This is an actively operating cafe, not an empty set")
+      && JSON.stringify(cafe.modelFacingScript.contracts.at(-1).worldStateAfter) === JSON.stringify(JSON.parse(previousCafeFinalState))
+      && JSON.stringify(cafe.modelFacingScript.contracts.map((contract) => ({
+        moment: contract.momentIndex + 1,
+        authority: contract.stateAuthority,
+        before: contract.worldStateBefore,
+        preconditionEvidence: contract.stateConflicts,
+        after: contract.worldStateAfter,
+      }))) === JSON.stringify(JSON.parse(previousCafeStateTimeline))
+      && /opens on its own approved camera state/i.test(cafeTakeTwoOpening.cameraObservation)
+      && cafe.modelFacingScript.compiledText.includes("beyond the declared Take Plan")
+      && (cafe.modelFacingScript.compiledText.includes("The sequence ends on the state the last action has already reached")
+        || cafe.modelFacingScript.compiledText.includes("She remains in the same seat reached by the last action; nothing else begins."))
+      && !/The uploaded footwear reference applies only/i.test(cafe.modelFacingScript.compiledText)
+      && (cafe.modelFacingScript.compiledText.match(/No product reference is confirmed/g) ?? []).length >= 1
+  );
 
   const frozenAmbientActivity = {
     CAFE_VISIT: ["barista is naturally working behind the counter", "a few unrelated customers occupy the seating area or pass through the depth of the room", "one existing customer shifting a chair", "a person crossing deeper background", "cups being placed and ordinary cafe circulation"],

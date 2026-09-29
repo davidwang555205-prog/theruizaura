@@ -162,7 +162,8 @@ try {
   check(
     "15",
     "Bookstore product-world isolation remains unchanged",
-    cameraText("bookstore_browse").includes("The uploaded footwear reference applies only to the protagonist's worn shoes")
+    cameraText("bookstore_browse").includes("The protagonist's own worn shoes are her own ordinary footwear and not a product reference")
+      && !/The uploaded footwear reference applies only/i.test(cameraText("bookstore_browse"))
       && cameraText("bookstore_browse").includes("The window and shelf displays contain books and reading material, never footwear")
       && cameraText("bookstore_browse").includes("shoe displays")
   );
