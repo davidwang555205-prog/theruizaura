@@ -194,10 +194,18 @@ export function CommercialFilmWorkspace({
     [referenceInput]
   );
   const currentRequest = useMemo(() => toRequest(draft, referenceInput), [draft, referenceInput]);
-  const outcome: CommercialFilmPipelineOutcome | null = useMemo(
-    () => (generatedRequest ? runCommercialFilmPipeline(generatedRequest) : null),
-    [generatedRequest]
-  );
+  const productionOutcome = useMemo(() => {
+    if (!generatedRequest) return null;
+    const baseOutcome = runCommercialFilmPipeline(generatedRequest);
+    if (baseOutcome.status !== "GENERATED") {
+      return { baseOutcome, creativeOutcome: null };
+    }
+    return {
+      baseOutcome,
+      creativeOutcome: runCommercialV14Pipeline(generatedRequest, baseOutcome),
+    };
+  }, [generatedRequest]);
+  const outcome: CommercialFilmPipelineOutcome | null = productionOutcome?.baseOutcome ?? null;
   const generated = outcome?.status === "GENERATED" ? outcome : null;
   const staleOutput = Boolean(
     generatedRequest && requestSignature(generatedRequest) !== requestSignature(currentRequest)
@@ -213,19 +221,25 @@ export function CommercialFilmWorkspace({
       : null,
     [finalScript, finalScriptReady, generated]
   );
-  const v14Outcome = useMemo(
-    () => generatedRequest ? runCommercialV14Pipeline(generatedRequest) : null,
-    [generatedRequest]
-  );
+  const v14Outcome = productionOutcome?.creativeOutcome ?? null;
   const v14Generated = v14Outcome?.status === "GENERATED" ? v14Outcome : null;
-  // Production binding: the workbench default script and copy sources are the V1.4 output.
+  // Production binding: the workbench default script and copy sources are the Final Execution renderers.
   const productionTreatment = v14Generated?.plan.creativeTreatment ?? null;
   const productionBrandSignOff = v14Generated?.plan.presentation.brandSignOff ?? null;
-  const productionDirectorScript = v14Generated?.plan.presentation.presentationScript ?? "";
-  const productionSeedancePrompt = v14Generated?.plan.v14CompiledText ?? "";
+  const productionDirectorScript = v14Generated?.plan.directorScript.text ?? "";
+  const productionSeedancePrompt = v14Generated?.plan.seedancePrompt.text ?? "";
   const productionReady = Boolean(
-    v14Generated && productionDirectorScript && productionSeedancePrompt
+    v14Generated
+    && v14Generated.plan.finalExecutionPlan.status === "VALID"
+    && v14Generated.plan.renderValidation.status === "VALID"
+    && productionDirectorScript
+    && productionSeedancePrompt
   );
+  const productionTakeCount = v14Generated?.plan.finalExecutionPlan.takeStructure.takes.length ?? 0;
+  const productionBeatCount = v14Generated?.plan.finalExecutionPlan.beats.length ?? 0;
+  const productionTakeSummary = productionTakeCount > 0
+    ? `${productionTakeCount} ${productionTakeCount === 1 ? "Take" : "Takes"} · ${productionBeatCount} Beats`
+    : "";
   // Legacy frozen baseline stays available, but never as the default copy source.
   const legacyDirectorScript = finalPresentation?.presentationScript ?? "";
   const legacySeedancePrompt = finalPresentation?.canonicalCompiledText ?? "";
@@ -249,7 +263,7 @@ export function CommercialFilmWorkspace({
       return;
     }
     await copyText(productionDirectorScript);
-    setStatus("已复制 V1.4 导演脚本。");
+    setStatus("已复制 Final Director Script。");
   };
 
   const copySeedancePrompt = async () => {
@@ -258,32 +272,32 @@ export function CommercialFilmWorkspace({
       return;
     }
     await copyText(productionSeedancePrompt);
-    setStatus("已复制 V1.4 Seedance Prompt。");
+    setStatus("已复制 Final Seedance Prompt。");
   };
 
   const copyLegacyDirectorScript = async () => {
     if (!legacyReady) {
-      setStatus("V1.3 frozen 导演脚本不可用。");
+    setStatus("Legacy 导演脚本不可用。");
       return;
     }
     await copyText(legacyDirectorScript);
-    setStatus("已复制 V1.3 frozen 导演脚本。");
+    setStatus("已复制 Legacy 导演脚本。");
   };
 
   const copyLegacySeedancePrompt = async () => {
     if (!legacyReady) {
-      setStatus("V1.3 frozen Seedance Prompt 不可用。");
+    setStatus("Legacy Seedance Prompt 不可用。");
       return;
     }
     await copyText(legacySeedancePrompt);
-    setStatus("已复制 V1.3 frozen Seedance Prompt。");
+    setStatus("已复制 Legacy Seedance Prompt。");
   };
 
   return (
     <section className="space-y-6">
       <header className="max-w-3xl space-y-2">
         <p className="text-xs uppercase tracking-[0.28em] text-aura-muted">
-          THERUIZ AURA · COMMERCIAL FILM V1
+          THERUIZ AURA · COMMERCIAL FILM
         </p>
         <h1 className="text-3xl font-semibold text-aura-charcoal">品牌广告片</h1>
         <p className="mt-1 text-xs uppercase tracking-[0.16em] text-aura-muted">
@@ -298,7 +312,7 @@ export function CommercialFilmWorkspace({
         <aside className="space-y-5 self-start rounded-[20px] bg-aura-porcelain/95 p-6 shadow-aura ring-1 ring-aura-beige/70">
           <div>
             <h2 className="text-lg font-semibold text-aura-charcoal">Commercial Input</h2>
-            <p className="mt-1 text-xs leading-5 text-aura-muted">V1 固定五种 Commercial Intent、固定 15 秒。</p>
+            <p className="mt-1 text-xs leading-5 text-aura-muted">五种 Commercial Intent，固定 15 秒。</p>
           </div>
           <Field label="Commercial Intent">
             <select
@@ -385,7 +399,7 @@ export function CommercialFilmWorkspace({
               data-testid="commercial-duration-value"
               className="rounded-[14px] border border-aura-beige bg-white/70 px-4 py-3 text-sm text-aura-muted"
             >
-              {DURATION_SECONDS} 秒 · V1 固定五镜头
+              {DURATION_SECONDS} 秒 · Final Execution Plan
             </div>
           </Field>
 
@@ -435,7 +449,7 @@ export function CommercialFilmWorkspace({
                 <p data-testid="commercial-script-summary" className="mt-1 text-xs text-aura-muted">
                   {!outcome && "尚未生成 Commercial Film 脚本"}
                   {outcome?.status === "BLOCKED" && "已阻断，未生成假产品广告"}
-                  {generated && `${generated.plan.commercialIntentLabel} · ${generated.plan.duration} 秒 · 5 Shots · ${generated.plan.cameraRhythm}`}
+                  {generated && `${generated.plan.commercialIntentLabel} · ${generated.plan.duration} 秒 · ${productionTakeSummary || `${productionBeatCount} Beats`}`}
                 </p>
               </div>
               {productionReady && (
@@ -460,7 +474,7 @@ export function CommercialFilmWorkspace({
               <div className="mt-4 space-y-4">
                 <div className="rounded-[14px] bg-aura-cream/55 p-4">
                   <p data-testid="commercial-production-label" className="text-[11px] uppercase tracking-[0.2em] text-aura-muted">
-                    Commercial Film · V1.4 · Production Script
+                    Commercial Film · Production Script
                   </p>
                   <p data-testid="commercial-director-title" className="text-lg font-semibold tracking-[0.08em] text-aura-charcoal">
                     {productionTreatment?.title ?? finalPresentation.directorScript.title}
@@ -470,7 +484,7 @@ export function CommercialFilmWorkspace({
                   </p>
                   <div className="mt-4 grid gap-3 text-xs sm:grid-cols-3">
                     <p className="text-aura-muted"><b className="text-aura-charcoal">Duration</b><span className="mt-1 block">{v14Generated?.plan.basePlan.duration ?? finalPresentation.directorScript.durationSeconds} seconds</span></p>
-                    <p className="text-aura-muted"><b className="text-aura-charcoal">Format</b><span className="mt-1 block">Commercial film · V1.4 production script</span></p>
+                    <p className="text-aura-muted"><b className="text-aura-charcoal">Format</b><span className="mt-1 block">Commercial Film · Final Execution Plan</span></p>
                     <p className="text-aura-muted"><b className="text-aura-charcoal">Tone</b><span className="mt-1 block">{finalPresentation.directorScript.tone}</span></p>
                   </div>
                   <div className="mt-4 grid gap-3 text-xs lg:grid-cols-2">
@@ -524,15 +538,15 @@ export function CommercialFilmWorkspace({
                     className={quietButtonClass}
                     onClick={() => setTechnicalExpanded((value) => !value)}
                   >
-                    {technicalExpanded ? "收起 V1.4 技术执行稿" : "查看 V1.4 技术执行稿"}
+                    {technicalExpanded ? "收起最终 Seedance Prompt" : "查看最终 Seedance Prompt"}
                   </button>
                 </div>
 
                 {technicalExpanded && (
                   <div className="rounded-[14px] bg-white/75 p-4 ring-1 ring-aura-beige/70">
                     <div className="flex flex-wrap items-center justify-between gap-2">
-                      <b className="text-sm text-aura-charcoal">V1.4 Seedance Execution Prompt</b>
-                      <span className="text-[11px] text-aura-muted">V1.4 production source · no logo drawn or overlaid</span>
+                      <b className="text-sm text-aura-charcoal">Final Seedance Prompt</b>
+                      <span className="text-[11px] text-aura-muted">Final Execution Plan source · no logo drawn or overlaid</span>
                     </div>
                     <pre
                       data-testid="commercial-script-output"
@@ -548,10 +562,10 @@ export function CommercialFilmWorkspace({
                   className="rounded-[14px] bg-aura-porcelain/60 p-4 ring-1 ring-aura-beige/60"
                 >
                   <summary className="cursor-pointer text-xs font-medium text-aura-muted">
-                    Legacy / Frozen Baseline · V1.3（非默认生产来源）
+                    Legacy / Frozen Baseline（非默认生产来源）
                   </summary>
                   <p className="mt-3 text-[11px] leading-5 text-aura-muted">
-                    V1.3 保持 frozen baseline：canonical hash、presentationScript、canonicalCompiledText 与人工验收记录均未改动，仅供查看与回归。
+                    Legacy canonical output remains frozen for regression and comparison only.
                   </p>
                   <div className="mt-3 flex flex-wrap gap-2">
                     <button
@@ -560,7 +574,7 @@ export function CommercialFilmWorkspace({
                       className={quietButtonClass}
                       onClick={copyLegacyDirectorScript}
                     >
-                      复制 V1.3 frozen 导演脚本
+                      复制 Legacy 导演脚本
                     </button>
                     <button
                       type="button"
@@ -568,7 +582,7 @@ export function CommercialFilmWorkspace({
                       className={quietButtonClass}
                       onClick={copyLegacySeedancePrompt}
                     >
-                      复制 V1.3 frozen Seedance Prompt
+                      复制 Legacy Seedance Prompt
                     </button>
                   </div>
                   <pre
@@ -594,27 +608,36 @@ export function CommercialFilmWorkspace({
             {status && <p role="status" className="mt-3 text-xs text-aura-muted">{status}</p>}
           </section>
 
-          {generated && (
+          {generated && v14Generated && (
             <section className="rounded-[20px] bg-white/70 p-5 ring-1 ring-aura-beige/70">
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <div>
-                  <h2 className="text-lg font-semibold text-aura-charcoal">5 Shot Architecture</h2>
-                  <p className="mt-1 text-xs text-aura-muted">Semantic roles, not five unrelated compositions.</p>
+                  <h2 className="text-lg font-semibold text-aura-charcoal">Take / Beat Architecture</h2>
+                  <p className="mt-1 text-xs text-aura-muted">Takes are physical photographic units. Beats are temporal and visual phases inside them.</p>
                 </div>
                 <span className="rounded-full bg-aura-cream px-3 py-1 text-xs text-aura-muted ring-1 ring-aura-beige/70">
-                  {generated.plan.productVisibilityPlan.readableShotIndexes.length} product-readable shots
+                  Renderer {v14Generated.plan.renderValidation.status}
                 </span>
               </div>
-              <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
-                {generated.plan.shotArchitecture.shots.map((shot) => (
-                  <article key={shot.role} className="rounded-[12px] bg-aura-cream/55 p-4">
-                    <div className="flex items-center justify-between gap-3">
-                      <b className="text-sm text-aura-charcoal">Shot {shot.shotIndex + 1} · {shot.role}</b>
-                      <span className="text-[11px] text-aura-muted">{shot.timeRange.startSecond}-{shot.timeRange.endSecond}s</span>
+              <div className="mt-4 space-y-3">
+                {v14Generated.plan.finalExecutionPlan.takeStructure.takes.map((take) => (
+                  <article key={take.takeIndex} className="rounded-[12px] bg-aura-cream/55 p-4">
+                    <div className="flex flex-wrap items-center justify-between gap-3">
+                      <b className="text-sm text-aura-charcoal">Take {take.takeIndex + 1}</b>
+                      <span className="text-[11px] text-aura-muted">
+                        {take.startSecond}-{take.endSecond}s · {take.shotIndexes.length} Beats
+                      </span>
                     </div>
-                    <p className="mt-2 text-xs leading-5 text-aura-muted">{shot.semanticPurpose}</p>
-                    <p className="mt-2 text-[11px] font-medium text-aura-charcoal">{shot.productVisibility}</p>
-                    <p className="mt-1 text-[11px] leading-5 text-aura-muted">{shot.spatialAnchor}</p>
+                    <div className="mt-3 flex flex-wrap gap-2">
+                      {take.shotIndexes.map((beatIndex) => {
+                        const beat = v14Generated.plan.finalExecutionPlan.beats.find((entry) => entry.beatIndex === beatIndex);
+                        return (
+                          <span key={beatIndex} className="rounded-full bg-white/80 px-3 py-1 text-[11px] leading-5 text-aura-muted ring-1 ring-aura-beige/70">
+                            Beat {beatIndex + 1} · {beat?.productVisibility.toLowerCase() ?? "implied"}
+                          </span>
+                        );
+                      })}
+                    </div>
                   </article>
                 ))}
               </div>
@@ -652,13 +675,13 @@ export function CommercialFilmWorkspace({
                       </p>
                       <dl className="mt-4 grid gap-2 text-xs sm:grid-cols-2">
                         {[
-                          ["mainDirectorScriptSource", "V1.4"],
-                          ["mainSeedancePromptSource", "V1.4"],
-                          ["treatmentVersion", "V1.4.4"],
-                          ["creativeEngine", "FROZEN"],
-                          ["brandSignoff", productionBrandSignOff ? `V1.4 · ${productionBrandSignOff.mode}` : "V1.4"],
+                          ["mainDirectorScriptSource", "FINAL_EXECUTION_PLAN"],
+                          ["mainSeedancePromptSource", "FINAL_EXECUTION_PLAN"],
+                          ["creativeEngine", "CONSOLIDATED"],
+                          ["renderValidation", v14Generated?.plan.renderValidation.status ?? "BLOCKED"],
+                          ["brandSignoff", productionBrandSignOff ? productionBrandSignOff.mode : "NO_FILM_LINE"],
                           ["brandSignoffAuthority", productionBrandSignOff?.authority ?? "GENERATED"],
-                          ["v13Baseline", "LEGACY_FROZEN_BASELINE"],
+                          ["legacyOutput", "LEGACY_FROZEN_BASELINE"],
                         ].map(([label, value]) => (
                           <div key={label} className="rounded-[12px] bg-aura-cream/55 p-3">
                             <dt className="font-medium text-aura-charcoal">{label}</dt>
@@ -751,7 +774,7 @@ export function CommercialFilmWorkspace({
                     </section>
                     {v14Generated && <CreativeDirectingPanel result={v14Generated} />}
                     <section className="rounded-[16px] bg-white/70 p-5 ring-1 ring-aura-beige/70">
-                      <h3 className="text-base font-semibold text-aura-charcoal">V1.3 Visual Acceptance</h3>
+                      <h3 className="text-base font-semibold text-aura-charcoal">Visual Acceptance</h3>
                       <p className="mt-1 text-xs text-aura-muted">
                         12 canonical cases exported for external Seedance review. No video result is inferred by this workspace.
                       </p>

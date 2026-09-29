@@ -6,6 +6,21 @@ import type {
 import type { CommercialFilmPipelineGenerated } from "../pipeline";
 import type { CommercialDirectorConceptId } from "../director-concept/types";
 import type { CommercialBrandSignOff } from "../brand-signoff/types";
+import type { CommercialFinalExecutionPlan } from "../final-execution/types";
+import type {
+  CommercialProductRevealContract,
+  CommercialProductVisibilityTimelineBeat,
+} from "../product-visibility/types";
+import type {
+  CommercialAuthorityConsolidationBlockedCode,
+  CommercialAuthorityConsolidationGenerated,
+  CommercialAuthorityConsolidationOutcome,
+} from "../authority-consolidation/types";
+import type {
+  CommercialFinalDirectorScript,
+  CommercialFinalRenderValidation,
+  CommercialFinalSeedancePrompt,
+} from "../final-renderers/types";
 
 export const COMMERCIAL_CREATIVE_DIRECTING_SCHEMA_VERSION =
   "commercial-film/creative-directing-v1.4" as const;
@@ -121,6 +136,7 @@ export type CommercialCreativeTreatmentQcCode =
   | "SIGNATURE_EVENT_MISSING"
   | "DEVICE_MECHANICAL_REPETITION"
   | "DEVICE_CARRIER_COLLAPSE"
+  | "DEVICE_CARRIER_SCENE_MISMATCH"
   | "DEVICE_ARC_FLAT"
   | "STRUCTURE_FORCED_OVER_CONCEPT"
   | "SHOT_ROLE_TEMPLATE_COLLAPSE"
@@ -133,6 +149,8 @@ export type CommercialCreativeTreatmentQcCode =
   | "ENDING_IMAGE_ABSTRACT"
   | "ENDING_DUPLICATES_HERO"
   | "ENDING_NEW_UNRELATED_BEAT"
+  | "ENDING_SUBJECT_STATE_CONFLICT"
+  | "ENDING_DISAPPEAR_OBJECT_UNRESOLVED"
   | "GENERIC_COMMERCIAL_ACTION_CHAIN"
   | "CREATIVE_TREATMENT_SEMANTIC_CLONE"
   | "CREATIVE_PROPOSITION_SEMANTIC_CLONE"
@@ -207,6 +225,15 @@ export type CommercialCreativeTreatment = {
   failureReasons?: string[];
 };
 
+export type CommercialCreativeTreatmentAuthorityInput = {
+  productVisibilityTimeline: CommercialProductVisibilityTimelineBeat[];
+  revealContract: CommercialProductRevealContract;
+  primaryResource: {
+    id: string;
+    label: string;
+  } | null;
+};
+
 export type CommercialV14Presentation = {
   canonicalCompiledText: string;
   v14CompiledText: string;
@@ -220,10 +247,16 @@ export type CommercialV14Plan = {
   schemaVersion: typeof COMMERCIAL_CREATIVE_DIRECTING_SCHEMA_VERSION;
   plannerVersion: typeof COMMERCIAL_CREATIVE_DIRECTING_VERSION;
   basePlan: CommercialFilmPlan;
+  consolidatedPlan: CommercialFilmPlan;
   creativeTreatment: CommercialCreativeTreatment;
   canonicalCompiledText: string;
   v14CompiledText: string;
+  finalExecutionPlan: CommercialFinalExecutionPlan;
+  directorScript: CommercialFinalDirectorScript;
+  seedancePrompt: CommercialFinalSeedancePrompt;
+  renderValidation: CommercialFinalRenderValidation;
   presentation: CommercialV14Presentation;
+  authorityConsolidation: CommercialAuthorityConsolidationGenerated;
 };
 
 export type CommercialV14PipelineGenerated = {
@@ -237,11 +270,17 @@ export type CommercialV14PipelineGenerated = {
     seedanceExtension: "GENERATED";
     presentation: "GENERATED";
   };
+  authorityConsolidation: CommercialAuthorityConsolidationOutcome;
 };
 
 export type CommercialV14PipelineBlocked = {
   status: "BLOCKED";
-  code: "V13_BASELINE_BLOCKED" | "CREATIVE_DIRECTING_FAILED";
+  code:
+    | "V13_BASELINE_BLOCKED"
+    | "CREATIVE_DIRECTING_FAILED"
+    | CommercialAuthorityConsolidationBlockedCode
+    | "FINAL_EXECUTION_PLAN_BLOCKED"
+    | "FINAL_RENDER_VALIDATION_FAILED";
   reason: string;
   diagnostics: string[];
 };

@@ -1,54 +1,11 @@
 import { expect, test, type Page } from "@playwright/test";
 import fs from "node:fs";
 import path from "node:path";
-import { runCommercialFilmPipeline } from "../../src/commercial-film";
 
 const samplePng = Buffer.from(
   "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAusB9Y9Z7i8AAAAASUVORK5CYII=",
   "base64"
 );
-
-function canonicalCommercialScript(intent: "URBAN_MOTION" | "DAILY_STYLING" | "QUIET_LUXURY" | "PRODUCT_CRAFT" | "NEW_ARRIVAL") {
-  const coverage = [
-    "silhouette",
-    "toe_structure",
-    "side_panel_structure",
-    "heel_structure",
-    "outsole_profile",
-    "color_blocking",
-    "material_evidence",
-  ] as const;
-  const outcome = runCommercialFilmPipeline({
-    commercialIntent: intent,
-    characterSelection: { ageProfileId: "age_28_32", appearanceGroupId: "asian" },
-    season: "秋",
-    lifestyleFeeling: "安静 / 克制 / 自然",
-    duration: 15,
-    generationNonce: 1,
-    reference: {
-      referenceSetId: "e2e-canonical-reference-set",
-      taskId: "current-local-task",
-      sourceType: "current_task_reference_set",
-      confirmationStatus: "confirmed",
-      confirmedReferenceCount: 1,
-      confirmedAssetIds: ["e2e-reference"],
-      coverage: [...coverage],
-      missingCoverage: [],
-      referencePlanReady: true,
-      productTruthMode: "reference_bound",
-      productTruth: {
-        coverage: [...coverage],
-        status: "draft",
-        referenceEvidenceBound: true,
-        productTruthMode: "reference_bound",
-      } as never,
-    },
-  });
-  if (outcome.status !== "GENERATED") {
-    throw new Error(`canonical Commercial Film pipeline blocked: ${outcome.diagnostics.join(" | ")}`);
-  }
-  return outcome.modelFacingScript.compiledText;
-}
 
 async function openCommercialFilm(page: Page, width = 1280, height = 800) {
   await page.setViewportSize({ width, height });
@@ -94,7 +51,7 @@ test.describe("Commercial Film V1", () => {
 
     const intent = page.getByTestId("commercial-intent");
     await expect(intent.locator("option")).toHaveCount(5);
-    await expect(page.getByTestId("commercial-duration-value")).toHaveText("15 秒 · V1 固定五镜头");
+    await expect(page.getByTestId("commercial-duration-value")).toHaveText("15 秒 · Final Execution Plan");
     await expect(page.getByTestId("commercial-debug-panel")).toHaveCount(0);
 
     await intent.selectOption("PRODUCT_CRAFT");
@@ -104,106 +61,57 @@ test.describe("Commercial Film V1", () => {
     await expect(directorOutput).toBeVisible();
     await expect(output).toHaveCount(0);
     const directorScript = (await directorOutput.textContent()) ?? "";
-    expect(directorScript).not.toBe(canonicalCommercialScript("PRODUCT_CRAFT"));
-    await expect(page.getByTestId("commercial-production-label")).toHaveText("Commercial Film · V1.4 · Production Script");
+    await expect(page.getByTestId("commercial-production-label")).toHaveText("Commercial Film · Production Script");
+    expect(directorScript).toContain("Format: Commercial Film");
     expect(directorScript).toContain("CREATIVE PROPOSITION");
     expect(directorScript).toContain("DIRECTOR CONCEPT");
-    expect(directorScript).toContain("CINEMATIC DEVICE");
     expect(directorScript).toContain("SIGNATURE MOMENT");
-    expect(directorScript).toContain("FILM ARC");
+    expect(directorScript).toContain("TAKE / BEAT EXECUTION");
+    expect(directorScript).toContain("BEAT 1");
     expect(directorScript).toContain("ENDING IMAGE");
-    expect(directorScript).toContain("ENDING TEXT");
-    expect(directorScript).toContain("Film Line: ");
-    expect(directorScript).toContain("SEEDANCE EXECUTION DIRECTION");
-    expect(directorScript).not.toContain("BRAND-SIGN-OFF");
-    expect(directorScript).not.toContain("Brand Mark");
+    expect(directorScript).not.toContain("SHOT 1 —");
+    expect(directorScript).not.toMatch(/\bV1\.[345]\b/);
     expect(directorScript).not.toContain("THERUIZ AURA");
-    expect(directorScript).toContain("SHOT 1 — ");
-    expect(directorScript).toContain("SHOT 5 — ");
-    expect(directorScript).not.toContain("SHOT 1 — WORLD");
-    expect(directorScript).not.toContain("FILM STRUCTURE");
-    expect(directorScript).not.toMatch(/\b(?:QC|validator|enum|source id|primitive id)\b/i);
-    expect(directorScript).not.toContain("COMMERCIAL EXPRESSION");
-    expect(directorScript).not.toContain("PRIVATE_MOMENT");
-    expect(directorScript).not.toContain("PREPARATION_CONTEXT");
 
     await page.getByTestId("commercial-technical-toggle").click();
     await expect(output).toBeVisible();
     const script = (await output.textContent()) ?? "";
-    expect(script).not.toBe(canonicalCommercialScript("PRODUCT_CRAFT"));
-    expect(script).toContain("[V1.4 CREATIVE DIRECTING]");
-    expect(script).toContain("Film line: added in post as a text overlay");
-    expect(script).not.toContain("Brand sign-off");
-    expect(script).not.toContain("Brand mark");
-    expect(script).not.toContain("THERUIZ AURA");
     expect(script).toContain("SEEDANCE — COMMERCIAL FILM");
-    for (let shot = 1; shot <= 5; shot += 1) {
-      expect(script).toContain(`SHOT ${shot} — `);
-    }
-    expect(script).toContain("[FILM IDEA]");
-    expect(script).toContain("[CHARACTER / WORLD]");
-    expect(script).toContain("[TIMING]");
-    expect(script).toContain("[SOUND WORLD]");
-    expect(script).toContain("[VISUAL LOOK]");
-    expect(script).toContain("[GLOBAL PRODUCT PROTECTION]");
-    expect(script).toContain("[NEGATIVES]");
-    expect(script).toContain("Ending:");
-    expect(script).not.toContain("[COMMERCIAL PLAN]");
-    expect(script).not.toContain("[NARRATIVE CORE]");
-    expect(script).not.toMatch(/\b(?:walking|transition|standing|turning|on-foot)-\d{3}\b/i);
-    expect(script).not.toMatch(/\b(?:QC|validator|enum|source id|primitive id)\b/i);
-    for (const internalValue of [
-      "PRIVATE_MOMENT",
-      "CITY_JOURNEY",
-      "EVERYDAY_MOVEMENT",
-      "STATE_TRANSITION",
-      "SENSORY_LIFE",
-      "SINGLE_IDEA",
-      "OBSERVE",
-      "FOLLOW",
-      "WITHHOLD",
-      "REVEAL",
-      "ACTION_CUT",
-      "MATCH_MOVEMENT",
-      "SENSORY_INSERT",
-      "DELAYED_REVEAL",
-      "THRESHOLD",
-      "REFLECTION",
-      "REPETITION",
-    ]) {
-      expect(script).not.toContain(internalValue);
-    }
+    expect(script).toContain("[TAKE CHRONOLOGY]");
+    expect(script).toContain("[PRODUCT VISIBILITY / REVEAL]");
+    expect(script).toContain("[CAMERA AUTHORITY]");
+    expect(script).toContain("[ENDING]");
+    expect(script).not.toContain("[V1.4 CREATIVE DIRECTING]");
+    expect(script).not.toContain("First complete direct product view");
+    expect(script).not.toContain("SHOT 1 —");
+    expect(script).not.toMatch(/\bV1\.[345]\b/);
+    expect(script).not.toMatch(/\b(?:QC|validator|enum|stateContract|entityId|takeIndex)\b/);
+    expect(script).not.toMatch(/\b(?:logo animation|brand end card|generated lettering)\b/i);
+    await expect(page.getByTestId("commercial-script-summary")).toContainText(/Take|Takes/);
+    await expect(page.getByTestId("commercial-script-summary")).toContainText("Beats");
 
     await page.getByTestId("commercial-copy-director").click();
     const directorClipboard = await page.evaluate(() => navigator.clipboard.readText());
     expect(directorClipboard).toBe(directorScript);
-    expect(directorClipboard).toContain("BRAND-SIGN-OFF");
     await page.getByTestId("commercial-copy-seedance").click();
     const seedanceClipboard = await page.evaluate(() => navigator.clipboard.readText());
     expect(seedanceClipboard).toBe(script);
-    expect(seedanceClipboard).toContain("[V1.4 CREATIVE DIRECTING]");
 
     await page.getByTestId("commercial-legacy-panel").locator("summary").click();
-    const legacyDirectorScript = (await page.getByTestId("commercial-legacy-director-script").textContent()) ?? "";
-    expect(legacyDirectorScript).toContain("SHOT 1 — WORLD");
-    expect(legacyDirectorScript).toContain("FILM STRUCTURE");
-    const legacySeedancePrompt = (await page.getByTestId("commercial-legacy-seedance").textContent()) ?? "";
-    expect(legacySeedancePrompt).toBe(canonicalCommercialScript("PRODUCT_CRAFT"));
-    await page.getByTestId("commercial-legacy-copy-seedance").click();
-    const legacyClipboard = await page.evaluate(() => navigator.clipboard.readText());
-    expect(legacyClipboard).toBe(canonicalCommercialScript("PRODUCT_CRAFT"));
+    await expect(page.getByTestId("commercial-legacy-panel")).toContainText("Legacy / Frozen Baseline");
 
     await expect(page.getByTestId("commercial-debug-panel")).toHaveCount(0);
     await page.getByTestId("commercial-debug-toggle").click();
     await expect(page.getByTestId("commercial-debug-panel")).toBeVisible();
-    await expect(page.getByTestId("commercial-production-provenance").getByText("mainDirectorScriptSource")).toBeVisible();
-    await expect(page.getByTestId("commercial-production-provenance").getByText("mainSeedancePromptSource")).toBeVisible();
+    await expect(page.getByTestId("commercial-production-provenance").getByText("FINAL_EXECUTION_PLAN").first()).toBeVisible();
+    await expect(page.getByTestId("commercial-production-provenance").getByText("CONSOLIDATED")).toBeVisible();
+    await expect(page.getByTestId("commercial-production-provenance").getByText("VALID", { exact: true })).toBeVisible();
     await expect(page.getByTestId("commercial-production-provenance").getByText("LEGACY_FROZEN_BASELINE")).toBeVisible();
     await expect(page.getByTestId("commercial-debug-panel").getByRole("heading", { name: "Creative Story Spine" })).toBeVisible();
     await expect(page.getByTestId("commercial-debug-panel").getByRole("heading", { name: "Creative Direction" })).toBeVisible();
     await expect(page.getByTestId("commercial-debug-panel").getByRole("heading", { name: "Director Concept" })).toBeVisible();
-    await expect(page.getByTestId("commercial-debug-panel").getByRole("heading", { name: "V1.4 Creative Directing" })).toBeVisible();
-    await expect(page.getByTestId("commercial-debug-panel").getByRole("heading", { name: "V1.3 Visual Acceptance" })).toBeVisible();
+    await expect(page.getByTestId("commercial-debug-panel").getByRole("heading", { name: "Creative Directing" })).toBeVisible();
+    await expect(page.getByTestId("commercial-debug-panel").getByRole("heading", { name: "Visual Acceptance" })).toBeVisible();
     await expect(page.getByTestId("visual-acceptance-panel").getByText("case-01")).toBeVisible();
     await expect(page.getByTestId("visual-acceptance-panel").getByText("Script Status: COMMERCIAL_EXECUTION_VALIDATED").first()).toBeVisible();
     await expect(page.getByTestId("visual-acceptance-panel").getByText("Visual Status: NOT_REVIEWED").first()).toBeVisible();

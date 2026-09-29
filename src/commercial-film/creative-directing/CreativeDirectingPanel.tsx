@@ -13,15 +13,15 @@ export function CreativeDirectingPanel({
     <section className="rounded-[16px] bg-white/70 p-5 ring-1 ring-aura-beige/70">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h3 className="text-base font-semibold text-aura-charcoal">V1.4 Creative Directing</h3>
-          <p className="mt-1 text-xs text-aura-muted">Read-only pre-execution treatment. V1.3 canonical output remains separate.</p>
+          <h3 className="text-base font-semibold text-aura-charcoal">Creative Directing</h3>
+          <p className="mt-1 text-xs text-aura-muted">Read-only consolidated treatment. Legacy canonical output remains separate in the debug lineage.</p>
         </div>
         <button
           type="button"
           className="rounded-[12px] border border-aura-beige bg-white px-3.5 py-2 text-xs font-medium text-aura-charcoal"
           onClick={() => setScriptOpen((value) => !value)}
         >
-          {scriptOpen ? "收起 V1.4 Director Script" : "查看 V1.4 Director Script"}
+          {scriptOpen ? "收起 Creative Directing Script" : "查看 Creative Directing Script"}
         </button>
       </div>
 
@@ -101,7 +101,7 @@ export function CreativeDirectingPanel({
       )}
 
       <details className="mt-4 rounded-[12px] bg-white/65 p-4">
-        <summary className="cursor-pointer text-xs font-medium text-aura-charcoal">V1.4 Seedance Translation Extension</summary>
+        <summary className="cursor-pointer text-xs font-medium text-aura-charcoal">Legacy Seedance Translation Extension</summary>
         <pre className="aura-scrollbar mt-3 max-h-[360px] overflow-auto whitespace-pre-wrap text-[11px] leading-5 text-aura-muted [overflow-wrap:anywhere]">
           {result.translationExtension}
         </pre>

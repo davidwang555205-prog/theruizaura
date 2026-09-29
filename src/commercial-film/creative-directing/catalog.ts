@@ -120,12 +120,15 @@ export const V14_DEVICE_CARRIER_POOLS: Record<CommercialDirectorConceptId, strin
   ],
   REFLECTION_WORLD: [
     "window glass",
+    "entryway mirror",
+    "storefront glass",
     "polished surface",
     "reflected pedestrian",
     "dark window",
     "direct surface",
   ],
   LIGHT_REVEAL: [
+    "window",
     "light falloff",
     "shadow edge",
     "window light",
@@ -179,6 +182,7 @@ export const V14_MOMENT_CARRIER_POOLS: Record<CommercialDirectorConceptId, strin
   ],
   REFLECTION_WORLD: [
     "window glass",
+    "entryway mirror",
     "storefront glass",
     "dark window",
     "polished surface",
@@ -234,6 +238,8 @@ export const V14_CARRIER_CATEGORY: Record<string, V14CarrierCategory> = {
   "shadow threshold": "light",
   "architectural opening": "architectural",
   "window glass": "reflective",
+  "entryway mirror": "reflective",
+  "window": "light",
   "polished surface": "reflective",
   "reflected pedestrian": "reflective",
   "dark window": "reflective",

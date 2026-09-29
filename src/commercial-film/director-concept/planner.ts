@@ -47,13 +47,19 @@ function shotRule(concept: CommercialDirectorConceptId, shotIndex: number) {
   return definition.releaseRule;
 }
 
-export function planCommercialDirectorConcept(
+export function rankCommercialDirectorConcepts(
   input: CommercialDirectorConceptPlannerInput
-): CommercialDirectorConceptPlan {
-  const ranked = ALL_CONCEPTS
+): CommercialDirectorConceptId[] {
+  return ALL_CONCEPTS
     .map((concept, order) => ({ concept, order, score: scoreConcept(concept, input) }))
     .sort((first, second) => second.score - first.score || first.order - second.order)
     .map((entry) => entry.concept);
+}
+
+export function planCommercialDirectorConcept(
+  input: CommercialDirectorConceptPlannerInput
+): CommercialDirectorConceptPlan {
+  const ranked = rankCommercialDirectorConcepts(input);
   const concept = input.override ?? ranked[input.generationNonce % 3] ?? ranked[0];
   const definition = COMMERCIAL_DIRECTOR_CONCEPT_CATALOG[concept];
   const shots: CommercialDirectorConceptShot[] = input.eventSpine.shots.map((shot, shotIndex) => ({

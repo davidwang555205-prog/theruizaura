@@ -71,21 +71,21 @@ const SYNTHESIS_BY_CONCEPT: Record<CommercialDirectorConceptId, SynthesisCore> =
   },
   REFLECTION_WORLD: {
     proposition: "The product is understood indirectly before the direct view confirms it.",
-    moment: "A reflection in the {carrier} appears at the {location}; when it clears, the worn line is physically present.",
-    before: "Only an indirect image is visible.",
-    visualInterruption: "A real reflective surface carries the body first.",
-    after: "The reflection resolves into a direct physical view.",
+    moment: "The already visible reflection in the {carrier} at the {location} shifts out of alignment as her existing weight shift completes; the direct worn line becomes visible beside it.",
+    before: "The established reflective layer carries the body while the direct lower line stays behind its edge.",
+    visualInterruption: "Her existing weight shift misaligns the image in the same reflective surface.",
+    after: "The direct physical worn line becomes visible beside the receding reflection.",
     productRole: "The indirect image becomes a readable worn relationship.",
     deviceRole: "Reflection gives way to direct physical presence.",
     memoryReason: "The image arrives before the body does.",
   },
   LIGHT_REVEAL: {
     proposition: "Light makes the material readable before the camera decides it matters.",
-    moment: "A reflection from the {carrier} slides across the lower frame at the {location}; it catches the material, then disappears.",
+    moment: "At the {location}, her existing body movement changes how the {carrier} reaches the lower silhouette; the material emerges from shadow in one continuous view.",
     before: "The material is held in shadow.",
-    visualInterruption: "A moving reflection crosses the material.",
-    after: "The reflection disappears, leaving the worn line remembered.",
-    productRole: "The reflection creates the first readable material moment.",
+    visualInterruption: "Her movement carries the lower silhouette across the established light boundary.",
+    after: "The light holds on the worn line as her body settles.",
+    productRole: "The light change creates the first readable material moment.",
     deviceRole: "Light reveals, then releases the product back to the room.",
     memoryReason: "The material is visible for one beat and then gone.",
   },
@@ -176,10 +176,13 @@ export function synthesizeSignatureMoment(
   carrier: string,
   location: string,
   signatureBeatIndex: number,
-  nonce: number
+  nonce: number,
+  forceCarrier = false
 ): CommercialSignatureMoment {
   const core = SYNTHESIS_BY_CONCEPT[plan.directorConcept.concept];
-  const override = FILMABILITY_OVERRIDES[`${plan.commercialIntent}:${plan.directorConcept.concept}`];
+  const override = forceCarrier || plan.directorConcept.concept === "LIGHT_REVEAL"
+    ? undefined
+    : FILMABILITY_OVERRIDES[`${plan.commercialIntent}:${plan.directorConcept.concept}`];
   const resolvedCarrier = override?.carrier ?? carrier;
   const momentTemplate = override?.moment ?? core.moment;
   const prefix = override ? "" : worldPrefix(plan, resolvedCarrier);

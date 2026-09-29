@@ -1,7 +1,16 @@
-import { runCommercialFilmPipeline } from "../pipeline";
+import {
+  runCommercialFilmPipeline,
+  type CommercialFilmPipelineGenerated,
+} from "../pipeline";
 import { buildCommercialFinalScriptPresentation } from "../presentation";
 import { buildCommercialBrandSignOff } from "../brand-signoff";
-import { buildCommercialCreativeTreatment } from "./planner";
+import { buildCommercialFinalExecutionPlan } from "../final-execution";
+import { consolidateCommercialAuthority } from "../authority-consolidation";
+import {
+  renderCommercialFinalDirectorScript,
+  renderCommercialFinalSeedancePrompt,
+  validateCommercialFinalRender,
+} from "../final-renderers";
 import {
   appendCommercialV14TranslationExtension,
   buildCommercialV14Presentation,
@@ -15,9 +24,10 @@ import {
 } from "./types";
 
 export function runCommercialV14Pipeline(
-  input: Parameters<typeof runCommercialFilmPipeline>[0]
+  input: Parameters<typeof runCommercialFilmPipeline>[0],
+  baseOutcomeOverride?: CommercialFilmPipelineGenerated
 ): CommercialV14PipelineOutcome {
-  const baseOutcome = runCommercialFilmPipeline(input);
+  const baseOutcome = baseOutcomeOverride ?? runCommercialFilmPipeline(input);
   if (baseOutcome.status !== "GENERATED") {
     return {
       status: "BLOCKED",
@@ -28,7 +38,21 @@ export function runCommercialV14Pipeline(
   }
 
   const generationNonce = input.generationNonce ?? 0;
-  const creativeTreatment = buildCommercialCreativeTreatment(baseOutcome.plan, generationNonce);
+  const consolidation = consolidateCommercialAuthority({
+    basePlan: baseOutcome.plan,
+    input,
+    generationNonce,
+  });
+  if (consolidation.status !== "GENERATED") {
+    return {
+      status: "BLOCKED",
+      code: consolidation.code,
+      reason: consolidation.reason,
+      diagnostics: consolidation.diagnostics,
+    };
+  }
+  const effectivePlan = consolidation.effectivePlan;
+  const creativeTreatment = consolidation.treatment;
   if (creativeTreatment.failureReasons?.length) {
     return {
       status: "BLOCKED",
@@ -49,15 +73,17 @@ export function runCommercialV14Pipeline(
   });
   const translationExtension = buildCommercialV14TranslationExtension(
     creativeTreatment,
-    brandSignOff
+    brandSignOff,
+    effectivePlan
   );
   const v14CompiledText = appendCommercialV14TranslationExtension(
     canonicalCompiledText,
     creativeTreatment,
-    brandSignOff
+    brandSignOff,
+    effectivePlan
   );
   const basePresentation = buildCommercialFinalScriptPresentation({
-    plan: baseOutcome.plan,
+    plan: effectivePlan,
     canonicalCompiledText,
   });
   const presentation = buildCommercialV14Presentation(
@@ -67,14 +93,58 @@ export function runCommercialV14Pipeline(
     creativeTreatment,
     brandSignOff
   );
+  const finalExecutionPlan = buildCommercialFinalExecutionPlan({
+    plan: effectivePlan,
+    treatment: creativeTreatment,
+    brandSignOff,
+    canonicalCompiledText,
+    productionCompiledText: v14CompiledText,
+  });
+  if (finalExecutionPlan.status !== "VALID") {
+    const codes = new Set(finalExecutionPlan.validation.diagnostics.map((entry) => entry.code));
+    const code = codes.has("DEVICE_CAMERA_INCOMPATIBLE")
+      ? "DIRECTOR_CONCEPT_CAMERA_INCOMPATIBLE"
+      : codes.has("UNDECLARED_PHYSICAL_RESOURCE") || codes.has("DEVICE_RESOURCE_MISSING")
+        ? "DIRECTOR_CONCEPT_RESOURCE_INCOMPATIBLE"
+        : codes.has("REVEAL_CONFLICT") || codes.has("DEVICE_TAKE_INCOMPATIBLE") || codes.has("INVALID_TAKE_COVERAGE")
+          ? "DIRECTOR_CONCEPT_EVENT_INCOMPATIBLE"
+          : "FINAL_EXECUTION_PLAN_BLOCKED";
+    return {
+      status: "BLOCKED",
+      code,
+      reason: "The Final Execution Plan rejected the selected Director Concept.",
+      diagnostics: finalExecutionPlan.validation.diagnostics.map((entry) => `${entry.code}: ${entry.message}`),
+    };
+  }
+  const directorScript = renderCommercialFinalDirectorScript(finalExecutionPlan);
+  const seedancePrompt = renderCommercialFinalSeedancePrompt(finalExecutionPlan);
+  const renderValidation = validateCommercialFinalRender({
+    plan: finalExecutionPlan,
+    directorScript,
+    seedancePrompt,
+  });
+  if (renderValidation.status !== "VALID") {
+    return {
+      status: "BLOCKED",
+      code: "FINAL_RENDER_VALIDATION_FAILED",
+      reason: "The final Director Script or Seedance Prompt failed renderer validation.",
+      diagnostics: renderValidation.diagnostics,
+    };
+  }
   const plan: CommercialV14Plan = {
     schemaVersion: COMMERCIAL_CREATIVE_DIRECTING_SCHEMA_VERSION,
     plannerVersion: COMMERCIAL_CREATIVE_DIRECTING_VERSION,
     basePlan: baseOutcome.plan,
+    consolidatedPlan: effectivePlan,
     creativeTreatment,
     canonicalCompiledText,
     v14CompiledText,
+    finalExecutionPlan,
+    directorScript,
+    seedancePrompt,
+    renderValidation,
     presentation,
+    authorityConsolidation: consolidation,
   };
 
   return {
@@ -82,6 +152,7 @@ export function runCommercialV14Pipeline(
     baseOutcome,
     plan,
     translationExtension,
+    authorityConsolidation: consolidation,
     stages: {
       v13Baseline: "GENERATED",
       creativeDirecting: "GENERATED",
