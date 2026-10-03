@@ -1,0 +1,55 @@
+name: Validate Image Eventization V1
+
+on:
+  push:
+    branches:
+      - feat/image-eventization-v1
+  workflow_dispatch:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Validate image eventization
+        run: npm run validate:image-eventization
+
+      - name: Validate prompt engine
+        run: npm run validate:engine
+
+      - name: Validate action diversity
+        run: npm run validate:actions
+
+      - name: Validate lifestyle taxonomy
+        run: npm run validate:lifestyle-taxonomy
+
+      - name: Validate lifestyle action and face
+        run: npm run validate:lifestyle-action-face
+
+      - name: Validate telephoto action macro
+        run: npm run validate:telephoto-action-macro
+
+      - name: Validate prompt compiler
+        run: npm run validate:prompt-compiler
+
+      - name: Validate prompt audit
+        run: npm run validate:prompt-audit
+
+      - name: Build
+        run: npm run build
