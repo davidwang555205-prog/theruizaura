@@ -10,7 +10,8 @@ import { getTeamModelProfile } from "../data/teamModelProfiles";
 import { getActivePromptRegistryEntry } from "../visual-system/activePromptRegistry";
 import { resolveTopicRoute } from "../visual-system/topicRoutingRegistry";
 import { productTruthPromptLines } from "../visual-system/taskReferenceBinding";
-import { cameraPerspectiveLine, resolveCameraPerspectiveProfile } from "../utils/cameraPerspectiveProfiles";\nimport { resolveImageEventState } from "./eventization";
+import { cameraPerspectiveLine, resolveCameraPerspectiveProfile } from "../utils/cameraPerspectiveProfiles";
+import { resolveImageEventState } from "./eventization";
 
 const ACTIVE_ROLE_DIRECTIVES: Record<string, string> = {
   A1: "Active visual role: relaxed daily-life framing with natural body weight, believable daylight, and a readable sneaker inside an ordinary lived-in scene.",
