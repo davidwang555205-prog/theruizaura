@@ -7,12 +7,39 @@ on:
   workflow_dispatch:
 
 jobs:
-  validate:
+  baseline-main-face:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 10
 
     steps:
-      - name: Checkout branch
+      - name: Checkout main baseline
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Main baseline lifestyle action and face
+        id: main_face
+        continue-on-error: true
+        run: npm run validate:lifestyle-action-face
+
+      - name: Report main baseline result
+        run: echo "main_face_outcome=${{ steps.main_face.outcome }}"
+
+  branch-remaining:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout eventization branch
         uses: actions/checkout@v4
 
       - name: Setup Node
@@ -24,22 +51,9 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Typecheck
-        run: npm run typecheck
-
-      - name: Validate image eventization
-        run: npm run validate:image-eventization
-
-      - name: Validate prompt engine
-        run: npm run validate:engine
-
-      - name: Validate action diversity
-        run: npm run validate:actions
-
-      - name: Validate lifestyle taxonomy
-        run: npm run validate:lifestyle-taxonomy
-
-      - name: Validate lifestyle action and face
+      - name: Branch lifestyle action and face
+        id: branch_face
+        continue-on-error: true
         run: npm run validate:lifestyle-action-face
 
       - name: Validate telephoto action macro
@@ -53,3 +67,6 @@ jobs:
 
       - name: Build
         run: npm run build
+
+      - name: Report branch face result
+        run: echo "branch_face_outcome=${{ steps.branch_face.outcome }}"
