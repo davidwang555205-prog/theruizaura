@@ -93,7 +93,8 @@
     "validate:fmcg": "node scripts/validateFmcgCategory.mjs",
     "prepare:prompt-visual-ab": "node scripts/preparePromptVisualAb.mjs",
     "validate:prompt-visual-ab": "node scripts/validatePromptVisualAb.mjs",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "validate:image-eventization": "node scripts/validateImageEventization.mjs"
   },
   "dependencies": {
     "@vitejs/plugin-react": "^5.2.0",

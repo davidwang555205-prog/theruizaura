@@ -11,6 +11,7 @@ import { getActivePromptRegistryEntry } from "../visual-system/activePromptRegis
 import { resolveTopicRoute } from "../visual-system/topicRoutingRegistry";
 import { productTruthPromptLines } from "../visual-system/taskReferenceBinding";
 import { cameraPerspectiveLine, resolveCameraPerspectiveProfile } from "../utils/cameraPerspectiveProfiles";
+import { resolveImageEventState } from "./eventization";
 
 const ACTIVE_ROLE_DIRECTIVES: Record<string, string> = {
   A1: "Active visual role: relaxed daily-life framing with natural body weight, believable daylight, and a readable sneaker inside an ordinary lived-in scene.",
@@ -409,15 +410,23 @@ export function collectPromptRules(input: PromptProfileInput): PromptRule[] {
   }
 
   if (input.actionLock && peopleImage) {
+    const eventState = resolveImageEventState(input);
     rules.push({
       id: "card-action-lock",
       section: "action",
-      text: `Action Lock: ${input.actionLock} Keep this as the primary action beat, but capture it as a believable in-between moment with anticipation, weight transfer, follow-through, and a small unfinished movement. Do not add a second unrelated action, and do not freeze the body into a completed mannequin pose.`,
+      text: [
+        `Action Lock: ${input.actionLock}`,
+        eventState ? `Event State Lock: ${eventState.promptLine}` : "",
+        "Keep this as the primary action beat, but capture it as a believable in-between moment with anticipation, weight transfer, follow-through, and a small unfinished movement.",
+        "Do not add a second unrelated action, and do not freeze the body into a completed mannequin pose."
+      ].filter(Boolean).join(" "),
       priority: PromptPriority.P0_USER_SPECIFIED,
       source: "theme-card",
       appliesWhen: {},
       required: true,
-      tags: ["card", "action-lock"]
+      tags: eventState
+        ? ["card", "action-lock", "eventized-image", eventState.eventFamily]
+        : ["card", "action-lock"]
     });
   } else if (input.actionLock && input.compositionMode !== "atmosphere") {
     rules.push({
