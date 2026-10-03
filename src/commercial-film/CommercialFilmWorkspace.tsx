@@ -8,13 +8,17 @@ import {
 import type { NarrativeSeason } from "../immersive-narrative/types";
 import type {
   Image2ReferencePlan,
+  TaskReferenceAsset,
   TaskProductTruth,
   TaskReferenceSet,
+} from "../visual-system/taskReferenceBinding";
+import {
+  bindTaskProductTruth,
+  createTaskReferenceSet,
 } from "../visual-system/taskReferenceBinding";
 import { COMMERCIAL_INTENT_CATALOG } from "./catalog";
 import { buildCommercialVisualAcceptanceMatrix } from "./visual-acceptance";
 import { buildCommercialFinalScriptPresentation } from "./presentation";
-import { runCommercialV14Pipeline } from "./creative-directing";
 import { CreativeDirectingPanel } from "./creative-directing/CreativeDirectingPanel";
 import {
   runCommercialFilmPipeline,
@@ -26,9 +30,17 @@ import {
   resolveCommercialReferenceState,
 } from "./reference";
 import type {
+  CommercialAuraDefaultProductContext,
   CommercialFilmPlannerInput,
   CommercialIntentId,
 } from "./types";
+import { THERUIZ_AURA_DEFAULT_PRODUCT_CONTEXT } from "./product-message";
+import {
+  DEFAULT_COMMERCIAL_BRAND_SELECTION,
+  loadCommercialBrandPack,
+  runCommercialFilmWithBrandPack,
+  type CommercialBrandSelection,
+} from "./brand-adapter";
 
 const inputClass =
   "w-full rounded-[14px] border border-aura-beige bg-white px-4 py-3 text-sm text-aura-charcoal outline-none transition focus:border-aura-clay";
@@ -38,6 +50,51 @@ const quietButtonClass =
   "rounded-[12px] border border-aura-beige bg-white px-3.5 py-2 text-xs font-medium text-aura-charcoal transition hover:border-aura-clay disabled:cursor-not-allowed disabled:opacity-45";
 const DURATION_SECONDS = 15;
 const SCRIPT_HEADER = "SEEDANCE — COMMERCIAL FILM";
+const WORKBENCH_BRAND_SELECTION: CommercialBrandSelection = DEFAULT_COMMERCIAL_BRAND_SELECTION;
+const UPLOADED_REFERENCE_SOURCE = "uploaded" as const;
+const BVT_SKU_REFERENCE_SOURCE = "theruiz-aura-bvt-product-reference" as const;
+const MAX_AURA_CATEGORY_CONTEXT_ATTEMPTS = 12;
+const AURA_CATEGORY_CONTEXT_INTENTS: readonly CommercialIntentId[] = [
+  "QUIET_LUXURY",
+  "URBAN_MOTION",
+  "DAILY_STYLING",
+  "NEW_ARRIVAL",
+];
+
+const BVT_SKU_PRODUCT_REFERENCES: Array<{
+  id: string;
+  name: string;
+  file: string;
+  roles: TaskReferenceAsset["roles"];
+}> = [
+  { id: "PT-01", name: "整体侧面产品", file: "/visual-system/product-truth/PT-01-overall.jpg", roles: ["primary_product_reference"] },
+  { id: "PT-02", name: "顶部与鞋头结构", file: "/visual-system/product-truth/PT-02-top-front.jpg", roles: ["top_view_reference"] },
+  { id: "PT-03", name: "后跟与侧面结构", file: "/visual-system/product-truth/PT-03-heel-side.jpg", roles: ["heel_reference"] },
+  { id: "PT-04", name: "材质与工艺细节", file: "/visual-system/product-truth/PT-04-material-craft.jpg", roles: ["construction_detail_reference", "material_reference"] },
+  { id: "PT-05", name: "成对整体产品", file: "/visual-system/product-truth/PT-05-paired-overall.jpg", roles: ["full_product_reference"] },
+  { id: "PT-06", name: "鞋头与材质细节", file: "/visual-system/product-truth/PT-06-toe-material.jpg", roles: ["toe_reference", "material_reference"] },
+];
+
+function buildBvtSkuReferenceBinding() {
+  const referenceSet = createTaskReferenceSet({
+    referenceSetId: BVT_SKU_REFERENCE_SOURCE,
+    taskId: "current-local-task",
+    createdAt: new Date().toISOString(),
+    assets: BVT_SKU_PRODUCT_REFERENCES.map((reference, originalUploadIndex) => ({
+      id: reference.id,
+      name: reference.name,
+      mime: "image/jpeg",
+      originalUploadIndex,
+      roles: reference.roles,
+      coverage: [],
+      confidence: "high" as const,
+      assignmentSource: "user_confirmed" as const,
+      needsConfirmation: false,
+      confirmedByUser: true,
+    })),
+  });
+  return { referenceSet, ...bindTaskProductTruth(referenceSet) };
+}
 
 type DraftInputs = {
   commercialIntent: CommercialIntentId;
@@ -59,12 +116,14 @@ function initialDraft(): DraftInputs {
 
 function toRequest(
   draft: DraftInputs,
-  reference: CommercialFilmPlannerInput["reference"]
+  reference: CommercialFilmPlannerInput["reference"],
+  brandDefaultProductContext: CommercialAuraDefaultProductContext | null = null
 ): CommercialFilmPlannerInput {
   return {
     ...draft,
     duration: 15,
     reference,
+    brandDefaultProductContext,
     generationNonce: draft.generationNonce,
   };
 }
@@ -79,6 +138,7 @@ function requestSignature(request: CommercialFilmPlannerInput) {
     confirmedAssetIds: request.reference.confirmedAssetIds,
     confirmationStatus: request.reference.confirmationStatus,
     coverage: request.reference.coverage,
+    brandDefaultProductContext: request.brandDefaultProductContext ?? null,
     generationNonce: request.generationNonce ?? 0,
   });
 }
@@ -108,6 +168,22 @@ function isCommercialCompilerOutput(value: string) {
     && !value.includes("[COMMERCIAL PLAN]")
     && !value.includes("[SHOT PLAN]")
     && !value.includes("[CAMERA PLAN]");
+}
+
+function runWorkbenchCommercialProduction(request: CommercialFilmPlannerInput) {
+  const baseOutcome = runCommercialFilmPipeline(request);
+  if (baseOutcome.status !== "GENERATED") {
+    return { baseOutcome, creativeOutcome: null };
+  }
+  const brandAdapterRun = runCommercialFilmWithBrandPack({
+    brandPack: loadCommercialBrandPack(WORKBENCH_BRAND_SELECTION),
+    request,
+    caseContext: request.lifestyleFeeling,
+  }, baseOutcome);
+  return {
+    baseOutcome: brandAdapterRun.baseOutcome,
+    creativeOutcome: brandAdapterRun.outcome,
+  };
 }
 
 function Field({ label, children }: { label: string; children: ReactNode }) {
@@ -171,6 +247,7 @@ export function CommercialFilmWorkspace({
   onManageReferences: () => void;
 }) {
   const [draft, setDraft] = useState<DraftInputs>(initialDraft);
+  const [productReferenceSource, setProductReferenceSource] = useState<typeof UPLOADED_REFERENCE_SOURCE | typeof BVT_SKU_REFERENCE_SOURCE>(UPLOADED_REFERENCE_SOURCE);
   const [generatedRequest, setGeneratedRequest] = useState<CommercialFilmPlannerInput | null>(null);
   const [status, setStatus] = useState("");
   const [directorExpanded, setDirectorExpanded] = useState(true);
@@ -185,25 +262,60 @@ export function CommercialFilmWorkspace({
     [visualAcceptanceMatrix]
   );
 
+  const activeReferenceBinding = useMemo(
+    () => productReferenceSource === BVT_SKU_REFERENCE_SOURCE
+      ? buildBvtSkuReferenceBinding()
+      : { referenceSet, productTruth, referencePlan },
+    [productReferenceSource, referenceSet, productTruth, referencePlan]
+  );
   const referenceInput = useMemo(
-    () => buildCommercialReferenceInput(referenceSet, productTruth, referencePlan),
-    [referenceSet, productTruth, referencePlan]
+    () => buildCommercialReferenceInput(
+      activeReferenceBinding.referenceSet,
+      activeReferenceBinding.productTruth,
+      activeReferenceBinding.referencePlan
+    ),
+    [activeReferenceBinding]
   );
   const referenceState = useMemo(
     () => resolveCommercialReferenceState(referenceInput),
     [referenceInput]
   );
-  const currentRequest = useMemo(() => toRequest(draft, referenceInput), [draft, referenceInput]);
+  const hasConfirmedProductReference = referenceInput.confirmedReferenceCount > 0
+    && referenceInput.confirmationStatus === "confirmed";
+  const hasProductCraftEvidence = hasConfirmedProductReference && referenceInput.coverage.length > 0;
+  const canUseBrandDefaultProductContext = activeReferenceBinding.referenceSet.assets.length === 0
+    && AURA_CATEGORY_CONTEXT_INTENTS.includes(draft.commercialIntent);
+  const canGenerateCommercialScript = canUseBrandDefaultProductContext
+    || (hasConfirmedProductReference && (draft.commercialIntent !== "PRODUCT_CRAFT" || hasProductCraftEvidence));
+  const referenceStatusLabel = hasConfirmedProductReference
+    ? draft.commercialIntent === "PRODUCT_CRAFT" && !hasProductCraftEvidence
+      ? "PRODUCT_EVIDENCE_REQUIRED"
+      : "REFERENCE_READY"
+    : canUseBrandDefaultProductContext
+      ? "AURA_CATEGORY_CONTEXT_READY"
+      : draft.commercialIntent === "PRODUCT_CRAFT"
+        ? "PRODUCT_EVIDENCE_REQUIRED"
+        : "PRODUCT_REFERENCE_REQUIRED";
+  const referenceInstruction = hasConfirmedProductReference
+    ? referenceState.instruction
+    : activeReferenceBinding.referenceSet.assets.length > 0
+      ? "请先完成当前任务产品参考图的角色确认；确认后才能生成 Commercial Script。"
+      : canUseBrandDefaultProductContext
+        ? "可使用 THERUIZ AURA 品类级默认上下文（German Trainer / Leather Lifestyle Sneaker）生成品牌脚本；不识别具体 SKU、不补充材质或结构细节，也不添加未经证实的卖点。PRODUCT_CRAFT 仍需产品证据。"
+        : hasConfirmedProductReference
+          ? "PRODUCT_CRAFT 的已确认参考还没有可用产品 Coverage；请补充并确认产品结构、外形或材质证据。"
+          : "PRODUCT_CRAFT 需要已确认且具有可用产品 Coverage 的产品参考，才能生成 Commercial Script。";
+  const currentRequest = useMemo(
+    () => toRequest(
+      draft,
+      referenceInput,
+      canUseBrandDefaultProductContext ? THERUIZ_AURA_DEFAULT_PRODUCT_CONTEXT : null
+    ),
+    [draft, referenceInput, canUseBrandDefaultProductContext]
+  );
   const productionOutcome = useMemo(() => {
     if (!generatedRequest) return null;
-    const baseOutcome = runCommercialFilmPipeline(generatedRequest);
-    if (baseOutcome.status !== "GENERATED") {
-      return { baseOutcome, creativeOutcome: null };
-    }
-    return {
-      baseOutcome,
-      creativeOutcome: runCommercialV14Pipeline(generatedRequest, baseOutcome),
-    };
+    return runWorkbenchCommercialProduction(generatedRequest);
   }, [generatedRequest]);
   const outcome: CommercialFilmPipelineOutcome | null = productionOutcome?.baseOutcome ?? null;
   const generated = outcome?.status === "GENERATED" ? outcome : null;
@@ -229,7 +341,9 @@ export function CommercialFilmWorkspace({
   const productionDirectorScript = v14Generated?.plan.directorScript.text ?? "";
   const productionSeedancePrompt = v14Generated?.plan.seedancePrompt.text ?? "";
   const productionReady = Boolean(
-    v14Generated
+    canGenerateCommercialScript
+    && !staleOutput
+    && v14Generated
     && v14Generated.plan.finalExecutionPlan.status === "VALID"
     && v14Generated.plan.renderValidation.status === "VALID"
     && productionDirectorScript
@@ -246,12 +360,32 @@ export function CommercialFilmWorkspace({
   const legacyReady = Boolean(generated && finalScriptReady && finalPresentation);
 
   const generate = () => {
-    const nextDraft = {
-      ...draft,
-      generationNonce: draft.generationNonce + 1,
-    };
-    setDraft(nextDraft);
-    setGeneratedRequest(toRequest(nextDraft, referenceInput));
+    if (!canGenerateCommercialScript) {
+      setStatus("PRODUCT_CRAFT 需要已确认且具有可用产品 Coverage 的产品参考才能生成 Commercial Script。");
+      return;
+    }
+    const attempts = canUseBrandDefaultProductContext ? MAX_AURA_CATEGORY_CONTEXT_ATTEMPTS : 1;
+    let selectedRequest: CommercialFilmPlannerInput | null = null;
+    let lastAttemptRequest: CommercialFilmPlannerInput | null = null;
+    for (let offset = 1; offset <= attempts; offset += 1) {
+      const candidateDraft = { ...draft, generationNonce: draft.generationNonce + offset };
+      const candidateRequest = toRequest(
+        candidateDraft,
+        referenceInput,
+        canUseBrandDefaultProductContext ? THERUIZ_AURA_DEFAULT_PRODUCT_CONTEXT : null
+      );
+      lastAttemptRequest = candidateRequest;
+      const candidateOutcome = runWorkbenchCommercialProduction(candidateRequest);
+      if (candidateOutcome.baseOutcome.status === "GENERATED"
+        && candidateOutcome.creativeOutcome?.status === "GENERATED") {
+        selectedRequest = candidateRequest;
+        break;
+      }
+    }
+    const requestToShow = selectedRequest ?? lastAttemptRequest;
+    if (!requestToShow) return;
+    setDraft((current) => ({ ...current, generationNonce: requestToShow.generationNonce ?? current.generationNonce }));
+    setGeneratedRequest(requestToShow);
     setDirectorExpanded(true);
     setTechnicalExpanded(false);
     setStatus("");
@@ -404,19 +538,47 @@ export function CommercialFilmWorkspace({
           </Field>
 
           <div className="rounded-[14px] bg-aura-cream/70 p-4 ring-1 ring-aura-beige/70">
-            <div className="flex items-center justify-between gap-3">
+            <Field label="Product / SKU Reference">
+              <select
+                aria-label="Product / SKU Reference"
+                data-testid="commercial-product-reference-source"
+                className={inputClass}
+                value={productReferenceSource}
+                onChange={(event) => setProductReferenceSource(event.target.value as typeof productReferenceSource)}
+              >
+                <option value={UPLOADED_REFERENCE_SOURCE}>当前任务上传的 Product Reference</option>
+                <option value={BVT_SKU_REFERENCE_SOURCE}>THERUIZ AURA 已通过 BVT 的 SKU Reference（PT-01—PT-06）</option>
+              </select>
+            </Field>
+            {productReferenceSource === BVT_SKU_REFERENCE_SOURCE && (
+              <div data-testid="commercial-bvt-sku-references" className="mt-3 grid grid-cols-3 gap-2">
+                {BVT_SKU_PRODUCT_REFERENCES.map((reference) => (
+                  <figure key={reference.id} className="overflow-hidden rounded-[10px] bg-white/75 ring-1 ring-aura-beige/70">
+                    <img
+                      src={reference.file}
+                      alt={`${reference.id} ${reference.name}`}
+                      className="aspect-[4/5] w-full object-cover"
+                    />
+                    <figcaption className="px-2 py-1.5 text-[10px] text-aura-charcoal">
+                      {reference.id} · {reference.name}
+                    </figcaption>
+                  </figure>
+                ))}
+              </div>
+            )}
+            <div className="mt-3 flex items-center justify-between gap-3">
               <b className="text-sm text-aura-charcoal">Product Reference</b>
               <span
                 data-testid="commercial-reference-status"
-                className={`text-xs font-medium ${statusClass(referenceState.status)}`}
+                className={`text-xs font-medium ${statusClass(referenceStatusLabel)}`}
               >
-                {referenceState.status === "REFERENCE_READY" ? "OPTIONAL / READY" : referenceState.status}
+                {referenceStatusLabel}
               </span>
             </div>
             <p className="mt-2 text-xs leading-5 text-aura-muted">
-              AURA 内部参考 {referenceState.confirmedReferenceCount} / {referenceSet.assets.length} 张 · Coverage {referenceState.coverage.length}/7
+              AURA 内部参考 {referenceState.confirmedReferenceCount} / {activeReferenceBinding.referenceSet.assets.length} 张 · Coverage {referenceState.coverage.length}/7
             </p>
-            <p className="mt-2 text-xs leading-5 text-aura-muted">{referenceState.instruction}</p>
+            <p className="mt-2 text-xs leading-5 text-aura-muted">{referenceInstruction}</p>
             <div className="mt-3 flex flex-wrap gap-2">
               <label className={quietButtonClass}>
                 上传产品参考
@@ -426,16 +588,32 @@ export function CommercialFilmWorkspace({
                   type="file"
                   accept="image/png,image/jpeg,image/webp"
                   multiple
-                  onChange={onUploadReferences}
+                  onChange={(event) => {
+                    setProductReferenceSource(UPLOADED_REFERENCE_SOURCE);
+                    onUploadReferences(event);
+                  }}
                 />
               </label>
-              <button type="button" className={quietButtonClass} onClick={onManageReferences}>
-                管理参考角色
+              <button
+                type="button"
+                className={quietButtonClass}
+                onClick={() => {
+                  setProductReferenceSource(UPLOADED_REFERENCE_SOURCE);
+                  onManageReferences();
+                }}
+              >
+                管理上传参考角色
               </button>
             </div>
           </div>
 
-          <button type="button" className={primaryButtonClass} data-testid="commercial-generate" onClick={generate}>
+          <button
+            type="button"
+            className={primaryButtonClass}
+            data-testid="commercial-generate"
+            onClick={generate}
+            disabled={!canGenerateCommercialScript}
+          >
             生成品牌广告片脚本
           </button>
           {staleOutput && <p role="status" className="text-xs text-aura-clay">设定或参考图已更新，可重新生成。</p>}
@@ -450,6 +628,7 @@ export function CommercialFilmWorkspace({
                   {!outcome && "尚未生成 Commercial Film 脚本"}
                   {outcome?.status === "BLOCKED" && "已阻断，未生成假产品广告"}
                   {generated && `${generated.plan.commercialIntentLabel} · ${generated.plan.duration} 秒 · ${productionTakeSummary || `${productionBeatCount} Beats`}`}
+                  {v14Outcome?.status === "BLOCKED" && ` · Production 阻断：${v14Outcome.code}`}
                 </p>
               </div>
               {productionReady && (
@@ -459,7 +638,9 @@ export function CommercialFilmWorkspace({
 
             {!outcome && (
               <p className="mt-4 rounded-[14px] bg-aura-cream/55 px-4 py-6 text-sm text-aura-muted">
-                尚未生成脚本。Commercial Film 可先独立生成完整脚本；产品身份可在外部 Seedance workflow 中通过参考图提供。
+                {canGenerateCommercialScript
+                  ? "可使用 THERUIZ AURA 品类级默认上下文生成品牌脚本；具体 SKU 与产品细节仍以产品证据为准。"
+                  : "PRODUCT_CRAFT 需要先选择或确认产品参考，才能生成 Commercial Script。"}
               </p>
             )}
 
@@ -467,6 +648,13 @@ export function CommercialFilmWorkspace({
               <div data-testid="commercial-blocked" className="mt-4 rounded-[14px] bg-aura-cream px-4 py-3 text-sm leading-6 text-aura-charcoal">
                 <b>{outcome.code}</b>
                 <p className="mt-2 text-aura-muted">{[outcome.reason, ...outcome.diagnostics].join(" ")}</p>
+              </div>
+            )}
+
+            {v14Outcome?.status === "BLOCKED" && (
+              <div data-testid="commercial-production-blocked" className="mt-4 rounded-[14px] bg-aura-cream px-4 py-3 text-sm leading-6 text-aura-charcoal">
+                <b>{v14Outcome.code}</b>
+                <p className="mt-2 text-aura-muted">{[v14Outcome.reason, ...v14Outcome.diagnostics].join(" ")}</p>
               </div>
             )}
 

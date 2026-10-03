@@ -19,27 +19,19 @@ const assert = (condition, message) => {
   if (!condition) throw new Error(message);
 };
 
-const coverage = [];
+const coverage = ["silhouette", "toe_structure", "side_panel_structure", "heel_structure", "outsole_profile", "color_blocking", "material_evidence"];
 const reference = {
   referenceSetId: "commercial-model-facing-take-reference-set",
   taskId: "commercial-model-facing-take-task",
   sourceType: "current_task_reference_set",
-  confirmationStatus: "incomplete",
-  confirmedReferenceCount: 0,
-  confirmedAssetIds: [],
+  confirmationStatus: "confirmed",
+  confirmedReferenceCount: 2,
+  confirmedAssetIds: ["front", "side"],
   coverage,
-  missingCoverage: [
-    "silhouette",
-    "toe_structure",
-    "side_panel_structure",
-    "heel_structure",
-    "outsole_profile",
-    "color_blocking",
-    "material_evidence",
-  ],
-  referencePlanReady: false,
+  missingCoverage: [],
+  referencePlanReady: true,
   productTruthMode: "reference_bound",
-  productTruth: null,
+  productTruth: { coverage, status: "draft", referenceEvidenceBound: true, productTruthMode: "reference_bound" },
 };
 
 const busMicroDecision = {

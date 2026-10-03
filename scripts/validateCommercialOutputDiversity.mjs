@@ -30,18 +30,18 @@ const coverage = [
   "material_evidence",
 ];
 
-const zeroReference = {
+const confirmedReference = {
   referenceSetId: "output-diversity-zero-reference",
   taskId: "output-diversity-task",
   sourceType: "current_task_reference_set",
-  confirmationStatus: "incomplete",
-  confirmedReferenceCount: 0,
-  confirmedAssetIds: [],
-  coverage: [],
-  missingCoverage: coverage,
-  referencePlanReady: false,
+  confirmationStatus: "confirmed",
+  confirmedReferenceCount: 2,
+  confirmedAssetIds: ["front", "side"],
+  coverage,
+  missingCoverage: [],
+  referencePlanReady: true,
   productTruthMode: "reference_bound",
-  productTruth: null,
+  productTruth: { coverage, status: "draft", referenceEvidenceBound: true, productTruthMode: "reference_bound" },
 };
 
 // Observed V1.2 pre-compact execution lengths from the same local checkout.
@@ -62,7 +62,7 @@ function requestFor(intent) {
     lifestyleFeeling: "安静 / 自然 / 克制",
     duration: 15,
     generationNonce: 0,
-    reference: zeroReference,
+    reference: confirmedReference,
   };
 }
 
@@ -160,9 +160,10 @@ function internalLeakage(text) {
 
 function fingerprint(outcome) {
   const plan = outcome.plan;
+  const transitions = physicalEventTransitionAudit(plan).transitions;
   return {
     event: plan.eventSpine.eventChain.join(">"),
-    actions: plan.actionPlan.map((item) => item.sourceActionFamily ?? item.primitiveId).join(">"),
+    physicalEventTransitions: transitions.map((transition) => transition.diversitySignature).join(">"),
     timing: plan.shotArchitecture.shots.map((shot) => shot.timeRange.durationSeconds).join("/"),
     camera: plan.creativeDirection.shotDirections.map((shot) => shot.perceptualSignature).join(">"),
     framing: plan.cameraPlan.shots.map((shot) => shot.framing).join(">"),
@@ -171,6 +172,63 @@ function fingerprint(outcome) {
     ending: plan.eventSpine.endingGrammar.id,
     sound: plan.soundPlan.shots.map((shot) => shot.dominantSound).join(">"),
   };
+}
+
+function physicalEventTransitionAudit(plan) {
+  const transitions = plan.eventSpine.shots.map((event, index) => {
+    const executionBeat = plan.shotArchitecture.shots[index];
+    const stateChanges = event.stateContract.effects
+      .filter((effect) => effect.fromValue !== effect.toValue)
+      .map((effect) => [
+        effect.entityId,
+        effect.attribute,
+        effect.fromValue ?? "<unset>",
+        effect.toValue,
+        effect.cause,
+      ].join(":"))
+      .sort();
+    const visibleEvidence = event.stateContract.requiredVisibleEvidence
+      .filter((evidence) => evidence.entityId)
+      .map((evidence) => `${evidence.entityId}:${evidence.id}`)
+      .sort();
+    const spatialRelation = (executionBeat?.spatialAnchor ?? "").trim().toLowerCase();
+    const eventPurpose = event.physicalEvent.eventPurpose.trim().toLowerCase();
+    const causalRole = event.eventFunction;
+    const action = event.actionClass.trim().toLowerCase();
+
+    return {
+      shotIndex: index,
+      action,
+      causalRole,
+      eventPurpose,
+      stateChanges,
+      spatialRelation,
+      visibleEvidence,
+      causalLink: event.causalFromPrevious.trim(),
+      // The diversity signature uses observable structured facts, not action-family counts.
+      diversitySignature: JSON.stringify({ stateChanges, spatialRelation, visibleEvidence, causalRole, eventPurpose }),
+      // A repeated physical event is the same action in the same state/spatial relation and role.
+      repetitionSignature: JSON.stringify({ action, stateChanges, spatialRelation, causalRole, eventPurpose }),
+    };
+  });
+
+  const distinctTransitionCount = new Set(transitions.map((transition) => transition.diversitySignature)).size;
+  const repeatedPairs = [];
+  for (let left = 0; left < transitions.length; left += 1) {
+    for (let right = left + 1; right < transitions.length; right += 1) {
+      if (transitions[left].repetitionSignature === transitions[right].repetitionSignature) {
+        repeatedPairs.push([left, right]);
+      }
+    }
+  }
+  const weakCausality = transitions.some((transition) => (
+    !transition.causalLink
+    || /continues through space|resumes walking|pauses naturally/i.test(transition.causalLink)
+    || !transition.causalRole
+    || !transition.eventPurpose
+  ));
+
+  return { transitions, distinctTransitionCount, repeatedPairs, weakCausality };
 }
 
 try {
@@ -190,7 +248,7 @@ try {
 
   const results = [];
   let eventCollapseFailures = 0;
-  let genericActionFailures = 0;
+  let physicalEventTransitionFailures = 0;
   let timingCollapseFailures = 0;
   let cameraCollapseFailures = 0;
   let roleTemplateFailures = 0;
@@ -230,12 +288,14 @@ try {
       howItEnds: plan.eventSpine.endingGrammar.line,
     };
 
-    const genericLocomotion = actionFamilies.filter((family) => /walking|transition|turning/.test(family)).length >= 3;
-    const weakCausality = plan.eventSpine.shots.some((shot) => (
-      !shot.causalFromPrevious.trim()
-      || /continues through space|resumes walking|pauses naturally/i.test(shot.causalFromPrevious)
-    ));
-    if (genericLocomotion || weakCausality) genericActionFailures += 1;
+    const transitionAudit = physicalEventTransitionAudit(plan);
+    const insufficientPhysicalTransitions = transitionAudit.distinctTransitionCount < 3;
+    if (insufficientPhysicalTransitions || transitionAudit.repeatedPairs.length > 0 || transitionAudit.weakCausality) {
+      physicalEventTransitionFailures += 1;
+      console.log(
+        `FAILED PHYSICAL EVENT TRANSITIONS ${intent}: distinct=${transitionAudit.distinctTransitionCount}, repeated=${JSON.stringify(transitionAudit.repeatedPairs)}, weakCausality=${transitionAudit.weakCausality}`
+      );
+    }
 
     const durations = plan.shotArchitecture.shots.map((shot) => shot.timeRange.durationSeconds);
     if (durations.length !== 5
@@ -300,19 +360,27 @@ try {
     if (!text.includes("hue, saturation, contrast") || !text.includes("faithful")) compactCompletenessFailures += 1;
 
     if (intent === "PRODUCT_CRAFT") {
-      const detailRelationship = plan.eventSpine.shots[2]?.productDetailRelationship ?? "";
-      if (
-        !detailRelationship
-        || !text.includes(detailRelationship)
-        || !text.includes("external footwear references")
-        || !text.includes("do not default to a full-shoe close-up")
-      ) {
-        genericProductCraftFailures += 1;
-      }
+      const declaredDetails = plan.shotArchitecture.shots.filter((shot) => shot.productVisibility === "PRODUCT_DETAIL");
+      const coverage = new Set(plan.referenceState.coverage);
+      const supported = new Set(plan.productMessage.supportedDimensions.map((dimension) => dimension.coverage));
+      const invalidDetail = declaredDetails.some((shot) => {
+        const relationship = shot.event.productDetailRelationship ?? "";
+        const dimension = shot.productMessageDimension;
+        return !relationship
+          || !text.includes(relationship)
+          || !dimension
+          || (!plan.productMessage.externalReferenceRequired && (!coverage.has(dimension) || !supported.has(dimension)))
+          || !text.includes("with no detail insert");
+      });
+      if (invalidDetail) genericProductCraftFailures += 1;
     }
     if (intent === "QUIET_LUXURY") {
-      const nonLocomotion = actionFamilies.some((family) => /standing|seated|garment-task|environment-response/.test(family));
-      if (!nonLocomotion || actionFamilies.filter((family) => /walking|transition|turning/.test(family)).length >= 3) {
+      const nonLocomotion = plan.eventSpine.shots.some((event) => (
+        event.physicalEvent.actor === "WORLD"
+        || event.physicalEvent.humanActionRequirement === "NONE"
+        || !/walking|transition|turning/.test(event.actionClass)
+      ));
+      if (!nonLocomotion || transitionAudit.repeatedPairs.length > 0) {
         quietLuxuryLocomotionFailures += 1;
       }
     }
@@ -334,6 +402,15 @@ try {
       intent,
       eventSpine: plan.eventSpine.eventChain,
       actionChain: actionFamilies,
+      physicalEventTransitions: transitionAudit.transitions.map((transition) => ({
+        eventFunction: transition.causalRole,
+        purpose: transition.eventPurpose,
+        stateChanges: transition.stateChanges,
+        spatialRelation: transition.spatialRelation,
+        visibleEvidence: transition.visibleEvidence,
+      })),
+      distinctPhysicalEventTransitions: transitionAudit.distinctTransitionCount,
+      repeatedPhysicalEventPairs: transitionAudit.repeatedPairs,
       timing: durations,
       perceptualCamera: perceptualSignatures,
       framing: plan.cameraPlan.shots.map((shot) => shot.framing),
@@ -390,7 +467,7 @@ try {
   if (similarities.some((similarity) => similarity >= 0.75)) compactCollapseFailures += similarities.filter((similarity) => similarity >= 0.75).length;
 
   assert(eventCollapseFailures === 0, `${eventCollapseFailures} cross-intent event collapse failures remain.`);
-  assert(genericActionFailures === 0, `${genericActionFailures} generic action-chain failures remain.`);
+  assert(physicalEventTransitionFailures === 0, `${physicalEventTransitionFailures} physical event transition diversity failures remain.`);
   assert(timingCollapseFailures === 0, `${timingCollapseFailures} timing profile collapse failures remain.`);
   assert(cameraCollapseFailures === 0, `${cameraCollapseFailures} perceptual camera collapse failures remain.`);
   assert(roleTemplateFailures === 0, `${roleTemplateFailures} semantic role shot-template failures remain.`);
@@ -425,7 +502,7 @@ try {
     stage: "COMMERCIAL_OUTPUT_DIVERSITY_V1_2_1",
     fiveIntentsStructurallyDistinct: true,
     eventCollapseFailures,
-    genericActionFailures,
+    physicalEventTransitionFailures,
     timingCollapseFailures,
     fixedEqualTimingRemaining: results.some((result) => new Set(result.timing).size === 1),
     cameraCollapseFailures,

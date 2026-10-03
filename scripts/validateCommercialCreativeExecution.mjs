@@ -5,10 +5,11 @@ const api = await loadCommercialV13Api(resolve(import.meta.dirname, '..'));
 const assert = (condition, message) => { if (!condition) throw new Error(message); };
 const reference = {
   referenceSetId: 'creative-execution-regression', taskId: 'creative-execution-regression',
-  sourceType: 'current_task_reference_set', confirmationStatus: 'incomplete',
-  confirmedReferenceCount: 0, confirmedAssetIds: [], coverage: [],
-  missingCoverage: ['silhouette', 'toe_structure', 'side_panel_structure', 'heel_structure', 'outsole_profile', 'color_blocking', 'material_evidence'],
-  referencePlanReady: false, productTruthMode: 'reference_bound', productTruth: null,
+  sourceType: 'current_task_reference_set', confirmationStatus: 'confirmed',
+  confirmedReferenceCount: 2, confirmedAssetIds: ['front', 'side'],
+  coverage: ['silhouette', 'toe_structure', 'side_panel_structure', 'heel_structure', 'outsole_profile', 'color_blocking', 'material_evidence'],
+  missingCoverage: [], referencePlanReady: true, productTruthMode: 'reference_bound',
+  productTruth: { coverage: ['silhouette', 'toe_structure', 'side_panel_structure', 'heel_structure', 'outsole_profile', 'color_blocking', 'material_evidence'], status: 'draft', referenceEvidenceBound: true, productTruthMode: 'reference_bound' },
 };
 
 function request(intent, concept) {

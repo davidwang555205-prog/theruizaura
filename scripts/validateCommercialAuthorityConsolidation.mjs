@@ -120,6 +120,12 @@ for (const intent of intents) {
   for (const nonce of autoNonces) {
     for (const mode of ["zero", "confirmed"]) {
       const outcome = api.runCommercialV14Pipeline(request({ intent, nonce, mode, concept: undefined }));
+      if (mode === "zero") {
+        assert(outcome.status === "BLOCKED", `AUTO ${intent}/${nonce}/zero must be blocked without confirmed references.`);
+        autoBlocked += 1;
+        autoCases.push({ intent, nonce, mode, status: "EXPECTED_REFERENCE_BLOCK" });
+        continue;
+      }
       assert(outcome.status === "GENERATED", `AUTO ${intent}/${nonce}/${mode} blocked: ${outcome.reason}`);
       const finalPlan = outcome.plan.finalExecutionPlan;
       assert(finalPlan.status === "VALID", `AUTO ${intent}/${nonce}/${mode} Final Plan is ${finalPlan.status}.`);
@@ -169,7 +175,7 @@ let blockedOther = 0;
 for (const intent of intents) {
   for (const concept of concepts) {
     for (const nonce of forcedNonces) {
-      const outcome = api.runCommercialV14Pipeline(request({ intent, nonce, mode: "zero", concept }));
+      const outcome = api.runCommercialV14Pipeline(request({ intent, nonce, mode: "confirmed", concept }));
       if (outcome.status === "GENERATED") {
         assert(
           outcome.plan.finalExecutionPlan.status === "VALID",

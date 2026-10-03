@@ -74,35 +74,70 @@ export function runCommercialFilmQc(input: CommercialQcInput): {
   passed: boolean;
   failureReasons: string[];
 } {
+  const categoryOnlyIntentAllowed = [
+    "QUIET_LUXURY",
+    "URBAN_MOTION",
+    "DAILY_STYLING",
+    "NEW_ARRIVAL",
+  ].includes(input.commercialIntent);
+  const categoryOnlyProductContextAllowed = input.referenceState.confirmedReferenceCount === 0
+    && categoryOnlyIntentAllowed
+    && input.productMessage.brandDefaultProductContext?.brand === "THERUIZ AURA"
+    && input.productMessage.brandDefaultProductContext.specificity === "CATEGORY_ONLY";
   const referenceCoverage = new Set(input.referenceState.coverage);
   const actionText = executedActionText(input);
   const referenceSourceBound =
     input.referenceState.status === "REFERENCE_READY"
     && (
       input.referenceState.confirmedReferenceCount > 0
-      || input.productMessage.externalReferenceRequired
+      || categoryOnlyProductContextAllowed
     );
   const productMessagePreserved =
     input.productMessage.evidenceLines.length > 0
     && input.productMessage.supportedDimensions.every((dimension) => referenceCoverage.has(dimension.coverage))
     && input.productMessage.prohibitedClaims.length > 0;
-  const readableShot = input.shotArchitecture.shots.find((shot) => (
-    shot.productVisibility === "PRODUCT_READABLE"
+  const dimensionIsReferenceBacked = (dimension: typeof input.productMessage.supportedDimensions[number]["coverage"] | null) => Boolean(
+    dimension
+    && referenceCoverage.has(dimension)
+    && input.productMessage.supportedDimensions.some((supported) => supported.coverage === dimension)
+  );
+  const isCategoryOnlyEnvironmentalDetail = (shot: CommercialQcInput["shotArchitecture"]["shots"][number]) => {
+    const relationship = shot.event.productDetailRelationship?.trim() ?? "";
+    return categoryOnlyProductContextAllowed
+      && shot.productMessageDimension === null
+      && relationship.length > 0
+      && !/\b(?:material|leather|grain|texture|stitch|seam|panel|sole|outsole|toe|heel|logo|color|construction|finish)\b/i.test(relationship);
+  };
+  const productExpressionShots = input.shotArchitecture.shots.filter((shot) => (
+    (
+      shot.productVisibility === "PRODUCT_READABLE"
+      || shot.productVisibility === "PRODUCT_HERO"
+      || (shot.role === "DETAIL" && shot.productVisibility === "PRODUCT_DETAIL" && isCategoryOnlyEnvironmentalDetail(shot))
+    )
+    && input.creativeSpine.productPresenceByShot[shot.shotIndex] === "CLEAR"
   ));
-  const detailShot = input.shotArchitecture.shots.find((shot) => shot.role === "DETAIL");
+  const readableShot = productExpressionShots.find((shot) => (
+    dimensionIsReferenceBacked(shot.productMessageDimension)
+    || (input.productMessage.externalReferenceRequired && input.referenceState.confirmedReferenceCount > 0)
+    || categoryOnlyProductContextAllowed
+  ));
   const heroShot = input.shotArchitecture.shots.find((shot) => shot.role === "HERO");
   const releaseShot = input.shotArchitecture.shots.find((shot) => shot.role === "RELEASE");
-  const heroActionText = (heroShot?.action.physicalActionLine ?? "")
-    .replace(/\b(?:without|no)\s+(?:posing|a\s+pose|any\s+pose)\b/gi, " ");
-  const heroPoseFree = !/\b(?:pose|poses|posed|posing)\b|\bpresents?\s+the\s+(?:shoe|product)\b|\bdisplays?\s+the\s+(?:shoe|product)\b|\bstops?\s+for\s+the\s+camera\b/i.test(
-    heroActionText
-  );
-  const heroHoldMotivated = heroShot?.camera.movement !== "brief_hero_hold"
-    || heroShot?.event.actionContinuity === "SETTLES";
-  const heroReadabilityReachable = Boolean(heroShot)
-    && (Boolean(heroShot?.productMessageDimension) || input.productMessage.externalReferenceRequired)
-    && heroShot?.productVisibility === "PRODUCT_HERO"
-    && heroPoseFree
+  const readableProductShots = productExpressionShots;
+  const readableActionText = readableProductShots.map((shot) => shot.action.physicalActionLine)
+    .join(" ").replace(/\b(?:without|no)\s+(?:posing|a\s+pose|any\s+pose)\b/gi, " ");
+  const readablePoseFree = !/\b(?:pose|poses|posed|posing)\b|\bpresents?\s+the\s+(?:shoe|product)\b|\bdisplays?\s+the\s+(?:shoe|product)\b|\bstops?\s+for\s+the\s+camera\b/i.test(readableActionText);
+  const heroHoldMotivated = [...readableProductShots, ...(heroShot ? [heroShot] : [])]
+    .every((shot) => shot.camera.movement !== "brief_hero_hold" || shot.event.actionContinuity === "SETTLES");
+  const heroReadabilityReachable = Boolean(readableShot)
+    && (categoryOnlyProductContextAllowed
+      || input.creativeSpine.productRole !== "HERO"
+      || productExpressionShots.some((shot) => shot.productVisibility === "PRODUCT_HERO" && (
+        dimensionIsReferenceBacked(shot.productMessageDimension)
+        || (input.productMessage.externalReferenceRequired && input.referenceState.confirmedReferenceCount > 0)
+        || categoryOnlyProductContextAllowed
+      )))
+    && readablePoseFree
     && heroHoldMotivated;
   const continuityStateConsistent = input.continuity.status === "CONTINUOUS"
     && input.continuity.conflicts.length === 0;
@@ -117,10 +152,12 @@ export function runCommercialFilmQc(input: CommercialQcInput): {
     : microDecisionValid
       ? "The declared Micro Decision shows its visible consequence after the chosen action and does not restart it."
       : `The declared Micro Decision is not executable: ${input.microDecision.failureReasons.join(" | ")}`;
-  const detailSupported = input.productMessage.externalReferenceRequired
-    ? detailShot?.storySpine.productPresenceDesign !== "ABSENT"
-    : Boolean(detailShot?.productMessageDimension)
-      && referenceCoverage.has(detailShot!.productMessageDimension!);
+  const declaredDetailShots = input.shotArchitecture.shots.filter((shot) => shot.productVisibility === "PRODUCT_DETAIL");
+  const detailSupported = declaredDetailShots.every((shot) => {
+    const relationship = shot.event.productDetailRelationship?.trim() ?? "";
+    return Boolean(relationship)
+      && (dimensionIsReferenceBacked(shot.productMessageDimension) || isCategoryOnlyEnvironmentalDetail(shot));
+  });
   const actionPhysical = input.actionPlan.length === 5
     && input.actionPlan.every((item) => (
       item.physicalActionLine.trim().length > 0
@@ -148,10 +185,29 @@ export function runCommercialFilmQc(input: CommercialQcInput): {
     input.brandMood.prohibitedDirections.length >= 5
     && input.endingStrategy.prohibitedEndings.some((line) => /logo/i.test(line))
     && input.cameraPlan.restrictions.some((line) => /orbit/i.test(line));
-  const naturalEnding = releaseShot?.productVisibility === "BRAND_RELEASE"
-    && releaseShot.storySpine.dramaticFunction === "RESOLVE"
+  const releasePresence = releaseShot
+    ? input.creativeSpine.productPresenceByShot[releaseShot.shotIndex]
+    : "ABSENT";
+  const endingProductRetained = releaseShot?.productVisibility === "BRAND_RELEASE"
+    || (input.creativeSpine.productRole === "HERO" || input.creativeSpine.productRole === "REVEALED"
+      ? releasePresence === "CLEAR"
+      : input.creativeSpine.productRole === "DISCOVERED"
+        ? ["PARTIAL", "SECONDARY", "CLEAR"].includes(releasePresence)
+        : ["SECONDARY", "CLEAR"].includes(releasePresence));
+  const naturalEnding = Boolean(releaseShot)
+    && endingProductRetained
+    && releaseShot?.storySpine.dramaticFunction === "RESOLVE"
+    && input.eventSpine.shots[releaseShot?.shotIndex ?? -1]?.eventFunction === releaseShot?.event.eventFunction
     && input.eventSpine.endingGrammar.line.trim().length > 0
-    && input.endingStrategy.line === input.eventSpine.endingGrammar.line;
+    && input.endingStrategy.grammar.id === input.eventSpine.endingGrammar.id
+    && input.endingStrategy.grammar.line === input.eventSpine.endingGrammar.line
+    && input.endingStrategy.line.includes(input.eventSpine.endingGrammar.line)
+    && input.endingStrategy.strategy === input.eventSpine.endingImageStrategy
+    && input.endingStrategy.strategy === input.creativeSpine.endingImageStrategy
+    && Boolean(input.eventSpine.endingResolution.trim())
+    && Boolean(releaseShot?.event.whatChanges.trim())
+    && releaseShot?.event.whatHappens === input.eventSpine.shots[releaseShot?.shotIndex ?? -1]?.whatHappens
+    && releaseShot?.event.whatChanges === input.eventSpine.shots[releaseShot?.shotIndex ?? -1]?.whatChanges;
   const executionSpecificity = input.actionPlan.every((item) => (
     !/\bor\b/i.test(item.physicalActionLine)
     && !/\b(?:completes a task|makes an adjustment|settles naturally|performs a small move|continues through space|pauses naturally)\b/i.test(item.physicalActionLine)
@@ -169,8 +225,10 @@ export function runCommercialFilmQc(input: CommercialQcInput): {
       "product_message_preserved",
       productMessagePreserved && referenceSourceBound,
       productMessagePreserved
-        ? "The Product Message is derived only from confirmed current-task reference coverage and contains an explicit no-fabrication rule."
-        : "The Product Message could not be bound to the confirmed reference coverage."
+        ? categoryOnlyProductContextAllowed
+          ? "The Product Message uses only THERUIZ AURA's category-level default context for this intent; no SKU or unsupported product detail is inferred."
+          : "The Product Message is derived only from confirmed current-task reference coverage and contains an explicit no-fabrication rule."
+        : "The Product Message could not be bound to confirmed product evidence or an allowed AURA category-level context."
     ),
     brand_mood_preserved: gate(
       "brand_mood_preserved",
@@ -181,27 +239,30 @@ export function runCommercialFilmQc(input: CommercialQcInput): {
     product_readability: gate(
       "product_readability",
       Boolean(readableShot)
-        && (Boolean(readableShot?.productMessageDimension) || input.productMessage.externalReferenceRequired)
-        && input.shotArchitecture.shots.some((shot) => shot.productVisibility === "PRODUCT_HERO"),
+        && input.creativeSpine.productPresenceByShot[readableShot!.shotIndex] === "CLEAR",
       readableShot
-        ? "At least one WEAR shot requires a readable worn product and the HERO shot preserves its product requirement."
-        : "No PRODUCT_READABLE shot exists."
+        ? categoryOnlyProductContextAllowed
+          ? `A visible ${readableShot.productVisibility} beat at index ${readableShot.shotIndex} is supported at category level only; no SKU-specific appearance or physical detail is asserted.`
+          : `A visible ${readableShot.productVisibility} beat at index ${readableShot.shotIndex} carries CLEAR presence and a confirmed reference-backed product dimension.`
+        : "No actual visible product-expression beat is bound to CLEAR presence and confirmed product evidence."
     ),
     hero_moment_exists: gate(
       "hero_moment_exists",
       heroReadabilityReachable,
-      heroShot
+      readableProductShots.length > 0
         ? heroHoldMotivated
-          ? "The HERO shot reaches worn-product readability inside the declared action continuity: a hold is used only where the narrative actually settles."
-          : "The HERO shot forces a breath-hold inside an action that the narrative declares as continuous, so the character would stop for the product."
-        : "No PRODUCT_HERO shot exists."
+          ? "A Product Role authorized beat reaches a supported worn-product read inside its declared action continuity."
+          : "A readability beat forces a breath-hold inside an action declared as continuous."
+        : "No Product Role authorized readable shot exists."
     ),
     detail_supported_by_reference: gate(
       "detail_supported_by_reference",
       detailSupported,
       detailSupported
-        ? `The DETAIL shot observes only ${detailShot?.productMessageDimension}, a coverage item established by the current confirmed references.`
-        : "The DETAIL shot is not supported by any confirmed product coverage."
+        ? categoryOnlyProductContextAllowed
+          ? "The allowed intent uses only a non-specific environmental relationship; SKU, material, construction, and other product details remain deferred to confirmed references."
+          : "Every declared PRODUCT_DETAIL beat names a product relationship and maps it to a confirmed supported dimension."
+        : "A PRODUCT_DETAIL beat lacks an event relationship or confirmed reference-backed dimension."
     ),
     continuity_state_consistent: gate(
       "continuity_state_consistent",
@@ -270,7 +331,7 @@ export function runCommercialFilmQc(input: CommercialQcInput): {
     natural_ending: gate(
       "natural_ending",
       naturalEnding,
-      "The RELEASE shot lets the person continue into life and prohibits packshots, logo animation, and end-card branding."
+      "The RELEASE resolves with the product retained at its Product Role-authorized level; ending strategy, grammar, and final event agree with Event Spine."
     ),
     full_15_second_timing: gate(
       "full_15_second_timing",

@@ -42,6 +42,17 @@ export type CommercialAudienceDesireId =
 
 export type CommercialRevealStrategy = "IMMEDIATE" | "PROGRESSIVE" | "DELAYED";
 
+export type CommercialAdvertisingStructureId =
+  | "CONTRAST_SHIFT"
+  | "PURSUIT_RELEASE"
+  | "WITHHOLD_REVEAL"
+  | "RITUAL_COMPLETION"
+  | "WORLD_OBSERVES_SUBJECT"
+  | "ICONIC_IMAGE";
+
+export type CommercialProductRole = "INHABITED" | "DISCOVERED" | "REVEALED" | "HERO";
+export type CommercialEndingImageStrategy = "CONTINUE_INTO_LIFE" | "RESOLVE_IN_PLACE" | "WORLD_AFTERIMAGE" | "ICONIC_HOLD";
+
 export type CommercialProductPresenceDesign =
   | "CLEAR"
   | "SECONDARY"
@@ -131,7 +142,15 @@ export type CommercialStoryQcGateId =
   | "product_meaning_unsupported"
   | "human_situation_inconsistent"
   | "premise_not_reflected"
-  | "product_readability_protected";
+  | "product_readability_protected"
+  | "advertising_structure_missing"
+  | "creative_idea_generic"
+  | "product_role_structure_conflict"
+  | "fixed_product_template_collapse"
+  | "ending_image_missing"
+  | "ending_state_only"
+  | "creative_structure_not_reflected"
+  | "signature_memory_missing";
 
 export type CommercialStoryQcGate = {
   id: CommercialStoryQcGateId;
@@ -145,7 +164,15 @@ export type CommercialStoryQcGate = {
     | "PRODUCT_MEANING_UNSUPPORTED"
     | "HUMAN_SITUATION_INCONSISTENT"
     | "PREMISE_NOT_REFLECTED"
-    | "PRODUCT_READABILITY_UNPROTECTED";
+    | "PRODUCT_READABILITY_UNPROTECTED"
+    | "ADVERTISING_STRUCTURE_MISSING"
+    | "CREATIVE_IDEA_GENERIC"
+    | "PRODUCT_ROLE_STRUCTURE_CONFLICT"
+    | "FIXED_PRODUCT_TEMPLATE_COLLAPSE"
+    | "ENDING_IMAGE_MISSING"
+    | "ENDING_STATE_ONLY"
+    | "CREATIVE_STRUCTURE_NOT_REFLECTED"
+    | "SIGNATURE_MEMORY_MISSING";
   label: string;
   status: "PASS" | "FAIL";
   reason: string;
@@ -157,6 +184,13 @@ export type CommercialCreativeSpinePlan = {
   schemaVersion: typeof COMMERCIAL_CREATIVE_SPINE_SCHEMA_VERSION;
   plannerVersion: typeof COMMERCIAL_CREATIVE_SPINE_VERSION;
   creativeCase: CommercialCreativeCase | null;
+  advertisingStructure: CommercialAdvertisingStructureId;
+  productRole: CommercialProductRole;
+  endingImageStrategy: CommercialEndingImageStrategy;
+  filmTension: { from: string; to: string; line: string };
+  visualMemoryIntent: string;
+  endingImageIntent: string;
+  brandFilmPrinciples: string[];
   premise: CommercialCreativePremise;
   humanSituation: CommercialHumanSituation;
   audienceDesire: CommercialAudienceDesire;
@@ -186,6 +220,7 @@ export type CommercialCreativeSpinePlannerInput = {
     label: string;
   };
   cameraRhythm: CommercialCameraRhythm;
+  generationNonce: number;
   shotRoles: CommercialShotRole[];
   creativeCase?: CommercialCreativeCase;
 };

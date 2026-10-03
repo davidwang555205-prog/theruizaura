@@ -178,7 +178,12 @@ export type CommercialCreativeTreatmentQcCode =
   | "DEVICE_ARC_IGNORES_SIGNATURE_MOMENT"
   | "PRODUCT_ROLE_FORCED_INTO_SIGNATURE_MOMENT"
   | "ENDING_DOES_NOT_RESOLVE_SIGNATURE_MOMENT"
-  | "SIGNATURE_MOMENT_MECHANISM_COLLAPSE";
+  | "SIGNATURE_MOMENT_MECHANISM_COLLAPSE"
+  | "CREATIVE_SPINE_TREATMENT_SEMANTIC_CONFLICT"
+  | "SIGNATURE_EVENT_NOT_IN_EXECUTION"
+  | "SIGNATURE_STATE_CHANGE_NOT_IN_EXECUTION"
+  | "SIGNATURE_RESOURCE_CHANGE_NOT_IN_EXECUTION"
+  | "CREATIVE_DEVICE_EXECUTION_MISMATCH";
 
 export type CommercialCreativeTreatmentQcGate = {
   code: CommercialCreativeTreatmentQcCode;
@@ -200,6 +205,7 @@ export type CommercialCreativeTreatment = {
   schemaVersion: typeof COMMERCIAL_CREATIVE_DIRECTING_SCHEMA_VERSION;
   plannerVersion: typeof COMMERCIAL_CREATIVE_DIRECTING_VERSION;
   commercialIntent: CommercialIntentId;
+  productRole: import("../creative-spine/types").CommercialProductRole;
   directorConceptId: CommercialDirectorConceptId;
   title: string;
   creativeProposition: CommercialCreativeProposition;
@@ -217,6 +223,7 @@ export type CommercialCreativeTreatment = {
   structure: CommercialStructureBeat[];
   productRevealLogic: CommercialProductRevealLogic;
   endingImage: string;
+  endingStrategy: import("../creative-spine/types").CommercialEndingImageStrategy;
   endingMeaning: string;
   worldBehavior: string;
   shotVisualPriorities: CommercialV14VisualPriority[];

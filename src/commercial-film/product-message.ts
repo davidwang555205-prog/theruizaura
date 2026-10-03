@@ -2,6 +2,7 @@ import type { ProductCoverage } from "../visual-system/taskReferenceBinding";
 import type {
   CommercialProductMessage,
   CommercialProductMessageDimension,
+  CommercialAuraDefaultProductContext,
   CommercialReferenceInput,
 } from "./types";
 
@@ -57,6 +58,21 @@ const PROHIBITED_PRODUCT_CLAIMS = [
   "no claim about comfort, durability, weight, or performance unless separately confirmed",
 ];
 
+const EXTERNAL_TOOL_REFERENCE_INSTRUCTION =
+  "Use the footwear reference images uploaded in the external video generation tool as the only source of truth for the selected product's appearance and physical details. AURA category context in this script does not identify a specific SKU or authorize any unseen product detail.";
+
+export const THERUIZ_AURA_DEFAULT_PRODUCT_CONTEXT: CommercialAuraDefaultProductContext = {
+  brand: "THERUIZ AURA",
+  category: "German Trainer / Leather Lifestyle Sneaker",
+  specificity: "CATEGORY_ONLY",
+  rules: [
+    "Do not name or infer a specific SKU.",
+    "Do not invent material details, color, construction, logo, or physical features.",
+    "Do not add comfort, performance, durability, origin, or other unsupported selling claims.",
+    "PRODUCT_CRAFT requires confirmed product evidence.",
+  ],
+};
+
 function uniqueStrings(values: string[]) {
   return [...new Set(values.map((value) => value.trim()).filter(Boolean))];
 }
@@ -64,7 +80,8 @@ function uniqueStrings(values: string[]) {
 export function buildCommercialProductMessage(
   reference: CommercialReferenceInput,
   priority: ProductCoverage[],
-  confirmedBrandSellingPoints: string[] = []
+  confirmedBrandSellingPoints: string[] = [],
+  brandDefaultProductContext: CommercialAuraDefaultProductContext | null = null
 ): CommercialProductMessage {
   const supportedCoverage = priority.filter((coverage) => reference.coverage.includes(coverage));
   const fallbackCoverage = reference.coverage.filter((coverage) => !supportedCoverage.includes(coverage));
@@ -83,22 +100,30 @@ export function buildCommercialProductMessage(
         "current_task_product_truth",
         "confirmed_reference_set",
       ];
+  if (brandDefaultProductContext) source.push("brand_default_product_context");
   if (confirmedPoints.length > 0) source.push("confirmed_brand_selling_points");
 
   const headline = externalReferenceRequired
-    ? "External Reference-Bound Product Protection"
+    ? brandDefaultProductContext
+      ? "AURA Category Context + External Reference-Bound Product Protection"
+      : "External Reference-Bound Product Protection"
     : supportedDimensions.map((dimension) => dimension.label).join(" / ");
-  const externalReferenceLine =
-    "Use the footwear reference images uploaded in the external video generation tool as the only source of truth for the product. Do not invent or alter product details not supported by those references.";
+  const externalReferenceLine = EXTERNAL_TOOL_REFERENCE_INSTRUCTION;
+  const brandContextLine = brandDefaultProductContext
+    ? `Brand Product Rules authorize category-level context only: ${brandDefaultProductContext.category}. No specific SKU is selected.`
+    : null;
 
   return {
     source,
     status: "READY",
     externalReferenceRequired,
+    externalToolReferenceInstruction: EXTERNAL_TOOL_REFERENCE_INSTRUCTION,
+    brandDefaultProductContext,
     headline,
     supportedDimensions,
     confirmedBrandSellingPoints: confirmedPoints,
     evidenceLines: [
+      ...(brandContextLine ? [brandContextLine] : []),
       externalReferenceRequired
         ? externalReferenceLine
         : `Use ${reference.confirmedReferenceCount} confirmed current-task product reference${reference.confirmedReferenceCount === 1 ? "" : "s"} as the only product source.`,
@@ -106,8 +131,10 @@ export function buildCommercialProductMessage(
       ...confirmedPoints.map((point) => `Confirmed brand selling point: ${point}`),
     ],
     prohibitedClaims: PROHIBITED_PRODUCT_CLAIMS,
-    noFabricationLine: externalReferenceRequired
-      ? externalReferenceLine
+    noFabricationLine: brandDefaultProductContext
+      ? `${brandContextLine} Do not identify a SKU or infer material details, color, construction, logo, physical features, or unsupported claims. ${externalReferenceLine}`
+      : externalReferenceRequired
+        ? externalReferenceLine
       : "Do not infer or name any product fact that is not visibly established by the current confirmed references or separately confirmed brand selling points.",
   };
 }

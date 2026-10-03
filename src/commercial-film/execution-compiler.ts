@@ -96,7 +96,6 @@ function shotProductLine(
   shotIndex: number
 ) {
   const shot = plan.shotArchitecture.shots[shotIndex];
-  const directorShot = plan.directorConcept.shots[shotIndex];
   if (!shot) return "No product requirement is issued for this shot.";
   const dimension = dimensionOf(plan, shot.productMessageDimension);
   const presenceDirection = renderProductPresenceDirection(shot.storySpine.productPresenceDesign);
@@ -106,19 +105,19 @@ function shotProductLine(
   if (plan.productMessage.externalReferenceRequired) {
     return `${presenceDirection} Use the footwear reference images uploaded in the external video generation tool as the only source of truth for the product. Do not invent or alter product details not supported by those references.`;
   }
-  if (shot.role === "WORLD" || shot.role === "RELEASE") {
+  if (shot.storySpine.productPresenceDesign === "SECONDARY" || shot.storySpine.productPresenceDesign === "IMPLIED") {
     return `${presenceDirection} The product remains part of the person's real clothing and movement. Do not force a product-only frame.`;
   }
   if (!dimension) {
     return "Preserve the current confirmed product reference only where it naturally appears in the frame.";
   }
-  if (shot.role === "DETAIL") {
+  if (shot.productVisibility === "PRODUCT_DETAIL") {
     return `${presenceDirection} ${dimension.detailMessage} Keep the detail inside the real worn-product relationship.`;
   }
-  if (shot.role === "HERO") {
-    return `${presenceDirection} ${dimension.message} ${directorShot.heroConvergence ?? "Keep the hero moment worn, grounded, and at natural human scale."}`;
+  if (shot.productVisibility === "PRODUCT_HERO") {
+    return `${presenceDirection} ${dimension.message} Keep this selected hero role worn, grounded, and at natural human scale.`;
   }
-  return `${presenceDirection} ${dimension.message} Keep at least one shoe readable toe-to-heel without changing the action.`;
+  return `${presenceDirection} ${dimension.message} Preserve only the visibility level selected by the Creative Spine; do not escalate the frame.`;
 }
 
 function compactProductLine(plan: CommercialFilmPlan, shotIndex: number) {
@@ -128,9 +127,11 @@ function compactProductLine(plan: CommercialFilmPlan, shotIndex: number) {
   if (presence === "ABSENT") {
     return "Product not visible; crop, foreground, seating, or occlusion must physically prevent footwear exposure.";
   }
+  const firstClearIndex = plan.creativeSpine.productPresenceByShot.indexOf("CLEAR");
+  const eventRelationship = firstClearIndex === shotIndex ? shot.event.productDetailRelationship : null;
   if (plan.productMessage.externalReferenceRequired) {
-    if (shot.role === "DETAIL") {
-      return `Observe the ${shot.event.productDetailRelationship ?? "selected reference-supported product relationship"} from the external footwear references through natural use; do not default to a full-shoe close-up.`;
+    if (eventRelationship && presence !== "IMPLIED") {
+      return `Preserve the ${eventRelationship} only as supported by the external footwear references and visible within this existing action; keep the selected ${presence.toLowerCase()} product presence, with no detail insert or full-shoe close-up.`;
     }
     const visibility: Record<string, string> = {
       IMPLIED: "Product implied through context; no readable product view required.",
@@ -140,8 +141,8 @@ function compactProductLine(plan: CommercialFilmPlan, shotIndex: number) {
     };
     return visibility[presence] ?? "Product remains reference-bound to the external footwear uploads.";
   }
-  if (shot.role === "DETAIL") {
-    return `Observe the ${shot.event.productDetailRelationship ?? dimension?.label ?? "confirmed reference relationship"} in the worn-action frame.`;
+  if (eventRelationship && dimension) {
+    return `Preserve the reference-supported ${eventRelationship} (${dimension.label}) within this existing action and its selected ${presence.toLowerCase()} visibility; do not turn it into a detail insert.`;
   }
   const visibility: Record<string, string> = {
     IMPLIED: "Product implied through context.",
@@ -281,12 +282,7 @@ function mandatoryVisualEvents(plan: CommercialFilmPlan) {
   plan.eventSpine.shots.forEach((shot) => {
     shot.stateContract.effects.forEach((effect) => {
       if (effect.entityId === "character" && effect.attribute === "space") {
-        if (effect.fromValue !== effect.toValue) {
-          push(
-            `character.space`,
-            `The character must visibly move into ${effect.toValue}.`
-          );
-        }
+        // Spatial state changes are rendered once as a beat-local transition contract below.
         return;
       }
       if (effect.entityId === "character" && effect.attribute === "anchor") return;
@@ -316,6 +312,22 @@ function mandatoryVisualEvents(plan: CommercialFilmPlan) {
     );
   }
   return events;
+}
+
+function modelFacingSpatialTransition(plan: CommercialFilmPlan, shotIndex: number) {
+  const shot = plan.eventSpine.shots[shotIndex];
+  const effect = shot?.stateContract.effects.find((entry) => (
+    entry.entityId === "character" && entry.attribute === "space" && entry.fromValue !== entry.toValue
+  ));
+  if (!effect) return null;
+  const evidence = shot.stateContract.requiredVisibleEvidence.find((entry) => entry.sourceEventId === effect.sourceEventId)
+    ?? shot.stateContract.requiredVisibleEvidence[0];
+  return [
+    `SPATIAL TRANSITION CONTRACT: At the start of this beat, the character is ${effect.fromValue}.`,
+    `During this same beat, the selected event happens once: ${evidence?.statement ?? shot.whatHappens}`,
+    `At the end of this beat, the character is ${effect.toValue}. From the following beat onward, keep this end state.`,
+    "This contract describes the same crossing already named in the beat action; it is not a second crossing.",
+  ];
 }
 
 function sanitizeRoleTokens(text: string) {
@@ -485,6 +497,8 @@ function compileText(plan: CommercialFilmPlan, internalScriptText: string) {
         lines.push(`BEAT ${beatNumber}`);
         lines.push(`Time: ${shot.timeRange.startSecond.toFixed(1)}-${shot.timeRange.endSecond.toFixed(1)}s`);
         lines.push(`Action: ${shot.action.physicalActionLine}`);
+        const spatialTransition = modelFacingSpatialTransition(plan, shot.shotIndex);
+        spatialTransition?.forEach((line) => lines.push(line));
         const heroContinuous = shot.role === "HERO" && shot.event.actionContinuity === "CONTINUOUS";
         const cameraBehaviorText = heroContinuous
           ? "Let the natural weight settle make the worn product readable inside the ongoing movement."
@@ -508,13 +522,15 @@ function compileText(plan: CommercialFilmPlan, internalScriptText: string) {
         const isLastBeatInTake = shotIndex === take.shotIndexes[take.shotIndexes.length - 1];
         const isLastTake = take.takeIndex === takes.length - 1;
         if (isLastBeatInTake && isLastTake) {
-          lines.push(`Ending: ${sanitizeRoleTokens(plan.endingStrategy.grammar.line)} ${sanitizeRoleTokens(directorShot.releaseConvergence ?? plan.directorConcept.releaseRule)}`);
+          lines.push(`Ending: ${sanitizeRoleTokens(plan.endingStrategy.line)} ${sanitizeRoleTokens(directorShot.releaseConvergence ?? plan.directorConcept.releaseRule)}`);
         } else if (isLastBeatInTake) {
           lines.push("Transition: this take ends here. The next take starts from the state declared in its own START STATE INHERITED FROM PREVIOUS TAKE block.");
         } else {
-          lines.push("Transition: continue inside this same uninterrupted take; the next timed beat is a process boundary, not a cut.");
+          lines.push("Transition: continue this uninterrupted take; next timed beat is a process boundary, not a cut.");
         }
         lines.push(`Edit continuity: ${sanitizeRoleTokens(CONTINUOUS_EDIT_TRANSLATIONS[shot.direction.editLogic])}`);
+        const beatSound = shot.sound.cues.join("; ");
+        lines.push(`Sound in this beat, grounded in its spatial state: ${beatSound}.`);
         beatNumber += 1;
       });
     }
@@ -541,10 +557,11 @@ function compileText(plan: CommercialFilmPlan, internalScriptText: string) {
   }
   lines.push("");
   lines.push("[GLOBAL PRODUCT PROTECTION]");
+  lines.push(plan.productMessage.externalToolReferenceInstruction);
   if (plan.productMessage.externalReferenceRequired) {
-    lines.push("Use the footwear reference images uploaded in the external video generation tool as the only source of truth for the product. Do not invent or alter product details not supported by those references.");
+    lines.push(plan.productMessage.noFabricationLine);
   } else {
-    lines.push("Use the confirmed current-task product references as the only source of product truth.");
+    lines.push("Use the confirmed current-task product references as the product-fact authority; upload this same reference set to the external video generation tool and use only its supported dimensions and visible facts.");
   }
   lines.push("Preserve silhouette, proportions, visible material and color relationships, outsole/upper/tongue/lace relationships, and grounded foot-to-shoe scale.");
   lines.push("Do not invent product facts, logos, materials, colors, panel geometry, or construction. Do not recolor, reshape, stretch, compress, or deform the product through pose, garment, or camera.");
@@ -727,7 +744,11 @@ export function validateCommercialExecutionScript(
   add("product_protection", "Global Product Protection", text.includes("[GLOBAL PRODUCT PROTECTION]"), "Global product protection is present.", "Global product protection is missing.");
   add("negatives", "Global Negatives", text.includes("[NEGATIVES]"), "Consolidated negatives are present.", "Global negatives are missing.");
   add("ending", "Natural Ending", text.includes("Ending:") || text.includes(plan.endingStrategy.grammar.line), "The ending is explicit.", "The natural ending is missing.");
-  add("no_internal_markers", "No Internal Markers", internalMarkers.length === 0, "No internal plan markers are present.", `Internal markers leaked: ${internalMarkers.join(", ")}.`);
+  const internalMarkerContext = internalMarkers.map((marker) => {
+    const index = text.indexOf(marker);
+    return `${marker}: ${text.slice(Math.max(0, index - 45), index + marker.length + 45).replace(/\s+/g, " ")}`;
+  });
+  add("no_internal_markers", "No Internal Markers", internalMarkers.length === 0, "No internal plan markers are present.", `Internal markers leaked: ${internalMarkerContext.join(" | ")}.`);
   add("no_action_ids", "No Action IDs", !actionIdLeak, "No existing Action ID is present in the final script.", "An Action ID leaked into the final script.");
   add("no_qc_language", "No QC Language", !qcLanguageLeak, "No QC, validator, enum, or source-ID language is present.", "QC or internal validation language leaked into the final script.");
   add("no_brand_leakage", "No Brand-Name Leakage", brandNameLeak === 0, "The execution body uses neutral brand language.", "The execution body contains the brand name.");

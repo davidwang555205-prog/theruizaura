@@ -84,6 +84,65 @@ function intentIndex(intent: CommercialFilmPlan["commercialIntent"]) {
   return INTENT_ORDER.indexOf(intent);
 }
 
+function executedReflectionBeatIndex(plan: CommercialFilmPlan) {
+  return plan.eventSpine.shots.findIndex((shot) => (
+    /reflection|window glass/i.test(shot.whatHappens)
+    && shot.stateContract.effects.some((effect) => (
+      effect.fromValue !== effect.toValue
+      && (/reflection|glass/i.test(effect.attribute)
+        || /reflection|glass/i.test(plan.eventSpine.worldModel.entities.find((entity) => entity.id === effect.entityId)?.label ?? ""))
+    ))
+  ));
+}
+
+function executedCarrierStateChangeBeatIndex(plan: CommercialFilmPlan, resourceId?: string | null) {
+  const entityId = resourceId?.startsWith("entity:") ? resourceId.slice("entity:".length) : null;
+  if (!entityId) return -1;
+  return plan.eventSpine.shots.findIndex((shot) => (
+    shot.physicalEvent.requiredResource === entityId
+    && shot.stateContract.effects.some((effect) => (
+      effect.entityId === entityId && effect.fromValue !== effect.toValue
+    ))
+  ));
+}
+
+function executedOcclusionReleaseBeatIndex(
+  plan: CommercialFilmPlan,
+  resourceId?: string | null
+) {
+  const carrierId = resourceId?.replace(/^entity:/, "");
+  if (!carrierId) return -1;
+  return plan.eventSpine.shots.findIndex((shot) => {
+    const eventUsesCarrier = shot.physicalEvent.requiredResource === carrierId
+      || shot.physicalEvent.requiredWorldResources.includes(carrierId);
+    const releasesOcclusion = shot.physicalEvent.eventFamily === "FOREGROUND_OCCLUSION_RELEASED";
+    const hasReadableTransition = shot.stateContract.effects.some((effect) => (
+      effect.fromValue !== effect.toValue
+      && effect.attribute === "visualAccess"
+      && effect.fromValue === "partly withheld"
+      && effect.toValue === "readable"
+    ));
+    return eventUsesCarrier && releasesOcclusion && hasReadableTransition;
+  });
+}
+
+function executedResourceChangeBeatIndex(
+  plan: CommercialFilmPlan,
+  resource?: { id: string; label: string } | null
+) {
+  if (!resource) return -1;
+  const entityId = resource.id.replace(/^entity:/, "");
+  const label = resource.label.toLowerCase().replace(/\s+/g, " ").trim();
+  return plan.eventSpine.shots.findIndex((shot) => shot.stateContract.effects.some((effect) => {
+    if (effect.fromValue === effect.toValue) return false;
+    if (effect.entityId === entityId) return true;
+    const evidence = `${effect.entityId} ${effect.attribute} ${effect.fromValue} ${effect.toValue} ${effect.reason}`
+      .toLowerCase()
+      .replace(/\s+/g, " ");
+    return Boolean(label && evidence.includes(label));
+  }));
+}
+
 // Use architecture already named by the selected Scene World. A device cannot introduce a
 // storefront, pedestrian, mirror, or new location merely to make a carrier list diverse.
 function groundedDeviceCarrier(plan: CommercialFilmPlan): string | null {
@@ -136,19 +195,52 @@ function buildSignatureMoment(
   authority?: CommercialCreativeTreatmentAuthorityInput
 ): CommercialSignatureMoment {
   const concept = plan.directorConcept.concept;
-  const signatureBeatIndex = authority?.revealContract.revealBeatIndex
+  const quietWorldObserved = plan.commercialIntent === "QUIET_LUXURY"
+    && plan.eventSpine.advertisingStructure === "WORLD_OBSERVES_SUBJECT";
+  const craftIconicMeaning = plan.commercialIntent === "PRODUCT_CRAFT"
+    && plan.eventSpine.advertisingStructure === "ICONIC_IMAGE";
+  const executedReflectionIndex = concept === "REFLECTION_WORLD" ? executedReflectionBeatIndex(plan) : -1;
+  const executedLightCarrierChangeIndex = concept === "LIGHT_REVEAL"
+    ? executedCarrierStateChangeBeatIndex(plan, authority?.primaryResource?.id)
+    : -1;
+  const executedOcclusionReleaseIndex = concept === "PARTIAL_OBSCURATION"
+    ? executedOcclusionReleaseBeatIndex(plan, authority?.primaryResource?.id)
+    : -1;
+  const executedBoundResourceChangeIndex = executedResourceChangeBeatIndex(
+    plan,
+    authority?.primaryResource
+  );
+  const signatureBeatIndex = craftIconicMeaning
+    ? 3
+    : concept === "LIGHT_REVEAL" && executedLightCarrierChangeIndex >= 0
+    ? executedLightCarrierChangeIndex
+    : concept === "PARTIAL_OBSCURATION" && executedOcclusionReleaseIndex >= 0
+    ? executedOcclusionReleaseIndex
+    : executedBoundResourceChangeIndex >= 0
+    ? executedBoundResourceChangeIndex
+    : quietWorldObserved
+    ? 3
+    : concept === "REFLECTION_WORLD" && executedReflectionIndex >= 0
+    ? executedReflectionIndex
+    : authority?.revealContract.revealBeatIndex
     ?? (concept === "REFLECTION_WORLD"
-    ? 3 // The reflected image resolves at the existing direct-product reveal, not before it.
+    ? 3
     : 1 + ((nonce + conceptIndex(concept) + intentIndex(plan.commercialIntent)) % 3));
-  const location = concept === "REFLECTION_WORLD"
+  const location = concept === "LIGHT_REVEAL"
+    ? plan.sceneWorld.spatialAnchors.find((anchor) => /window.*light|light.*window|light falloff/i.test(anchor))
+      ?? plan.sceneWorld.spatialAnchors[signatureBeatIndex]
+      ?? plan.sceneWorld.label
+    : concept === "REFLECTION_WORLD"
     ? plan.sceneWorld.spatialAnchors.find((anchor) => /window|mirror|storefront|frontage|dressing surface/i.test(anchor))
       ?? plan.sceneWorld.spatialAnchors[signatureBeatIndex]
       ?? plan.sceneWorld.label
     : plan.sceneWorld.spatialAnchors[signatureBeatIndex] ?? plan.sceneWorld.label;
-  const carrier = authority?.primaryResource?.label
+  const carrier = quietWorldObserved
+    ? plan.eventSpine.worldModel.entities.find((entity) => entity.id === "window_light")?.label ?? "window light"
+    : authority?.primaryResource?.label
     ?? groundedDeviceCarrier(plan)
     ?? selectMomentCarrier(concept, plan.commercialIntent, nonce);
-  return synthesizeSignatureMoment(
+  const synthesized = synthesizeSignatureMoment(
     plan,
     carrier,
     location,
@@ -156,6 +248,87 @@ function buildSignatureMoment(
     nonce,
     Boolean(authority?.primaryResource)
   );
+  const centralEvent = plan.eventSpine.shots[signatureBeatIndex];
+  const resource = centralEvent.physicalEvent.requiredResource;
+  const stateChange = [...centralEvent.stateContract.effects].reverse().find((effect) => effect.fromValue !== effect.toValue);
+  const stateChangeText = stateChange
+    ? `${stateChange.entityId} ${stateChange.attribute} ${stateChange.fromValue} ${stateChange.toValue} ${stateChange.reason}`
+      .toLowerCase()
+      .replace(/\s+/g, " ")
+    : "";
+  const selectedResourceLabel = authority?.primaryResource?.label;
+  const resourceLabel = concept === "PARTIAL_OBSCURATION"
+    && signatureBeatIndex === executedOcclusionReleaseIndex
+    && selectedResourceLabel
+    ? selectedResourceLabel
+    : selectedResourceLabel
+    && stateChangeText.includes(selectedResourceLabel.toLowerCase().replace(/\s+/g, " ").trim())
+    ? selectedResourceLabel
+    : resource === "window_light" && ["REFLECTION_WORLD", "LIGHT_REVEAL"].includes(concept)
+    ? synthesized.carrier
+    : resource === "character"
+    ? "her body"
+    : plan.eventSpine.worldModel.entities.find((entity) => entity.id === resource)?.label ?? synthesized.carrier;
+  const lightCarrierChange = concept === "LIGHT_REVEAL"
+    ? centralEvent.stateContract.effects.find((effect) => (
+      effect.entityId === authority?.primaryResource?.id.replace(/^entity:/, "")
+      && effect.fromValue !== effect.toValue
+    ))
+    : undefined;
+  const craftRitualMeaning = plan.commercialIntent === "PRODUCT_CRAFT"
+    && plan.eventSpine.advertisingStructure === "RITUAL_COMPLETION";
+  const arrivalMeaning = plan.commercialIntent === "NEW_ARRIVAL";
+  const confirmedProductRelationship = centralEvent.productDetailRelationship
+    ?? centralEvent.physicalEvent.eventPurpose;
+  return {
+    ...synthesized,
+    id: `moment-${plan.commercialIntent.toLowerCase()}-${concept.toLowerCase()}-${signatureBeatIndex}`,
+    momentDescription: centralEvent.whatHappens,
+    beforeMoment: concept === "LIGHT_REVEAL" && lightCarrierChange
+      ? `The registered ${resourceLabel} reflection is ${lightCarrierChange.fromValue}.`
+      : quietWorldObserved
+      ? `The subject's principal action is settled; ${resourceLabel} remains in its registered before state.`
+      : craftIconicMeaning
+      ? `The ${confirmedProductRelationship} is present during practical use before this event makes it the image's focal meaning.`
+      : craftRitualMeaning
+        ? `The preparation task is underway before completion makes the ${confirmedProductRelationship} readable.`
+      : stateChange ? `${stateChange.entityId}.${stateChange.attribute} is ${stateChange.fromValue}.` : centralEvent.whyItHappens,
+    visualInterruption: centralEvent.whatHappens,
+    afterMoment: concept === "LIGHT_REVEAL" && lightCarrierChange
+      ? `The registered ${resourceLabel} reflection becomes ${lightCarrierChange.toValue}.`
+      : quietWorldObserved
+      ? centralEvent.stateContract.effects.find((effect) => effect.cause === "ENVIRONMENT")?.toValue ?? centralEvent.whatChanges
+      : craftIconicMeaning || craftRitualMeaning
+      ? centralEvent.whatChanges
+      : stateChange ? `${stateChange.entityId}.${stateChange.attribute} becomes ${stateChange.toValue}.` : centralEvent.whatChanges,
+    mechanism: concept === "LIGHT_REVEAL" && lightCarrierChange
+      ? `The existing ${resourceLabel} carries the reflected worn silhouette as the established body adjustment settles.`
+      : quietWorldObserved
+      ? centralEvent.whatHappens
+      : craftIconicMeaning
+      ? `The confirmed worn product relationship remains readable as she completes the existing settling event.`
+      : synthesized.mechanism,
+    memoryReason: concept === "LIGHT_REVEAL" && lightCarrierChange
+      ? `The worn silhouette becomes legible in the same ${resourceLabel} before the direct view resolves.`
+      : quietWorldObserved ? centralEvent.whatChanges : craftIconicMeaning ? centralEvent.whatChanges : synthesized.memoryReason,
+    deviceRole: concept === "LIGHT_REVEAL" && lightCarrierChange
+      ? `The registered ${resourceLabel} changes the reflected worn silhouette as the established body adjustment settles; the next beat gives a direct worn-product read.`
+      : quietWorldObserved ? centralEvent.whatHappens : craftIconicMeaning ? centralEvent.whatHappens : synthesized.deviceRole,
+    productRole: concept === "LIGHT_REVEAL" && lightCarrierChange
+      ? `The ${resourceLabel} reflection changes from ${lightCarrierChange.fromValue} to ${lightCarrierChange.toValue}, making the worn silhouette legible before the direct view.`
+      : quietWorldObserved
+      ? `${centralEvent.whatHappens} ${centralEvent.whatChanges}`
+      : craftIconicMeaning || craftRitualMeaning || arrivalMeaning
+      ? `${centralEvent.whatHappens} ${centralEvent.whatChanges}`
+      : synthesized.productRole,
+    signatureBeatIndex,
+    location: quietWorldObserved
+      ? plan.sceneWorld.spatialAnchors[signatureBeatIndex] ?? plan.sceneWorld.label
+      : concept === "PARTIAL_OBSCURATION" && signatureBeatIndex === executedOcclusionReleaseIndex
+      ? plan.sceneWorld.spatialAnchors[signatureBeatIndex] ?? plan.sceneWorld.label
+      : plan.sceneWorld.spatialAnchors[2] ?? plan.sceneWorld.label,
+    carrier: resourceLabel,
+  };
 }
 
 function buildDeviceArc(
@@ -172,6 +345,50 @@ function buildDeviceArc(
   const states = DEVICE_STATE_BY_CONCEPT[concept];
   const stableCarrier = groundedDeviceCarrier(plan);
   const authoritativeCarrier = authority?.primaryResource?.label ?? null;
+  if (intent === "QUIET_LUXURY" && plan.eventSpine.advertisingStructure === "WORLD_OBSERVES_SUBJECT") {
+    const carrier = signatureMoment.carrier;
+    const intensityPattern = ["LOW", "MEDIUM", "HIGH", "CLEAR", "MEDIUM"] as const;
+    return plan.eventSpine.shots.map((shot, index) => ({
+      beatIndex: index,
+      deviceState: shot.whatChanges,
+      deviceCarrier: carrier,
+      deviceIntensity: intensityPattern[index],
+      deviceFunction: `${shot.whatHappens} ${shot.whatChanges}`,
+    }));
+  }
+  if (intent === "PRODUCT_CRAFT" && plan.eventSpine.advertisingStructure === "RITUAL_COMPLETION") {
+    const carrier = authoritativeCarrier ?? stableCarrier ?? signatureMoment.carrier;
+    const intensityPattern = ["LOW", "MEDIUM", "HIGH", "CLEAR", "MEDIUM"] as const;
+    return plan.eventSpine.shots.map((shot, index) => ({
+      beatIndex: index,
+      deviceState: shot.whatChanges,
+      deviceCarrier: carrier,
+      deviceIntensity: intensityPattern[index],
+      deviceFunction: `${shot.whatHappens} ${shot.whatChanges}`,
+    }));
+  }
+  if (concept === "LIGHT_REVEAL" && authoritativeCarrier) {
+    const carrierEntityId = authority?.primaryResource?.id.replace(/^entity:/, "");
+    return plan.eventSpine.shots.map((shot, index) => {
+      const carrierChange = shot.stateContract.effects.find((effect) => (
+        effect.entityId === carrierEntityId && effect.fromValue !== effect.toValue
+      ));
+      const visibility = authority?.productVisibilityTimeline[index]?.normalizedState
+        ?? plan.productVisibilityPlan.presenceByShot[index]
+        ?? "IMPLIED";
+      return {
+        beatIndex: index,
+        deviceState: carrierChange
+          ? carrierChange.toValue
+          : `${visibility.toLowerCase()} under steady window light`,
+        deviceCarrier: authoritativeCarrier,
+        deviceIntensity: (["LOW", "MEDIUM", "HIGH", "CLEAR", "MEDIUM"] as const)[index],
+        deviceFunction: carrierChange
+          ? `The registered ${authoritativeCarrier} reflection changes from ${carrierChange.fromValue} to ${carrierChange.toValue} through the source event: ${shot.whatHappens}`
+          : `The registered ${authoritativeCarrier} remains in its existing state as the source event leaves the worn relationship ${visibility.toLowerCase()}: ${shot.whatHappens}`,
+      };
+    });
+  }
   if (authoritativeCarrier) {
     const intentPurpose = V14_INTENT_EVENT_TWEAKS[intent].reveal;
     return states.map((state, index) => ({
@@ -260,6 +477,24 @@ function buildStructure(concept: CommercialDirectorConceptId): {
   };
 }
 
+function structureTypeForAdvertisingIdea(plan: CommercialFilmPlan): CommercialCreativeTreatment["structureType"] {
+  const map: Record<CommercialFilmPlan["creativeSpine"]["advertisingStructure"], CommercialCreativeTreatment["structureType"]> = {
+    CONTRAST_SHIFT: "OBSERVE_APPROACH_CONTACT_RESOLVE_AFTERIMAGE",
+    PURSUIT_RELEASE: "MOVE_MOVE_HOLD_SINGLE_ACTION_RELEASE",
+    WITHHOLD_REVEAL: "OBSCURE_REVEAL_INTERRUPT_RESOLVE_DISAPPEAR",
+    RITUAL_COMPLETION: "REPEAT_REPEAT_CHANGE_BREAK_HERO_RELEASE",
+    WORLD_OBSERVES_SUBJECT: "OBSERVE_APPROACH_CONTACT_RESOLVE_AFTERIMAGE",
+    ICONIC_IMAGE: "ARRIVE_DISCOVER_INTERACT_SETTLE_REMAIN",
+  };
+  return map[plan.creativeSpine.advertisingStructure];
+}
+
+function endingImageFromFinalState(plan: CommercialFilmPlan) {
+  const finalEvent = plan.shotArchitecture.shots[4]?.event;
+  const physicalState = [finalEvent?.whatHappens, finalEvent?.whatChanges].filter(Boolean).join(" ");
+  return ensureSentence(`In the existing final frame, ${physicalState} ${plan.creativeSpine.endingImageIntent}`);
+}
+
 function buildSignatureEvent(
   plan: CommercialFilmPlan,
   signatureMoment: CommercialSignatureMoment
@@ -292,16 +527,18 @@ function buildEventSequence(
   structure: CommercialStructureBeat[],
   deviceArc: CommercialDeviceArcBeat[],
   signatureMoment: CommercialSignatureMoment,
-  signature: CommercialSignatureEvent
+  signature: CommercialSignatureEvent,
+  authority?: CommercialCreativeTreatmentAuthorityInput
 ): CommercialV14EventBeat[] {
   return structure.map((structureBeat, beatIndex) => {
     const sourceShot = plan.shotArchitecture.shots[beatIndex];
     const isSignatureBeat = beatIndex === signatureMoment.signatureBeatIndex;
     const visualPriority = V14_VISUAL_PRIORITY_BY_ROLE[structureBeat.sourceShotRole];
-    const productRevealCause = (
-      (isSignatureBeat && beatIndex >= 2)
-      || structureBeat.sourceShotRole === "HERO"
-    )
+    const currentVisibility = authority?.productVisibilityTimeline[beatIndex]?.normalizedState;
+    const previousVisibility = authority?.productVisibilityTimeline[beatIndex - 1]?.normalizedState;
+    const hasVisibilityTransition = Boolean(currentVisibility && currentVisibility !== previousVisibility
+      && ["READABLE", "DETAIL", "HERO"].includes(currentVisibility));
+    const productRevealCause = (isSignatureBeat && hasVisibilityTransition)
       ? signature.productConnection
       : null;
     return {
@@ -412,16 +649,74 @@ function evaluateTreatment(
     && treatment.signatureEvent.eventRevealLink.revealChange
     && treatment.signatureEvent.eventRevealLink.causalConnection
   );
+  const signatureBeat = plan.eventSpine.shots[treatment.signatureMoment.signatureBeatIndex];
+  const signatureTimeline = plan.continuity.worldStateTimeline.find(
+    (step) => step.shotIndex === treatment.signatureMoment.signatureBeatIndex
+  );
+  const signatureExecutionText = [
+    signatureBeat?.eventKind,
+    signatureBeat?.whatHappens,
+    signatureBeat?.whyItHappens,
+    signatureBeat?.whatChanges,
+    ...((signatureBeat?.stateContract.effects ?? []).map((effect) => `${effect.actionId ?? ""} ${effect.actionLabel ?? ""} ${effect.attribute} ${effect.fromValue} ${effect.toValue}`)),
+    ...((signatureBeat?.stateContract.effects ?? []).map((effect) => plan.eventSpine.worldModel.entities.find((entity) => entity.id === effect.entityId)?.label ?? "")),
+    plan.actionPlan[treatment.signatureMoment.signatureBeatIndex]?.physicalActionLine,
+  ].filter(Boolean).join(" ").toLowerCase();
+  const signatureClaimText = [
+    treatment.signatureMoment.momentDescription,
+    treatment.signatureMoment.beforeMoment,
+    treatment.signatureMoment.visualInterruption,
+    treatment.signatureMoment.afterMoment,
+    treatment.signatureEvent.action,
+    treatment.signatureEvent.event,
+  ].join(" ").toLowerCase();
+  const claimsRepeatedGesture = /\b(?:repeat(?:s|ed|ing)?\s+(?:the\s+)?gesture|second gesture|same gesture|gesture.{0,24}again|twice)\b/.test(signatureClaimText);
+  const repeatIsExecuted = /\b(?:repeat(?:s|ed|ing)?\s+(?:the\s+)?gesture|second gesture|same gesture|gesture.{0,24}again|twice)\b/.test(signatureExecutionText);
+  const signatureHasStructuredStateEffect = Boolean(signatureBeat?.stateContract.effects.some(
+    (effect) => effect.fromValue !== effect.toValue
+  )) || Boolean(signatureTimeline && JSON.stringify(signatureTimeline.before) !== JSON.stringify(signatureTimeline.after));
+  const claimsWorldChange = /\b(?:environment changes|world changes|light changes|reflection changes|reflection shifts|traffic changes|background changes)\b/.test(signatureClaimText);
+  const worldChangeExecuted = Boolean(signatureBeat?.stateContract.effects.some(
+    (effect) => effect.fromValue !== effect.toValue && effect.cause === "ENVIRONMENT"
+  )) || Boolean(signatureBeat?.stateContract.effects.some(
+    (effect) => effect.fromValue !== effect.toValue && effect.entityId !== "character"
+  ));
+  const claimsPhysicalCarrier = /\b(?:reflection|reflective|glass|light|pedestrian|vehicle|traffic|umbrella|foreground|mirror|carrier)\b/.test(signatureClaimText);
+  const selectedCarrier = authority?.primaryResource?.label.toLowerCase() ?? "";
+  const claimsCarrierChange = /\b(?:wardrobe plane|reflection|reflective image|glass|light|pedestrian|vehicle|traffic|umbrella|foreground carrier|mirror)\b.{0,45}\b(?:moves?|clears?|changes?|shifts?|crosses?|slides?|recedes?|opens?)\b/.test(signatureClaimText);
+  const carrierChangeExecuted = Boolean(selectedCarrier)
+    && signatureExecutionText.includes(selectedCarrier)
+    && (signatureBeat?.stateContract.effects.some((effect) => effect.fromValue !== effect.toValue && effect.entityId !== "character")
+      || /\b(?:moves?|clears?|changes?|shifts?|crosses?|slides?|recedes?|opens?)\b/.test(signatureExecutionText));
+  const carrierIsGrounded = !claimsPhysicalCarrier || Boolean(authority?.primaryResource);
+  const sourceActionChangesVisualState = /\b(?:shift|shifts|move|moves|cross|crosses|open|opens|close|closes|settle|settles|turn|turns|reach|reaches|complete|completes)\b/.test(signatureExecutionText);
+  const signatureHasStateEffect = signatureHasStructuredStateEffect || sourceActionChangesVisualState;
+  const signatureEventGrounded = Boolean(signatureBeat)
+    && treatment.signatureEvent.sourceShotIndex === treatment.signatureMoment.signatureBeatIndex
+    && (!claimsRepeatedGesture || repeatIsExecuted)
+    && (plan.directorConcept.concept !== "REPEATED_GESTURE" || repeatIsExecuted)
+    && (!claimsCarrierChange || carrierChangeExecuted
+      || Boolean(["WORLD", "JOINT"].includes(signatureBeat?.physicalEvent.actor ?? "HUMAN") && signatureBeat?.stateContract.effects.some((effect) => effect.cause === "ENVIRONMENT" && effect.fromValue !== effect.toValue)));
+  const signatureStateGrounded = signatureHasStateEffect
+    && (!claimsWorldChange || worldChangeExecuted);
+  const signatureResourceGrounded = carrierIsGrounded
+    && (!claimsCarrierChange || carrierChangeExecuted
+      || Boolean(["WORLD", "JOINT"].includes(signatureBeat?.physicalEvent.actor ?? "HUMAN") && signatureBeat?.stateContract.effects.some((effect) => effect.cause === "ENVIRONMENT" && effect.fromValue !== effect.toValue)));
+  const deviceMatchesExecution = signatureEventGrounded && signatureStateGrounded && signatureResourceGrounded;
   const literalEnding = treatment.endingImage.length >= 45
     && /\b(?:camera|frame|street|room|door|window|floor|wall|traffic|pedestrian|light|curb|bench|chair)\b/i.test(treatment.endingImage);
-  const propositionWordCount = treatment.propositionCore.split(/\s+/).filter(Boolean).length;
-  const propositionHasTension = propositionWordCount >= 6
-    && propositionWordCount <= 30
+  const propositionHasTension = treatment.creativeProposition.tension.from !== treatment.creativeProposition.tension.to
+    && treatment.creativeProposition.tension.line.trim().length >= 35
+    && treatment.propositionCore.split(/\s+/).filter(Boolean).length >= 6
     && !/moment matters because/i.test(treatment.creativeProposition.presentationText);
   const propositionIsOnlyConcept = semanticSimilarity(
     treatment.propositionCore,
     treatment.directorConcept
   ) > 0.84;
+  const spineTreatmentConflict = treatment.productRole !== plan.creativeSpine.productRole
+    || treatment.filmTension.line !== plan.creativeSpine.filmTension.line
+    || treatment.endingStrategy !== plan.creativeSpine.endingImageStrategy
+    || treatment.creativeProposition.presentationText !== ensureSentence(plan.creativeSpine.premise.text);
   const genericOnly = specificEventCount === 0
     && genericWords.some((word) => eventText.toLowerCase().includes(word));
   const add = (
@@ -477,6 +772,11 @@ function evaluateTreatment(
     add("PRODUCT_REVEAL_CAUSAL_DISCONNECT", revealLinkConnected, "The product reveal is connected to the signature event."),
     add("PROPOSITION_TEMPLATE_SCAFFOLD", propositionHasTension, "The proposition contains a specific tension or turn."),
     add("PROPOSITION_ONLY_PARAPHRASES_CONCEPT", !propositionIsOnlyConcept, "The proposition is more than a Director Concept paraphrase."),
+    add("CREATIVE_SPINE_TREATMENT_SEMANTIC_CONFLICT", !spineTreatmentConflict, "V1.4 treatment projects the upstream Creative Spine idea, product role, tension, and ending purpose without replacing them."),
+    add("SIGNATURE_EVENT_NOT_IN_EXECUTION", signatureEventGrounded, "Signature actions are present in the selected Event Spine beat."),
+    add("SIGNATURE_STATE_CHANGE_NOT_IN_EXECUTION", signatureStateGrounded, "Signature state changes are supported by the selected beat's structured state transition."),
+    add("SIGNATURE_RESOURCE_CHANGE_NOT_IN_EXECUTION", signatureResourceGrounded, "Signature carriers resolve to the selected physical resource or source event."),
+    add("CREATIVE_DEVICE_EXECUTION_MISMATCH", deviceMatchesExecution, "The creative device makes no action, state, or carrier claim beyond execution authority."),
   ];
 }
 
@@ -487,21 +787,29 @@ export function buildCommercialCreativeTreatment(
 ): CommercialCreativeTreatment {
   const concept = plan.directorConcept.concept;
   const nonce = generationNonce;
-  const tension = V14_TENSION_BY_INTENT[plan.commercialIntent];
+  const tension = plan.creativeSpine.filmTension;
   const signatureMoment = buildSignatureMoment(plan, nonce, authority);
   const proposition = ensureSentence(synthesizeProposition(plan));
-  const structureResult = buildStructure(concept);
+  const structureType = structureTypeForAdvertisingIdea(plan);
+  const structureTemplate = V14_STRUCTURE_DEFINITIONS[structureType];
   const structure = authority
-    ? structureResult.structure.map((beat, beatIndex) => ({
+    ? structureTemplate.beats.map((beat, beatIndex) => ({
       ...beat,
+      beatIndex,
+      function: plan.creativeSpine.filmTension.line,
       productVisibilityGoal: productVisibilityGoalForState(
         authority.productVisibilityTimeline[beatIndex]?.normalizedState ?? "IMPLIED"
       ),
     }))
-    : structureResult.structure;
+    : structureTemplate.beats.map((beat, beatIndex) => ({
+      ...beat,
+      beatIndex,
+      function: plan.creativeSpine.filmTension.line,
+      productVisibilityGoal: plan.creativeSpine.productPresenceByShot[beatIndex],
+    }));
   const deviceArc = buildDeviceArc(plan, nonce, signatureMoment, authority);
   const signatureEvent = buildSignatureEvent(plan, signatureMoment);
-  const eventSequence = buildEventSequence(plan, structure, deviceArc, signatureMoment, signatureEvent);
+  const eventSequence = buildEventSequence(plan, structure, deviceArc, signatureMoment, signatureEvent, authority);
   const preMomentEvents = eventSequence.slice(0, signatureMoment.signatureBeatIndex);
   const postMomentEvents = eventSequence.slice(signatureMoment.signatureBeatIndex + 1);
   const productRevealLogic = authority
@@ -522,12 +830,13 @@ export function buildCommercialCreativeTreatment(
     schemaVersion: COMMERCIAL_CREATIVE_DIRECTING_SCHEMA_VERSION,
     plannerVersion: COMMERCIAL_CREATIVE_DIRECTING_VERSION,
     commercialIntent: plan.commercialIntent,
+    productRole: plan.creativeSpine.productRole,
     directorConceptId: concept,
     title: V14_TITLE_BY_INTENT_AND_CONCEPT[`${plan.commercialIntent}:${concept}`]
       ?? V14_TITLE_BY_CONCEPT[concept],
     signatureMoment,
     creativeProposition: {
-      internalMeaning: `${proposition} The visual state moves from ${tension.from} to ${tension.to}.`,
+      internalMeaning: `${proposition} ${tension.line}`,
       presentationText: proposition,
       tension,
     },
@@ -540,10 +849,11 @@ export function buildCommercialCreativeTreatment(
     postMomentEvents,
     eventSequence,
     deviceArc,
-    structureType: structureResult.structureType,
+    structureType,
     structure,
     productRevealLogic,
-    endingImage: concreteEndingImage(plan, nonce, structure, deviceArc),
+    endingImage: endingImageFromFinalState(plan),
+    endingStrategy: plan.creativeSpine.endingImageStrategy,
     endingMeaning: endingMeaning(plan),
     worldBehavior: plan.worldRealism.line,
     shotVisualPriorities,

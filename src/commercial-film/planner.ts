@@ -7,7 +7,6 @@ import {
   COMMERCIAL_BRAND_MOOD,
   COMMERCIAL_PRODUCT_VISIBILITY_BY_SHOT,
   COMMERCIAL_SCENE_WORLDS,
-  COMMERCIAL_SHOT_PURPOSES,
   COMMERCIAL_SHOT_ROLES,
   resolveCommercialIntent,
 } from "./catalog";
@@ -22,6 +21,7 @@ import {
   planCommercialEventSpine,
   planCommercialContinuity,
   planCommercialMicroDecision,
+  reduceCommercialWorldState,
 } from "./event-spine";
 import { planCommercialDirectorConcept } from "./director-concept";
 import {
@@ -32,10 +32,36 @@ import {
   type CommercialFilmPlannerInput,
   type CommercialProductVisibilityPlan,
   type CommercialSceneWorld,
+  type CommercialShotRole,
   type CommercialShotPlan,
 } from "./types";
 
 const SHOT_DURATION_SECONDS = 3;
+
+function endingLineForStrategy(
+  strategy: CommercialFilmPlan["endingStrategy"]["strategy"],
+  physicalEndingLine: string,
+  imageIntent: string
+) {
+  switch (strategy) {
+    case "CONTINUE_INTO_LIFE": return physicalEndingLine;
+    case "RESOLVE_IN_PLACE": return `Hold the already established final human and spatial state; ${physicalEndingLine}`;
+    case "WORLD_AFTERIMAGE": return `Let only the already established world, light, or reflection remain perceptible around the final human state; ${physicalEndingLine}`;
+    case "ICONIC_HOLD": return `Briefly hold the complete image formed by the already established person, product, and world; ${physicalEndingLine} ${imageIntent}`;
+  }
+}
+
+function advertisingStructureLine(structure: CommercialFilmPlan["creativeSpine"]["advertisingStructure"]) {
+  const lines: Record<typeof structure, string> = {
+    CONTRAST_SHIFT: "One familiar visual condition gives way to another.",
+    PURSUIT_RELEASE: "A route carries movement into a natural release.",
+    WITHHOLD_REVEAL: "The product is present before its meaning becomes clear.",
+    RITUAL_COMPLETION: "One everyday action reaches a complete human state.",
+    WORLD_OBSERVES_SUBJECT: "The established world changes around a self-directed person.",
+    ICONIC_IMAGE: "The film gathers toward one complete image.",
+  };
+  return lines[structure];
+}
 
 function resolveSceneWorld(
   sceneWorldId: string,
@@ -83,6 +109,50 @@ function buildContinuityLine() {
   return "Keep the same person, same wardrobe, same product, same season, same color world, same spatial world, and one physical screen logic across every shot.";
 }
 
+function visibilityLevelForPresence(
+  presence: CommercialFilmPlan["creativeSpine"]["productPresenceByShot"][number],
+  productRole: CommercialFilmPlan["creativeSpine"]["productRole"],
+  shotRole: CommercialShotRole
+): CommercialProductVisibilityPlan["levels"][number] {
+  if (shotRole === "HERO") {
+    if (productRole === "HERO" && presence === "CLEAR") {
+      return COMMERCIAL_PRODUCT_VISIBILITY_BY_SHOT.HERO;
+    }
+    if (presence === "ABSENT" || presence === "IMPLIED" || presence === "SECONDARY") return "CONTEXT";
+    return "PRODUCT_READABLE";
+  }
+  return COMMERCIAL_PRODUCT_VISIBILITY_BY_SHOT[shotRole];
+}
+
+function retainProductRoleAtEnding(creativeSpine: CommercialFilmPlan["creativeSpine"]) {
+  const finalIndex = creativeSpine.productPresenceByShot.length - 1;
+  const current = creativeSpine.productPresenceByShot[finalIndex];
+  const minimumByRole: Record<CommercialFilmPlan["creativeSpine"]["productRole"], typeof current> = {
+    INHABITED: "SECONDARY",
+    DISCOVERED: "PARTIAL",
+    REVEALED: "CLEAR",
+    HERO: "CLEAR",
+  };
+  const rank: Record<typeof current, number> = {
+    ABSENT: 0,
+    IMPLIED: 1,
+    PARTIAL: 2,
+    SECONDARY: 3,
+    CLEAR: 4,
+  };
+  const required = minimumByRole[creativeSpine.productRole];
+  if (rank[current] >= rank[required]) return;
+
+  // The selected ending strategy and Event Spine own the final event. This
+  // only projects the Product Role's minimum retained visibility into that
+  // already-resolved beat; it does not add a shot, action, or product claim.
+  creativeSpine.productPresenceByShot[finalIndex] = required;
+  creativeSpine.shotFunctions[finalIndex] = {
+    ...creativeSpine.shotFunctions[finalIndex],
+    productPresenceDesign: required,
+  };
+}
+
 export function planCommercialFilm(input: CommercialFilmPlannerInput): CommercialFilmPlan {
   if (input.duration !== 15) {
     throw new CommercialFilmPlannerError(
@@ -121,7 +191,8 @@ export function planCommercialFilm(input: CommercialFilmPlannerInput): Commercia
   const productMessage = buildCommercialProductMessage(
     input.reference,
     intent.productMessagePriority,
-    input.confirmedBrandSellingPoints
+    input.confirmedBrandSellingPoints,
+    input.brandDefaultProductContext ?? null
   );
   const supportedCoverage = productMessage.supportedDimensions.map((dimension) => dimension.coverage);
   const wearDimension = productMessage.externalReferenceRequired
@@ -166,22 +237,33 @@ export function planCommercialFilm(input: CommercialFilmPlannerInput): Commercia
       label: sceneWorld.label,
     },
     cameraRhythm: intent.cameraRhythm,
+    generationNonce: input.generationNonce ?? 0,
     shotRoles: [...COMMERCIAL_SHOT_ROLES],
     creativeCase: input.creativeCase,
   });
+  retainProductRoleAtEnding(creativeSpine);
   const eventSpine = planCommercialEventSpine({
     commercialIntent: intent.id,
     creativeSpine,
     generationNonce: input.generationNonce ?? 0,
   });
-  const continuity = planCommercialContinuity({
-    worldModel: eventSpine.worldModel,
-    beats: eventSpine.shots,
+  const premiseEventFacts = [eventSpine.shots[2].whatHappens, eventSpine.shots[4].whatHappens];
+  creativeSpine.premise = {
+    ...creativeSpine.premise,
+    text: `${eventSpine.centralEvent} That changed relationship remains in the final image: ${premiseEventFacts[1].charAt(0).toLowerCase()}${premiseEventFacts[1].slice(1)}`,
+    sourceFacts: [...new Set([...creativeSpine.premise.sourceFacts, ...premiseEventFacts])],
+  };
+  const worldState = reduceCommercialWorldState({
+    model: eventSpine.worldModel,
+    beats: eventSpine.shots.map((beat) => ({
+      shotIndex: beat.shotIndex,
+      stateContract: beat.stateContract,
+    })),
   });
   const microDecision = planCommercialMicroDecision({
     declaration: input.microDecision,
     beats: eventSpine.shots,
-    timeline: continuity.worldStateTimeline,
+    timeline: worldState.timeline,
     worldModel: eventSpine.worldModel,
   });
   const actionPlan = buildCommercialActionPlan(intent.id, eventSpine);
@@ -214,42 +296,122 @@ export function planCommercialFilm(input: CommercialFilmPlannerInput): Commercia
     override: input.directorConceptOverride,
   });
 
+  const productVisibilityLevels = creativeSpine.productPresenceByShot.map((presence, shotIndex) => (
+    visibilityLevelForPresence(presence, creativeSpine.productRole, COMMERCIAL_SHOT_ROLES[shotIndex])
+  ));
+
   const cameraPlan = buildCommercialCameraPlan(
     intent.cameraRhythm,
     COMMERCIAL_SHOT_ROLES,
     actionPlan.map((item) => item.physicalActionLine),
     creativeDirection,
-    eventSpine
+    eventSpine,
+    creativeSpine.productRole,
+    productVisibilityLevels
   );
+  // STATIC_CAMERA_FILM is an execution constraint on the selected camera,
+  // not a reason to change the Event Spine or the physical action. Preserve
+  // each shot's existing framing and event relationship while making the
+  // camera itself observational and fixed.
+  if (directorConcept.concept === "STATIC_CAMERA_FILM") {
+    for (const cameraShot of cameraPlan.shots) {
+      cameraShot.movement = "locked_observation";
+      cameraShot.movementLine = "Keep the camera fixed in its established position; let the existing human and world events play within the frame.";
+    }
+  }
+  if (["PARTIAL_OBSCURATION", "EDGE_OF_FRAME"].includes(directorConcept.concept)) {
+    const deviceBeatIndex = eventSpine.shots.findIndex((shot) => (
+      /reflection|window glass/i.test(shot.whatHappens)
+      && shot.stateContract.effects.some((effect) => (
+        effect.fromValue !== effect.toValue
+        && /reflection|glass/i.test(`${effect.attribute} ${effect.fromValue} ${effect.toValue}`)
+      ))
+    ));
+    const deviceShot = cameraPlan.shots[deviceBeatIndex];
+    if (deviceShot) {
+      deviceShot.movement = "locked_observation";
+      deviceShot.framing = directorConcept.concept === "PARTIAL_OBSCURATION"
+        ? "locked environmental view through the existing window glass; its layered reflection partially obscures the worn silhouette before the registered reflection change resolves"
+        : "locked environmental view holding the subject off-centre at the frame edge as the registered window-glass reflection resolves";
+      deviceShot.movementLine = "Keep the camera fixed; let only the already planned reflection and body event change within the composition.";
+    }
+  }
+  if (intent.id === "QUIET_LUXURY" && creativeSpine.advertisingStructure === "WORLD_OBSERVES_SUBJECT") {
+    for (const shotIndex of [2, 3, 4]) {
+      const cameraShot = cameraPlan.shots[shotIndex];
+      if (!cameraShot) continue;
+      cameraPlan.shots[shotIndex] = {
+        ...cameraShot,
+        framing: shotIndex === 2
+          ? "locked medium-full frame holding the subject's final weight settle with the registered window-light edge and quiet interior floor in view"
+          : "locked environmental full-person frame retaining the settled subject and the registered window-light edge across the quiet interior floor",
+        movement: "locked_observation",
+        movementLine: shotIndex === 2
+          ? "Keep the camera locked while she finishes the small weight settle; do not reframe or move the camera."
+          : "Keep the camera locked; let the registered window-light edge provide the only continuing visual movement while she remains settled.",
+        transitionLine: shotIndex === 2
+          ? "Hold the established camera side and room axis into the window-light change."
+          : "Hold the same camera side and room axis through the world change and its residual continuation.",
+      };
+    }
+  }
   const soundPlan = buildCommercialSoundPlan(
     intent.cameraRhythm,
     intent.id,
     COMMERCIAL_SHOT_ROLES,
-    sceneWorld.sceneIds
+    sceneWorld.sceneIds,
+    worldState.timeline.map((step) => ({
+      start: step.before.attributes.character?.space ?? null,
+      end: step.after.attributes.character?.space ?? null,
+    }))
   );
   const durationPlan = applyCreativeModeTiming(
     eventSpine.durationPlan,
     creativeDirection.creativeMode
   );
-  let elapsed = 0;
-  const shotTimings = durationPlan.map((duration, index) => {
-    const startSecond = Number(elapsed.toFixed(1));
-    elapsed = Number((elapsed + duration).toFixed(1));
+  let elapsedBeatWindow = 0;
+  const beatWindows = durationPlan.map((durationSeconds, index) => {
+    const startSecond = Number(elapsedBeatWindow.toFixed(1));
+    elapsedBeatWindow = Number((elapsedBeatWindow + durationSeconds).toFixed(1));
     return {
       startSecond,
-      endSecond: Number(elapsed.toFixed(1)),
-      durationSeconds: duration,
+      endSecond: elapsedBeatWindow,
+      durationSeconds,
       index,
     };
   });
-  const dimensionByRole = {
-    WORLD: null,
-    WEAR: wearDimension,
-    DETAIL: detailDimension,
-    HERO: heroDimension,
-    RELEASE: null,
-  } satisfies Record<(typeof COMMERCIAL_SHOT_ROLES)[number], ProductCoverage | null>;
-
+  const continuity = planCommercialContinuity({
+    worldModel: eventSpine.worldModel,
+    beats: eventSpine.shots.map((beat, index) => ({
+      ...beat,
+      timeRange: {
+        startSecond: beatWindows[index].startSecond,
+        endSecond: beatWindows[index].endSecond,
+      },
+    })),
+  });
+  const takeTimingFailureReasons: string[] = [];
+  const timeTolerance = 0.051;
+  continuity.takePlan.takes.forEach((take) => {
+    const first = beatWindows.find((beat) => beat.index === take.beatIndexes[0]);
+    const last = beatWindows.find((beat) => beat.index === take.beatIndexes[take.beatIndexes.length - 1]);
+    if (!first || !last
+      || Math.abs(take.startSecond - first.startSecond) > timeTolerance
+      || Math.abs(take.endSecond - last.endSecond) > timeTolerance) {
+      takeTimingFailureReasons.push(`take_window_not_derived_from_beats: take ${take.takeIndex + 1}`);
+    }
+    take.beatIndexes.forEach((beatIndex) => {
+      const beat = beatWindows[beatIndex];
+      if (!beat || beat.startSecond < take.startSecond - timeTolerance || beat.endSecond > take.endSecond + timeTolerance) {
+        takeTimingFailureReasons.push(`beat_outside_take_range: take ${take.takeIndex + 1}, beat ${beatIndex + 1}`);
+      }
+    });
+  });
+  for (let index = 1; index < beatWindows.length; index += 1) {
+    const delta = beatWindows[index].startSecond - beatWindows[index - 1].endSecond;
+    if (delta > timeTolerance) takeTimingFailureReasons.push(`take_beat_time_gap: beat ${index} to ${index + 1}`);
+    if (delta < -timeTolerance) takeTimingFailureReasons.push(`take_beat_time_overlap: beat ${index} to ${index + 1}`);
+  }
   const shots: CommercialShotPlan[] = COMMERCIAL_SHOT_ROLES.map((role, shotIndex) => {
     const action = actionPlan[shotIndex];
     const camera = cameraPlan.shots[shotIndex];
@@ -257,7 +419,20 @@ export function planCommercialFilm(input: CommercialFilmPlannerInput): Commercia
     const storySpine = creativeSpine.shotFunctions[shotIndex];
     const direction = creativeDirection.shotDirections[shotIndex];
     const event = eventSpine.shots[shotIndex];
-    const timing = shotTimings[shotIndex];
+    const eventRelationship = event.productDetailRelationship ?? "";
+    const eventCoverage = /outsole|ground.contact/i.test(eventRelationship)
+      ? resolveMessageDimension(supportedCoverage, ["outsole_profile"])
+      : /panel|lace|tongue/i.test(eventRelationship)
+        ? resolveMessageDimension(supportedCoverage, ["side_panel_structure", "toe_structure"])
+        : /material|surface/i.test(eventRelationship)
+          ? resolveMessageDimension(supportedCoverage, ["material_evidence"])
+          : /heel/i.test(eventRelationship)
+            ? resolveMessageDimension(supportedCoverage, ["heel_structure"])
+            : null;
+    const productMessageDimension = role === "DETAIL"
+      ? detailDimension
+      : eventCoverage ?? (creativeSpine.productPresenceByShot[shotIndex] === "CLEAR" ? wearDimension : null);
+    const timing = beatWindows[shotIndex];
     return {
       shotIndex,
       role,
@@ -266,12 +441,12 @@ export function planCommercialFilm(input: CommercialFilmPlannerInput): Commercia
         endSecond: timing.endSecond,
         durationSeconds: timing.durationSeconds,
       },
-      semanticPurpose: COMMERCIAL_SHOT_PURPOSES[role],
-      productVisibility: COMMERCIAL_PRODUCT_VISIBILITY_BY_SHOT[role],
+      semanticPurpose: storySpine.narrativePurpose,
+      productVisibility: productVisibilityLevels[shotIndex],
       storySpine,
       direction,
       event,
-      productMessageDimension: dimensionByRole[role],
+      productMessageDimension,
       action,
       camera,
       sound,
@@ -288,8 +463,10 @@ export function planCommercialFilm(input: CommercialFilmPlannerInput): Commercia
       .filter((shot) => shot.productVisibility === "PRODUCT_READABLE" || shot.productVisibility === "PRODUCT_HERO")
       .map((shot) => shot.shotIndex),
     detailShotIndex: 2,
-    heroShotIndex: 3,
-    releaseShotIndex: 4,
+    heroShotIndex: shots.findIndex((shot) => shot.productVisibility === "PRODUCT_HERO") >= 0
+      ? shots.findIndex((shot) => shot.productVisibility === "PRODUCT_HERO") : null,
+    releaseShotIndex: shots.findIndex((shot) => shot.productVisibility === "BRAND_RELEASE") >= 0
+      ? shots.findIndex((shot) => shot.productVisibility === "BRAND_RELEASE") : null,
   };
 
   const planWithoutQc: CommercialQcInput = {
@@ -329,9 +506,9 @@ export function planCommercialFilm(input: CommercialFilmPlannerInput): Commercia
         "Do not generate clearly readable invented brand names or corrupted AI text. Distant non-readable storefront graphics, abstract signage shapes, wayfinding forms, and reflections of passing life are allowed.",
     },
     endingStrategy: {
-      strategy: "CONTINUE_INTO_LIFE",
+      strategy: creativeSpine.endingImageStrategy,
       grammar: eventSpine.endingGrammar,
-      line: eventSpine.endingGrammar.line,
+      line: endingLineForStrategy(creativeSpine.endingImageStrategy, eventSpine.endingGrammar.line, creativeSpine.endingImageIntent),
       prohibitedEndings: [
         "logo animation",
         "packshot",
@@ -353,6 +530,7 @@ export function planCommercialFilm(input: CommercialFilmPlannerInput): Commercia
     ...directionFailureReasons,
     ...directorFailureReasons,
     ...continuityFailureReasons,
+    ...takeTimingFailureReasons,
     ...microDecisionFailureReasons,
     ...qcResult.failureReasons,
   ];
@@ -363,6 +541,7 @@ export function planCommercialFilm(input: CommercialFilmPlannerInput): Commercia
       && creativeFailureReasons.length === 0
       && directionFailureReasons.length === 0
       && directorFailureReasons.length === 0
+      && takeTimingFailureReasons.length === 0
       && continuity.status === "CONTINUOUS"
       && microDecision.status !== "MICRO_DECISION_FAILED"
       ? "APPROVED_FOR_COMMERCIAL_EXECUTION"
@@ -386,6 +565,15 @@ export function renderCommercialFilmPlanText(
     `Headline: ${plan.productMessage.headline}`,
     ...plan.productMessage.evidenceLines,
     plan.productMessage.noFabricationLine,
+    "",
+    "[ADVERTISING IDEA AUTHORITY]",
+    `Advertising structure: ${advertisingStructureLine(plan.creativeSpine.advertisingStructure)}`,
+    `Premise: ${plan.creativeSpine.premise.text}`,
+    `Film tension: ${plan.creativeSpine.filmTension.from} → ${plan.creativeSpine.filmTension.to}. ${plan.creativeSpine.filmTension.line}`,
+    `Product role: ${plan.creativeSpine.productRole}`,
+    `Visual memory: ${plan.creativeSpine.visualMemoryIntent}`,
+    `Ending image: ${plan.creativeSpine.endingImageIntent}`,
+    ...plan.creativeSpine.brandFilmPrinciples.map((principle) => `Brand film principle: ${principle}`),
     "",
     "[SHOT PLAN]",
     ...plan.shotArchitecture.shots.flatMap((shot) => [

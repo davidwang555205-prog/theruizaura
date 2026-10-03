@@ -20,6 +20,8 @@ import type {
   CommercialProductMeaning,
   CommercialProductPresenceDesign,
   CommercialRevealStrategy,
+  CommercialProductRole,
+  CommercialAdvertisingStructureId,
   CommercialShotStorySpine,
 } from "./types";
 
@@ -92,8 +94,42 @@ export function selectCommercialRevealStrategy(
   return profile.defaultReveal;
 }
 
-export function productPresencePattern(revealStrategy: CommercialRevealStrategy) {
-  return [...REVEAL_PRESENCE_PATTERNS[revealStrategy]];
+export function productPresencePattern(
+  revealStrategy: CommercialRevealStrategy,
+  productRole: CommercialProductRole,
+  advertisingStructure: CommercialAdvertisingStructureId
+) {
+  const structurePattern: CommercialProductPresenceDesign[] = advertisingStructure === "PURSUIT_RELEASE"
+    ? ["SECONDARY", "PARTIAL", "CLEAR", "CLEAR", "SECONDARY"]
+    : advertisingStructure === "CONTRAST_SHIFT"
+      ? ["SECONDARY", "PARTIAL", "SECONDARY", "CLEAR", "PARTIAL"]
+      : advertisingStructure === "RITUAL_COMPLETION"
+        ? ["IMPLIED", "PARTIAL", "CLEAR", "CLEAR", "SECONDARY"]
+        : advertisingStructure === "WITHHOLD_REVEAL"
+          ? ["IMPLIED", "PARTIAL", "SECONDARY", "CLEAR", "SECONDARY"]
+          : advertisingStructure === "WORLD_OBSERVES_SUBJECT"
+            ? ["SECONDARY", "PARTIAL", "CLEAR", "SECONDARY", "PARTIAL"]
+            : advertisingStructure === "ICONIC_IMAGE"
+              ? ["PARTIAL", "SECONDARY", "PARTIAL", "CLEAR", "SECONDARY"]
+              : [...REVEAL_PRESENCE_PATTERNS[revealStrategy]];
+
+  // WITHHOLD_REVEAL is intentionally resolved to PROGRESSIVE by the planner.
+  // For an immediate reveal, the second beat is the first existing physical
+  // event after the opening context; make that event's worn relationship clear
+  // while retaining the chosen structure's later progression and ending.
+  if (revealStrategy === "IMMEDIATE" && advertisingStructure !== "WITHHOLD_REVEAL") {
+    structurePattern[1] = "CLEAR";
+  }
+  return structurePattern;
+}
+
+export function advertisingStructureForNonce(
+  structures: CommercialAdvertisingStructureId[],
+  generationNonce: number
+) {
+  if (structures.length === 0) throw new Error("Commercial Intent requires at least one compatible Advertising Structure.");
+  const index = ((Math.trunc(generationNonce) % structures.length) + structures.length) % structures.length;
+  return structures[index];
 }
 
 export function buildCommercialProductMeaning(input: {
@@ -153,31 +189,21 @@ export function buildCommercialPremise(input: {
 }
 
 function dramaticFunctionFor(
-  shotRole: CommercialShotRole,
+  shotIndex: number,
   revealStrategy: CommercialRevealStrategy,
   presence: CommercialProductPresenceDesign,
-  primaryCoverage: ProductCoverage | null
+  productRole: CommercialProductRole,
+  advertisingStructure: CommercialAdvertisingStructureId
 ): CommercialDramaticFunction {
-  if (shotRole === "RELEASE") return "RESOLVE";
-  if (revealStrategy === "IMMEDIATE") {
-    if (shotRole === "WORLD") return "ESTABLISH";
-    if (shotRole === "DETAIL") return "DISCOVER";
-    if (shotRole === "HERO") return "CONFIRM";
-    return "CONFIRM";
-  }
-  if (revealStrategy === "PROGRESSIVE") {
-    if (shotRole === "WORLD") return "INVITE";
-    if (shotRole === "WEAR") return presence === "CLEAR" ? "CONFIRM" : "DISCOVER";
-    if (shotRole === "DETAIL") {
-      return /material|heel|outsole|side_panel|toe/.test(primaryCoverage ?? "") ? "CONFIRM" : "DISCOVER";
-    }
-    if (shotRole === "HERO") return "CONFIRM";
-  }
-  if (shotRole === "WORLD") return "INVITE";
-  if (shotRole === "WEAR") return "INVITE";
-  if (shotRole === "DETAIL") return "DISCOVER";
-  if (shotRole === "HERO") return "DISCOVER";
-  return "CONFIRM";
+  if (shotIndex === 4) return "RESOLVE";
+  if (shotIndex === 0) return ["CONTRAST_SHIFT", "ICONIC_IMAGE"].includes(advertisingStructure) ? "ESTABLISH" : "INVITE";
+  if (shotIndex === 1) return "INVITE";
+  if (presence === "CLEAR" && (shotIndex >= 2 || productRole === "HERO")) return "CONFIRM";
+  if (presence === "ABSENT" || presence === "IMPLIED") return "INVITE";
+  if (presence === "PARTIAL" || presence === "SECONDARY") return "DISCOVER";
+  if (presence === "CLEAR") return "CONFIRM";
+  if (productRole === "HERO" || revealStrategy === "IMMEDIATE") return "CONFIRM";
+  return "DISCOVER";
 }
 
 function functionPurpose(
@@ -279,18 +305,15 @@ export function buildShotStorySpine(input: {
   situationLine: string;
   sceneWorldLabel: string;
   productMeaning: CommercialProductMeaning;
+  productRole: CommercialProductRole;
+  advertisingStructure: CommercialAdvertisingStructureId;
+  filmTension: string;
 }): {
   shotFunctions: CommercialShotStorySpine[];
   continuity: CommercialContinuityReasoning;
 } {
   if (input.shotRoles.length !== 5 || input.productPresence.length !== 5) {
     throw new Error("Commercial Creative Spine requires exactly five shot roles and five product-presence decisions.");
-  }
-  if (input.productPresence[2] === "ABSENT") {
-    throw new Error("DETAIL cannot be ABSENT because it must remain reference-supported.");
-  }
-  if (input.productPresence[3] !== "CLEAR") {
-    throw new Error("HERO must remain CLEAR so the worn product is unmistakable.");
   }
   const continuity = buildContinuity({
     revealStrategy: input.revealStrategy,
@@ -300,17 +323,16 @@ export function buildShotStorySpine(input: {
   const shotFunctions = input.shotRoles.map((shotRole, shotIndex) => {
     const productPresenceDesign = input.productPresence[shotIndex];
     const dramaticFunction = dramaticFunctionFor(
-      shotRole,
+      shotIndex,
       input.revealStrategy,
       productPresenceDesign,
-      input.primaryCoverage
+      input.productRole,
+      input.advertisingStructure
     );
     const roleLine = productNarrativeRole(productPresenceDesign, dramaticFunction);
     const previous = shotIndex === 0
       ? "The film opens here; this shot establishes the initial human and spatial state."
-      : `Continues from shot ${shotIndex}: ${input.shotRoles[shotIndex - 1]} has already established ${
-        input.shotRoles[shotIndex - 1] === "DETAIL" ? "the supported product relationship" : "the previous human state"
-      }.`;
+      : `Continues from shot ${shotIndex}; the previous human and spatial state carries into this beat.`;
     const next = shotIndex === input.shotRoles.length - 1
       ? "No further shot follows; the final frame carries the resolved aftertaste."
       : `Prepares shot ${shotIndex + 2}: ${input.shotRoles[shotIndex + 1]} must follow from this exact human and spatial state.`;
@@ -318,7 +340,9 @@ export function buildShotStorySpine(input: {
       shotIndex,
       shotRole,
       dramaticFunction,
-      narrativePurpose: functionPurpose(dramaticFunction, input.situationLine, input.productMeaning.roleLine),
+      narrativePurpose: `${input.advertisingStructure}: ${functionPurpose(
+        dramaticFunction, input.situationLine, input.productMeaning.roleLine
+      )} ${input.filmTension}`,
       audienceKnowledgeBefore: knowledgeBefore(shotIndex, input.revealStrategy),
       audienceKnowledgeAfter: knowledgeAfter(dramaticFunction, input.revealStrategy),
       productPresenceDesign,

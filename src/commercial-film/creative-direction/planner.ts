@@ -108,12 +108,12 @@ export function planCommercialCreativeDirection(
           primaryEditLogic: edit.primaryEditLogic,
         }),
         visualMotifContribution: visualMotifContribution(visualMotif, shotRole, shotIndex),
-        cameraNarrativeReason: cameraNarrativeReason({
+        cameraNarrativeReason: `${cameraNarrativeReason({
           behavior: cameraBehaviorByShot[shotIndex],
           creativeMode,
           dramaticFunction: story.dramaticFunction,
           presence,
-        }),
+        })} Supports the upstream advertising idea; the product remains in its selected role and this direction builds toward the upstream ending image.`,
       movementContinuity: movementContinuityLine({
           shotIndex,
           action,

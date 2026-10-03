@@ -89,6 +89,10 @@ export function runCommercialDirectionQc(
   const distinctBehaviors = new Set(behaviors).size;
   const maxBehaviorCount = Math.max(...counts.values());
   const shotDirections = input.shotDirections;
+  const readableProductShots = shotDirections.filter((shot) => {
+    const presence = input.creativeSpine.productPresenceByShot[shot.shotIndex];
+    return presence === "CLEAR" || presence === "PARTIAL";
+  });
   const allDirectionText = shotDirections.map((shot) => [
     shot.cameraNarrativeReason,
     shot.editEntry,
@@ -112,12 +116,20 @@ export function runCommercialDirectionQc(
   const heroStory = input.creativeSpine.shotFunctions.find((shot) => shot.shotRole === "HERO");
   const releaseStory = input.creativeSpine.shotFunctions.find((shot) => shot.shotRole === "RELEASE");
   const firstClearIndex = input.creativeSpine.productPresenceByShot.indexOf("CLEAR");
+  const revealBeat = firstClearIndex >= 0 ? input.eventSpine.shots[firstClearIndex] : undefined;
+  const revealCausePresent = Boolean(revealBeat)
+    && Boolean(revealBeat!.whatHappens.trim())
+    && Boolean(revealBeat!.whatChanges.trim())
+    && revealBeat!.stateContract.requiredVisibleEvidence.length > 0;
+  const revealOrdered = firstClearIndex >= 0
+    && firstClearIndex <= 3
+    && input.creativeSpine.productPresenceByShot.slice(0, firstClearIndex).every((presence) => presence !== "CLEAR")
+    && input.creativeSpine.productPresenceByShot[firstClearIndex] === "CLEAR";
   const revealConflict =
-    (input.creativeSpine.revealStrategy === "IMMEDIATE" && behaviors.includes("WITHHOLD"))
-    || heroDirection?.cameraBehavior === "WITHHOLD"
-    || input.creativeSpine.productPresenceByShot[3] !== "CLEAR"
-    || firstClearIndex < 0
-    || firstClearIndex > 3;
+    (input.creativeSpine.productRole === "DISCOVERED" && input.creativeSpine.revealStrategy === "IMMEDIATE")
+    || (input.creativeSpine.productRole === "HERO" && heroDirection?.cameraBehavior === "WITHHOLD")
+    || !revealOrdered
+    || !revealCausePresent;
   const releaseBreak = releaseDirection?.cameraBehavior === "REVEAL"
     || releaseDirection?.cameraBehavior === "DETAIL_INTERRUPTION"
     || releaseDirection?.cameraBehavior === "WITHHOLD"
@@ -209,8 +221,8 @@ export function runCommercialDirectionQc(
       "reveal_strategy_conflict",
       !revealConflict,
       revealConflict
-        ? "The camera behavior conflicts with the existing Reveal Strategy or HERO readability."
-        : "Camera withholding and reveal behavior implement the existing Reveal Strategy without weakening product comprehension."
+        ? "The Reveal must follow the selected strategy in order, transition from non-CLEAR to CLEAR, and be grounded in a visible event cause and evidence."
+        : `The ${input.creativeSpine.revealStrategy} Reveal has an ordered visibility transition with a declared physical cause and visible evidence.`
     ),
     release_direction_break: gate(
       "release_direction_break",
@@ -227,7 +239,7 @@ export function runCommercialDirectionQc(
     unmotivated_product_closeup: gate(
       "unmotivated_product_closeup",
       input.creativeSpine.productPresenceByShot.includes("CLEAR")
-        && input.creativeSpine.productPresenceByShot[2] !== "ABSENT"
+        && input.creativeSpine.productPresenceByShot.some((presence) => presence !== "ABSENT")
         && Boolean(detailStory?.narrativePurpose.trim()),
       "Any product detail remains tied to the same human situation and confirmed coverage."
     ),
@@ -266,15 +278,15 @@ export function runCommercialDirectionQc(
     ),
     hero_as_pose: gate(
       "hero_as_pose",
-      heroDirection?.cameraBehavior !== "WITHHOLD"
-        && heroDirection?.cutMotivation !== "ACTION_COMPLETION"
-        && input.creativeSpine.productPresenceByShot[3] === "CLEAR"
-        && heroStory?.continuityFromPrevious.includes("shot 3") === true
+      readableProductShots.every((shot) => shot.cameraBehavior !== "WITHHOLD")
+        && readableProductShots.some((shot) => shot.cutMotivation !== "ACTION_COMPLETION")
+        && input.creativeSpine.productPresenceByShot.some((presence) => presence === "CLEAR")
+        && readableProductShots.some((shot) => shot.shotIndex >= firstClearIndex)
         && !containsPositivePattern(
-          heroDirection?.cameraNarrativeReason ?? "",
+          readableProductShots.map((shot) => shot.cameraNarrativeReason).join(" "),
           /\b(?:pose for camera|present(?:s|ing)? (?:the|her|his|their)? ?shoe|look(?:s|ing)? at (?:the )?shoe|display gesture|camera aware)\b/i
         ),
-      "The hero is a worn-product culmination rather than a pose or display gesture."
+      "The clear product read stays inside continuous human action and avoids a presentation pose."
     ),
     release_as_extra_beauty_shot: gate(
       "release_as_extra_beauty_shot",

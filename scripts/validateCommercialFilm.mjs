@@ -22,6 +22,43 @@ const coverage = [
   "material_evidence",
 ];
 
+function productAuthorityValid(plan) {
+  const referenceCoverage = new Set(plan.referenceState.coverage);
+  const supportedCoverage = new Set(plan.productMessage.supportedDimensions.map((dimension) => dimension.coverage));
+  const expressions = plan.shotArchitecture.shots.filter((shot) => (
+    ["PRODUCT_READABLE", "PRODUCT_HERO"].includes(shot.productVisibility)
+    && plan.creativeSpine.productPresenceByShot[shot.shotIndex] === "CLEAR"
+    && Boolean(shot.productMessageDimension)
+    && referenceCoverage.has(shot.productMessageDimension)
+    && supportedCoverage.has(shot.productMessageDimension)
+  ));
+  const detailsValid = plan.shotArchitecture.shots.filter((shot) => shot.productVisibility === "PRODUCT_DETAIL")
+    .every((shot) => Boolean(shot.event.productDetailRelationship?.trim())
+      && Boolean(shot.productMessageDimension)
+      && referenceCoverage.has(shot.productMessageDimension)
+      && supportedCoverage.has(shot.productMessageDimension));
+  const release = plan.shotArchitecture.shots.find((shot) => shot.role === "RELEASE");
+  const releasePresence = release ? plan.creativeSpine.productPresenceByShot[release.shotIndex] : "ABSENT";
+  const releaseRetainsProduct = release?.productVisibility === "BRAND_RELEASE"
+    || (plan.creativeSpine.productRole === "HERO" || plan.creativeSpine.productRole === "REVEALED"
+      ? releasePresence === "CLEAR"
+      : plan.creativeSpine.productRole === "DISCOVERED"
+        ? ["PARTIAL", "SECONDARY", "CLEAR"].includes(releasePresence)
+        : ["SECONDARY", "CLEAR"].includes(releasePresence));
+  return expressions.length > 0
+    && (plan.creativeSpine.productRole !== "HERO" || expressions.some((shot) => shot.productVisibility === "PRODUCT_HERO"))
+    && detailsValid
+    && releaseRetainsProduct
+    && release.storySpine.dramaticFunction === "RESOLVE"
+    && plan.endingStrategy.grammar.id === plan.eventSpine.endingGrammar.id
+    && plan.endingStrategy.grammar.line === plan.eventSpine.endingGrammar.line
+    && plan.endingStrategy.line.includes(plan.eventSpine.endingGrammar.line)
+    && plan.endingStrategy.strategy === plan.eventSpine.endingImageStrategy
+    && Boolean(plan.eventSpine.endingResolution.trim())
+    && release.event.whatHappens === plan.eventSpine.shots[release.shotIndex]?.whatHappens
+    && release.event.whatChanges === plan.eventSpine.shots[release.shotIndex]?.whatChanges;
+}
+
 const confirmedReference = {
   referenceSetId: "commercial-validation-reference-set",
   taskId: "commercial-validation-task",
@@ -104,9 +141,12 @@ try {
     assert(plan.shotArchitecture.shots.length === 5, `${intent} does not contain five shots.`);
     assert(plan.shotArchitecture.shotRoles.join("|") === COMMERCIAL_SHOT_ROLES.join("|"), `${intent} changed the fixed shot role order.`);
     assert(plan.productVisibilityPlan.readableShotIndexes.length >= 2, `${intent} does not expose readable product shots.`);
-    assert(plan.shotArchitecture.shots[1].productVisibility === "PRODUCT_READABLE", `${intent} WEAR shot is not PRODUCT_READABLE.`);
-    assert(plan.shotArchitecture.shots[3].productVisibility === "PRODUCT_HERO", `${intent} HERO shot is not PRODUCT_HERO.`);
-    assert(plan.shotArchitecture.shots[2].productMessageDimension, `${intent} DETAIL shot has no reference-backed dimension.`);
+    assert(productAuthorityValid(plan), `${intent} violates reference-backed product expression, detail binding, or resolved BRAND_RELEASE ending requirements.`);
+    assert(plan.shotArchitecture.shots.some((shot) => shot.productVisibility === "PRODUCT_READABLE" || shot.productVisibility === "PRODUCT_HERO"), `${intent} has no Creative Spine-authorized readable product beat.`);
+    if (["INHABITED", "DISCOVERED"].includes(plan.creativeSpine.productRole)) {
+      assert(!plan.shotArchitecture.shots.some((shot) => ["PRODUCT_DETAIL", "PRODUCT_HERO", "BRAND_RELEASE"].includes(shot.productVisibility)), `${intent} escalated visibility from a legacy shot role.`);
+    }
+    assert(plan.creativeSpine.productPresenceByShot.some((presence, index) => presence === "CLEAR" && index > 0), `${intent} has no readable product evidence by the later film.`);
     assert(plan.productMessage.supportedDimensions.every((dimension) => coverage.includes(dimension.coverage)), `${intent} invented an unsupported product message dimension.`);
     assert(plan.sceneWorld.sceneIds.length > 0 && plan.sceneWorld.spatialAnchors.length >= 5, `${intent} lost the shared scene world or spatial anchors.`);
     assert(plan.cameraPlan.shots.length === 5, `${intent} camera plan does not cover five shots.`);
@@ -166,14 +206,7 @@ try {
       productTruth: null,
     },
   });
-  assert(noReference.status === "GENERATED", `Reference=0 did not generate Commercial Film: ${noReference.status === "BLOCKED" ? noReference.diagnostics.join(" | ") : ""}`);
-  assert(noReference.plan.referenceState.status === "REFERENCE_READY", "Reference=0 did not resolve to REFERENCE_READY.");
-  assert(noReference.plan.productMessage.externalReferenceRequired === true, "Reference=0 did not select external reference mode.");
-  assert(
-    noReference.modelFacingScript.compiledText.includes("Use the footwear reference images uploaded in the external video generation tool as the only source of truth for the product. Do not invent or alter product details not supported by those references."),
-    "Reference=0 script is missing generic external product-protection language."
-  );
-  assert(!/\b(?:burgundy|ivory|leather|suede|mesh|outsole construction|logo detail)\b/i.test(noReference.modelFacingScript.compiledText), "Reference=0 script invented an exact product fact.");
+  assert(noReference.status === "BLOCKED", `Reference=0 must be blocked by the Commercial Hard Floor: ${noReference.status === "BLOCKED" ? noReference.diagnostics.join(" | ") : "unexpected generation"}`);
 
   const incompleteReference = runCommercialFilmPipeline({
     commercialIntent: "DAILY_STYLING",
@@ -191,9 +224,7 @@ try {
       referencePlanReady: false,
     },
   });
-  assert(incompleteReference.status === "GENERATED", `Unconfirmed reference did not generate Commercial Film: ${incompleteReference.status === "BLOCKED" ? incompleteReference.diagnostics.join(" | ") : ""}`);
-  assert(incompleteReference.plan.referenceState.status === "REFERENCE_READY", "Unconfirmed reference did not resolve to REFERENCE_READY.");
-  assert(incompleteReference.modelFacingScript.compiledText.includes("Use the footwear reference images uploaded in the external video generation tool as the only source of truth for the product."), "Unconfirmed reference script is missing external-reference protection.");
+  assert(incompleteReference.status === "BLOCKED", `Unconfirmed zero-reference input must be blocked by the Commercial Hard Floor: ${incompleteReference.status === "BLOCKED" ? incompleteReference.diagnostics.join(" | ") : "unexpected generation"}`);
 
   const actionAudit = auditCommercialActionSource();
   assert(actionAudit.existingActionLibraryCount === 318, "Commercial Action audit changed the Existing Action Library count.");

@@ -85,6 +85,11 @@ for (const intent of intents) {
     for (const mode of ["zero", "confirmed"]) {
       const label = `AUTO ${intent}/${nonce}/${mode}`;
       const outcome = api.runCommercialV14Pipeline(request({ intent, nonce, mode }));
+      if (mode === "zero") {
+        assert(outcome.status === "BLOCKED", `${label}: missing confirmed references must be blocked`);
+        autoCases.push({ intent, nonce, mode, status: "EXPECTED_REFERENCE_BLOCK" });
+        continue;
+      }
       const plan = assertRendered(outcome, label);
       assert(
         stableStringify(plan.renderValidation) === stableStringify(
@@ -112,7 +117,7 @@ for (const intent of intents) {
   for (const concept of concepts) {
     for (const nonce of [0, 1, 2]) {
       const label = `FORCED ${intent}/${concept}/${nonce}`;
-      const outcome = api.runCommercialV14Pipeline(request({ intent, nonce, mode: "zero", concept }));
+      const outcome = api.runCommercialV14Pipeline(request({ intent, nonce, mode: "confirmed", concept }));
       if (outcome.status === "BLOCKED") continue;
       assertRendered(outcome, label);
       forcedCompatible += 1;
@@ -121,15 +126,20 @@ for (const intent of intents) {
 }
 
 const golden = [
-  { id: "A", label: "QUIET_LUXURY + REFLECTION_WORLD", input: { intent: "QUIET_LUXURY", concept: "REFLECTION_WORLD", nonce: 0, mode: "zero" } },
-  { id: "B", label: "STATIC_CAMERA_FILM compatible", input: { intent: "QUIET_LUXURY", nonce: 2, mode: "zero" } },
-  { id: "C", label: "PRODUCT_CRAFT compatible", input: { intent: "PRODUCT_CRAFT", nonce: 0, mode: "zero" } },
-  { id: "D", label: "THRESHOLD_CHAIN compatible", input: { intent: "NEW_ARRIVAL", concept: "THRESHOLD_CHAIN", nonce: 0, mode: "zero" } },
-  { id: "E", label: "LIGHT_REVEAL compatible", input: { intent: "QUIET_LUXURY", concept: "LIGHT_REVEAL", nonce: 1, mode: "zero" } },
-  { id: "F", label: "REPEATED_GESTURE compatible", input: { intent: "PRODUCT_CRAFT", concept: "REPEATED_GESTURE", nonce: 0, mode: "zero" } },
+  { id: "A", label: "QUIET_LUXURY + REFLECTION_WORLD", input: { intent: "QUIET_LUXURY", concept: "REFLECTION_WORLD", nonce: 0, mode: "confirmed" } },
+  { id: "B", label: "STATIC_CAMERA_FILM compatible", input: { intent: "QUIET_LUXURY", nonce: 2, mode: "confirmed" } },
+  { id: "C", label: "PRODUCT_CRAFT compatible", input: { intent: "PRODUCT_CRAFT", nonce: 0, mode: "confirmed" } },
+  { id: "D", label: "THRESHOLD_CHAIN compatible", input: { intent: "NEW_ARRIVAL", concept: "THRESHOLD_CHAIN", nonce: 0, mode: "confirmed" } },
+  { id: "E", label: "LIGHT_REVEAL compatible", input: { intent: "QUIET_LUXURY", concept: "LIGHT_REVEAL", nonce: 1, mode: "confirmed" } },
+  { id: "F", label: "REPEATED_GESTURE unsupported by single-action source events", input: { intent: "PRODUCT_CRAFT", concept: "REPEATED_GESTURE", nonce: 0, mode: "confirmed" }, expectedBlock: "SIGNATURE_EVENT_NOT_IN_EXECUTION" },
 ];
 for (const item of golden) {
   const outcome = api.runCommercialV14Pipeline(request(item.input));
+  if (item.expectedBlock) {
+    assert(outcome.status === "BLOCKED" && outcome.code === "CREATIVE_DIRECTING_FAILED", `GOLDEN ${item.id} ${item.label}: the unsupported signature must be blocked.`);
+    assert(outcome.diagnostics.some((diagnostic) => diagnostic.startsWith(`${item.expectedBlock}:`)), `GOLDEN ${item.id} ${item.label}: the block must identify its execution-grounding failure.`);
+    continue;
+  }
   assertRendered(outcome, `GOLDEN ${item.id} ${item.label}`);
 }
 

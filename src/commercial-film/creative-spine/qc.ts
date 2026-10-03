@@ -22,6 +22,14 @@ const GATE_LABELS: Record<CommercialStoryQcGateId, string> = {
   human_situation_inconsistent: "One Human Situation",
   premise_not_reflected: "Premise Reflected In Every Shot",
   product_readability_protected: "Commercial Product Readability Protected",
+  advertising_structure_missing: "Advertising Structure Present",
+  creative_idea_generic: "Specific Advertising Idea",
+  product_role_structure_conflict: "Product Role Matches Structure",
+  fixed_product_template_collapse: "No Fixed Product Template Collapse",
+  ending_image_missing: "Ending Image Intent Present",
+  ending_state_only: "Ending Leaves An Image",
+  creative_structure_not_reflected: "Structure Reflected In Direction",
+  signature_memory_missing: "Memorable Idea Present",
 };
 
 const GATE_CODES: Record<CommercialStoryQcGateId, CommercialStoryQcGate["code"]> = {
@@ -35,6 +43,14 @@ const GATE_CODES: Record<CommercialStoryQcGateId, CommercialStoryQcGate["code"]>
   human_situation_inconsistent: "HUMAN_SITUATION_INCONSISTENT",
   premise_not_reflected: "PREMISE_NOT_REFLECTED",
   product_readability_protected: "PRODUCT_READABILITY_UNPROTECTED",
+  advertising_structure_missing: "ADVERTISING_STRUCTURE_MISSING",
+  creative_idea_generic: "CREATIVE_IDEA_GENERIC",
+  product_role_structure_conflict: "PRODUCT_ROLE_STRUCTURE_CONFLICT",
+  fixed_product_template_collapse: "FIXED_PRODUCT_TEMPLATE_COLLAPSE",
+  ending_image_missing: "ENDING_IMAGE_MISSING",
+  ending_state_only: "ENDING_STATE_ONLY",
+  creative_structure_not_reflected: "CREATIVE_STRUCTURE_NOT_REFLECTED",
+  signature_memory_missing: "SIGNATURE_MEMORY_MISSING",
 };
 
 function gate(
@@ -68,6 +84,8 @@ export function runCommercialStoryQc(
   const detail = input.shotFunctions.find((shot) => shot.shotRole === "DETAIL");
   const hero = input.shotFunctions.find((shot) => shot.shotRole === "HERO");
   const release = input.shotFunctions.find((shot) => shot.shotRole === "RELEASE");
+  const latestClearIndex = input.productPresenceByShot.lastIndexOf("CLEAR");
+  const readableStoryBeat = latestClearIndex >= 0 ? input.shotFunctions[latestClearIndex] : undefined;
   const fiveShotOrderValid = input.shotFunctions.length === 5
     && input.shotFunctions.every((shot, index) => shot.shotIndex === index);
   const continuityFields = [
@@ -96,9 +114,15 @@ export function runCommercialStoryQc(
       && input.productMeaning.supportingCoverage.every((item) => coverage.has(item))
       && input.productMeaning.factBasis.length > 0
       && input.productMeaning.unsupportedClaimGuard.length > 0;
-  const readabilityProtected = hero?.productPresenceDesign === "CLEAR"
-    && detail?.productPresenceDesign !== "ABSENT"
-    && input.productPresenceByShot.some((presence) => presence === "CLEAR");
+  const readabilityProtected = Boolean(readableStoryBeat)
+    && readableStoryBeat!.productPresenceDesign === "CLEAR"
+    && readableStoryBeat!.dramaticFunction !== "ESTABLISH"
+    && readableStoryBeat!.productNarrativeRole.trim().length > 0
+    && readableStoryBeat!.continuityFromPrevious.includes(`shot ${readableStoryBeat!.shotIndex}`)
+    && (input.productRole !== "HERO" || readableStoryBeat!.productPresenceDesign === "CLEAR")
+    && (detail?.productPresenceDesign === "ABSENT"
+      ? !/detail|material|structure|coverage/i.test(detail.narrativePurpose)
+      : Boolean(detail?.narrativePurpose.trim()));
   const premiseReflected = input.shotFunctions.every((shot) => (
     shot.narrativePurpose.trim().length > 0
     && shot.audienceKnowledgeBefore.trim().length > 0
@@ -134,17 +158,19 @@ export function runCommercialStoryQc(
         && detail.productPresenceDesign !== "ABSENT"
         && detail.narrativePurpose.length > 0,
       detail
-        ? `The DETAIL beat performs ${detail.dramaticFunction} and remains tied to the same human situation.`
+        ? `The DETAIL story beat performs ${detail.dramaticFunction} and remains tied to the same human situation; actual PRODUCT_DETAIL visibility is reference-validated downstream.`
         : "No DETAIL beat exists."
     ),
     hero_context_disconnected: gate(
       "hero_context_disconnected",
-      hero?.continuityFromPrevious.includes(`shot ${hero.shotIndex}`) === true
-        && hero.dramaticFunction !== "ESTABLISH"
-        && hero.productPresenceDesign === "CLEAR",
-      hero
-        ? "The HERO beat is connected to the preceding human context and provides the clear worn-product read."
-        : "No HERO beat exists."
+      Boolean(readableStoryBeat)
+        && readableStoryBeat!.dramaticFunction !== "ESTABLISH"
+        && readableStoryBeat!.productNarrativeRole.length > 0
+        && readableStoryBeat!.productPresenceDesign === "CLEAR"
+        && readableStoryBeat!.continuityFromPrevious.includes(`shot ${readableStoryBeat!.shotIndex}`),
+      readableStoryBeat
+        ? `The ${input.productRole} role reaches an explicit clear product expression in its connected ${readableStoryBeat!.shotRole} beat.`
+        : "No clear product read exists inside the connected human situation."
     ),
     release_not_resolved: gate(
       "release_not_resolved",
@@ -178,8 +204,52 @@ export function runCommercialStoryQc(
       "product_readability_protected",
       readabilityProtected,
       readabilityProtected
-        ? "The HERO remains CLEAR and the DETAIL remains reference-visible while the rest of the film may vary in product presence."
-        : "The product-presence design weakens DETAIL, HERO, or the required clear product read."
+        ? "The selected curve binds its explicit product expression to a connected beat, while any declared detail remains coverage-supported."
+        : "No connected, explicit clear product expression exists, or the declared detail is unsupported by confirmed coverage."
+    ),
+    advertising_structure_missing: gate(
+      "advertising_structure_missing",
+      Boolean(input.advertisingStructure),
+      `Advertising structure: ${input.advertisingStructure}.`
+    ),
+    creative_idea_generic: gate(
+      "creative_idea_generic",
+      input.premise.text.trim().length >= 90 && input.filmTension.line.trim().length >= 35,
+      "The upstream idea and tension state what changes perceptually and why the film has a distinct point of view."
+    ),
+    product_role_structure_conflict: gate(
+      "product_role_structure_conflict",
+      input.productRole === "DISCOVERED" ? input.revealStrategy !== "IMMEDIATE" : true,
+      `Product role ${input.productRole} is coherent with ${input.revealStrategy} reveal logic.`
+    ),
+    fixed_product_template_collapse: gate(
+      "fixed_product_template_collapse",
+      !(["INHABITED", "DISCOVERED"].includes(input.productRole)
+        && input.productPresenceByShot[4] === "CLEAR"),
+      `Product-role curve: ${input.productPresenceByShot.join(" → ")}; no mandatory detail/hero/release escalation is imposed.`
+    ),
+    ending_image_missing: gate(
+      "ending_image_missing",
+      input.endingImageIntent.trim().length >= 60,
+      "The ending intent names a remembered image and binds it to the existing physical state."
+    ),
+    ending_state_only: gate(
+      "ending_state_only",
+      /image|remember|frame|world|light|reflection/i.test(input.endingImageIntent)
+        && input.endingImageIntent.length >= 60,
+      "The ending identifies an image or afterimage instead of only naming a final state."
+    ),
+    creative_structure_not_reflected: gate(
+      "creative_structure_not_reflected",
+      input.premise.text.includes(input.filmTension.line)
+        && input.shotFunctions.every((shot) => shot.narrativePurpose.includes(input.advertisingStructure)
+          && shot.narrativePurpose.includes(input.filmTension.line)),
+      "The five existing beats retain the upstream structure and perceptual tension as their creative context."
+    ),
+    signature_memory_missing: gate(
+      "signature_memory_missing",
+      input.visualMemoryIntent.trim().length >= 40,
+      "The film has a concise visual memory target grounded in its selected advertising structure."
     ),
   };
 

@@ -49,11 +49,14 @@ const SOUND_CONTEXT_BY_INTENT: Record<CommercialIntentId, { context: string; cue
   },
   NEW_ARRIVAL: {
     context: "exterior threshold to arrival",
-    cues: ["street ambience", "door threshold sound", "acoustic change after entering"],
+    cues: ["street ambience", "door threshold sound"],
   },
 };
 
-function shotSceneKind(shotIndex: number, sceneIds: string[]) {
+function shotSceneKind(shotIndex: number, sceneIds: string[], spatialState?: { start: string | null; end: string | null }) {
+  const state = `${spatialState?.end ?? spatialState?.start ?? ""}`.toLowerCase();
+  if (spatialState && /inside|interior|room|workroom|entryway|arrival space/.test(state)) return "interior";
+  if (spatialState && /outside on|street|approach/.test(state)) return "street";
   const sceneId = sceneIds[shotIndex % sceneIds.length] ?? "";
   return /street|corner|walk|exit|building|cafe-exterior/.test(sceneId) ? "street" : "interior";
 }
@@ -62,12 +65,34 @@ export function buildCommercialSoundPlan(
   rhythm: CommercialCameraRhythm,
   intent: CommercialIntentId,
   shotRoles: CommercialShotRole[],
-  sceneIds: string[]
+  sceneIds: string[],
+  spatialStates?: Array<{ start: string | null; end: string | null }>
 ): CommercialSoundPlan {
   const shots: CommercialSoundShot[] = shotRoles.map((shotRole, shotIndex) => {
-    const kind = shotSceneKind(shotIndex, sceneIds);
+    const spatialState = spatialStates?.[shotIndex];
+    const kind = shotSceneKind(shotIndex, sceneIds, spatialState);
     const contextCues = SOUND_CONTEXT_BY_INTENT[intent].cues;
-    const cues = [...new Set([...contextCues.slice(0, 2), ...SHOT_CUES[shotRole][kind]])].slice(0, 3);
+    const crossing = Boolean(spatialState?.start && spatialState.end && spatialState.start !== spatialState.end);
+    const transitionCues = crossing
+      ? /inside|interior|room|workroom|entryway/.test(spatialState!.start!.toLowerCase())
+        ? ["door and floor contact", "street ambience begins after the crossing"]
+        : ["street ambience before entry", "destination room tone begins after the crossing"]
+      : [];
+    const groundedIntentCues = intent === "QUIET_LUXURY" || intent === "PRODUCT_CRAFT"
+      ? contextCues.filter((cue) => !/street|traffic|exterior/i.test(cue))
+      : contextCues;
+    const spatialIntentCues = kind === "interior"
+      ? groundedIntentCues.filter((cue) => !/street|traffic|exterior|threshold/i.test(cue))
+      : groundedIntentCues.filter((cue) => !/room tone|interior|threshold/i.test(cue));
+    const crossingIndex = spatialStates?.findIndex((state) => Boolean(state.start && state.end && state.start !== state.end)) ?? -1;
+    const postDailyCrossing = intent === "DAILY_STYLING" && crossingIndex >= 0 && shotIndex > crossingIndex;
+    const settledArrivalBeat = intent === "NEW_ARRIVAL" && shotIndex === 4;
+    const cues = [...new Set(crossing
+      ? [...transitionCues, ...SHOT_CUES[shotRole][kind]]
+      : [...spatialIntentCues.slice(0, 2), ...SHOT_CUES[shotRole][kind]])]
+      .filter((cue) => !postDailyCrossing || !/door|threshold|floor contact/i.test(cue))
+      .filter((cue) => !settledArrivalBeat || !/footsteps?|footfall|foot contact|foot settling/i.test(cue))
+      .slice(0, 3);
     const dominantSound: SoundCategory = shotRole === "HERO"
       ? "SILENCE"
       : rhythm === "PRODUCT_FORWARD" && shotRole === "DETAIL"

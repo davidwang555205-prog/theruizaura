@@ -166,6 +166,14 @@ function resourcesForConcept(
     );
   }
   if (concept === "WORLD_MOVES_SUBJECT_SETTLES") {
+    if (plan.commercialIntent === "QUIET_LUXURY" && plan.eventSpine.advertisingStructure === "WORLD_OBSERVES_SUBJECT") {
+      const selectedWorldResourceId = plan.eventSpine.shots.find((shot) => (
+        shot.physicalEvent.eventFamily === "WORLD_CARRIER_CHANGE"
+        && shot.physicalEvent.actor === "WORLD"
+      ))?.physicalEvent.requiredResource;
+      const selectedWorldResource = resources.find((resource) => resource.entityId === selectedWorldResourceId);
+      if (selectedWorldResource) return [selectedWorldResource];
+    }
     return matchingResources(
       resources,
       /\b(?:pedestrian|traffic|vehicle|reflection|curtain|fabric|movement|street|background)\b/
@@ -201,6 +209,26 @@ export function evaluateCommercialDirectorConceptEligibility(input: {
   resources: CommercialFinalPhysicalResource[];
 }): CommercialDirectorConceptEligibility {
   const conceptResources = resourcesForConcept(input.concept, input.resources, input.plan);
+  const eventEvidence = input.plan.eventSpine.shots.flatMap((shot) =>
+    shot.stateContract.effects
+      .filter((effect) => effect.fromValue !== effect.toValue)
+      .map((effect) => normalize([
+        effect.entityId,
+        effect.attribute,
+        effect.fromValue,
+        effect.toValue,
+        effect.reason,
+      ].join(" ")))
+  );
+  conceptResources.sort((left, right) => {
+    const score = (resource: CommercialFinalPhysicalResource) => {
+      const label = normalize(resource.label);
+      if (resource.entityId && eventEvidence.some((evidence) => evidence.includes(normalize(resource.entityId ?? "")))) return 0;
+      if (label && eventEvidence.some((evidence) => evidence.includes(label))) return 1;
+      return 2;
+    };
+    return score(left) - score(right);
+  });
   const capability = COMMERCIAL_DIRECTOR_CONCEPT_CAPABILITIES[input.concept];
   if (conceptResources.length === 0) {
     return {

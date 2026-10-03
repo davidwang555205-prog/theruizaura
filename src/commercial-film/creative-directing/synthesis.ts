@@ -81,7 +81,7 @@ const SYNTHESIS_BY_CONCEPT: Record<CommercialDirectorConceptId, SynthesisCore> =
   },
   LIGHT_REVEAL: {
     proposition: "Light makes the material readable before the camera decides it matters.",
-    moment: "At the {location}, her existing body movement changes how the {carrier} reaches the lower silhouette; the material emerges from shadow in one continuous view.",
+    moment: "At the {location}, her existing body movement changes how {carrier} reaches the lower silhouette; the material emerges from shadow in one continuous view.",
     before: "The material is held in shadow.",
     visualInterruption: "Her movement carries the lower silhouette across the established light boundary.",
     after: "The light holds on the worn line as her body settles.",
@@ -167,8 +167,7 @@ function worldPrefix(plan: CommercialFilmPlan, carrier: string) {
 }
 
 export function synthesizeProposition(plan: CommercialFilmPlan) {
-  const key = `${plan.commercialIntent}:${plan.directorConcept.concept}`;
-  return PROPOSITION_BY_CASE[key] ?? SYNTHESIS_BY_CONCEPT[plan.directorConcept.concept].proposition;
+  return plan.creativeSpine.premise.text;
 }
 
 export function synthesizeSignatureMoment(

@@ -96,6 +96,7 @@ function characterSpaceFacts(input: {
   entity: CommercialWorldEntity;
   change: AttributeChange;
   hasDeclaredCrossingAction: boolean;
+  crossingBeat?: CommercialContinuityLockBeat;
 }): CommercialContinuityLockFact[] {
   const facts: CommercialContinuityLockFact[] = [];
   if (input.change.firstChangeShotIndex === null) {
@@ -113,7 +114,9 @@ function characterSpaceFacts(input: {
     kind: "SPATIAL_CHANGE",
     entityId: input.entity.id,
     attribute: "space",
-    line: `The character begins ${input.change.initialValue} and is ${input.change.finalValue} from ${shotLabel(input.change.firstChangeShotIndex)} onward.`,
+    line: input.hasDeclaredCrossingAction && input.crossingBeat
+      ? `Beat ${input.change.firstChangeShotIndex + 1} begins ${input.change.initialValue}. ${input.crossingBeat.stateContract.requiredVisibleEvidence.find((evidence) => evidence.sourceEventId)?.statement ?? "The declared threshold crossing"} The beat ends ${input.change.finalValue}. Beat ${input.change.firstChangeShotIndex + 2} onward remains ${input.change.finalValue}.`
+      : `The character begins ${input.change.initialValue} and is ${input.change.finalValue} from ${shotLabel(input.change.firstChangeShotIndex)} onward.`,
   });
   facts.push({
     factId: `${input.entity.id}.space.rule`,
@@ -163,7 +166,14 @@ export function buildCommercialContinuityLock(input: {
             && (effect.attribute === "space" || effect.attribute === "anchor")
             && effect.fromValue !== effect.toValue
           )));
-          facts.push(...characterSpaceFacts({ entity, change, hasDeclaredCrossingAction }));
+          const crossingBeat = input.beats.find((beat) => beat.stateContract.effects.some((effect) => (
+            effect.cause === "ACTION"
+            && effect.actionId === "CROSS_THRESHOLD"
+            && effect.entityId === entity.id
+            && effect.attribute === "space"
+            && effect.fromValue !== effect.toValue
+          )));
+          facts.push(...characterSpaceFacts({ entity, change, hasDeclaredCrossingAction, crossingBeat }));
           return;
         }
         if (change.firstChangeShotIndex === null) {
@@ -182,6 +192,58 @@ export function buildCommercialContinuityLock(input: {
           entityId: entity.id,
           attribute,
           line: `The character moves from ${change.initialValue} to ${change.finalValue} at ${shotLabel(change.firstChangeShotIndex!)} and keeps that spatial position afterwards.`,
+        });
+      });
+    }
+
+    if (entity.kind === "OBJECT" || entity.kind === "GROUND" || entity.kind === "CARRIER") {
+      trackedAttributes.forEach((attribute) => {
+        const change = attributeChange({
+          entity,
+          attribute,
+          beats: input.beats,
+          timeline: input.timeline,
+          finalState: input.finalState,
+        });
+        if (!change) {
+          failureReasons.push(`CONTINUITY_LOCK_UNKNOWN_ATTRIBUTE: ${entity.id}.${attribute} is not tracked by the World State.`);
+          return;
+        }
+        if (change.firstChangeShotIndex === null) {
+          facts.push({
+            factId: `${entity.id}.${attribute}.hold`,
+            kind: "ENTITY_HOLD",
+            entityId: entity.id,
+            attribute,
+            line: `${subjectPhrase(entity.label)} stays ${change.finalValue} for the whole film.`,
+          });
+          return;
+        }
+        const environmentEffect = input.beats
+          .find((beat) => beat.shotIndex === change.firstChangeShotIndex)
+          ?.stateContract.effects.find((effect) => (
+            effect.entityId === entity.id
+            && effect.attribute === attribute
+            && effect.cause === "ENVIRONMENT"
+            && effect.fromValue !== effect.toValue
+          ));
+        if (environmentEffect) {
+          facts.push({
+            factId: `${entity.id}.${attribute}.change`,
+            kind: "ENTITY_CHANGE",
+            entityId: entity.id,
+            attribute,
+            line: `${subjectPhrase(entity.label)} begins ${change.initialValue}; the declared environmental change occurs once at beat ${change.firstChangeShotIndex + 1}, then continues as ${change.finalValue} without resetting.`,
+          });
+          return;
+        }
+        const changeVerb = change.actionLabel ?? "changed";
+        facts.push({
+          factId: `${entity.id}.${attribute}.change`,
+          kind: "ENTITY_CHANGE",
+          entityId: entity.id,
+          attribute,
+          line: `${subjectPhrase(entity.label)} begins ${change.initialValue}, is ${changeVerb} once at beat ${change.firstChangeShotIndex + 1}, and stays ${change.finalValue} for the rest of the film.`,
         });
       });
     }
@@ -213,6 +275,24 @@ export function buildCommercialContinuityLock(input: {
             entityId: entity.id,
             attribute,
             line: `${subjectPhrase(entity.label)} stays ${change.finalValue} for the whole film.`,
+          });
+          return;
+        }
+        const environmentEffect = input.beats
+          .find((beat) => beat.shotIndex === change.firstChangeShotIndex)
+          ?.stateContract.effects.find((effect) => (
+            effect.entityId === entity.id
+            && effect.attribute === attribute
+            && effect.cause === "ENVIRONMENT"
+            && effect.fromValue !== effect.toValue
+          ));
+        if (environmentEffect) {
+          facts.push({
+            factId: `${entity.id}.${attribute}.change`,
+            kind: "ENTITY_CHANGE",
+            entityId: entity.id,
+            attribute,
+            line: `${subjectPhrase(entity.label)} begins ${change.initialValue}; the declared environmental change occurs once at beat ${change.firstChangeShotIndex + 1}, then continues as ${change.finalValue} without resetting.`,
           });
           return;
         }

@@ -192,9 +192,7 @@ try {
       productTruth: null,
     },
   });
-  assert(zeroReferenceOutcome.status === "GENERATED", "Zero-reference Commercial Film compiler path was blocked.");
-  assert(zeroReferenceOutcome.modelFacingScript.compiledText.includes("Use the footwear reference images uploaded in the external video generation tool as the only source of truth for the product."), "Zero-reference compiler output lacks external-reference protection.");
-  assert(!/\b(?:burgundy|ivory|leather|suede|mesh|outsole construction|logo detail)\b/i.test(zeroReferenceOutcome.modelFacingScript.compiledText), "Zero-reference compiler output invented an exact product fact.");
+  assert(zeroReferenceOutcome.status === "BLOCKED", `Zero-reference compiler input must be blocked by the Commercial Hard Floor: ${zeroReferenceOutcome.status === "BLOCKED" ? zeroReferenceOutcome.diagnostics.join(" | ") : "unexpected generation"}`);
 
   assert(compiled === 5, `${compiled}/5 intents compiled.`);
   assert(validated === 5, `${validated}/5 execution validations passed.`);

@@ -7,3 +7,4 @@ export * from "./continuity";
 export * from "./catalog";
 export * from "./execution-contracts";
 export * from "./planner";
+export * from "./advertising-functions";

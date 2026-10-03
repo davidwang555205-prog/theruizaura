@@ -86,6 +86,7 @@ export type CommercialTakePlan = {
 export type CommercialTakeBeat = {
   shotIndex: number;
   durationSeconds: number;
+  timeRange?: { startSecond: number; endSecond: number };
   cameraState: CommercialEventCameraState;
   actionContinuity: CommercialActionContinuity;
   actionSequenceId: string;
@@ -297,13 +298,15 @@ export function planCommercialTakes(input: {
   const failureReasons: string[] = [];
   const boundaryDecisions: CommercialTakeBoundaryDecision[] = [];
   const takes: CommercialTake[] = [];
-  let elapsed = 0;
+  let fallbackElapsed = 0;
   let currentTake: CommercialTake | null = null;
 
   input.beats.forEach((beat, index) => {
-    const startSecond = Number(elapsed.toFixed(1));
-    elapsed = Number((elapsed + beat.durationSeconds).toFixed(1));
-    const endSecond = Number(elapsed.toFixed(1));
+    // Production callers provide the authoritative beat window. The duration
+    // fallback remains for isolated legacy validator fixtures only.
+    const startSecond = beat.timeRange?.startSecond ?? Number(fallbackElapsed.toFixed(1));
+    const endSecond = beat.timeRange?.endSecond ?? Number((startSecond + beat.durationSeconds).toFixed(1));
+    fallbackElapsed = endSecond;
     const previous = index > 0 ? input.beats[index - 1] : null;
     let boundary: CommercialTakeBoundary | null = null;
     if (index === 0) {

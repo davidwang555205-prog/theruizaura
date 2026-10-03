@@ -575,7 +575,7 @@ export const COMMERCIAL_EXECUTION_CONTRACTS: Record<CommercialIntentId, Commerci
         stateContract: stateContract({
           preconditions: [
             ...holdsCharacterSpace("inside the quiet private room", "the window side of the room"),
-            required(WINDOW_LIGHT, "direction", "steady and coming from the same window side", "The room and light continue unchanged."),
+            required(WINDOW_LIGHT, "direction", "steady and coming from the same window side", "The room continues unchanged and the light remains in its established before state."),
           ],
           evidence: [
             visible("room_continues", "The room and light continue around the still person without a new event."),
@@ -683,7 +683,7 @@ export const COMMERCIAL_EXECUTION_CONTRACTS: Record<CommercialIntentId, Commerci
           ],
           singleUseAction: singleUse({
             actionId: "COMPLETE_PREPARATION",
-            label: "Completing the preparation",
+            label: "The preparation task completes and its confirmed visible result remains ready for practical use.",
             entityId: PREPARATION_SURFACE,
             attribute: "state",
             from: "in use",

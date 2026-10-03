@@ -1,8 +1,4 @@
-import type {
-  CommercialFilmPlan,
-  CommercialProductVisibility,
-  CommercialShotRole,
-} from "../types";
+import type { CommercialFilmPlan, CommercialProductVisibility, CommercialShotRole } from "../types";
 import type {
   CommercialProductRevealContract,
   CommercialProductVisibilityAuthority,
@@ -41,8 +37,10 @@ const STATE_GOALS: Record<CommercialProductVisibilityState, string> = {
 };
 
 function shotState(
-  role: CommercialShotRole,
-  presence: CommercialFilmPlan["productVisibilityPlan"]["presenceByShot"][number]
+  presence: CommercialFilmPlan["productVisibilityPlan"]["presenceByShot"][number],
+  productRole: CommercialFilmPlan["creativeSpine"]["productRole"],
+  shotRole: CommercialShotRole,
+  legacyLevel: CommercialProductVisibility
 ): CommercialProductVisibilityState {
   const presenceState: Record<
     CommercialFilmPlan["productVisibilityPlan"]["presenceByShot"][number],
@@ -55,17 +53,24 @@ function shotState(
     CLEAR: "READABLE",
   };
   const base = presenceState[presence];
-  if (role === "WORLD") {
+  if (shotRole === "WORLD") {
     return base === "READABLE" ? "PARTIAL" : base;
   }
-  if (role === "WEAR") {
+  if (shotRole === "WEAR") {
     return base === "READABLE" ? "READABLE" : base;
   }
-  if (role === "DETAIL") {
-    return base === "READABLE" ? "DETAIL" : base;
+  if (shotRole === "DETAIL") {
+    return legacyLevel === "PRODUCT_DETAIL" && base === "READABLE" ? "DETAIL" : base;
   }
-  if (role === "HERO") {
-    return base === "ABSENT" ? "IMPLIED" : "HERO";
+  if (shotRole === "HERO") {
+    if (
+      productRole === "HERO"
+      && legacyLevel === "PRODUCT_HERO"
+      && presence === "CLEAR"
+    ) return "HERO";
+    if (productRole === "REVEALED" && presence === "CLEAR") return "READABLE";
+    if (base === "ABSENT") return "IMPLIED";
+    return base === "PARTIAL" ? "READABLE" : base;
   }
   return base === "ABSENT" || base === "IMPLIED" ? "SECONDARY" : "RELEASE";
 }
@@ -108,7 +113,12 @@ export function planCommercialProductVisibilityAuthority(input: {
   const timeline: CommercialProductVisibilityTimelineBeat[] = input.plan.shotArchitecture.shots.map((shot, beatIndex) => {
     const sourcePresence = input.plan.productVisibilityPlan.presenceByShot[beatIndex] ?? "ABSENT";
     const sourceLegacyLevel = input.plan.productVisibilityPlan.levels[beatIndex] ?? "CONTEXT";
-    const normalizedState = shotState(shot.role, sourcePresence);
+    const normalizedState = shotState(
+      sourcePresence,
+      input.plan.creativeSpine.productRole,
+      shot.role,
+      sourceLegacyLevel
+    );
     const roleCompatible = ROLE_EXPECTATIONS[shot.role].includes(normalizedState);
     const legacyCompatible = LEGACY_EXPECTATIONS[sourceLegacyLevel].includes(normalizedState);
     if (!roleCompatible) {

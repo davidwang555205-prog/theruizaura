@@ -77,6 +77,26 @@ function assertFinalLeakageFree(text, label) {
   assert(!/\b(?:walking|transition|standing|turning|on-foot|seated|studio-[a-z-]+|mirror-[a-z-]+)-\d{3}\b/i.test(text), `${label} leaked an Action ID.`);
 }
 
+function assertProductAuthority(plan, label) {
+  const referenceCoverage = new Set(plan.referenceState.coverage);
+  const supportedCoverage = new Set(plan.productMessage.supportedDimensions.map((dimension) => dimension.coverage));
+  const expression = plan.shotArchitecture.shots.find((shot) => (
+    ["PRODUCT_READABLE", "PRODUCT_HERO"].includes(shot.productVisibility)
+    && plan.creativeSpine.productPresenceByShot[shot.shotIndex] === "CLEAR"
+    && Boolean(shot.productMessageDimension)
+    && referenceCoverage.has(shot.productMessageDimension)
+    && supportedCoverage.has(shot.productMessageDimension)
+  ));
+  assert(expression, `${label} has no actual CLEAR expression beat bound to confirmed supported coverage.`);
+  if (plan.creativeSpine.productRole === "HERO") {
+    assert(expression.productVisibility === "PRODUCT_HERO", `${label} selected HERO without an explicit PRODUCT_HERO expression.`);
+  }
+  for (const shot of plan.shotArchitecture.shots.filter((entry) => entry.productVisibility === "PRODUCT_DETAIL")) {
+    assert(Boolean(shot.event.productDetailRelationship?.trim()), `${label} DETAIL beat has no event/product relationship.`);
+    assert(Boolean(shot.productMessageDimension) && referenceCoverage.has(shot.productMessageDimension) && supportedCoverage.has(shot.productMessageDimension), `${label} DETAIL beat is not bound to confirmed supported coverage.`);
+  }
+}
+
 try {
   await writeFile(
     entryPath,
@@ -117,11 +137,14 @@ try {
     assert(spine.shotFunctions.map((shot) => shot.shotRole).join("|") === "WORLD|WEAR|DETAIL|HERO|RELEASE", `${intent} changed shot-role order.`);
     assert(Object.values(spine.qc).every((gate) => gate.status === "PASS"), `${intent} failed Commercial Story QC.`);
     assert(spine.productMeaning.supportingCoverage.every((item) => coverage.includes(item)), `${intent} Product Meaning uses unsupported coverage.`);
-    assert(outcome.plan.shotArchitecture.shots[1].productVisibility === "PRODUCT_READABLE", `${intent} lost PRODUCT_READABLE.`);
-    assert(outcome.plan.shotArchitecture.shots[2].productVisibility === "PRODUCT_DETAIL", `${intent} lost PRODUCT_DETAIL.`);
-    assert(outcome.plan.shotArchitecture.shots[3].productVisibility === "PRODUCT_HERO", `${intent} lost PRODUCT_HERO.`);
-    assert(outcome.plan.productVisibilityPlan.presenceByShot[3] === "CLEAR", `${intent} HERO is not CLEAR.`);
-    assert(outcome.plan.productVisibilityPlan.presenceByShot[2] !== "ABSENT", `${intent} DETAIL is ABSENT.`);
+    assertProductAuthority(outcome.plan, intent);
+    assert(["CONTRAST_SHIFT", "PURSUIT_RELEASE", "WITHHOLD_REVEAL", "RITUAL_COMPLETION", "WORLD_OBSERVES_SUBJECT", "ICONIC_IMAGE"].includes(spine.advertisingStructure), `${intent} has no supported advertising structure.`);
+    assert(["INHABITED", "DISCOVERED", "REVEALED", "HERO"].includes(spine.productRole), `${intent} has no product role.`);
+    assert(outcome.plan.shotArchitecture.shots.some((shot) => shot.productVisibility === "PRODUCT_READABLE" || shot.productVisibility === "PRODUCT_HERO"), `${intent} has no readable product beat.`);
+    if (["INHABITED", "DISCOVERED"].includes(spine.productRole)) {
+      assert(!outcome.plan.shotArchitecture.shots.some((shot) => ["PRODUCT_DETAIL", "PRODUCT_HERO", "BRAND_RELEASE"].includes(shot.productVisibility)), `${intent} escalated a ${spine.productRole} product role through the legacy shot template.`);
+    }
+    assert(outcome.plan.productVisibilityPlan.presenceByShot.some((presence, index) => presence === "CLEAR" && index > 0), `${intent} lost a clear later worn-product view.`);
     assertFinalLeakageFree(outcome.modelFacingScript.compiledText, `${intent} final script`);
 
     const rerun = runCommercialFilmPipeline(request);
@@ -140,7 +163,7 @@ try {
       || (index < 4 && !shot.continuityToNext.includes(`shot ${index + 2}`))
     ))) continuityFailures += 1;
     if (spine.productMeaning.supportingCoverage.some((item) => !coverage.includes(item))) productMeaningFailures += 1;
-    if (outcome.plan.shotArchitecture.shots[3].productVisibility !== "PRODUCT_HERO") productReadabilityFailures += 1;
+    if (!outcome.plan.shotArchitecture.shots.some((shot) => shot.productVisibility === "PRODUCT_READABLE" || shot.productVisibility === "PRODUCT_HERO")) productReadabilityFailures += 1;
 
     intentResults.push({
       intent,
@@ -148,6 +171,8 @@ try {
       humanSituation: spine.humanSituation.label,
       audienceDesire: spine.audienceDesire.label,
       revealStrategy: spine.revealStrategy,
+      advertisingStructure: spine.advertisingStructure,
+      productRole: spine.productRole,
       arc: spine.arc.join(" → "),
       storyQc: Object.values(spine.qc).every((gate) => gate.status === "PASS") ? "PASS" : "FAIL",
       shots: spine.shotFunctions.map((shot) => ({
@@ -159,6 +184,19 @@ try {
     });
   }
 
+  const nonceVariation = Object.fromEntries(intents.map((intent) => {
+    const nonceOutcomes = [0, 1, 2].map((generationNonce) => runCommercialFilmPipeline({
+      ...requestFor(intent),
+      generationNonce,
+    }));
+    assert(nonceOutcomes.every((outcome) => outcome.status === "GENERATED"), `${intent} nonce matrix contains a blocked case.`);
+    const structures = nonceOutcomes.map((outcome) => outcome.plan.creativeSpine.advertisingStructure);
+    assert(new Set(structures).size === 3, `${intent} did not rotate across three compatible advertising structures.`);
+    const repeat = runCommercialFilmPipeline({ ...requestFor(intent), generationNonce: 1 });
+    assert(repeat.status === "GENERATED" && repeat.plan.creativeSpine.advertisingStructure === structures[1], `${intent} nonce selection is not deterministic.`);
+    return [intent, structures];
+  }));
+
   const caseResults = [];
   for (const testCase of cases) {
     const outcome = runCommercialFilmPipeline(requestFor(testCase.intent, testCase.creativeCase));
@@ -168,17 +206,13 @@ try {
     assert(spine.premise.text.trim().length > 0, `${testCase.name} has no premise.`);
     assert(spine.shotFunctions.length === 5, `${testCase.name} does not have five shots.`);
     assert(Object.values(spine.qc).every((gate) => gate.status === "PASS"), `${testCase.name} failed Story QC.`);
+    assertProductAuthority(outcome.plan, testCase.name);
     assertFinalLeakageFree(outcome.modelFacingScript.compiledText, `${testCase.name} final script`);
-    if (testCase.creativeCase === "PRODUCT_FORWARD") {
-      assert(spine.productPresenceByShot[1] === "CLEAR", "PRODUCT_FORWARD is not readable early.");
-    }
-    if (testCase.creativeCase === "PROGRESSIVE_DISCOVERY") {
-      assert(spine.productPresenceByShot.slice(0, 4).join("|") === "SECONDARY|PARTIAL|CLEAR|CLEAR", "PROGRESSIVE_DISCOVERY does not become progressively clearer.");
-    }
-    if (testCase.creativeCase === "HUMAN_FIRST") {
-      assert(spine.productPresenceByShot[0] === "ABSENT", "HUMAN_FIRST WORLD shot is not product-absent.");
-      assert(spine.productPresenceByShot[3] === "CLEAR", "HUMAN_FIRST does not deliver a strong product read in HERO.");
-    }
+    const firstClear = spine.productPresenceByShot.indexOf("CLEAR");
+    assert(firstClear >= 0 && firstClear <= 3, `${testCase.name} does not reach its authorized product expression before the ending beat.`);
+    if (testCase.creativeCase === "PRODUCT_FORWARD") assert(firstClear <= 1, "PRODUCT_FORWARD must express the product early under IMMEDIATE reveal.");
+    if (testCase.creativeCase === "PROGRESSIVE_DISCOVERY") assert(firstClear > 0 && spine.revealStrategy === "PROGRESSIVE", "PROGRESSIVE_DISCOVERY must order its reveal after initial context.");
+    if (testCase.creativeCase === "HUMAN_FIRST") assert(firstClear > 0 && spine.revealStrategy === "DELAYED", "HUMAN_FIRST must preserve initial context before delayed product clarity.");
     caseResults.push({
       case: testCase.name,
       creativePremise: spine.premise.text,
@@ -212,10 +246,7 @@ try {
       productTruth: null,
     },
   });
-  assert(zeroReferenceSpine.status === "GENERATED", "Zero-reference Creative Spine generation was blocked.");
-  assert(zeroReferenceSpine.plan.creativeSpine.productMeaning.externalReferenceRequired === true, "Zero-reference Creative Spine did not select external-reference meaning mode.");
-  assert(Object.values(zeroReferenceSpine.plan.creativeSpine.qc).every((gate) => gate.status === "PASS"), "Zero-reference Creative Spine failed Story QC.");
-  assert(zeroReferenceSpine.modelFacingScript.compiledText.includes("Use the footwear reference images uploaded in the external video generation tool as the only source of truth for the product."), "Zero-reference Creative Spine output lacks external-reference protection.");
+  assert(zeroReferenceSpine.status === "BLOCKED", "Zero-reference Creative Spine must be blocked by the Commercial Hard Floor.");
 
   assert(COMMERCIAL_INTENT_CATALOG.length === 5, `Creative Spine validator expected 5 intents, found ${COMMERCIAL_INTENT_CATALOG.length}.`);
   assert(storyQcFailures === 0, `${storyQcFailures} Story QC failures remain.`);
@@ -224,7 +255,7 @@ try {
   assert(productMeaningFailures === 0, `${productMeaningFailures} unsupported Product Meaning failures remain.`);
   assert(productReadabilityFailures === 0, `${productReadabilityFailures} product-readability failures remain.`);
 
-  console.log("COMMERCIAL FILM V1.1 CREATIVE STORY SPINE VALIDATION PASS:", JSON.stringify({
+    console.log("COMMERCIAL FILM ADVERTISING CREATIVE SPINE VALIDATION PASS:", JSON.stringify({
     stage: "COMMERCIAL_CREATIVE_STORY_SPINE_V1_1",
     allIntents: intentResults.length,
     storyQcFailures,
@@ -233,6 +264,7 @@ try {
     productMeaningFailures,
     productReadabilityFailures,
     zeroReferenceGeneration: zeroReferenceSpine.status,
+    nonceVariation,
     intentResults,
     conceptualCases: caseResults,
   }, null, 2));

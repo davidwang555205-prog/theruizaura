@@ -5,6 +5,7 @@ import {
 import { buildCommercialFinalScriptPresentation } from "../presentation";
 import { buildCommercialBrandSignOff } from "../brand-signoff";
 import { buildCommercialFinalExecutionPlan } from "../final-execution";
+import { rankCommercialDirectorConcepts } from "../director-concept";
 import { consolidateCommercialAuthority } from "../authority-consolidation";
 import {
   renderCommercialFinalDirectorScript,
@@ -54,6 +55,22 @@ export function runCommercialV14Pipeline(
   const effectivePlan = consolidation.effectivePlan;
   const creativeTreatment = consolidation.treatment;
   if (creativeTreatment.failureReasons?.length) {
+    if (!input.directorConceptOverride && !baseOutcomeOverride) {
+      const rankedConcepts = rankCommercialDirectorConcepts({
+        commercialIntent: effectivePlan.commercialIntent,
+        creativeSpine: effectivePlan.creativeSpine,
+        creativeDirection: effectivePlan.creativeDirection,
+        eventSpine: effectivePlan.eventSpine,
+        generationNonce,
+      });
+      const rotation = ((generationNonce % 3) + 3) % 3;
+      const orderedConcepts = [...rankedConcepts.slice(rotation), ...rankedConcepts.slice(0, rotation)];
+      for (const concept of orderedConcepts) {
+        if (concept === effectivePlan.directorConcept.concept) continue;
+        const compatible = runCommercialV14Pipeline({ ...input, directorConceptOverride: concept });
+        if (compatible.status === "GENERATED") return compatible;
+      }
+    }
     return {
       status: "BLOCKED",
       code: "CREATIVE_DIRECTING_FAILED",
@@ -101,6 +118,22 @@ export function runCommercialV14Pipeline(
     productionCompiledText: v14CompiledText,
   });
   if (finalExecutionPlan.status !== "VALID") {
+    if (!input.directorConceptOverride && !baseOutcomeOverride) {
+      const rankedConcepts = rankCommercialDirectorConcepts({
+        commercialIntent: effectivePlan.commercialIntent,
+        creativeSpine: effectivePlan.creativeSpine,
+        creativeDirection: effectivePlan.creativeDirection,
+        eventSpine: effectivePlan.eventSpine,
+        generationNonce,
+      });
+      const rotation = ((generationNonce % 3) + 3) % 3;
+      const orderedConcepts = [...rankedConcepts.slice(rotation), ...rankedConcepts.slice(0, rotation)];
+      for (const concept of orderedConcepts) {
+        if (concept === effectivePlan.directorConcept.concept) continue;
+        const compatible = runCommercialV14Pipeline({ ...input, directorConceptOverride: concept });
+        if (compatible.status === "GENERATED") return compatible;
+      }
+    }
     const codes = new Set(finalExecutionPlan.validation.diagnostics.map((entry) => entry.code));
     const code = codes.has("DEVICE_CAMERA_INCOMPATIBLE")
       ? "DIRECTOR_CONCEPT_CAMERA_INCOMPATIBLE"

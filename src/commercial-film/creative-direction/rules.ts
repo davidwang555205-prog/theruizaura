@@ -25,11 +25,23 @@ function modeScore(
   if (definition.compatibleSituations.includes(input.creativeSpine.humanSituation.id)) score += 5;
   if (definition.compatibleDesires.includes(input.creativeSpine.audienceDesire.id)) score += 4;
   if (definition.compatibleReveals.includes(input.creativeSpine.revealStrategy)) score += 3;
+  const structureModeBonus: Record<typeof input.creativeSpine.advertisingStructure, CommercialCreativeMode[]> = {
+    CONTRAST_SHIFT: ["STATE_TRANSITION", "SINGLE_IDEA"],
+    PURSUIT_RELEASE: ["CITY_JOURNEY", "EVERYDAY_MOVEMENT"],
+    WITHHOLD_REVEAL: ["PRIVATE_MOMENT", "SENSORY_LIFE"],
+    RITUAL_COMPLETION: ["PRIVATE_MOMENT", "EVERYDAY_MOVEMENT"],
+    WORLD_OBSERVES_SUBJECT: ["SENSORY_LIFE", "SINGLE_IDEA"],
+    ICONIC_IMAGE: ["SINGLE_IDEA", "STATE_TRANSITION"],
+  };
+  if (structureModeBonus[input.creativeSpine.advertisingStructure].includes(mode)) score += 5;
   if (input.intent === "URBAN_MOTION" && (mode === "CITY_JOURNEY" || mode === "EVERYDAY_MOVEMENT" || mode === "SINGLE_IDEA")) score += 4;
   if (input.intent === "DAILY_STYLING" && (mode === "PRIVATE_MOMENT" || mode === "STATE_TRANSITION" || mode === "EVERYDAY_MOVEMENT")) score += 4;
   if (input.intent === "QUIET_LUXURY" && (mode === "PRIVATE_MOMENT" || mode === "SENSORY_LIFE" || mode === "STATE_TRANSITION")) score += 4;
   if (input.intent === "PRODUCT_CRAFT" && (mode === "SENSORY_LIFE" || mode === "PRIVATE_MOMENT" || mode === "SINGLE_IDEA")) score += 4;
   if (input.intent === "NEW_ARRIVAL" && (mode === "CITY_JOURNEY" || mode === "STATE_TRANSITION" || mode === "SINGLE_IDEA")) score += 4;
+  if (input.creativeSpine.productRole === "DISCOVERED" && (mode === "SENSORY_LIFE" || mode === "PRIVATE_MOMENT")) score += 2;
+  if (input.creativeSpine.productRole === "INHABITED" && mode !== "SINGLE_IDEA") score += 1;
+  if (input.creativeSpine.endingImageIntent.length > 30 && mode === "SINGLE_IDEA") score += 1;
   return score;
 }
 

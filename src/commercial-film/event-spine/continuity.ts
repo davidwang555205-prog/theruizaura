@@ -27,6 +27,7 @@ export const COMMERCIAL_CONTINUITY_SCHEMA_VERSION = "commercial-film/continuity-
 export type CommercialContinuityBeat = {
   shotIndex: number;
   durationSeconds: number;
+  timeRange?: { startSecond: number; endSecond: number };
   stateContract: CommercialEventStateContract;
   cameraState: CommercialEventCameraState;
   actionContinuity: CommercialActionContinuity;

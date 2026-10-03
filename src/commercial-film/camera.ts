@@ -8,6 +8,7 @@ import type {
   CommercialCameraPlan,
   CommercialCameraRhythm,
   CommercialCameraShot,
+  CommercialProductVisibility,
   CommercialShotRole,
 } from "./types";
 import type {
@@ -91,20 +92,20 @@ const COMMERCIAL_RHYTHM_RULES: Record<CommercialCameraRhythm, Record<CommercialS
       transitionLine: "Keep the same camera side and spatial axis.",
     },
     DETAIL: {
-      framing: "motivated medium lower-body observation",
+      framing: "medium three-quarter observation with the person and lower silhouette in context",
       cameraHeight: "natural_chest_height",
-      viewAngle: "profile_parallel",
-      movement: "controlled_detail_framing",
-      movementLine: "Use a restrained detail framing that keeps the ankle, product, and ground relationship inside the same scene.",
-      transitionLine: "Return to the wider human frame without an aggressive push or zoom.",
+      viewAngle: "three_quarter_front",
+      movement: "restrained_follow",
+      movementLine: "Keep the existing human action primary; do not isolate or magnify a product detail because of this legacy beat label.",
+      transitionLine: "Continue the established human and spatial continuity without a role-driven insert.",
     },
     HERO: {
-      framing: "medium-full three-quarter worn hero",
+      framing: "medium-full three-quarter worn composition",
       cameraHeight: "natural_eye_level",
       viewAngle: "three_quarter_front",
-      movement: "brief_hero_hold",
-      movementLine: "Let the person settle into a short natural stop and hold the worn product at human scale.",
-      transitionLine: "Release from the hold as the person begins to move again.",
+      movement: "restrained_follow",
+      movementLine: "Observe the established physical action at a natural human distance without requesting a stop.",
+      transitionLine: "Continue from the exact established body and spatial state.",
     },
     RELEASE: {
       framing: "wide environmental continuation",
@@ -229,34 +230,67 @@ export function buildCommercialCameraPlan(
   shotRoles: CommercialShotRole[],
   actionLines: string[],
   direction?: CommercialCreativeDirectionPlan,
-  eventSpine?: CommercialEventSpinePlan
+  eventSpine?: CommercialEventSpinePlan,
+  productRole: "INHABITED" | "DISCOVERED" | "REVEALED" | "HERO" = "INHABITED",
+  productVisibilityByShot: CommercialProductVisibility[] = []
 ): CommercialCameraPlan {
   const lens = resolveAuraTopicLensProfile(actionLines);
+  let currentCharacterSpace = eventSpine?.worldModel.entities.find((entity) => entity.id === "character")?.initialAttributes.space ?? "";
+  const declaredSpatialChangeBeat = eventSpine?.shots.findIndex((shot) => shot.stateContract.effects.some((effect) => (
+    effect.entityId === "character" && effect.attribute === "space" && effect.fromValue !== effect.toValue
+  ))) ?? -1;
+  const characterSpaceByBeat = eventSpine?.shots.map((shot) => {
+    const change = shot.stateContract.effects.find((effect) => (
+      effect.entityId === "character" && effect.attribute === "space" && effect.fromValue !== effect.toValue
+    ));
+    if (change) currentCharacterSpace = change.toValue;
+    return currentCharacterSpace;
+  }) ?? [];
   const shots: CommercialCameraShot[] = shotRoles.map((shotRole, shotIndex) => {
     const rule = COMMERCIAL_RHYTHM_RULES[rhythm][shotRole];
     const behavior = direction?.shotDirections[shotIndex]?.cameraBehavior;
     const behaviorOverride = behavior ? CAMERA_BEHAVIOR_OVERRIDES[behavior] : undefined;
-    const heroActionIsContinuous = shotRole === "HERO"
-      && eventSpine?.shots[shotIndex]?.actionContinuity === "CONTINUOUS";
+    const selectedHeroRead = productRole === "HERO" && productVisibilityByShot[shotIndex] === "PRODUCT_HERO";
+    const eventShot = eventSpine?.shots[shotIndex];
+    const eventIsContinuous = eventShot?.actionContinuity === "CONTINUOUS";
+    const heroActionIsContinuous = selectedHeroRead && eventIsContinuous;
     const heroContinuousRule = HERO_CONTINUOUS_ACTION_RULE[rhythm];
+    const dailyPostCrossing = eventSpine?.intent === "DAILY_STYLING"
+      && eventSpine.advertisingStructure === "WITHHOLD_REVEAL"
+      && shotIndex > declaredSpatialChangeBeat
+      && /outside|street/i.test(characterSpaceByBeat[shotIndex] ?? "");
     return {
       shotIndex,
       shotRole,
       ...rule,
       ...behaviorOverride,
       framing: eventSpine?.shots[shotIndex]?.framingHint ?? behaviorOverride?.framing ?? rule.framing,
-      movement: heroActionIsContinuous
-        ? heroContinuousRule.movement
-        : shotRole === "HERO"
+      // A reveal behavior is subordinate to the Event Spine: a readability
+      // beat cannot stop a continuous action for a camera-led product hold.
+      movement: eventIsContinuous
+        ? selectedHeroRead
+          ? heroContinuousRule.movement
+          : behaviorOverride?.movement === "brief_hero_hold" || rule.movement === "brief_hero_hold"
+            ? (rule.movement === "brief_hero_hold" ? "restrained_follow" : rule.movement)
+            : (behaviorOverride?.movement ?? rule.movement)
+        : selectedHeroRead
           ? "brief_hero_hold"
           : (behaviorOverride?.movement ?? rule.movement),
       movementLine: heroActionIsContinuous
         ? heroContinuousRule.movementLine
-        : (behaviorOverride?.movementLine ?? rule.movementLine),
+        : eventIsContinuous && behaviorOverride?.movement === "brief_hero_hold"
+          ? "Keep the camera with the ongoing event; let the product remain readable through natural framing without pausing the action."
+          : dailyPostCrossing
+          ? shotIndex === 3
+            ? "Keep the camera on the exterior side as she clears the doorway edge while remaining outside."
+            : shotIndex === 4
+              ? "Hold the settled street state; the person stays outside and the next movement has not begun."
+              : "Observe the first ordinary street movement from the exterior side after the completed crossing."
+          : (behaviorOverride?.movementLine ?? rule.movementLine),
       productReadabilityGuard:
-        shotRole === "DETAIL"
+        productVisibilityByShot[shotIndex] === "PRODUCT_DETAIL"
           ? "Observe only reference-supported detail; keep the ankle, product, and ground relationship intact."
-          : shotRole === "HERO"
+          : productVisibilityByShot[shotIndex] === "PRODUCT_HERO"
             ? heroActionIsContinuous
               ? "Keep the product worn, moving, and readable at natural human scale without stopping the person or isolating the product."
               : "Keep the product worn at natural human scale and clearly readable without isolating it."

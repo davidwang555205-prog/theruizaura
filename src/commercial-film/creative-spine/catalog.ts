@@ -6,6 +6,7 @@ import type {
   CommercialHumanSituation,
   CommercialHumanSituationId,
   CommercialRevealStrategy,
+  CommercialAdvertisingStructureId,
 } from "./types";
 
 export type CommercialIntentCreativeProfile = {
@@ -224,6 +225,69 @@ export const COMMERCIAL_INTENT_CREATIVE_PROFILES: Record<CommercialIntentId, Com
     expressionLine: "The new product should enter a familiar life immediately and feel already at home there.",
     releaseLine: "The ending should show the product becoming part of the place rather than being announced.",
   },
+};
+
+export const COMMERCIAL_ADVERTISING_STRUCTURES_BY_INTENT: Record<CommercialIntentId, CommercialAdvertisingStructureId[]> = {
+  URBAN_MOTION: ["PURSUIT_RELEASE", "CONTRAST_SHIFT", "WORLD_OBSERVES_SUBJECT"],
+  DAILY_STYLING: ["RITUAL_COMPLETION", "WITHHOLD_REVEAL", "ICONIC_IMAGE"],
+  QUIET_LUXURY: ["CONTRAST_SHIFT", "WITHHOLD_REVEAL", "WORLD_OBSERVES_SUBJECT", "ICONIC_IMAGE"],
+  PRODUCT_CRAFT: ["RITUAL_COMPLETION", "WITHHOLD_REVEAL", "ICONIC_IMAGE"],
+  NEW_ARRIVAL: ["PURSUIT_RELEASE", "CONTRAST_SHIFT", "WORLD_OBSERVES_SUBJECT", "ICONIC_IMAGE"],
+};
+
+export const COMMERCIAL_ADVERTISING_STRUCTURE_COPY: Record<CommercialAdvertisingStructureId, {
+  premise: string;
+  tension: { from: string; to: string; line: string };
+  memory: string;
+}> = {
+  CONTRAST_SHIFT: {
+    premise: "A familiar state changes through one perceptual turn, and the worn product belongs to the changed feeling.",
+    tension: { from: "two visual conditions coexist", to: "one condition quietly gives way", line: "The film's contrast changes the way the same lived moment is understood." },
+    memory: "Remember the instant one visual condition gives way to another around a person already in motion.",
+  },
+  PURSUIT_RELEASE: {
+    premise: "A route carries pressure forward until movement finds a natural release inside the established world.",
+    tension: { from: "movement keeps gathering", to: "the route opens into ease", line: "The same physical journey changes from pursuit to release." },
+    memory: "Remember the release in the established route, carried by its existing movement and final state.",
+  },
+  WITHHOLD_REVEAL: {
+    premise: "The product is present from the start; the viewer gradually discovers how it belongs to the person and place.",
+    tension: { from: "the product is present but not yet understood", to: "its place in the whole becomes clear", line: "Recognition grows through the same uninterrupted human context." },
+    memory: "Remember the gradual recognition of a product already belonging to the complete look.",
+  },
+  RITUAL_COMPLETION: {
+    premise: "One existing everyday action reaches completion, leaving the product integrated into the person's finished state.",
+    tension: { from: "a real action is still in progress", to: "the person carries its completed result", line: "Completion changes the meaning of the same ordinary gesture." },
+    memory: "Remember the finished human state after one real action completes.",
+  },
+  WORLD_OBSERVES_SUBJECT: {
+    premise: "The person remains self-directed while the established world's light, reflection, or rhythm changes the image around them.",
+    tension: { from: "the person and world share one rhythm", to: "the world shifts while the person stays self-directed", line: "A change in the existing world creates the visual event without asking the person to perform." },
+    memory: "Remember the existing world changing around a person who remains unperformed.",
+  },
+  ICONIC_IMAGE: {
+    premise: "Every existing moment contributes to one complete final image of the person, product, and world together.",
+    tension: { from: "the final image is not yet complete", to: "the existing physical state resolves as one image", line: "The film gathers meaning toward an image already supported by the final action and world state." },
+    memory: "Remember the complete final image formed by the existing person, product, and world.",
+  },
+};
+
+export const COMMERCIAL_PRODUCT_ROLE_BY_STRUCTURE: Record<CommercialAdvertisingStructureId, "INHABITED" | "DISCOVERED" | "REVEALED" | "HERO"> = {
+  CONTRAST_SHIFT: "INHABITED",
+  PURSUIT_RELEASE: "INHABITED",
+  WITHHOLD_REVEAL: "DISCOVERED",
+  RITUAL_COMPLETION: "INHABITED",
+  WORLD_OBSERVES_SUBJECT: "INHABITED",
+  ICONIC_IMAGE: "HERO",
+};
+
+export const COMMERCIAL_ENDING_BY_STRUCTURE: Record<CommercialAdvertisingStructureId, "CONTINUE_INTO_LIFE" | "RESOLVE_IN_PLACE" | "WORLD_AFTERIMAGE" | "ICONIC_HOLD"> = {
+  CONTRAST_SHIFT: "RESOLVE_IN_PLACE",
+  PURSUIT_RELEASE: "CONTINUE_INTO_LIFE",
+  WITHHOLD_REVEAL: "RESOLVE_IN_PLACE",
+  RITUAL_COMPLETION: "CONTINUE_INTO_LIFE",
+  WORLD_OBSERVES_SUBJECT: "WORLD_AFTERIMAGE",
+  ICONIC_IMAGE: "ICONIC_HOLD",
 };
 
 export const COMMERCIAL_PRODUCT_MEANING_LINES: Record<ProductCoverage, {

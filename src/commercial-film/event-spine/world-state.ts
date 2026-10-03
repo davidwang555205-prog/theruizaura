@@ -51,12 +51,16 @@ export type CommercialStateEffect = {
   actionId: string | null;
   actionLabel: string | null;
   reason: string;
+  /** Selected physical event that produced this state transition. */
+  sourceEventId?: string;
 };
 
 export type CommercialRequiredVisibleEvidence = {
   id: string;
   statement: string;
   entityId: string | null;
+  /** Selected physical event whose visible evidence this item records. */
+  sourceEventId?: string;
 };
 
 export type CommercialSingleUseAction = {
@@ -66,6 +70,8 @@ export type CommercialSingleUseAction = {
   attribute: string;
   fromValue: string;
   toValue: string;
+  /** Selected physical event that owns this mandatory single-use action. */
+  sourceEventId?: string;
 };
 
 export type CommercialProhibitedTransition = {

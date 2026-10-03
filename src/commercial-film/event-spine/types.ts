@@ -24,6 +24,32 @@ export type CommercialEventShot = {
   shotIndex: number;
   shotRole: CommercialShotRole;
   eventKind: string;
+  /** Advertising function performed by this executable event. */
+  eventFunction: CommercialEventFunction;
+  /** Human-auditable physical signature selected from the executable event and state contract. */
+  physicalEvent: {
+    eventFamily: string;
+    actor: "HUMAN" | "WORLD" | "JOINT";
+    primaryStateChanged: string;
+    requiredResource: string | null;
+    eventPurpose: string;
+    supportedIntent: CommercialIntentId;
+    supportedEventFunctions: CommercialEventFunction[];
+    requiredWorldResources: string[];
+    requiredStartState: CommercialEventStateContract["preconditions"];
+    producedEndState: CommercialEventStateContract["effects"];
+    humanActionRequirement: "REQUIRED" | "NONE";
+    worldChangeRequirement: "REQUIRED" | "OPTIONAL";
+    productCompatibility: CommercialCreativeSpinePlan["productRole"];
+    takeCompatibility: {
+      cameraState: CommercialEventCameraState;
+      actionContinuity: CommercialActionContinuity;
+      actionSequenceId: string;
+      actionRequiresFreshSetup: boolean;
+      takeBoundary: CommercialTakeBoundary | null;
+      timeGapSeconds: number;
+    };
+  };
   whatHappens: string;
   whyItHappens: string;
   whatChanges: string;
@@ -48,6 +74,14 @@ export type CommercialEventShot = {
   timeGapSeconds: number;
 };
 
+export type CommercialEventFunction =
+  | "ESTABLISH_MOVEMENT" | "BUILD_MOVEMENT" | "CONTINUE_PRESSURE" | "RELEASE_CHANGE" | "AFTER_RELEASE"
+  | "ESTABLISH_STATE" | "CONTINUE_STATE" | "PERCEPTUAL_SHIFT" | "CONTRAST_PEAK" | "RESOLVE_CHANGED_STATE"
+  | "ESTABLISH_CONTEXT" | "PARTIAL_INFORMATION" | "CONTINUE_WITHHOLD" | "REVEAL_CAUSE" | "INTEGRATED_RESOLUTION"
+  | "TASK_BEGIN" | "TASK_PROGRESS" | "TASK_COMPLETE" | "RESULT_IN_USE" | "LIVED_RESOLUTION"
+  | "SUBJECT_ESTABLISHED" | "WORLD_CARRIER_PRESENT" | "WORLD_CHANGE" | "SUBJECT_REMAINS_SELF_DIRECTED" | "WORLD_AFTERIMAGE"
+  | "IMAGE_FOUNDATION" | "IMAGE_BUILD" | "RELATIONSHIP_BUILD" | "IMAGE_COMPLETE" | "ICONIC_RESOLUTION";
+
 export type CommercialEndingGrammar = {
   id: CommercialEndingGrammarId;
   label: string;
@@ -62,6 +96,9 @@ export type CommercialEventSpinePlan = {
   worldModel: CommercialWorldModel;
   intent: CommercialIntentId;
   centralEvent: string;
+  advertisingStructure: CommercialCreativeSpinePlan["advertisingStructure"];
+  endingImageStrategy: CommercialCreativeSpinePlan["endingImageStrategy"];
+  endingResolution: string;
   eventChain: string[];
   shots: CommercialEventShot[];
   durationPlan: number[];

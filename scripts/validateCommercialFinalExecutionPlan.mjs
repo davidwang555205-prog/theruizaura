@@ -145,6 +145,14 @@ for (const intent of intents) {
         if (mode === "confirmed" && nonce !== 0) continue;
         const input = request(intent, concept, nonce, mode);
         const first = api.runCommercialV14Pipeline(input);
+        if (mode === "zero") {
+          assert(first.status === "BLOCKED", `${intent}/${concept}/${nonce}/zero must be blocked without confirmed references.`);
+          plannerBlocked += 1;
+          byConcept[concept] ??= { generated: 0, valid: 0, blocked: 0, plannerBlocked: 0 };
+          byConcept[concept].plannerBlocked += 1;
+          cases.push({ intent, concept, nonce, referenceMode: mode, status: "EXPECTED_REFERENCE_BLOCK", code: first.code, diagnostics: first.diagnostics });
+          continue;
+        }
         if (first.status !== "GENERATED") {
           plannerBlocked += 1;
           byConcept[concept] ??= { generated: 0, valid: 0, blocked: 0, plannerBlocked: 0 };

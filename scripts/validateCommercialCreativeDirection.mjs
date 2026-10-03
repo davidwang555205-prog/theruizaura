@@ -156,7 +156,11 @@ function assertLeakageFree(text, label) {
     "RESOLVE",
   ];
   const leaked = enumTokens.filter((token) => new RegExp(`\\b${token.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\b`).test(text));
-  assert(leaked.length === 0, `${label} leaked internal enum values: ${leaked.join(", ")}.`);
+  const leakedContext = leaked.map((token) => {
+    const index = text.search(new RegExp(`\\b${token.replace(/[.*+?^${}()|[\\]\\\\]/g, "\\\\$&")}\\b`));
+    return `${token}: ${text.slice(Math.max(0, index - 50), index + token.length + 50).replace(/\\s+/g, " ")}`;
+  });
+  assert(leaked.length === 0, `${label} leaked internal enum values: ${leakedContext.join(" | ")}.`);
   for (const phrase of [
     "dramatic function",
     "audience desire",
@@ -197,26 +201,54 @@ function cutChainValid(direction) {
 function revealCompatible(plan) {
   const spine = plan.creativeSpine;
   const presence = spine.productPresenceByShot;
-  if (spine.revealStrategy === "IMMEDIATE") {
-    return !plan.creativeDirection.cameraBehaviorByShot.includes("WITHHOLD")
-      && presence.slice(0, 2).includes("CLEAR");
-  }
-  if (spine.revealStrategy === "PROGRESSIVE") {
-    const firstClear = presence.indexOf("CLEAR");
-    return firstClear >= 1 && firstClear <= 3 && presence[3] === "CLEAR";
-  }
-  return presence[3] === "CLEAR"
-    && !presence.slice(0, 2).includes("CLEAR")
-    && presence.filter((value) => value === "ABSENT").length <= 1;
+  const firstClear = presence.indexOf("CLEAR");
+  const revealEvent = plan.eventSpine.shots[firstClear];
+  const ordered = firstClear >= 0 && firstClear <= 3
+    && presence.slice(0, firstClear).every((state) => state !== "CLEAR")
+    && Boolean(revealEvent?.whatHappens.trim())
+    && Boolean(revealEvent?.whatChanges.trim())
+    && (revealEvent?.stateContract.requiredVisibleEvidence.length ?? 0) > 0;
+  if (!ordered) return false;
+  if (spine.productRole === "DISCOVERED" && spine.revealStrategy === "IMMEDIATE") return false;
+  if (spine.productRole === "HERO" && !plan.shotArchitecture.shots.some((shot) => shot.productVisibility === "PRODUCT_HERO" && shot.storySpine.productPresenceDesign === "CLEAR")) return false;
+  return true;
 }
 
 function productProtectionValid(plan) {
-  return plan.shotArchitecture.shots[1].productVisibility === "PRODUCT_READABLE"
-    && plan.shotArchitecture.shots[2].productVisibility === "PRODUCT_DETAIL"
-    && plan.shotArchitecture.shots[3].productVisibility === "PRODUCT_HERO"
-    && plan.creativeSpine.productPresenceByShot[2] !== "ABSENT"
-    && plan.creativeSpine.productPresenceByShot[3] === "CLEAR"
-    && plan.creativeSpine.productPresenceByShot.filter((value) => value === "CLEAR").length <= 3;
+  const coverage = new Set(plan.referenceState.coverage);
+  const supported = new Set(plan.productMessage.supportedDimensions.map((dimension) => dimension.coverage));
+  const expressions = plan.shotArchitecture.shots.filter((shot) => (
+    ["PRODUCT_READABLE", "PRODUCT_HERO"].includes(shot.productVisibility)
+    && plan.creativeSpine.productPresenceByShot[shot.shotIndex] === "CLEAR"
+    && Boolean(shot.productMessageDimension)
+    && coverage.has(shot.productMessageDimension)
+    && supported.has(shot.productMessageDimension)
+  ));
+  const detailsValid = plan.shotArchitecture.shots.filter((shot) => shot.productVisibility === "PRODUCT_DETAIL")
+    .every((shot) => Boolean(shot.event.productDetailRelationship?.trim())
+      && Boolean(shot.productMessageDimension)
+      && coverage.has(shot.productMessageDimension)
+      && supported.has(shot.productMessageDimension));
+  const release = plan.shotArchitecture.shots.find((shot) => shot.role === "RELEASE");
+  const releasePresence = release ? plan.creativeSpine.productPresenceByShot[release.shotIndex] : "ABSENT";
+  const releaseRetainsProduct = release?.productVisibility === "BRAND_RELEASE"
+    || (plan.creativeSpine.productRole === "HERO" || plan.creativeSpine.productRole === "REVEALED"
+      ? releasePresence === "CLEAR"
+      : plan.creativeSpine.productRole === "DISCOVERED"
+        ? ["PARTIAL", "SECONDARY", "CLEAR"].includes(releasePresence)
+        : ["SECONDARY", "CLEAR"].includes(releasePresence));
+  return expressions.length > 0
+    && (plan.creativeSpine.productRole !== "HERO" || expressions.some((shot) => shot.productVisibility === "PRODUCT_HERO"))
+    && detailsValid
+    && releaseRetainsProduct
+    && release.storySpine.dramaticFunction === "RESOLVE"
+    && plan.endingStrategy.grammar.id === plan.eventSpine.endingGrammar.id
+    && plan.endingStrategy.grammar.line === plan.eventSpine.endingGrammar.line
+    && plan.endingStrategy.line.includes(plan.eventSpine.endingGrammar.line)
+    && plan.endingStrategy.strategy === plan.eventSpine.endingImageStrategy
+    && Boolean(plan.eventSpine.endingResolution.trim())
+    && release.event.whatHappens === plan.eventSpine.shots[release.shotIndex]?.whatHappens
+    && release.event.whatChanges === plan.eventSpine.shots[release.shotIndex]?.whatChanges;
 }
 
 function resultSummary(outcome) {
@@ -311,6 +343,7 @@ try {
       const outcome = runCommercialFilmPipeline(request);
       assert(outcome.status === "GENERATED", `${intent} nonce ${nonce} was blocked: ${outcome.status === "BLOCKED" ? outcome.diagnostics.join(" | ") : ""}`);
       generatedCount += 1;
+      const plan = outcome.plan;
       const direction = outcome.plan.creativeDirection;
       const spine = outcome.plan.creativeSpine;
       modesSeen.add(direction.creativeMode);
@@ -340,9 +373,14 @@ try {
       if (!productProtectionValid(outcome.plan)) productProtectionFailures += 1;
       const firstClearIndex = spine.productPresenceByShot.indexOf("CLEAR");
       const releaseDirection = direction.shotDirections.find((shot) => shot.shotRole === "RELEASE");
+      const expressionBeat = plan.shotArchitecture.shots.find((shot) => shot.shotIndex === firstClearIndex);
       const heroComplete = firstClearIndex >= 0
         && firstClearIndex <= 3
-        && spine.productPresenceByShot[3] === "CLEAR";
+        && expressionBeat?.productVisibility !== "CONTEXT"
+        && Boolean(expressionBeat?.productMessageDimension)
+        && plan.referenceState.coverage.includes(expressionBeat.productMessageDimension)
+        && plan.productMessage.supportedDimensions.some((dimension) => dimension.coverage === expressionBeat.productMessageDimension)
+        && (spine.productRole !== "HERO" || expressionBeat?.productVisibility === "PRODUCT_HERO");
       if (!heroComplete) {
         heroCompletionFailures += 1;
         nonceFailures.push(`${intent} nonce ${nonce}: HERO did not complete product comprehension.`);
@@ -502,10 +540,7 @@ try {
       productTruth: null,
     },
   }));
-  assert(zeroReferenceDirection.status === "GENERATED", "Zero-reference Creative Direction generation was blocked.");
-  assert(Object.values(zeroReferenceDirection.plan.creativeDirection.qc).every((gate) => gate.status === "PASS"), "Zero-reference Creative Direction failed QC.");
-  assertLeakageFree(zeroReferenceDirection.modelFacingScript.compiledText, "Zero-reference Creative Direction");
-  assert(zeroReferenceDirection.modelFacingScript.compiledText.includes("Use the footwear reference images uploaded in the external video generation tool as the only source of truth for the product."), "Zero-reference Creative Direction output lacks external-reference protection.");
+  assert(zeroReferenceDirection.status === "BLOCKED", "Zero-reference Creative Direction must be blocked by the Commercial Hard Floor.");
 
   assert(Object.keys(COMMERCIAL_CREATIVE_MODE_CATALOG).length === 6, "Creative Mode catalog does not contain six modes.");
   assert(COMMERCIAL_VISUAL_MOTIFS.length === 6, "Visual Motif catalog does not contain six motifs.");

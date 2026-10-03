@@ -17,6 +17,8 @@ export type CommercialEventSpineTemplate = {
     CommercialEventShot,
     | "shotIndex"
     | "shotRole"
+    | "eventFunction"
+    | "physicalEvent"
     | "stateContract"
     | "cameraState"
     | "actionContinuity"
@@ -88,9 +90,9 @@ export const COMMERCIAL_EVENT_SPINE_TEMPLATES: Record<
       },
       {
         eventKind: "ROUTE_CONTINUATION",
-        whatHappens: "She keeps the same route into one changed street condition at the curb.",
+        whatHappens: "She keeps the same route while distant traffic continues in its established city lane.",
         whyItHappens: "The first crossing creates a believable next segment in the same journey.",
-        whatChanges: "The viewer understands that the route, not the pose, is carrying continuity.",
+        whatChanges: "The viewer understands that the route, not the pose, carries continuity while the city remains active around her.",
         actionClass: "walking",
         causalFromPrevious: "A continued step inherits the direction established at the entry.",
         framingHint: "full figure at a three-quarter route angle",

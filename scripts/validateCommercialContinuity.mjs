@@ -571,39 +571,32 @@ try {
       if (heroEvent.actionContinuity !== "CONTINUOUS") continue;
       continuousHeroSeen = true;
       assert(
-        heroShot.camera.movement !== "brief_hero_hold",
-        `${intent} still forces brief_hero_hold on a continuous HERO action.`
-      );
-      assert(
-        !/hold/i.test(heroShot.camera.movementLine),
-        `${intent} continuous HERO movement line still asks for a hold: ${heroShot.camera.movementLine}`
+        plan.creativeSpine.productRole !== "HERO" || heroShot.productVisibility === "PRODUCT_HERO" || heroShot.camera.movement !== "brief_hero_hold",
+        `${intent} camera hold is not supported by the selected Product Role and visibility.`
       );
       assert(
         Boolean(heroShot.productMessageDimension),
         `${intent} continuous HERO shot lost its reference-bound readability dimension.`
       );
-      const forced = {
+      const forcedHold = {
         ...plan,
         shotArchitecture: {
           ...plan.shotArchitecture,
-          shots: plan.shotArchitecture.shots.map((shot) => (
-            shot.shotIndex === 3
-              ? { ...shot, camera: { ...shot.camera, movement: "brief_hero_hold" } }
-              : shot
-          )),
+          shots: plan.shotArchitecture.shots.map((shot) => shot.shotIndex === heroShot.shotIndex
+            ? { ...shot, camera: { ...shot.camera, movement: "brief_hero_hold" } }
+            : shot),
         },
       };
-      const forcedQc = runCommercialFilmQc(forced);
       assert(
-        forcedQc.qc.hero_moment_exists.status === "FAIL",
-        `${intent} accepted a forced hero hold inside a continuous action.`
+        runCommercialFilmQc(forcedHold).qc.hero_moment_exists.status === "FAIL",
+        `${intent} accepted a forced HERO hold inside a continuous action.`
       );
     }
     assert(continuousHeroSeen, "No intent exercises HERO readability inside a continuous action.");
     record(
       "CASE 09",
       "HERO product readability can happen during continuous natural action",
-      "continuous HERO beats keep moving, and a forced hold fails the HERO gate"
+      "camera behavior follows Product Role and selected visibility instead of the legacy HERO slot"
     );
   }
 
@@ -627,7 +620,7 @@ try {
         beat({
           shotIndex: 4,
           stateContract: stateContract({
-            effects: [actionEffect("front_door", "state", "closed", "open", "OPEN_DOOR", "opened")],
+            effects: [actionEffect("front_door", "state", "open", "closed", "OPEN_DOOR", "replayed the single-use opening action")],
             prohibited: [prohibitedTransition("front_door", "state", "open", "closed")],
           }),
         }),
@@ -637,6 +630,14 @@ try {
     assert(
       conflictCodes(plan).includes("DUPLICATE_SINGLE_USE_ACTION"),
       `CASE 10 blocked without the duplicate action conflict: ${conflictCodes(plan).join(", ")}`
+    );
+    assert(
+      conflictCodes(plan).includes("PROHIBITED_TRANSITION"),
+      `CASE 10 did not independently report its prohibited transition: ${conflictCodes(plan).join(", ")}`
+    );
+    assert(
+      conflictCodes(plan).includes("PROHIBITED_TRANSITION"),
+      `CASE 10 did not independently report its prohibited transition: ${conflictCodes(plan).join(", ")}`
     );
     record("CASE 10", "final RELEASE cannot restart an already completed event", conflictCodes(plan).join(", "));
   }

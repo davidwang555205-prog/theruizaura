@@ -235,9 +235,20 @@ function resourceMatches(carrier: string, resource: CommercialFinalPhysicalResou
 function resolveResourceForConcept(
   carrier: string,
   concept: CommercialCreativeTreatment["directorConceptId"],
-  resources: CommercialFinalPhysicalResource[]
+  resources: CommercialFinalPhysicalResource[],
+  plan?: CommercialFilmPlan
 ): CommercialFinalPhysicalResource | null {
   const carrierText = normalizeText(carrier);
+  if (concept === "WORLD_MOVES_SUBJECT_SETTLES"
+    && plan?.commercialIntent === "QUIET_LUXURY"
+    && plan.eventSpine.advertisingStructure === "WORLD_OBSERVES_SUBJECT") {
+    const selectedResourceId = plan.eventSpine.shots.find((shot) => (
+      shot.physicalEvent.eventFamily === "WORLD_CARRIER_CHANGE"
+      && shot.physicalEvent.actor === "WORLD"
+    ))?.physicalEvent.requiredResource;
+    const selectedResource = resources.find((resource) => resource.entityId === selectedResourceId);
+    if (selectedResource && resourceMatches(carrier, selectedResource)) return selectedResource;
+  }
   const candidates = resources.filter((resource) => {
     const text = normalizeText(`${resource.label} ${resource.id}`);
     if (concept === "LIGHT_REVEAL") {
@@ -283,10 +294,11 @@ function resolveExactResource(
 function resolveResource(
   carrier: string,
   concept: CommercialCreativeTreatment["directorConceptId"] | null,
-  resources: CommercialFinalPhysicalResource[]
+  resources: CommercialFinalPhysicalResource[],
+  plan?: CommercialFilmPlan
 ) {
   if (concept) {
-    const conceptMatch = resolveResourceForConcept(carrier, concept, resources);
+    const conceptMatch = resolveResourceForConcept(carrier, concept, resources, plan);
     if (conceptMatch) return conceptMatch;
     if (STRICT_RESOURCE_CONCEPTS.has(concept)) return null;
   }
@@ -428,7 +440,7 @@ function buildEnding(input: {
   });
 
   const fallback = ensureSentence(
-    `${finalEvent?.whatHappens ?? "The person remains in the final state."} ${plan.endingStrategy.grammar.line}`
+    `${finalEvent?.whatHappens ?? "The person remains in the final state."} ${plan.endingStrategy.line}`
   );
   const filmLine = {
     value: brandSignOff.filmLine,
@@ -453,7 +465,7 @@ function buildEnding(input: {
       finalCharacterState,
       finalWorldState: plan.continuity.finalState,
       endingGrammar: plan.endingStrategy.grammar,
-      releaseConstraint: plan.directorConcept.releaseRule,
+      releaseConstraint: plan.endingStrategy.line,
       filmLine,
     },
     diagnostics,
@@ -461,7 +473,13 @@ function buildEnding(input: {
 }
 
 function renderPolicyFor(plan: CommercialFilmPlan): CommercialFinalExecutionPlan["renderPolicy"] {
-  const soundCues = [...new Set(plan.soundPlan.shots.flatMap((shot) => shot.cues))].slice(0, 3);
+  const soundProgression = plan.soundPlan.shots.map((shot) => {
+    const step = plan.continuity.worldStateTimeline.find((entry) => entry.shotIndex === shot.shotIndex);
+    const start = step?.before.attributes.character?.space ?? "the established space";
+    const end = step?.after.attributes.character?.space ?? start;
+    const state = start === end ? end : `${start} → ${end}`;
+    return `${state}: ${shot.cues.join("; ")}`;
+  });
   return {
     visualLookLines: [
       "Natural light, restrained saturation, realistic skin, matte non-glossy finish, soft controlled contrast.",
@@ -471,13 +489,20 @@ function renderPolicyFor(plan: CommercialFilmPlan): CommercialFinalExecutionPlan
     ].filter(Boolean),
     soundLines: [
       `Context: ${plan.soundPlan.context}.`,
-      `Sound: ${soundCues.join("; ")}.`,
+      `Sound progression (derived from beat states): ${soundProgression.join(" → ")}.`,
+      ...plan.soundPlan.shots.map((shot) => {
+        const step = plan.continuity.worldStateTimeline.find((entry) => entry.shotIndex === shot.shotIndex);
+        const start = step?.before.attributes.character?.space ?? "the established space";
+        const end = step?.after.attributes.character?.space ?? start;
+        return `Beat ${shot.shotIndex + 1} spatial state: ${start}${start === end ? "" : ` → ${end}`}; sound cues: ${shot.cues.join("; ")}.`;
+      }),
       "No dialogue, no voiceover, no music unless explicitly requested.",
     ],
     productProtectionLines: [
+      plan.productMessage.externalToolReferenceInstruction,
       plan.productMessage.externalReferenceRequired
         ? plan.productMessage.noFabricationLine
-        : "Use the confirmed current-task product references as the only source of product truth.",
+        : "Use the confirmed current-task product references as the product-fact authority; upload this same reference set to the external video generation tool and use only its supported dimensions and visible facts.",
       "Preserve silhouette, proportions, visible material and color relationships, and grounded foot-to-product scale.",
       "Do not invent product facts, logos, materials, colors, panel geometry, or construction.",
       ...plan.productMessage.prohibitedClaims.map((claim) => `No ${claim.replace(/^no\s+/i, "")}.`),
@@ -538,7 +563,7 @@ export function buildCommercialFinalExecutionPlan(
 
   const deviceBindings: CommercialFinalPhysicalResourceBinding[] = treatment.deviceArc.map((beat) => {
     const takeIndex = takeIndexForBeat(plan, beat.beatIndex);
-    const resource = resolveResource(beat.deviceCarrier, treatment.directorConceptId, resources);
+    const resource = resolveResource(beat.deviceCarrier, treatment.directorConceptId, resources, plan);
     if (!resource) {
       diagnostics.push({
         code: "UNDECLARED_PHYSICAL_RESOURCE",
@@ -585,7 +610,8 @@ export function buildCommercialFinalExecutionPlan(
   const signatureResource = resolveResource(
     treatment.signatureMoment.carrier,
     treatment.directorConceptId,
-    resources
+    resources,
+    plan
   );
   const signatureEvidence = [
     treatment.signatureMoment.momentDescription,
@@ -829,7 +855,7 @@ export function resolveCommercialFinalPhysicalResource(
   concept: CommercialCreativeTreatment["directorConceptId"],
   plan: CommercialFilmPlan
 ) {
-  return resolveResource(carrier, concept, buildCommercialPhysicalResourceRegistry(plan));
+  return resolveResource(carrier, concept, buildCommercialPhysicalResourceRegistry(plan), plan);
 }
 
 export function commercialFinalCameraText(plan: CommercialFilmPlan) {

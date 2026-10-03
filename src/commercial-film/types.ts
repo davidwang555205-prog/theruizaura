@@ -98,15 +98,25 @@ export type CommercialProductMessageDimension = {
   detailMessage: string;
 };
 
+export type CommercialAuraDefaultProductContext = {
+  brand: "THERUIZ AURA";
+  category: "German Trainer / Leather Lifestyle Sneaker";
+  specificity: "CATEGORY_ONLY";
+  rules: readonly string[];
+};
+
 export type CommercialProductMessage = {
   source: Array<
     | "current_task_product_truth"
     | "confirmed_reference_set"
     | "external_seedance_reference"
     | "confirmed_brand_selling_points"
+    | "brand_default_product_context"
   >;
   status: "READY";
   externalReferenceRequired: boolean;
+  externalToolReferenceInstruction: string;
+  brandDefaultProductContext?: CommercialAuraDefaultProductContext | null;
   headline: string;
   supportedDimensions: CommercialProductMessageDimension[];
   confirmedBrandSellingPoints: string[];
@@ -225,13 +235,13 @@ export type CommercialProductVisibilityPlan = {
   presenceByShot: CommercialProductPresenceDesign[];
   revealStrategy: CommercialCreativeSpinePlan["revealStrategy"];
   readableShotIndexes: number[];
-  detailShotIndex: number;
-  heroShotIndex: number;
-  releaseShotIndex: number;
+  detailShotIndex: number | null;
+  heroShotIndex: number | null;
+  releaseShotIndex: number | null;
 };
 
 export type CommercialEndingStrategy = {
-  strategy: "CONTINUE_INTO_LIFE";
+  strategy: import("./creative-spine/types").CommercialEndingImageStrategy;
   grammar: CommercialEndingGrammar;
   line: string;
   prohibitedEndings: string[];
@@ -321,6 +331,7 @@ export type CommercialFilmPlannerInput = {
   lifestyleFeeling: string;
   duration: CommercialDuration;
   reference: CommercialReferenceInput;
+  brandDefaultProductContext?: CommercialAuraDefaultProductContext | null;
   confirmedBrandSellingPoints?: string[];
   creativeCase?: CommercialCreativeCase;
   generationNonce?: number;
