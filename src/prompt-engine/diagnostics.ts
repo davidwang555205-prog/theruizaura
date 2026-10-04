@@ -7,6 +7,7 @@ export function formatDiagnostics(result: CompiledPromptResult): string {
   lines.push(`Omitted: ${result.omittedRuleIds.length} rules`);
   lines.push(`Replaced: ${result.replacedRuleIds.length} rules`);
   lines.push(`Conflicts: ${result.conflicts.length}`);
+  lines.push(`Consolidation: ${result.consolidationReport.beforeWords} → ${result.consolidationReport.afterWords} words (${result.consolidationReport.changes.length} changes)`);
 
   if (result.conflicts.length > 0) {
     lines.push("\n--- Conflicts ---");

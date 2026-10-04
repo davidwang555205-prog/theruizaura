@@ -157,6 +157,7 @@ export type CompiledPromptResult = {
   conflicts: ResolvedPromptConflict[];
   budgetReport: PromptBudgetReport;
   validationReport: PromptValidationReport;
+  consolidationReport: PromptConsolidationReport;
   metadata?: {
     provider: "image2";
     topicId?: string;
@@ -183,6 +184,18 @@ export type CompiledPromptResult = {
     consumerTrustRuleIds?: string[];
     manualTrustQaRequired?: boolean;
   };
+};
+
+export type PromptConsolidationReport = {
+  beforeWords: number;
+  afterWords: number;
+  changes: Array<{
+    ruleId: string;
+    semanticKey: string;
+    beforeText: string;
+    afterText: string;
+    coveredByRuleIds: string[];
+  }>;
 };
 
 // ─── Prompt Profile ──────────────────────────────────────────

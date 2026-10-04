@@ -15,6 +15,7 @@ export type PromptRuntimeDiagnostics = {
   conflicts?: CompiledPromptResult["conflicts"];
   budgetReport?: CompiledPromptResult["budgetReport"];
   validationReport?: CompiledPromptResult["validationReport"];
+  consolidationReport?: CompiledPromptResult["consolidationReport"];
   diffSummary?: string;
   strictProduction: boolean;
   productTruthBound: boolean | "partial";
@@ -95,6 +96,7 @@ export function generatePromptRuntime(params: TeamPromptParams): PromptRuntimeRe
     conflicts: compiled.conflicts,
     budgetReport: compiled.budgetReport,
     validationReport: compiled.validationReport,
+    consolidationReport: compiled.consolidationReport,
     strictProduction: compiled.metadata?.strictProduction ?? false,
     productTruthBound: compiled.metadata?.productTruthBound ?? false,
     referenceEvidenceBound: compiled.metadata?.referenceEvidenceBound ?? false,

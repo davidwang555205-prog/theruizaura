@@ -2,6 +2,7 @@ import type { PromptRule, CompiledPromptResult, CompiledPromptSection, PromptSec
 import { collectPromptRules } from "./collectPromptRules";
 import { resolvePromptConflicts } from "./resolvePromptConflicts";
 import { allocatePromptBudget } from "./allocatePromptBudget";
+import { consolidatePromptRules } from "./consolidatePromptRules";
 import { validateCompiledPrompt } from "./validateCompiledPrompt";
 import type { PromptProfileInput } from "./contracts";
 import { getActivePromptRegistryEntry } from "../visual-system/activePromptRegistry";
@@ -29,8 +30,10 @@ export function compilePrompt(input: PromptProfileInput): CompiledPromptResult {
   // Phase 2: Resolve conflicts
   const { kept: resolved, conflicts } = resolvePromptConflicts(allRules);
 
+  // Consolidate compiler-owned repetitions before allocating the word budget.
+  const { kept: consolidated, report: consolidationReport } = consolidatePromptRules(resolved);
   // Phase 3: Allocate budget
-  const { kept: budgeted, report: budgetReport } = allocatePromptBudget(resolved, input.compositionMode);
+  const { kept: budgeted, report: budgetReport } = allocatePromptBudget(consolidated, input.compositionMode);
 
   // Phase 4: Assemble sections
   const sectionMap = new Map<PromptSection, PromptRule[]>();
@@ -47,7 +50,8 @@ export function compilePrompt(input: PromptProfileInput): CompiledPromptResult {
   for (const section of sectionOrder) {
     const rules = sectionMap.get(section);
     if (!rules || rules.length === 0) continue;
-    const text = rules.map(r => r.text).join(" ");
+    const text = rules.map(r => r.text.trim()).filter(Boolean).join(" ");
+    if (!text) continue;
     const wordCount = text.split(/\s+/).length;
     sections.push({ section, text, ruleIds: rules.map(r => r.id), wordCount });
     prompt += (prompt ? " " : "") + text;
@@ -72,6 +76,7 @@ export function compilePrompt(input: PromptProfileInput): CompiledPromptResult {
     conflicts,
     budgetReport,
     validationReport,
+    consolidationReport,
     metadata: {
       provider: input.provider ?? "image2",
       topicId: input.topicId,
