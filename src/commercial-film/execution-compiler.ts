@@ -425,6 +425,7 @@ function compileText(plan: CommercialFilmPlan, internalScriptText: string) {
   lines.push(`Visible appearance: ${plan.character.resolved.appearanceGroup?.label ?? "as selected"}`);
   lines.push(`World: ${plan.sceneWorld.sceneNames.join(" → ")} · ${plan.season}`);
   lines.push("One primary character. Background life may remain distant and secondary. Natural expression, task-driven movement, no performance toward camera, same person and wardrobe throughout.");
+  lines.push("Character face presence: Her face must be naturally readable in at least one meaningful beat, through a three-quarter-front orientation or naturally readable profile within the existing action. Keep the head, face, and upper-body context in frame. A second natural face-readable moment is welcome only if an existing beat permits it; add no action or shot for this. She may look toward her task, route, surroundings, or off-screen space. No forced direct eye contact, portrait posing, or camera-aware performance. Do not keep her rear-facing, heavily occluded, cropped above the face, or face-unreadable for the entire film.");
   lines.push("");
   lines.push("[CONTINUITY LOCK]");
   plan.continuity.continuityLock.lines.forEach((line) => {
@@ -506,7 +507,12 @@ function compileText(plan: CommercialFilmPlan, internalScriptText: string) {
         const conceptRuleText = heroContinuous
           ? "Keep the hero moment inside the continuous movement; the worn product stays readable without a camera stop."
           : sanitizeRoleTokens(directorShot.conceptRule);
-        lines.push(`Camera: ${shot.camera.framing}; ${naturalCameraHeight(shot.camera.cameraHeight)}; ${naturalCameraMovement(shot.camera.movement)}. ${cameraBehaviorText} ${shot.camera.movementLine} ${conceptRuleText}`);
+        const faceReadableFollow = shot.direction.cameraBehavior === "FOLLOW"
+          && shot.camera.framing.includes("head, face, and upper-body context naturally readable");
+        const resolvedCameraBehaviorText = faceReadableFollow
+          ? "Follow softly from the established scene side at a natural three-quarter-front or readable profile angle, without centering a fashion walk."
+          : cameraBehaviorText;
+        lines.push(`Camera: ${shot.camera.framing}; ${naturalCameraHeight(shot.camera.cameraHeight)}; ${naturalCameraMovement(shot.camera.movement)}. ${resolvedCameraBehaviorText} ${shot.camera.movementLine} ${conceptRuleText}`);
         lines.push(`Product: ${compactProductLine(plan, shot.shotIndex)}`);
         const microDecision = plan.microDecision.contract;
         if (microDecision && microDecision.decisionBeatIndex === shot.shotIndex) {
@@ -547,7 +553,7 @@ function compileText(plan: CommercialFilmPlan, internalScriptText: string) {
   lines.push("Natural light, restrained saturation, realistic skin, matte non-glossy finish, soft controlled contrast.");
   lines.push("The environment may use a restrained warm-neutral grade, but the footwear must remain faithful to the external reference in hue, saturation, contrast, and visible material appearance.");
   lines.push(plan.worldRealism.line);
-  lines.push("Allow controlled observational imperfection: slight occlusion, subject entering slightly late, off-center framing, and the camera staying after the subject leaves.");
+  lines.push("Allow controlled observational imperfection: slight occlusion outside the face-readable moment, subject entering slightly late, off-center framing, and the camera staying after the subject leaves.");
   if (plan.creativeDirection.visualMotif) {
     const motifLine = renderVisualMotifDirection(
       plan.creativeDirection.visualMotif,

@@ -2,7 +2,11 @@ import { resolveCharacterProfile } from "../immersive-narrative/character-profil
 import { lifestyleSoftSeedingScenePool } from "../data/lifestyleSoftSeedingScenePool";
 import type { ProductCoverage } from "../visual-system/taskReferenceBinding";
 import { buildCommercialActionPlan } from "./commercial-actions";
-import { buildCommercialCameraPlan } from "./camera";
+import {
+  applyCommercialCharacterFacePresence,
+  buildCommercialCameraPlan,
+  validateCommercialCharacterFacePresence,
+} from "./camera";
 import {
   COMMERCIAL_BRAND_MOOD,
   COMMERCIAL_PRODUCT_VISIBILITY_BY_SHOT,
@@ -354,6 +358,15 @@ export function planCommercialFilm(input: CommercialFilmPlannerInput): Commercia
           : "Hold the same camera side and room axis through the world change and its residual continuation.",
       };
     }
+  }
+  applyCommercialCharacterFacePresence(cameraPlan, intent.id, creativeDirection);
+  const facePresence = validateCommercialCharacterFacePresence(cameraPlan);
+  if (facePresence.status === "FAIL") {
+    throw new CommercialFilmPlannerError(
+      facePresence.code,
+      "No existing non-detail Commercial Film beat can keep the main character's face naturally readable without breaking its camera or event constraints.",
+      [facePresence.code]
+    );
   }
   const soundPlan = buildCommercialSoundPlan(
     intent.cameraRhythm,

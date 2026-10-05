@@ -44,6 +44,14 @@ THERUIZ AURA 的品牌视觉 Prompt 与内容生成工作台。
 
 详细状态见：[`docs/PROJECT_STATUS.md`](docs/PROJECT_STATUS.md)
 
+### Commercial Film · Character Face Presence（2026-10-05）
+
+15 秒、5 Beat 的 Commercial Film 现在从现有 Camera Plan 选择至少一个非 DETAIL 的自然露脸时刻：头部、脸部与上半身语境可读，但人物继续关注自己的动作或空间，不直视镜头、不为镜头表演。DETAIL 保留产品／动作证据，RELEASE 可以保持背面或离开画面；不会为露脸增加 Beat、Take 或人物动作。无法在现有镜头条件下满足时，规划器报 `CHARACTER_FACE_PRESENCE_MISSING`。
+
+规则经 `runCommercialFilmPipeline` 进入 Camera Plan 和 Seedance Prompt；THERUIZ AURA Brand Pack 也加入正向 Character Presence 指引。专项验证命令：`node scripts/validateCommercialFacePresence.mjs`。本地专项验证、Execution Compiler、Continuity、Final Execution Plan、typecheck 和 build 已通过；部分旧 Commercial Film validator 的失败已在本轮修改前的同一基线复现，详见项目状态文件。
+
+**状态：INTEGRATED BUT NOT E2E VERIFIED。** 尚无真实 Seedance 成片及人工露脸／产品真实性验收。
+
 ---
 
 ## 项目定位

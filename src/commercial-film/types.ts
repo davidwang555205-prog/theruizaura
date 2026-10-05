@@ -349,6 +349,7 @@ export type CommercialFilmPlannerInput = {
 
 export type CommercialFilmPlannerErrorCode =
   | "INVALID_DURATION"
+  | "CHARACTER_FACE_PRESENCE_MISSING"
   | "UNSUPPORTED_COMMERCIAL_INTENT"
   | "MISSING_LIFESTYLE_FEELING"
   | "INVALID_SCENE_WORLD"
