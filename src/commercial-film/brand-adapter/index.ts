@@ -82,7 +82,7 @@ export const THERUIZ_AURA_BRAND_PACK_V1: CommercialBrandPackV1 = {
   visualLanguage: {
     world: "Lived-in urban thresholds, interiors, work surfaces, and restrained real spaces.",
     lighting: "Motivated daylight or restrained warm-grey directional light.",
-    cameraFeeling: "Observational, grounded, and unobtrusive; movement follows visible action.",
+    cameraFeeling: "Observational, grounded, and unobtrusive; movement follows visible action. Character presence: the woman's face is naturally readable in at least one meaningful moment through ordinary movement, a pause, or a three-quarter-front orientation. A second natural face-readable moment is welcome only if an existing beat permits it. She does not perform toward the camera and needs no direct eye contact. Do not keep her rear-facing, heavily occluded, cropped above the face, or face-unreadable for the entire film.",
     color: "Low-saturation warm neutrals with restrained contrast; never recolor the SKU.",
     forbiddenStyles: [
       "influencer posing or direct-to-camera performance",

@@ -1,6 +1,6 @@
 # THERUIZ AURA Project Status
 
-Snapshot: 2026-09-11
+Snapshot: 2026-09-11 (sections 1–14); Commercial Film addendum: 2026-10-05
 
 Repository: https://github.com/davidwang555205-prog/theruizaura
 
@@ -380,3 +380,37 @@ Git:
 Git unavailable — fatal: not a git repository: (null)
 No destructive repair attempted.
 ```
+
+## 15. Commercial Film Character Face Presence（2026-10-05）
+
+**Current state: INTEGRATED BUT NOT E2E VERIFIED.** This addendum covers only the 15-second Commercial Film path; the Lifestyle multi-image `seriesFaceVariation` contract above is separate.
+
+- `runCommercialFilmPipeline` builds the existing five-beat Camera Plan. After the existing Director Concept camera overrides, `applyCommercialCharacterFacePresence` selects one compatible WORLD, WEAR, or HERO beat and `validateCommercialCharacterFacePresence` checks the final plan. No new shot, Take, event, action, product visibility state, or parallel camera system is introduced.
+- The selected beat keeps the head, face, and upper-body context naturally readable through three-quarter-front or readable profile orientation. Direct eye contact, portrait posing, and camera-aware performance remain prohibited. DETAIL does not count; RELEASE may remain rear-facing.
+- If no existing beat is physically compatible, planning blocks with `CHARACTER_FACE_PRESENCE_MISSING` instead of fabricating a new shot. PRODUCT_CRAFT still blocks without confirmed product evidence.
+- The same positive rule reaches the model-facing Character / Environment and Camera text in `execution-compiler.ts`, and THERUIZ AURA Brand Pack visual language reaches the final Seedance render policy.
+
+Verified face beats for the confirmed-reference, nonce-0 sample:
+
+| Intent | Face beat | Existing camera composition |
+| --- | --- | --- |
+| QUIET_LUXURY | Beat 2 / WEAR | medium body line in the room |
+| URBAN_MOTION | Beat 2 / WEAR | full figure on the established route |
+| DAILY_STYLING | Beat 1 / WORLD | upper body and garment preparation |
+| NEW_ARRIVAL | Beat 2 / WEAR | medium threshold with spatial depth |
+| PRODUCT_CRAFT | Beat 4 / HERO | medium-full worn context; product evidence retained |
+
+Local checks at this change:
+
+```text
+node scripts/validateCommercialFacePresence.mjs       PASS (five intents, negative cases, profile, evidence block)
+npm run validate:commercial-execution-compiler         PASS
+npm run validate:commercial-continuity                 PASS
+npm run validate:commercial-final-execution-plan       PASS (14 generated/valid; 110 existing planner-blocked cases)
+npm run typecheck                                      PASS
+npm run build                                          PASS (Vite bundle-size warning)
+```
+
+The same intent/seed/nonce comparison preserved Event Spine, World State, Product Visibility, Reveal, TakePlan, Product Role, Ending, Wardrobe, and Intent Strategy; a 20-case intent/nonce comparison found no new block or protected-field drift. The existing `validate:commercial-film`, `validate:commercial-creative-direction`, `validate:commercial-director-concept`, `validate:commercial-creative-execution`, and `validate:commercial-final-renderers` failures were reproduced on unchanged `ca46daa` source and remain unresolved. The default QUIET_LUXURY Brand/Final run still reports `DIRECTOR_CONCEPT_EVENT_INCOMPATIBLE`; the base pipeline and model-facing compiler do generate for that sample.
+
+Static planning and prompt checks do not prove that Seedance renders a clearly readable face. Real-provider output and human visual acceptance remain outstanding.

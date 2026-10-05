@@ -8,6 +8,7 @@ import type {
   CommercialCameraPlan,
   CommercialCameraRhythm,
   CommercialCameraShot,
+  CommercialIntentId,
   CommercialProductVisibility,
   CommercialShotRole,
 } from "./types";
@@ -224,6 +225,68 @@ const HERO_CONTINUOUS_ACTION_RULE: Record<CommercialCameraRhythm, Pick<
     movementLine: "Use one short lateral reframe motivated by the person's own weight change so the worn product reads without a stop.",
   },
 };
+
+const FACE_BEAT_PRIORITY: Record<CommercialIntentId, number[]> = {
+  QUIET_LUXURY: [1, 0, 3],
+  URBAN_MOTION: [1, 0, 3],
+  DAILY_STYLING: [0, 1, 3],
+  NEW_ARRIVAL: [1, 0, 3],
+  PRODUCT_CRAFT: [3, 1, 0],
+};
+
+const FACE_FRAMING_MARKER = "head, face, and upper-body context naturally readable";
+const FACE_INCOMPATIBLE_FRAMING = /lower[- ]body|medium[- ]lower|detail[- ]only|head[- ]out[- ]of[- ]frame|rear[- ]facing|rear[- ]profile|severe(?:ly)? occlud|foreground occlusion|partially obscur|cropped above the face|face[- ]unreadable/i;
+
+function canCarryFacePresence(
+  shot: CommercialCameraShot,
+  behavior?: CommercialCameraBehavior
+) {
+  return shot.shotRole !== "DETAIL"
+    && shot.shotRole !== "RELEASE"
+    && behavior !== "DETAIL_INTERRUPTION"
+    && behavior !== "GROUND_OBSERVATION"
+    && shot.viewAngle !== "three_quarter_back"
+    && shot.movement !== "controlled_detail_framing"
+    && shot.movement !== "product_readable_lower_framing"
+    && !FACE_INCOMPATIBLE_FRAMING.test(shot.framing);
+}
+
+/** Add one face-readable moment to an existing beat, after all camera overrides. */
+export function applyCommercialCharacterFacePresence(
+  cameraPlan: CommercialCameraPlan,
+  intent: CommercialIntentId,
+  direction: CommercialCreativeDirectionPlan
+) {
+  const beatIndex = FACE_BEAT_PRIORITY[intent].find((index) => {
+    const shot = cameraPlan.shots[index];
+    return shot && canCarryFacePresence(shot, direction.shotDirections[index]?.cameraBehavior);
+  });
+  if (beatIndex === undefined) return;
+
+  const shot = cameraPlan.shots[beatIndex];
+  const orientation = shot.viewAngle === "profile_parallel"
+    ? "in a naturally readable profile"
+    : "in a natural three-quarter-front orientation";
+  shot.framing = `${shot.framing}; ${FACE_FRAMING_MARKER} ${orientation} within this same action and product composition`;
+  const existingMovement = shot.movementLine.replace(
+    "from the side or rear three-quarter",
+    "from the established scene side at a natural three-quarter-front or readable profile angle"
+  );
+  shot.movementLine = `${existingMovement} Preserve her existing task-directed gaze toward the route, object, or off-screen space; keep the face clear without direct eye contact, portrait posing, or camera-aware performance.`;
+}
+
+export function validateCommercialCharacterFacePresence(cameraPlan: CommercialCameraPlan) {
+  const beatIndex = cameraPlan.shots.length === 5 ? cameraPlan.shots.findIndex((shot) => (
+    canCarryFacePresence(shot)
+    && shot.framing.includes(FACE_FRAMING_MARKER)
+    && (shot.viewAngle === "three_quarter_front"
+      ? shot.framing.includes("natural three-quarter-front orientation")
+      : shot.viewAngle === "profile_parallel" && shot.framing.includes("naturally readable profile"))
+  )) : -1;
+  return beatIndex >= 0
+    ? { status: "PASS" as const, beatIndex, code: null }
+    : { status: "FAIL" as const, beatIndex: null, code: "CHARACTER_FACE_PRESENCE_MISSING" as const };
+}
 
 export function buildCommercialCameraPlan(
   rhythm: CommercialCameraRhythm,
